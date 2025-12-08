@@ -1,0 +1,50 @@
+{
+  "name": "fe-gkigraharaya3",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@mantine/charts": "8.1.1",
+    "@mantine/core": "8.1.1",
+    "@mantine/dates": "8.1.1",
+    "@mantine/hooks": "8.1.1",
+    "@mantine/modals": "8.1.1",
+    "@mantine/notifications": "8.3.1",
+    "@mantine/nprogress": "8.1.1",
+    "@tabler/icons-react": "3.30.0",
+    "axios": "1.7.9",
+    "dayjs": "1.11.13",
+    "js-cookie": "3.0.5",
+    "jwt-decode": "4.0.0",
+    "next": "15.3.0",
+    "pwa-asset-generator": "8.1.2",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "react-easy-crop": "5.4.1",
+    "react-icons": "5.4.0",
+    "react-infinite-scroll-component": "6.1.0",
+    "recharts": "2",
+    "socket.io-client": "4.8.1",
+    "sweetalert2": "11.16.1",
+    "swiper": "11.2.8",
+    "zustand": "5.0.8"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "3",
+    "@types/js-cookie": "3.0.6",
+    "@types/node": "20",
+    "@types/react": "19",
+    "@types/react-dom": "19",
+    "eslint": "9",
+    "eslint-config-next": "15.3.0",
+    "postcss": "8.5.3",
+    "postcss-preset-mantine": "1.17.0",
+    "postcss-simple-vars": "7.0.1",
+    "typescript": "5"
+  }
+}

@@ -1,0 +1,20 @@
+export type TypeParams = {
+  page?: string | number;
+  limit?: string | number;
+  filter?: string;
+  filePath?: string;
+  action?: string | null;
+  date?: string | null;
+  month?: string | null;
+  year?: string | null;
+  bapelId?: string | null;
+  roleId?: string | null;
+  roomId?: string | null;
+  typeId?: string | null;
+  startDate?: string | null;
+  endDate?: string | null;
+  startTime?: string | null;
+  endTime?: string | null;
+  category?: string | null;
+  status?: string | null;
+};
