@@ -10,7 +10,7 @@ import { theme } from "@/utils/customTheme";
 import { Notifications } from "@mantine/notifications";
 import { SocketProvider } from "@/hooks/useSocket";
 import { Viewport } from "next";
-// import { RegisterSW } from "@/components";
+import { RegisterSW } from "@/components";
 
 const roboto = Roboto({
   variable: "--font-geist-sans",
@@ -241,7 +241,7 @@ export default function RootLayout({
       <body
         className={`${roboto.className}`}
         style={{ backgroundColor: "#e6e6e6" }}>
-        {/* <RegisterSW /> */}
+        <RegisterSW />
 
         <MantineProvider theme={theme}>
           <Notifications limit={3} />

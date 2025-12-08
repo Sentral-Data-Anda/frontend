@@ -1,9 +1,11 @@
 "use client";
 import { useEffect } from "react";
 
+const nodeENV = process.env.NEXT_NODE_ENV;
+
 export function RegisterSW() {
   useEffect(() => {
-    if ("serviceWorker" in navigator) {
+    if (nodeENV === "production" && "serviceWorker" in navigator) {
       navigator.serviceWorker
         .register("/sw.js")
         .then((reg) => {
@@ -13,7 +15,7 @@ export function RegisterSW() {
           console.error("SW registration failed:", err);
         });
     }
-  }, []);
+  }, [nodeENV]);
 
   return null;
 }
