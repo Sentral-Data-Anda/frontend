@@ -1,7 +1,7 @@
 "use client";
 import { useEffect } from "react";
 
-const nodeENV = process.env.NEXT_NODE_ENV;
+const nodeENV = process.env.NODE_ENV;
 
 export function RegisterSW() {
   useEffect(() => {
