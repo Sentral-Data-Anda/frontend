@@ -21,7 +21,7 @@
     "dayjs": "1.11.13",
     "js-cookie": "3.0.5",
     "jwt-decode": "4.0.0",
-    "next": "15.3.0",
+    "next": "^15.3.0",
     "pwa-asset-generator": "8.1.2",
     "react": "19.0.0",
     "react-dom": "19.0.0",
