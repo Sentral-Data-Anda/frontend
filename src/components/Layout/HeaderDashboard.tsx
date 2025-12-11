@@ -1,3 +1,5 @@
+"use client";
+
 import {
   ActionIcon,
   AppShell,
@@ -62,12 +64,14 @@ export const HeaderDashboard = () => {
             align={"center"}
             gap={19}>
             <Flex w={"100%"} justify={"space-between"} px={6}>
-              <Image
-                src={logoAplikasi}
-                alt="Logo-Aplikasi"
-                height={19}
-                width={88}
-              />
+              <Flex>
+                <Image
+                  src={logoAplikasi}
+                  alt="Logo-Aplikasi"
+                  height={50}
+                  width={100}
+                />
+              </Flex>
 
               {/* <DropdownMenuComponent
               button={

@@ -10,8 +10,6 @@ interface CheckInputProps {
 export const CheckInputComponent = (props: CheckInputProps) => {
   const { value, label, onChange, disabled = false } = props;
 
-  console.log("DISABLED COMPONENT", disabled);
-
   return (
     <Checkbox
       checked={value}

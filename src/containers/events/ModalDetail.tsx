@@ -10,6 +10,7 @@ import {
   urlImageToFile,
 } from "@/utils";
 import Detail from "./Detail";
+import dayjs from "dayjs";
 
 interface PropTypes {
   isOpenModal: ReturnType<typeof useBoolean>;
@@ -38,6 +39,8 @@ const ModalDetail = (props: PropTypes) => {
     price: "",
     startDate: null,
     endDate: null,
+    startTime: undefined,
+    endTime: undefined,
     image: null,
     urlForm: "",
     isPublish: undefined,
@@ -71,8 +74,18 @@ const ModalDetail = (props: PropTypes) => {
         capacity: response.data.capacity,
         isPaid: response.data.isPaid ? "true" : "false",
         price: response.data.isPaid ? response.data.price : "",
-        startDate: response.data.startDate,
-        endDate: response.data.endDate,
+        startDate: response.data.startDate
+          ? dayjs(response.data.startDate).format("YYYY-MM-DD")
+          : null,
+        endDate: response.data.endDate
+          ? dayjs(response.data.endDate).format("YYYY-MM-DD")
+          : null,
+        startTime: response.data.startDate
+          ? dayjs(response.data.startDate).format("HH:mm")
+          : undefined,
+        endTime: response.data.endDate
+          ? dayjs(response.data.endDate).format("HH:mm")
+          : undefined,
         image: basicImage,
         urlForm: response.data.urlForm ?? "",
         isPublish: response.data.isPublish ? "1" : "0",
@@ -108,12 +121,18 @@ const ModalDetail = (props: PropTypes) => {
       payload.append("price", String(formEvents.price));
       payload.append("bapelId", String(formEvents.bapelId));
 
-      if (formEvents.startDate) {
-        payload.append("startDate", String(new Date(formEvents.startDate)));
+      if (formEvents.startDate && formEvents.startTime) {
+        payload.append(
+          "startDate",
+          `${formEvents.startDate} ${formEvents.startTime}`,
+        );
       }
 
-      if (formEvents.endDate) {
-        payload.append("endDate", String(new Date(formEvents.endDate)));
+      if (formEvents.endDate && formEvents.endTime) {
+        payload.append(
+          "endDate",
+          `${formEvents.endDate} ${formEvents.endTime}`,
+        );
       }
 
       if (formEvents.isIndoor === "true") {
@@ -164,6 +183,8 @@ const ModalDetail = (props: PropTypes) => {
               price: "",
               startDate: null,
               endDate: null,
+              startTime: undefined,
+              endTime: undefined,
               image: null,
               urlForm: "",
               isPublish: undefined,
@@ -207,6 +228,8 @@ const ModalDetail = (props: PropTypes) => {
           price: "",
           startDate: null,
           endDate: null,
+          startTime: undefined,
+          endTime: undefined,
           image: null,
           urlForm: "",
           isPublish: undefined,

@@ -85,9 +85,6 @@ const Form = (props: PropTypes) => {
     }
   }, [formJadwalPelayan.bapelId]);
 
-  console.log("FORM JADWAL>>>>", formJadwalPelayan);
-  console.log("DDL PELAYAN>>>>", ddlPelayan);
-
   const handleGetPelayan = async (index: number, params?: TypeParams) => {
     try {
       const response = await dropdownListService.getPelayan(params ?? {});

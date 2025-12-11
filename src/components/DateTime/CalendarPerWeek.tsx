@@ -2,7 +2,7 @@
 
 import { SimpleGrid } from "@mantine/core";
 import dayjs from "dayjs";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Grid, Mousewheel, Scrollbar } from "swiper/modules";
 import { CalendarPerDate } from "./CalendarPerDate";
 import { SwiperSlide, Swiper } from "swiper/react";
@@ -15,12 +15,18 @@ interface PropTypes {
   value: string;
   onChange: (_value: string) => void;
   chooseMonth: string | null;
+  setStartDate: (_value: string) => void;
+  setEndDate: (_value: string) => void;
 }
 
 export const CalendarPerWeek = (props: PropTypes) => {
-  const { value, onChange, chooseMonth } = props;
+  const { value, onChange, chooseMonth, setStartDate, setEndDate } = props;
 
   const today = dayjs();
+
+  const [start, setStart] = useState<string>("");
+
+  const [end, setEnd] = useState<string>("");
 
   const swiperRef = useRef<SwiperTypes | null>(null);
 
@@ -76,6 +82,20 @@ export const CalendarPerWeek = (props: PropTypes) => {
   return (
     <Swiper
       onSwiper={(swiper) => (swiperRef.current = swiper)}
+      onSlideChange={(swiper) => {
+        const index = swiper.activeIndex;
+        const week = weeks[index];
+
+        if (week) {
+          setStartDate(week[0].format("YYYY-MM-DD"));
+          setEndDate(week[6].format("YYYY-MM-DD"));
+
+          setStart(week[0].format("YYYY-MM-DD"));
+          setEnd(week[6].format("YYYY-MM-DD"));
+
+          onChange("");
+        }
+      }}
       initialSlide={todayWeekIndex !== -1 ? todayWeekIndex : 0}
       spaceBetween={0}
       scrollbar={{ hide: false }}
@@ -112,7 +132,17 @@ export const CalendarPerWeek = (props: PropTypes) => {
                   isSelected={isSelected}
                   isWeekend={isWeekend}
                   isToday={isToday}
-                  onSelect={(date) => onChange(date.format("YYYY-MM-DD"))}
+                  onSelect={(date) => {
+                    if (date.format("YYYY-MM-DD") === value) {
+                      onChange("");
+                      setStartDate(start);
+                      setEndDate(end);
+                    } else {
+                      onChange(date.format("YYYY-MM-DD"));
+                      setStartDate("");
+                      setEndDate("");
+                    }
+                  }}
                 />
               );
             })}

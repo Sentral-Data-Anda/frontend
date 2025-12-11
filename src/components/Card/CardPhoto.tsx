@@ -18,31 +18,13 @@ interface PropTypes {
   buttonDetail: boolean;
   listButtonDetail?: ButtonDetail[];
   mainImage: string;
-  detailImage?: string[];
 }
 
 const urlImage = process.env.NEXT_PUBLIC_FILE_URL;
 
 export const CardPhotoComponent = (props: PropTypes) => {
-  const {
-    title,
-    description,
-    buttonDetail,
-    listButtonDetail,
-    mainImage,
-    // detailImage,
-  } = props;
-
-  // const [activeImage, setActiveImage] = useState<string>(mainImage);
-
-  // const [thumbnailImages, setThumbnailImages] = useState<string[] | undefined>(
-  //   detailImage,
-  // );
-
-  // useEffect(() => {
-  //   setActiveImage(mainImage);
-  //   setThumbnailImages(detailImage);
-  // }, [mainImage, detailImage]);
+  const { title, description, buttonDetail, listButtonDetail, mainImage } =
+    props;
 
   return (
     <Card withBorder shadow="sm" radius="md">
@@ -53,41 +35,6 @@ export const CardPhotoComponent = (props: PropTypes) => {
           fallbackSrc="https://placehold.co/1280x720?text=Loading"
         />
       </Card.Section>
-
-      {/* {thumbnailImages && thumbnailImages.length > 0 ? (
-        <Card.Section inheritPadding mt="sm" pb="md">
-          <SimpleGrid
-            cols={thumbnailImages.length === 1 ? 2 : thumbnailImages.length}>
-            {thumbnailImages.map((value: string, index: number) => (
-              <Image
-                style={{
-                  cursor: "pointer",
-                  opacity: 0.5,
-                }}
-                onClick={() => {
-                  if (value !== activeImage) {
-                    setActiveImage(value);
-
-                    if (thumbnailImages) {
-                      const newThumbnails = [...thumbnailImages];
-                      const oldActiveIndex = newThumbnails.indexOf(value);
-                      if (oldActiveIndex !== -1) {
-                        newThumbnails[oldActiveIndex] = activeImage;
-                      }
-                      setThumbnailImages(newThumbnails);
-                    }
-                  }
-                }}
-                src={`${value}`}
-                key={index}
-                radius="sm"
-                alt={`detail-image-${index}`}
-                fallbackSrc="https://placehold.co/600x400?text=Loading"
-              />
-            ))}
-          </SimpleGrid>
-        </Card.Section>
-      ) : null} */}
 
       <Card.Section withBorder inheritPadding py="xs">
         <Group justify="space-between">
@@ -121,9 +68,6 @@ export const CardPhotoComponent = (props: PropTypes) => {
                       {value.label}
                     </Menu.Item>
                   ))}
-                {/* <Menu.Item leftSection={<IconTrash size={14} />} color="red">
-                Delete
-              </Menu.Item> */}
               </Menu.Dropdown>
             </Menu>
           ) : null}

@@ -214,7 +214,7 @@ const Manage = () => {
           }}
           hasMore={hasMore}
           loader={
-            <Flex justify={"center"}>
+            <Flex justify={"center"} mt={10}>
               <div className="loader-table"></div>
             </Flex>
           }>
@@ -301,7 +301,6 @@ const Manage = () => {
                     buttonDetail={true}
                     listButtonDetail={buttonDetailCard(value)}
                     mainImage={`${value.mainImage.path}`}
-                    detailImage={value?.detailImage.map((img) => img.path)}
                   />
                 );
               })}

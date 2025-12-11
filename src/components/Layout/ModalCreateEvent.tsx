@@ -27,6 +27,8 @@ const ModalCreateEvent = (props: PropTypes) => {
     price: "",
     startDate: null,
     endDate: null,
+    startTime: undefined,
+    endTime: undefined,
     image: null,
     urlForm: "",
     isPublish: undefined,
@@ -47,12 +49,18 @@ const ModalCreateEvent = (props: PropTypes) => {
       payload.append("price", String(formEvents.price));
       payload.append("bapelId", String(formEvents.bapelId));
 
-      if (formEvents.startDate) {
-        payload.append("startDate", String(new Date(formEvents.startDate)));
+      if (formEvents.startDate && formEvents.startTime) {
+        payload.append(
+          "startDate",
+          `${formEvents.startDate} ${formEvents.startTime}`,
+        );
       }
 
-      if (formEvents.endDate) {
-        payload.append("endDate", String(new Date(formEvents.endDate)));
+      if (formEvents.endDate && formEvents.endTime) {
+        payload.append(
+          "endDate",
+          `${formEvents.endDate} ${formEvents.endTime}`,
+        );
       }
 
       if (formEvents.isIndoor === "true") {
@@ -102,6 +110,8 @@ const ModalCreateEvent = (props: PropTypes) => {
               price: "",
               startDate: null,
               endDate: null,
+              startTime: undefined,
+              endTime: undefined,
               image: null,
               urlForm: "",
               isPublish: undefined,
@@ -125,7 +135,6 @@ const ModalCreateEvent = (props: PropTypes) => {
 
   return (
     <ModalComponent
-      loading={isLoading.value}
       opened={isOpenModal.value}
       title="Create New Events"
       withCloseButton
@@ -141,6 +150,8 @@ const ModalCreateEvent = (props: PropTypes) => {
           price: "",
           startDate: null,
           endDate: null,
+          startTime: undefined,
+          endTime: undefined,
           image: null,
           urlForm: "",
           isPublish: undefined,

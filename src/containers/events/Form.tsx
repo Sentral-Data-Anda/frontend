@@ -1,5 +1,5 @@
 import {
-  DateTimeInputComponent,
+  DateInputComponent,
   DropdownBapel,
   DropdownRoom,
   ImageInputComponent,
@@ -7,6 +7,7 @@ import {
   RadioInputComponent,
   TextAreaInputComponent,
   TextInputComponent,
+  TimeInputComponent,
 } from "@/components";
 import { FormEvents } from "@/types";
 import { Grid, Group, Radio } from "@mantine/core";
@@ -83,8 +84,8 @@ const Form = (props: PropTypes) => {
             disabled={isDisable}
           />
         </Grid.Col>
-        <Grid.Col span={{ base: 12, xs: 6 }}>
-          <DateTimeInputComponent
+        <Grid.Col span={{ base: 6 }}>
+          <DateInputComponent
             excludeDate={(date) => dayjs(date).isBefore(dayjs(), "day")}
             label="Tanggal Mulai"
             value={formEvents?.startDate ?? null}
@@ -98,8 +99,22 @@ const Form = (props: PropTypes) => {
             require
           />
         </Grid.Col>
-        <Grid.Col span={{ base: 12, xs: 6 }}>
-          <DateTimeInputComponent
+        <Grid.Col span={{ base: 6 }}>
+          <TimeInputComponent
+            label="Jam Mulai"
+            value={formEvents?.startTime}
+            onChange={(value) => {
+              setFormEvents({
+                ...formEvents,
+                startTime: value,
+              });
+            }}
+            disabled={isDisable}
+            require
+          />
+        </Grid.Col>
+        <Grid.Col span={{ base: 6 }}>
+          <DateInputComponent
             excludeDate={(date) =>
               dayjs(date).isBefore(dayjs(), "day") ||
               new Date(date) < new Date(formEvents?.startDate ?? "")
@@ -110,6 +125,20 @@ const Form = (props: PropTypes) => {
               setFormEvents({
                 ...formEvents,
                 endDate: value,
+              });
+            }}
+            disabled={isDisable}
+            require
+          />
+        </Grid.Col>
+        <Grid.Col span={{ base: 6 }}>
+          <TimeInputComponent
+            label="Jam Berakhir"
+            value={formEvents?.endTime}
+            onChange={(value) => {
+              setFormEvents({
+                ...formEvents,
+                endTime: value,
               });
             }}
             disabled={isDisable}

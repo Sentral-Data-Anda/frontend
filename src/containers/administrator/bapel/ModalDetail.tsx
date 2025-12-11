@@ -32,6 +32,7 @@ const ModalDetail = (props: PropTypes) => {
 
     try {
       const response = await bapelService.getOne(code);
+
       setFormBapel({
         name: response.data.name,
         haveRules: response.data.haveRules,

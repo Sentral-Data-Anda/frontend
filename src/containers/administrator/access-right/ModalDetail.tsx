@@ -18,6 +18,8 @@ const ModalDetail = (props: PropTypes) => {
 
   const isLoading = useBoolean();
 
+  const isLoadingDetail = useBoolean();
+
   const isEditing = useBoolean();
 
   const [formAccess, setFormAccess] = useState<FormAccess>({
@@ -25,7 +27,7 @@ const ModalDetail = (props: PropTypes) => {
   });
 
   async function handleGetDetail(idAccess: number) {
-    isLoading.onTrue();
+    isLoadingDetail.onTrue();
 
     try {
       const response = await accessService.getOne(idAccess);
@@ -37,7 +39,7 @@ const ModalDetail = (props: PropTypes) => {
         text: extractErrorMessage(error),
       });
     } finally {
-      isLoading.onFalse();
+      isLoadingDetail.onFalse();
     }
   }
 
@@ -79,7 +81,7 @@ const ModalDetail = (props: PropTypes) => {
 
   return (
     <ModalComponent
-      loading={isLoading.value}
+      loading={isLoadingDetail.value}
       opened={isOpenModal.value}
       title={`${isEditing.value ? "Edit" : "Detail"} Access Right`}
       withEditButton

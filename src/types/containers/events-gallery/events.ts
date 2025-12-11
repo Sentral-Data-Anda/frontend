@@ -37,6 +37,8 @@ export interface FormEvents {
   price?: number | string;
   startDate: string | null;
   endDate: string | null;
+  startTime: string | undefined;
+  endTime: string | undefined;
   image: File | undefined | null;
   urlForm?: string;
   isPublish: string | undefined;

@@ -24,8 +24,6 @@ export const CardPhotoMoreComponent = (props: PropTypes) => {
     setThumbnailImages(detailImage);
   }, [mainImage, detailImage]);
 
-  console.log("THUMBNAIL", thumbnailImages);
-
   return (
     <Card radius="sm">
       <Card.Section>

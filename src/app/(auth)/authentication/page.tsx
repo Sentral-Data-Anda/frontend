@@ -5,5 +5,7 @@ export default async function AuthenticationPage() {
   const cookieStore = await cookies();
   const token = cookieStore.get("accessToken")?.value;
 
-  return <Container token={token} />;
+  const codeUser = cookieStore.get("codeUser")?.value;
+
+  return <Container token={token} codeUser={codeUser} />;
 }

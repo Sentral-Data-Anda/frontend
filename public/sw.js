@@ -1,8 +1,8 @@
 const CACHE_VERSION = "v1";
 
-const STATIC_CACHE = `kelolain-static-${CACHE_VERSION}`;
+const STATIC_CACHE = `sada-static-${CACHE_VERSION}`;
 
-const RUNTIME_CACHE = `kelolain-runtime-${CACHE_VERSION}`;
+const RUNTIME_CACHE = `sada-runtime-${CACHE_VERSION}`;
 
 const PRECACHE_URLS = [
   "/",

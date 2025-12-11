@@ -25,15 +25,15 @@ export const useZustandStore = create<RootStore>()(
   combineStores(persistedDetailUserStore, dropdownListStore),
 );
 
-function stripFunctions<T extends object>(obj: T): Partial<T> {
-  return Object.fromEntries(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    Object.entries(obj).filter(([_, value]) => typeof value !== "function"),
-  ) as Partial<T>;
-}
+// function stripFunctions<T extends object>(obj: T): Partial<T> {
+//   return Object.fromEntries(
+//     // eslint-disable-next-line @typescript-eslint/no-unused-vars
+//     Object.entries(obj).filter(([_, value]) => typeof value !== "function"),
+//   ) as Partial<T>;
+// }
 
-useZustandStore.subscribe((state, prevState) => {
-  console.log("Zustand state changed:");
-  console.log("Prev:", stripFunctions(prevState));
-  console.log("Next:", stripFunctions(state));
-});
+// useZustandStore.subscribe((state, prevState) => {
+//   console.log("Zustand state changed:");
+//   console.log("Prev:", stripFunctions(prevState));
+//   console.log("Next:", stripFunctions(state));
+// });

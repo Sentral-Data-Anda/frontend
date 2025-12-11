@@ -184,7 +184,7 @@ const Manage = () => {
           }}
           hasMore={hasMore}
           loader={
-            <Flex justify={"center"}>
+            <Flex justify={"center"} mt={10}>
               <div className="loader-table"></div>
             </Flex>
           }>

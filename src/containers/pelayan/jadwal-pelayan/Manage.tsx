@@ -99,17 +99,39 @@ const Manage = () => {
 
   useEffect(() => {
     if (pickMonth !== "" && pickMonth !== null) {
+      handleGetAll();
     }
-    handleGetAll();
   }, [pickMonth]);
+
+  async function handleDelete(data: ListJadwalPelayan) {
+    isLoading.onTrue();
+
+    try {
+      const response = await jadwalPelayanService.delete(data.code);
+
+      if (response && response.status === 200) {
+        customNotification({ type: "Success", text: response.message }).then(
+          () => {
+            handleGetAll();
+          },
+        );
+      }
+    } catch (error: any) {
+      customNotification({
+        type: typeof error === "string" ? "Warning" : "Error",
+        text: extractErrorMessage(error),
+      });
+    } finally {
+      isLoading.onFalse();
+    }
+  }
 
   const alertRemove = (data: ListJadwalPelayan) => {
     confirmSwal({
       title: "Apakah Anda Yakin Menghapus?",
       labelConfirm: "Yes",
       onConfirm: () => {
-        // handleDelete(data);
-        console.log("DATA", data);
+        handleDelete(data);
       },
     });
   };
@@ -182,7 +204,7 @@ const Manage = () => {
           }}
           hasMore={hasMore}
           loader={
-            <Flex justify={"center"}>
+            <Flex justify={"center"} mt={10}>
               <div className="loader-table"></div>
             </Flex>
           }>

@@ -22,6 +22,8 @@ const ModalDetail = (props: PropTypes) => {
 
   const isLoading = useBoolean();
 
+  const isLoadingDetail = useBoolean();
+
   const isEditing = useBoolean();
 
   const [formUser, setFormUser] = useState<FormUser>({
@@ -30,7 +32,7 @@ const ModalDetail = (props: PropTypes) => {
   });
 
   async function handleGetDetail(code: string) {
-    isLoading.onTrue();
+    isLoadingDetail.onTrue();
 
     try {
       const response = await userService.getOne(code);
@@ -45,7 +47,7 @@ const ModalDetail = (props: PropTypes) => {
         text: error || "Something went wrong",
       });
     } finally {
-      isLoading.onFalse();
+      isLoadingDetail.onFalse();
     }
   }
 
@@ -117,7 +119,7 @@ const ModalDetail = (props: PropTypes) => {
 
   return (
     <ModalComponent
-      loading={isLoading.value}
+      loading={isLoadingDetail.value}
       opened={isOpenModal.value}
       title={`${isEditing.value ? "Edit" : "Detail"} Data User`}
       withEditButton

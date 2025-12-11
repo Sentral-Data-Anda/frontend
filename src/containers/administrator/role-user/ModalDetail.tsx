@@ -18,6 +18,8 @@ const ModalDetail = (props: PropTypes) => {
 
   const isLoading = useBoolean();
 
+  const isLoadingDetail = useBoolean();
+
   const isEditing = useBoolean();
 
   const [formRole, setFormRole] = useState<FormRole>({
@@ -27,7 +29,7 @@ const ModalDetail = (props: PropTypes) => {
   });
 
   async function handleGetDetail(idRole: number) {
-    isLoading.onTrue();
+    isLoadingDetail.onTrue();
 
     try {
       const response = await roleService.getOne(idRole);
@@ -45,7 +47,7 @@ const ModalDetail = (props: PropTypes) => {
         text: error || "Something went wrong",
       });
     } finally {
-      isLoading.onFalse();
+      isLoadingDetail.onFalse();
     }
   }
 
@@ -89,7 +91,7 @@ const ModalDetail = (props: PropTypes) => {
 
   return (
     <ModalComponent
-      loading={isLoading.value}
+      loading={isLoadingDetail.value}
       opened={isOpenModal.value}
       title={`${isEditing.value ? "Edit" : "Detail"} Role User`}
       withEditButton

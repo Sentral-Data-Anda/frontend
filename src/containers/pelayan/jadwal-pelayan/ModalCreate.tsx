@@ -71,8 +71,6 @@ const ModalCreate = (props: PropTypes) => {
         detail: customDetail,
       };
 
-      console.log("PAYLOAD", payload);
-
       const response = await jadwalPelayanService.create(payload);
 
       if (response && response.status === 201) {

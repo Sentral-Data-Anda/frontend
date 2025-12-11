@@ -87,8 +87,6 @@ const Form = (props: PropTypes) => {
     }
   }, [activePage, searchData, isOpenModal]);
 
-  console.log("DISABLED", isDisable);
-
   return (
     <form
       onSubmit={onSubmit}

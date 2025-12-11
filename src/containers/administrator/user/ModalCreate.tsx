@@ -1,5 +1,5 @@
 import { useBoolean } from "@/hooks";
-import { FormUser } from "@/types";
+import { FormUser, NewUser } from "@/types";
 import { extractErrorMessage } from "@/utils/general";
 import { customNotification } from "@/utils/notification";
 import { useState } from "react";
@@ -10,10 +10,13 @@ import { userService } from "@/services";
 interface PropTypes {
   isOpenModal: ReturnType<typeof useBoolean>;
   handleGetAll: () => void;
+  isOpenModalNewUser: ReturnType<typeof useBoolean>;
+  handleNewUser: (_value: NewUser | null) => void;
 }
 
 const ModalCreate = (props: PropTypes) => {
-  const { isOpenModal, handleGetAll } = props;
+  const { isOpenModal, handleGetAll, isOpenModalNewUser, handleNewUser } =
+    props;
 
   const isLoading = useBoolean();
 
@@ -33,12 +36,18 @@ const ModalCreate = (props: PropTypes) => {
         customNotification({ type: "Success", text: response.message }).then(
           () => {
             handleGetAll();
+            handleNewUser({
+              name: response.data.name,
+              username: response.data.username,
+              password: response.data.password,
+            });
             setFormUser({
               jemaatId: null,
               roleUserId: null,
             });
             isOpenModal.onFalse();
             isLoading.onFalse();
+            isOpenModalNewUser.onTrue();
           },
         );
       }

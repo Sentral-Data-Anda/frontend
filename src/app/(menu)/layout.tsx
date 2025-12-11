@@ -3,12 +3,12 @@ import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: {
-    default: "Kelola",
-    template: "%s | KelolaIn",
+    default: "SADA",
+    template: "%s | SADA",
   },
-  description: "Platform digital ",
+  description: "Sentral Data Anda",
   icons: {
-    icon: "/favicon.svg",
+    icon: "/favicon.ico",
   },
 };
 
