@@ -7,8 +7,8 @@ const RUNTIME_CACHE = `sada-runtime-${CACHE_VERSION}`;
 const PRECACHE_URLS = [
   "/",
   "/offline.html",
-  "/icons/manifest-icon-192.maskable.png",
-  "/icons/manifest-icon-512.maskable.png",
+  "/web-app-manifest-192x192.png",
+  "/web-app-manifest-512x512.png",
   "/favicon.ico",
 ];
 
