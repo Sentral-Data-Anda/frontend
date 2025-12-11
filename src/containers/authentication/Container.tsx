@@ -14,6 +14,7 @@ import { authService } from "@/services";
 
 import gifSada from "../../assets/gif/gif_logo.gif";
 import Image from "next/image";
+import { extractErrorMessage } from "@/utils";
 
 interface ExtendedJwtPayload extends JwtPayload {
   type?: string;
@@ -82,9 +83,10 @@ const Container = (props: ContainerAuthProps) => {
         setDetailUser(response.data);
       }
     } catch (error: any) {
+      console.log("ERROR", error);
       customNotification({
         type: typeof error === "string" ? "Warning" : "Error",
-        text: error || "Something went wrong",
+        text: extractErrorMessage(error),
       });
     }
   }
