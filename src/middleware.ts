@@ -103,6 +103,6 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/|api/|bad-gateway|offline|.*\\.png$|.*\\.jpg$|.*\\.jpeg$|.*\\.svg$|.*\\.ico$|.*manifest.*).*)",
+    "/((?!_next/|api/||bad-gateway|offline|.*\\.png$|.*\\.ico$|.*manifest.*).*)",
   ],
 };
