@@ -56,7 +56,6 @@ const ModalCreate = (props: PropTypes) => {
 
   return (
     <ModalComponent
-      loading={isLoading.value}
       opened={isOpenModal.value}
       title="Create New Role User"
       withCloseButton

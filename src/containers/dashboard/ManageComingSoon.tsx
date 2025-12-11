@@ -12,6 +12,7 @@ import {
   Table,
   Text,
   Stack,
+  em,
 } from "@mantine/core";
 
 import { useEffect, useState } from "react";
@@ -28,8 +29,11 @@ import { Autoplay, Pagination, Mousewheel } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
+import { useMediaQuery } from "@mantine/hooks";
 
 const ManageComingSoon = () => {
+  const isMobile = useMediaQuery(`(max-width: ${em(750)})`);
+
   const isLoading = useBoolean();
 
   const [dataEvents, setDataEvents] = useState<Events[]>([]);
@@ -88,7 +92,11 @@ const ManageComingSoon = () => {
               navigation={false}
               mousewheel
               modules={[Autoplay, Pagination, Mousewheel]}
-              style={{ width: "100%", height: 350, justifyItems: "center" }}
+              style={{
+                width: "100%",
+                height: isMobile ? 350 : 465,
+                justifyItems: "center",
+              }}
               className="mySwiper">
               {dataEvents.map((value: Events, index: number) => {
                 const title = (

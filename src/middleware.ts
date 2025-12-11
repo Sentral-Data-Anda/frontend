@@ -1,89 +1,106 @@
-// import { jwtDecode, JwtPayload } from "jwt-decode";
+import { jwtDecode, JwtPayload } from "jwt-decode";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-// interface ExtendedJwtPayload extends JwtPayload {
-//   type?: string;
-//   data?: {
-//     id: number;
-//     code: string;
-//     roleUser: {
-//       name: string;
-//       isAdmin: boolean;
-//       access: {
-//         id: number;
-//         name: string;
-//       }[];
-//     };
-//     lastLogin: string;
-//   };
-// }
+interface ExtendedJwtPayload extends JwtPayload {
+  type?: string;
+  data?: {
+    id: number;
+    code: string;
+    roleUser: {
+      name: string;
+      isAdmin: boolean;
+      access: {
+        id: number;
+        name: string;
+      }[];
+    };
+    lastLogin: string;
+  };
+}
 
-// const menuAccessMap: Record<string, string> = {
-//   "/asset-management/ruangan": "Open Menu Room",
-//   "/asset-management/barang": "Open Menu Item",
-//   "/events": "Open Menu Event",
-//   "/gallery": "Open Menu Gallery",
-//   "/user-management/pelayan": "Open Menu Pelayan",
-//   "/user-management/user": "Open Menu User",
-//   "/administrator": "Open Menu Administrator",
-//   "/administrator/role-user": "Open Menu Role User",
-//   "/administrator/bapel": "Open Menu Bapel",
-//   "/administrator/activity-logs": "Open Menu Activity Logs",
-// };
+const menuAccessMap: Record<string, string> = {
+  "/asset-management/ruangan": "Open Menu Room",
+  "/asset-management/barang": "Open Menu Item",
+  "/events": "Open Menu Event",
+  "/gallery": "Open Menu Gallery",
+  "/user-management/pelayan": "Open Menu Pelayan",
+  "/user-management/user": "Open Menu User",
+  "/administrator": "Open Menu Administrator",
+  "/administrator/role-user": "Open Menu Role User",
+  "/administrator/bapel": "Open Menu Bapel",
+  "/administrator/activity-logs": "Open Menu Activity Logs",
+};
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function middleware(request: NextRequest) {
-  // const currentPath = request.nextUrl.pathname;
+  const currentPath = request.nextUrl.pathname;
 
-  // const authPaths = ["/login"];
+  const authPaths = ["/login"];
 
-  // const token = request.cookies.get("accessToken")?.value;
+  const refreshToken = request.cookies.get("refreshToken")?.value;
+  const token = request.cookies.get("accessToken")?.value;
+  const signFirstLogin = request.cookies.get("isFirstLogin")?.value;
 
-  // const isLoggedIn = Boolean(token);
+  const isLoggedIn = Boolean(refreshToken);
+  const isFirstLoggedIn = Boolean(signFirstLogin);
+  const isAuthPage = authPaths.includes(currentPath);
 
-  // const isAuthPage = authPaths.includes(currentPath);
+  let detailUser = null;
+  let userAccess: string[] = [];
+  let isAdmin = false;
 
-  // if (!isLoggedIn && !isAuthPage) {
-  //   return NextResponse.redirect(new URL("/login", request.url));
-  // }
+  const requiredAccess = Object.entries(menuAccessMap).find(
+    ([route]) => currentPath === route,
+  )?.[1];
 
-  // if (isLoggedIn && isAuthPage) {
-  //   return NextResponse.redirect(new URL("/authentication", request.url));
-  // }
+  if (isFirstLoggedIn) {
+    if (currentPath !== "/authentication") {
+      return NextResponse.redirect(new URL("/authentication", request.url));
+    }
 
-  // let detailUser = null;
+    return NextResponse.next();
+  }
 
-  // if (token) {
-  //   detailUser = jwtDecode<ExtendedJwtPayload>(token);
-  // }
+  if (!isLoggedIn) {
+    if (!isAuthPage && currentPath !== "/authentication") {
+      return NextResponse.redirect(new URL("/login", request.url));
+    }
+    return NextResponse.next();
+  }
 
-  // let userAccess: string[] = [];
-  // let isAdmin = false;
+  if (isLoggedIn && !token && currentPath !== "/authentication") {
+    return NextResponse.redirect(new URL("/authentication", request.url));
+  }
 
-  // if (detailUser) {
-  //   isAdmin = detailUser.data?.roleUser?.isAdmin || false;
-  //   const accessList = detailUser.data?.roleUser?.access || [];
-  //   userAccess = accessList.map((a: any) => a.name);
-  // }
+  if (isLoggedIn && token && isAuthPage) {
+    return NextResponse.redirect(new URL("/authentication", request.url));
+  }
 
-  // if (isAdmin) return NextResponse.next();
+  if (token) {
+    detailUser = jwtDecode<ExtendedJwtPayload>(token);
+  }
 
-  // const requiredAccess = Object.entries(menuAccessMap).find(
-  //   ([route]) => currentPath === route,
-  // )?.[1];
+  if (detailUser) {
+    isAdmin = detailUser.data?.roleUser?.isAdmin || false;
+    const accessList = detailUser.data?.roleUser?.access || [];
+    userAccess = accessList.map((a: any) => a.name);
+  }
 
-  // if (!requiredAccess) {
-  //   return NextResponse.next();
-  // }
+  if (isAdmin) {
+    return NextResponse.next();
+  }
 
-  // if (!userAccess.includes(requiredAccess)) {
-  //   return NextResponse.redirect(new URL("/404", request.url));
-  // }
+  if (!requiredAccess) {
+    return NextResponse.next();
+  }
+
+  if (!userAccess.includes(requiredAccess)) {
+    return NextResponse.redirect(new URL("/404", request.url));
+  }
 
   return NextResponse.next();
 }
 
 export const config = {
-  // matcher: ["/((?!_next/|api/|.*\\.png$|.*\\.ico$|.*manifest.*).*)"],
+  matcher: ["/((?!_next/|api/|.*\\.png$|.*\\.ico$|.*manifest.*).*)"],
 };

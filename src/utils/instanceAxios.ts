@@ -44,6 +44,7 @@ const fetchData = (baseURL: string) => {
                 Cookies.remove("detail-user-store");
                 Cookies.remove("accessToken");
                 Cookies.remove("refreshToken");
+                Cookies.remove("codeUser");
                 window.location.reload();
               }
             }, 500);

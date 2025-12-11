@@ -12,6 +12,9 @@ import { customNotification } from "@/utils/notification";
 import { useZustandStore } from "@/hooks";
 import { authService } from "@/services";
 
+import gifSada from "../../assets/gif/gif_logo.gif";
+import Image from "next/image";
+
 interface ExtendedJwtPayload extends JwtPayload {
   type?: string;
   data?: {
@@ -31,10 +34,11 @@ interface ExtendedJwtPayload extends JwtPayload {
 
 interface ContainerAuthProps {
   token: string | undefined;
+  codeUser: string | undefined;
 }
 
 const Container = (props: ContainerAuthProps) => {
-  const { token } = props;
+  const { token, codeUser } = props;
 
   const otpExpires = Cookies.get("OTPExpired");
 
@@ -87,9 +91,15 @@ const Container = (props: ContainerAuthProps) => {
 
   useEffect(() => {
     if (detailUser === undefined && decodeToken && decodeToken.data) {
-      handleGetDetailUser(decodeToken.data.code ?? "");
+      handleGetDetailUser(decodeToken.data.code);
     }
   }, [detailUser, decodeToken]);
+
+  useEffect(() => {
+    if (token === undefined && codeUser) {
+      handleGetDetailUser(codeUser);
+    }
+  }, [token, codeUser]);
 
   useEffect(() => {
     if (detailUser) {
@@ -97,13 +107,18 @@ const Container = (props: ContainerAuthProps) => {
         if (otpExpires) {
           setVerifyFirstLogin(true);
         }
+
+        Cookies.set("isFirstLogin", "true");
         setFirstLogin(true);
       } else {
-        const pathRedirect: string = redirect ?? "/dashboard";
+        if (codeUser === undefined) {
+          Cookies.set("codeUser", detailUser.code);
+        }
 
+        const pathRedirect: string = redirect ?? "/dashboard";
         setTimeout(() => {
           router.replace(pathRedirect);
-        }, 500);
+        }, 1000);
       }
     }
   }, [detailUser, redirect]);
@@ -116,7 +131,7 @@ const Container = (props: ContainerAuthProps) => {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        backgroundColor: firstLogin ? "#F4F6FF" : "white",
+        backgroundColor: firstLogin ? "#F4F6FF" : "#41566e",
       }}>
       {firstLogin ? (
         verifyFirstLogin ? (
@@ -128,7 +143,7 @@ const Container = (props: ContainerAuthProps) => {
           />
         )
       ) : (
-        <div className="loader"></div>
+        <Image src={gifSada} alt="gif_sada" width={250} />
       )}
     </Box>
   );

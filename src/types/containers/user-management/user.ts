@@ -18,3 +18,9 @@ export interface FormUser {
   jemaatId: string | null;
   roleUserId: string | null;
 }
+
+export interface NewUser {
+  name: string;
+  username: string;
+  password: string;
+}

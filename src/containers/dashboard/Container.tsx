@@ -1,28 +1,33 @@
 "use client";
 
-import { Container as ContainerMantine } from "@mantine/core";
+import { Stack } from "@mantine/core";
+import dynamic from "next/dynamic";
 
-import "swiper/css";
-import "swiper/css/pagination";
+const ManageMenu = dynamic(() => import("./ManageMenu"), {
+  ssr: false,
+});
 
-import ManageMenu from "./ManageMenu";
-import ManageComingSoon from "./ManageComingSoon";
+const ManageComingSoon = dynamic(() => import("./ManageComingSoon"), {
+  ssr: false,
+});
 
 const Container = () => {
   return (
-    <ContainerMantine
-      fluid
+    <Stack
+      w={"100%"}
+      h={"100%"}
+      gap={15}
+      maw={550}
+      pt={20}
+      px={20}
+      pb={5}
+      justify="start"
       style={{
-        display: "flex",
-        flexDirection: "column",
-        gap: 15,
-        // paddingInline: 0
-        maxWidth: 550,
+        justifySelf: "center",
       }}>
       <ManageMenu />
-
       <ManageComingSoon />
-    </ContainerMantine>
+    </Stack>
   );
 };
 

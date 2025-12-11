@@ -66,9 +66,11 @@ const Manage = () => {
     today.format("YYYY-MM-DD"),
   );
 
-  const [chooseDate, setChooseDate] = useState<string>(
-    today.format("YYYY-MM-DD"),
-  );
+  const [chooseDate, setChooseDate] = useState<string>("");
+
+  const [startDate, setStartDate] = useState<string>("");
+
+  const [endDate, setEndDate] = useState<string>("");
 
   const [chooseRoom, setChooseRoom] = useState<string | null>(null);
 
@@ -100,24 +102,28 @@ const Manage = () => {
         page: activePage,
         limit: limitPage,
         filter: searchData,
-        date: chooseDate,
+        date: chooseDate ? chooseDate : null,
+        startDate: startDate ? startDate : null,
+        endDate: endDate ? endDate : null,
         roomId: chooseRoom,
       };
 
-      const response = await loanRoomService.getAll(params);
+      if (chooseDate || (startDate !== "" && endDate !== "")) {
+        const response = await loanRoomService.getAll(params);
 
-      if (activePage === 1) {
-        setDataAgenda(response.data);
-      } else {
-        setDataAgenda((prev) => [...prev, ...response.data]);
+        if (activePage === 1) {
+          setDataAgenda(response.data);
+        } else {
+          setDataAgenda((prev) => [...prev, ...response.data]);
+        }
+
+        if (response.totalPage === activePage) {
+          setHasMore(false);
+        }
+
+        setTotalData(response.totalData);
+        setTotalPage(response.totalPage);
       }
-
-      if (response.totalPage === activePage) {
-        setHasMore(false);
-      }
-
-      setTotalData(response.totalData);
-      setTotalPage(response.totalPage);
     } catch (error: any) {
       if (typeof error !== "string") {
         customNotification({
@@ -135,14 +141,22 @@ const Manage = () => {
   }
 
   useEffect(() => {
+    setDataAgenda([]);
     setActivePage(1);
-  }, [chooseRoom, chooseDate, searchData]);
+    setHasMore(true);
+  }, [searchData, chooseRoom, chooseDate, startDate, endDate]);
 
   useEffect(() => {
-    if (chooseDate !== "") {
+    if (activePage === 1) {
       handleGetAll();
     }
-  }, [activePage, chooseRoom, chooseDate, searchData]);
+  }, [activePage, searchData, chooseRoom, chooseDate, startDate, endDate]);
+
+  useEffect(() => {
+    if (activePage > 1) {
+      handleGetAll();
+    }
+  }, [activePage]);
 
   async function handleDelete(data: Agenda) {
     isLoading.onTrue();
@@ -187,20 +201,6 @@ const Manage = () => {
               value={chooseMonth}
               onChange={(value) => {
                 setChooseMonth(value);
-                if (value) {
-                  const monthNow = today.format("MM");
-                  const monthValue = dayjs(value).format("MM");
-
-                  if (monthNow === monthValue) {
-                    setChooseDate(today.format("YYYY-MM-DD"));
-                  } else {
-                    setChooseDate(
-                      dayjs(value).startOf("month").format("YYYY-MM-DD"),
-                    );
-                  }
-                } else {
-                  setChooseDate("");
-                }
               }}
               placeholder="Pilih Bulan"
               clearable
@@ -232,6 +232,8 @@ const Manage = () => {
               value={chooseDate}
               onChange={setChooseDate}
               chooseMonth={chooseMonth}
+              setStartDate={setStartDate}
+              setEndDate={setEndDate}
             />
 
             <Grid gutter={"xs"}>
@@ -242,144 +244,169 @@ const Manage = () => {
                 <DropdownRoom value={chooseRoom} onChange={setChooseRoom} />
               </Grid.Col>
             </Grid>
-
-            <InfiniteScroll
-              dataLength={dataAgenda.length}
-              next={() => {
-                setTimeout(() => {
-                  setActivePage((prev) => prev + 1);
-                }, 800);
-              }}
-              hasMore={hasMore}
-              loader={
-                <Flex justify={"center"}>
-                  <div className="loader-table"></div>
-                </Flex>
-              }>
-              <Stack gap="xs">
-                {dataAgenda && dataAgenda.length > 0 ? (
-                  dataAgenda.map((data: Agenda, index: number) => {
-                    const agendaEnd = dayjs(
-                      `${data.date.substring(0, 10)} ${data.endTime}`,
-                    );
-                    const isPast = agendaEnd.isBefore(today);
-                    return (
-                      <Flex
-                        key={index}
-                        bg={isPast ? "#e5e7eb89" : "white"}
-                        align={"center"}
-                        style={{
-                          borderRadius: 10,
-                          boxShadow: "inset 0 0 0 1.5px #F3F4F6",
-                        }}>
-                        <Flex p={"xs"} direction={"column"} w={"100%"} gap={10}>
+            {dataAgenda.length > 0 ? (
+              <InfiniteScroll
+                dataLength={dataAgenda.length}
+                next={() => {
+                  setTimeout(() => {
+                    setActivePage((prev) => prev + 1);
+                  }, 800);
+                }}
+                hasMore={hasMore}
+                loader={
+                  <Flex justify={"center"} mt={10}>
+                    <div className="loader-table"></div>
+                  </Flex>
+                }>
+                <Stack gap="xs">
+                  {dataAgenda && dataAgenda.length > 0
+                    ? dataAgenda.map((data: Agenda, index: number) => {
+                        const agendaEnd = dayjs(
+                          `${data.date.substring(0, 10)} ${data.endTime}`,
+                        );
+                        const isPast = agendaEnd.isBefore(today);
+                        return (
                           <Flex
-                            justify={"space-between"}
-                            w={"100%"}
-                            align={"center"}>
-                            <Text
-                              size="sm"
-                              fw={600}
-                              style={{
-                                textWrap: "nowrap",
-                              }}>
-                              {data.purpose ?? "'"}
-                            </Text>
-
-                            <ActionIcon
-                              radius="md"
-                              size={24}
-                              variant="light"
-                              color="indigo"
-                              aria-label="Detail Room"
-                              onClick={() => {
-                                isOpenModalImage.onTrue();
-                                setDetailImage(data.room.image);
-                              }}>
-                              <IconEye
-                                style={{ width: "70%", height: "70%" }}
-                                stroke={1.5}
-                              />
-                            </ActionIcon>
-                          </Flex>
-
-                          <Flex direction={"column"} gap={5}>
-                            <Flex align={"center"} gap={5}>
-                              <IconClock
-                                style={{ width: 17, height: 17 }}
-                                stroke={1}
-                              />
-
-                              <Text
-                                size="xs"
-                                fw={400}
-                                style={{
-                                  textWrap: "nowrap",
-                                  opacity: 0.5,
-                                }}>
-                                {`${data.startTime} - ${data.endTime}`}
-                              </Text>
-                            </Flex>
-
-                            <Flex w={"100%"} justify={"space-between"}>
-                              <Flex align={"center"} gap={5}>
-                                <IconDoor
-                                  style={{ width: 17, height: 17 }}
-                                  stroke={1}
-                                />
-
-                                <Text
-                                  size="xs"
-                                  fw={400}
-                                  style={{
-                                    textWrap: "nowrap",
-                                    opacity: 0.5,
-                                  }}>
-                                  {data.room.name ? `R. ${data.room.name}` : ""}
+                            key={index}
+                            bg={isPast ? "#e5e7eb89" : "white"}
+                            align={"center"}
+                            style={{
+                              borderRadius: 10,
+                              boxShadow: "inset 0 0 0 1.5px #F3F4F6",
+                            }}>
+                            <Flex
+                              p={"xs"}
+                              direction={"column"}
+                              w={"100%"}
+                              gap={10}>
+                              <Flex
+                                justify={"space-between"}
+                                w={"100%"}
+                                align={"center"}>
+                                <Text size="sm" fw={600}>
+                                  {data.purpose ?? "'"}
                                 </Text>
+
+                                <ActionIcon
+                                  radius="md"
+                                  size={24}
+                                  variant="light"
+                                  color="indigo"
+                                  aria-label="Detail Room"
+                                  onClick={() => {
+                                    isOpenModalImage.onTrue();
+                                    setDetailImage(data.room.image);
+                                  }}>
+                                  <IconEye
+                                    style={{ width: "70%", height: "70%" }}
+                                    stroke={1.5}
+                                  />
+                                </ActionIcon>
                               </Flex>
 
-                              <BadgeComponent
-                                color={"blue"}
-                                size="xs"
-                                radius="md"
-                                text={data.bapel.name}
-                              />
+                              <Flex direction={"column"} gap={5}>
+                                {chooseDate === "" ? (
+                                  <Flex align={"center"} gap={5}>
+                                    <IconCalendarWeek
+                                      style={{ width: 17, height: 17 }}
+                                      stroke={1}
+                                    />
+
+                                    <Text
+                                      size="xs"
+                                      fw={400}
+                                      style={{
+                                        textWrap: "nowrap",
+                                        opacity: 0.5,
+                                      }}>
+                                      {dayjs(data.date).format("DD MMMM YYYY")}
+                                    </Text>
+                                  </Flex>
+                                ) : null}
+
+                                <Flex align={"center"} gap={5}>
+                                  <IconClock
+                                    style={{ width: 17, height: 17 }}
+                                    stroke={1}
+                                  />
+
+                                  <Text
+                                    size="xs"
+                                    fw={400}
+                                    style={{
+                                      textWrap: "nowrap",
+                                      opacity: 0.5,
+                                    }}>
+                                    {`${data.startTime} - ${data.endTime}`}
+                                  </Text>
+                                </Flex>
+
+                                <Flex w={"100%"} justify={"space-between"}>
+                                  <Flex align={"center"} gap={5}>
+                                    <IconDoor
+                                      style={{ width: 17, height: 17 }}
+                                      stroke={1}
+                                    />
+
+                                    <Text
+                                      size="xs"
+                                      fw={400}
+                                      style={{
+                                        textWrap: "nowrap",
+                                        opacity: 0.5,
+                                      }}>
+                                      {data.room.name
+                                        ? `R. ${data.room.name}`
+                                        : ""}
+                                    </Text>
+                                  </Flex>
+
+                                  <BadgeComponent
+                                    color={"blue"}
+                                    size="xs"
+                                    radius="md"
+                                    text={data.bapel.name}
+                                  />
+                                </Flex>
+                              </Flex>
+
+                              {!isPast && detailUser?.id === data.createdBy ? (
+                                <Group grow py={5} gap={"xs"}>
+                                  <Button
+                                    leftSection={<IconEdit size={14} />}
+                                    size="xs"
+                                    variant="light"
+                                    color={theme.colors.default[9]}
+                                    onClick={() => {
+                                      isOpenModalDetail.onTrue();
+                                      setPickAgenda(data.code);
+                                    }}>
+                                    Perbarui
+                                  </Button>
+                                  <Button
+                                    leftSection={<IconTrash size={14} />}
+                                    size="xs"
+                                    variant="outline"
+                                    color={"red"}
+                                    onClick={() => alertRemove(data)}>
+                                    Batalkan
+                                  </Button>
+                                </Group>
+                              ) : null}
                             </Flex>
                           </Flex>
-
-                          {!isPast && detailUser?.id === data.createdBy ? (
-                            <Group grow py={5} gap={"xs"}>
-                              <Button
-                                leftSection={<IconEdit size={14} />}
-                                size="xs"
-                                variant="light"
-                                color={theme.colors.default[9]}
-                                onClick={() => {
-                                  isOpenModalDetail.onTrue();
-                                  setPickAgenda(data.code);
-                                }}>
-                                Perbarui
-                              </Button>
-                              <Button
-                                leftSection={<IconTrash size={14} />}
-                                size="xs"
-                                variant="outline"
-                                color={"red"}
-                                onClick={() => alertRemove(data)}>
-                                Batalkan
-                              </Button>
-                            </Group>
-                          ) : null}
-                        </Flex>
-                      </Flex>
-                    );
-                  })
-                ) : (
-                  <EmptyData />
-                )}
-              </Stack>
-            </InfiniteScroll>
+                        );
+                      })
+                    : null}
+                </Stack>
+              </InfiniteScroll>
+            ) : isLoading.value && activePage === 1 ? (
+              <Flex justify={"center"} mt={"28vh"}>
+                <div className="loader-table"></div>
+              </Flex>
+            ) : (
+              <EmptyData />
+            )}
           </>
         ) : null}
       </Flex>

@@ -1,3 +1,5 @@
+"use client ";
+
 import {
   ActionIcon,
   Flex,
@@ -105,64 +107,66 @@ const ManageMenu = () => {
         Menu
       </Text>
 
-      <Swiper
-        spaceBetween={30}
-        pagination={{
-          clickable: true,
-        }}
-        mousewheel={true}
-        direction={"horizontal"}
-        modules={[Grid, Pagination, Mousewheel]}
-        centeredSlides={true}
-        className="mySwiper"
-        style={{
-          width: "100%",
-          height: "fit-content",
-          justifyItems: "center",
-        }}>
-        {divideMenu.map((value, index) => {
-          return (
-            <SwiperSlide key={index}>
-              <SimpleGrid
-                style={{
-                  justifyItems: "center",
-                }}
-                w={"100%"}
-                cols={4}
-                spacing="xs"
-                verticalSpacing="md"
-                h={"auto"}>
-                {value && value.length > 0
-                  ? value.map((value: ListMenu, indexMenu: number) => {
-                      return (
-                        <Flex
-                          direction={"column"}
-                          gap={3}
-                          align={"center"}
-                          w={"fit-content"}
-                          key={indexMenu}>
-                          <ActionIcon
-                            radius={7}
-                            size={40}
-                            variant="filled"
-                            aria-label={value.name}
-                            color={theme.colors.default[9]}
-                            component={Link}
-                            href={value.link}>
-                            {value.icon}
-                          </ActionIcon>
-                          <Text size="xs" ta={"center"}>
-                            {value.name}
-                          </Text>
-                        </Flex>
-                      );
-                    })
-                  : null}
-              </SimpleGrid>
-            </SwiperSlide>
-          );
-        })}
-      </Swiper>
+      {divideMenu.length > 0 ? (
+        <Swiper
+          spaceBetween={30}
+          pagination={{
+            clickable: true,
+          }}
+          mousewheel={true}
+          direction={"horizontal"}
+          modules={[Grid, Pagination, Mousewheel]}
+          centeredSlides={true}
+          className="mySwiper"
+          style={{
+            width: "100%",
+            height: "fit-content",
+            justifyItems: "center",
+          }}>
+          {divideMenu.map((value, index) => {
+            return (
+              <SwiperSlide key={index}>
+                <SimpleGrid
+                  style={{
+                    justifyItems: "center",
+                  }}
+                  w={"100%"}
+                  cols={4}
+                  spacing="xs"
+                  verticalSpacing="md"
+                  h={"auto"}>
+                  {value && value.length > 0
+                    ? value.map((value: ListMenu, indexMenu: number) => {
+                        return (
+                          <Flex
+                            direction={"column"}
+                            gap={3}
+                            align={"center"}
+                            w={"fit-content"}
+                            key={value.name + indexMenu}>
+                            <ActionIcon
+                              radius={7}
+                              size={40}
+                              variant="filled"
+                              aria-label={value.name}
+                              color={theme.colors.default[9]}
+                              component={Link}
+                              href={value.link}>
+                              {value.icon}
+                            </ActionIcon>
+                            <Text size="xs" ta={"center"}>
+                              {value.name}
+                            </Text>
+                          </Flex>
+                        );
+                      })
+                    : null}
+                </SimpleGrid>
+              </SwiperSlide>
+            );
+          })}
+        </Swiper>
+      ) : null}
     </Flex>
   );
 };

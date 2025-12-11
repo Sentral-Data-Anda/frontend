@@ -1,10 +1,17 @@
-import { Box, Flex, Text } from "@mantine/core";
+"use client";
+
+import { Box, Flex, Text, useMantineTheme } from "@mantine/core";
 import logoApp from "../../../assets/icons/ic_logo.svg";
-import logoText from "../../../assets/icons/ic_text.svg";
 import Image from "next/image";
-import FormLogin from "./FormLogin";
+import dynamic from "next/dynamic";
+
+const FormLogin = dynamic(() => import("./FormLogin"), {
+  ssr: false,
+});
 
 const Container = () => {
+  const theme = useMantineTheme();
+
   return (
     <Box
       style={{
@@ -14,7 +21,7 @@ const Container = () => {
       <Box
         style={{
           height: "100vh",
-          background: "#112B3C",
+          background: theme.colors.default[9],
           maxWidth: "100%",
           display: "flex",
           alignItems: "end",
@@ -25,17 +32,18 @@ const Container = () => {
         <Flex
           w={"100%"}
           direction={"column"}
-          h={"85%"}
+          gap={15}
+          h={"90%"}
           style={{
             justifyContent: "space-between",
             alignItems: "center",
           }}>
-          <Image src={logoApp} alt="Logo-pp" height={80} />
+          <Image src={logoApp} alt="Logo-pp" height={200} />
           <Flex
             w={"100%"}
             direction={"column"}
             rowGap={15}
-            h={"78%"}
+            h={"68%"}
             pt={32}
             px={35}
             style={{
@@ -43,16 +51,13 @@ const Container = () => {
               borderTopLeftRadius: 80,
             }}>
             <Flex direction="column" gap={40} align={"center"}>
-              <Flex direction="column" gap={15} align={"center"}>
-                <Image src={logoText} alt="Logo-Text" height={25} />
-                <Flex direction="column" gap={0}>
-                  <Text size="sm" p={0} c="black" opacity={"50%"} ta={"center"}>
-                    Glad to see you again
-                  </Text>
-                  <Text size="sm" p={0} c="black" opacity={"50%"} ta={"center"}>
-                    Login to your account below
-                  </Text>
-                </Flex>
+              <Flex direction="column">
+                <Text size="sm" p={0} c="black" opacity={"50%"} ta={"center"}>
+                  Glad to see you again
+                </Text>
+                <Text size="sm" p={0} c="black" opacity={"50%"} ta={"center"}>
+                  Login to your account below
+                </Text>
               </Flex>
               <FormLogin />
             </Flex>
