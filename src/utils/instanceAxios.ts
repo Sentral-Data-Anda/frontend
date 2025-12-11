@@ -20,11 +20,27 @@ const fetchData = (baseURL: string) => {
     async (error) => {
       const originalRequest = error.config;
 
-      if (
-        error.response &&
-        error.response.data &&
-        error.response.data.status === 401
-      ) {
+      const status = error?.response?.status;
+
+      if (error.code === "ECONNABORTED" || error.message === "Network Error") {
+        if (typeof window !== "undefined") {
+          setTimeout(() => {
+            window.location.href = "/bad-gateway";
+          }, 500);
+        }
+        return Promise.reject(error.response ? error.response : error);
+      }
+
+      if (status === 502 || status === 503 || status === 504) {
+        if (typeof window !== "undefined") {
+          setTimeout(() => {
+            window.location.href = "/bad-gateway";
+          }, 500);
+        }
+        return Promise.reject(error.response ? error.response : error);
+      }
+
+      if (status === 401) {
         originalRequest._retry = true;
 
         try {

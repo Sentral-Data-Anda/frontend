@@ -5,7 +5,6 @@ const STATIC_CACHE = `sada-static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `sada-runtime-${CACHE_VERSION}`;
 
 const PRECACHE_URLS = [
-  "/",
   "/offline.html",
   "/web-app-manifest-192x192.png",
   "/web-app-manifest-512x512.png",
