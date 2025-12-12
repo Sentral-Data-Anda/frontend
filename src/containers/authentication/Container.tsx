@@ -5,7 +5,6 @@ import { jwtDecode, JwtPayload } from "jwt-decode";
 import { Box } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import FormOTP from "./otp/FormOTP";
 import FormFirstUpdate from "./firstUpdate/FormUpdate";
 import Cookies from "js-cookie";
 import { customNotification } from "@/utils/notification";
@@ -38,7 +37,7 @@ interface ContainerAuthProps {
 const Container = (props: ContainerAuthProps) => {
   const { token, codeUser } = props;
 
-  const otpExpires = Cookies.get("OTPExpired");
+  // const otpExpires = Cookies.get("OTPExpired");
 
   const router = useRouter();
 
@@ -48,7 +47,7 @@ const Container = (props: ContainerAuthProps) => {
 
   const [firstLogin, setFirstLogin] = useState<boolean>(false);
 
-  const [verifyFirstLogin, setVerifyFirstLogin] = useState<boolean>(false);
+  // const [verifyFirstLogin, setVerifyFirstLogin] = useState<boolean>(false);
 
   const [redirect, setRedirect] = useState<string | null>(null);
 
@@ -78,6 +77,28 @@ const Container = (props: ContainerAuthProps) => {
 
       if (response.status === 200) {
         setDetailUser(response.data);
+
+        if (response.data.status === 0) {
+          Cookies.set("isFirstLogin", "true");
+          setFirstLogin(true);
+        }
+
+        if (response.data.status === 1) {
+          if (codeUser === undefined) {
+            Cookies.set("codeUser", response.data.code);
+          }
+
+          const pathRedirect: string = redirect ?? "/dashboard";
+          setTimeout(() => {
+            router.replace(pathRedirect);
+          }, 1000);
+        }
+
+        if (response.data.status === -1) {
+          setTimeout(() => {
+            router.push("/login");
+          }, 500);
+        }
       }
     } catch (error: any) {
       customNotification({
@@ -99,28 +120,6 @@ const Container = (props: ContainerAuthProps) => {
     }
   }, [token, codeUser]);
 
-  useEffect(() => {
-    if (detailUser) {
-      if (detailUser.status === 0) {
-        if (otpExpires) {
-          setVerifyFirstLogin(true);
-        }
-
-        Cookies.set("isFirstLogin", "true");
-        setFirstLogin(true);
-      } else {
-        if (codeUser === undefined) {
-          Cookies.set("codeUser", detailUser.code);
-        }
-
-        const pathRedirect: string = redirect ?? "/dashboard";
-        setTimeout(() => {
-          router.replace(pathRedirect);
-        }, 1000);
-      }
-    }
-  }, [detailUser, redirect]);
-
   return (
     <Box
       style={{
@@ -132,14 +131,18 @@ const Container = (props: ContainerAuthProps) => {
         backgroundColor: firstLogin ? "#F4F6FF" : "#cacbd5",
       }}>
       {firstLogin ? (
-        verifyFirstLogin ? (
-          <FormOTP codeUser={decodeToken?.data?.code ?? ""} />
-        ) : (
-          <FormFirstUpdate
-            codeUser={decodeToken?.data?.code ?? ""}
-            // onVerify={() => setVerifyFirstLogin(true)}
-          />
-        )
+        // verifyFirstLogin ? (
+        //   <FormOTP codeUser={decodeToken?.data?.code ?? ""} />
+        // ) : (
+        //   <FormFirstUpdate
+        //     codeUser={decodeToken?.data?.code ?? ""}
+        //     // onVerify={() => setVerifyFirstLogin(true)}
+        //   />
+        // )
+        <FormFirstUpdate
+          codeUser={decodeToken?.data?.code ?? ""}
+          // onVerify={() => setVerifyFirstLogin(true)}
+        />
       ) : (
         <div className="loader"></div>
       )}
