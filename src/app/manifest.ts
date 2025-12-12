@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "Sentral Data Anda",
     short_name: "SADA",
     description: "A Progressive Web App built with Next.js",
-    start_url: "/login",
+    start_url: "/",
     display: "standalone",
     theme_color: "#ffffff",
     background_color: "#ffffff",
