@@ -51,7 +51,7 @@ const FormFirstUpdate = ({
               onVerify();
             } else {
               setTimeout(() => {
-                Cookies.remove("detail-user-store");
+                Cookies.remove("isFirstLogin");
                 window.location.href = "/login";
               }, 500);
             }
