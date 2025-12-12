@@ -9,7 +9,7 @@ import {
   useMantineTheme,
 } from "@mantine/core";
 import Image from "next/image";
-import logoAplikasi from "../../assets/icons/ic_aplikasi.svg";
+import logoAplikasi from "../../../public/main-logo-white.png";
 import iconPlus from "../../assets/icons/ic_plus.svg";
 import iconSchedule from "../../assets/icons/ic_schedule.svg";
 import { useBoolean, useZustandStore } from "@/hooks";
@@ -66,10 +66,11 @@ export const HeaderDashboard = () => {
             <Flex w={"100%"} justify={"space-between"} px={6}>
               <Flex>
                 <Image
+                  loading="lazy"
                   src={logoAplikasi}
                   alt="Logo-Aplikasi"
                   height={50}
-                  width={100}
+                  width={50}
                 />
               </Flex>
 

@@ -20,31 +20,32 @@
   background: #112b3c;
 }
 
+/* cacbd5 */
 .loader {
-  width: 50px;
-  height: 50px;
+  width: 60px;
+  height: 60px;
   position: relative;
-  --c: no-repeat linear-gradient(#112b3c 0 0);
+  --c: no-repeat linear-gradient(#364f6b 0 0);
   /* background: var(--c) center/100% 10px, var(--c) center/10px 100%; */
-  background-image: url("../assets/icons/ic_logo_dark.svg");
+  background-image: url("/main-logo.png");
   background-repeat: no-repeat;
-  background-size: 50px 50px;
+  background-size: 60px 60px;
 }
 .loader:before {
   content: "";
   position: absolute;
   inset: 0;
   background: var(--c) 0 0, var(--c) 100% 0, var(--c) 0 100%, var(--c) 100% 100%;
-  background-size: 30px 30px;
+  background-size: 35px 35px;
   animation: l16 1.5s infinite cubic-bezier(0.3, 1, 0, 1);
 }
 @keyframes l16 {
   33% {
-    inset: -30px;
+    inset: -35px;
     transform: rotate(0deg);
   }
   66% {
-    inset: -30px;
+    inset: -35px;
     transform: rotate(90deg);
   }
   100% {

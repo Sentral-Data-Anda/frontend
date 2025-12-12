@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   /* config options here */
 
-  allowedDevOrigins: ["http://localhost:3000"],
+  allowedDevOrigins: ["http://172.16.122.26:3000"],
 
   reactStrictMode: false,
 
@@ -21,7 +21,7 @@ const nextConfig: NextConfig = {
       },
       {
         source: "/",
-        destination: "/dashboard",
+        destination: "/login",
         permanent: true,
       },
     ];

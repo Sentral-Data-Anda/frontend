@@ -11,9 +11,6 @@ import Cookies from "js-cookie";
 import { customNotification } from "@/utils/notification";
 import { useZustandStore } from "@/hooks";
 import { authService } from "@/services";
-
-import gifSada from "../../assets/gif/gif_logo.gif";
-import Image from "next/image";
 import { extractErrorMessage } from "@/utils";
 
 interface ExtendedJwtPayload extends JwtPayload {
@@ -83,7 +80,6 @@ const Container = (props: ContainerAuthProps) => {
         setDetailUser(response.data);
       }
     } catch (error: any) {
-      console.log("ERROR", error);
       customNotification({
         type: typeof error === "string" ? "Warning" : "Error",
         text: extractErrorMessage(error),
@@ -133,7 +129,7 @@ const Container = (props: ContainerAuthProps) => {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        backgroundColor: firstLogin ? "#F4F6FF" : "#41566e",
+        backgroundColor: firstLogin ? "#F4F6FF" : "#cacbd5",
       }}>
       {firstLogin ? (
         verifyFirstLogin ? (
@@ -145,7 +141,7 @@ const Container = (props: ContainerAuthProps) => {
           />
         )
       ) : (
-        <Image src={gifSada} alt="gif_sada" width={250} />
+        <div className="loader"></div>
       )}
     </Box>
   );
