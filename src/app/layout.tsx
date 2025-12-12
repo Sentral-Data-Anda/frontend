@@ -20,7 +20,7 @@ const roboto = Roboto({
 });
 
 export const metadata = {
-  title: "SADA",
+  title: "Sentral Data Anda",
   description: "Sentral Data Anda",
   icons: {
     icon: "/favicon.ico",

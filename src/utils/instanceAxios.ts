@@ -63,10 +63,9 @@ const fetchData = (baseURL: string) => {
           }).then(() => {
             setTimeout(() => {
               if (typeof window !== "undefined") {
-                Cookies.remove("detail-user-store");
                 Cookies.remove("accessToken");
                 Cookies.remove("refreshToken");
-                Cookies.remove("codeUser");
+                localStorage.removeItem("code-user");
                 window.location.reload();
               }
             }, 500);

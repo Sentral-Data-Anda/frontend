@@ -1,9 +1,8 @@
-import persistedDetailUserStore, {
-  DetailUserState,
-} from "@/store/detailAuthStore";
+import detailUserStore, { DetailUserState } from "@/store/detailAuthStore";
 import dropdownListStore, {
   DropdownListState,
 } from "@/store/dropdownListStore";
+
 import { create } from "zustand";
 
 type StoreInitializer<T> = (set: any, get: any, api: any) => T;
@@ -22,7 +21,7 @@ function combineStores<T extends object>(...stores: StoreInitializer<any>[]) {
 type RootStore = DetailUserState & DropdownListState;
 
 export const useZustandStore = create<RootStore>()(
-  combineStores(persistedDetailUserStore, dropdownListStore),
+  combineStores(detailUserStore, dropdownListStore),
 );
 
 // function stripFunctions<T extends object>(obj: T): Partial<T> {

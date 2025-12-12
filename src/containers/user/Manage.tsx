@@ -26,7 +26,6 @@ import {
 } from "@/components";
 import { authService } from "@/services";
 import { customNotification } from "@/utils";
-import Cookies from "js-cookie";
 
 dayjs.extend(relativeTime);
 
@@ -47,7 +46,7 @@ const Manage = () => {
         customNotification({ type: "Success", text: response.message }).then(
           () => {
             clearDetailUser();
-            Cookies.remove("codeUser");
+            localStorage.removeItem("code-user");
             window.location.href = "/login";
           },
         );

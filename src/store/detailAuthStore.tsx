@@ -9,13 +9,16 @@ export interface DetailUserState {
 
 const detailUserStore: StateCreator<DetailUserState> = (set) => ({
   detailUser: undefined,
+
   setDetailUser: (value) => {
     set({ detailUser: value });
   },
+
   clearDetailUser: () => {
     set({
       detailUser: undefined,
     });
+    localStorage.removeItem("code-item");
     window.location.reload();
   },
 });
