@@ -40,8 +40,9 @@ export const HeaderDashboard = () => {
       <AppShell.Header
         style={{
           width: "100%",
-          position: "relative",
-          zIndex: 0,
+          position: "sticky",
+          top: 0,
+          zIndex: 999,
           height: "230px",
           border: "none",
         }}>
