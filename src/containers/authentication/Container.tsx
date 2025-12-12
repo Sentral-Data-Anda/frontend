@@ -31,13 +31,13 @@ interface ExtendedJwtPayload extends JwtPayload {
 
 interface ContainerAuthProps {
   token: string | undefined;
-  codeUser: string | undefined;
 }
 
 const Container = (props: ContainerAuthProps) => {
-  const { token, codeUser } = props;
+  const { token } = props;
 
   // const otpExpires = Cookies.get("OTPExpired");
+  const [codeUser, setCodeUser] = useState<string | null>(null);
 
   const router = useRouter();
 
@@ -58,6 +58,13 @@ const Container = (props: ContainerAuthProps) => {
     const redirectParam = params.get("redirect");
     if (redirectParam) {
       setRedirect(decodeURIComponent(redirectParam));
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("code-user");
+      setCodeUser(stored);
     }
   }, []);
 
@@ -84,14 +91,14 @@ const Container = (props: ContainerAuthProps) => {
         }
 
         if (response.data.status === 1) {
-          if (codeUser === undefined) {
-            Cookies.set("codeUser", response.data.code);
+          if (codeUser === null) {
+            localStorage.setItem("code-user", response.data.code);
           }
 
           const pathRedirect: string = redirect ?? "/dashboard";
           setTimeout(() => {
             router.replace(pathRedirect);
-          }, 1000);
+          }, 500);
         }
 
         if (response.data.status === -1) {

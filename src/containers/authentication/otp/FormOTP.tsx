@@ -38,7 +38,6 @@ const FormOTP = ({ codeUser }: { codeUser: string }) => {
             setTimeout(() => {
               Cookies.remove("OTPExpired");
               Cookies.remove("isSendOTP");
-              Cookies.remove("detail-user-store");
               window.location.href = "/login";
             }, 500);
           },
