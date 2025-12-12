@@ -44,13 +44,9 @@ export function middleware(request: NextRequest) {
 
   const isLoggedIn = Boolean(refreshToken);
 
-  console.log("IS LOGIN", isLoggedIn);
-
   const isFirstLoggedIn = Boolean(signFirstLogin);
-  console.log("IS FIRST", isFirstLoggedIn);
 
   const isAuthPage = authPaths.includes(currentPath);
-  console.log("IS LOGIN PAGE", isAuthPage);
 
   let detailUser = null;
   let userAccess: string[] = [];
@@ -64,7 +60,6 @@ export function middleware(request: NextRequest) {
     if (currentPath !== "/authentication") {
       return NextResponse.redirect(new URL("/authentication", request.url));
     }
-    console.log("MASUK GA SINI GA FIRST LOGIN");
     return NextResponse.next();
   }
 
@@ -76,12 +71,10 @@ export function middleware(request: NextRequest) {
   }
 
   if (isLoggedIn && !token && currentPath !== "/authentication") {
-    console.log("MASUK GA SINI GA >> PERNAH LOGIN TAPI GA ADA TOKEN");
     return NextResponse.redirect(new URL("/authentication", request.url));
   }
 
   if (isLoggedIn && token && isAuthPage) {
-    console.log("MASUK GA SINI >> LOGIN FULL");
     return NextResponse.redirect(new URL("/authentication", request.url));
   }
 
