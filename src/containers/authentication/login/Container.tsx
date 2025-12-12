@@ -1,7 +1,6 @@
 "use client";
 
-import { Box, Flex, Text, useMantineTheme } from "@mantine/core";
-import logoApp from "../../../assets/icons/ic_logo.svg";
+import { Box, Stack, Text, useMantineTheme } from "@mantine/core";
 import Image from "next/image";
 import dynamic from "next/dynamic";
 
@@ -26,43 +25,51 @@ const Container = () => {
           display: "flex",
           alignItems: "end",
           width: "100%",
-          position: "relative",
+          position: "sticky",
           top: 0,
         }}>
-        <Flex
+        <Box
           w={"100%"}
-          direction={"column"}
-          gap={15}
           h={"90%"}
           style={{
             justifyContent: "space-between",
             alignItems: "center",
+            display: "flex",
+            flexDirection: "column",
+            gap: 15,
           }}>
-          <Image src={logoApp} alt="Logo-pp" height={200} />
-          <Flex
+          <Image
+            fetchPriority="high"
+            src="/main-logo-white.png"
+            alt="Logo-pp"
+            width={200}
+            height={200}
+          />
+          <Box
             w={"100%"}
-            direction={"column"}
-            rowGap={15}
             h={"68%"}
             pt={32}
             px={35}
             style={{
               backgroundColor: "white",
               borderTopLeftRadius: 80,
+              display: "flex",
+              flexDirection: "column",
+              rowGap: 15,
             }}>
-            <Flex direction="column" gap={40} align={"center"}>
-              <Flex direction="column">
+            <Stack gap={40} align="center">
+              <Stack gap={5}>
                 <Text size="sm" p={0} c="black" opacity={"50%"} ta={"center"}>
                   Glad to see you again
                 </Text>
                 <Text size="sm" p={0} c="black" opacity={"50%"} ta={"center"}>
                   Login to your account below
                 </Text>
-              </Flex>
+              </Stack>
               <FormLogin />
-            </Flex>
-          </Flex>
-        </Flex>
+            </Stack>
+          </Box>
+        </Box>
       </Box>
     </Box>
   );

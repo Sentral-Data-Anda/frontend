@@ -69,7 +69,7 @@ const FormLogin = () => {
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
-        width: "18rem",
+        width: "17rem",
       }}>
       <Flex w="100%" direction={"column"} rowGap={20}>
         <TextInput

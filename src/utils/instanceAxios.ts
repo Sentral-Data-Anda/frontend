@@ -3,6 +3,7 @@ import Cookies from "js-cookie";
 import { customNotification } from "./notification";
 
 const baseURL = process.env.NEXT_PUBLIC_API_URL;
+const nodeENV = process.env.NODE_ENV;
 
 const fetchData = (baseURL: string) => {
   const instance = axios.create({
@@ -22,22 +23,27 @@ const fetchData = (baseURL: string) => {
 
       const status = error?.response?.status;
 
-      if (error.code === "ECONNABORTED" || error.message === "Network Error") {
-        if (typeof window !== "undefined") {
-          setTimeout(() => {
-            window.location.href = "/bad-gateway";
-          }, 500);
+      if (nodeENV === "production") {
+        if (
+          error.code === "ECONNABORTED" ||
+          error.message === "Network Error"
+        ) {
+          if (typeof window !== "undefined") {
+            setTimeout(() => {
+              window.location.href = "/bad-gateway";
+            }, 500);
+          }
+          return Promise.reject(error.response ? error.response : error);
         }
-        return Promise.reject(error.response ? error.response : error);
-      }
 
-      if (status === 502 || status === 503 || status === 504) {
-        if (typeof window !== "undefined") {
-          setTimeout(() => {
-            window.location.href = "/bad-gateway";
-          }, 500);
+        if (status === 502 || status === 503 || status === 504) {
+          if (typeof window !== "undefined") {
+            setTimeout(() => {
+              window.location.href = "/bad-gateway";
+            }, 500);
+          }
+          return Promise.reject(error.response ? error.response : error);
         }
-        return Promise.reject(error.response ? error.response : error);
       }
 
       if (status === 401) {
