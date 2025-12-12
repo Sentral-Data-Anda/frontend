@@ -66,10 +66,12 @@ export const ModalComponent = (props: PropTypes) => {
       centered
       fullScreen
       styles={{
+        root: {
+          zIndex: 999,
+        },
         title: {
           fontSize: "16px",
         },
-
         header: {
           paddingBlock: 10,
           height: 50,
