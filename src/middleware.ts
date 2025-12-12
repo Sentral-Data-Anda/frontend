@@ -43,7 +43,9 @@ export function middleware(request: NextRequest) {
   const signFirstLogin = request.cookies.get("isFirstLogin")?.value;
 
   const isLoggedIn = Boolean(refreshToken);
+
   const isFirstLoggedIn = Boolean(signFirstLogin);
+
   const isAuthPage = authPaths.includes(currentPath);
 
   let detailUser = null;
@@ -58,7 +60,6 @@ export function middleware(request: NextRequest) {
     if (currentPath !== "/authentication") {
       return NextResponse.redirect(new URL("/authentication", request.url));
     }
-
     return NextResponse.next();
   }
 
@@ -104,6 +105,6 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/|api/||bad-gateway|offline|.*\\.png$|.*\\.ico$|.*manifest.*).*)",
+    "/((?!_next/|api/|bad-gateway|offline|.*\\.png$|.*\\.ico$|.*manifest.*).*)",
   ],
 };
