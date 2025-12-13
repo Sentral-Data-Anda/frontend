@@ -479,6 +479,7 @@ const Form = (props: PropTypes) => {
                                   disabled={
                                     item.rolePelayanId === null || isDisable
                                   }
+                                  disableSearch
                                 />
                               </Table.Td>
                               <Table.Td px={3} py={10} ta={"center"}>

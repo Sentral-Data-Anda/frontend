@@ -21,7 +21,7 @@ export const TimeInputComponent = (props: PropTypes) => {
       onChange={onChange}
       label={label}
       leftSection={icon}
-      withDropdown
+      withDropdown={false}
       withAsterisk={require}
       readOnly={disabled}
       clearable
@@ -29,7 +29,11 @@ export const TimeInputComponent = (props: PropTypes) => {
         input: {
           minHeight: 32,
           height: 32,
+          pointerEvents: "unset",
         },
+      }}
+      popoverProps={{
+        middlewares: { flip: false, shift: false },
       }}
     />
   );

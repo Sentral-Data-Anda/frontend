@@ -2,7 +2,7 @@
 
 import { jwtDecode, JwtPayload } from "jwt-decode";
 
-import { Box } from "@mantine/core";
+import { Box, useMantineTheme } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import FormFirstUpdate from "./firstUpdate/FormUpdate";
@@ -11,6 +11,8 @@ import { customNotification } from "@/utils/notification";
 import { useZustandStore } from "@/hooks";
 import { authService } from "@/services";
 import { extractErrorMessage } from "@/utils";
+import Image from "next/image";
+import gitLogo from "../../assets/gif/logo.gif";
 
 interface ExtendedJwtPayload extends JwtPayload {
   type?: string;
@@ -35,6 +37,8 @@ interface ContainerAuthProps {
 
 const Container = (props: ContainerAuthProps) => {
   const { token } = props;
+
+  const theme = useMantineTheme();
 
   // const otpExpires = Cookies.get("OTPExpired");
   const [codeUser, setCodeUser] = useState<string | null>(null);
@@ -71,7 +75,6 @@ const Container = (props: ContainerAuthProps) => {
   useEffect(() => {
     if (token) {
       const decoded = jwtDecode(token);
-
       setDecodeToken(decoded);
     } else {
       router.replace("/auth/login");
@@ -135,7 +138,7 @@ const Container = (props: ContainerAuthProps) => {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        backgroundColor: firstLogin ? "#F4F6FF" : "#cacbd5",
+        backgroundColor: firstLogin ? "#F4F6FF" : theme.colors.default[9],
       }}>
       {firstLogin ? (
         // verifyFirstLogin ? (
@@ -151,7 +154,14 @@ const Container = (props: ContainerAuthProps) => {
           // onVerify={() => setVerifyFirstLogin(true)}
         />
       ) : (
-        <div className="loader"></div>
+        // <div className="loader"></div>
+        <Image
+          fetchPriority="high"
+          src={gitLogo}
+          alt="Logo-pp"
+          width={200}
+          height={200}
+        />
       )}
     </Box>
   );

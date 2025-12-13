@@ -20,6 +20,7 @@ import iconRenugan from "../../assets/icons/ic_renungan.svg";
 import iconAgenda from "../../assets/icons/ic_agenda.svg";
 import { useZustandStore } from "@/hooks";
 import { useEffect } from "react";
+import { customNotification } from "@/utils";
 
 interface PropTypes {
   children: React.ReactNode;
@@ -62,9 +63,8 @@ export const Layout = (props: PropTypes) => {
         footer: {
           marginInline: "auto",
           maxWidth: "1024px",
-          position: "sticky",
           width: "100%",
-          display: "flex",
+          // display: "flex",
           justifyContent: "center",
         },
         main: {
@@ -159,7 +159,13 @@ export const Layout = (props: PropTypes) => {
               variant="subtle"
               aria-label="Renungan"
               size={30}
-              onClick={() => router.push("/renungan")}>
+              // onClick={() => router.push("/renungan")}>
+              onClick={() => {
+                customNotification({
+                  type: "Warning",
+                  text: "Fitur ini sedang tahap Pengembangan !",
+                });
+              }}>
               <Image
                 src={iconRenugan}
                 alt="ic_renungan"

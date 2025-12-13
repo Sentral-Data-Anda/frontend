@@ -1,4 +1,4 @@
-export * from "./bapel";
+export * from "../jemaat/bapel";
 export * from "./user";
 export * from "./role-user";
 export * from "./activity-logs";

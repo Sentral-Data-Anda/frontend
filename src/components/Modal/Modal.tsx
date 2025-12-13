@@ -10,6 +10,8 @@ import {
 import { ReactElement } from "react";
 import { IconEdit } from "@tabler/icons-react";
 import { useBoolean } from "@/hooks";
+import Image from "next/image";
+import gitLogo from "../../assets/gif/logo.gif";
 
 interface PropTypes {
   opened: boolean;
@@ -80,10 +82,16 @@ export const ModalComponent = (props: PropTypes) => {
         },
         body: {
           minHeight: "calc(100vh - 50px)",
+          height: "calc(100vh - 50px)",
         },
       }}>
       <LoadingOverlay
         visible={loading}
+        transitionProps={{
+          duration: 500,
+          transition: "fade",
+        }}
+        overlayProps={{ blur: 2, bg: theme.colors.default[5] }}
         loaderProps={{
           children: (
             <Flex
@@ -93,7 +101,14 @@ export const ModalComponent = (props: PropTypes) => {
                 justifyContent: "center",
                 alignItems: "center",
               }}>
-              <div className="loader"></div>
+              {/* <div className="loader"></div> */}
+              <Image
+                fetchPriority="high"
+                src={gitLogo}
+                alt="Logo-pp"
+                width={200}
+                height={200}
+              />
             </Flex>
           ),
         }}
