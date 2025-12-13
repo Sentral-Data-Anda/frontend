@@ -29,6 +29,7 @@ const Form = (props: PropTypes) => {
         display: "flex",
         flexDirection: "column",
         gap: 20,
+        height: "100%",
       }}>
       <Grid w={"100%"} gutter={"xs"}>
         <Grid.Col span={{ base: 12 }}>
@@ -78,6 +79,7 @@ const Form = (props: PropTypes) => {
                   withinPortal={false}
                   withLabel
                   require
+                  disableSearch
                   disabled={isDisable}
                 />
               </Grid.Col>
@@ -97,6 +99,7 @@ const Form = (props: PropTypes) => {
                     withinPortal={false}
                     withLabel
                     require
+                    disableSearch
                     disabled={isDisable}
                   />
                 </Grid.Col>
@@ -117,6 +120,7 @@ const Form = (props: PropTypes) => {
                     withinPortal={false}
                     withLabel
                     require
+                    disableSearch
                     disabled={isDisable}
                   />
                 </Grid.Col>

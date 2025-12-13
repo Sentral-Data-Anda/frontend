@@ -42,7 +42,7 @@ export const HeaderDashboard = () => {
           width: "100%",
           position: "sticky",
           top: 0,
-          zIndex: 2,
+          zIndex: 3,
           height: "230px",
           border: "none",
         }}>
@@ -54,55 +54,56 @@ export const HeaderDashboard = () => {
           maw={"768px"}
           bg={theme.colors.default[9]}
           style={{
-            // borderRadius: "0px 0px 25px 25px",
+            borderRadius: "0px 0px 100px 100px",
             marginInline: "auto",
           }}>
           <Flex
             w={"100%"}
             px={"28px"}
-            mt={"17px"}
+            mt={"10px"}
             direction={"column"}
             align={"center"}
-            gap={19}>
+            gap={15}
+            // bg={"blue"}
+          >
             <Flex w={"100%"} justify={"space-between"} px={6}>
-              <Flex>
-                <Image
-                  loading="lazy"
-                  src={logoAplikasi}
-                  alt="Logo-Aplikasi"
-                  height={50}
-                  width={50}
-                />
-              </Flex>
+              <Image
+                loading="lazy"
+                src={logoAplikasi}
+                alt="Logo-Aplikasi"
+                height={50}
+                width={50}
+              />
 
               {/* <DropdownMenuComponent
-              button={
-                <ActionIcon
-                  size={30}
-                  radius="xl"
-                  variant="default"
-                  pos={"relative"}
-                  bd={"none"}>
-                  <IconBellFilled
-                    color="primary"
-                    style={{ width: "75%", height: "65%" }}
-                    stroke={1.5}
-                  />
+                button={
+                  <ActionIcon
+                    size={35}
+                    radius="xl"
+                    variant="default"
+                    pos={"relative"}
+                    bd={"none"}
+                    bg={"transparent"}>
+                    <IconBellFilled
+                      color="white"
+                      style={{ width: "75%", height: "65%" }}
+                      stroke={1.5}
+                    />
 
-                  <Badge
-                    size="7px"
-                    color="red"
-                    circle
-                    style={{
-                      position: "absolute",
-                      top: 3,
-                      right: 6,
-                    }}></Badge>
-                </ActionIcon>
-              }
-              position="bottom-end"
-              width={170}
-            /> */}
+                    <Badge
+                      size="7px"
+                      color="red"
+                      circle
+                      style={{
+                        position: "absolute",
+                        top: 4,
+                        right: 8,
+                      }}></Badge>
+                  </ActionIcon>
+                }
+                position="bottom-end"
+                width={170}
+              /> */}
             </Flex>
 
             <Flex w={"100%"} direction={"column"} gap={3} px={6}>
@@ -117,12 +118,15 @@ export const HeaderDashboard = () => {
             {isAdmin || accessCreateAgenda || accessCreateEvent ? (
               <Flex
                 w={320}
-                h={116}
-                bg={"white"}
-                py={15}
-                px={25}
+                h={100}
+                // bg={"white"}
+                mt={5}
+                pt={0}
+                pb={15}
+                px={15}
                 justify={"center"}
                 style={{
+                  // backgroundColor: "red",
                   boxShadow: "0px 10px 17px 0px rgba(0, 0, 0, 0.2)",
                   borderRadius: 12,
                   gap: 20,

@@ -9,6 +9,7 @@ interface PropTypes {
   require?: boolean;
   disabled?: boolean;
   withinPortal?: boolean;
+  disableSearch?: boolean;
 }
 
 export const DropdownMultiComponent = (props: PropTypes) => {
@@ -21,6 +22,7 @@ export const DropdownMultiComponent = (props: PropTypes) => {
     require = false,
     disabled = false,
     withinPortal = true,
+    disableSearch = false,
   } = props;
 
   return (
@@ -32,7 +34,7 @@ export const DropdownMultiComponent = (props: PropTypes) => {
       placeholder={placeholder}
       data={data}
       label={withLabel ? placeholder : ""}
-      searchable
+      searchable={!disableSearch}
       nothingFoundMessage="Nothing found..."
       withAsterisk={require}
       value={value}

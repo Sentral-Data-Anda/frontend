@@ -150,6 +150,7 @@ const Form = (props: PropTypes) => {
                   withinPortal={false}
                   require
                   disabled={isDisable}
+                  disableSearch
                 />
               </Grid.Col>
               <Grid.Col span={{ base: 6 }}>
@@ -173,6 +174,7 @@ const Form = (props: PropTypes) => {
                   withinPortal={false}
                   require
                   disabled={formTemplate?.startTime === null || isDisable}
+                  disableSearch
                 />
               </Grid.Col>
             </>

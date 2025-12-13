@@ -41,6 +41,7 @@ export const DropdownRolePelayan = (props: PropTypes) => {
       withLabel={withLabel}
       require={require}
       disabled={disabled}
+      disableSearch
       withinPortal={withinPortal}
     />
   );

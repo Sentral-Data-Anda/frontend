@@ -32,6 +32,7 @@ export const DropdownGender = (props: PropTypes) => {
       withLabel={withLabel}
       require={require}
       disabled={disabled}
+      disableSearch
       withinPortal={withinPortal}
     />
   );

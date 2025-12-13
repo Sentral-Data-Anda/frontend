@@ -33,6 +33,7 @@ export const DropdownStatusJemaat = (props: PropTypes) => {
       require={require}
       disabled={disabled}
       withinPortal={withinPortal}
+      disableSearch
     />
   );
 };

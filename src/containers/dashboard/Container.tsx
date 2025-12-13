@@ -18,9 +18,9 @@ const Container = () => {
       h={"100%"}
       gap={15}
       maw={550}
-      pt={20}
+      pt={0}
       px={20}
-      pb={5}
+      mb={40}
       justify="start"
       style={{
         justifySelf: "center",
