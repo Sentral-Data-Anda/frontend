@@ -1,8 +1,8 @@
 .customLoading {
   /* background-color: #13a34f; */
   position: relative;
-  width: 200;
-  height: 200;
+  width: 200px;
+  height: 200px;
   overflow: hidden;
   display: flex;
   justify-content: center;
