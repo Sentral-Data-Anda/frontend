@@ -1,22 +1,44 @@
+export interface FormAdditional {
+  type: string | null;
+  place: string;
+  date: string | null;
+}
+
 export interface FormDaftarJemaat {
-  name: string;
-  birthDate: string | null;
+  name: string | undefined;
   gender: string | null;
+  birthPlace: string;
+  birthDate: string | null;
+  email?: string;
+  phone?: string;
+  bloodType: string | null;
+  lastEducation: string | null;
+
+  professionId: string | null;
+  etnicGroupId: string | null;
+
+  provincesCode: string | null;
+  regenciesCode: string | null;
+  districtsCode: string | null;
+  villagesCode: string | null;
   address: string;
-  email?: string | null;
-  phone?: string | null;
-  status: string | null;
+  zoneChurchId: string | null;
+
+  statusMartial: string | null;
+  spouseName: string;
+  martialPlace: string;
+  martialDate: string | null;
+
+  codeInduk: string;
+  additional: FormAdditional[];
 }
 
 export interface DaftarJemaat {
-  id: number;
   code: string;
   name: string;
   gender: string;
   birthDate: string;
-  address: string;
-  email: string;
-  phone: string;
+  type: string;
   status: string;
 }
 

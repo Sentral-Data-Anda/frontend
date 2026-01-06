@@ -42,8 +42,10 @@ export class dropdownListService {
     return response.data;
   };
 
-  static getJemaat = async () => {
-    const response = await instanceAxios.get("/ddl/jemaat");
+  static getJemaat = async (params: TypeParams) => {
+    const response = await instanceAxios.get(
+      "/ddl/jemaat" + generateSearchParams(params),
+    );
     return response.data;
   };
 
@@ -51,6 +53,47 @@ export class dropdownListService {
     const response = await instanceAxios.get(
       "/ddl/template-jadwal" + generateSearchParams(params),
     );
+    return response.data;
+  };
+
+  static getProfession = async () => {
+    const response = await instanceAxios.get("/ddl/profession");
+    return response.data;
+  };
+
+  static getEtnicGroup = async () => {
+    const response = await instanceAxios.get("/ddl/etnic-group");
+    return response.data;
+  };
+
+  static getProvinces = async () => {
+    const response = await instanceAxios.get("/ddl/provinces");
+    return response.data;
+  };
+
+  static getRegencies = async (params: TypeParams) => {
+    const response = await instanceAxios.get(
+      "/ddl/regencies" + generateSearchParams(params),
+    );
+    return response.data;
+  };
+
+  static getDistricts = async (params: TypeParams) => {
+    const response = await instanceAxios.get(
+      "/ddl/districts" + generateSearchParams(params),
+    );
+    return response.data;
+  };
+
+  static getVillages = async (params: TypeParams) => {
+    const response = await instanceAxios.get(
+      "/ddl/villages" + generateSearchParams(params),
+    );
+    return response.data;
+  };
+
+  static getZoneChurch = async () => {
+    const response = await instanceAxios.get("/ddl/zone-church");
     return response.data;
   };
 }

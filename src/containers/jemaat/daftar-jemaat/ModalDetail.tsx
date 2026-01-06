@@ -4,20 +4,17 @@ import { useEffect, useState } from "react";
 import Form from "./Form";
 import { ButtonGroupComponent, ModalComponent } from "@/components";
 import { jemaatService } from "@/services";
-import {
-  customNotification,
-  extractErrorMessage,
-  formatDateToISO,
-} from "@/utils";
+import { customNotification, extractErrorMessage } from "@/utils";
 
 interface PropTypes {
   isOpenModal: ReturnType<typeof useBoolean>;
   codeJemaat: string;
   handleGetAll: () => void;
+  formName: string;
 }
 
 const ModalDetail = (props: PropTypes) => {
-  const { isOpenModal, codeJemaat, handleGetAll } = props;
+  const { isOpenModal, codeJemaat, handleGetAll, formName } = props;
 
   const isLoading = useBoolean();
 
@@ -26,13 +23,30 @@ const ModalDetail = (props: PropTypes) => {
   const isEditing = useBoolean();
 
   const [formDaftarJemaat, setFormDaftarJemaat] = useState<FormDaftarJemaat>({
-    name: "",
-    birthDate: null,
+    name: undefined,
     gender: null,
+    birthPlace: "",
+    birthDate: null,
+    email: "",
+    phone: "",
+    bloodType: null,
+    lastEducation: null,
+    professionId: null,
+    etnicGroupId: null,
+
+    provincesCode: null,
+    regenciesCode: null,
+    districtsCode: null,
+    villagesCode: null,
     address: "",
-    email: null,
-    phone: null,
-    status: null,
+    zoneChurchId: null,
+
+    statusMartial: null,
+    spouseName: "",
+    martialPlace: "",
+    martialDate: null,
+    codeInduk: "",
+    additional: [],
   });
 
   async function handleGetDetail(code: string) {
@@ -41,9 +55,22 @@ const ModalDetail = (props: PropTypes) => {
     try {
       const response = await jemaatService.getOne(code);
 
+      delete response.data.code;
+
       setFormDaftarJemaat({
         ...response.data,
-        birthDate: String(formatDateToISO(response.data.birthDate)),
+        professionId:
+          response.data.professionId !== null
+            ? String(response.data.professionId)
+            : null,
+        etnicGroupId:
+          response.data.etnicGroupId !== null
+            ? String(response.data.etnicGroupId)
+            : null,
+        zoneChurchId:
+          response.data.zoneChurchId !== null
+            ? String(response.data.zoneChurchId)
+            : null,
       });
     } catch (error: any) {
       customNotification({
@@ -67,11 +94,7 @@ const ModalDetail = (props: PropTypes) => {
     isLoading.onTrue();
     try {
       const payload = {
-        name: formDaftarJemaat.name,
-        birthDate: formDaftarJemaat.birthDate,
-        gender: formDaftarJemaat.gender,
-        address: formDaftarJemaat.address,
-        status: formDaftarJemaat.status,
+        ...formDaftarJemaat,
         email:
           formDaftarJemaat.email !== "" && formDaftarJemaat.email !== null
             ? formDaftarJemaat.email
@@ -80,6 +103,13 @@ const ModalDetail = (props: PropTypes) => {
           formDaftarJemaat.phone !== "" && formDaftarJemaat.phone !== null
             ? formDaftarJemaat.phone
             : null,
+        typeJemaat: "ANGGOTA",
+        statusJemaat: formDaftarJemaat.additional.find(
+          (item) =>
+            item.type === "MENINGGAL/WAFAT" || item.type === "ATESTASI KELUAR",
+        )
+          ? "TIDAK_AKTIF"
+          : "AKTIF",
       };
 
       const response = await jemaatService.update(codeJemaat, payload);
@@ -89,13 +119,30 @@ const ModalDetail = (props: PropTypes) => {
           () => {
             handleGetAll();
             setFormDaftarJemaat({
-              name: "",
-              birthDate: null,
+              name: undefined,
               gender: null,
-              address: "",
+              birthPlace: "",
+              birthDate: null,
               email: "",
               phone: "",
-              status: null,
+              bloodType: null,
+              lastEducation: null,
+              professionId: null,
+              etnicGroupId: null,
+
+              provincesCode: null,
+              regenciesCode: null,
+              districtsCode: null,
+              villagesCode: null,
+              address: "",
+              zoneChurchId: null,
+
+              statusMartial: null,
+              spouseName: "",
+              martialPlace: "",
+              martialDate: null,
+              codeInduk: "",
+              additional: [],
             });
             isOpenModal.onFalse();
             isEditing.onFalse();
@@ -117,23 +164,41 @@ const ModalDetail = (props: PropTypes) => {
     <ModalComponent
       loading={isLoadingDetail.value}
       opened={isOpenModal.value}
-      title={`${isEditing.value ? "Edit" : "Detail"} Data Jemaat`}
+      title={`${isEditing.value ? "Edit" : "Detail"} Data ${formName}`}
       withEditButton
       isEditing={isEditing}
       close={() => {
         isOpenModal.onFalse();
         isEditing.onFalse();
         setFormDaftarJemaat({
-          name: "",
-          birthDate: null,
+          name: undefined,
           gender: null,
-          address: "",
+          birthPlace: "",
+          birthDate: null,
           email: "",
           phone: "",
-          status: null,
+          bloodType: null,
+          lastEducation: null,
+          professionId: null,
+          etnicGroupId: null,
+
+          provincesCode: null,
+          regenciesCode: null,
+          districtsCode: null,
+          villagesCode: null,
+          address: "",
+          zoneChurchId: null,
+
+          statusMartial: null,
+          spouseName: "",
+          martialPlace: "",
+          martialDate: null,
+          codeInduk: "",
+          additional: [],
         });
       }}>
       <Form
+        formName={formName}
         isDisable={!isEditing.value || isLoading.value}
         formDaftarJemaat={formDaftarJemaat}
         setFormDaftarJemaat={setFormDaftarJemaat}

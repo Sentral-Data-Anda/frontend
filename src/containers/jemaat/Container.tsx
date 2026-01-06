@@ -10,7 +10,7 @@ const listMenu = [
     label: "Daftar Jemaat",
     description: "Kelola daftar jemaat",
     href: "/jemaat/daftar-jemaat",
-    icon: <Image src={iconJemaat} alt="iconJemaat" height={35} width={46} />,
+    icon: <Image src={iconJemaat} alt="iconJemaat1" height={35} width={46} />,
     access: "Open Menu Daftar Jemaat",
   },
   {

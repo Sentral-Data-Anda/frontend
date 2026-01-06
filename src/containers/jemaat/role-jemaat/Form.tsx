@@ -92,6 +92,8 @@ const Form = (props: PropTypes) => {
             withLabel
             require
             disabled={isDisable}
+            type={["ANGGOTA", "ANAK"]}
+            status="AKTIF"
           />
         </Grid.Col>
         <Grid.Col span={{ base: 12 }}>

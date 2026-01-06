@@ -1,4 +1,8 @@
-import { DropdownJemaat, DropdownRoleUser } from "@/components";
+import {
+  DropdownJemaat,
+  DropdownRoleUser,
+  TextInputComponent,
+} from "@/components";
 import { FormUser } from "@/types";
 import { Grid } from "@mantine/core";
 import { ReactNode } from "react";
@@ -9,10 +13,20 @@ interface PropTypes {
   isDisable: boolean;
   onSubmit: (_value: React.FormEvent<HTMLFormElement>) => void;
   button: ReactNode | null;
+  isEdit?: boolean;
+  nameJemaat?: string;
 }
 
 const Form = (props: PropTypes) => {
-  const { formUser, setFormUser, isDisable, onSubmit, button } = props;
+  const {
+    formUser,
+    setFormUser,
+    isDisable,
+    onSubmit,
+    button,
+    isEdit = false,
+    nameJemaat,
+  } = props;
 
   return (
     <form
@@ -24,19 +38,30 @@ const Form = (props: PropTypes) => {
       }}>
       <Grid w={"100%"} gutter={"xs"}>
         <Grid.Col span={{ base: 12 }}>
-          <DropdownJemaat
-            withLabel
-            withinPortal={false}
-            require
-            value={formUser.jemaatId}
-            onChange={(value) => {
-              setFormUser({
-                ...formUser,
-                jemaatId: value,
-              });
-            }}
-            disabled={isDisable}
-          />
+          {isEdit ? (
+            <TextInputComponent
+              name="Jemaat"
+              value={nameJemaat}
+              require
+              disabled
+            />
+          ) : (
+            <DropdownJemaat
+              status="0"
+              type="ANGGOTA"
+              withLabel
+              withinPortal={false}
+              require
+              value={formUser.jemaatId}
+              onChange={(value) => {
+                setFormUser({
+                  ...formUser,
+                  jemaatId: value,
+                });
+              }}
+              disabled={isDisable}
+            />
+          )}
         </Grid.Col>
         <Grid.Col span={{ base: 12 }}>
           <DropdownRoleUser

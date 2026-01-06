@@ -13,11 +13,7 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { useZustandStore } from "@/hooks";
 import { confirmSwal } from "@/utils/alertSwal";
-import {
-  extractErrorMessage,
-  formatDateToISO,
-  listGender,
-} from "@/utils/general";
+import { extractErrorMessage, listGender } from "@/utils/general";
 import {
   DateInputComponent,
   DropdownComponent,
@@ -128,7 +124,7 @@ const Manage = () => {
               label="Date of Birth"
               value={
                 detailUser?.jemaat?.birthDate
-                  ? String(formatDateToISO(detailUser?.jemaat?.birthDate))
+                  ? detailUser?.jemaat?.birthDate
                   : null
               }
               disabled

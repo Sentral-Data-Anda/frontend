@@ -31,6 +31,8 @@ const ModalDetail = (props: PropTypes) => {
     roleUserId: null,
   });
 
+  const [nameUser, setNameUser] = useState<string>("");
+
   async function handleGetDetail(code: string) {
     isLoadingDetail.onTrue();
 
@@ -41,6 +43,8 @@ const ModalDetail = (props: PropTypes) => {
         jemaatId: String(response.data.jemaat.id),
         roleUserId: String(response.data.roleUser.id),
       });
+
+      setNameUser(response.data.jemaat.name);
     } catch (error: any) {
       customNotification({
         type: typeof error === "string" ? "Warning" : "Error",
@@ -137,6 +141,8 @@ const ModalDetail = (props: PropTypes) => {
         formUser={formUser}
         setFormUser={setFormUser}
         onSubmit={handleUpdate}
+        isEdit
+        nameJemaat={nameUser}
         button={
           isEditing.value ? (
             <ButtonGroupComponent

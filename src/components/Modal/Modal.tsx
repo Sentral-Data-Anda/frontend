@@ -2,6 +2,7 @@ import {
   ActionIcon,
   Flex,
   LoadingOverlay,
+  MantineSize,
   Modal,
   ScrollArea,
   Text,
@@ -10,8 +11,7 @@ import {
 import { ReactElement } from "react";
 import { IconEdit } from "@tabler/icons-react";
 import { useBoolean } from "@/hooks";
-import Image from "next/image";
-import gitLogo from "../../assets/gif/logo.gif";
+import { LoadingGlobalComponent } from "../Loading";
 
 interface PropTypes {
   opened: boolean;
@@ -22,6 +22,8 @@ interface PropTypes {
   withCloseButton?: boolean;
   withEditButton?: boolean;
   isEditing?: ReturnType<typeof useBoolean>;
+  size?: MantineSize;
+  minHeight?: string;
 }
 
 export const ModalComponent = (props: PropTypes) => {
@@ -34,6 +36,8 @@ export const ModalComponent = (props: PropTypes) => {
     withCloseButton = true,
     withEditButton = false,
     isEditing,
+    size,
+    minHeight = "calc(100vh - 50px)",
   } = props;
 
   const theme = useMantineTheme();
@@ -61,12 +65,17 @@ export const ModalComponent = (props: PropTypes) => {
       scrollAreaComponent={ScrollArea.Autosize}
       // keepMounted={false}
       withCloseButton={withCloseButton}
-      withOverlay={false}
+      withOverlay
       opened={opened}
       onClose={close}
       title={customTitle}
       centered
-      fullScreen
+      fullScreen={!size}
+      size={size}
+      overlayProps={{
+        backgroundOpacity: 0.55,
+        blur: 3,
+      }}
       styles={{
         root: {
           zIndex: 999,
@@ -81,8 +90,8 @@ export const ModalComponent = (props: PropTypes) => {
           // position: "absolute",
         },
         body: {
-          minHeight: "calc(100vh - 50px)",
-          height: "calc(100vh - 50px)",
+          minHeight: minHeight,
+          // height: "calc(100vh - 50px)",
         },
       }}>
       <LoadingOverlay
@@ -91,26 +100,9 @@ export const ModalComponent = (props: PropTypes) => {
           duration: 500,
           transition: "fade",
         }}
-        overlayProps={{ blur: 2, bg: theme.colors.default[5] }}
+        overlayProps={{ blur: 2, bg: theme.colors.default[7] }}
         loaderProps={{
-          children: (
-            <Flex
-              style={{
-                height: "100vh",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-              }}>
-              {/* <div className="loader"></div> */}
-              <Image
-                fetchPriority="high"
-                src={gitLogo}
-                alt="Logo-pp"
-                width={200}
-                height={200}
-              />
-            </Flex>
-          ),
+          children: <LoadingGlobalComponent />,
         }}
       />
 
