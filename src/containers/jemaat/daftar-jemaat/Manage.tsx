@@ -21,6 +21,7 @@ import ModalCreate from "./ModalCreate";
 import ModalDetail from "./ModalDetail";
 import { jemaatService } from "@/services";
 import { extractErrorMessage } from "@/utils";
+import ModalChooseType from "./ModalChooseType";
 
 dayjs.extend(relativeTime);
 
@@ -39,6 +40,8 @@ const Manage = () => {
 
   const isLoading = useBoolean();
 
+  const isOpenModalType = useBoolean();
+
   const isOpenModalCreate = useBoolean();
 
   const isOpenModalDetail = useBoolean();
@@ -49,9 +52,15 @@ const Manage = () => {
 
   const [pickGender, setPickGender] = useState<string | null>(null);
 
-  const [pickStatus, setPickStatus] = useState<string | null>(null);
+  const [pickType, setPickType] = useState<string | null>("ANGGOTA");
+
+  const [pickStatus, setPickStatus] = useState<string | null>("AKTIF");
 
   const [pickJemaat, setPickJemaat] = useState<string>("");
+
+  const [chooseForm, setChooseForm] = useState<string>("");
+
+  console.log("CHOOSE", chooseForm);
 
   async function handleGetAll() {
     isLoading.onTrue();
@@ -65,6 +74,7 @@ const Manage = () => {
           : searchData,
         gender: pickGender,
         status: pickStatus,
+        type: pickType,
       };
 
       const response = await jemaatService.getAll(params);
@@ -99,13 +109,13 @@ const Manage = () => {
     setDataJemaat([]);
     setActivePage(1);
     setHasMore(true);
-  }, [searchData, pickGender, pickStatus]);
+  }, [searchData, pickGender, pickStatus, pickType]);
 
   useEffect(() => {
     if (activePage === 1) {
       handleGetAll();
     }
-  }, [activePage, searchData, pickGender, pickStatus]);
+  }, [activePage, searchData, pickGender, pickStatus, pickType]);
 
   useEffect(() => {
     if (activePage > 1) {
@@ -157,6 +167,7 @@ const Manage = () => {
           onClick: () => {
             isOpenModalDetail.onTrue();
             setPickJemaat(data.code);
+            setChooseForm(data.type);
           },
         },
         {
@@ -179,13 +190,14 @@ const Manage = () => {
           {
             type: "ButtonNew",
             onClick: () => {
-              isOpenModalCreate.onTrue();
+              isOpenModalType.onTrue();
             },
           },
         ]}
         haveDropdown
         dropdowns={[
           { type: "Gender", pick: pickGender, setPick: setPickGender },
+          { type: "TypeJemaat", pick: pickType, setPick: setPickType },
           { type: "StatusJemaat", pick: pickStatus, setPick: setPickStatus },
         ]}
       />
@@ -256,8 +268,16 @@ const Manage = () => {
 
                                 <BadgeComponent
                                   variant="light"
-                                  color={theme.colors.success[9]}
-                                  text={data.status}
+                                  color={
+                                    data.status === "AKTIF"
+                                      ? theme.colors.success[9]
+                                      : theme.colors.failed[9]
+                                  }
+                                  text={
+                                    data.status === "AKTIF"
+                                      ? "Aktif"
+                                      : "Tidak Aktif"
+                                  }
                                   radius={"xs"}
                                   size="xs"
                                 />
@@ -290,12 +310,23 @@ const Manage = () => {
         <EmptyData />
       )}
 
+      <ModalChooseType
+        isOpenModal={isOpenModalType}
+        handleSelect={(value) => {
+          setChooseForm(value);
+          isOpenModalType.onFalse();
+          isOpenModalCreate.onTrue();
+        }}
+      />
+
       <ModalCreate
+        formName={chooseForm}
         isOpenModal={isOpenModalCreate}
         handleGetAll={handleGetAll}
       />
 
       <ModalDetail
+        formName={chooseForm}
         codeJemaat={pickJemaat}
         isOpenModal={isOpenModalDetail}
         handleGetAll={handleGetAll}

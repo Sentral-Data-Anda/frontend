@@ -11,6 +11,9 @@ interface PropTypes {
   require?: boolean;
   disabled?: boolean;
   withinPortal?: boolean;
+  status?: string;
+  register?: string;
+  type?: string[];
 }
 
 export const DropdownJemaat = (props: PropTypes) => {
@@ -21,6 +24,9 @@ export const DropdownJemaat = (props: PropTypes) => {
     require = false,
     disabled = false,
     withinPortal = true,
+    status,
+    type,
+    register,
   } = props;
 
   const { isLoadingDropdown, selectJemaat, fetchDropdownJemaat } =
@@ -28,7 +34,11 @@ export const DropdownJemaat = (props: PropTypes) => {
 
   useEffect(() => {
     if (fetchDropdownJemaat) {
-      fetchDropdownJemaat();
+      fetchDropdownJemaat({
+        status,
+        type,
+        register,
+      });
     }
   }, [fetchDropdownJemaat]);
 

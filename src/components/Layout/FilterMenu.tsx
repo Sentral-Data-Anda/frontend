@@ -16,6 +16,7 @@ import {
   DropdownStatusJemaat,
   DropdownStatusUser,
   DropdownTypeItem,
+  DropdownTypeJemaat,
 } from "../Dropdown";
 import { ButtonComponent } from "../Button";
 import { SearchComponent } from "../Search";
@@ -38,6 +39,7 @@ type FilterConfig =
       | "TypeItem"
       | "Room"
       | "Bapel"
+      | "TypeJemaat"
       | "StatusJemaat"
       | "StatusUser"
       | "Tahun"
@@ -55,6 +57,7 @@ interface FilterMenuProps {
       | "TypeItem"
       | "Room"
       | "Bapel"
+      | "TypeJemaat"
       | "StatusJemaat"
       | "StatusUser"
       | "Tahun"
@@ -183,6 +186,15 @@ export const FilterMenu = (props: FilterMenuProps) => {
                   return (
                     <Grid.Col span={colSpan} key={index}>
                       <DropdownStatusJemaat
+                        pick={dropdown.pick}
+                        setPick={dropdown.setPick}
+                      />
+                    </Grid.Col>
+                  );
+                case "TypeJemaat":
+                  return (
+                    <Grid.Col span={colSpan} key={index}>
+                      <DropdownTypeJemaat
                         pick={dropdown.pick}
                         setPick={dropdown.setPick}
                       />

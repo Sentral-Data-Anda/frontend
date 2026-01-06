@@ -35,6 +35,9 @@ const titleMap: Record<string, string> = {
   ruangan: "Ruangan",
   agenda: "Agenda Ruangan",
 
+  report: "Report",
+  "report-jemaat": "Report Jemaat",
+
   "[id]": "Detail",
 };
 
@@ -283,11 +286,11 @@ export function listStatusJemaat() {
   const templateData = [
     {
       label: "Aktif",
-      value: "Aktif",
+      value: "AKTIF",
     },
     {
       label: "Tidak Aktif",
-      value: "Tidak_Aktif",
+      value: "TIDAK_AKTIF",
     },
   ];
 
@@ -338,3 +341,48 @@ export const formatNumber = (number: number) => {
   });
   return formatter.format(number) || "-";
 };
+
+export function listEducation() {
+  const templateData: string[] = [
+    "SD/MI",
+    "SMP/MTs",
+    "SMA/SMK/MA",
+    "D1",
+    "D2",
+    "D3",
+    "S1/Sarjana",
+    "S2/Magister",
+    "S3/Doktor",
+  ];
+
+  return templateData;
+}
+
+export function listBloodType() {
+  const templateData: string[] = ["A", "B", "O", "AB"];
+
+  return templateData;
+}
+
+export function listStatusMartial() {
+  const templateData = [
+    {
+      label: "Belum Menikah",
+      value: "BM",
+    },
+    {
+      label: "Sudah Menikah",
+      value: "SM",
+    },
+    {
+      label: "Cerai Mati",
+      value: "CM",
+    },
+    {
+      label: "Cerai Hidup",
+      value: "CH",
+    },
+  ];
+
+  return templateData;
+}

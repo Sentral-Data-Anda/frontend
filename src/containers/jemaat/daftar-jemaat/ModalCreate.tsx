@@ -1,6 +1,6 @@
 import { useBoolean } from "@/hooks";
 import { FormDaftarJemaat } from "@/types";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Form from "./Form";
 import { ButtonSubmitComponent, ModalComponent } from "@/components";
 import { jemaatService } from "@/services";
@@ -9,22 +9,55 @@ import { customNotification, extractErrorMessage } from "@/utils";
 interface PropTypes {
   isOpenModal: ReturnType<typeof useBoolean>;
   handleGetAll: () => void;
+  formName: string;
 }
 
 const ModalCreate = (props: PropTypes) => {
-  const { isOpenModal, handleGetAll } = props;
+  const { isOpenModal, handleGetAll, formName } = props;
 
   const isLoading = useBoolean();
 
   const [formDaftarJemaat, setFormDaftarJemaat] = useState<FormDaftarJemaat>({
-    name: "",
-    birthDate: null,
+    name: undefined,
     gender: null,
+    birthPlace: "",
+    birthDate: null,
+    email: "",
+    phone: "",
+    bloodType: null,
+    lastEducation: null,
+    professionId: null,
+    etnicGroupId: null,
+
+    provincesCode: null,
+    regenciesCode: null,
+    districtsCode: null,
+    villagesCode: null,
     address: "",
-    email: null,
-    phone: null,
-    status: null,
+    zoneChurchId: null,
+
+    statusMartial: null,
+    spouseName: "",
+    martialPlace: "",
+    martialDate: null,
+    codeInduk: "",
+    additional: [],
   });
+
+  useEffect(() => {
+    if (isOpenModal.value && formName === "ANGGOTA") {
+      setFormDaftarJemaat({
+        ...formDaftarJemaat,
+        additional: [
+          {
+            type: null,
+            place: "",
+            date: null,
+          },
+        ],
+      });
+    }
+  }, [isOpenModal, formName]);
 
   async function handleCreate(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -41,6 +74,8 @@ const ModalCreate = (props: PropTypes) => {
           formDaftarJemaat.phone !== "" && formDaftarJemaat.phone !== null
             ? formDaftarJemaat.phone
             : null,
+        typeJemaat: formName,
+        statusJemaat: formName === "SIMPATISAN" ? "TIDAK_AKTIF" : "AKTIF",
       };
 
       const response = await jemaatService.create(payload);
@@ -50,13 +85,30 @@ const ModalCreate = (props: PropTypes) => {
           () => {
             handleGetAll();
             setFormDaftarJemaat({
-              name: "",
-              birthDate: null,
+              name: undefined,
               gender: null,
-              address: "",
+              birthPlace: "",
+              birthDate: null,
               email: "",
               phone: "",
-              status: null,
+              bloodType: null,
+              lastEducation: null,
+              professionId: null,
+              etnicGroupId: null,
+
+              provincesCode: null,
+              regenciesCode: null,
+              districtsCode: null,
+              villagesCode: null,
+              address: "",
+              zoneChurchId: null,
+
+              statusMartial: null,
+              spouseName: "",
+              martialPlace: "",
+              martialDate: null,
+              codeInduk: "",
+              additional: [],
             });
             isOpenModal.onFalse();
             isLoading.onFalse();
@@ -76,21 +128,39 @@ const ModalCreate = (props: PropTypes) => {
   return (
     <ModalComponent
       opened={isOpenModal.value}
-      title="Create New Jemaat"
+      title={`Create New ${formName}`}
       withCloseButton
       close={() => {
         isOpenModal.onFalse();
         setFormDaftarJemaat({
-          name: "",
-          birthDate: null,
+          name: undefined,
           gender: null,
-          address: "",
+          birthPlace: "",
+          birthDate: null,
           email: "",
           phone: "",
-          status: null,
+          bloodType: null,
+          lastEducation: null,
+          professionId: null,
+          etnicGroupId: null,
+
+          provincesCode: null,
+          regenciesCode: null,
+          districtsCode: null,
+          villagesCode: null,
+          address: "",
+          zoneChurchId: null,
+
+          statusMartial: null,
+          spouseName: "",
+          martialPlace: "",
+          martialDate: null,
+          codeInduk: "",
+          additional: [],
         });
       }}>
       <Form
+        formName={formName}
         isDisable={isLoading.value}
         formDaftarJemaat={formDaftarJemaat}
         setFormDaftarJemaat={setFormDaftarJemaat}

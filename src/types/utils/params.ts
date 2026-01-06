@@ -17,4 +17,9 @@ export type TypeParams = {
   endTime?: string | null;
   category?: string | null;
   status?: string | null;
+  register?: string | null;
+  type?: string | null | string[];
+  provincesCode?: string | null;
+  regenciesCode?: string | null;
+  districtsCode?: string | null;
 };

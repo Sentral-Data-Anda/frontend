@@ -22,6 +22,7 @@ interface PropTypes {
   limitData: number;
   loading: boolean;
   minWidth?: number;
+  maxHeight?: number;
 }
 
 export const TableComponent = (props: PropTypes) => {
@@ -37,6 +38,7 @@ export const TableComponent = (props: PropTypes) => {
     limitData,
     loading = true,
     minWidth = 500,
+    maxHeight,
   } = props;
 
   const theme = useMantineTheme();
@@ -57,8 +59,10 @@ export const TableComponent = (props: PropTypes) => {
                 w={value.width}
                 style={{
                   textWrap: "nowrap",
-                  fontSize: "14px",
-                }}>
+                  fontSize: "12px",
+                }}
+                colSpan={value.colSpan ?? 0}
+                rowSpan={value.rowSpan ?? 0}>
                 {value.name}
               </Table.Th>
             ))
@@ -79,7 +83,7 @@ export const TableComponent = (props: PropTypes) => {
                 style={{
                   textWrap: "nowrap",
                   border: "1px solid gray",
-                  fontSize: "14px",
+                  fontSize: "12px",
                 }}
                 colSpan={value.colSpan ?? 0}
                 rowSpan={value.rowSpan ?? 0}>
@@ -113,13 +117,22 @@ export const TableComponent = (props: PropTypes) => {
   return (
     <Grid w={"100%"} align="center">
       <Grid.Col span={12}>
-        <Table.ScrollContainer minWidth={minWidth}>
+        <Table.ScrollContainer
+          minWidth={minWidth}
+          maxHeight={maxHeight}
+          type="native"
+          styles={{
+            scrollContainer: {
+              scrollBehavior: "smooth",
+            },
+          }}>
           <Table
             striped
             highlightOnHover
             withColumnBorders
             withTableBorder
             stripedColor={"white"}
+            stickyHeader
             styles={{
               td: {
                 height: 35,
@@ -136,6 +149,7 @@ export const TableComponent = (props: PropTypes) => {
                 paddingBlock: 3,
                 paddingInline: 5,
                 color: "white",
+                backgroundColor: theme.colors.default[9],
               },
             }}>
             {typeHeader === "basic" && basicHeader}

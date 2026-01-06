@@ -24,6 +24,7 @@ import iconEvent from "../../assets/icons/ic_event.svg";
 import iconGaleri from "../../assets/icons/ic_galeri.svg";
 import iconPelayan from "../../assets/icons/ic_pelayan.svg";
 import iconJemaat from "../../assets/icons/ic_jemaat.svg";
+import iconReport from "../../assets/icons/ic_report.svg";
 import iconAdmin from "../../assets/icons/ic_admin.svg";
 
 interface ListMenu {
@@ -69,6 +70,12 @@ export const listMenu: ListMenu[] = [
     link: "/pelayan",
     access: "Open Menu Pelayan",
     icon: <Image src={iconPelayan} alt="ic_pelayan" height={15} width={15} />,
+  },
+  {
+    name: "Report",
+    link: "/report",
+    access: "Open Menu Report",
+    icon: <Image src={iconReport} alt="ic_report" height={15} width={15} />,
   },
   {
     name: "Admin",

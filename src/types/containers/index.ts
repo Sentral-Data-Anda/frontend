@@ -7,3 +7,4 @@ export * from "./agenda";
 export * from "./pelayan";
 export * from "./jemaat";
 export * from "./ruangan";
+export * from "./report";

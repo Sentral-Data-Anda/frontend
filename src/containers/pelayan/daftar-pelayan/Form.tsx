@@ -123,6 +123,8 @@ const Form = (props: PropTypes) => {
                     });
                   }}
                   disabled={isEditing ? true : isDisable}
+                  type={["ANGGOTA", "ANAK"]}
+                  status="AKTIF"
                 />
               </Grid.Col>
             ) : (

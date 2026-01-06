@@ -11,8 +11,7 @@ import { customNotification } from "@/utils/notification";
 import { useZustandStore } from "@/hooks";
 import { authService } from "@/services";
 import { extractErrorMessage } from "@/utils";
-import Image from "next/image";
-import gitLogo from "../../assets/gif/logo.gif";
+import { LoadingGlobalComponent } from "@/components";
 
 interface ExtendedJwtPayload extends JwtPayload {
   type?: string;
@@ -101,13 +100,13 @@ const Container = (props: ContainerAuthProps) => {
           const pathRedirect: string = redirect ?? "/dashboard";
           setTimeout(() => {
             router.replace(pathRedirect);
-          }, 500);
+          }, 1000);
         }
 
         if (response.data.status === -1) {
           setTimeout(() => {
             router.push("/login");
-          }, 500);
+          }, 1000);
         }
       }
     } catch (error: any) {
@@ -154,14 +153,14 @@ const Container = (props: ContainerAuthProps) => {
           // onVerify={() => setVerifyFirstLogin(true)}
         />
       ) : (
-        // <div className="loader"></div>
-        <Image
-          fetchPriority="high"
-          src={gitLogo}
-          alt="Logo-pp"
-          width={200}
-          height={200}
-        />
+        <LoadingGlobalComponent />
+        // <Image
+        //   fetchPriority="high"
+        //   src={gitLogo}
+        //   alt="Logo-pp"
+        //   width={200}
+        //   height={200}
+        // />
       )}
     </Box>
   );

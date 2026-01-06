@@ -1,6 +1,5 @@
 import axios, { AxiosResponse } from "axios";
 import Cookies from "js-cookie";
-import { customNotification } from "./notification";
 
 const baseURL = process.env.NEXT_PUBLIC_API_URL;
 const nodeENV = process.env.NODE_ENV;
@@ -54,22 +53,16 @@ const fetchData = (baseURL: string) => {
             withCredentials: true,
           });
 
-          console.log("MINTA REFRESH TOKEN");
           return instance(originalRequest);
         } catch (refreshError: any) {
-          customNotification({
-            type: "Warning",
-            text: "Session telah berakhir. Silahkan Login kembali!",
-          }).then(() => {
-            setTimeout(() => {
-              if (typeof window !== "undefined") {
-                Cookies.remove("accessToken");
-                Cookies.remove("refreshToken");
-                localStorage.removeItem("code-user");
-                window.location.reload();
-              }
-            }, 500);
-          });
+          setTimeout(() => {
+            if (typeof window !== "undefined") {
+              Cookies.remove("accessToken");
+              Cookies.remove("refreshToken");
+              localStorage.removeItem("code-user");
+              window.location.reload();
+            }
+          }, 500);
 
           if (
             refreshError.response.data.error &&

@@ -8,6 +8,10 @@ import { dropdownListService } from "@/services";
 export interface DropdownListState {
   isLoadingDropdown: boolean;
 
+  isLoadingRegencies: boolean;
+  isLoadingDistrict: boolean;
+  isLoadingVillages: boolean;
+
   selectBapel: ComboboxItem[];
   fetchDropdownBapel: () => Promise<void>;
 
@@ -30,14 +34,39 @@ export interface DropdownListState {
   fetchDropdownSkillMusic: () => Promise<void>;
 
   selectJemaat: ComboboxItem[];
-  fetchDropdownJemaat: () => Promise<void>;
+  fetchDropdownJemaat: (_value?: TypeParams) => Promise<void>;
 
   selectTemplateJadwal: ComboboxItem[];
   fetchDropdownTemplateJadwal: (_value?: TypeParams) => Promise<void>;
+
+  selectProfession: ComboboxItem[];
+  fetchDropdownProfession: () => Promise<void>;
+
+  selectEtnicGroup: ComboboxItem[];
+  fetchDropdownEtnicGroup: () => Promise<void>;
+
+  selectProvinces: ComboboxItem[];
+  fetchDropdownProvinces: () => Promise<void>;
+
+  selectRegencies: ComboboxItem[];
+  fetchDropdownRegencies: (_value?: TypeParams) => Promise<void>;
+
+  selectDistricts: ComboboxItem[];
+  fetchDropdownDistricts: (_value?: TypeParams) => Promise<void>;
+
+  selectVillages: ComboboxItem[];
+  fetchDropdownVillages: (_value?: TypeParams) => Promise<void>;
+
+  selectZoneChurch: ComboboxItem[];
+  fetchDropdownZoneChurch: () => Promise<void>;
 }
 
 const dropdownListStore: StateCreator<DropdownListState> = (set) => ({
   isLoadingDropdown: false,
+
+  isLoadingRegencies: false,
+  isLoadingDistrict: false,
+  isLoadingVillages: false,
 
   selectBapel: [],
   fetchDropdownBapel: async () => {
@@ -245,11 +274,13 @@ const dropdownListStore: StateCreator<DropdownListState> = (set) => ({
   },
 
   selectJemaat: [],
-  fetchDropdownJemaat: async () => {
+  fetchDropdownJemaat: async (params?: TypeParams) => {
     try {
       set({ isLoadingDropdown: true });
 
-      const response = await dropdownListService.getJemaat();
+      console.log("PARAMS", params);
+
+      const response = await dropdownListService.getJemaat(params ?? {});
 
       if (response.status === 200) {
         const select = response?.data?.map((value: DropdownGlobal) => {
@@ -301,6 +332,216 @@ const dropdownListStore: StateCreator<DropdownListState> = (set) => ({
         });
       }
       set({ selectTemplateJadwal: [] });
+    } finally {
+      set({ isLoadingDropdown: false });
+    }
+  },
+
+  selectProfession: [],
+  fetchDropdownProfession: async () => {
+    try {
+      set({ isLoadingDropdown: true });
+
+      const response = await dropdownListService.getProfession();
+
+      if (response.status === 200) {
+        const select = response?.data?.map((value: DropdownGlobal) => {
+          return {
+            label: value.name,
+            value: String(value.id),
+          };
+        });
+
+        set({ selectProfession: select });
+      }
+    } catch (error: any) {
+      if (typeof error !== "string") {
+        customNotification({
+          type: "Error",
+          text: error || "Something went wrong",
+        });
+      }
+      set({ selectProfession: [] });
+    } finally {
+      set({ isLoadingDropdown: false });
+    }
+  },
+
+  selectEtnicGroup: [],
+  fetchDropdownEtnicGroup: async () => {
+    try {
+      set({ isLoadingDropdown: true });
+
+      const response = await dropdownListService.getEtnicGroup();
+
+      if (response.status === 200) {
+        const select = response?.data?.map((value: DropdownGlobal) => {
+          return {
+            label: value.name,
+            value: String(value.id),
+          };
+        });
+
+        set({ selectEtnicGroup: select });
+      }
+    } catch (error: any) {
+      if (typeof error !== "string") {
+        customNotification({
+          type: "Error",
+          text: error || "Something went wrong",
+        });
+      }
+      set({ selectEtnicGroup: [] });
+    } finally {
+      set({ isLoadingDropdown: false });
+    }
+  },
+
+  selectProvinces: [],
+  fetchDropdownProvinces: async () => {
+    try {
+      set({ isLoadingDropdown: true });
+
+      const response = await dropdownListService.getProvinces();
+
+      if (response.status === 200) {
+        const select = response?.data?.map((value: DropdownGlobal) => {
+          return {
+            label: value.name,
+            value: String(value.code),
+          };
+        });
+
+        set({ selectProvinces: select });
+      }
+    } catch (error: any) {
+      if (typeof error !== "string") {
+        customNotification({
+          type: "Error",
+          text: error || "Something went wrong",
+        });
+      }
+      set({ selectProvinces: [] });
+    } finally {
+      set({ isLoadingDropdown: false });
+    }
+  },
+
+  selectRegencies: [],
+  fetchDropdownRegencies: async (params?: TypeParams) => {
+    try {
+      set({ isLoadingRegencies: true });
+
+      const response = await dropdownListService.getRegencies(params ?? {});
+
+      if (response.status === 200) {
+        const select = response?.data?.map((value: DropdownGlobal) => {
+          return {
+            label: value.name,
+            value: String(value.code),
+          };
+        });
+
+        set({ selectRegencies: select });
+      }
+    } catch (error: any) {
+      if (typeof error !== "string") {
+        customNotification({
+          type: "Error",
+          text: error || "Something went wrong",
+        });
+      }
+      set({ selectRegencies: [] });
+    } finally {
+      set({ isLoadingRegencies: false });
+    }
+  },
+
+  selectDistricts: [],
+  fetchDropdownDistricts: async (params?: TypeParams) => {
+    try {
+      set({ isLoadingDistrict: true });
+
+      const response = await dropdownListService.getDistricts(params ?? {});
+
+      if (response.status === 200) {
+        const select = response?.data?.map((value: DropdownGlobal) => {
+          return {
+            label: value.name,
+            value: String(value.code),
+          };
+        });
+
+        set({ selectDistricts: select });
+      }
+    } catch (error: any) {
+      if (typeof error !== "string") {
+        customNotification({
+          type: "Error",
+          text: error || "Something went wrong",
+        });
+      }
+      set({ selectDistricts: [] });
+    } finally {
+      set({ isLoadingDistrict: false });
+    }
+  },
+
+  selectVillages: [],
+  fetchDropdownVillages: async (params?: TypeParams) => {
+    try {
+      set({ isLoadingVillages: true });
+
+      const response = await dropdownListService.getVillages(params ?? {});
+
+      if (response.status === 200) {
+        const select = response?.data?.map((value: DropdownGlobal) => {
+          return {
+            label: value.name,
+            value: String(value.code),
+          };
+        });
+
+        set({ selectVillages: select });
+      }
+    } catch (error: any) {
+      if (typeof error !== "string") {
+        customNotification({
+          type: "Error",
+          text: error || "Something went wrong",
+        });
+      }
+      set({ selectVillages: [] });
+    } finally {
+      set({ isLoadingVillages: false });
+    }
+  },
+
+  selectZoneChurch: [],
+  fetchDropdownZoneChurch: async () => {
+    try {
+      set({ isLoadingDropdown: true });
+
+      const response = await dropdownListService.getZoneChurch();
+
+      if (response.status === 200) {
+        const select = response?.data?.map((value: DropdownGlobal) => {
+          return {
+            label: value.name,
+            value: String(value.id),
+          };
+        });
+
+        set({ selectZoneChurch: select });
+      }
+    } catch (error: any) {
+      if (typeof error !== "string") {
+        customNotification({
+          type: "Error",
+          text: error || "Something went wrong",
+        });
+      }
+      set({ selectZoneChurch: [] });
     } finally {
       set({ isLoadingDropdown: false });
     }

@@ -18,3 +18,4 @@ export * from "./ruanganService";
 export * from "./tipeBarangService";
 export * from "./userService";
 export * from "./templatePelayan";
+export * from "./reportService";

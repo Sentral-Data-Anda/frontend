@@ -10,3 +10,4 @@ export * from "./gallery";
 export * from "./agenda";
 export * from "./pelayan";
 export * from "./bad-gateway";
+export * from "./report";

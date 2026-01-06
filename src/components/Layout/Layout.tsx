@@ -75,6 +75,7 @@ export const Layout = (props: PropTypes) => {
           padding: "1rem",
           minHeight: "100%",
           flex: 1,
+          marginBottom: "3.5rem",
         },
       }}>
       {/* HEADER */}

@@ -4,7 +4,7 @@ import { useState } from "react";
 
 export const useHooksPagination = () => {
   const [activePage, setActivePage] = useState<number>(1);
-  const [limitPage, setLimitPage] = useState<number>(10);
+  const [limitPage, setLimitPage] = useState<number>(15);
   const [totalPage, setTotalPage] = useState<number>(0);
   const [totalData, setTotalData] = useState<number>(0);
   const [searchData, setSearchData] = useState<string>("");
