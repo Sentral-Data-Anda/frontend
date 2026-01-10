@@ -12,6 +12,7 @@ import CardRangeAge from "./CardRangeAge";
 import CardEtnicGroup from "./CardEtnicGroup";
 import CardProfession from "./CardProfession";
 import CardBirthDate from "./CardBirthDate";
+import dayjs from "dayjs";
 
 const ManageReportJemaat = () => {
   const isLoadingCountJemaat = useBoolean();
@@ -125,7 +126,7 @@ const ManageReportJemaat = () => {
       <Grid.Col span={12}>
         <Paper shadow="sm" radius="md" p="xs" withBorder>
           <Text size="md" fw={600}>
-            Daftar Ulang Tahun Bulan Ini
+            Daftar Ulang Tahun Bulan {dayjs().format("MMMM")}
           </Text>
           <CardBirthDate />
         </Paper>

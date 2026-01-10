@@ -92,7 +92,9 @@ const CardBirthDate = () => {
                                   textWrap: "nowrap",
                                   opacity: 0.5,
                                 }}>
-                                {value.birthDate ?? "-"}
+                                {value.birthDate
+                                  ? dayjs(value.birthDate).format("DD MMMM")
+                                  : "-"}
                               </Text>
 
                               <BadgeComponent
