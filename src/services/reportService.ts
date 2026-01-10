@@ -12,4 +12,28 @@ export class reportService {
 
     return response.data;
   };
+
+  static jemaatByBloodType = async () => {
+    const response = await instanceAxios.get("/report/jemaat/blood-type");
+
+    return response.data;
+  };
+
+  static jemaatByAge = async () => {
+    const response = await instanceAxios.get("/report/jemaat/age");
+
+    return response.data;
+  };
+
+  static jemaatByEtnic = async () => {
+    const response = await instanceAxios.get("/report/jemaat/etnic");
+
+    return response.data;
+  };
+
+  static jemaatByProfession = async () => {
+    const response = await instanceAxios.get("/report/jemaat/profession");
+
+    return response.data;
+  };
 }
