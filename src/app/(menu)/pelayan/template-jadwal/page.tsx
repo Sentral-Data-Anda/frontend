@@ -3,7 +3,7 @@ import { Metadata } from "next";
 
 export function generateMetadata(): Metadata {
   return {
-    title: "Template Jadwal Pelayan",
+    title: "Template Jadwal",
   };
 }
 

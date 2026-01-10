@@ -11,10 +11,11 @@ interface PropTypes {
   isOpenModal: ReturnType<typeof useBoolean>;
   codeBapel: string;
   handleGetAll: () => void;
+  withEditButton: boolean;
 }
 
 const ModalDetail = (props: PropTypes) => {
-  const { isOpenModal, codeBapel, handleGetAll } = props;
+  const { isOpenModal, codeBapel, handleGetAll, withEditButton } = props;
 
   const isLoading = useBoolean();
 
@@ -97,7 +98,7 @@ const ModalDetail = (props: PropTypes) => {
     <ModalComponent
       opened={isOpenModal.value}
       loading={isLoadingDetail.value}
-      withEditButton
+      withEditButton={withEditButton}
       isEditing={isEditing}
       title={`${isEditing.value ? "Edit" : "Detail"} Bapel`}
       close={() => {

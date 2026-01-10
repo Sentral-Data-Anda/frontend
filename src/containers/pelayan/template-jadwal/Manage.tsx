@@ -1,6 +1,6 @@
 "use client";
 
-import { useBoolean, useHooksPagination } from "@/hooks";
+import { useBoolean, useHooksPagination, useZustandStore } from "@/hooks";
 import { Flex, Stack, Table, Text, useMantineTheme } from "@mantine/core";
 import { IconEye, IconTrash } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
@@ -29,6 +29,20 @@ const Manage = () => {
     searchData,
     setSearchData,
   } = useHooksPagination();
+
+  const { detailUser } = useZustandStore();
+
+  const isAdmin = detailUser?.roleUser?.isAdmin;
+
+  const haveAccessCreate = detailUser?.roleUser?.access?.find(
+    (item) => item.name === "Create Template Jadwal",
+  );
+  const haveAccessUpdate = detailUser?.roleUser?.access?.find(
+    (item) => item.name === "Update Template Jadwal",
+  );
+  const haveAccessDelete = detailUser?.roleUser?.access?.find(
+    (item) => item.name === "Delete Template Jadwal",
+  );
 
   const isLoading = useBoolean();
 
@@ -156,6 +170,7 @@ const Manage = () => {
           onClick: () => {
             alertRemove(data);
           },
+          disabled: !isAdmin && !haveAccessDelete,
         },
       ],
     },
@@ -165,14 +180,18 @@ const Manage = () => {
     <>
       <FilterMenu
         onSearch={setSearchData}
-        buttons={[
-          {
-            type: "ButtonNew",
-            onClick: () => {
-              isOpenModalCreate.onTrue();
-            },
-          },
-        ]}
+        buttons={
+          isAdmin || haveAccessCreate
+            ? [
+                {
+                  type: "ButtonNew",
+                  onClick: () => {
+                    isOpenModalCreate.onTrue();
+                  },
+                },
+              ]
+            : []
+        }
         haveDropdown
         dropdowns={[{ type: "Bapel", pick: pickBapel, setPick: setPickBapel }]}
       />
@@ -270,6 +289,7 @@ const Manage = () => {
         codeTemplate={pickTemplate}
         isOpenModal={isOpenModalDetail}
         handleGetAll={handleGetAll}
+        withEditButton={isAdmin || !!haveAccessUpdate}
       />
     </>
   );

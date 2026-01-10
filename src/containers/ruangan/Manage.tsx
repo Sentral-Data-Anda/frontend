@@ -17,8 +17,25 @@ import ModalCreate from "./ModalCreate";
 import ModalDetail from "./ModalDetail";
 import { customNotification } from "@/utils";
 import { ruanganService } from "@/services";
+import { useZustandStore } from "@/hooks";
 
 const Manage = () => {
+  const { detailUser } = useZustandStore();
+
+  const isAdmin = detailUser?.roleUser?.isAdmin;
+
+  const haveAccessCreate = detailUser?.roleUser?.access?.find(
+    (item) => item.name === "Create Room",
+  );
+
+  const haveAccessUpdate = detailUser?.roleUser?.access?.find(
+    (item) => item.name === "Update Room",
+  );
+
+  const haveAccessDelete = detailUser?.roleUser?.access?.find(
+    (item) => item.name === "Delete Room",
+  );
+
   const {
     activePage,
     setActivePage,
@@ -151,6 +168,7 @@ const Manage = () => {
       onClick: () => {
         alertRemove(data);
       },
+      disabled: !isAdmin && !haveAccessDelete,
     },
   ];
 
@@ -158,14 +176,18 @@ const Manage = () => {
     <>
       <FilterMenu
         onSearch={setSearchData}
-        buttons={[
-          {
-            type: "ButtonNew",
-            onClick: () => {
-              isOpenModalCreate.onTrue();
-            },
-          },
-        ]}
+        buttons={
+          isAdmin || haveAccessCreate
+            ? [
+                {
+                  type: "ButtonNew",
+                  onClick: () => {
+                    isOpenModalCreate.onTrue();
+                  },
+                },
+              ]
+            : []
+        }
       />
 
       {dataRuangan.length > 0 ? (
@@ -226,6 +248,7 @@ const Manage = () => {
         codeRuang={pickRuang}
         isOpenModal={isOpenModalDetail}
         handleGetAll={handleGetAll}
+        withEditButton={isAdmin || !!haveAccessUpdate}
       />
     </>
   );

@@ -21,15 +21,36 @@ interface ExtendedJwtPayload extends JwtPayload {
 
 const menuAccessMap: Record<string, string> = {
   "/ruangan": "Open Menu Room",
-  "/barang": "Open Menu Item",
+
+  "/barang": "Open Menu Barang",
+  "/barang/daftar-barang": "Open Menu Barang",
+  "/barang/tipe-barang": "Open Menu Tipe Barang",
+
   "/events": "Open Menu Event",
+
   "/gallery": "Open Menu Gallery",
+
+  "/jemaat": "Open Menu Jemaat",
+  "/jemaat/daftar-jemaat": "Open Menu Jemaat",
+  "/jemaat/role-jemaat": "Open Menu Role Jemaat",
+
+  "/jemaat/bapel": "Open Menu Bapel",
+
   "/pelayan": "Open Menu Pelayan",
+  "/pelayan/daftar-pelayan": "Open Menu Pelayan",
+  "/pelayan/jadwal-pelayan": "Open Menu Jadwal Pelayan",
+  "/pelayan/template-jadwal": "Open Menu Template Jadwal",
+  "/pelayan/role-pelayan": "Open Menu Role Pelayan",
+
   "/agenda": "Open Menu Agenda",
+
+  "/report": "Open Menu Report",
+  "/report/report-jemaat": "Open Menu Report Jemaat",
+
   "/administrator": "Open Menu Administrator",
   "/administrator/user": "Open Menu User",
   "/administrator/role-user": "Open Menu Role User",
-  "/administrator/bapel": "Open Menu Bapel",
+  "/administrator/access-right": "Open Menu Access Right",
   "/administrator/activity-logs": "Open Menu Activity Logs",
 };
 

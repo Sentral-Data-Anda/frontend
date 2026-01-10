@@ -28,7 +28,7 @@ export const HeaderDashboard = () => {
   const isAdmin = detailUser?.roleUser?.isAdmin;
 
   const accessCreateAgenda = detailUser?.roleUser?.access?.find(
-    (item) => item.name === "Create Loan Room",
+    (item) => item.name === "Create Agenda",
   );
 
   const accessCreateEvent = detailUser?.roleUser?.access?.find(

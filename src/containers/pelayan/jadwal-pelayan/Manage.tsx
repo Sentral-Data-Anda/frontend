@@ -1,6 +1,6 @@
 "use client";
 
-import { useBoolean, useHooksPagination } from "@/hooks";
+import { useBoolean, useHooksPagination, useZustandStore } from "@/hooks";
 import { Flex, Grid, Stack, Table, Text, useMantineTheme } from "@mantine/core";
 import { DatesProvider, MonthPickerInput } from "@mantine/dates";
 import {
@@ -30,6 +30,20 @@ import ModalDetail from "./ModalDetail";
 
 const Manage = () => {
   const theme = useMantineTheme();
+
+  const { detailUser } = useZustandStore();
+
+  const isAdmin = detailUser?.roleUser?.isAdmin;
+
+  const haveAccessCreate = detailUser?.roleUser?.access?.find(
+    (item) => item.name === "Create Jadwal Pelayan",
+  );
+  const haveAccessUpdate = detailUser?.roleUser?.access?.find(
+    (item) => item.name === "Update Jadwal Pelayan",
+  );
+  const haveAccessDelete = detailUser?.roleUser?.access?.find(
+    (item) => item.name === "Delete Jadwal Pelayan",
+  );
 
   const today = dayjs();
 
@@ -156,6 +170,7 @@ const Manage = () => {
           onClick: () => {
             alertRemove(data);
           },
+          disabled: !isAdmin && !haveAccessDelete,
         },
       ],
     },
@@ -165,7 +180,7 @@ const Manage = () => {
     <>
       <Flex direction="column" gap="sm">
         <Grid gutter={"xs"}>
-          <Grid.Col span={7}>
+          <Grid.Col span={isAdmin || haveAccessCreate ? 7 : 12}>
             <DatesProvider settings={{ locale: "id" }}>
               <MonthPickerInput
                 size="xs"
@@ -184,15 +199,17 @@ const Manage = () => {
               />
             </DatesProvider>
           </Grid.Col>
-          <Grid.Col span={5}>
-            <ButtonComponent
-              name={"New"}
-              icon={<IconPlus size={15} stroke={1.5} />}
-              onClick={() => {
-                isOpenModalCreate.onTrue();
-              }}
-            />
-          </Grid.Col>
+          {isAdmin || haveAccessCreate ? (
+            <Grid.Col span={5}>
+              <ButtonComponent
+                name={"New"}
+                icon={<IconPlus size={15} stroke={1.5} />}
+                onClick={() => {
+                  isOpenModalCreate.onTrue();
+                }}
+              />
+            </Grid.Col>
+          ) : null}
         </Grid>
 
         <InfiniteScroll
@@ -284,6 +301,7 @@ const Manage = () => {
         codeJadwal={pickJadwal}
         isOpenModal={isOpenModalDetail}
         handleGetAll={handleGetAll}
+        withEditButton={isAdmin || !!haveAccessUpdate}
       />
     </>
   );

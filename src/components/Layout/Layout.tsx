@@ -64,7 +64,7 @@ export const Layout = (props: PropTypes) => {
           marginInline: "auto",
           maxWidth: "1024px",
           width: "100%",
-          // display: "flex",
+          display: "flex",
           justifyContent: "center",
         },
         main: {

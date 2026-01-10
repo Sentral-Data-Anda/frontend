@@ -39,13 +39,13 @@ const ManageEvents = () => {
 
   const isAdmin = detailUser?.roleUser?.isAdmin;
 
-  const accessCreate = detailUser?.roleUser?.access?.find(
+  const haveAccessCreate = detailUser?.roleUser?.access?.find(
     (item) => item.name === "Create Event",
   );
-  const accessUpdate = detailUser?.roleUser?.access?.find(
+  const haveAccessUpdate = detailUser?.roleUser?.access?.find(
     (item) => item.name === "Update Event",
   );
-  const accessDelete = detailUser?.roleUser?.access?.find(
+  const haveAccessDelete = detailUser?.roleUser?.access?.find(
     (item) => item.name === "Delete Event",
   );
 
@@ -169,7 +169,6 @@ const ManageEvents = () => {
         isOpenModalDetail.onTrue();
         setPickEvents(data.code);
       },
-      disabled: !isAdmin || !!accessUpdate,
     },
     {
       label: "Delete",
@@ -178,7 +177,7 @@ const ManageEvents = () => {
       onClick: () => {
         alertRemove(data);
       },
-      disabled: !isAdmin || !!accessDelete,
+      disabled: !isAdmin && !haveAccessDelete,
     },
   ];
 
@@ -187,7 +186,7 @@ const ManageEvents = () => {
       <FilterMenu
         onSearch={setSearchData}
         buttons={
-          isAdmin || accessCreate
+          isAdmin || haveAccessCreate
             ? [
                 {
                   type: "ButtonNew",
@@ -335,6 +334,7 @@ const ManageEvents = () => {
         codeEvent={pickEvents}
         isOpenModal={isOpenModalDetail}
         handleGetAll={handleGetAll}
+        withEditButton={isAdmin || !!haveAccessUpdate}
       />
     </>
   );

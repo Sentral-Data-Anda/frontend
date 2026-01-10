@@ -1,6 +1,6 @@
 "use client";
 
-import { useBoolean } from "@/hooks";
+import { useBoolean, useZustandStore } from "@/hooks";
 import { useHooksPagination } from "@/hooks/usePagination";
 import { RolePelayan } from "@/types";
 import { confirmSwal } from "@/utils/alertSwal";
@@ -42,6 +42,20 @@ const Manage = () => {
     searchData,
     setSearchData,
   } = useHooksPagination();
+
+  const { detailUser } = useZustandStore();
+
+  const isAdmin = detailUser?.roleUser?.isAdmin;
+
+  const haveAccessCreate = detailUser?.roleUser?.access?.find(
+    (item) => item.name === "Create Role Pelayan",
+  );
+  const haveAccessUpdate = detailUser?.roleUser?.access?.find(
+    (item) => item.name === "Update Role Pelayan",
+  );
+  const haveAccessDelete = detailUser?.roleUser?.access?.find(
+    (item) => item.name === "Delete Role Pelayan",
+  );
 
   const limitPage: number = 10;
 
@@ -145,6 +159,7 @@ const Manage = () => {
           onClick: () => {
             alertRemove(data);
           },
+          disabled: !isAdmin && !haveAccessDelete,
         },
       ],
     },
@@ -154,14 +169,18 @@ const Manage = () => {
     <>
       <FilterMenu
         onSearch={setSearchData}
-        buttons={[
-          {
-            type: "ButtonNew",
-            onClick: () => {
-              isOpenModalCreate.onTrue();
-            },
-          },
-        ]}
+        buttons={
+          isAdmin || haveAccessCreate
+            ? [
+                {
+                  type: "ButtonNew",
+                  onClick: () => {
+                    isOpenModalCreate.onTrue();
+                  },
+                },
+              ]
+            : []
+        }
       />
 
       <TableComponent
@@ -219,6 +238,7 @@ const Manage = () => {
         isOpenModal={isOpenModalDetail}
         idRole={pickRole}
         handleGetAll={handleGetAll}
+        withEditButton={isAdmin || !!haveAccessUpdate}
       />
     </>
   );

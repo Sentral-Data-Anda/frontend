@@ -1,6 +1,6 @@
 "use client";
 
-import { useBoolean } from "@/hooks";
+import { useBoolean, useZustandStore } from "@/hooks";
 import { useHooksPagination } from "@/hooks/usePagination";
 import { confirmSwal } from "@/utils/alertSwal";
 import { ActionIcon, Table, Text } from "@mantine/core";
@@ -43,6 +43,20 @@ const Manage = () => {
     searchData,
     setSearchData,
   } = useHooksPagination();
+
+  const { detailUser } = useZustandStore();
+
+  const isAdmin = detailUser?.roleUser?.isAdmin;
+
+  const haveAccessCreate = detailUser?.roleUser?.access?.find(
+    (item) => item.name === "Create Tipe Barang",
+  );
+  const haveAccessUpdate = detailUser?.roleUser?.access?.find(
+    (item) => item.name === "Update Tipe Barang",
+  );
+  const haveAccessDelete = detailUser?.roleUser?.access?.find(
+    (item) => item.name === "Delete Tipe Barang",
+  );
 
   const isLoading = useBoolean();
 
@@ -157,6 +171,7 @@ const Manage = () => {
           onClick: () => {
             alertRemove(data);
           },
+          disabled: !isAdmin && !haveAccessDelete,
         },
       ],
     },
@@ -166,14 +181,18 @@ const Manage = () => {
     <>
       <FilterMenu
         onSearch={setSearchData}
-        buttons={[
-          {
-            type: "ButtonNew",
-            onClick: () => {
-              isOpenModalCreate.onTrue();
-            },
-          },
-        ]}
+        buttons={
+          isAdmin || haveAccessCreate
+            ? [
+                {
+                  type: "ButtonNew",
+                  onClick: () => {
+                    isOpenModalCreate.onTrue();
+                  },
+                },
+              ]
+            : []
+        }
       />
 
       <TableComponent
@@ -237,6 +256,7 @@ const Manage = () => {
         codeTipeBarang={pickTipeBarang}
         isOpenModal={isOpenModalDetail}
         handleGetAll={handleGetAll}
+        withEditButton={isAdmin || !!haveAccessUpdate}
       />
     </>
   );

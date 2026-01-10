@@ -14,11 +14,12 @@ import Detail from "./Detail";
 interface PropTypes {
   isOpenModal: ReturnType<typeof useBoolean>;
   codeRuang: string;
+  withEditButton: boolean;
   handleGetAll: () => void;
 }
 
 const ModalDetail = (props: PropTypes) => {
-  const { isOpenModal, codeRuang, handleGetAll } = props;
+  const { isOpenModal, codeRuang, withEditButton, handleGetAll } = props;
 
   const isLoading = useBoolean();
 
@@ -164,7 +165,7 @@ const ModalDetail = (props: PropTypes) => {
       loading={isLoadingDetail.value}
       opened={isOpenModal.value}
       title={`${isEditing.value ? "Edit" : "Detail"} Ruangan`}
-      withEditButton
+      withEditButton={withEditButton}
       isEditing={isEditing}
       close={() => {
         isOpenModal.onFalse();
