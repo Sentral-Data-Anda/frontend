@@ -47,7 +47,7 @@ const Form = (props: PropTypes) => {
             />
           ) : (
             <DropdownJemaat
-              status="0"
+              status="AKTIF"
               type={["ANGGOTA"]}
               withLabel
               withinPortal={false}

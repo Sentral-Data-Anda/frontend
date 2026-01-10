@@ -263,7 +263,9 @@ const Manage = () => {
                                     textWrap: "nowrap",
                                     opacity: 0.5,
                                   }}>
-                                  {data.birthDate ?? "-"}
+                                  {data.birthDate
+                                    ? dayjs(data.birthDate).format("DD/MM/YYYY")
+                                    : "-"}
                                 </Text>
 
                                 <BadgeComponent
