@@ -35,11 +35,13 @@ const CardEtnicGroup = () => {
     handleGetData();
   }, []);
 
+  const chartHeight = Math.max(300, data.length * 28);
+
   return (
     <Skeleton visible={isLoading.value}>
       <Flex direction={"column"} justify={"center"} align={"center"} mih={300}>
         <BarChart
-          h={300}
+          h={chartHeight}
           data={data}
           dataKey="Suku"
           series={[
@@ -49,6 +51,7 @@ const CardEtnicGroup = () => {
               color: "#FFB996",
             },
           ]}
+          orientation="vertical"
           tickLine="none"
           gridAxis="none"
           minBarSize={10}
