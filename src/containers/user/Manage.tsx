@@ -7,7 +7,7 @@ import {
   Fieldset,
   Flex,
   Grid,
-  LoadingOverlay,
+  useMantineTheme,
 } from "@mantine/core";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -17,6 +17,7 @@ import { extractErrorMessage, listGender } from "@/utils/general";
 import {
   DateInputComponent,
   DropdownComponent,
+  LoadingGlobalComponent,
   PhoneInputComponent,
   TextInputComponent,
 } from "@/components";
@@ -26,6 +27,8 @@ import { customNotification } from "@/utils";
 dayjs.extend(relativeTime);
 
 const Manage = () => {
+  const theme = useMantineTheme();
+
   const isLoading = useBoolean();
 
   const isEditUser = useBoolean();
@@ -66,25 +69,27 @@ const Manage = () => {
     });
   };
 
+  if (isLoading.value) {
+    return (
+      <Flex
+        bg={theme.colors.default[9]}
+        pos="fixed"
+        top={0}
+        left={0}
+        bottom={0}
+        right={0}
+        justify={"center"}
+        align={"center"}
+        style={{
+          zIndex: 99999,
+        }}>
+        <LoadingGlobalComponent />,
+      </Flex>
+    );
+  }
+
   return (
     <>
-      <LoadingOverlay
-        visible={isLoading.value}
-        loaderProps={{
-          children: (
-            <Flex
-              style={{
-                height: "100vh",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-              }}>
-              <div className="loader"></div>
-            </Flex>
-          ),
-        }}
-      />
-
       <Flex
         w={"100%"}
         justify={"center"}

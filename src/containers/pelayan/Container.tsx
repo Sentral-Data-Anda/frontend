@@ -33,11 +33,11 @@ const listMenu = [
   {
     label: "Template Jadwal",
     description: "Kelola template jadwal",
-    href: "/pelayan/template-pelayan",
+    href: "/pelayan/template-jadwal",
     icon: (
       <Image src={iconTemplate} alt="iconTemplate" height={35} width={46} />
     ),
-    access: "Open Menu Template Pelayan",
+    access: "Open Menu Template Jadwal",
   },
 ];
 

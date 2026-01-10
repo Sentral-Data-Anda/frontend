@@ -26,7 +26,7 @@ const titleMap: Record<string, string> = {
   "daftar-pelayan": "Daftar Pelayan",
   "role-pelayan": "Role Pelayan",
   "jadwal-pelayan": "Jadwal Pelayan",
-  "template-pelayan": "Template Jadwal",
+  "template-jadwal": "Template Jadwal",
 
   jemaat: "Jemaat",
   "daftar-jemaat": "Daftar Jemaat",

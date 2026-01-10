@@ -15,11 +15,12 @@ import dayjs from "dayjs";
 interface PropTypes {
   isOpenModal: ReturnType<typeof useBoolean>;
   codeEvent: string;
+  withEditButton: boolean;
   handleGetAll: () => void;
 }
 
 const ModalDetail = (props: PropTypes) => {
-  const { isOpenModal, codeEvent, handleGetAll } = props;
+  const { isOpenModal, codeEvent, withEditButton, handleGetAll } = props;
 
   const isLoading = useBoolean();
 
@@ -212,7 +213,7 @@ const ModalDetail = (props: PropTypes) => {
       loading={isLoadingDetail.value}
       opened={isOpenModal.value}
       title={`${isEditing.value ? "Edit" : "Detail"} Data Events`}
-      withEditButton
+      withEditButton={withEditButton}
       isEditing={isEditing}
       close={() => {
         isOpenModal.onFalse();

@@ -56,6 +56,8 @@ const Container = (props: ContainerAuthProps) => {
 
   const { detailUser, setDetailUser } = useZustandStore();
 
+  console.log("DETAIL USER", detailUser);
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const redirectParam = params.get("redirect");

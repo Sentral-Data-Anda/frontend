@@ -27,7 +27,7 @@ const listMenu = [
     description: "Kelola badan pelayanan",
     href: "/jemaat/bapel",
     icon: <Image src={iconBapel} alt="iconBapel" height={35} width={46} />,
-    access: "Open Menu Badan Pelayanan",
+    access: "Open Menu Bapel",
   },
 ];
 

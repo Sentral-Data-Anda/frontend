@@ -54,9 +54,21 @@ const Manage = () => {
     setTotalData,
   } = useHooksPagination();
 
-  const theme = useMantineTheme();
-
   const { detailUser } = useZustandStore();
+
+  const isAdmin = detailUser?.roleUser?.isAdmin;
+
+  const haveAccessCreate = detailUser?.roleUser?.access?.find(
+    (item) => item.name === "Create Agenda",
+  );
+  const haveAccessUpdate = detailUser?.roleUser?.access?.find(
+    (item) => item.name === "Update Agenda",
+  );
+  const haveAccessDelete = detailUser?.roleUser?.access?.find(
+    (item) => item.name === "Delete Agenda",
+  );
+
+  const theme = useMantineTheme();
 
   const today = dayjs();
 
@@ -194,7 +206,7 @@ const Manage = () => {
     <>
       <Flex direction="column" gap="sm">
         <Grid gutter={"xs"}>
-          <Grid.Col span={7}>
+          <Grid.Col span={isAdmin || haveAccessCreate ? 7 : 12}>
             <MonthPickerInput
               size="xs"
               radius="md"
@@ -212,18 +224,20 @@ const Manage = () => {
             />
           </Grid.Col>
 
-          <Grid.Col span={5}>
-            <ButtonComponent
-              name="New"
-              icon={<IconPlus size={15} stroke={1.5} />}
-              onClick={() => {
-                isOpenModalCreate.onTrue();
-              }}
-              disabled={
-                new Date(chooseDate) < new Date(today.format("YYYY-MM-DD"))
-              }
-            />
-          </Grid.Col>
+          {isAdmin || haveAccessCreate ? (
+            <Grid.Col span={5}>
+              <ButtonComponent
+                name="New"
+                icon={<IconPlus size={15} stroke={1.5} />}
+                onClick={() => {
+                  isOpenModalCreate.onTrue();
+                }}
+                disabled={
+                  new Date(chooseDate) < new Date(today.format("YYYY-MM-DD"))
+                }
+              />
+            </Grid.Col>
+          ) : null}
         </Grid>
 
         {chooseMonth !== null ? (
@@ -373,6 +387,7 @@ const Manage = () => {
                               {!isPast && detailUser?.id === data.createdBy ? (
                                 <Group grow py={5} gap={"xs"}>
                                   <Button
+                                    disabled={!!haveAccessUpdate}
                                     leftSection={<IconEdit size={14} />}
                                     size="xs"
                                     variant="light"
@@ -384,6 +399,7 @@ const Manage = () => {
                                     Perbarui
                                   </Button>
                                   <Button
+                                    disabled={!!haveAccessDelete}
                                     leftSection={<IconTrash size={14} />}
                                     size="xs"
                                     variant="outline"
@@ -421,6 +437,7 @@ const Manage = () => {
         codeAgenda={pickAgenda}
         isOpenModal={isOpenModalDetail}
         handleGetAll={handleGetAll}
+        withEditButton={isAdmin || !!haveAccessUpdate}
       />
 
       <ModalViewImage

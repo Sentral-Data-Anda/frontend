@@ -38,7 +38,7 @@ const listMenu = [
         width={46}
       />
     ),
-    access: "Open Menu Access Right",
+    access: "",
   },
   {
     label: "Activity Logs",
@@ -52,7 +52,7 @@ const listMenu = [
         width={46}
       />
     ),
-    access: "Open Menu Activity Log",
+    access: "",
   },
 ];
 

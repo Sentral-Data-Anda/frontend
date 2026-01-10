@@ -1,6 +1,6 @@
 "use client";
 
-import { useBoolean } from "@/hooks";
+import { useBoolean, useZustandStore } from "@/hooks";
 import { useHooksPagination } from "@/hooks/usePagination";
 import { RoleJemaat } from "@/types";
 import { confirmSwal } from "@/utils/alertSwal";
@@ -36,6 +36,20 @@ const Manage = () => {
     searchData,
     setSearchData,
   } = useHooksPagination();
+
+  const { detailUser } = useZustandStore();
+
+  const isAdmin = detailUser?.roleUser?.isAdmin;
+
+  const haveAccessCreate = detailUser?.roleUser?.access?.find(
+    (item) => item.name === "Create Role Jemaat",
+  );
+  const haveAccessUpdate = detailUser?.roleUser?.access?.find(
+    (item) => item.name === "Update Role Jemaat",
+  );
+  const haveAccessDelete = detailUser?.roleUser?.access?.find(
+    (item) => item.name === "Delete Role Jemaat",
+  );
 
   const isLoading = useBoolean();
 
@@ -153,6 +167,7 @@ const Manage = () => {
           onClick: () => {
             alertRemove(data);
           },
+          disabled: !isAdmin && !haveAccessDelete,
         },
       ],
     },
@@ -162,14 +177,18 @@ const Manage = () => {
     <>
       <FilterMenu
         onSearch={setSearchData}
-        buttons={[
-          {
-            type: "ButtonNew",
-            onClick: () => {
-              isOpenModalCreate.onTrue();
-            },
-          },
-        ]}
+        buttons={
+          isAdmin || haveAccessCreate
+            ? [
+                {
+                  type: "ButtonNew",
+                  onClick: () => {
+                    isOpenModalCreate.onTrue();
+                  },
+                },
+              ]
+            : []
+        }
         haveDropdown
         dropdowns={[{ type: "Tahun", pick: pickYear, setPick: setPickYear }]}
       />
@@ -288,6 +307,7 @@ const Manage = () => {
         isOpenModal={isOpenModalDetail}
         idRole={pickRole}
         handleGetAll={handleGetAll}
+        withEditButton={isAdmin || !!haveAccessUpdate}
       />
     </>
   );

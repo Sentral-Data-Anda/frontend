@@ -17,7 +17,7 @@ const ModalChooseType = (props: PropTypes) => {
       minHeight="fit-content"
       size="xs"
       opened={isOpenModal.value}
-      title="Choose Type"
+      title="Pilih Tipe"
       withCloseButton
       close={isOpenModal.onFalse}>
       <Flex direction={"column"} gap={"xs"}>

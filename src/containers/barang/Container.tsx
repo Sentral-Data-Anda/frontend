@@ -19,7 +19,7 @@ const listMenu = [
     icon: (
       <Image src={iconTypeBarang} alt="iconTypeBarang" height={35} width={46} />
     ),
-    access: "Open Menu Type Barang",
+    access: "Open Menu Tipe Barang",
   },
 ];
 

@@ -11,10 +11,12 @@ interface PropTypes {
   codeJemaat: string;
   handleGetAll: () => void;
   formName: string;
+  withEditButton: boolean;
 }
 
 const ModalDetail = (props: PropTypes) => {
-  const { isOpenModal, codeJemaat, handleGetAll, formName } = props;
+  const { isOpenModal, codeJemaat, handleGetAll, formName, withEditButton } =
+    props;
 
   const isLoading = useBoolean();
 
@@ -165,7 +167,7 @@ const ModalDetail = (props: PropTypes) => {
       loading={isLoadingDetail.value}
       opened={isOpenModal.value}
       title={`${isEditing.value ? "Edit" : "Detail"} Data ${formName}`}
-      withEditButton
+      withEditButton={withEditButton}
       isEditing={isEditing}
       close={() => {
         isOpenModal.onFalse();

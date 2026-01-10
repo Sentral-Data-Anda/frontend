@@ -39,13 +39,13 @@ const ManageGallery = () => {
 
   const isAdmin = detailUser?.roleUser?.isAdmin;
 
-  const accessCreate = detailUser?.roleUser?.access?.find(
+  const haveAccessCreate = detailUser?.roleUser?.access?.find(
     (item) => item.name === "Create Gallery",
   );
-  const accessUpdate = detailUser?.roleUser?.access?.find(
+  const haveAccessUpdate = detailUser?.roleUser?.access?.find(
     (item) => item.name === "Update Gallery",
   );
-  const accessDelete = detailUser?.roleUser?.access?.find(
+  const haveAccessDelete = detailUser?.roleUser?.access?.find(
     (item) => item.name === "Delete Gallery",
   );
 
@@ -168,7 +168,6 @@ const ManageGallery = () => {
         isOpenModalDetail.onTrue();
         setPickGallery(data.code);
       },
-      disabled: !isAdmin || !!accessUpdate,
     },
     {
       label: "Delete",
@@ -177,7 +176,7 @@ const ManageGallery = () => {
       onClick: () => {
         alertRemove(data);
       },
-      disabled: !isAdmin || !!accessDelete,
+      disabled: !isAdmin && !haveAccessDelete,
     },
   ];
 
@@ -186,7 +185,7 @@ const ManageGallery = () => {
       <FilterMenu
         onSearch={setSearchData}
         buttons={
-          isAdmin || accessCreate
+          isAdmin || haveAccessCreate
             ? [
                 {
                   type: "ButtonNew",
@@ -262,6 +261,7 @@ const ManageGallery = () => {
         codeGallery={pickGallery}
         isOpenModal={isOpenModalDetail}
         handleGetAll={handleGetAll}
+        withEditButton={isAdmin || !!haveAccessUpdate}
       />
     </>
   );

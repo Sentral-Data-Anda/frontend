@@ -38,14 +38,14 @@ const Manage = () => {
 
   const isAdmin = detailUser?.roleUser?.isAdmin;
 
-  const accessCreate = detailUser?.roleUser?.access?.find(
-    (item) => item.name === "Create Item",
+  const haveAccessCreate = detailUser?.roleUser?.access?.find(
+    (item) => item.name === "Create Barang",
   );
-  const accessUpdate = detailUser?.roleUser?.access?.find(
-    (item) => item.name === "Update Item",
+  const haveAccessUpdate = detailUser?.roleUser?.access?.find(
+    (item) => item.name === "Update Barang",
   );
-  const accessDelete = detailUser?.roleUser?.access?.find(
-    (item) => item.name === "Delete Item",
+  const haveAccessDelete = detailUser?.roleUser?.access?.find(
+    (item) => item.name === "Delete Barang",
   );
 
   const isLoading = useBoolean();
@@ -168,7 +168,6 @@ const Manage = () => {
         isOpenModalDetail.onTrue();
         setPickBarang(data.code);
       },
-      disabled: !isAdmin || !!accessUpdate,
     },
     {
       label: "Delete",
@@ -177,7 +176,7 @@ const Manage = () => {
       onClick: () => {
         alertRemove(data);
       },
-      disabled: !isAdmin || !!accessDelete,
+      disabled: !isAdmin && !haveAccessDelete,
     },
   ];
 
@@ -186,7 +185,7 @@ const Manage = () => {
       <FilterMenu
         onSearch={setSearchData}
         buttons={
-          isAdmin || accessCreate
+          isAdmin || haveAccessCreate
             ? [
                 {
                   type: "ButtonNew",
@@ -324,6 +323,7 @@ const Manage = () => {
         codeBarang={pickBarang}
         isOpenModal={isOpenModalDetail}
         handleGetAll={handleGetAll}
+        withEditButton={isAdmin || !!haveAccessUpdate}
       />
     </>
   );

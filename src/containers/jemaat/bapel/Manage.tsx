@@ -9,7 +9,7 @@ import { ActionIcon, Flex, Table, Text } from "@mantine/core";
 import { Fragment, useEffect, useState } from "react";
 import { IconDotsVertical, IconEye, IconTrash } from "@tabler/icons-react";
 
-import { useBoolean, useHooksPagination } from "@/hooks";
+import { useBoolean, useHooksPagination, useZustandStore } from "@/hooks";
 
 import { confirmSwal } from "@/utils/alertSwal";
 
@@ -42,6 +42,20 @@ const ManageBapel = () => {
     searchData,
     setSearchData,
   } = useHooksPagination();
+
+  const { detailUser } = useZustandStore();
+
+  const isAdmin = detailUser?.roleUser?.isAdmin;
+
+  const haveAccessCreate = detailUser?.roleUser?.access?.find(
+    (item) => item.name === "Create Bapel",
+  );
+  const haveAccessUpdate = detailUser?.roleUser?.access?.find(
+    (item) => item.name === "Update Bapel",
+  );
+  const haveAccessDelete = detailUser?.roleUser?.access?.find(
+    (item) => item.name === "Delete Bapel",
+  );
 
   const isLoading = useBoolean();
 
@@ -143,6 +157,7 @@ const ManageBapel = () => {
           onClick: () => {
             alertRemove(data);
           },
+          disabled: !isAdmin && !haveAccessDelete,
         },
       ],
     },
@@ -152,14 +167,18 @@ const ManageBapel = () => {
     <>
       <FilterMenu
         onSearch={setSearchData}
-        buttons={[
-          {
-            type: "ButtonNew",
-            onClick: () => {
-              isOpenModalCreate.onTrue();
-            },
-          },
-        ]}
+        buttons={
+          isAdmin || haveAccessCreate
+            ? [
+                {
+                  type: "ButtonNew",
+                  onClick: () => {
+                    isOpenModalCreate.onTrue();
+                  },
+                },
+              ]
+            : []
+        }
       />
 
       <TableComponent
@@ -235,6 +254,7 @@ const ManageBapel = () => {
         codeBapel={pickBapel}
         isOpenModal={isOpenModalDetail}
         handleGetAll={handleGetAll}
+        withEditButton={isAdmin || !!haveAccessUpdate}
       />
     </>
   );

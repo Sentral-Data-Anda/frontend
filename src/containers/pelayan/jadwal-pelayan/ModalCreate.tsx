@@ -111,7 +111,7 @@ const ModalCreate = (props: PropTypes) => {
   return (
     <ModalComponent
       opened={isOpenModal.value}
-      title="Create Role Pelayan"
+      title="Create Jadwal Pelayan"
       withCloseButton
       close={() => {
         isOpenModal.onFalse();
