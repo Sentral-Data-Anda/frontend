@@ -1,0 +1,62 @@
+name: CI
+
+# Repo ini belum punya git remote saat berkas ini ditulis, jadi workflow ini
+# belum pernah benar-benar dijalankan oleh GitHub Actions. Trigger dan step
+# di bawah ditulis konservatif (versi resmi oven-sh/setup-bun + checkout),
+# supaya begitu remote dipasang, workflow langsung jalan tanpa perlu diutak-atik.
+on:
+  push:
+    branches:
+      - main
+      - development
+      - production
+  pull_request:
+
+# Batalkan run lama pada branch/PR yang sama saat ada push baru, supaya
+# tidak menumpuk run yang sudah usang.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    name: Lint, typecheck, test, build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: .bun-version
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      # Step dipisah per perintah (bukan digabung "bun run lint && ...")
+      # supaya begitu ada kegagalan, langsung kelihatan step mana yang
+      # merah di ringkasan run — next build di Next 16 tidak lagi
+      # menjalankan lint, jadi lint HARUS ditegakkan lewat CI.
+      - name: Lint
+        run: bun run lint
+
+      - name: Typecheck
+        run: bun run typecheck
+
+      - name: Test
+        run: bun run test
+        env:
+          API_BASE_URL: http://127.0.0.1:3001/api
+          NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3000
+
+      # src/lib/env.ts sengaja tidak punya .default() (fail-fast), jadi build
+      # WAJIB diberi nilai atau `next build` gagal ZodError. Nilai di bawah
+      # adalah dummy khusus CI — runner tidak menghubungi host mana pun, yang
+      # diuji hanya bahwa build-nya berhasil. NEXT_PUBLIC_SITE_URL harus ada
+      # saat BUILD (di-inline ke bundle), bukan saat runtime.
+      - name: Build
+        run: bun run build
+        env:
+          API_BASE_URL: http://127.0.0.1:3001/api
+          NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3000

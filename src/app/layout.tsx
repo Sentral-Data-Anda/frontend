@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { siteConfig } from "@/config/site";
+import { publicEnv } from "@/lib/env";
 
 import "./globals.css";
 
@@ -18,16 +19,16 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(siteConfig.url),
+  metadataBase: new URL(publicEnv.NEXT_PUBLIC_SITE_URL),
   title: {
-    default: `${siteConfig.name} — Gereja Kristen Indonesia`,
-    template: `%s · ${siteConfig.name}`,
+    default: `${siteConfig.name} (${siteConfig.shortName})`,
+    template: `%s · ${siteConfig.shortName}`,
   },
   description: siteConfig.description,
   openGraph: {
     title: siteConfig.name,
     description: siteConfig.description,
-    url: siteConfig.url,
+    url: publicEnv.NEXT_PUBLIC_SITE_URL,
     siteName: siteConfig.name,
     locale: "id_ID",
     type: "website",

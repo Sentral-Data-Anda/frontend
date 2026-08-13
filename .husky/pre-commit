@@ -1,11 +1,8 @@
 echo "🔍 Running lint-staged..."
 bunx lint-staged
 
-echo "🔍 Running ESLint..."
-bun run lint
-
-echo "🔍 Running Prettier..."
-bun run format
-
-echo "🏗 Running build check..."
-bun run build
+# Lint penuh, typecheck, test, dan build dijalankan di CI (lihat
+# .github/workflows/ci.yml), bukan di sini. lint-staged di atas sudah
+# menjalankan eslint --fix + prettier --write pada berkas yang ter-stage,
+# jadi commit tetap cepat dan tidak menyisakan hasil format yang menggantung
+# tidak ter-stage.

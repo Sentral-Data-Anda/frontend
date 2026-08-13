@@ -15,6 +15,23 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
+
+# src/lib/env.ts memvalidasi env saat modul dimuat dan TIDAK punya .default()
+# (fail-fast), jadi `next build` gagal ZodError tanpa kedua variabel ini.
+#
+# NEXT_PUBLIC_SITE_URL wajib benar SEJAK BUILD: Next meng-inline variabel
+# berprefiks NEXT_PUBLIC_ ke bundle browser, sehingga nilainya beku di dalam
+# image. Image yang dibangun dengan URL staging TIDAK bisa dipromosikan ke
+# production — harus build ulang dengan nilai production.
+#
+# API_BASE_URL di sini hanya untuk melewati validasi saat build; nilai yang
+# sebenarnya dipakai container diberikan saat runtime (lihat stage runner dan
+# docker-compose.yml), karena variabel non-NEXT_PUBLIC_ dibaca saat runtime.
+ARG API_BASE_URL=http://127.0.0.1:3001/api
+ARG NEXT_PUBLIC_SITE_URL=http://localhost:3000
+ENV API_BASE_URL=$API_BASE_URL
+ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
+
 RUN bun run build
 
 # --- Stage 3: runner (image ramping) ---

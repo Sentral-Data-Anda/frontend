@@ -1,10 +1,17 @@
 import type { MetadataRoute } from "next";
 
-import { siteConfig } from "@/config/site";
-
+/**
+ * SADA adalah aplikasi terautentikasi berisi data jemaat, bukan situs
+ * profil. Sekali halaman terautentikasi bocor ke index mesin pencari,
+ * penghapusannya bisa memakan waktu berminggu-minggu. Default aman:
+ * larang semua crawl. Lihat keputusan D2 di
+ * docs/superpowers/specs/2026-08-13-sada-pwa-architecture-design.md.
+ *
+ * Tidak ada `sitemap:` di sini — sitemap versi SEO sudah dihapus dari repo
+ * karena tidak relevan untuk aplikasi yang seluruhnya di-disallow crawl.
+ */
 export default function robots(): MetadataRoute.Robots {
   return {
-    rules: { userAgent: "*", allow: "/" },
-    sitemap: new URL("/sitemap.xml", siteConfig.url).toString(),
+    rules: { userAgent: "*", disallow: "/" },
   };
 }

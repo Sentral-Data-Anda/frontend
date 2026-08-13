@@ -32,6 +32,10 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+# Template variabel wajib — HARUS ikut ter-commit. src/lib/env.ts tidak punya
+# .default() lagi, jadi tanpa template ini developer baru yang clone repo
+# langsung kena ZodError tanpa petunjuk variabel apa yang harus diisi.
+!.env.example
 
 # vercel
 .vercel

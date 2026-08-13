@@ -12,21 +12,47 @@ if [ "$branch" = "development" ] || [ "$branch" = "production" ] || [ "$branch" 
   exit 1
 fi
 
-# Pola penamaan branch: huruf kecil, dipisah '-', tanpa angka.
-pattern="^[a-z]+(-[a-z]+)*$"
+# Pola penamaan branch: huruf kecil dan angka, dipisah '-', dengan
+# prefix tipe opsional yang dipisah '/' (mis. feat/pwa-2).
+pattern="^[a-z0-9]+(-[a-z0-9]+)*(/[a-z0-9]+(-[a-z0-9]+)*)?$"
 
 if ! echo "$branch" | grep -Eq "$pattern"; then
   echo "❌ Invalid branch name: $branch"
   echo ""
   echo "Branch name rules:"
-  echo " - lowercase letters only"
-  echo " - no numbers"
+  echo " - lowercase letters and numbers only"
+  echo " - no uppercase letters, no spaces"
   echo " - words separated with '-'"
+  echo " - optional type prefix separated with '/'"
   echo ""
   echo "Valid examples:"
   echo "  hero-section"
   echo "  jadwal-ibadah"
+  echo "  feat/pwa-2"
+  echo "  fix/bug-123"
   exit 1
 fi
 
-echo "✅ Branch name valid. Pushing..."
+echo "✅ Branch name valid."
+
+# Gerbang lokal sementara.
+#
+# Penegakan lint/typecheck/test/build seharusnya tinggal di CI, dan sudah
+# ditulis di .github/workflows/ci.yml. Tapi repo ini BELUM punya git remote,
+# jadi CI itu belum pernah benar-benar dieksekusi. Selama itu belum terbukti
+# jalan, typecheck ditahan di sini supaya tidak ada jendela di mana tidak ada
+# apa pun yang menahan kode rusak.
+#
+# Hanya typecheck yang ditahan (~1-2 detik). Build sengaja TIDAK ditaruh di
+# sini — itu pekerjaan CI, dan menunggu build penuh di setiap push membuat
+# orang terbiasa memakai --no-verify.
+#
+# HAPUS blok ini begitu remote terpasang dan CI terbukti hijau.
+echo "🔍 Running typecheck..."
+if ! bun run typecheck; then
+  echo ""
+  echo "🚫 Typecheck gagal. Perbaiki dulu sebelum push."
+  exit 1
+fi
+
+echo "✅ Pushing..."

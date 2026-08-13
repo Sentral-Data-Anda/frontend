@@ -3,13 +3,18 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: gki-graharaya/company-profile
-    container_name: company-profile
+      args:
+        # NEXT_PUBLIC_* di-inline ke bundle browser saat `next build`, jadi
+        # nilainya HARUS diberikan sebagai build arg — menyuntikkannya lewat
+        # `environment:` di bawah tidak akan pernah berpengaruh karena saat
+        # container jalan, nilainya sudah beku di dalam image.
+        - NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
+    image: sada/web
+    container_name: sada-web
     ports:
       - "3000:3000"
     environment:
       # API_BASE_URL dibaca server-side saat runtime (bukan NEXT_PUBLIC_),
-      # jadi bisa diganti tanpa build ulang.
+      # jadi nilainya bisa diganti tanpa build ulang image.
       - API_BASE_URL=${API_BASE_URL:-http://localhost:3001/api}
-      - SITE_URL=${SITE_URL:-http://localhost:3000}
     restart: unless-stopped
