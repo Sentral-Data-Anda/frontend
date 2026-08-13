@@ -1,0 +1,32 @@
+branch=$(git rev-parse --abbrev-ref HEAD)
+
+# Blokir push langsung ke branch terproteksi.
+if [ "$branch" = "development" ] || [ "$branch" = "production" ] || [ "$branch" = "main" ]; then
+  echo "🚫 Direct push to '$branch' is not allowed."
+  echo ""
+  echo "Please create a feature branch instead."
+  echo ""
+  echo "Example:"
+  echo "  hero-section"
+  echo "  jadwal-ibadah"
+  exit 1
+fi
+
+# Pola penamaan branch: huruf kecil, dipisah '-', tanpa angka.
+pattern="^[a-z]+(-[a-z]+)*$"
+
+if ! echo "$branch" | grep -Eq "$pattern"; then
+  echo "❌ Invalid branch name: $branch"
+  echo ""
+  echo "Branch name rules:"
+  echo " - lowercase letters only"
+  echo " - no numbers"
+  echo " - words separated with '-'"
+  echo ""
+  echo "Valid examples:"
+  echo "  hero-section"
+  echo "  jadwal-ibadah"
+  exit 1
+fi
+
+echo "✅ Branch name valid. Pushing..."

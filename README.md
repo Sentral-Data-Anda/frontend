@@ -1,36 +1,65 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Company Profile — GKI Graha Raya
 
-## Getting Started
+Website company profile GKI Graha Raya. Frontend consumer (read-only) yang
+menampilkan halaman statis dan menarik konten dinamis (berita, pengumuman,
+jadwal ibadah, galeri) dari **API eksternal**.
 
-First, run the development server:
+## Stack
+
+- Next.js (App Router) + React 19 + TypeScript
+- Bun (package manager & runtime)
+- Tailwind CSS + shadcn/ui + Framer Motion
+- ESLint + Prettier + Husky + commitlint + lint-staged
+- Docker (multi-stage, output standalone)
+
+## Setup
+
+Butuh [Bun](https://bun.sh) (lihat `.bun-version`).
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+bun install
+cp .env.example .env   # isi API_BASE_URL
+bun run dev            # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Environment
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Variabel       | Wajib | Keterangan                                              |
+| -------------- | ----- | ------------------------------------------------------- |
+| `API_BASE_URL` | ya    | Base URL API eksternal (server-only, tanpa slash akhir) |
+| `SITE_URL`     | tidak | URL publik situs untuk metadata/sitemap                 |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Skrip
 
-## Learn More
+| Perintah           | Fungsi                         |
+| ------------------ | ------------------------------ |
+| `bun run dev`      | Mode pengembangan              |
+| `bun run build`    | Build produksi (standalone)    |
+| `bun run start`    | Jalankan hasil build           |
+| `bun run lint`     | ESLint                         |
+| `bun run lint:fix` | ESLint + perbaiki otomatis     |
+| `bun run format`   | Prettier format seluruh berkas |
 
-To learn more about Next.js, take a look at the following resources:
+## Struktur
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `src/app` — routing & pages (tipis)
+- `src/features/<domain>` — komponen, service, types per domain bisnis
+- `src/components` — komponen reusable lintas-fitur (`ui` shadcn, `layout`, `common`, `motion`)
+- `src/lib/api` — satu pintu masuk ke API eksternal (`client.ts`, `endpoints.ts`)
+- `src/config` — identitas situs & navigasi
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Detail arsitektur: `docs/superpowers/specs/2026-06-16-church-profile-architecture-design.md`.
 
-## Deploy on Vercel
+## Docker
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+docker compose up --build
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+`API_BASE_URL` dibaca saat runtime (bukan `NEXT_PUBLIC_`), jadi bisa diganti
+tanpa build ulang.
+
+## Konvensi Commit
+
+`type(scope): subject` — type hanya `feat` / `fix` / `slicing`, subject lowercase.
+Contoh: `feat(news): tambah section berita`.
