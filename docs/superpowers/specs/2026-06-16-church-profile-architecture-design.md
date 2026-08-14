@@ -1,7 +1,30 @@
 # Desain Arsitektur — Company Profile GKI Graha Raya
 
+> ## ⚠️ DOKUMEN INI SUDAH TIDAK BERLAKU UNTUK REPO INI
+>
+> **Digantikan oleh:** `2026-08-13-sada-pwa-architecture-design.md`
+>
+> Repo ini berubah peran: dari website company profile menjadi aplikasi
+> **SADA (Sentral Data Anda)** — aplikasi terautentikasi berisi data jemaat.
+> Situs profil gereja menjadi project terpisah.
+>
+> Yang di bawah ini **tidak lagi menggambarkan repo ini**:
+>
+> - Seluruh `src/features/` (news, gallery, schedule, announcement, about) dan
+>   `src/app/(public)/` sudah dihapus. Kodenya tersimpan di commit
+>   `6b7bde2` untuk dipindahkan ke project situs profil.
+> - Pola SSR/ISR `revalidate` **dilarang** untuk data terautentikasi. Default
+>   `apiClient` sekarang `cache: "no-store"`, dan menggabungkan caching
+>   eksplisit dengan header `Authorization`/`Cookie` ditolak di kode.
+> - `robots.ts` dan `sitemap.ts` yang dioptimalkan untuk indexing sudah
+>   dibalik/dihapus — aplikasi ber-auth tidak boleh terindeks.
+>
+> Dokumen ini dipertahankan sebagai catatan sejarah dan sebagai titik awal
+> ketika project situs profil dibuat nanti. **Jangan dijadikan rujukan untuk
+> pekerjaan di repo ini.**
+
 **Tanggal:** 2026-06-16
-**Status:** Disetujui (siap lanjut ke rencana implementasi)
+**Status:** Digantikan (lihat kotak di atas)
 **Lokasi project:** `project/gki-graharaya/company-profile`
 
 ## 1. Ringkasan & Tujuan

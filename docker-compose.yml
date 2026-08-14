@@ -9,6 +9,8 @@ services:
         # `environment:` di bawah tidak akan pernah berpengaruh karena saat
         # container jalan, nilainya sudah beku di dalam image.
         - NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
+        # Versi service worker + build id Next. Isi dengan commit SHA.
+        - BUILD_ID=${BUILD_ID:-}
     image: sada/web
     container_name: sada-web
     ports:

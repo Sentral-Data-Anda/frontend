@@ -27,10 +27,17 @@ ENV NEXT_TELEMETRY_DISABLED=1
 # API_BASE_URL di sini hanya untuk melewati validasi saat build; nilai yang
 # sebenarnya dipakai container diberikan saat runtime (lihat stage runner dan
 # docker-compose.yml), karena variabel non-NEXT_PUBLIC_ dibaca saat runtime.
+#
+# BUILD_ID menstempel versi service worker (/sw.js?v=<id>) sekaligus build id
+# Next. Isi dengan commit SHA saat build image: bila dua image berbeda memakai
+# BUILD_ID yang sama, browser tidak akan pernah melihat service worker baru dan
+# cache lama nyangkut di perangkat user.
 ARG API_BASE_URL=http://127.0.0.1:3001/api
 ARG NEXT_PUBLIC_SITE_URL=http://localhost:3000
+ARG BUILD_ID
 ENV API_BASE_URL=$API_BASE_URL
 ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
+ENV BUILD_ID=$BUILD_ID
 
 RUN bun run build
 

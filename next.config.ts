@@ -1,8 +1,30 @@
 import type { NextConfig } from "next";
 
+/**
+ * Identitas satu build, dipakai dua tempat sekaligus:
+ *
+ * - `generateBuildId` — supaya beberapa container yang menyajikan build yang
+ *   sama memakai ID yang sama (kalau berbeda, aset antar-container tidak
+ *   cocok dan navigasi bisa memuat chunk yang tidak ada).
+ * - `NEXT_PUBLIC_BUILD_ID` — distempel ke URL registrasi service worker
+ *   (`/sw.js?v=<id>`). Browser membandingkan service worker per-URL, jadi
+ *   inilah yang membuat build baru benar-benar terdeteksi sebagai versi baru.
+ *   Tanpa ini, cache lama nyangkut selamanya.
+ *
+ * Di CI/Docker isi `BUILD_ID` dengan commit SHA supaya stabil dan bisa
+ * ditelusuri. Fallback timestamp hanya untuk build lokal.
+ */
+const buildId = process.env.BUILD_ID || `local-${Date.now()}`;
+
 const nextConfig: NextConfig = {
   // Output ramping untuk Docker (multi-stage runner).
   output: "standalone",
+
+  generateBuildId: async () => buildId,
+
+  env: {
+    NEXT_PUBLIC_BUILD_ID: buildId,
+  },
 
   async headers() {
     return [
@@ -19,10 +41,9 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        // Service worker belum ada di repo ini, tapi header-nya disiapkan
-        // lebih dulu (lihat docs/superpowers/specs/2026-08-13-sada-pwa-architecture-design.md
-        // §5.5). Tanpa no-store, service worker basi bisa nyangkut di
-        // browser dan perbaikan berikutnya tidak pernah sampai ke user.
+        // Tanpa no-store, service worker basi bisa nyangkut di browser dan
+        // perbaikan berikutnya tidak pernah sampai ke user. Digandeng dengan
+        // `updateViaCache: "none"` saat registrasi — keduanya diperlukan.
         source: "/sw.js",
         headers: [
           {

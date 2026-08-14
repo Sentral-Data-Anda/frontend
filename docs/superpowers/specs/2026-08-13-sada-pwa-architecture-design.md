@@ -23,8 +23,10 @@ Karakter yang menggerakkan seluruh desain di bawah:
 - **Perangkat bersama.** PC sekretariat dipakai bergantian oleh beberapa orang.
   Kebersihan cache dan subscription saat logout wajib, bukan opsional.
 
-Repo ini saat ini berisi 100% konten situs profil (`(public)/berita`, `galeri`, `tentang`,
-`kontak`, plus `sitemap.ts`/`robots.ts` yang dioptimalkan untuk indexing). Semua itu keluar.
+> **Catatan status (diperbarui 2026-08-14).** Saat dokumen ini ditulis, repo masih berisi
+> 100% konten situs profil. Itu sudah tidak berlaku: `(public)/` dan seluruh `features/`
+> sudah dihapus (commit `44a36bf`, snapshot penyelamat di `6b7bde2`), dan Fase 0 sudah
+> sebagian besar selesai. Rincian apa yang sudah dan belum jalan ada di §8.
 
 **Di luar ruang lingkup dokumen ini:** desain fitur aplikasi (17 layar CRUD), desain auth,
 dan sinkronisasi offline dua arah.
@@ -526,6 +528,38 @@ next.config.ts                      + headers()
 ---
 
 ## 8. Fase Pengerjaan
+
+> **Status per 2026-08-14**
+>
+> | Fase                        | Status                                                        |
+> | --------------------------- | ------------------------------------------------------------- |
+> | 0 — Prasyarat               | Sebagian selesai; tersisa auth, app shell, dan `src/proxy.ts` |
+> | 1 — Installable             | Selesai, kecuali ikon masih placeholder yang dihasilkan kode  |
+> | 1b — Screenshot & shortcuts | Belum; menunggu app shell nyata                               |
+> | 2 — Push                    | Belum; terblokir prasyarat backend §6.10 poin 1–3             |
+> | 3 — Offline read-only       | Belum; lingkup ditetapkan setelah fase 2                      |
+> | 4 — Offline tulis + sync    | Ditunda menunggu riset pengguna                               |
+>
+> **Koreksi urutan.** Dokumen ini semula menyatakan fase 1 harus menunggu Fase 0 selesai
+> sepenuhnya, termasuk auth. Itu terlalu ketat. Yang benar-benar bergantung pada auth hanya
+> **logout purge dan push (fase 2)**. Kebijakan cache service worker sudah dikunci penuh oleh
+> D6/D7 — data terautentikasi tidak pernah masuk cache — sehingga tidak ada bagian fase 1 yang
+> akan dibongkar ulang saat auth masuk. Fase 1 karena itu dikerjakan lebih dulu.
+>
+> Yang **selesai** di Fase 0: penghapusan konten profil, `headers()` keamanan, `robots.ts`
+> dibalik, `env.ts` fail-fast + `server-only`, kebocoran `siteConfig` ke bundle client diputus,
+> script `typecheck`/`test`, CI GitHub Actions, perbaikan husky dan commitlint, `apiClient`
+> dengan timeout + validasi Zod + penjaga cache D6/D7.
+>
+> Yang **belum** di Fase 0: bentuk auth, app shell `(app)/layout.tsx`, dan `src/proxy.ts` —
+> ketiganya sengaja tidak dikerjakan atas arahan bahwa fokus dijaga di arsitektur dulu.
+> Konsekuensinya: pengecualian aset PWA di `config.matcher` (§4.5) **belum ada**, dan harus
+> ditulis bersamaan dengan proxy auth — bila terlewat, tombol install hilang dan push mati
+> tanpa error apa pun.
+>
+> Catatan CI: workflow sudah ditulis tetapi **belum pernah dieksekusi** — repo belum punya git
+> remote. Selama itu, `bun run typecheck` ditahan sementara di `.husky/pre-push`; blok itu
+> dihapus begitu CI terbukti hijau.
 
 ### Fase 0 — Prasyarat (belum ada PWA sama sekali)
 
