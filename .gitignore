@@ -24,7 +24,16 @@
 .DS_Store
 *.pem
 
+# Sertifikat HTTPS lokal.
+#
+# `bun run dev --experimental-https` (dipakai untuk menguji service worker dan
+# push notification) membuat folder ini lewat mkcert dan menaruh KUNCI PRIVAT
+# di dalamnya. `*.pem` di atas sudah menutup berkasnya, tapi folder ini
+# diabaikan eksplisit supaya berkas lain yang ikut ditulis mkcert tidak lolos.
+/certificates/
+
 # debug
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
@@ -43,3 +52,23 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Editor & OS.
+#
+# Untuk .vscode berlaku kebalikan dari yang lain: seluruh isinya diabaikan,
+# lalu dua berkas yang memang dipakai bersama tim dibuka kembali. Tanpa pola
+# ini, launch.json atau override settings milik satu orang ikut ter-commit dan
+# mengubah konfigurasi editor semua orang.
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.swp
+*.swo
+*~
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Setelan lokal Claude Code (mis. allowlist izin yang khas per mesin).
+.claude/
