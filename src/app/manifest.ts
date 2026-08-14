@@ -58,30 +58,41 @@ export default function manifest(): MetadataRoute.Manifest {
     // Eksplisit: jangan arahkan user ke app store mana pun.
     prefer_related_applications: false,
 
-    // Empat ikon terpisah, bukan satu yang di-resize. Alasannya ada di
-    // src/app/icons/[icon]/route.tsx. `type` tetap dideklarasikan meski URL-nya
-    // tanpa ekstensi — rute itu memang mengembalikan PNG.
+    // Empat berkas terpisah, bukan satu yang di-resize:
+    //
+    // - `any`      — dipakai apa adanya oleh desktop dan dialog instalasi.
+    //                Sudah membawa latar biru SADA sendiri.
+    // - `maskable` — Android memotongnya menjadi lingkaran/squircle. Isinya
+    //                dikecilkan ke 90% lalu di-pad warna latar yang sama,
+    //                sehingga seluruh logo berada di dalam safe zone
+    //                (lingkaran berdiameter 80% sisi ikon) tanpa terlihat
+    //                seperti ditambal.
+    //
+    // `purpose: "any maskable"` pada satu berkas SENGAJA tidak dipakai:
+    // sintaksnya sah, tapi artinya satu gambar melayani dua peran — Android
+    // memotongnya, sementara desktop menampilkan versi ber-padding sehingga
+    // logo tampak kekecilan.
     icons: [
       {
-        src: "/icons/icon-192",
+        src: "/icons/icon-192.png",
         sizes: "192x192",
         type: "image/png",
         purpose: "any",
       },
       {
-        src: "/icons/icon-512",
+        src: "/icons/icon-512.png",
         sizes: "512x512",
         type: "image/png",
         purpose: "any",
       },
       {
-        src: "/icons/maskable-192",
+        src: "/icons/maskable-192.png",
         sizes: "192x192",
         type: "image/png",
         purpose: "maskable",
       },
       {
-        src: "/icons/maskable-512",
+        src: "/icons/maskable-512.png",
         sizes: "512x512",
         type: "image/png",
         purpose: "maskable",

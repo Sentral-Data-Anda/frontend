@@ -534,7 +534,7 @@ next.config.ts                      + headers()
 > | Fase                        | Status                                                        |
 > | --------------------------- | ------------------------------------------------------------- |
 > | 0 — Prasyarat               | Sebagian selesai; tersisa auth, app shell, dan `src/proxy.ts` |
-> | 1 — Installable             | Selesai, kecuali ikon masih placeholder yang dihasilkan kode  |
+> | 1 — Installable             | Selesai, memakai aset logo SADA resmi                         |
 > | 1b — Screenshot & shortcuts | Belum; menunggu app shell nyata                               |
 > | 2 — Push                    | Belum; terblokir prasyarat backend §6.10 poin 1–3             |
 > | 3 — Offline read-only       | Belum; lingkup ditetapkan setelah fase 2                      |

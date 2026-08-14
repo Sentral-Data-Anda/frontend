@@ -56,10 +56,10 @@ const OFFLINE_URL = "/offline";
  */
 const PRECACHE_URLS = [
   OFFLINE_URL,
-  "/icons/icon-192",
-  "/icons/icon-512",
-  "/icons/maskable-192",
-  "/icons/maskable-512",
+  "/icons/icon-192.png",
+  "/icons/icon-512.png",
+  "/icons/maskable-192.png",
+  "/icons/maskable-512.png",
 ];
 
 /**
