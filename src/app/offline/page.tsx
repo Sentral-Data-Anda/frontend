@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { connection } from "next/server";
 
 import { Container } from "@/components/layout/container";
 
@@ -12,12 +13,20 @@ import { Container } from "@/components/layout/container";
  *
  * Jangan menambahkan fetch, `cookies()`, atau apa pun yang bergantung user
  * ke halaman ini.
+ *
+ * Halaman ini dirender dinamis karena CSP berbasis nonce menuntutnya (lihat
+ * src/app/page.tsx). Satu catatan yang disadari: salinan yang disimpan service
+ * worker membawa nonce yang beku selamanya. Untuk halaman tanpa data dan tanpa
+ * masukan user seperti ini, nonce yang berulang tidak membuka jalan serangan —
+ * tidak ada apa pun di sini yang bisa disuntik penyerang.
  */
 export const metadata: Metadata = {
   title: "Tidak ada koneksi",
 };
 
-export default function OfflinePage() {
+export default async function OfflinePage() {
+  await connection();
+
   return (
     <Container className="flex min-h-[60vh] flex-col items-center justify-center gap-4 text-center">
       <h1 className="text-2xl font-semibold">Tidak ada koneksi</h1>

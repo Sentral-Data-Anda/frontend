@@ -5,6 +5,7 @@ import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { brand } from "@/config/brand";
 import { siteConfig } from "@/config/site";
+import { ErrorReporter } from "@/features/observability";
 import { ServiceWorkerProvider } from "@/features/pwa";
 import { publicEnv } from "@/lib/env";
 
@@ -63,6 +64,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
+        <ErrorReporter />
         <ServiceWorkerProvider />
         <SiteHeader />
         <main className="flex-1">{children}</main>

@@ -531,14 +531,14 @@ next.config.ts                      + headers()
 
 > **Status per 2026-08-14**
 >
-> | Fase                        | Status                                                        |
-> | --------------------------- | ------------------------------------------------------------- |
-> | 0 — Prasyarat               | Sebagian selesai; tersisa auth, app shell, dan `src/proxy.ts` |
-> | 1 — Installable             | Selesai, memakai aset logo SADA resmi                         |
-> | 1b — Screenshot & shortcuts | Belum; menunggu app shell nyata                               |
-> | 2 — Push                    | Belum; terblokir prasyarat backend §6.10 poin 1–3             |
-> | 3 — Offline read-only       | Belum; lingkup ditetapkan setelah fase 2                      |
-> | 4 — Offline tulis + sync    | Ditunda menunggu riset pengguna                               |
+> | Fase                        | Status                                            |
+> | --------------------------- | ------------------------------------------------- |
+> | 0 — Prasyarat               | Sebagian selesai; tersisa auth dan app shell      |
+> | 1 — Installable             | Selesai, memakai aset logo SADA resmi             |
+> | 1b — Screenshot & shortcuts | Belum; menunggu app shell nyata                   |
+> | 2 — Push                    | Belum; terblokir prasyarat backend §6.10 poin 1–3 |
+> | 3 — Offline read-only       | Belum; lingkup ditetapkan setelah fase 2          |
+> | 4 — Offline tulis + sync    | Ditunda menunggu riset pengguna                   |
 >
 > **Koreksi urutan.** Dokumen ini semula menyatakan fase 1 harus menunggu Fase 0 selesai
 > sepenuhnya, termasuk auth. Itu terlalu ketat. Yang benar-benar bergantung pada auth hanya
@@ -551,11 +551,12 @@ next.config.ts                      + headers()
 > script `typecheck`/`test`, CI GitHub Actions, perbaikan husky dan commitlint, `apiClient`
 > dengan timeout + validasi Zod + penjaga cache D6/D7.
 >
-> Yang **belum** di Fase 0: bentuk auth, app shell `(app)/layout.tsx`, dan `src/proxy.ts` —
-> ketiganya sengaja tidak dikerjakan atas arahan bahwa fokus dijaga di arsitektur dulu.
-> Konsekuensinya: pengecualian aset PWA di `config.matcher` (§4.5) **belum ada**, dan harus
-> ditulis bersamaan dengan proxy auth — bila terlewat, tombol install hilang dan push mati
-> tanpa error apa pun.
+> Yang **belum** di Fase 0: bentuk auth dan app shell `(app)/layout.tsx` — keduanya sengaja
+> tidak dikerjakan atas arahan bahwa fokus dijaga di arsitektur dulu.
+>
+> `src/proxy.ts` **sudah ada**, saat ini berisi Content Security Policy saja tanpa logika auth.
+> Pengecualian aset PWA di `config.matcher` (§4.5) sudah terpasang dan terverifikasi. Saat
+> logika auth ditambahkan ke berkas itu nanti, pengecualian tersebut WAJIB dipertahankan.
 >
 > Catatan CI: workflow sudah ditulis tetapi **belum pernah dieksekusi** — repo belum punya git
 > remote. Selama itu, `bun run typecheck` ditahan sementara di `.husky/pre-push`; blok itu

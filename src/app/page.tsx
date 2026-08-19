@@ -1,3 +1,5 @@
+import { connection } from "next/server";
+
 /**
  * Placeholder rute root.
  *
@@ -6,8 +8,16 @@
  * tetap ada sampai app shell SADA dibangun.
  *
  * Lihat docs/superpowers/specs/2026-08-13-sada-pwa-architecture-design.md
+ *
+ * `await connection()` memaksa render dinamis, dan itu WAJIB selama CSP
+ * berbasis nonce aktif: nonce dibuat per-request oleh src/proxy.ts, sementara
+ * halaman statis dibangun saat build ketika request belum ada. Halaman statis
+ * yang menerima header CSP ber-nonce akan tampil kosong — skrip framework di
+ * dalamnya tidak membawa nonce apa pun sehingga diblokir browser.
  */
-export default function HomePage() {
+export default async function HomePage() {
+  await connection();
+
   return (
     <div className="mx-auto flex min-h-[60vh] max-w-2xl flex-col justify-center px-6">
       <h1 className="text-2xl font-semibold tracking-tight">

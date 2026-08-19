@@ -74,6 +74,9 @@ typecheck ditegakkan lewat CI — bukan lewat build.
 - `src/components` — komponen reusable lintas-fitur (`ui` shadcn, `layout`, `common`)
 - `src/lib/api` — satu pintu masuk ke API backend (`client.ts`)
 - `src/lib/env.ts` — validasi environment, server-only
+- `src/lib/observability` — logger terstruktur & redaksi data sensitif
+- `src/lib/security/csp.ts` — penyusun Content Security Policy
+- `src/proxy.ts` — CSP per-request (Next 16: dulu bernama `middleware`)
 - `src/config` — identitas aplikasi & navigasi
 - `public/sw.js` — service worker, ditulis tangan
 
@@ -90,6 +93,57 @@ Ketiganya soal keamanan data jemaat, bukan preferensi gaya:
    langsung, bukan dengan mengimpor modul env.
 3. **Service worker tidak menyimpan HTML halaman ber-auth maupun respons API.**
    Handler `fetch`-nya memakai daftar putih, bukan tangkap-semua.
+4. **Log tidak pernah memuat data jemaat.** Semua yang masuk log melewati
+   `src/lib/observability/redact.ts`. `cause` sebuah error tidak pernah dicatat
+   — pada `apiClient`, kegagalan validasi Zod menyimpan nilai data yang ditolak
+   di sana.
+
+## Content Security Policy
+
+CSP berbasis nonce, dihasilkan per-request di `src/proxy.ts` (di Next 16
+konvensi `middleware` sudah diganti `proxy`). Kebijakannya disusun di
+`src/lib/security/csp.ts` sebagai fungsi murni supaya bisa diuji — CSP yang
+kehilangan satu direktif tidak memunculkan error, ia hanya berhenti melindungi.
+
+Tidak ada `'unsafe-inline'` sama sekali. `'unsafe-eval'` hanya aktif di
+development, karena React memakai `eval` di sana untuk merekonstruksi stack
+error server di browser.
+
+**Konsekuensi yang harus diketahui:** halaman yang memakai nonce WAJIB dirender
+dinamis (`await connection()`), karena nonce dibuat per-request sementara
+halaman statis dibangun saat build. Halaman statis yang menerima header CSP
+ber-nonce akan tampil kosong — skrip framework di dalamnya tidak membawa nonce
+sehingga diblokir browser.
+
+**Saat menambah panggilan API dari browser** (fetch di komponen client, atau
+socket.io), origin backend harus ditambahkan ke `connect-src` di
+`src/lib/security/csp.ts` — termasuk skema `wss:` untuk socket. Tanpa itu
+koneksinya diblokir diam-diam dan hanya terlihat di console browser production.
+
+## Observability
+
+Belum memakai penyedia pihak ketiga. Yang ada adalah rangka yang membuat error
+bisa ditangkap, dengan satu titik sambung untuk memasang Sentry atau sejenisnya
+nanti tanpa menyentuh pemanggilnya.
+
+| Bagian        | Berkas                               | Fungsi                                                                          |
+| ------------- | ------------------------------------ | ------------------------------------------------------------------------------- |
+| Error server  | `src/instrumentation.ts`             | `onRequestError` mencatat setiap error render, Route Handler, dan Server Action |
+| Error browser | `src/features/observability`         | Menangkap `error` dan `unhandledrejection`, mengirim ke `/api/observability`    |
+| Penampung     | `src/app/api/observability/route.ts` | Memvalidasi lalu mencatat laporan dari browser                                  |
+| Redaksi       | `src/lib/observability/redact.ts`    | Menyaring kredensial, query string, `cause`, dan `stack`                        |
+| Keluaran      | `src/lib/observability/logger.ts`    | Satu baris JSON per peristiwa. Satu-satunya tempat `console` boleh dipakai      |
+
+Penghubungnya adalah **`digest`**. Di production Next menyamarkan pesan error
+asli dari user dan hanya menyisakan digest, yang ditampilkan di halaman error.
+Digest yang sama ikut tercatat di log server — jadi laporan "muncul kode error
+1a2b3c" bisa dipertemukan dengan baris lognya.
+
+Batas yang disadari: `/api/observability` terbuka bagi siapa pun yang bisa
+membuka aplikasi. Pembatas di dalamnya menahan banjir dari klien yang terjebak
+loop error, bukan penyerang yang sengaja membanjiri — hitungannya per-instance
+dan hilang saat restart. Pembatasan sebenarnya harus dipasang di reverse proxy
+atau WAF.
 
 ## PWA
 
