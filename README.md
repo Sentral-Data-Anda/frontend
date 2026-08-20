@@ -70,6 +70,24 @@ staging **tidak bisa** dipromosikan ke production tanpa build ulang.
 lewat CI — bukan lewat build. Lihat bagian Deploy soal pembagian kerja antara
 CI dan Vercel.
 
+## Test
+
+`bun test`. Environment DOM disiapkan `tests/setup.ts`, dimuat lewat
+`[test].preload` di `bunfig.toml` — happy-dom plus `@testing-library/react`,
+sehingga komponen dan hook bisa diuji, bukan hanya fungsi murni.
+
+Satu hal yang penting dipahami sebelum menambah test: `tests/setup.ts`
+**memulihkan `fetch`, `Headers`, `Request`, `Response`, `AbortController`, dan
+`AbortSignal` milik Bun** setelah happy-dom mendaftarkan global-nya. happy-dom
+membawa implementasi HTTP sendiri, dan test di `src/lib/api/client.test.ts`
+menembak server HTTP lokal sungguhan — dengan fetch happy-dom, lima test
+timeout/abort di sana berubah dari menguji sesuatu menjadi lolos-diam. Jangan
+hapus pemulihan itu.
+
+`cleanup()` dari Testing Library dipanggil manual di setiap berkas test
+komponen; auto-cleanup-nya bergantung pada hook global Jest/Vitest yang tidak
+ada di `bun test`.
+
 ## Struktur
 
 - `src/app` — routing, tipis. Metadata, manifest, ikon, halaman.
@@ -132,7 +150,7 @@ nanti tanpa menyentuh pemanggilnya.
 | Bagian        | Berkas                               | Fungsi                                                                          |
 | ------------- | ------------------------------------ | ------------------------------------------------------------------------------- |
 | Error server  | `src/instrumentation.ts`             | `onRequestError` mencatat setiap error render, Route Handler, dan Server Action |
-| Error browser | `src/features/observability`         | Menangkap `error` dan `unhandledrejection`, mengirim ke `/api/observability`    |
+| Error browser | `src/instrumentation-client.ts`      | Menangkap `error` dan `unhandledrejection`, mengirim ke `/api/observability`    |
 | Penampung     | `src/app/api/observability/route.ts` | Memvalidasi lalu mencatat laporan dari browser                                  |
 | Redaksi       | `src/lib/observability/redact.ts`    | Menyaring kredensial, query string, `cause`, dan `stack`                        |
 | Keluaran      | `src/lib/observability/logger.ts`    | Satu baris JSON per peristiwa. Satu-satunya tempat `console` boleh dipakai      |
@@ -141,6 +159,25 @@ Penghubungnya adalah **`digest`**. Di production Next menyamarkan pesan error
 asli dari user dan hanya menyisakan digest, yang ditampilkan di halaman error.
 Digest yang sama ikut tercatat di log server — jadi laporan "muncul kode error
 1a2b3c" bisa dipertemukan dengan baris lognya.
+
+Penangkap error browser tinggal di `src/instrumentation-client.ts`, bukan di
+komponen dalam root layout. Next memuat berkas itu sebelum aplikasi menjadi
+interaktif dan di luar pohon React, sehingga dua kelas error yang paling parah
+tetap terlaporkan: error yang terjadi saat hidrasi, dan error yang menjatuhkan
+root layout — komponen di dalam layout tidak pernah mount pada kasus kedua.
+
+Batas boundary error yang perlu diketahui:
+
+- `src/app/error.tsx` tidak membungkus `layout.tsx` di segmen yang sama.
+  Karena itu ada `src/app/global-error.tsx`, yang merender `<html>`/`<body>`
+  sendiri dan mengimpor `globals.css` sendiri.
+- `global-error` adalah Client Component. Root layout yang gagal **di server**
+  tetap menghasilkan kerangka 500 bawaan Next (`<html id="__next_error__">`);
+  UI kita muncul saat hidrasi di client. Yang tetap jalan pada kasus itu adalah
+  `onRequestError` di server — digest-nya tercatat, jadi kejadiannya tidak
+  hilang meski halamannya bukan milik kita.
+- Karena `global-error` menggantikan root layout, kelas `.dark` tidak sampai ke
+  sana dan halamannya selalu terang.
 
 Batas yang disadari: `/api/observability` terbuka bagi siapa pun yang bisa
 membuka aplikasi. Pembatas di dalamnya menahan banjir dari klien yang terjebak

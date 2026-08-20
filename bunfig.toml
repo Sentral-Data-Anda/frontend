@@ -1,0 +1,4 @@
+[test]
+# Environment DOM disiapkan sebelum berkas test mana pun dijalankan.
+# Lihat tests/setup.ts untuk alasan dan konsekuensinya.
+preload = ["./tests/setup.ts"]
