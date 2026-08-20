@@ -37,7 +37,7 @@ echo "✅ Branch name valid."
 
 # Gerbang lokal sementara.
 #
-# Penegakan lint/typecheck/test/build seharusnya tinggal di CI, dan sudah
+# Penegakan lint/typecheck/test seharusnya tinggal di CI, dan sudah
 # ditulis di .github/workflows/ci.yml. Tapi repo ini BELUM punya git remote,
 # jadi CI itu belum pernah benar-benar dieksekusi. Selama itu belum terbukti
 # jalan, typecheck ditahan di sini supaya tidak ada jendela di mana tidak ada

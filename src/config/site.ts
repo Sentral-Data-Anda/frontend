@@ -14,24 +14,24 @@
  * berkas server yang butuh (app/layout.tsx untuk metadata) — bukan lewat
  * siteConfig — supaya rantai impor dari komponen client tidak pernah
  * menyentuh env sama sekali.
+ *
+ * Yang sudah dibuang dari sini, dan alasannya:
+ *
+ * - `contact` (alamat, telepon, email, mapsUrl) dan `links` (instagram,
+ *   youtube, facebook). Itu identitas situs profil gereja, bukan aplikasi
+ *   terautentikasi. Semuanya masih berisi nilai contoh ("Jl. Contoh Alamat
+ *   No. 1", "+62 21 0000 0000") dan `links` bahkan tidak pernah dipakai
+ *   satu komponen pun. Tempatnya di project situs profil yang terpisah.
+ * - `ogImage`. Menunjuk ke /og-image.png yang BERKASNYA TIDAK ADA di
+ *   public/, dan tidak pernah dibaca oleh metadata mana pun — jadi referensi
+ *   mati yang menyesatkan. SADA ada di balik login; tautannya tidak
+ *   dibagikan ke publik, jadi tidak ada yang perlu dipulihkan di sini.
  */
 export const siteConfig = {
   name: "Sentral Data Anda",
   shortName: "SADA",
   description:
     "Sentral Data Anda (SADA) — aplikasi pengelolaan data dan pelayanan jemaat GKI Graha Raya.",
-  ogImage: "/og-image.png",
-  contact: {
-    address: "Jl. Contoh Alamat No. 1, Graha Raya, Tangerang",
-    phone: "+62 21 0000 0000",
-    email: "sekretariat@gkigraharaya.org",
-    mapsUrl: "https://maps.google.com/?q=GKI+Graha+Raya",
-  },
-  links: {
-    instagram: "https://instagram.com/gkigraharaya",
-    youtube: "https://youtube.com/@gkigraharaya",
-    facebook: "https://facebook.com/gkigraharaya",
-  },
 } as const;
 
 export type SiteConfig = typeof siteConfig;

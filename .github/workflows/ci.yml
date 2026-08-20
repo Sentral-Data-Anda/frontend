@@ -20,7 +20,7 @@ concurrency:
 
 jobs:
   ci:
-    name: Lint, typecheck, test, build
+    name: Lint, typecheck, test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -34,32 +34,40 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      # Pembagian kerja dengan Vercel.
+      #
+      # Target deploy aplikasi ini adalah Vercel, dan Vercel menjalankan
+      # `next build` pada setiap push (preview) serta pada branch produksi.
+      # Karena itu step `build` SENGAJA TIDAK ADA di sini — menjalankannya
+      # dua kali hanya menggandakan waktu tunggu tanpa menambah cakupan.
+      #
+      # Yang tersisa di bawah justru bagian yang TIDAK dilakukan Vercel:
+      #
+      #   - Lint. Sejak Next 16, `next build` tidak lagi menjalankan ESLint
+      #     (kunci konfigurasi `eslint` pun sudah hilang dari next.config).
+      #     Tanpa step ini, tidak ada apa pun yang menegakkan lint.
+      #   - Test. Build tidak pernah menyentuh berkas test.
+      #
+      # Typecheck memang juga ditegakkan `next build` di Vercel
+      # (`typescript.ignoreBuildErrors` default `false`), tapi tetap
+      # dipertahankan di sini karena jauh lebih cepat memberi umpan balik
+      # daripada menunggu build penuh selesai.
+      #
       # Step dipisah per perintah (bukan digabung "bun run lint && ...")
-      # supaya begitu ada kegagalan, langsung kelihatan step mana yang
-      # merah di ringkasan run — next build di Next 16 tidak lagi
-      # menjalankan lint, jadi lint HARUS ditegakkan lewat CI.
+      # supaya begitu ada kegagalan, langsung kelihatan step mana yang merah
+      # di ringkasan run.
       - name: Lint
         run: bun run lint
 
       - name: Typecheck
         run: bun run typecheck
 
+      # src/lib/env.ts sengaja tidak punya .default() (fail-fast), jadi test
+      # yang menyentuh modul env WAJIB diberi nilai atau langsung ZodError.
+      # Nilai di bawah adalah dummy khusus CI — runner tidak menghubungi host
+      # mana pun.
       - name: Test
         run: bun run test
-        env:
-          API_BASE_URL: http://127.0.0.1:3001/api
-          NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3000
-          # Menstempel versi service worker (/sw.js?v=<id>) dan build id Next.
-          # Commit SHA membuatnya stabil dan bisa ditelusuri balik ke kodenya.
-          BUILD_ID: ${{ github.sha }}
-
-      # src/lib/env.ts sengaja tidak punya .default() (fail-fast), jadi build
-      # WAJIB diberi nilai atau `next build` gagal ZodError. Nilai di bawah
-      # adalah dummy khusus CI — runner tidak menghubungi host mana pun, yang
-      # diuji hanya bahwa build-nya berhasil. NEXT_PUBLIC_SITE_URL harus ada
-      # saat BUILD (di-inline ke bundle), bukan saat runtime.
-      - name: Build
-        run: bun run build
         env:
           API_BASE_URL: http://127.0.0.1:3001/api
           NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3000

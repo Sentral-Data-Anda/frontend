@@ -11,10 +11,19 @@ import type { NextConfig } from "next";
  *   inilah yang membuat build baru benar-benar terdeteksi sebagai versi baru.
  *   Tanpa ini, cache lama nyangkut selamanya.
  *
- * Di CI/Docker isi `BUILD_ID` dengan commit SHA supaya stabil dan bisa
- * ditelusuri. Fallback timestamp hanya untuk build lokal.
+ * Urutan sumbernya, dari yang paling bisa ditelusuri:
+ *
+ * 1. `BUILD_ID` — diisi eksplisit di CI/Docker dengan commit SHA.
+ * 2. `VERCEL_GIT_COMMIT_SHA` — disediakan Vercel sendiri. Vercel TIDAK
+ *    menyetel `BUILD_ID`, jadi tanpa langkah ini setiap deploy jatuh ke
+ *    timestamp: tetap unik (service worker tetap terdeteksi baru), tapi tidak
+ *    bisa ditelusuri balik ke commit mana pun saat menyelidiki laporan error.
+ * 3. Timestamp — jaring terakhir untuk build lokal.
  */
-const buildId = process.env.BUILD_ID || `local-${Date.now()}`;
+const buildId =
+  process.env.BUILD_ID ||
+  process.env.VERCEL_GIT_COMMIT_SHA ||
+  `local-${Date.now()}`;
 
 const nextConfig: NextConfig = {
   // Output ramping untuk Docker (multi-stage runner).

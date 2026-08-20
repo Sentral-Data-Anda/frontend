@@ -19,7 +19,8 @@ notification.
 - Tailwind CSS 4 + shadcn/ui
 - Zod untuk validasi env dan bentuk respons API
 - ESLint + Prettier + Husky + commitlint + lint-staged
-- GitHub Actions (lint, typecheck, test, build)
+- GitHub Actions (lint, typecheck, test)
+- Vercel untuk deploy
 - Docker (multi-stage, `output: "standalone"`)
 
 ## Setup
@@ -64,8 +65,9 @@ staging **tidak bisa** dipromosikan ke production tanpa build ulang.
 | `bun run test`      | `bun test`                     |
 | `bun run format`    | Prettier format seluruh berkas |
 
-`next build` di Next 16 **tidak lagi menjalankan lint**, jadi lint dan
-typecheck ditegakkan lewat CI — bukan lewat build.
+`next build` di Next 16 **tidak lagi menjalankan lint**, jadi lint ditegakkan
+lewat CI — bukan lewat build. Lihat bagian Deploy soal pembagian kerja antara
+CI dan Vercel.
 
 ## Struktur
 
@@ -158,7 +160,39 @@ Aplikasi bisa dipasang di Chrome/Edge desktop, Chrome Android, dan Safari iOS.
 Rancangan lengkap, termasuk push notification dan fase berikutnya:
 `docs/superpowers/specs/2026-08-13-sada-pwa-architecture-design.md`.
 
+## Deploy
+
+Target deploy aplikasi ini adalah **Vercel**, dan Vercel menjalankan
+`next build` sendiri pada setiap push. Karena itu `.github/workflows/ci.yml`
+sengaja **tidak** punya step build — yang ditegakkan di sana hanya bagian yang
+tidak dilakukan Vercel:
+
+| Pemeriksaan | Vercel (`next build`)                               | CI                             |
+| ----------- | --------------------------------------------------- | ------------------------------ |
+| Typecheck   | ya (`typescript.ignoreBuildErrors` default `false`) | ya, umpan baliknya lebih cepat |
+| Lint        | **tidak** sejak Next 16                             | ya                             |
+| Test        | **tidak**                                           | ya                             |
+
+Variabel yang harus diisi di dashboard Vercel: `API_BASE_URL` dan
+`NEXT_PUBLIC_SITE_URL` (yang kedua di-inline saat build, jadi ganti nilainya
+berarti build ulang).
+
+`BUILD_ID` tidak perlu diisi di Vercel — `next.config.ts` jatuh ke
+`VERCEL_GIT_COMMIT_SHA` yang disediakan Vercel sendiri, sehingga versi service
+worker tetap bisa ditelusuri ke commit-nya.
+
+Dua keterbatasan yang perlu diketahui di platform serverless:
+
+- Log dari `src/lib/observability/logger.ts` masuk ke runtime log Vercel yang
+  retensinya pendek. Kalau penelusuran lewat `digest` harus bertahan lebih
+  lama, log perlu diteruskan ke sink eksternal.
+- Rate limit `/api/observability` disimpan di memori per-instance, dan Vercel
+  menjalankan banyak instance. Angkanya jadi lebih longgar dari yang tertulis.
+
 ## Docker
+
+Masih tersedia sebagai jalan keluar dari Vercel (`output: "standalone"`), bukan
+jalur deploy utama.
 
 ```bash
 NEXT_PUBLIC_SITE_URL=https://sada.example.org docker compose up --build
