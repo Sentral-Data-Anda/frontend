@@ -19,7 +19,7 @@ notification.
 - Tailwind CSS 4 + shadcn/ui
 - Zod untuk validasi env dan bentuk respons API
 - ESLint + Prettier + Husky + commitlint + lint-staged
-- GitHub Actions (lint, typecheck, test)
+- GitHub Actions (lint, typecheck, test, audit dependency)
 - Vercel untuk deploy
 - Docker (multi-stage, `output: "standalone"`)
 
@@ -63,6 +63,7 @@ staging **tidak bisa** dipromosikan ke production tanpa build ulang.
 | `bun run lint:fix`  | ESLint + perbaiki otomatis     |
 | `bun run typecheck` | `tsc --noEmit`                 |
 | `bun run test`      | `bun test`                     |
+| `bun run audit`     | Audit dependency produksi      |
 | `bun run format`    | Prettier format seluruh berkas |
 
 `next build` di Next 16 **tidak lagi menjalankan lint**, jadi lint ditegakkan
@@ -167,11 +168,12 @@ Target deploy aplikasi ini adalah **Vercel**, dan Vercel menjalankan
 sengaja **tidak** punya step build — yang ditegakkan di sana hanya bagian yang
 tidak dilakukan Vercel:
 
-| Pemeriksaan | Vercel (`next build`)                               | CI                             |
-| ----------- | --------------------------------------------------- | ------------------------------ |
-| Typecheck   | ya (`typescript.ignoreBuildErrors` default `false`) | ya, umpan baliknya lebih cepat |
-| Lint        | **tidak** sejak Next 16                             | ya                             |
-| Test        | **tidak**                                           | ya                             |
+| Pemeriksaan      | Vercel (`next build`)                               | CI                             |
+| ---------------- | --------------------------------------------------- | ------------------------------ |
+| Typecheck        | ya (`typescript.ignoreBuildErrors` default `false`) | ya, umpan baliknya lebih cepat |
+| Lint             | **tidak** sejak Next 16                             | ya                             |
+| Test             | **tidak**                                           | ya                             |
+| Audit dependency | **tidak**                                           | ya                             |
 
 Variabel yang harus diisi di dashboard Vercel: `API_BASE_URL` dan
 `NEXT_PUBLIC_SITE_URL` (yang kedua di-inline saat build, jadi ganti nilainya
@@ -201,6 +203,33 @@ NEXT_PUBLIC_SITE_URL=https://sada.example.org docker compose up --build
 `NEXT_PUBLIC_SITE_URL` diteruskan sebagai **build arg** (nilainya di-inline saat
 build). `API_BASE_URL` diteruskan sebagai environment runtime, jadi bisa diganti
 tanpa build ulang image.
+
+## Dependency
+
+`bun run audit` adalah gerbangnya, dan CI menjalankan perintah yang sama persis
+supaya hasil lokal dan hasil CI tidak pernah berbeda.
+
+Ambangnya `--audit-level=high` dan lingkupnya `--prod`. Dependency dev (eslint,
+commitlint, shadcn) tidak pernah ikut ke server maupun browser, dan
+memasukkannya hanya membuat gerbang ini merah terus sampai orang berhenti
+membacanya.
+
+Lima advisory dikecualikan lewat `--ignore`. Ketiga paketnya sama-sama berujung
+pada versi yang **dipin oleh Next sendiri**, jadi tidak bisa diperbaiki dari
+repo ini tanpa menabrak pin upstream:
+
+| Paket     | Advisory                                     | Kenapa dikecualikan                                                                                                                                                                                                              |
+| --------- | -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `postcss` | `GHSA-6g55-p6wh-862q`, `GHSA-r28c-9q8g-f849` | `next` mendeklarasikan `postcss` **8.4.31 persis** (tanpa caret). Kerentanannya path traversal lewat `sourceMappingURL` di komentar CSS — butuh CSS yang dikendalikan penyerang, sementara seluruh CSS repo ini ditulis sendiri. |
+| `nanoid`  | `GHSA-28wg-ghj8-5hjv`, `GHSA-2v37-7h3g-55p8` | Ikut masuk lewat `postcss` yang dipin di atas, dipakai hanya untuk id source map. Perbaikannya ada di `nanoid` 3.3.16, tapi tidak bisa dijangkau selama postcss-nya beku.                                                        |
+| `sharp`   | `GHSA-f88m-g3jw-g9cj`                        | `optionalDependencies` `next` dengan rentang `^0.34.5`; perbaikannya di 0.35.0, di luar rentang itu. Di repo ini `sharp` hanya memproses ikon milik sendiri — tidak ada unggahan gambar dari user.                               |
+
+**Cabut pengecualiannya begitu Next menaikkan pin-nya.** Cara memeriksa:
+jalankan `bun audit --prod` tanpa `--ignore`, lalu bandingkan dengan rentang di
+`node_modules/next/package.json`.
+
+Advisory baru di luar kelima itu tetap membuat CI merah — itu memang gunanya.
+Jangan menambah `--ignore` tanpa menuliskan alasannya di tabel ini.
 
 ## Konvensi Commit
 

@@ -12,6 +12,7 @@
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
     "test": "bun test",
+    "audit": "bun audit --prod --audit-level=high --ignore=GHSA-28wg-ghj8-5hjv --ignore=GHSA-2v37-7h3g-55p8 --ignore=GHSA-6g55-p6wh-862q --ignore=GHSA-r28c-9q8g-f849 --ignore=GHSA-f88m-g3jw-g9cj",
     "prepare": "husky"
   },
   "lint-staged": {
@@ -28,7 +29,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^1.20.0",
-    "next": "16.2.9",
+    "next": "16.2.12",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "server-only": "^0.0.1",
@@ -46,7 +47,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.2.9",
+    "eslint-config-next": "16.2.12",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-import": "^2.32.0",
     "husky": "^9.1.7",
