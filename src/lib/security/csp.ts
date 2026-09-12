@@ -44,7 +44,40 @@ export function buildContentSecurityPolicy({
     // mendaftar setiap berkas satu per satu.
     `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${isDev ? " 'unsafe-eval'" : ""}`,
 
-    `style-src 'self' 'nonce-${nonce}'`,
+    /**
+     * `style-src` memakai `'unsafe-inline'`, BUKAN nonce. Ini pelemahan yang
+     * disengaja, dan alasannya konkret — bukan kemalasan.
+     *
+     * `next/image` merender atribut `style="color:transparent"` langsung pada
+     * `<img>`. Dengan `style-src 'self' 'nonce-...'`, atribut itu diblokir dan
+     * gambarnya kehilangan gaya. Yang membuatnya jahat: nonce TIDAK BISA
+     * dipakai pada atribut `style` sama sekali — nonce hanya berlaku untuk
+     * elemen `<style>`. Jadi tidak ada versi "nonce yang benar" untuk kasus
+     * ini.
+     *
+     * Tiga alternatif yang ditimbang dan ditolak:
+     *
+     * 1. `'unsafe-hashes'` + hash per atribut. Paling ketat, tapi tiap inline
+     *    style baru — komponen baru, versi Next baru — memerlukan hash baru,
+     *    dan kegagalannya SENYAP — persis kelas bug yang paling sulit
+     *    didiagnosis.
+     * 2. `style-src-attr 'unsafe-inline'`. Tepat sasaran, tapi dukungan
+     *    browsernya tidak seragam; browser yang tidak mengenalinya jatuh balik
+     *    ke `style-src` dan memblokir lagi.
+     * 3. Berhenti memakai `next/image`. Memindahkan masalah, tidak
+     *    menyelesaikannya — komponen lain pun merender atribut style.
+     *
+     * Yang HILANG karena keputusan ini: perlindungan terhadap injeksi CSS
+     * (exfiltrasi data lewat selector atau `background-image`). Yang TETAP
+     * UTUH: `script-src` dengan nonce dan `'strict-dynamic'` — dan injeksi
+     * skrip adalah kelas serangan yang jauh lebih berat.
+     *
+     * Perhatikan: nonce dan `'unsafe-inline'` TIDAK BOLEH ada bersamaan di
+     * satu direktif. Browser yang mengenali nonce akan MENGABAIKAN
+     * `'unsafe-inline'`, sehingga menulis keduanya justru mengembalikan bug
+     * yang sedang diperbaiki di sini.
+     */
+    `style-src 'self' 'unsafe-inline'`,
 
     // `data:` dipakai untuk gambar inline kecil; `blob:` untuk pratinjau berkas
     // sebelum diunggah (unggah foto jemaat nanti butuh ini).

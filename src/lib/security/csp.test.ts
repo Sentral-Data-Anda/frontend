@@ -20,18 +20,29 @@ describe("buildContentSecurityPolicy", () => {
     expect(directive("default-src")).toBe("default-src 'self'");
   });
 
-  test("nonce ikut ke script-src dan style-src", () => {
+  test("nonce ikut ke script-src", () => {
     expect(directive("script-src")).toContain(`'nonce-${NONCE}'`);
-    expect(directive("style-src")).toContain(`'nonce-${NONCE}'`);
+  });
+
+  test("style-src TIDAK memakai nonce — nonce tidak berlaku untuk atribut style", () => {
+    // Nonce hanya berlaku untuk elemen <style>, tidak pernah untuk atribut
+    // `style="..."` yang dirender next/image. Menuliskannya di sini justru
+    // membuat browser mengabaikan 'unsafe-inline' di bawah, dan gambar
+    // kehilangan gayanya tanpa error apa pun di server.
+    expect(directive("style-src")).not.toContain("nonce-");
+    expect(directive("style-src")).toContain("'unsafe-inline'");
   });
 
   test("script-src memakai strict-dynamic agar chunk Next boleh dimuat", () => {
     expect(directive("script-src")).toContain("'strict-dynamic'");
   });
 
-  test("TIDAK PERNAH ada unsafe-inline — itu membuat seluruh CSP sia-sia terhadap XSS", () => {
-    expect(policy(false)).not.toContain("'unsafe-inline'");
-    expect(policy(true)).not.toContain("'unsafe-inline'");
+  test("script-src TIDAK PERNAH memakai unsafe-inline — itu membuat CSP sia-sia terhadap XSS", () => {
+    // Pelemahan `'unsafe-inline'` hanya boleh ada di `style-src`, dan alasannya
+    // ditulis panjang di csp.ts. Begitu ia bocor ke `script-src`, seluruh
+    // perlindungan terhadap injeksi skrip hilang.
+    expect(directive("script-src", false)).not.toContain("'unsafe-inline'");
+    expect(directive("script-src", true)).not.toContain("'unsafe-inline'");
   });
 
   test("unsafe-eval hanya di development, tidak pernah di production", () => {
