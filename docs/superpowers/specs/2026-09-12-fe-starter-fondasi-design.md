@@ -160,10 +160,16 @@ melihat kodenya. Isinya, berurutan:
 
 ### 3.8 Verifikasi sekali jalan
 
-`grep -ri "sada\|gki\|jemaat\|graha\|gereja"` harus tidak mengembalikan apa pun
-sebelum commit pertama. Ini pemeriksaan satu kali, bukan job CI: starter tidak
-akan pernah punya SADA lagi, jadi gerbang permanen untuk itu tidak menjaga apa
-pun.
+`grep -ri "sada\|gki\|jemaat\|graha\|gereja"` pada working tree harus tidak
+mengembalikan apa pun di akhir Fase 0, sebelum starter dinyatakan siap dipakai.
+
+Bukan sebelum commit pertama: repo dibentuk lewat clone, jadi push pertama
+justru membawa seluruh isi SADA — itu memang titik awalnya. Yang harus bersih
+adalah working tree di akhir Fase 0. History tetap memuat SADA, dan itu
+disengaja (lihat S2).
+
+Ini pemeriksaan satu kali, bukan job CI: setelah bersih, starter tidak akan
+pernah punya SADA lagi, jadi gerbang permanen untuk itu tidak menjaga apa pun.
 
 ## 4. Fase 0 — Gerbang CI dan proteksi branch
 
