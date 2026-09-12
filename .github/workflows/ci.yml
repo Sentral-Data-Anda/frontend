@@ -76,11 +76,11 @@ jobs:
       # Kenapa `--audit-level=high`: gerbang harus punya ambang, dan ambang
       # yang menangkap semuanya sama tidak bergunanya dengan tidak ada gerbang.
       #
-      # Daftar `--ignore` di package.json: lihat bagian Dependency di README
-      # untuk alasan per advisory dan syarat kapan boleh dicabut. Semuanya
-      # berujung pada versi yang DIPIN NEXT SENDIRI, jadi tidak bisa
-      # diperbaiki dari repo ini tanpa menabrak pin upstream. Advisory baru di
-      # luar daftar itu TETAP membuat step ini merah — itu memang gunanya.
+      # TIDAK ADA `--ignore` di perintah ini, dan itu disengaja. Pengecualian
+      # membungkam laporan tanpa mengganti kode yang rentan, lalu ikut
+      # menyembunyikan advisory berikutnya. Bila sebuah advisory perlu
+      # ditutup, pakai `overrides` di package.json supaya versinya
+      # benar-benar berganti. Lihat bagian Dependency di README.
       - name: Audit
         run: bun run audit
 

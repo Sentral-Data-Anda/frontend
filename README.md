@@ -251,22 +251,23 @@ commitlint, shadcn) tidak pernah ikut ke server maupun browser, dan
 memasukkannya hanya membuat gerbang ini merah terus sampai orang berhenti
 membacanya.
 
-Lima advisory dikecualikan lewat `--ignore`. Ketiga paketnya sama-sama berujung
-pada versi yang **dipin oleh Next sendiri**, jadi tidak bisa diperbaiki dari
-repo ini tanpa menabrak pin upstream:
+**Tidak ada `--ignore` sama sekali.** Sebelumnya ada lima, semuanya berujung
+pada versi yang dipin Next sendiri (`postcss`, `nanoid`, `sharp`). Kenaikan
+Next ke 16.3.5 membuat kelimanya tidak relevan lagi, dan daftarnya dibuang
+seluruhnya: entri pengecualian yang sudah tidak perlu bukan sekadar sampah,
+ia menyembunyikan advisory berikutnya yang kebetulan memakai id yang sama.
 
-| Paket     | Advisory                                     | Kenapa dikecualikan                                                                                                                                                                                                              |
-| --------- | -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `postcss` | `GHSA-6g55-p6wh-862q`, `GHSA-r28c-9q8g-f849` | `next` mendeklarasikan `postcss` **8.4.31 persis** (tanpa caret). Kerentanannya path traversal lewat `sourceMappingURL` di komentar CSS — butuh CSS yang dikendalikan penyerang, sementara seluruh CSS repo ini ditulis sendiri. |
-| `nanoid`  | `GHSA-28wg-ghj8-5hjv`, `GHSA-2v37-7h3g-55p8` | Ikut masuk lewat `postcss` yang dipin di atas, dipakai hanya untuk id source map. Perbaikannya ada di `nanoid` 3.3.16, tapi tidak bisa dijangkau selama postcss-nya beku.                                                        |
-| `sharp`   | `GHSA-f88m-g3jw-g9cj`                        | `optionalDependencies` `next` dengan rentang `^0.34.5`; perbaikannya di 0.35.0, di luar rentang itu. Di repo ini `sharp` hanya memproses ikon milik sendiri — tidak ada unggahan gambar dari user.                               |
+Satu `overrides` dipakai di `package.json`:
 
-**Cabut pengecualiannya begitu Next menaikkan pin-nya.** Cara memeriksa:
-jalankan `bun audit --prod` tanpa `--ignore`, lalu bandingkan dengan rentang di
-`node_modules/next/package.json`.
+| Paket          | Dipaksa ke | Kenapa                                                                                                                                                                          |
+| -------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `browserslist` | `^4.28.9`  | Dua advisory high (`GHSA-c83g-rgw3-j3cx`, `GHSA-73wf-gq98-2v4g`) menyasar `<=4.28.6`. Tanpa override, salinan bersarang di bawah `@babel/core` dan `shadcn` tertahan di 4.28.2. |
 
-Advisory baru di luar kelima itu tetap membuat CI merah — itu memang gunanya.
-Jangan menambah `--ignore` tanpa menuliskan alasannya di tabel ini.
+**Sebelum menambahkan `--ignore` baru, coba `overrides` lebih dulu.** Override
+benar-benar mengganti versi yang terpasang; `--ignore` hanya membungkam
+laporannya dan meninggalkan kode rentan di tempatnya. `--ignore` adalah jalan
+terakhir untuk advisory yang memang tidak punya versi perbaikan, dan alasannya
+wajib ditulis di sini.
 
 ## Konvensi Commit
 
