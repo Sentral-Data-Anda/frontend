@@ -1,0 +1,140 @@
+.stage {
+  position: relative;
+  display: flex;
+  width: 200px;
+  height: 200px;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/*
+ * Bukan <img>. Alpha PNG dipakai sebagai masker dan warnanya diambil dari
+ * `currentColor`, sehingga huruf mengikuti tema gelap — yang tidak mungkin
+ * kalau pikselnya sendiri yang berwarna. Prefix -webkit- masih diperlukan
+ * untuk Safari di bawah 15.4.
+ */
+.letter {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  background-color: currentColor;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+}
+
+.letterS {
+  -webkit-mask-image: url("/loading/sada-s.png");
+  mask-image: url("/loading/sada-s.png");
+  animation: floatS 2s ease-in-out infinite;
+}
+
+.letterA {
+  -webkit-mask-image: url("/loading/sada-a.png");
+  mask-image: url("/loading/sada-a.png");
+  animation: floatA 2s ease-in-out infinite;
+}
+
+.letterD {
+  -webkit-mask-image: url("/loading/sada-d.png");
+  mask-image: url("/loading/sada-d.png");
+  animation: floatD 2s ease-in-out infinite;
+}
+
+@keyframes floatS {
+  0% {
+    transform: translateX(-90px);
+    opacity: 1;
+  }
+  20% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  40% {
+    transform: translateX(0) rotate(5deg);
+    opacity: 1;
+  }
+  60% {
+    transform: translateX(0) rotate(-5deg);
+    opacity: 1;
+  }
+  80% {
+    transform: translateX(0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 0;
+  }
+}
+
+@keyframes floatA {
+  0% {
+    transform: translateX(125px);
+    opacity: 1;
+  }
+  20% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  40% {
+    transform: translateX(0) rotate(5deg);
+    opacity: 1;
+  }
+  60% {
+    transform: translateX(0) rotate(-5deg);
+    opacity: 1;
+  }
+  80% {
+    transform: translateX(0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 0;
+  }
+}
+
+@keyframes floatD {
+  0% {
+    transform: translateY(125px);
+    opacity: 1;
+  }
+  20% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  40% {
+    transform: translateY(0) rotate(5deg);
+    opacity: 1;
+  }
+  60% {
+    transform: translateY(0) rotate(-5deg);
+    opacity: 1;
+  }
+  80% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+}
+
+/*
+ * Animasi yang berulang tanpa henti adalah salah satu pemicu yang paling
+ * sering disebut orang dengan gangguan vestibular. Yang tersisa tetap
+ * memberi tahu bahwa sesuatu sedang berjalan, tanpa gerakan.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .letterS,
+  .letterA,
+  .letterD {
+    animation: none;
+  }
+}
