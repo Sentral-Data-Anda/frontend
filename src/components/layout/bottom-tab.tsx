@@ -12,10 +12,11 @@ import { usePathname } from "next/navigation";
 
 import { MENU, menuHref } from "@/config/menu";
 import { useSession } from "@/features/auth/session-provider";
+import type { MenuNode } from "@/features/auth/types";
 import { findMenuNode } from "@/features/auth/use-menu-access";
 import { cn } from "@/lib/utils";
 
-type Tab = {
+export type Tab = {
   label: string;
   href: string;
   icon: LucideIcon;
@@ -45,16 +46,32 @@ const TABS: Tab[] = [
   },
 ];
 
+/**
+ * Tab menuju layar yang tidak dipegang peran ini akan berujung 403 dari
+ * be-sada. Menyaringnya di sini bukan keamanan — itu tetap milik be-sada —
+ * melainkan menghindari jalan buntu yang terlihat seperti kerusakan.
+ *
+ * `tab.slug === null` diperiksa LEBIH DULU: tab seperti "Dashboard" harus
+ * selalu tampil dan tidak pernah dicari di pohon menu. Membalik urutan
+ * operan `||` di sini akan tetap benar secara logika, tapi ekstraksi ini ada
+ * justru supaya urutannya bisa diuji, bukan cuma dibaca.
+ */
+export function getVisibleTabs(tabs: Tab[], menu: MenuNode[]): Tab[] {
+  return tabs.filter(
+    (tab) => tab.slug === null || findMenuNode(menu, tab.slug),
+  );
+}
+
+/** `/` dicocokkan persis; rute lain dicocokkan lewat `startsWith`. */
+export function isTabActive(href: string, pathname: string): boolean {
+  return href === "/" ? pathname === "/" : pathname.startsWith(href);
+}
+
 export function BottomTab() {
   const session = useSession();
   const pathname = usePathname();
 
-  // Tab menuju layar yang tidak dipegang peran ini akan berujung 403 dari
-  // be-sada. Menyaringnya di sini bukan keamanan — itu tetap milik be-sada —
-  // melainkan menghindari jalan buntu yang terlihat seperti kerusakan.
-  const tabs = TABS.filter(
-    (tab) => tab.slug === null || findMenuNode(session.menu, tab.slug),
-  );
+  const tabs = getVisibleTabs(TABS, session.menu);
 
   return (
     <nav
@@ -63,8 +80,7 @@ export function BottomTab() {
     >
       <ul className="flex">
         {tabs.map((tab) => {
-          const isActive =
-            tab.href === "/" ? pathname === "/" : pathname.startsWith(tab.href);
+          const isActive = isTabActive(tab.href, pathname);
 
           return (
             <li key={tab.href} className="flex-1">
