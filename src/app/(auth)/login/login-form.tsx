@@ -69,11 +69,20 @@ export function LoginForm() {
           id="username"
           autoComplete="username"
           autoCapitalize="none"
+          aria-invalid={errors.username ? true : undefined}
+          aria-describedby={errors.username ? "username-error" : undefined}
           className="border-input bg-background h-11 w-full rounded-md border px-3 text-base"
           {...register("username")}
         />
         {errors.username ? (
-          <p className="text-destructive text-xs">{errors.username.message}</p>
+          // Tanpa role="alert": kedua field bisa invalid bersamaan (submit
+          // dengan keduanya kosong), dan alert ganda yang meletup serentak
+          // sebelum user sempat pindah fokus lebih berisik daripada
+          // menolong. aria-describedby sudah cukup — pembaca layar membaca
+          // pesan ini begitu fokus mendarat di input yang aria-invalid.
+          <p id="username-error" className="text-destructive text-xs">
+            {errors.username.message}
+          </p>
         ) : null}
       </div>
 
@@ -85,11 +94,15 @@ export function LoginForm() {
           id="password"
           type="password"
           autoComplete="current-password"
+          aria-invalid={errors.password ? true : undefined}
+          aria-describedby={errors.password ? "password-error" : undefined}
           className="border-input bg-background h-11 w-full rounded-md border px-3 text-base"
           {...register("password")}
         />
         {errors.password ? (
-          <p className="text-destructive text-xs">{errors.password.message}</p>
+          <p id="password-error" className="text-destructive text-xs">
+            {errors.password.message}
+          </p>
         ) : null}
       </div>
 
