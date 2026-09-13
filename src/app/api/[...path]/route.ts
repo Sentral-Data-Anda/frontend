@@ -60,20 +60,46 @@ const onHandle = async (
 ): Promise<Response> => {
   const { path } = await context.params;
 
-  // Router Next tidak meloloskan ".." sebagai segmen, tapi penjaga ini tidak
-  // boleh bergantung pada perilaku itu: yang dijaga adalah kemampuan
-  // menembak host be-sada di luar prefix yang dimaksud.
-  if (path.some((segment) => segment === "." || segment === "..")) {
+  // Router Next tidak meloloskan ".." sebagai segmen TERSENDIRI, tapi Next
+  // men-SPLIT lalu men-DECODE tiap segmen catch-all sebelum kita menerimanya
+  // — jadi `/api/v1/..%2f..%2fadmin` tiba di sini sebagai SATU elemen array
+  // `"../../admin"`, bukan tiga elemen `".."`. Segmen itu tidak sama persis
+  // dengan "..", tapi begitu di-split lagi dengan "/" ia berisi "..". Maka
+  // tiap segmen di-split dulu sebelum dibandingkan, supaya dot-segment yang
+  // "disembunyikan" lewat decode Next tetap tertangkap sebelum sempat
+  // digabung jadi satu URL.
+  if (
+    path.some((segment) =>
+      segment.split("/").some((part) => part === "." || part === ".."),
+    )
+  ) {
     return Response.json(
       { status: 400, error: "Path tidak valid" },
       { status: 400 },
     );
   }
 
+  // Jaring pengaman kedua, independen dari guard di atas: tiap segmen
+  // di-encode ulang (encodeURIComponent) supaya tidak bisa ditafsirkan
+  // sebagai sintaks path sama sekali (parameter be-sada yang wajar, mis.
+  // "A-0184", tidak berubah oleh encoding ini), lalu hasil akhirnya tetap
+  // divalidasi terhadap prefix `base` sebelum dipakai — supaya trik encoding
+  // lain yang belum terpikirkan sekarang, di luar dot-segment yang sudah
+  // ditangkap guard di atas, tetap tertutup.
+  const base = new URL(`${env.API_BASE_URL}/`);
+  const target = new URL(path.map(encodeURIComponent).join("/"), base);
+
   // `request.nextUrl` hanya ada pada instance NextRequest sungguhan; diambil
   // lewat `new URL(...)` supaya berlaku sama untuk NextRequest produksi
   // maupun Request polos yang dipakai test.
-  const target = `${env.API_BASE_URL}/${path.join("/")}${new URL(request.url).search}`;
+  target.search = new URL(request.url).search;
+
+  if (!target.href.startsWith(base.href)) {
+    return Response.json(
+      { status: 400, error: "Path tidak valid" },
+      { status: 400 },
+    );
+  }
 
   const isBodyAllowed =
     METHODS_WITH_BODY.has(request.method) && request.body !== null;
@@ -93,11 +119,23 @@ const onHandle = async (
     cache: "no-store",
   } as RequestInit & { duplex?: "half" });
 
-  const headers = new Headers(upstream.headers);
+  const headers = new Headers();
 
-  // `new Headers(...)` menggabungkan beberapa Set-Cookie jadi satu string
-  // berkoma, yang bukan header yang sah. Jadi dibuang lalu dipasang ulang
-  // satu per satu lewat getSetCookie().
+  // Header respons dari upstream disaring dengan daftar hop-by-hop yang
+  // sama seperti arah request — `content-length` dan `transfer-encoding`
+  // upstream tidak lagi cocok dengan badan yang di-stream ulang lewat
+  // Response ini, persis kelas kegagalan yang dijaga di onBuildForwardHeaders.
+  upstream.headers.forEach((value, key) => {
+    if (!HOP_BY_HOP_HEADERS.has(key.toLowerCase())) {
+      headers.set(key, value);
+    }
+  });
+
+  // Loop di atas memanggil `.set()`, yang menimpa nilai lama tiap dipanggil
+  // dengan nama header yang sama — kalau upstream mengirim lebih dari satu
+  // Set-Cookie, hanya yang terakhir yang tersisa. Dibuang di sini lalu
+  // dipasang ulang satu per satu lewat getSetCookie(), yang mengembalikan
+  // tiap Set-Cookie sebagai entri terpisah, bukan digabung.
   headers.delete("set-cookie");
 
   for (const cookie of upstream.headers.getSetCookie()) {
