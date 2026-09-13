@@ -1,11 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 
 import {
   serviceWorkerUrl,
   shouldRegisterServiceWorker,
 } from "@/features/pwa/lib/register";
+import { useBoolean } from "@/hooks/use-boolean";
 
 type ServiceWorkerState = {
   /** Ada versi baru yang sudah terpasang dan menunggu persetujuan user. */
@@ -31,7 +32,13 @@ type ServiceWorkerState = {
  * di situ akan membingungkan: tidak ada versi lama yang digantikan.
  */
 export function useServiceWorker(): ServiceWorkerState {
-  const [updateReady, setUpdateReady] = useState(false);
+  const isUpdateReady = useBoolean(false);
+  // `onTrue`/`onFalse` ditarik keluar (bukan dipakai lewat `isUpdateReady.onTrue`
+  // langsung) supaya bisa dicantumkan di dependency array useEffect/useCallback
+  // di bawah tanpa memicu warning react-hooks/exhaustive-deps. Keduanya stabil
+  // antar-render (dibungkus useCallback di useBoolean), jadi mencantumkannya
+  // tidak membuat efek berjalan ulang.
+  const { onTrue: markUpdateReady, onFalse: clearUpdateReady } = isUpdateReady;
   const waitingRef = useRef<ServiceWorker | null>(null);
 
   // Penjaga loop reload. Tanpa ini, `controllerchange` yang menyala lebih dari
@@ -61,7 +68,7 @@ export function useServiceWorker(): ServiceWorkerState {
       }
 
       waitingRef.current = worker;
-      setUpdateReady(true);
+      markUpdateReady();
     };
 
     const onControllerChange = () => {
@@ -119,7 +126,7 @@ export function useServiceWorker(): ServiceWorkerState {
         onControllerChange,
       );
     };
-  }, []);
+  }, [markUpdateReady]);
 
   const applyUpdate = useCallback(() => {
     const waiting = waitingRef.current;
@@ -127,9 +134,9 @@ export function useServiceWorker(): ServiceWorkerState {
       return;
     }
 
-    setUpdateReady(false);
+    clearUpdateReady();
     waiting.postMessage({ type: "SKIP_WAITING" });
-  }, []);
+  }, [clearUpdateReady]);
 
-  return { updateReady, applyUpdate };
+  return { updateReady: isUpdateReady.value, applyUpdate };
 }

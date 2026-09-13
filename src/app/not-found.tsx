@@ -1,7 +1,7 @@
 import Link from "next/link";
 
+import { buttonVariants } from "@/components/common/button";
 import { Container } from "@/components/layout/container";
-import { buttonVariants } from "@/components/ui/button";
 
 export default function NotFound() {
   return (

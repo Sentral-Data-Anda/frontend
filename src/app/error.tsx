@@ -2,8 +2,8 @@
 
 import { useEffect } from "react";
 
+import { Button } from "@/components/common/button";
 import { Container } from "@/components/layout/container";
-import { Button } from "@/components/ui/button";
 
 /**
  * Error boundary tingkat root (lihat
