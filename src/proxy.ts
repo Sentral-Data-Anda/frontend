@@ -24,12 +24,69 @@ import { buildContentSecurityPolicy, generateNonce } from "@/lib/security/csp";
  * Pengecualian ditulis di `matcher`, bukan sebagai percabangan `if` di dalam
  * badan fungsi, supaya tidak bisa terlewat ketika orang menambah cabang logika
  * baru di bawah.
+ *
+ * =====================================================================
+ * KENAPA DETEKSI PREFETCH ADA DI BADAN FUNGSI, BUKAN DI `matcher`
+ * =====================================================================
+ * Sebelumnya `matcher` punya klausa `missing` yang melewatkan permintaan
+ * prefetch `next/link` (header `next-router-prefetch` atau
+ * `purpose: prefetch`) SUPAYA proxy tidak jalan sama sekali untuknya — murni
+ * optimasi, karena prefetch tidak pernah dieksekusi sebagai dokumen dan
+ * nonce untuknya terbuang percuma.
+ *
+ * Begitu gerbang auth ditambahkan ke fungsi yang sama, klausa itu diam-diam
+ * ikut melewatkan GERBANG AUTH: permintaan berheader prefetch tidak pernah
+ * masuk fungsi ini sama sekali, jadi tidak pernah dicek sesi. Halaman
+ * terlindungi kebetulan aman lewat pertahanan kedua (`getSession()` di
+ * layout), tapi itu bukan sesuatu yang boleh diandalkan diam-diam.
+ *
+ * Karena itu pemisahan ini disengaja: `matcher` hanya menentukan APA yang
+ * dijalankan (termasuk prefetch — supaya gerbang auth tetap menjaganya),
+ * dan `isPrefetchRequest` di bawah, dipakai di `onContinue`, yang menentukan
+ * apakah nonce perlu dibuat. Pengecualian KEAMANAN (aset PWA, di `source`)
+ * tetap di matcher — itu memang harus sulit dilewatkan. Yang pindah ke sini
+ * hanya OPTIMASI (lewati nonce untuk prefetch), karena optimasi dan
+ * pengecualian keamanan tidak boleh hidup berdampingan di satu tempat yang
+ * sama-sama mengontrol "apakah proxy jalan sama sekali".
  */
 const ACCESS_COOKIE = "accessToken";
 const REFRESH_COOKIE = "refreshToken";
 
 /** Halaman yang boleh dibuka tanpa sesi. */
 const PUBLIC_PATHS = new Set(["/login", "/authentication"]);
+
+/**
+ * Prefetch: tidak pernah dieksekusi sebagai dokumen, jadi nonce dan header
+ * CSP untuknya terbuang. Deteksi ini HANYA memengaruhi apakah nonce dibuat
+ * (lihat `onContinue`) — tidak pernah dipakai untuk melewati gerbang auth
+ * di atasnya.
+ *
+ * CATATAN PENTING soal `next-router-prefetch`: header ini praktiknya TIDAK
+ * PERNAH terlihat di sini. Next.js menghapus seluruh `FLIGHT_HEADERS`
+ * (`rsc`, `next-router-state-tree`, `next-router-prefetch`, `next-hmr-
+ * refresh`, `next-router-segment-prefetch`) dari header yang diteruskan ke
+ * proxy/middleware SEBELUM fungsi ini dipanggil — lihat
+ * `node_modules/next/dist/server/web/adapter.js` (komentar di sana:
+ * "Headers should only be stripped for middleware"). Dibuktikan langsung
+ * lewat `console.log` sementara di titik ini: `curl -H
+ * "next-router-prefetch: 1"` tidak memunculkan header itu sama sekali di
+ * `request.headers`, sedangkan `curl -H "purpose: prefetch"` (bukan header
+ * internal Next) tetap terlihat apa adanya. Klausa `next-router-prefetch` di
+ * bawah karena itu sekarang no-op — dipertahankan untuk kompatibilitas ke
+ * depan bila perilaku Next berubah, bukan karena ia bekerja hari ini.
+ * `purpose: prefetch` adalah satu-satunya sinyal yang benar-benar melewati
+ * pembuatan nonce saat ini.
+ *
+ * Ini TIDAK melemahkan perbaikan gerbang auth: keputusan matcher (APAKAH
+ * proxy dipanggil sama sekali) dievaluasi Next terhadap header request
+ * ASLI, sebelum penghapusan `FLIGHT_HEADERS` di atas — itu sebabnya
+ * menghapus klausa `missing` dari matcher (lih. blok komentar di atas)
+ * sudah cukup untuk membuat prefetch `next/link` ikut lewat gerbang auth,
+ * terlepas dari apa yang bisa dibaca fungsi ini dari headernya.
+ */
+const isPrefetchRequest = (request: NextRequest): boolean =>
+  request.headers.has("next-router-prefetch") ||
+  request.headers.get("purpose") === "prefetch";
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -38,7 +95,12 @@ export async function proxy(request: NextRequest) {
   // tidak boleh dialihkan ke halaman login: XHR yang mengikuti pengalihan ke
   // HTML akan gagal parse, dan pemanggil menerima galat yang tidak
   // menjelaskan apa-apa. Yang diterimanya adalah 401.
-  const isApiRequest = pathname.startsWith("/api/");
+  //
+  // `/api` telanjang (tanpa garis miring) ikut dihitung: matcher
+  // `"/api/:path*"` mencocokkannya juga, dan tanpa baris ini permintaan itu
+  // akan lolos ke cabang halaman lalu dialihkan ke `/login` dengan CSP
+  // terpasang alih-alih diperlakukan sebagai panggilan API.
+  const isApiRequest = pathname === "/api" || pathname.startsWith("/api/");
 
   const accessToken = request.cookies.get(ACCESS_COOKIE)?.value;
   const refreshToken = request.cookies.get(REFRESH_COOKIE)?.value;
@@ -53,6 +115,9 @@ export async function proxy(request: NextRequest) {
       new URL(`/login?redirect=${encodeURIComponent(pathname)}`, request.url),
     );
   }
+
+  let cookieHeader: string | undefined;
+  let setCookie: string[] | undefined;
 
   // Access token kedaluwarsa — browser menghapusnya sendiri saat Max-Age habis,
   // jadi ketidakhadirannya di samping refresh token yang masih ada berarti
@@ -85,19 +150,30 @@ export async function proxy(request: NextRequest) {
       return response;
     }
 
-    return onContinue(request, {
-      isApiRequest,
-      cookieHeader: refreshed.cookieHeader,
-      setCookie: refreshed.setCookie,
-    });
+    cookieHeader = refreshed.cookieHeader;
+    setCookie = refreshed.setCookie;
   }
 
-  // Sudah masuk tapi masih berada di halaman login — kirim ke gerbang.
+  // Sudah masuk — baik lewat access token yang masih hidup maupun baru saja
+  // disegarkan di atas — tapi masih berada di halaman login: kirim ke
+  // gerbang. Dicek SESUDAH cabang penyegaran (bukan hanya sebelumnya) supaya
+  // user yang access token-nya kedaluwarsa persis saat memuat ulang `/login`
+  // ikut diarahkan ke `/authentication`, bukan disajikan halaman login lagi.
+  // Cookie hasil penyegaran (bila ada) ikut dipasang pada respons pengalihan
+  // ini, supaya tidak hilang begitu saja.
   if (pathname === "/login") {
-    return NextResponse.redirect(new URL("/authentication", request.url));
+    const response = NextResponse.redirect(
+      new URL("/authentication", request.url),
+    );
+
+    for (const cookie of setCookie ?? []) {
+      response.headers.append("set-cookie", cookie);
+    }
+
+    return response;
   }
 
-  return onContinue(request, { isApiRequest });
+  return onContinue(request, { isApiRequest, cookieHeader, setCookie });
 }
 
 const onContinue = (
@@ -119,10 +195,13 @@ const onContinue = (
     requestHeaders.set("cookie", options.cookieHeader);
   }
 
-  let nonce: string | null = null;
-
-  if (!options.isApiRequest) {
-    nonce = generateNonce();
+  // CSP dilewati untuk panggilan API (JSON, bukan dokumen) dan untuk
+  // prefetch `next/link` (tidak pernah dieksekusi sebagai dokumen). Lihat
+  // blok komentar "KENAPA DETEKSI PREFETCH ADA DI BADAN FUNGSI" di atas
+  // untuk alasan kenapa pengecekan prefetch ini tidak lagi hidup di
+  // `matcher`.
+  if (!options.isApiRequest && !isPrefetchRequest(request)) {
+    const nonce = generateNonce();
 
     const csp = buildContentSecurityPolicy({
       nonce,
@@ -170,20 +249,14 @@ export const config = {
        * - `_next/image`    — hasil optimasi gambar
        * - `manifest.webmanifest`, `sw.js`, `icons`, `apple-icon`, `icon`,
        *   `favicon.ico` — ASET PWA. Lihat peringatan di atas.
+       *
+       * Prefetch `next/link` SENGAJA TIDAK dikecualikan di sini lagi — lihat
+       * blok komentar "KENAPA DETEKSI PREFETCH ADA DI BADAN FUNGSI" di atas.
+       * Gerbang auth harus tetap berjalan untuknya; hanya pembuatan nonce
+       * yang dilewati, dan itu diputuskan di `onContinue`.
        */
       source:
         "/((?!api|_next/static|_next/image|manifest\\.webmanifest|sw\\.js|icons|apple-icon|icon|favicon\\.ico).*)",
-
-      /**
-       * Lewati prefetch dari `next/link`. Prefetch tidak pernah dieksekusi
-       * sebagai dokumen, jadi nonce untuknya terbuang — dan membuat nonce
-       * untuk setiap prefetch berarti kerja acak kriptografis sia-sia pada
-       * aplikasi dengan sidebar berisi belasan tautan.
-       */
-      missing: [
-        { type: "header", key: "next-router-prefetch" },
-        { type: "header", key: "purpose", value: "prefetch" },
-      ],
     },
     {
       /**
