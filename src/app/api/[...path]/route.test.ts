@@ -51,38 +51,9 @@ beforeAll(async () => {
 
   process.env.API_BASE_URL = `http://127.0.0.1:${server.port}/api`;
 
-  // `@/lib/env` memvalidasi dan MEMBEKUKAN API_BASE_URL sekali saat modul
-  // pertama diimpor di seluruh proses `bun test` — client.test.ts juga
-  // mengimpornya lewat pola yang sama, jadi siapa pun yang lebih dulu
-  // mengimpor "@/lib/env" di proses ini menang, dan urutan itu tidak
-  // terjamin saat seluruh test suite dijalankan bersamaan.
-  //
-  // Modul itu di-mock langsung di sini, sama seperti "server-only" di atas,
-  // TAPI dengan getter yang membaca process.env SETIAP diakses — bukan nilai
-  // beku. Ini sengaja, karena `mock.module` di Bun 1.3.14 tidak bisa
-  // benar-benar dibatalkan: `mock.restore()` TERBUKTI (diverifikasi lewat
-  // dua berkas percobaan terpisah) tidak mengembalikan modul asli untuk
-  // `import()` dinamis di berkas lain — mock ini akan bocor ke berkas test
-  // APA PUN yang mengimpor "@/lib/env" setelah berkas ini, seterusnya untuk
-  // sisa proses. Kalau nilainya dibekukan ke port server tiruan di atas,
-  // berkas test lain itu akan diam-diam menembak server yang sudah
-  // di-stop() — persis bug yang sedang diperbaiki. Dengan getter yang
-  // selalu membaca process.env terkini, berkas mana pun yang menyusun
-  // env-nya sendiri lewat process.env (pola yang sama dipakai client.test.ts
-  // dan berkas ini) tetap mendapat nilai yang benar meski mock ini bocor.
-  mock.module("@/lib/env", () => ({
-    env: {
-      get API_BASE_URL() {
-        return process.env.API_BASE_URL as string;
-      },
-    },
-    publicEnv: {
-      get NEXT_PUBLIC_SITE_URL() {
-        return process.env.NEXT_PUBLIC_SITE_URL as string;
-      },
-    },
-  }));
-
+  // Mock `@/lib/env` sudah dipusatkan di tests/setup.ts (dimuat lewat
+  // [test].preload di bunfig.toml) — lihat komentar di sana untuk alasannya.
+  // Tidak perlu diulang di sini.
   route = await import("./route");
 });
 
