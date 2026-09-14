@@ -21,6 +21,24 @@ import { buildContentSecurityPolicy, generateNonce } from "@/lib/security/csp";
  * tidak memunculkan apa pun di console — ini bug tersulit didiagnosis pada
  * aplikasi terautentikasi.
  *
+ * `/offline` TERMASUK ASET PWA, walau ia halaman. Ia entri pertama
+ * `PRECACHE_URLS` di `public/sw.js`, dan `ServiceWorkerProvider` dipasang di
+ * root layout sehingga service worker mendaftar juga di `/login` — artinya
+ * `install` berjalan justru saat user masih ANONIM. `cache.addAll` mengikuti
+ * pengalihan, lalu `Cache.put` MENOLAK respons yang `redirected`, sehingga
+ * `install` gagal SELURUHNYA: bukan cuma `/offline` yang hilang, tapi seluruh
+ * precache berikut fallback offline-nya. Kunjungan pertama hampir selalu
+ * anonim, jadi bagi hampir semua user PWA-nya tidak pernah terpasang sama
+ * sekali — tanpa satu pun pesan error.
+ *
+ * `/robots.txt` juga dikecualikan, dan alasannya bukan PWA melainkan
+ * kebocoran. `src/app/robots.ts` menerbitkan `disallow: "/"` — sinyal
+ * no-index untuk aplikasi yang isinya data jemaat. Kalau berkas itu
+ * dialihkan, crawler tidak pernah membacanya, dan sebagian crawler
+ * memperlakukan robots.txt yang mengalihkan sebagai "tidak ada robots.txt" =
+ * boleh crawl. Pengalihan di sini membalik default-aman menjadi default
+ * terbuka, persis kebalikan dari yang diputuskan.
+ *
  * Pengecualian ditulis di `matcher`, bukan sebagai percabangan `if` di dalam
  * badan fungsi, supaya tidak bisa terlewat ketika orang menambah cabang logika
  * baru di bawah.
@@ -225,7 +243,11 @@ export const config = {
        * - `_next/static`   — aset build ber-hash
        * - `_next/image`    — hasil optimasi gambar
        * - `manifest.webmanifest`, `sw.js`, `icons`, `apple-icon`, `icon`,
-       *   `favicon.ico` — ASET PWA. Lihat peringatan di atas.
+       *   `favicon.ico`, `offline` — ASET PWA. Lihat peringatan di atas;
+       *   `offline` yang dialihkan mematikan SELURUH precache, bukan hanya
+       *   dirinya sendiri.
+       * - `robots.txt`     — sinyal no-index. Dialihkan berarti crawler tidak
+       *   pernah membacanya. Lihat peringatan di atas.
        *
        * Prefetch `next/link` SENGAJA TIDAK dikecualikan di sini — lihat blok
        * komentar "KENAPA PREFETCH TIDAK DIKECUALIKAN DI `matcher`" di atas.
@@ -248,10 +270,12 @@ export const config = {
        * diganti; periksa keluaran `next build` sesudahnya.
        *
        * `icons` (jamak, direktori di `public/`) berbeda dari `icon.png` dan
-       * keduanya memang perlu ada di daftar.
+       * keduanya memang perlu ada di daftar. `offline` tanpa ekstensi karena
+       * ia halaman (`src/app/offline/page.tsx`), `robots\.txt` dengan titik
+       * ter-escape karena ia berkas.
        */
       source:
-        "/((?!(?:api|_next/static|_next/image|manifest\\.webmanifest|sw\\.js|icons|apple-icon\\.png|icon\\.png|favicon\\.ico)(?:/|$)).*)",
+        "/((?!(?:api|_next/static|_next/image|manifest\\.webmanifest|sw\\.js|icons|apple-icon\\.png|icon\\.png|favicon\\.ico|offline|robots\\.txt)(?:/|$)).*)",
     },
     {
       /**
