@@ -58,4 +58,20 @@ describe("filterDomains", () => {
   test("tidak ada yang cocok mengembalikan larik kosong", () => {
     expect(filterDomains(domains, "tidak ada begini")).toEqual([]);
   });
+
+  // Yang diketik user lewat begitu saja ke sini — huruf besar dari
+  // autokapitalisasi keyboard ponsel, dan spasi ujung dari tap spasi setelah
+  // kata. Keduanya harus dinormalkan di dalam fungsi, bukan diandalkan dari
+  // pemanggil.
+  test("menormalkan huruf besar pada kata kunci", () => {
+    expect(filterDomains(domains, "Kas Keluar")).toEqual([keuangan]);
+  });
+
+  test("menormalkan spasi di ujung kata kunci", () => {
+    expect(filterDomains(domains, "  Kejemaatan  ")).toEqual([kejemaatan]);
+  });
+
+  test("kata kunci berisi spasi saja dianggap kosong", () => {
+    expect(filterDomains(domains, "   ")).toBe(domains);
+  });
 });

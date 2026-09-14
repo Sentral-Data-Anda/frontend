@@ -20,17 +20,26 @@ import type { MenuNode } from "@/features/auth/types";
  * di `bottom-tab.tsx`: ada dua cabang nyata (kosong vs tidak, domain vs
  * layar) yang lebih murah diuji lewat unit test daripada dibaca ulang setiap
  * review.
+ *
+ * Normalisasi kata kunci terjadi DI SINI, bukan di pemanggil. Fungsi ini
+ * diekspor, jadi kontraknya tidak boleh berupa syarat tak tertulis
+ * ("panggil `.trim().toLowerCase()` dulu") yang hanya diketahui satu
+ * pemanggil yang kebetulan ada hari ini — pemanggil kedua akan
+ * melewatkannya, dan hasilnya bukan galat melainkan daftar kosong yang
+ * terlihat seperti "tidak ada yang cocok".
  */
 export function filterDomains(
   domains: MenuNode[],
   keyword: string,
 ): MenuNode[] {
-  if (!keyword) return domains;
+  const needle = keyword.trim().toLowerCase();
+
+  if (!needle) return domains;
 
   return domains.filter(
     (domain) =>
-      domain.name.toLowerCase().includes(keyword) ||
-      domain.children.some((leaf) => leaf.name.toLowerCase().includes(keyword)),
+      domain.name.toLowerCase().includes(needle) ||
+      domain.children.some((leaf) => leaf.name.toLowerCase().includes(needle)),
   );
 }
 
@@ -44,8 +53,7 @@ export function ModuleGrid() {
     setPickDomain(null);
   };
 
-  const keyword = searchData.trim().toLowerCase();
-  const domains = filterDomains(session.menu, keyword);
+  const domains = filterDomains(session.menu, searchData);
 
   return (
     <div className="pb-6">
