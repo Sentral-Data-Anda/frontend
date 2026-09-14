@@ -83,16 +83,22 @@ export function buildContentSecurityPolicy({
     // sebelum diunggah (unggah foto jemaat nanti butuh ini).
     `img-src 'self' blob: data:`,
 
-    // Font Geist di-hosting sendiri oleh `next/font/google` saat build, jadi
-    // tidak perlu membuka fonts.gstatic.com.
+    // Font Instrument Sans di-hosting sendiri oleh `next/font/google` saat
+    // build, jadi tidak perlu membuka fonts.gstatic.com.
     `font-src 'self'`,
 
-    // PENTING SAAT MENAMBAH PANGGILAN API DARI BROWSER.
-    // Sekarang seluruh panggilan API terjadi di server (Server Component lewat
-    // apiClient), jadi `'self'` cukup. Begitu ada fetch dari komponen client
-    // atau koneksi socket.io ke backend, origin backend HARUS ditambahkan di
-    // sini — termasuk skema `wss:` untuk socket. Tanpa itu koneksinya diblokir
-    // diam-diam dan hanya terlihat di console browser production.
+    // PENTING SAAT MENAMBAH KONEKSI KE BACKEND DARI BROWSER.
+    // Fetch dari komponen client sudah ada (`login-form.tsx`,
+    // `first-login-form.tsx`), dan `'self'` tetap cukup — BUKAN karena tidak
+    // ada panggilan dari browser, tapi karena semuanya lewat BFF di
+    // `src/app/api/[...path]/route.ts`, yang membuat origin tujuannya sama
+    // dengan origin halaman.
+    //
+    // Peringatannya tetap berlaku untuk koneksi yang TIDAK bisa lewat BFF:
+    // socket.io ke be-sada, atau fetch yang sengaja menembak origin lain.
+    // Untuk itu origin backend HARUS ditambahkan di sini — termasuk skema
+    // `wss:` untuk socket. Tanpa itu koneksinya diblokir diam-diam dan hanya
+    // terlihat di console browser production.
     `connect-src 'self'`,
 
     // Dua direktif khusus PWA. Tanpa keduanya, registrasi service worker dan

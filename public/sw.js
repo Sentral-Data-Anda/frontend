@@ -65,10 +65,14 @@ const PRECACHE_URLS = [
 /**
  * Path yang tidak boleh disentuh sama sekali, meski se-origin.
  *
- * `/api/` ada di sini sebagai jaring pengaman: base URL API SADA memang
- * berbeda origin (dan sudah tersaring oleh pemeriksaan lintas-origin di
- * bawah), tapi bila suatu saat ada route handler proxy di bawah `/api`,
- * responsnya membawa data terautentikasi dan tidak boleh ikut ter-cache.
+ * `/api/` di sini adalah PERTAHANAN UTAMA, bukan jaring pengaman. Dulu
+ * seluruh panggilan API menuju origin be-sada yang berbeda, sehingga
+ * pemeriksaan lintas-origin di bawah sudah menutupnya lebih dulu. Sejak ada
+ * BFF di `src/app/api/[...path]/route.ts`, panggilan API justru SE-ORIGIN:
+ * ia lolos pemeriksaan itu dan tiba di sini. Setiap responsnya membawa data
+ * terautentikasi milik satu user, di perangkat yang sering dipakai bergantian
+ * — kalau baris ini hilang, data itu ter-cache dan tersaji ke orang
+ * berikutnya.
  */
 const NEVER_TOUCH_PREFIXES = ["/api/"];
 
@@ -205,8 +209,11 @@ self.addEventListener("fetch", (event) => {
 
   const url = new URL(request.url);
 
-  // Lintas-origin dilewatkan apa adanya. Ini yang menutup API SADA (origin
-  // backend berbeda) sekaligus CDN pihak ketiga mana pun.
+  // Lintas-origin dilewatkan apa adanya: CDN pihak ketiga, gambar eksternal,
+  // apa pun yang bukan milik kita. Yang TIDAK lagi ditutup baris ini adalah
+  // API SADA — sejak ada BFF, panggilan API berangkat ke origin yang sama
+  // dengan halaman dan melewati pemeriksaan ini tanpa hambatan. Yang
+  // menahannya sekarang `NEVER_TOUCH_PREFIXES` di atas.
   if (url.origin !== self.location.origin) {
     return;
   }
