@@ -14,6 +14,35 @@ describe("isSafeRedirectPath", () => {
     );
   });
 
+  // Bentuk yang benar-benar dikirim `proxy.ts` sejak query ikut disertakan:
+  // beberapa parameter sekaligus, termasuk yang berisi karakter yang harus
+  // di-encode saat dirakit ke `?redirect=`.
+  test("menerima path dengan beberapa parameter query", () => {
+    expect(
+      isSafeRedirectPath("/kejemaatan/daftar-jemaat?page=3&search=budi"),
+    ).toBe(true);
+  });
+
+  // Query bukan celah baru: yang menentukan origin hanyalah bagian sebelum
+  // "?", jadi URL absolut yang diselipkan sebagai NILAI parameter tetap
+  // menjadi path lokal — dan sebaliknya, URL absolut di depan tetap ditolak
+  // walau ekornya menyerupai query yang wajar.
+  test("URL absolut di dalam nilai query tetap dianggap path lokal", () => {
+    expect(isSafeRedirectPath("/masuk?next=https://phishing.test/login")).toBe(
+      true,
+    );
+  });
+
+  test("menolak URL absolut walau membawa query", () => {
+    expect(isSafeRedirectPath("https://phishing.test/login?page=3")).toBe(
+      false,
+    );
+  });
+
+  test("menolak protocol-relative walau membawa query", () => {
+    expect(isSafeRedirectPath("//phishing.test/?page=3")).toBe(false);
+  });
+
   test("menolak URL absolut", () => {
     expect(isSafeRedirectPath("https://phishing.test/login")).toBe(false);
   });
