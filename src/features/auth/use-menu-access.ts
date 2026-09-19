@@ -2,6 +2,8 @@
 
 import { useMemo } from "react";
 
+import type { MenuSlug } from "@/config/menu";
+
 import { useSession } from "./session-provider";
 import type { MenuAction, MenuNode } from "./types";
 
@@ -27,11 +29,18 @@ export function findMenuNode(nodes: MenuNode[], slug: string): MenuNode | null {
  * dua tempat yang memutuskan hal yang sama pasti akan berbeda pendapat suatu
  * saat.
  *
+ * `slug` bertipe `MenuSlug`, bukan `string`: `useMenuAccess("DAFTAR_JEMAT")`
+ * yang salah ketik tidak melempar apa pun — ia mengembalikan seluruh aksi
+ * bernilai false dan menyembunyikan tombol yang seharusnya ada, kegagalan yang
+ * tidak meninggalkan jejak apa pun untuk ditelusuri. `findMenuNode` di atas
+ * tetap menerima `string`, karena ia penelusur pohon umum yang juga dipakai
+ * `bottom-tab.tsx` untuk slug yang datang dari data.
+ *
  * PENTING: ini urusan TAMPILAN, bukan keamanan. Menyembunyikan tombol tidak
  * menghalangi siapa pun memanggil endpointnya. Yang menegakkan otorisasi
  * adalah `Authorization(MENU.X, "AKSI")` di setiap route be-sada.
  */
-export function useMenuAccess(slug: string) {
+export function useMenuAccess(slug: MenuSlug) {
   const session = useSession();
 
   return useMemo(() => {

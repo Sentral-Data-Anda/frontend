@@ -1,0 +1,136 @@
+"use client";
+
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useMemo } from "react";
+
+/** Sama dengan `DEFAULT_PAGE_SIZE` di `be-sada/src/common/utils/query.ts`. */
+export const DEFAULT_LIMIT = 10;
+
+/**
+ * Nama parameter FE dan nama parameter be-sada TIDAK sama, dan itu disengaja.
+ *
+ * Di URL aplikasi orang membaca `?search=budi` — itu yang bisa dibagikan dan
+ * dibaca manusia. be-sada menamainya `filter`
+ * (`jemaat.service.ts:findAllWithPagination`). Penerjemahannya terjadi SEKALI
+ * di `toApiQuery` di bawah, bukan di 61 layar: begitu satu layar menulis
+ * `?filter=` sendiri, layar berikutnya akan menyalinnya, dan URL aplikasi
+ * pelan-pelan jadi cerminan skema backend alih-alih milik user.
+ */
+export type ListParams = {
+  page: number;
+  limit: number;
+  search: string;
+  status: string;
+};
+
+const onReadNumber = (value: string | null, fallback: number): number => {
+  const parsed = Number(value);
+
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
+};
+
+/** Query string untuk be-sada. Satu-satunya tempat `search` menjadi `filter`. */
+export function toApiQuery(params: ListParams): string {
+  const query = new URLSearchParams({
+    page: String(params.page),
+    limit: String(params.limit),
+  });
+
+  if (params.search) query.set("filter", params.search);
+  if (params.status) query.set("status", params.status);
+
+  return query.toString();
+}
+
+/**
+ * Filter dan paginasi hidup di URL, bukan di state komponen (D12).
+ *
+ * Konsekuensinya yang membuat ini sepadan: tombol back mengembalikan halaman
+ * dan kata kunci sebelumnya, hasil pencarian bisa dibagikan sebagai tautan,
+ * dan refresh tidak melempar user kembali ke halaman 1.
+ *
+ * `router.replace`, bukan `push`: mengetik "budi" huruf demi huruf tidak boleh
+ * menyisakan empat entri riwayat yang harus ditekan back empat kali.
+ */
+export function useListParams(limitPerPage = DEFAULT_LIMIT) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const params: ListParams = useMemo(
+    () => ({
+      page: onReadNumber(searchParams.get("page"), 1),
+      limit: onReadNumber(searchParams.get("limit"), limitPerPage),
+      search: searchParams.get("search") ?? "",
+      status: searchParams.get("status") ?? "",
+    }),
+    [limitPerPage, searchParams],
+  );
+
+  /**
+   * Query string dibaca dari `window.location.search`, BUKAN dari
+   * `searchParams` hasil hook.
+   *
+   * Dua alasan, dan yang kedua yang menentukan bentuk berkas ini. Pertama,
+   * `location` selalu yang termutakhir; `searchParams` bisa tertinggal satu
+   * render di belakang `router.replace` yang baru saja dipanggil, dan dua
+   * perubahan yang datang berdekatan lalu saling menimpa. Kedua, dependency-nya
+   * jadi `[pathname, router]` yang keduanya stabil — sehingga `onSearch`,
+   * `onPickStatus`, dan `onPickPage` juga stabil. Kalau tidak, `SearchInput`
+   * harus menyimpan callback-nya di ref supaya timer jedanya tidak disetel
+   * ulang pada setiap render induk.
+   *
+   * Aman di server karena fungsi ini hanya dipanggil dari event handler dan
+   * timer, tidak pernah saat render.
+   */
+  const onWrite = useCallback(
+    (next: Partial<ListParams>) => {
+      const url = new URLSearchParams(window.location.search);
+
+      for (const [key, value] of Object.entries(next)) {
+        const text = String(value);
+
+        // Nilai kosong dan halaman 1 dihapus, bukan ditulis. URL setelah
+        // mengosongkan kotak cari harus kembali bersih seperti semula —
+        // `?search=&page=1` terlihat seperti aplikasi yang bocor.
+        if (!value || (key === "page" && value === 1)) url.delete(key);
+        else url.set(key, text);
+      }
+
+      const query = url.toString();
+
+      router.replace(query ? `${pathname}?${query}` : pathname, {
+        scroll: false,
+      });
+    },
+    [pathname, router],
+  );
+
+  /**
+   * Mengubah kata kunci atau filter WAJIB mengembalikan ke halaman 1. Tanpa
+   * itu, mencari dari halaman 3 menghasilkan daftar kosong walau datanya ada —
+   * kegagalan yang terbaca sebagai "pencariannya rusak".
+   */
+  const onSearch = useCallback(
+    (search: string) => onWrite({ search, page: 1 }),
+    [onWrite],
+  );
+
+  const onPickStatus = useCallback(
+    (status: string) => onWrite({ status, page: 1 }),
+    [onWrite],
+  );
+
+  const onPickPage = useCallback(
+    (page: number) => onWrite({ page }),
+    [onWrite],
+  );
+
+  return {
+    ...params,
+    query: toApiQuery(params),
+    onSearch,
+    onPickStatus,
+    onPickPage,
+  };
+}

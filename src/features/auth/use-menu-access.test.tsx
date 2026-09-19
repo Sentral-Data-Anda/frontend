@@ -1,6 +1,8 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
+import type { MenuSlug } from "@/config/menu";
+
 import { SessionProvider } from "./session-provider";
 import type { Session } from "./types";
 import { findMenuNode, useMenuAccess } from "./use-menu-access";
@@ -49,13 +51,13 @@ const session: Session = {
   ],
 };
 
-function Probe({ slug }: { slug: string }) {
+function Probe({ slug }: { slug: MenuSlug }) {
   const access = useMenuAccess(slug);
 
   return <span data-testid="hasil">{JSON.stringify(access)}</span>;
 }
 
-const onRenderProbe = (slug: string) => {
+const onRenderProbe = (slug: MenuSlug) => {
   render(
     <SessionProvider session={session}>
       <Probe slug={slug} />
