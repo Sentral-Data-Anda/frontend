@@ -16,8 +16,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         sini, dan seluruh halaman scroll di level dokumen (bukan di dalam
         `main`). Tanpa padding bawah ini, ekor konten yang panjang akan
         tertutup nav selama scroll — baru sejajar dengan posisi aslinya saat
-        mencapai akhir dokumen. `3.5rem` = `h-14` pada `<nav>` di BottomTab;
-        kalau tinggi tab berubah, angka ini ikut berubah.
+        mencapai akhir dokumen. Tingginya dibaca dari token
+        `--bottom-tab-height` di globals.css — token yang sama yang dipakai
+        `<nav>` di BottomTab, jadi keduanya tidak bisa lagi berbeda diam-diam.
 
         Alternatif yang ditolak: `overflow-y-auto` pada `main` supaya nav
         jadi flex item biasa tanpa `sticky`. Itu memindahkan scroll ke
@@ -25,8 +26,19 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         kolapsnya address bar, momentum scroll, pull-to-refresh. Scroll
         dokumen dipertahankan.
       */}
-      <main className="flex-1 pb-[calc(3.5rem+env(safe-area-inset-bottom))]">
-        {children}
+      {/*
+        Di desktop isi layar menjadi satu kolom ter-center, bukan melebar
+        sampai tepi jendela: seluruh layar dirancang untuk 390px, dan baris
+        daftar setinggi 56px yang direntangkan ke 1440px menyisakan lautan
+        kosong antara nama dan badge statusnya.
+
+        Sidebar TIDAK dibangun di sini. Bottom tab tetap membentang penuh
+        sebagaimana mestinya sebuah tab bar, dan keputusan tata letak desktop
+        yang sebenarnya (sidebar + breadcrumb) belum diambil — lihat §12
+        "Desktop" di dokumen desain slicing.
+      */}
+      <main className="flex-1 pb-[calc(var(--bottom-tab-height)+env(safe-area-inset-bottom))]">
+        <div className="mx-auto w-full max-w-lg">{children}</div>
       </main>
 
       <BottomTab />

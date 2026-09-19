@@ -88,7 +88,7 @@ export function BottomTab() {
                 href={tab.href}
                 aria-current={isActive ? "page" : undefined}
                 className={cn(
-                  "flex h-14 flex-col items-center justify-center gap-1 text-[11px]",
+                  "flex h-(--bottom-tab-height) flex-col items-center justify-center gap-1 text-[11px]",
                   isActive
                     ? "text-foreground font-medium"
                     : "text-muted-foreground",

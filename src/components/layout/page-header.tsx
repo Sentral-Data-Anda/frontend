@@ -25,7 +25,7 @@ export function PageHeader({
         <Link
           href={backHref}
           aria-label="Kembali"
-          className="border-border flex size-9 shrink-0 items-center justify-center rounded-full border"
+          className="border-border flex size-11 shrink-0 items-center justify-center rounded-full border"
         >
           <ArrowLeft className="size-4" aria-hidden />
         </Link>

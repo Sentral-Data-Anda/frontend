@@ -81,8 +81,29 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+  /**
+   * Tinggi bottom tab, satu token untuk dua pemakai: `h-(--bottom-tab-height)`
+   * di `components/layout/bottom-tab.tsx` dan padding bawah `<main>` di
+   * `components/layout/app-shell.tsx`. Sebelumnya `3.5rem` ditulis dua kali di
+   * dua berkas, dan yang kedua hanya punya komentar sebagai pengingat untuk
+   * ikut berubah — pengingat yang tidak pernah gagal build saat dilanggar.
+   */
+  --bottom-tab-height: 3.5rem;
 }
 
+/**
+ * BELUM AKTIF. Tidak ada satu pun kode yang memasang `class="dark"` pada
+ * `<html>`, jadi seluruh token di blok ini tidak pernah menang atas `:root`.
+ *
+ * Sengaja tidak dihapus: keputusan apakah SADA punya dark mode belum diambil,
+ * dan menyusun ulang token ini nanti lebih mahal daripada membiarkannya.
+ * Yang dihentikan adalah tampilan setengah jadi — `viewport.themeColor` di
+ * `src/app/layout.tsx` dulu ikut media query `prefers-color-scheme`, sehingga
+ * di iPhone bermode gelap status bar menjadi gelap di atas halaman yang tetap
+ * putih. Saat dark mode benar-benar dinyalakan, pasang kelas `.dark` DAN
+ * kembalikan pasangan `themeColor` itu bersamaan.
+ */
 .dark {
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);

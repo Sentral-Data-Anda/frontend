@@ -32,18 +32,25 @@ export const metadata: Metadata = {
 };
 
 /**
- * `theme_color` di manifest bersifat statis — satu nilai untuk selamanya.
- * Nilai itu mewarnai titlebar window standalone di desktop dan status bar di
- * Android, jadi tanpa varian di bawah, aplikasi dalam mode gelap tetap
- * mendapat titlebar terang. Media query di sini yang membuatnya mengikuti
- * tema; manifest tetap menyimpan warna terang sebagai fallback saat aplikasi
- * belum berjalan (splash screen).
+ * `viewportFit: "cover"` adalah PRASYARAT `env(safe-area-inset-*)`.
+ *
+ * Tanpa `viewport-fit=cover` di meta viewport, Safari iOS melaporkan keempat
+ * inset itu sebagai `0px` — bukan error, hanya nol. Akibatnya bottom tab
+ * (`pb-[env(safe-area-inset-bottom)]`) duduk menempel home indicator dan
+ * `PageHeader` (`pt-[max(1rem,env(safe-area-inset-top))]`) masuk ke bawah
+ * notch. Keempat pemakaian inset di repo ini baru berarti setelah baris ini
+ * ada.
+ *
+ * `themeColor` sengaja SATU nilai terang, bukan sepasang bermedia-query.
+ * Token `.dark` di globals.css memang lengkap, tetapi tidak ada apa pun yang
+ * memasang `class="dark"` pada `<html>` — jadi dark mode belum menyala.
+ * Varian gelap di sini hanya menggelapkan status bar di atas halaman yang
+ * tetap putih. Kembalikan pasangannya bersamaan dengan pemasang kelas `.dark`,
+ * bukan sebelum itu.
  */
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: brand.themeColor.light },
-    { media: "(prefers-color-scheme: dark)", color: brand.themeColor.dark },
-  ],
+  viewportFit: "cover",
+  themeColor: brand.themeColor.light,
 };
 
 export default function RootLayout({
