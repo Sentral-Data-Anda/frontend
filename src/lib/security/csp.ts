@@ -117,8 +117,10 @@ export function buildContentSecurityPolicy({
     `form-action 'self'`,
 
     // Anti-clickjacking. Menggantikan peran `X-Frame-Options: DENY` di browser
-    // modern; header itu tetap dipertahankan untuk browser lama.
-    `frame-ancestors 'none'`,
+    // modern; header itu tetap dipertahankan untuk browser lama. Development
+    // mengizinkan origin sendiri HANYA untuk `/dev/preview`, yang memuat
+    // layar aplikasi di dalam iframe; production tetap `'none'`.
+    `frame-ancestors ${isDev ? "'self'" : "'none'"}`,
 
     // Naikkan sisa permintaan http:// menjadi https://.
     `upgrade-insecure-requests`,

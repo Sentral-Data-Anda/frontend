@@ -62,6 +62,11 @@ describe("buildContentSecurityPolicy", () => {
     expect(directive("form-action")).toBe("form-action 'self'");
   });
 
+  test("frame-ancestors 'self' HANYA di development (untuk /dev/preview)", () => {
+    expect(directive("frame-ancestors", true)).toBe("frame-ancestors 'self'");
+    expect(directive("frame-ancestors", false)).toBe("frame-ancestors 'none'");
+  });
+
   test("upgrade-insecure-requests terpasang", () => {
     expect(directive("upgrade-insecure-requests")).toBe(
       "upgrade-insecure-requests",

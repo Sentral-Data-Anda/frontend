@@ -42,7 +42,13 @@ const nextConfig: NextConfig = {
         source: "/:path*",
         headers: [
           { key: "X-Content-Type-Options", value: "nosniff" },
-          { key: "X-Frame-Options", value: "DENY" },
+          // SAMEORIGIN hanya di development, untuk iframe `/dev/preview`.
+          // Pasangannya `frame-ancestors` di src/lib/security/csp.ts.
+          {
+            key: "X-Frame-Options",
+            value:
+              process.env.NODE_ENV === "development" ? "SAMEORIGIN" : "DENY",
+          },
           {
             key: "Referrer-Policy",
             value: "strict-origin-when-cross-origin",
