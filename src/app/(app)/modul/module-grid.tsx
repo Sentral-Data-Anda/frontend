@@ -53,14 +53,7 @@ export function ModuleGrid() {
 
   return (
     <div className="pb-6">
-      <PageHeader
-        title="Semua modul"
-        subtitle={`${session.menu.length} domain · ${session.menu.reduce(
-          (total, domain) => total + domain.children.length,
-          0,
-        )} layar`}
-        backHref="/"
-      />
+      <PageHeader title="Semua modul" backHref="/" />
 
       <div className="px-gutter pb-4">
         <div className="relative">
@@ -89,11 +82,7 @@ export function ModuleGrid() {
           {domains.map((domain) => (
             <li key={domain.publicId}>
               <Link href={domainEntryHref(domain)} className="block">
-                <DomainTile
-                  slug={domain.slug}
-                  label={domain.name}
-                  meta={`${domain.children.length} layar`}
-                />
+                <DomainTile slug={domain.slug} label={domain.name} />
               </Link>
             </li>
           ))}

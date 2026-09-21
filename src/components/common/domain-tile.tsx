@@ -74,27 +74,12 @@ export function DomainIcon({
  * Hanya isi: pembungkus interaktifnya (`Link` di Beranda dan Semua modul)
  * milik pemanggil.
  */
-export function DomainTile({
-  slug,
-  label,
-  meta,
-}: {
-  slug: string;
-  label: string;
-  /** Baris kecil di bawah label, mis. "7 layar". */
-  meta?: string;
-}) {
+export function DomainTile({ slug, label }: { slug: string; label: string }) {
   return (
     <span className="flex flex-col items-center gap-1.5 text-center">
       <DomainIcon slug={slug} />
 
       <span className="text-body leading-tight">{label}</span>
-
-      {meta ? (
-        <span className="text-muted-foreground text-caption tabular-nums">
-          {meta}
-        </span>
-      ) : null}
     </span>
   );
 }
