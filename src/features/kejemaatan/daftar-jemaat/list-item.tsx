@@ -30,11 +30,11 @@ export function JemaatListItemRow({ jemaat }: { jemaat: JemaatListItem }) {
 
   return (
     <DataListRow
-      leading={<Avatar label={jemaat.name} />}
+      leading={<Avatar label={jemaat.name} tone="soft" />}
       title={jemaat.name}
       meta={meta}
       trailing={
-        <Badge variant={jemaat.status === "AKTIF" ? "success" : "outline"}>
+        <Badge variant={jemaat.status === "AKTIF" ? "success" : "neutral"}>
           {STATUS_JEMAAT_LABEL[jemaat.status]}
         </Badge>
       }

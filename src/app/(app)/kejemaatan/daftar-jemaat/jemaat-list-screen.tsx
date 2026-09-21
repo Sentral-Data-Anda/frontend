@@ -52,11 +52,14 @@ export function JemaatListScreen() {
           // `disabled` di bawah bukan soal izin melainkan soal fase:
           // formulir tambah adalah Fase 3b dan rutenya belum ada, jadi
           // menautkannya sekarang berujung 404 di luar app shell.
+          //
+          // Varian isi (navy), bukan `outline`: outline pada opacity 50% di
+          // atas kanvas terbaca sebagai kotak kosong yang rusak; navy pudar
+          // terbaca sebagai tombol utama yang sedang nonaktif.
           isCanCreate ? (
             <Button
               type="button"
               size="icon"
-              variant="outline"
               disabled
               aria-label="Tambah jemaat (belum tersedia)"
             >
@@ -66,7 +69,7 @@ export function JemaatListScreen() {
         }
       />
 
-      <div className="space-y-3 px-gutter pb-3">
+      <div className="space-y-3 px-gutter pb-4">
         <SearchInput
           value={listParams.search}
           onSearch={listParams.onSearch}

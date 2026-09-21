@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 
+import { DataListFrame } from "@/components/common/data-list";
 import { LoadingList } from "@/components/common/loading-list";
 
 import { JemaatListScreen } from "./jemaat-list-screen";
@@ -21,7 +22,13 @@ export const metadata: Metadata = {
  */
 export default function Page() {
   return (
-    <Suspense fallback={<LoadingList />}>
+    <Suspense
+      fallback={
+        <DataListFrame>
+          <LoadingList />
+        </DataListFrame>
+      }
+    >
       <JemaatListScreen />
     </Suspense>
   );
