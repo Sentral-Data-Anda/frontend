@@ -3,6 +3,70 @@ import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
 import eslintConfigPrettier from "eslint-config-prettier";
 
+// Selector `no-restricted-syntax` disimpan sebagai konstanta karena di flat
+// config blok yang lebih akhir MENGGANTIKAN seluruh array opsi aturan yang sama
+// dari blok sebelumnya — tidak menggabungkan. Blok kelas di bawah menulis ulang
+// aturan ini untuk src/app dan src/features; tanpa spread NAMING_SELECTORS di
+// sana, aturan useBoolean/is* diam-diam mati di persis dua folder yang paling
+// banyak menulis state.
+const NAMING_SELECTORS = [
+  {
+    // ":not([typeArguments])" mencegah selector ini ikut menyala pada
+    // useState<boolean>(true|false) — kasus itu sudah ditangani pesan
+    // "bukan useState<boolean>" di bawah. Tanpa pengecualian ini,
+    // useState<boolean>(true) memicu DUA pesan sekaligus untuk satu
+    // pelanggaran yang sama.
+    selector:
+      "CallExpression[callee.name='useState']:not([typeArguments]) > Literal[value=true], CallExpression[callee.name='useState']:not([typeArguments]) > Literal[value=false]",
+    message:
+      "State boolean wajib memakai useBoolean() dari @/hooks/use-boolean, bukan useState.",
+  },
+  {
+    selector:
+      "CallExpression[callee.name='useState'][typeArguments.params.0.type='TSBooleanKeyword']",
+    message:
+      "State boolean wajib memakai useBoolean() dari @/hooks/use-boolean, bukan useState<boolean>.",
+  },
+  {
+    selector:
+      "VariableDeclarator[init.callee.name='useBoolean'][id.name!=/^is[A-Z0-9]/]",
+    message:
+      "Nama state boolean wajib diawali \"is\". \"has\", \"should\", \"can\", dan \"show\" tidak dikecualikan.",
+  },
+];
+
+// Kelas Tailwind hanya diperiksa di tempat yang pasti kelas: atribut
+// className (termasuk cabang ternary dan argumen cn() di dalamnya) dan
+// argumen cn() di mana pun.
+const inClassName = (valueRegex) =>
+  `:matches(JSXAttribute[name.name='className'], CallExpression[callee.name='cn']) :matches(Literal[value=${valueRegex}], TemplateElement[value.raw=${valueRegex}])`;
+
+const CLASS_SELECTORS = [
+  {
+    selector: inClassName(
+      String.raw`/(^|[\s:])((min-|max-)?(sm|md|lg|xl|2xl)|@[^\s:]*|min-\[[^\]]*\]|max-\[[^\]]*\]):/`,
+    ),
+    message:
+      "Layar bebas breakpoint. Media query (md:/lg:) hanya di src/components/layout, container query (@container/@md:) hanya di src/components/common.",
+  },
+  {
+    selector: inClassName(
+      String.raw`/(^|[\s:])-?(bg|text|border(-[trblxyse])?|ring|fill|stroke)-(white|black|slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)($|[\s\x2f-])/`,
+    ),
+    message:
+      "Warna palet mentah dilarang di layar. Pakai token tema (bg-primary, text-muted-foreground, border-input, ...).",
+  },
+  {
+    selector: inClassName(String.raw`/-\[#/`),
+    message: "Warna arbitrer -[#...] dilarang di layar. Pakai token tema.",
+  },
+  {
+    selector: inClassName(String.raw`/(^|[\s:])dark:/`),
+    message:
+      "dark: dilarang di layar. Tema gelap (kalau dinyalakan) diurus token di globals.css.",
+  },
+];
+
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
@@ -60,31 +124,31 @@ const eslintConfig = defineConfig([
     // tanpa aturan sama sekali.
     files: ["src/**/*.{ts,tsx}", "tests/**/*.{ts,tsx}"],
     rules: {
+      "no-restricted-syntax": ["error", ...NAMING_SELECTORS],
+    },
+  },
+
+  // Layar bebas breakpoint dan bebas warna mentah. Keputusan responsif hidup
+  // di components/layout (media query) dan components/common (container
+  // query); warna hidup di token globals.css. Begitu satu layar menulis
+  // `lg:grid-cols-2` atau `text-gray-500` sendiri, tata letak dan palet mulai
+  // bercabang per layar.
+  //
+  // Dikecualikan: (auth)/layout.tsx — rumah seluruh keputusan responsif layar
+  // login — dan dev/** yang bukan layar produk. Keduanya tetap terkena aturan
+  // penamaan dari blok di atas karena blok ini tidak berlaku untuk mereka.
+  {
+    files: [
+      "src/app/**/*.{ts,tsx}",
+      "src/features/**/*.{ts,tsx}",
+      "tests/fixtures/eslint-kelas.tsx",
+    ],
+    ignores: ["src/app/(auth)/layout.tsx", "src/app/dev/**"],
+    rules: {
       "no-restricted-syntax": [
         "error",
-        {
-          // ":not([typeArguments])" mencegah selector ini ikut menyala pada
-          // useState<boolean>(true|false) — kasus itu sudah ditangani pesan
-          // "bukan useState<boolean>" di bawah. Tanpa pengecualian ini,
-          // useState<boolean>(true) memicu DUA pesan sekaligus untuk satu
-          // pelanggaran yang sama.
-          selector:
-            "CallExpression[callee.name='useState']:not([typeArguments]) > Literal[value=true], CallExpression[callee.name='useState']:not([typeArguments]) > Literal[value=false]",
-          message:
-            "State boolean wajib memakai useBoolean() dari @/hooks/use-boolean, bukan useState.",
-        },
-        {
-          selector:
-            "CallExpression[callee.name='useState'][typeArguments.params.0.type='TSBooleanKeyword']",
-          message:
-            "State boolean wajib memakai useBoolean() dari @/hooks/use-boolean, bukan useState<boolean>.",
-        },
-        {
-          selector:
-            "VariableDeclarator[init.callee.name='useBoolean'][id.name!=/^is[A-Z0-9]/]",
-          message:
-            "Nama state boolean wajib diawali \"is\". \"has\", \"should\", \"can\", dan \"show\" tidak dikecualikan.",
-        },
+        ...NAMING_SELECTORS,
+        ...CLASS_SELECTORS,
       ],
     },
   },
