@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Instrument_Sans } from "next/font/google";
+import { Roboto } from "next/font/google";
 
 import { Providers } from "@/app/providers";
 import { brand } from "@/config/brand";
@@ -9,14 +9,13 @@ import { publicEnv } from "@/lib/env";
 
 import "./globals.css";
 
-const instrumentSans = Instrument_Sans({
+// Roboto (keputusan user 2026-09-22, menggantikan Instrument Sans dari lembar
+// brand). Hanya 400–600: yang dibatasi adalah @font-face yang dideklarasikan,
+// sehingga `font-bold` tidak mendapat glyph 700 asli. Lint melarang
+// font-bold di layar.
+const roboto = Roboto({
   variable: "--font-sans",
   subsets: ["latin"],
-  // Hanya 400–600 (lembar brand). Diukur: Google tetap menyajikan berkas
-  // variable yang sama (2 woff2, ~41 KB) untuk ketiga bobot, jadi ini tidak
-  // menghemat unduhan — yang dibatasi adalah @font-face yang dideklarasikan,
-  // sehingga `font-bold` tidak lagi mendapat glyph 700 asli. Lint melarang
-  // font-bold di layar.
   weight: ["400", "500", "600"],
 });
 
@@ -71,7 +70,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="id" className={`${instrumentSans.variable} h-full antialiased`}>
+    <html lang="id" className={`${roboto.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col">
         <ServiceWorkerProvider />
         <Providers>{children}</Providers>

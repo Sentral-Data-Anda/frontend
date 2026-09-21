@@ -83,7 +83,7 @@ export function buildContentSecurityPolicy({
     // sebelum diunggah (unggah foto jemaat nanti butuh ini).
     `img-src 'self' blob: data:`,
 
-    // Font Instrument Sans di-hosting sendiri oleh `next/font/google` saat
+    // Font Roboto di-hosting sendiri oleh `next/font/google` saat
     // build, jadi tidak perlu membuka fonts.gstatic.com.
     `font-src 'self'`,
 

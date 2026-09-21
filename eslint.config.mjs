@@ -80,7 +80,7 @@ const CLASS_SELECTORS = [
   {
     selector: inClassName(String.raw`/(^|[\s:])font-(bold|extrabold|black)($|\s)/`),
     message:
-      "Instrument Sans hanya dimuat 400–600. Pakai font-semibold, bukan bobot 700 ke atas.",
+      "Roboto hanya dimuat 400–600. Pakai font-semibold, bukan bobot 700 ke atas.",
   },
   {
     selector: inClassName(String.raw`/-\[#/`),
