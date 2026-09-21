@@ -57,7 +57,7 @@ export function LogoWordmark({ className }: { className?: string }) {
       alt={siteConfig.shortName}
       width={496}
       height={232}
-      sizes="96px"
+      sizes="160px"
       className={cn("h-auto w-24", className)}
       priority
     />
