@@ -7,9 +7,10 @@
  * pun dimuat), jadi ia tidak bisa membaca `oklch(...)` dari globals.css.
  * Angka di bawah adalah padanan sRGB dari token tema:
  *
- * | Token globals.css     | oklch              | hex di sini |
+ * | Token globals.css     | nilai              | hex di sini |
  * | --------------------- | ------------------ | ----------- |
- * | `--background`        | `oklch(1 0 0)`     | `#ffffff`   |
+ * | `--background`        | `#ffffff`          | `#ffffff`   |
+ * | `--primary`           | primary-900        | `#364f6b`   |
  * | `--background` (dark) | `oklch(0.145 0 0)` | `#0a0a0a`   |
  *
  * Padanan dark dibulatkan sedikit lebih gelap dari konversi persis (~#0e0e0e)
@@ -18,7 +19,8 @@
  */
 export const brand = {
   /**
-   * Biru SADA, diambil langsung dari latar aset logo resmi.
+   * Biru SADA, diambil langsung dari latar aset logo resmi. Sama persis dengan
+   * primary-900 di skala brand (`--primary` di globals.css).
    *
    * Belum dipakai sebagai `theme_color` karena permukaan atas app shell masih
    * putih — titlebar window standalone harus menyatu dengan apa yang ada di

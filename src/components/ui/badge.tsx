@@ -19,6 +19,11 @@ const badgeVariants = cva(
         ghost:
           "hover:bg-muted hover:text-muted-foreground dark:hover:bg-muted/50",
         link: "text-primary underline-offset-4 hover:underline",
+        // Status: tint 50/100 sebagai bidang, teks gelap dari skala yang sama
+        // (success-900 di atas success-50 = 4.92:1; primary-900 di atas
+        // warning-100 = 7.66:1). Teks kuning tidak pernah dipakai.
+        success: "bg-success-50 text-success-900",
+        warning: "bg-warning-100 text-warning-foreground",
       },
     },
     defaultVariants: {

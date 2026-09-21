@@ -25,6 +25,8 @@ export function Pelanggar({ isWide }: { isWide: boolean }) {
       <p className="bg-white text-gray-500" /> {/* ← lapor (palet) */}
       <p className="border-t-red-500/50" /> {/* ← lapor (palet) */}
       <p className="text-[#364f6b]" /> {/* ← lapor (arbitrer) */}
+      <p className="bg-primary-50 text-failed-700" /> {/* ← lapor (skala) */}
+      <p className="font-bold" /> {/* ← lapor (bobot 700) */}
       <p className="dark:bg-muted" /> {/* ← lapor (dark) */}
       {/* Tidak boleh dilapor: token, min-h arbitrer, kata yang mirip. */}
       <p className="bg-primary text-muted-foreground min-h-[60vh] border-input" />

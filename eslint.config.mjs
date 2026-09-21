@@ -57,6 +57,18 @@ const CLASS_SELECTORS = [
       "Warna palet mentah dilarang di layar. Pakai token tema (bg-primary, text-muted-foreground, border-input, ...).",
   },
   {
+    selector: inClassName(
+      String.raw`/(^|[\s:])-?(bg|text|border(-[trblxyse])?|ring|fill|stroke)-(primary|secondary|warning|success|failed)-[0-9]/`,
+    ),
+    message:
+      "Langkah skala brand (primary-50 … failed-900) hanya dipakai lewat token semantik di globals.css, bukan langsung di layar.",
+  },
+  {
+    selector: inClassName(String.raw`/(^|[\s:])font-(bold|extrabold|black)($|\s)/`),
+    message:
+      "Instrument Sans hanya dimuat 400–600. Pakai font-semibold, bukan bobot 700 ke atas.",
+  },
+  {
     selector: inClassName(String.raw`/-\[#/`),
     message: "Warna arbitrer -[#...] dilarang di layar. Pakai token tema.",
   },

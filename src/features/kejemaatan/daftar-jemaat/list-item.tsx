@@ -51,7 +51,7 @@ export function JemaatListItemRow({ jemaat }: { jemaat: JemaatListItem }) {
       title={jemaat.name}
       meta={meta}
       trailing={
-        <Badge variant={jemaat.status === "AKTIF" ? "secondary" : "outline"}>
+        <Badge variant={jemaat.status === "AKTIF" ? "success" : "outline"}>
           {STATUS_JEMAAT_LABEL[jemaat.status]}
         </Badge>
       }
