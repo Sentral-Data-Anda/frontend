@@ -1,12 +1,10 @@
 "use client";
 
-import Link from "next/link";
-
 import { Avatar } from "@/components/common/avatar";
-import { DomainTile } from "@/components/common/domain-tile";
+import { DomainTileGrid } from "@/components/common/domain-tile";
 import { SectionHeader } from "@/components/common/section-header";
 import { PageHeader } from "@/components/layout/page-header";
-import { BERANDA_SHORTCUTS, MENU, domainEntryHref } from "@/config/menu";
+import { BERANDA_SHORTCUTS, MENU } from "@/config/menu";
 import { siteConfig } from "@/config/site";
 import { useSession } from "@/features/auth/session-provider";
 import { useMenuAccess } from "@/features/auth/use-menu-access";
@@ -75,15 +73,7 @@ export function HomeScreen() {
           actionHref="/modul"
         />
 
-        <ul className="grid grid-cols-4 gap-3">
-          {shortcuts.map((domain) => (
-            <li key={domain.publicId}>
-              <Link href={domainEntryHref(domain)} className="block">
-                <DomainTile slug={domain.slug} label={domain.name} />
-              </Link>
-            </li>
-          ))}
-        </ul>
+        <DomainTileGrid domains={shortcuts} />
       </section>
 
       {ibadahAccess.isCanView ? (

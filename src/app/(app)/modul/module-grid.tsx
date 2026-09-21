@@ -1,13 +1,11 @@
 "use client";
 
 import { Search } from "lucide-react";
-import Link from "next/link";
 import { useState } from "react";
 
-import { DomainTile } from "@/components/common/domain-tile";
+import { DomainTileGrid } from "@/components/common/domain-tile";
 import { Input } from "@/components/common/input";
 import { PageHeader } from "@/components/layout/page-header";
-import { domainEntryHref } from "@/config/menu";
 import { useSession } from "@/features/auth/session-provider";
 import type { MenuNode } from "@/features/auth/types";
 
@@ -78,15 +76,9 @@ export function ModuleGrid() {
           Tidak ada modul yang cocok dengan &ldquo;{searchData}&rdquo;.
         </p>
       ) : (
-        <ul className="grid grid-cols-3 gap-4 px-gutter">
-          {domains.map((domain) => (
-            <li key={domain.publicId}>
-              <Link href={domainEntryHref(domain)} className="block">
-                <DomainTile slug={domain.slug} label={domain.name} />
-              </Link>
-            </li>
-          ))}
-        </ul>
+        <div className="px-gutter">
+          <DomainTileGrid domains={domains} />
+        </div>
       )}
     </div>
   );

@@ -1,6 +1,8 @@
 import type { LucideIcon } from "lucide-react";
+import Link from "next/link";
 
-import { MENU, MENU_ICON } from "@/config/menu";
+import { MENU, MENU_ICON, domainEntryHref } from "@/config/menu";
+import type { MenuNode } from "@/features/auth/types";
 
 /**
  * Tint per domain, mengikuti warna tile di `docs/design/beranda-reference.png`.
@@ -68,18 +70,32 @@ export function DomainIcon({
   );
 }
 
-/**
- * Ikon domain ber-tint dengan label di bawahnya.
- *
- * Hanya isi: pembungkus interaktifnya (`Link` di Beranda dan Semua modul)
- * milik pemanggil.
- */
-export function DomainTile({ slug, label }: { slug: string; label: string }) {
+/** Ikon domain ber-tint dengan label di bawahnya. */
+function DomainTile({ slug, label }: { slug: string; label: string }) {
   return (
     <span className="flex flex-col items-center gap-1.5 text-center">
       <DomainIcon slug={slug} />
 
       <span className="text-body leading-tight">{label}</span>
     </span>
+  );
+}
+
+/**
+ * Grid tile domain, empat kolom. Satu komponen untuk "Aksi cepat" di Beranda
+ * dan `/modul` — yang kedua adalah "Tampilkan semua" dari yang pertama, jadi
+ * ukuran tile-nya tidak boleh berbeda.
+ */
+export function DomainTileGrid({ domains }: { domains: MenuNode[] }) {
+  return (
+    <ul className="grid grid-cols-4 gap-3">
+      {domains.map((domain) => (
+        <li key={domain.publicId}>
+          <Link href={domainEntryHref(domain)} className="block">
+            <DomainTile slug={domain.slug} label={domain.name} />
+          </Link>
+        </li>
+      ))}
+    </ul>
   );
 }
