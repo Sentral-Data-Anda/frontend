@@ -3,6 +3,7 @@
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 
+import { SectionHeader } from "@/components/common/section-header";
 import { PageHeader } from "@/components/layout/page-header";
 import { MENU_ICON, menuHref } from "@/config/menu";
 import { useSession } from "@/features/auth/session-provider";
@@ -34,13 +35,11 @@ export function HomeScreen() {
       />
 
       <section className="px-gutter">
-        <div className="mb-3 flex items-baseline justify-between">
-          <h2 className="text-title font-medium">Aksi cepat</h2>
-
-          <Link href="/modul" className="text-muted-foreground text-caption">
-            Tampilkan semua
-          </Link>
-        </div>
+        <SectionHeader
+          title="Aksi cepat"
+          actionLabel="Tampilkan semua"
+          actionHref="/modul"
+        />
 
         <ul className="grid grid-cols-4 gap-3">
           {shortcuts.map((domain) => {
@@ -70,7 +69,7 @@ export function HomeScreen() {
       </section>
 
       <section className="mt-8 px-gutter">
-        <h2 className="mb-3 text-title font-medium">Semua modul</h2>
+        <SectionHeader title="Semua modul" />
 
         <Link
           href="/modul"
