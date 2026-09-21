@@ -66,11 +66,7 @@ export default async function Page({ params }: Props) {
       <PageHeader title={domain.name} backHref="/" />
 
       <div className="px-gutter pt-2">
-        <DomainBanner
-          slug={domain.slug}
-          label={domain.name}
-          meta={`${domain.children.length} layar`}
-        />
+        <DomainBanner slug={domain.slug} label={domain.name} />
       </div>
 
       <div className="mt-4 px-gutter">

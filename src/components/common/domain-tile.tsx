@@ -100,21 +100,12 @@ export function DomainTile({
 
 /**
  * Banner kepala halaman domain: bidang tint domain, ikon di kotak putih,
- * nama dan meta rata kiri. Teks memakai `foreground`/`muted-foreground`,
+ * nama rata kiri. Teks memakai `foreground`,
  * bukan warna tint — warning-900 di atas warning-100 hanya 3.11, cukup untuk
- * ikon, tidak untuk teks (foreground ≥ 6.7, muted ≥ 4.9 di keempat tint).
+ * ikon, tidak untuk teks (foreground ≥ 6.7 di keempat tint).
  * Ikon 900 di atas putih: 8.44 / 6.02 / 3.43 / 5.26.
  */
-export function DomainBanner({
-  slug,
-  label,
-  meta,
-}: {
-  slug: string;
-  label: string;
-  /** Mis. "7 layar". */
-  meta?: string;
-}) {
+export function DomainBanner({ slug, label }: { slug: string; label: string }) {
   const Icon = MENU_ICON[slug];
   const tint = tintOf(slug);
 
@@ -126,15 +117,7 @@ export function DomainBanner({
         {Icon ? <Icon className="size-5" aria-hidden /> : null}
       </span>
 
-      <span className="min-w-0">
-        <span className="block text-title font-semibold">{label}</span>
-
-        {meta ? (
-          <span className="text-muted-foreground block text-caption tabular-nums">
-            {meta}
-          </span>
-        ) : null}
-      </span>
+      <span className="min-w-0 text-title font-semibold">{label}</span>
     </div>
   );
 }
