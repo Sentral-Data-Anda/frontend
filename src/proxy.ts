@@ -259,6 +259,9 @@ export const config = {
        *   `favicon.ico`, `offline` — ASET PWA. Lihat peringatan di atas;
        *   `offline` yang dialihkan mematikan SELURUH precache, bukan hanya
        *   dirinya sendiri.
+       * - `brand`          — aset logo di `public/brand/`. Dialihkan berarti
+       *   logo di halaman login (yang dibuka tanpa sesi) tidak pernah tampil:
+       *   `next/image` menerima HTML pengalihan dan menjawab 400.
        * - `robots.txt`     — sinyal no-index. Dialihkan berarti crawler tidak
        *   pernah membacanya. Lihat peringatan di atas.
        *
@@ -288,7 +291,7 @@ export const config = {
        * ter-escape karena ia berkas.
        */
       source:
-        "/((?!(?:api|_next/static|_next/image|manifest\\.webmanifest|sw\\.js|icons|apple-icon\\.png|icon\\.png|favicon\\.ico|offline|robots\\.txt)(?:/|$)).*)",
+        "/((?!(?:api|_next/static|_next/image|manifest\\.webmanifest|sw\\.js|icons|brand|apple-icon\\.png|icon\\.png|favicon\\.ico|offline|robots\\.txt)(?:/|$)).*)",
     },
     {
       /**

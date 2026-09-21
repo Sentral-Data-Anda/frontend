@@ -1,4 +1,5 @@
 import { AuthWaves } from "@/components/common/auth-waves";
+import { LogoWordmark } from "@/components/common/logo";
 
 /**
  * Kerangka halaman sebelum masuk, tanpa navigasi.
@@ -13,7 +14,9 @@ import { AuthWaves } from "@/components/common/auth-waves";
  *
  * - < md  : full-bleed putih, gelombang di pojok atas dan bawah.
  * - md    : kartu putih `max-w-sm` di tengah latar `bg-muted`.
- * - ≥ lg  : split-screen 45/55 — panel navy dekoratif di kiri, form di kanan.
+ * - ≥ lg  : split-screen 45/55 — panel navy dekoratif (gelombang + logo-nama,
+ *           satu-satunya latar tempat logo-nama cukup kontras) di kiri, form
+ *           di kanan.
  */
 export default function AuthLayout({
   children,
@@ -22,11 +25,14 @@ export default function AuthLayout({
 }) {
   return (
     <div className="bg-background md:bg-muted lg:bg-background relative flex min-h-dvh flex-1 flex-col overflow-hidden lg:grid lg:grid-cols-[45fr_55fr]">
+      {/* Dekoratif seluruhnya — nama aplikasi sudah dibacakan dari logo di
+          atas form — jadi aria-hidden, termasuk logo+nama di dalamnya. */}
       <div
         aria-hidden
-        className="bg-primary text-primary-foreground relative hidden overflow-hidden lg:block"
+        className="bg-primary text-primary-foreground relative hidden items-center justify-center overflow-hidden lg:flex"
       >
         <AuthWaves className="absolute inset-0 size-full opacity-15" />
+        <LogoWordmark className="relative" />
       </div>
 
       <AuthWaves className="text-primary/10 absolute inset-x-0 top-0 h-28 w-full md:h-40 lg:hidden" />
