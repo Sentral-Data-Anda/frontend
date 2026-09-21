@@ -8,6 +8,9 @@
  *   MOCK_NO_CREATE=1 bun run dev:mock   → DAFTAR_JEMAAT hanya VIEW, tombol Tambah harus hilang
  *   MOCK_500=1 bun run dev:mock         → daftar jemaat & ibadah menjawab 500, layar galat
  *   MOCK_NO_IBADAH=1 bun run dev:mock   → tidak ada ibadah hari ini (404 be-sada)
+ *   MOCK_SINGLE_LEAF=1 bun run dev:mock → Peribadahan hanya IBADAH (tile & /peribadahan
+ *                                         langsung ke layarnya), Pengaturan tidak dipegang
+ *                                         (/pengaturan harus 404)
  *
  * Port bisa digeser supaya berjalan di samping `dev:mock` lain:
  *   MOCK_API_PORT=3011 PORT=3010 bun run dev:mock
@@ -130,6 +133,11 @@ const TREE: Record<string, MenuSlug[]> = {
   [MENU.PERSETUJUAN]: [MENU.PERMINTAAN_PERSETUJUAN, MENU.SETELAN_PERSETUJUAN],
   [MENU.PENGATURAN]: [MENU.USER, MENU.ROLE_USER, MENU.ACTIVITY_LOG],
 };
+
+if (process.env.MOCK_SINGLE_LEAF) {
+  TREE[MENU.PERIBADAHAN] = [MENU.IBADAH];
+  delete TREE[MENU.PENGATURAN];
+}
 
 /** "DAFTAR_JEMAAT" → "Daftar Jemaat". Cukup untuk review; label asli dari be-sada. */
 const toLabel = (slug: string) =>
