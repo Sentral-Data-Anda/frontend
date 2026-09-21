@@ -167,6 +167,16 @@ jemaat & ibadah galat), `MOCK_NO_IBADAH=1` (tidak ada ibadah hari ini), `MOCK_SI
 layar itu; Pengaturan tidak dipegang → `/pengaturan` 404). Port
 bisa digeser dengan `MOCK_API_PORT` dan `PORT`, tapi Next menolak `next dev`
 kedua di direktori yang sama — matikan yang lama dulu.
+Nama domain & layar di tiruan disalin dari be-sada (`NAME` di
+`scripts/menu-tree.ts`) — perbarui bersama `MENU_TREE` be-sada.
+
+### Kanvas & permukaan
+
+Latar seluruh `(app)` adalah `bg-canvas` (primary-50), dipasang sekali di
+`AppShell`. Apa pun yang harus putih menulis `bg-card` sendiri (kartu, sidebar,
+bottom tab, sheet); `DataList` bawaan sudah memberi baris putih, `DataList
+inset` membiarkan baris di atas kanvas. Jangan pakai `bg-muted` sebagai bidang
+di atas kanvas — nilainya sama (primary-50) dan tidak terlihat.
 
 ### Halaman domain
 
