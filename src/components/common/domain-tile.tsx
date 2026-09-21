@@ -14,11 +14,13 @@ import { MENU, MENU_ICON } from "@/config/menu";
  * Empat domain yang tidak ada di mockup dipasangkan menurut kedekatan isi.
  */
 const TINT = {
-  primary: "bg-primary-100 text-primary-900",
-  secondary: "bg-secondary-50 text-secondary-900",
-  warning: "bg-warning-100 text-warning-900",
-  success: "bg-success-50 text-success-900",
+  primary: { bg: "bg-primary-100", fg: "text-primary-900" },
+  secondary: { bg: "bg-secondary-50", fg: "text-secondary-900" },
+  warning: { bg: "bg-warning-100", fg: "text-warning-900" },
+  success: { bg: "bg-success-50", fg: "text-success-900" },
 } as const;
+
+const tintOf = (slug: string) => TINT[DOMAIN_TINT[slug] ?? "primary"];
 
 const DOMAIN_TINT: Record<string, keyof typeof TINT> = {
   [MENU.KEJEMAATAN]: "primary",
@@ -38,7 +40,6 @@ const DOMAIN_TINT: Record<string, keyof typeof TINT> = {
 const ICON_SIZE = {
   sm: { box: "size-control rounded-control", icon: "size-4" },
   md: { box: "size-12 rounded-lg", icon: "size-5" },
-  lg: { box: "size-16 rounded-lg", icon: "size-7" },
 } as const;
 
 /**
@@ -59,7 +60,7 @@ export function DomainIcon({
 
   return (
     <span
-      className={`flex shrink-0 items-center justify-center ${ICON_SIZE[size].box} ${TINT[DOMAIN_TINT[slug] ?? "primary"]}`}
+      className={`flex shrink-0 items-center justify-center ${ICON_SIZE[size].box} ${tintOf(slug).bg} ${tintOf(slug).fg}`}
     >
       {Icon ? <Icon className={ICON_SIZE[size].icon} aria-hidden /> : null}
     </span>
@@ -76,17 +77,15 @@ export function DomainTile({
   slug,
   label,
   meta,
-  size = "md",
 }: {
   slug: string;
   label: string;
   /** Baris kecil di bawah label, mis. "7 layar". */
   meta?: string;
-  size?: "md" | "lg";
 }) {
   return (
     <span className="flex flex-col items-center gap-1.5 text-center">
-      <DomainIcon slug={slug} size={size} />
+      <DomainIcon slug={slug} />
 
       <span className="text-body leading-tight">{label}</span>
 
@@ -96,5 +95,46 @@ export function DomainTile({
         </span>
       ) : null}
     </span>
+  );
+}
+
+/**
+ * Banner kepala halaman domain: bidang tint domain, ikon di kotak putih,
+ * nama dan meta rata kiri. Teks memakai `foreground`/`muted-foreground`,
+ * bukan warna tint — warning-900 di atas warning-100 hanya 3.11, cukup untuk
+ * ikon, tidak untuk teks (foreground ≥ 6.7, muted ≥ 4.9 di keempat tint).
+ * Ikon 900 di atas putih: 8.44 / 6.02 / 3.43 / 5.26.
+ */
+export function DomainBanner({
+  slug,
+  label,
+  meta,
+}: {
+  slug: string;
+  label: string;
+  /** Mis. "7 layar". */
+  meta?: string;
+}) {
+  const Icon = MENU_ICON[slug];
+  const tint = tintOf(slug);
+
+  return (
+    <div className={`flex items-center gap-3 rounded-lg p-3.5 ${tint.bg}`}>
+      <span
+        className={`bg-card flex size-12 shrink-0 items-center justify-center rounded-lg ${tint.fg}`}
+      >
+        {Icon ? <Icon className="size-5" aria-hidden /> : null}
+      </span>
+
+      <span className="min-w-0">
+        <span className="block text-title font-semibold">{label}</span>
+
+        {meta ? (
+          <span className="text-muted-foreground block text-caption tabular-nums">
+            {meta}
+          </span>
+        ) : null}
+      </span>
+    </div>
   );
 }

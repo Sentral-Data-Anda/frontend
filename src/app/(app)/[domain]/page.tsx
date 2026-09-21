@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 
-import { DomainTile } from "@/components/common/domain-tile";
-import { MenuCard, MenuCardGrid } from "@/components/common/menu-card";
+import { DomainBanner } from "@/components/common/domain-tile";
+import { MenuTile, MenuTileGrid } from "@/components/common/menu-tile";
 import { PageHeader } from "@/components/layout/page-header";
 import {
   DOMAIN_SLUGS,
   MENU_DESCRIPTION,
   domainHref,
+  leafIcon,
   menuHref,
   type MenuSlug,
 } from "@/config/menu";
@@ -64,27 +65,27 @@ export default async function Page({ params }: Props) {
     <div className="pb-6">
       <PageHeader title={domain.name} backHref="/" />
 
-      <section className="flex justify-center px-gutter pt-2 pb-6">
-        <DomainTile
+      <div className="px-gutter pt-2">
+        <DomainBanner
           slug={domain.slug}
           label={domain.name}
           meta={`${domain.children.length} layar`}
-          size="lg"
         />
-      </section>
+      </div>
 
-      <div className="px-gutter">
-        <MenuCardGrid label={`Layar ${domain.name}`}>
+      <div className="mt-4 px-gutter">
+        <MenuTileGrid label={`Layar ${domain.name}`}>
           {domain.children.map((leaf) => (
-            <MenuCard
+            <MenuTile
               key={leaf.publicId}
               href={menuHref(domain.slug, leaf.slug)}
-              iconSlug={domain.slug}
+              domainSlug={domain.slug}
+              icon={leafIcon(leaf.slug, domain.slug)}
               title={leaf.name}
               description={MENU_DESCRIPTION[leaf.slug as MenuSlug]}
             />
           ))}
-        </MenuCardGrid>
+        </MenuTileGrid>
       </div>
     </div>
   );
