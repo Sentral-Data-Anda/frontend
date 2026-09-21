@@ -29,7 +29,7 @@ export function Sidebar() {
     // `h-dvh` + `overflow-y-auto` di sini, bukan di `<main>`: 12 domain terbuka
     // bisa lebih tinggi dari 768px (iPad landscape), dan sidebar harus scroll
     // sendiri tanpa memindahkan scroll konten keluar dari dokumen.
-    <aside className="border-border bg-background sticky top-0 hidden h-dvh w-64 shrink-0 flex-col overflow-y-auto overscroll-contain border-r lg:flex">
+    <aside className="border-border bg-card sticky top-0 hidden h-dvh w-64 shrink-0 flex-col overflow-y-auto overscroll-contain border-r lg:flex">
       <div className="px-4 py-5">
         <Logo />
       </div>

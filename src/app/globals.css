@@ -71,6 +71,7 @@
 
 @theme inline {
   --color-background: var(--background);
+  --color-canvas: var(--canvas);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);
@@ -164,6 +165,7 @@
    * | foreground (p-900) / background           | 8.44:1 | 4.5:1  |
    * | muted-foreground (p-800) / background     | 6.20:1 | 4.5:1  |
    * | muted-foreground (p-800) / input-fill p50 | 5.66:1 | 4.5:1  |
+   * | foreground (p-900) / canvas p50           | 7.72:1 | 4.5:1  |
    * | muted-foreground (p-800) / fill aktif p100| 4.96:1 | 4.5:1  |
    * | input (p-500) / background                | 3.61:1 | 3:1    |
    * | input (p-500) / input-fill p50            | 3.29:1 | 3:1    |
@@ -180,6 +182,13 @@
    * atasnya selalu gelap. `--border` (p-200) dekoratif, bukan batas kontrol.
    */
   --background: #ffffff;
+  /*
+   * Kanvas abu-kebiruan di balik SELURUH aplikasi (keputusan user), dipasang
+   * sekali di `app-shell.tsx`. Permukaan yang harus tetap putih — kartu,
+   * baris daftar, sidebar, bottom tab, sheet — menulis `bg-card` atau
+   * `bg-background` sendiri; jangan mengandalkan latar induk.
+   */
+  --canvas: var(--color-primary-50);
   --foreground: var(--color-primary-900);
   --card: #ffffff;
   --card-foreground: var(--color-primary-900);
@@ -250,6 +259,7 @@
  */
 .dark {
   --background: oklch(0.145 0 0);
+  --canvas: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
   --card-foreground: oklch(0.985 0 0);

@@ -24,11 +24,11 @@ export function LoadingList({
             nyata dengan ID yang stabil. */}
         {Array.from({ length: rows }, (_, index) => (
           <li key={index} className="flex h-14 items-center gap-3 px-gutter">
-            <span className="bg-muted size-9 animate-pulse rounded-full" />
+            <span className="bg-primary-100 size-9 animate-pulse rounded-full" />
 
             <span className="flex-1 space-y-1.5">
-              <span className="bg-muted block h-3 w-2/5 animate-pulse rounded" />
-              <span className="bg-muted block h-2.5 w-1/4 animate-pulse rounded" />
+              <span className="bg-primary-100 block h-3 w-2/5 animate-pulse rounded" />
+              <span className="bg-primary-100 block h-2.5 w-1/4 animate-pulse rounded" />
             </span>
           </li>
         ))}

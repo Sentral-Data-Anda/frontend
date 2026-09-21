@@ -9,9 +9,9 @@
  *
  * | Token globals.css     | nilai              | hex di sini |
  * | --------------------- | ------------------ | ----------- |
- * | `--background`        | `#ffffff`          | `#ffffff`   |
+ * | `--canvas`            | primary-50         | `#f1f5f8`   |
  * | `--primary`           | primary-900        | `#364f6b`   |
- * | `--background` (dark) | `oklch(0.145 0 0)` | `#0a0a0a`   |
+ * | `--canvas` (dark)     | `oklch(0.145 0 0)` | `#0a0a0a`   |
  *
  * Padanan dark dibulatkan sedikit lebih gelap dari konversi persis (~#0e0e0e)
  * supaya menyatu dengan status bar gelap Android. Bila token di globals.css
@@ -34,7 +34,7 @@ export const brand = {
    * Harus sama dengan latar app shell. Kalau berbeda, akan terlihat berkedip
    * pada momen splash berganti menjadi halaman.
    */
-  backgroundColor: "#ffffff",
+  backgroundColor: "#f1f5f8",
 
   /**
    * Warna titlebar window standalone desktop dan status bar Android.
@@ -43,7 +43,7 @@ export const brand = {
    * saat aplikasi belum berjalan.
    */
   themeColor: {
-    light: "#ffffff",
+    light: "#f1f5f8",
     dark: "#0a0a0a",
   },
 } as const;

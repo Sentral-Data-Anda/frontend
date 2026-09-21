@@ -51,7 +51,7 @@ export function BottomSheet({
       // di sini membuat state pemanggil ikut menyusul apa pun jalannya.
       onClose={onClose}
       onClick={onBackdropClick}
-      className="bg-background text-foreground fixed inset-x-0 bottom-0 top-auto m-0 w-full max-w-none rounded-t-2xl p-0 backdrop:bg-black/40"
+      className="bg-card text-foreground fixed inset-x-0 bottom-0 top-auto m-0 w-full max-w-none rounded-t-2xl p-0 backdrop:bg-black/40"
     >
       <div
         className="mx-auto mt-3 h-1 w-10 rounded-full bg-border"

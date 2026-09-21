@@ -15,7 +15,7 @@ import { Sidebar } from "./sidebar";
  */
 export function AppShell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-dvh flex-col lg:flex-row">
+    <div className="bg-canvas flex min-h-dvh flex-col lg:flex-row">
       <Sidebar />
 
       {/*
