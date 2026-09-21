@@ -35,3 +35,10 @@ export const siteConfig = {
 } as const;
 
 export type SiteConfig = typeof siteConfig;
+
+/**
+ * Zona organisasi — padanan `APP_TIMEZONE` di `be-sada/src/config/env.ts`.
+ * "Hari ini" dan sapaan dihitung di zona ini, bukan di zona perangkat: jemaat
+ * yang membuka aplikasi dari luar negeri tetap melihat jadwal hari ini gereja.
+ */
+export const APP_TIMEZONE = "Asia/Jakarta";
