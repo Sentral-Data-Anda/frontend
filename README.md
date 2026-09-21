@@ -171,8 +171,14 @@ kedua di direktori yang sama — matikan yang lama dulu.
 ### Halaman domain
 
 `/<domain>` (`src/app/(app)/[domain]/page.tsx`) melayani 12 domain dari satu
-berkas. Daftar kartunya = anak simpul domain di `session.menu`; penjelasan
-per layar dari `MENU_DESCRIPTION` di `src/config/menu.ts`. Tautan ke domain
+berkas: banner tint domain (`DomainBanner`) lalu grid tile bento
+(`MenuTile`/`MenuTileGrid`, 2 kolom, 3 kolom saat konten ≥ 36rem). Isi grid =
+anak simpul domain di `session.menu`; penjelasan per layar dari
+`MENU_DESCRIPTION`, ikon per layar dari `MENU_LEAF_ICON` (keduanya di
+`src/config/menu.ts`). Layar baru dari be-sada tanpa entri ikon memakai ikon
+domainnya (`leafIcon`); `menu.test.ts` menolak ikon ganda dalam satu domain
+berdasarkan pohon di `scripts/menu-tree.ts` — tambahkan layar baru di sana
+juga. Tautan ke domain
 selalu lewat `domainHref`/`domainEntryHref`, bukan string literal.
 Penjaganya `resolveDomain` (diuji terpisah): slug asing atau domain yang tidak
 dipegang → 404, domain berlayar satu → dialihkan ke layarnya.
