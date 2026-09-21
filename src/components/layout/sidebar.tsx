@@ -57,7 +57,7 @@ export function SidebarNav({
           return (
             <li key={domain.slug}>
               <details open={isDomainActive} className="group">
-                <summary className="hover:bg-muted flex h-10 cursor-pointer list-none items-center gap-3 rounded-lg px-3 text-sm font-medium [&::-webkit-details-marker]:hidden">
+                <summary className="hover:bg-muted flex h-10 cursor-pointer list-none items-center gap-3 rounded-lg px-3 text-body font-medium [&::-webkit-details-marker]:hidden">
                   {Icon ? (
                     <Icon
                       className="text-muted-foreground size-4 shrink-0"
@@ -82,7 +82,7 @@ export function SidebarNav({
                           href={href}
                           aria-current={isActive ? "page" : undefined}
                           className={cn(
-                            "flex h-9 items-center rounded-lg pr-3 pl-10 text-sm",
+                            "flex h-9 items-center rounded-lg pr-3 pl-10 text-body",
                             isActive
                               ? "bg-muted text-foreground font-medium"
                               : "text-muted-foreground hover:bg-muted hover:text-foreground",

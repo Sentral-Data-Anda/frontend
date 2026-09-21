@@ -39,7 +39,21 @@ const NAMING_SELECTORS = [
 // className (termasuk cabang ternary dan argumen cn() di dalamnya) dan
 // argumen cn() di mana pun.
 const inClassName = (valueRegex) =>
-  `:matches(JSXAttribute[name.name='className'], CallExpression[callee.name='cn']) :matches(Literal[value=${valueRegex}], TemplateElement[value.raw=${valueRegex}])`;
+  `:matches(JSXAttribute[name.name='className'], CallExpression[callee.name=/^(cn|cva)$/]) :matches(Literal[value=${valueRegex}], TemplateElement[value.raw=${valueRegex}])`;
+
+// Skala teks milik token di globals.css (12px < lg, 14px hanya ≥ lg, min
+// 10px). Ukuran bawaan Tailwind dan `text-[…px]` tidak mengikuti breakpoint
+// itu, jadi ditolak di SELURUH src/ — termasuk components/ui, bukan hanya
+// layar. Ikut di-spread di blok kelas di bawah (jebakan flat config).
+const TEXT_SIZE_SELECTORS = [
+  {
+    selector: inClassName(
+      String.raw`/(^|[\s:])text-(xs|2xs|sm|base|lg|[2-9]?xl|\[(length:)?[\d.]+(px|r?em)\])($|[\s\x2f])/`,
+    ),
+    message:
+      "Ukuran teks hanya lewat token: text-title (12→14px di lg), text-body (12px), text-caption (10px). Maks 14px, dan hanya di desktop.",
+  },
+];
 
 const CLASS_SELECTORS = [
   {
@@ -136,7 +150,11 @@ const eslintConfig = defineConfig([
     // tanpa aturan sama sekali.
     files: ["src/**/*.{ts,tsx}", "tests/**/*.{ts,tsx}"],
     rules: {
-      "no-restricted-syntax": ["error", ...NAMING_SELECTORS],
+      "no-restricted-syntax": [
+        "error",
+        ...NAMING_SELECTORS,
+        ...TEXT_SIZE_SELECTORS,
+      ],
     },
   },
 
@@ -160,6 +178,7 @@ const eslintConfig = defineConfig([
       "no-restricted-syntax": [
         "error",
         ...NAMING_SELECTORS,
+        ...TEXT_SIZE_SELECTORS,
         ...CLASS_SELECTORS,
       ],
     },

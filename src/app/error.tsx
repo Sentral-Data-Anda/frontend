@@ -55,13 +55,13 @@ export default function Error({
         "flex min-h-[60vh] flex-col items-center justify-center gap-4 px-gutter text-center",
       )}
     >
-      <h1 className="text-2xl font-semibold">Terjadi kesalahan</h1>
+      <h1 className="text-title font-semibold">Terjadi kesalahan</h1>
       <p className="max-w-md text-muted-foreground">
         Maaf, terjadi kendala saat memuat halaman. Silakan coba lagi beberapa
         saat lagi.
       </p>
       {error.digest && (
-        <p className="text-xs text-muted-foreground">
+        <p className="text-caption text-muted-foreground">
           Kode error: <code>{error.digest}</code> — sertakan kode ini bila
           menghubungi pengurus.
         </p>

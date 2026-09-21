@@ -78,13 +78,13 @@ export function ModuleGrid() {
             onChange={(event) => setSearchData(event.target.value)}
             placeholder="Cari modul atau layar"
             aria-label="Cari modul atau layar"
-            className="h-full w-full bg-transparent text-base outline-none"
+            className="h-full w-full bg-transparent text-body outline-none"
           />
         </div>
       </div>
 
       {domains.length === 0 ? (
-        <p className="text-muted-foreground px-gutter py-10 text-center text-sm">
+        <p className="text-muted-foreground px-gutter py-10 text-center text-body">
           Tidak ada modul yang cocok dengan &ldquo;{searchData}&rdquo;.
         </p>
       ) : (
@@ -103,8 +103,8 @@ export function ModuleGrid() {
                     {Icon ? <Icon className="size-6" aria-hidden /> : null}
                   </span>
 
-                  <span className="text-xs leading-tight">{domain.name}</span>
-                  <span className="text-muted-foreground text-2xs">
+                  <span className="text-body leading-tight">{domain.name}</span>
+                  <span className="text-muted-foreground text-caption">
                     {domain.children.length} layar
                   </span>
                 </button>
@@ -114,7 +114,7 @@ export function ModuleGrid() {
         </ul>
       )}
 
-      <p className="text-muted-foreground px-gutter pt-8 text-xs">
+      <p className="text-muted-foreground px-gutter pt-8 text-caption">
         Modul yang tidak Anda pegang tidak ditampilkan.
       </p>
 
@@ -137,8 +137,8 @@ export function ModuleGrid() {
                 className="flex h-14 items-center justify-between px-gutter"
               >
                 <span className="min-w-0">
-                  <span className="block truncate text-sm">{leaf.name}</span>
-                  <span className="text-muted-foreground block truncate text-2xs">
+                  <span className="block truncate text-body">{leaf.name}</span>
+                  <span className="text-muted-foreground block truncate text-caption">
                     {leaf.slug}
                   </span>
                 </span>

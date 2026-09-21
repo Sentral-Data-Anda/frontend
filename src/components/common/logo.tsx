@@ -35,7 +35,7 @@ export function Logo({ className }: { className?: string }) {
           priority
         />
       </span>
-      <span className="text-base">{siteConfig.shortName}</span>
+      <span className="text-title">{siteConfig.shortName}</span>
     </Link>
   );
 }

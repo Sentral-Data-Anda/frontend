@@ -46,10 +46,10 @@ export function DataListRow({
       {leading}
 
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium">{title}</p>
+        <p className="truncate text-body font-medium">{title}</p>
 
         {meta ? (
-          <p className="text-muted-foreground truncate text-xs tabular-nums">
+          <p className="text-muted-foreground truncate text-caption tabular-nums">
             {meta}
           </p>
         ) : null}
@@ -124,9 +124,9 @@ export function DataList<T>({
       >
         <TriangleAlert className="text-destructive mb-3 size-8" aria-hidden />
 
-        <p className="text-sm font-medium">Gagal memuat data</p>
+        <p className="text-body font-medium">Gagal memuat data</p>
 
-        <p className="text-muted-foreground mt-1 max-w-xs text-sm text-balance">
+        <p className="text-muted-foreground mt-1 max-w-xs text-body text-balance">
           {error.message}
         </p>
 
@@ -213,7 +213,7 @@ function DataListPager({ page, totalPage, onPickPage }: DataListPagination) {
           mengabarkannya. */}
       <p
         aria-live="polite"
-        className="text-muted-foreground text-xs tabular-nums"
+        className="text-muted-foreground text-caption tabular-nums"
       >
         Halaman {page} dari {totalPage}
       </p>

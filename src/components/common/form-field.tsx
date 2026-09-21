@@ -36,7 +36,7 @@ export function FormField({
 
   return (
     <div className="space-y-1.5">
-      <label htmlFor={htmlFor} className="block text-sm font-medium">
+      <label htmlFor={htmlFor} className="block text-body font-medium">
         {label}
       </label>
 
@@ -47,7 +47,7 @@ export function FormField({
       })}
 
       {hint ? (
-        <p id={hintId} className="text-muted-foreground text-xs">
+        <p id={hintId} className="text-muted-foreground text-caption">
           {hint}
         </p>
       ) : null}
@@ -59,7 +59,7 @@ export function FormField({
         // aria-describedby sudah cukup — pembaca layar membaca pesan ini
         // begitu fokus mendarat di kontrol yang aria-invalid. role="alert"
         // hanya milik galat root form (mis. kredensial ditolak server).
-        <p id={errorId} className="text-destructive text-xs">
+        <p id={errorId} className="text-destructive text-body">
           {error}
         </p>
       ) : null}

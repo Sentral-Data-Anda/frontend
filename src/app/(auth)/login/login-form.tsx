@@ -87,7 +87,7 @@ export function LoginForm() {
       </FormField>
 
       {errors.root ? (
-        <p role="alert" className="text-destructive text-sm">
+        <p role="alert" className="text-destructive text-body">
           {errors.root.message}
         </p>
       ) : null}

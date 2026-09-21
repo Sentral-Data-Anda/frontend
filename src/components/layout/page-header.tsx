@@ -32,9 +32,11 @@ export function PageHeader({
       ) : null}
 
       <div className="min-w-0 flex-1">
-        <h1 className="truncate text-lg font-semibold">{title}</h1>
+        <h1 className="truncate text-title font-semibold">{title}</h1>
         {subtitle ? (
-          <p className="text-muted-foreground truncate text-xs">{subtitle}</p>
+          <p className="text-muted-foreground truncate text-caption">
+            {subtitle}
+          </p>
         ) : null}
       </div>
 

@@ -23,8 +23,8 @@ export function UpdateToast({ onApply }: UpdateToastProps) {
       className="bg-background fixed inset-x-gutter bottom-4 z-50 mx-auto flex max-w-md flex-wrap items-center justify-between gap-3 rounded-lg border p-3.5 shadow-lg"
     >
       <div>
-        <p className="text-sm font-medium">Versi baru tersedia</p>
-        <p className="text-muted-foreground text-xs">
+        <p className="text-body font-medium">Versi baru tersedia</p>
+        <p className="text-muted-foreground text-caption">
           Muat ulang untuk memakai versi terbaru.
         </p>
       </div>

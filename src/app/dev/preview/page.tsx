@@ -38,12 +38,12 @@ export default async function Page({
 
   return (
     <div className="bg-muted min-h-dvh overflow-x-auto p-6">
-      <p className="text-muted-foreground mb-4 font-mono text-sm">{src}</p>
+      <p className="text-muted-foreground mb-4 font-mono text-body">{src}</p>
 
       <div className="flex w-max items-start gap-6">
         {FRAMES.map((frame) => (
           <figure key={frame.label} className="flex flex-col gap-2">
-            <figcaption className="text-sm font-medium">
+            <figcaption className="text-body font-medium">
               {frame.label} · {frame.width}×{frame.height}
               {frame.scale !== 1 ? ` (skala ${frame.scale * 100}%)` : ""}
             </figcaption>

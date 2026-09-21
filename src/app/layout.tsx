@@ -56,6 +56,12 @@ export const metadata: Metadata = {
  */
 export const viewport: Viewport = {
   viewportFit: "cover",
+  // Input ber-font 12px (keputusan user). Safari iOS memperbesar halaman saat
+  // memfokus input <16px; `maximum-scale=1` mencegah auto-zoom itu. Di iOS ≥10
+  // pinch-zoom manual TETAP bisa (Safari mengabaikan batas ini untuk gestur
+  // user). Di Android Chrome batas ini IKUT mematikan pinch-zoom — konsekuensi
+  // yang sudah diterima user. Jangan tambahkan `userScalable: false`.
+  maximumScale: 1,
   themeColor: brand.themeColor.light,
 };
 

@@ -117,8 +117,25 @@ Jarak tepi halaman memakai token `px-gutter` (20px, `--spacing-gutter` di
 `globals.css`), bukan `px-4` per komponen. Warna hanya lewat token semantik
 (`primary`, `muted-foreground`, `success`, `warning`, `destructive`, …) yang
 dipetakan ke skala brand di `globals.css`; langkah skala (`bg-primary-50`)
-dan `font-bold` ditolak lint di layar. Skala teks 14/12/10 (`text-sm`,
-`text-xs`, `text-2xs`); input tetap 16px karena zoom iOS.
+dan `font-bold` ditolak lint di layar.
+
+Skala teks (**keputusan user, menggantikan skala 14/12/10 + input 16px**):
+terbesar 12px di mobile/tablet dan 14px hanya di desktop, terkecil 10px.
+Hierarki lewat bobot dan warna, bukan ukuran.
+
+| Token          | < `lg` | ≥ `lg` | Peran                                    |
+| -------------- | ------ | ------ | ---------------------------------------- |
+| `text-title`   | 12px   | 14px   | judul halaman/bagian, sapaan, angka 404  |
+| `text-body`    | 12px   | 12px   | isi, label, tombol, **input**, galat     |
+| `text-caption` | 10px   | 10px   | keterangan, meta, hint, label tab, badge |
+
+Nilainya di `globals.css` (`--font-size-title` naik di `@media (min-width:
+64rem)`), jadi layar tidak menulis `lg:`. `text-sm`, `text-lg`, `text-[18px]`
+dan ukuran bawaan Tailwind lainnya ditolak lint di **seluruh** `src/`,
+termasuk `cva()` di `components/ui`. Konsekuensi input 12px: iOS Safari
+auto-zoom saat fokus pada input <16px, dicegah `maximumScale: 1` di
+`viewport` (`src/app/layout.tsx`) — di iOS pinch-zoom manual tetap bisa, di
+Android Chrome pinch-zoom ikut mati. Diterima user.
 
 Pratinjau tiga ukuran sekaligus (development saja):
 

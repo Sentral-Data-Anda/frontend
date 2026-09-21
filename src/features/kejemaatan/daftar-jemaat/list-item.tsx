@@ -43,7 +43,7 @@ export function JemaatListItemRow({ jemaat }: { jemaat: JemaatListItem }) {
       leading={
         <span
           aria-hidden
-          className="bg-muted flex size-9 shrink-0 items-center justify-center rounded-full text-xs font-medium"
+          className="bg-muted flex size-9 shrink-0 items-center justify-center rounded-full text-caption font-medium"
         >
           {onPickInitial(jemaat.name)}
         </span>

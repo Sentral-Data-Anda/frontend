@@ -24,12 +24,12 @@ export default function NotFound() {
       <PageHeader title="Layar belum tersedia" backHref="/" />
 
       <div className="flex flex-col items-start gap-3 px-gutter">
-        <p className="text-muted-foreground text-sm">
+        <p className="text-muted-foreground text-body">
           Layar ini belum dibangun. Menu dan hak aksesnya sudah aktif, tampilan
           serta datanya menyusul pada tahap berikutnya.
         </p>
 
-        <p className="text-muted-foreground text-sm">
+        <p className="text-muted-foreground text-body">
           Modul lain tetap bisa dibuka lewat navigasi di bawah.
         </p>
 

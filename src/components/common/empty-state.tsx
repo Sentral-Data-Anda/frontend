@@ -33,10 +33,10 @@ export function EmptyState({
     >
       <Inbox className="text-muted-foreground mb-3 size-8" aria-hidden />
 
-      <p className="text-sm font-medium">{title}</p>
+      <p className="text-body font-medium">{title}</p>
 
       {description ? (
-        <p className="text-muted-foreground mt-1 max-w-xs text-sm text-balance">
+        <p className="text-muted-foreground mt-1 max-w-xs text-body text-balance">
           {description}
         </p>
       ) : null}

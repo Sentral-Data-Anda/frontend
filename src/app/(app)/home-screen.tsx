@@ -35,9 +35,9 @@ export function HomeScreen() {
 
       <section className="px-gutter">
         <div className="mb-3 flex items-baseline justify-between">
-          <h2 className="text-sm font-medium">Aksi cepat</h2>
+          <h2 className="text-title font-medium">Aksi cepat</h2>
 
-          <Link href="/modul" className="text-muted-foreground text-xs">
+          <Link href="/modul" className="text-muted-foreground text-caption">
             Tampilkan semua
           </Link>
         </div>
@@ -59,7 +59,9 @@ export function HomeScreen() {
                     {Icon ? <Icon className="size-5" aria-hidden /> : null}
                   </span>
 
-                  <span className="text-2xs leading-tight">{domain.name}</span>
+                  <span className="text-caption leading-tight">
+                    {domain.name}
+                  </span>
                 </Link>
               </li>
             );
@@ -68,13 +70,13 @@ export function HomeScreen() {
       </section>
 
       <section className="mt-8 px-gutter">
-        <h2 className="mb-3 text-sm font-medium">Semua modul</h2>
+        <h2 className="mb-3 text-title font-medium">Semua modul</h2>
 
         <Link
           href="/modul"
           className="border-border flex h-14 items-center justify-between rounded-xl border px-3.5"
         >
-          <span className="text-sm">
+          <span className="text-body">
             {session.menu.length} domain ·{" "}
             {session.menu.reduce(
               (total, domain) => total + domain.children.length,

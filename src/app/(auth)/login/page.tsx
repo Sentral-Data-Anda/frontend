@@ -12,8 +12,8 @@ export default function Page() {
       <div className="flex flex-col items-center gap-4 text-center">
         <LogoWordmark />
         <div className="space-y-1">
-          <h1 className="text-2xl font-semibold">Selamat Datang</h1>
-          <p className="text-muted-foreground text-sm">
+          <h1 className="text-title font-semibold">Selamat Datang</h1>
+          <p className="text-muted-foreground text-body">
             Masuk untuk melanjutkan
           </p>
         </div>

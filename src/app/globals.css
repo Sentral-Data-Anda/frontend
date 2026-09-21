@@ -115,9 +115,20 @@
    * `px-gutter`, bukan `px-4`/`px-5` per komponen.
    */
   --spacing-gutter: 1.25rem;
-  /* Skala teks 14/12/10 (kelipatan 2): text-sm, text-xs, text-2xs. */
-  --text-2xs: 0.625rem;
-  --text-2xs--line-height: calc(0.875 / 0.625);
+  /*
+   * Skala teks — keputusan user: terbesar 12px di mobile/tablet, 14px hanya di
+   * desktop (≥ lg), terkecil 10px. Hierarki lewat bobot (400–600) dan warna,
+   * bukan ukuran. Satu-satunya tempat skala ditentukan: layar menulis
+   * `text-title`/`text-body`/`text-caption`, dan lint menolak `text-sm`,
+   * `text-lg`, `text-[18px]`, dst. di seluruh src/. `--font-size-title` naik
+   * di breakpoint (lihat :root di bawah), sehingga layar tidak butuh `lg:`.
+   */
+  --text-title: var(--font-size-title);
+  --text-title--line-height: 1.4;
+  --text-body: 0.75rem;
+  --text-body--line-height: 1.5;
+  --text-caption: 0.625rem;
+  --text-caption--line-height: 1.4;
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -200,6 +211,15 @@
    * ikut berubah — pengingat yang tidak pernah gagal build saat dilanggar.
    */
   --bottom-tab-height: 3.5rem;
+
+  /* Judul: 12px < lg, 14px ≥ lg. Dibaca `text-title` di @theme. */
+  --font-size-title: 0.75rem;
+}
+
+@media (min-width: 64rem) {
+  :root {
+    --font-size-title: 0.875rem;
+  }
 }
 
 /**
@@ -258,12 +278,11 @@
     @apply border-border outline-ring/50;
   }
   /*
-   * Teks isi 14px (skala 14/12/10). Input SENGAJA 16px (`text-base` di
-   * ui/input.tsx): di bawah 16px Safari iOS memperbesar halaman saat input
-   * difokus dan zoom-nya tidak kembali sendiri — lebih penting dari skala.
+   * Teks isi 12px di semua ukuran, termasuk input. Auto-zoom iOS pada input
+   * <16px dicegah `maximumScale: 1` di viewport (src/app/layout.tsx).
    */
   body {
-    @apply bg-background text-foreground text-sm;
+    @apply bg-background text-foreground text-body;
   }
   html {
     @apply font-sans;

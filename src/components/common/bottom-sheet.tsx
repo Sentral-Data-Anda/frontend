@@ -60,9 +60,11 @@ export function BottomSheet({
 
       <div className="flex items-start gap-3 px-gutter py-4">
         <div className="min-w-0 flex-1">
-          <h2 className="truncate text-base font-semibold">{title}</h2>
+          <h2 className="truncate text-title font-semibold">{title}</h2>
           {subtitle ? (
-            <p className="text-muted-foreground truncate text-xs">{subtitle}</p>
+            <p className="text-muted-foreground truncate text-caption">
+              {subtitle}
+            </p>
           ) : null}
         </div>
 
