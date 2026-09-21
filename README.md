@@ -205,6 +205,14 @@ Dua hal yang perlu diketahui saat memeriksa dengan curl:
   404 / pengalihan lewat payload RSC dan `meta refresh`), bukan 404/307.
   Berlaku juga untuk `/<domain>/<layar>` yang belum dibangun.
 
+### Semua modul
+
+`/modul` memakai `DomainTileGrid` (`components/common/domain-tile.tsx`) — grid
+4 kolom yang sama dengan "Aksi cepat" Beranda. Saat kolom cari berisi,
+`searchModules` (`src/app/(app)/modul/module-grid.tsx`, diuji terpisah)
+mengembalikan layar yang cocok lewat nama, `MENU_DESCRIPTION`, atau nama
+domainnya, dirender dengan `MenuTile` (prop `domainLabel`).
+
 ### Data dummy Beranda
 
 Kartu **Kas gabungan** dan **lonceng notifikasi** di Beranda masih dummy
