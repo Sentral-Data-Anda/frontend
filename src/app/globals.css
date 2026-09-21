@@ -239,8 +239,8 @@
   --font-size-title: 0.75rem;
 }
 
-@media (min-width: 64rem) {
-  :root {
+:root {
+  @variant lg {
     --font-size-title: 0.875rem;
   }
 }
