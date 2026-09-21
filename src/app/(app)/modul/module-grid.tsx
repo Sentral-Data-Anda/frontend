@@ -88,10 +88,6 @@ export function ModuleGrid() {
           ))}
         </ul>
       )}
-
-      <p className="text-muted-foreground px-gutter pt-8 text-caption">
-        Modul yang tidak Anda pegang tidak ditampilkan.
-      </p>
     </div>
   );
 }
