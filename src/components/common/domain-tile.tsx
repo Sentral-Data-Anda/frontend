@@ -1,3 +1,5 @@
+import type { LucideIcon } from "lucide-react";
+
 import { MENU, MENU_ICON } from "@/config/menu";
 
 /**
@@ -40,17 +42,20 @@ const ICON_SIZE = {
 } as const;
 
 /**
- * Kotak ber-tint berisi ikon domain. Diekspor supaya kartu lain (mis.
- * `MenuCard`) memakai tint yang sama tanpa menyalin tabelnya.
+ * Kotak ber-tint domain berisi ikon. Diekspor supaya tile lain (mis.
+ * `MenuTile`) memakai tint yang sama tanpa menyalin tabelnya.
  */
 export function DomainIcon({
   slug,
+  icon,
   size = "md",
 }: {
+  /** Slug domain: menentukan tint, dan ikon bila `icon` kosong. */
   slug: string;
+  icon?: LucideIcon;
   size?: keyof typeof ICON_SIZE;
 }) {
-  const Icon = MENU_ICON[slug];
+  const Icon = icon ?? MENU_ICON[slug];
 
   return (
     <span
