@@ -112,6 +112,7 @@ export function useListQuery<T>({
       hasMore: more.hasNextPage,
       isLoadingMore: more.isFetchingNextPage,
       isLoadMoreError: more.isFetchNextPageError,
+      isBusy: more.isFetching,
       loadedPages: loaded?.length ?? 0,
       lastPageSize: loaded?.at(-1)?.data.length ?? 0,
       // `isFetching`: pengamat di ujung daftar bisa memanggil ini berulang,

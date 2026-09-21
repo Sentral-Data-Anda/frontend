@@ -22,6 +22,11 @@ export type DataListPagination =
       hasMore: boolean;
       isLoadingMore: boolean;
       isLoadMoreError: boolean;
+      /**
+       * Query sedang mengambil apa pun, termasuk refetch latar semua halaman
+       * setelah invalidasi. `onLoadMore` diabaikan selama itu.
+       */
+      isBusy: boolean;
       /** Jumlah halaman yang sudah ditumpuk; pengumuman hanya mulai dari 2. */
       loadedPages: number;
       lastPageSize: number;
@@ -136,19 +141,23 @@ export function DataListMore({
   hasMore,
   isLoadingMore,
   isLoadMoreError,
+  isBusy,
   loadedPages,
   lastPageSize,
   onLoadMore,
 }: Extract<DataListPagination, { mode: "more" }> & { label: string }) {
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const isButtonFocusedRef = useRef(false);
-  const isAutoLoad = hasMore && !isLoadingMore && !isLoadMoreError;
+  const isAutoLoad = hasMore && !isBusy && !isLoadMoreError;
   const onIntersect = useEffectEvent(onLoadMore);
 
-  // Pengamat dibuat ulang setiap kali satu halaman selesai (`isAutoLoad`
-  // kembali true). Pengamat baru selalu melapor keadaan awalnya, jadi bila
-  // tombol masih dekat layar — daftar pendek, layar tinggi — halaman
-  // berikutnya langsung diminta tanpa menunggu gulir lagi.
+  // Pengamat dibuat ulang setiap kali query selesai mengambil — halaman
+  // berikutnya maupun refetch latar (`isAutoLoad` kembali true). Panggilan
+  // selama query sibuk diabaikan `onLoadMore`, jadi pengamat lama yang sempat
+  // melapor saat itu tidak akan melapor lagi. Pengamat baru selalu melapor
+  // keadaan awalnya, jadi bila tombol masih dekat layar — daftar pendek,
+  // layar tinggi, atau sentinel terlihat selama refetch — halaman berikutnya
+  // langsung diminta tanpa menunggu gulir lagi.
   useEffect(() => {
     const button = buttonRef.current;
 

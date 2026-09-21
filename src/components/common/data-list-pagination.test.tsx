@@ -1,5 +1,5 @@
 import { cleanup, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, test } from "bun:test";
+import { afterEach, describe, expect, jest, test } from "bun:test";
 
 import { DataList, DataListRow, type DataListPagination } from "./data-list";
 import { getPageItems } from "./data-list-pagination";
@@ -53,6 +53,7 @@ const more = (
   hasMore: true,
   isLoadingMore: false,
   isLoadMoreError: false,
+  isBusy: false,
   loadedPages: 1,
   lastPageSize: 2,
   onLoadMore: () => {},
@@ -145,6 +146,39 @@ describe("DataList — muat lebih banyak (mobile/tablet)", () => {
     expect(document.activeElement?.textContent).toBe(
       "Semua data sudah ditampilkan",
     );
+  });
+
+  /**
+   * Refetch latar (mis. invalidasi setelah menyimpan) membuat `onLoadMore`
+   * diabaikan. Sentinel yang terlihat selama itu harus tetap memicu halaman
+   * berikutnya begitu refetch selesai, tanpa menunggu pengguna menggulir.
+   */
+  test("sentinel terlihat selama refetch: halaman berikutnya diminta sesudahnya", () => {
+    const original = globalThis.IntersectionObserver;
+    // Seperti browser: pengamat baru melapor keadaan awalnya — di sini terlihat.
+    globalThis.IntersectionObserver = class {
+      constructor(private onReport: IntersectionObserverCallback) {}
+      observe(target: Element) {
+        this.onReport(
+          [{ isIntersecting: true, target } as IntersectionObserverEntry],
+          this as unknown as IntersectionObserver,
+        );
+      }
+      disconnect() {}
+    } as unknown as typeof IntersectionObserver;
+
+    try {
+      const onLoadMore = jest.fn();
+      const { onUpdate } = onRenderList(more({ isBusy: true, onLoadMore }));
+
+      expect(onLoadMore).not.toHaveBeenCalled();
+
+      onUpdate(more({ isBusy: false, onLoadMore }));
+
+      expect(onLoadMore).toHaveBeenCalledTimes(1);
+    } finally {
+      globalThis.IntersectionObserver = original;
+    }
   });
 
   test("tidak ada teks penutup bila semua muat di satu halaman", () => {
