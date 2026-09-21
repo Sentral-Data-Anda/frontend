@@ -31,6 +31,9 @@ const nextConfig: NextConfig = {
 
   generateBuildId: async () => buildId,
 
+  // Lencana "N" menutupi tab Dashboard di bottom tab saat review mobile.
+  devIndicators: false,
+
   env: {
     NEXT_PUBLIC_BUILD_ID: buildId,
   },
