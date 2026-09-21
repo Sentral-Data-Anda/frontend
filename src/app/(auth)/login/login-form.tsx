@@ -6,10 +6,13 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { Button } from "@/components/common/button";
+import { FormField } from "@/components/common/form-field";
+import { Input } from "@/components/common/input";
+import { PasswordInput } from "@/components/common/password-input";
 import { FetchError, fetchOne } from "@/lib/api/fetcher";
 
 const loginSchema = z.object({
-  username: z.string().min(1, "Username wajib diisi"),
+  username: z.string().min(1, "Username atau kode induk wajib diisi"),
   password: z.string().min(1, "Password wajib diisi"),
 });
 
@@ -57,54 +60,31 @@ export function LoginForm() {
   };
 
   return (
-    <form
-      onSubmit={handleSubmit(onLogin)}
-      className="w-full max-w-xs space-y-4"
-    >
-      <div className="space-y-1.5">
-        <label htmlFor="username" className="text-sm font-medium">
-          Username
-        </label>
-        <input
-          id="username"
+    <form onSubmit={handleSubmit(onLogin)} className="w-full space-y-4">
+      <FormField
+        label="Username / Kode induk"
+        htmlFor="username"
+        error={errors.username?.message}
+      >
+        <Input
+          variant="filled"
           autoComplete="username"
           autoCapitalize="none"
-          aria-invalid={errors.username ? true : undefined}
-          aria-describedby={errors.username ? "username-error" : undefined}
-          className="border-input bg-background h-11 w-full rounded-md border px-3 text-base"
           {...register("username")}
         />
-        {errors.username ? (
-          // Tanpa role="alert": kedua field bisa invalid bersamaan (submit
-          // dengan keduanya kosong), dan alert ganda yang meletup serentak
-          // sebelum user sempat pindah fokus lebih berisik daripada
-          // menolong. aria-describedby sudah cukup — pembaca layar membaca
-          // pesan ini begitu fokus mendarat di input yang aria-invalid.
-          <p id="username-error" className="text-destructive text-xs">
-            {errors.username.message}
-          </p>
-        ) : null}
-      </div>
+      </FormField>
 
-      <div className="space-y-1.5">
-        <label htmlFor="password" className="text-sm font-medium">
-          Password
-        </label>
-        <input
-          id="password"
-          type="password"
+      <FormField
+        label="Password"
+        htmlFor="password"
+        error={errors.password?.message}
+      >
+        <PasswordInput
+          variant="filled"
           autoComplete="current-password"
-          aria-invalid={errors.password ? true : undefined}
-          aria-describedby={errors.password ? "password-error" : undefined}
-          className="border-input bg-background h-11 w-full rounded-md border px-3 text-base"
           {...register("password")}
         />
-        {errors.password ? (
-          <p id="password-error" className="text-destructive text-xs">
-            {errors.password.message}
-          </p>
-        ) : null}
-      </div>
+      </FormField>
 
       {errors.root ? (
         <p role="alert" className="text-destructive text-sm">

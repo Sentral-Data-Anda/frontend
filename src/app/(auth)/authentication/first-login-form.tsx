@@ -6,6 +6,8 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { Button } from "@/components/common/button";
+import { FormField } from "@/components/common/form-field";
+import { PasswordInput } from "@/components/common/password-input";
 import { FetchError, fetchOne } from "@/lib/api/fetcher";
 
 const firstLoginSchema = z
@@ -62,7 +64,7 @@ export function FirstLoginForm({ code }: { code: string }) {
   return (
     <form
       onSubmit={handleSubmit(onSubmitPassword)}
-      className="w-full max-w-xs space-y-4"
+      className="w-full space-y-4"
     >
       <div className="space-y-1">
         <h1 className="text-lg font-semibold">Buat password Anda</h1>
@@ -72,52 +74,30 @@ export function FirstLoginForm({ code }: { code: string }) {
         </p>
       </div>
 
-      <div className="space-y-1.5">
-        <label htmlFor="newPassword" className="text-sm font-medium">
-          Password baru
-        </label>
-        <input
-          id="newPassword"
-          type="password"
+      <FormField
+        label="Password baru"
+        htmlFor="newPassword"
+        hint="Minimal 8 karakter."
+        error={errors.newPassword?.message}
+      >
+        <PasswordInput
+          variant="filled"
           autoComplete="new-password"
-          aria-invalid={errors.newPassword ? true : undefined}
-          aria-describedby={
-            errors.newPassword ? "new-password-error" : undefined
-          }
-          className="border-input bg-background h-11 w-full rounded-md border px-3 text-base"
           {...register("newPassword")}
         />
-        {errors.newPassword ? (
-          // Tanpa role="alert": lihat komentar senada di login-form.tsx —
-          // kedua field bisa invalid bersamaan, dan aria-describedby sudah
-          // cukup membacakan pesan ini begitu fokus mendarat di inputnya.
-          <p id="new-password-error" className="text-destructive text-xs">
-            {errors.newPassword.message}
-          </p>
-        ) : null}
-      </div>
+      </FormField>
 
-      <div className="space-y-1.5">
-        <label htmlFor="confirmPassword" className="text-sm font-medium">
-          Ulangi password
-        </label>
-        <input
-          id="confirmPassword"
-          type="password"
+      <FormField
+        label="Ulangi password"
+        htmlFor="confirmPassword"
+        error={errors.confirmPassword?.message}
+      >
+        <PasswordInput
+          variant="filled"
           autoComplete="new-password"
-          aria-invalid={errors.confirmPassword ? true : undefined}
-          aria-describedby={
-            errors.confirmPassword ? "confirm-password-error" : undefined
-          }
-          className="border-input bg-background h-11 w-full rounded-md border px-3 text-base"
           {...register("confirmPassword")}
         />
-        {errors.confirmPassword ? (
-          <p id="confirm-password-error" className="text-destructive text-xs">
-            {errors.confirmPassword.message}
-          </p>
-        ) : null}
-      </div>
+      </FormField>
 
       {errors.root ? (
         <p role="alert" className="text-destructive text-sm">
@@ -125,7 +105,7 @@ export function FirstLoginForm({ code }: { code: string }) {
         </p>
       ) : null}
 
-      <Button type="submit" className="h-11 w-full" disabled={isSubmitting}>
+      <Button type="submit" className="w-full" disabled={isSubmitting}>
         {isSubmitting ? "Menyimpan…" : "Simpan password"}
       </Button>
     </form>
