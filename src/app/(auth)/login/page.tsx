@@ -6,7 +6,7 @@ export const metadata = { title: "Masuk" };
 
 export default function Page() {
   return (
-    <div className="flex w-full flex-col gap-8">
+    <div className="flex w-full flex-col gap-4">
       <div className="space-y-1">
         <h1 className="text-title font-semibold">Masuk</h1>
         <p className="text-muted-foreground text-body">
