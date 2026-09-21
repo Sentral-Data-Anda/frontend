@@ -164,7 +164,10 @@ path di origin ini. Framing same-origin hanya diizinkan di development.
 Varian tiruan: `MOCK_NO_CREATE=1` (tanpa tombol Tambah), `MOCK_500=1` (daftar
 jemaat & ibadah galat), `MOCK_NO_IBADAH=1` (tidak ada ibadah hari ini), `MOCK_SINGLE_LEAF=1`
 (Peribadahan hanya punya Ibadah → tile-nya dan `/peribadahan` langsung ke
-layar itu; Pengaturan tidak dipegang → `/pengaturan` 404). Port
+layar itu; Pengaturan tidak dipegang → `/pengaturan` 404), `MOCK_MANY_JEMAAT=1`
+(60 jemaat; buka `?limit=5` di desktop untuk elipsis pager), `MOCK_FAIL_PAGE=3`
+(halaman 3 menjawab 500 — baris "Gagal memuat" di mobile), `MOCK_API_ONLY=1`
+(hanya tiruan API, untuk `next start` hasil build di port lain). Port
 bisa digeser dengan `MOCK_API_PORT` dan `PORT`, tapi Next menolak `next dev`
 kedua di direktori yang sama — matikan yang lama dulu.
 Nama domain & layar di tiruan disalin dari be-sada (`NAME` di
@@ -187,8 +190,25 @@ kartu yang sama. Garis pemisah digambar di badan baris (`data-slot="row-body"`),
 jadi otomatis inset dari tepi kiri judul sampai padding kanan kartu, berapa pun
 lebar `leading`. Baris daftar memakai `<Avatar tone="soft" />` (lingkaran
 primary-100) dan badge status ringan (`success` / `neutral`) di semua baris.
-Paginasi ringkas `‹ 1 / 2 ›` rata tengah di bawah kartu, tersembunyi bila hanya
-satu halaman. `DataListRow` belum punya `href`, jadi belum ada chevron.
+`DataListRow` belum punya `href`, jadi belum ada chevron.
+
+Paginasi berbeda PERILAKU per lebar, dan layar tidak tahu mode mana yang aktif:
+fitur memanggil `useListQuery` (lihat `useJemaatList`) lalu meneruskan
+`items`/`isLoading`/`isRefreshing`/`error`/`onRetry`/`pagination` ke `DataList`.
+
+- **< lg (mobile/tablet)**: `useInfiniteQuery`. Halaman berikutnya ditumpuk saat
+  tombol "Muat lebih banyak" di ujung kartu mendekati layar
+  (`IntersectionObserver`, 400px); tombol yang sama bisa difokus/ditekan.
+  `?page=` diabaikan; kunci query memuat filter, jadi ganti cari/status mulai
+  dari halaman 1.
+- **≥ lg (desktop)**: `useQuery` per halaman `?page=`, pager bernomor dengan
+  elipsis di bawah kartu, tersembunyi bila hanya satu halaman.
+
+Batasnya `useIsDesktop` (`(min-width: 64rem)`, dijaga test agar sama dengan
+`--breakpoint-lg` Tailwind). Selama hidrasi mode belum diketahui (`null`):
+tidak ada yang mengambil data, skeleton tampil satu render, lalu tepat satu
+permintaan. Invalidasi setelah menyimpan: awalan `xxxKeys.lists()` mengenai
+kedua mode.
 
 ### Halaman domain
 
