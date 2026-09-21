@@ -15,10 +15,8 @@ import { LogoWordmark } from "@/components/common/logo";
  * Keputusan user: satu susunan untuk semua ukuran — latar `bg-primary`,
  * logo-nama di tengah atas, lalu form di kartu putih. Logo selalu di atas
  * navy karena logo-nama user berwarna terang (dirancang untuk latar gelap).
- * Kartu form persegi (`aspect-square`, keputusan user), isinya di tengah
- * vertikal. `aspect-ratio` tidak memotong isi: kalau pesan galat membuat
- * isinya lebih tinggi dari lebarnya, kartu ikut memanjang. Yang berubah per
- * ukuran hanya lebar kartu (`max-w-sm` mulai md) dan padding-nya. Split-screen desktop sudah tidak dipakai.
+ * Tinggi kartu mengikuti isinya; padding sama di keempat sisi. Yang berubah
+ * per ukuran hanya lebar kartu (`max-w-sm` mulai md) dan padding-nya. Split-screen desktop sudah tidak dipakai.
  */
 export default function AuthLayout({
   children,
@@ -32,7 +30,7 @@ export default function AuthLayout({
 
       <main className="relative flex flex-1 flex-col items-center justify-center gap-6 px-gutter pt-[max(4rem,env(safe-area-inset-top))] pb-[max(4rem,env(safe-area-inset-bottom))] md:py-16">
         <LogoWordmark className="w-40" />
-        <div className="bg-background flex aspect-square w-full max-w-sm flex-col justify-center rounded-2xl p-6 shadow-sm md:p-8">
+        <div className="bg-background w-full max-w-sm rounded-2xl p-6 shadow-sm md:p-8">
           {children}
         </div>
       </main>
