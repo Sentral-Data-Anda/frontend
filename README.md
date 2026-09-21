@@ -181,7 +181,7 @@ di atas kanvas — nilainya sama (primary-50) dan tidak terlihat.
 ### Halaman domain
 
 `/<domain>` (`src/app/(app)/[domain]/page.tsx`) melayani 12 domain dari satu
-berkas: banner tint domain (`DomainBanner`) lalu grid tile bento
+berkas: `PageHeader` (nama domain) lalu grid tile bento
 (`MenuTile`/`MenuTileGrid`, 2 kolom, 3 kolom saat konten ≥ 36rem). Isi grid =
 anak simpul domain di `session.menu`; penjelasan per layar dari
 `MENU_DESCRIPTION`, ikon per layar dari `MENU_LEAF_ICON` (keduanya di

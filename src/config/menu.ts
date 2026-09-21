@@ -292,7 +292,7 @@ export const MENU_DESCRIPTION: Partial<Record<MenuSlug, string>> = {
   [MENU.ACTIVITY_LOG]: "Riwayat perubahan data oleh pengguna",
 };
 
-/** Ikon per domain: tile Beranda, `/modul`, sidebar, banner halaman domain. */
+/** Ikon per domain: tile Beranda, `/modul`, sidebar, fallback ikon layar. */
 export const MENU_ICON: Record<string, LucideIcon> = {
   [MENU.KEJEMAATAN]: UserPlus,
   [MENU.PELAYANAN]: CalendarDays,

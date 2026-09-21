@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 
-import { DomainBanner } from "@/components/common/domain-tile";
 import { MenuTile, MenuTileGrid } from "@/components/common/menu-tile";
 import { PageHeader } from "@/components/layout/page-header";
 import {
@@ -66,10 +65,6 @@ export default async function Page({ params }: Props) {
       <PageHeader title={domain.name} backHref="/" />
 
       <div className="px-gutter pt-2">
-        <DomainBanner slug={domain.slug} label={domain.name} />
-      </div>
-
-      <div className="mt-4 px-gutter">
         <MenuTileGrid label={`Layar ${domain.name}`}>
           {domain.children.map((leaf) => (
             <MenuTile

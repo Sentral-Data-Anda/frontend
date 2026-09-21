@@ -98,27 +98,3 @@ export function DomainTile({
     </span>
   );
 }
-
-/**
- * Banner kepala halaman domain: bidang tint domain, ikon di kotak putih,
- * nama rata kiri. Teks memakai `foreground`,
- * bukan warna tint — warning-900 di atas warning-100 hanya 3.11, cukup untuk
- * ikon, tidak untuk teks (foreground ≥ 6.7 di keempat tint).
- * Ikon 900 di atas putih: 8.44 / 6.02 / 3.43 / 5.26.
- */
-export function DomainBanner({ slug, label }: { slug: string; label: string }) {
-  const Icon = MENU_ICON[slug];
-  const tint = tintOf(slug);
-
-  return (
-    <div className={`flex items-center gap-3 rounded-lg p-3.5 ${tint.bg}`}>
-      <span
-        className={`bg-card flex size-12 shrink-0 items-center justify-center rounded-lg ${tint.fg}`}
-      >
-        {Icon ? <Icon className="size-5" aria-hidden /> : null}
-      </span>
-
-      <span className="min-w-0 text-title font-semibold">{label}</span>
-    </div>
-  );
-}
