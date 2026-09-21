@@ -207,6 +207,23 @@ export const DOMAIN_SLUGS = [
 ] as const;
 
 /**
+ * Delapan domain "Aksi cepat" Beranda, urutan sesuai mockup
+ * (`docs/design/beranda-reference.png`). Beranda memfilternya terhadap
+ * `session.menu`, jadi domain yang tidak dipegang peran tetap tersembunyi;
+ * sisanya lewat "Tampilkan semua".
+ */
+export const BERANDA_SHORTCUTS: readonly MenuSlug[] = [
+  MENU.KEJEMAATAN,
+  MENU.PELAYANAN,
+  MENU.KEGIATAN,
+  MENU.FASILITAS,
+  MENU.INVENTARIS,
+  MENU.PENGADAAN,
+  MENU.KEUANGAN,
+  MENU.SDM,
+];
+
+/**
  * Penjelasan satu baris di bawah nama layar pada halaman domain. Teks dari
  * `docs/design/menu-descriptions.md` (Business Analyst), disalin apa adanya.
  * Opsional per slug: layar tanpa entri hanya menampilkan judul.

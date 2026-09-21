@@ -17,6 +17,13 @@ const hourFormat = new Intl.DateTimeFormat("en-GB", {
   timeZone: APP_TIMEZONE,
 });
 
+const clockFormat = new Intl.DateTimeFormat("en-GB", {
+  hour: "2-digit",
+  minute: "2-digit",
+  hourCycle: "h23",
+  timeZone: APP_TIMEZONE,
+});
+
 const longDateFormat = new Intl.DateTimeFormat("id-ID", {
   weekday: "long",
   day: "numeric",
@@ -40,3 +47,21 @@ export function greetingOf(now: Date): string {
 
   return "Selamat malam";
 }
+
+/** "HH:mm" WIB — bentuk yang sama dengan `startTime` be-sada. */
+export const toClockKey = (now: Date): string => clockFormat.format(now);
+
+/**
+ * Ibadah berikutnya: yang pertama dengan jam mulai ≥ sekarang (WIB).
+ * `items` harus sudah urut jam naik (`sortByStartTime`). Semua sudah lewat →
+ * `undefined`. Durasi ibadah tidak ada di data, jadi ibadah yang sedang
+ * berlangsung tidak ditandai.
+ */
+export const findNextService = <T extends { startTime: string }>(
+  items: readonly T[],
+  now: Date,
+): T | undefined => {
+  const clock = toClockKey(now);
+
+  return items.find((item) => item.startTime >= clock);
+};

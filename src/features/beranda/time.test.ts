@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { formatLongDate, greetingOf, toDateKey } from "./time";
+import { findNextService, formatLongDate, greetingOf, toDateKey } from "./time";
 
 /** Jam WIB → instant UTC (WIB = UTC+7, tanpa DST). */
 const wib = (date: string, time: string) =>
@@ -46,5 +46,44 @@ describe("greetingOf", () => {
   test("membaca jam WIB, bukan jam UTC", () => {
     // 01:00 UTC = 08:00 WIB.
     expect(greetingOf(new Date("2026-08-16T01:00:00Z"))).toBe("Selamat pagi");
+  });
+});
+
+describe("findNextService", () => {
+  const services = [{ startTime: "08:00" }, { startTime: "17:00" }];
+
+  test("sebelum semua ibadah → yang paling pagi", () => {
+    expect(findNextService(services, wib("2026-08-16", "06:30"))).toBe(
+      services[0],
+    );
+  });
+
+  test("tepat di jam mulai masih dihitung berikutnya", () => {
+    expect(findNextService(services, wib("2026-08-16", "08:00"))).toBe(
+      services[0],
+    );
+  });
+
+  test("di antara dua ibadah → yang berikutnya", () => {
+    expect(findNextService(services, wib("2026-08-16", "08:01"))).toBe(
+      services[1],
+    );
+  });
+
+  test("sesudah semua ibadah → tidak ada", () => {
+    expect(
+      findNextService(services, wib("2026-08-16", "19:00")),
+    ).toBeUndefined();
+  });
+
+  test("memakai jam WIB, bukan UTC, lintas tengah malam", () => {
+    // 2026-08-15 17:30 UTC = 2026-08-16 00:30 WIB: pagi, belum ada yang lewat.
+    expect(findNextService(services, new Date("2026-08-15T17:30:00Z"))).toBe(
+      services[0],
+    );
+    // 2026-08-16 16:30 UTC = 23:30 WIB: semua sudah lewat.
+    expect(
+      findNextService(services, new Date("2026-08-16T16:30:00Z")),
+    ).toBeUndefined();
   });
 });

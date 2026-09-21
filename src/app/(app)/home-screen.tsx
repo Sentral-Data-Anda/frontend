@@ -6,7 +6,7 @@ import { Avatar } from "@/components/common/avatar";
 import { DomainTile } from "@/components/common/domain-tile";
 import { SectionHeader } from "@/components/common/section-header";
 import { PageHeader } from "@/components/layout/page-header";
-import { MENU, domainEntryHref } from "@/config/menu";
+import { BERANDA_SHORTCUTS, MENU, domainEntryHref } from "@/config/menu";
 import { siteConfig } from "@/config/site";
 import { useSession } from "@/features/auth/session-provider";
 import { useMenuAccess } from "@/features/auth/use-menu-access";
@@ -39,15 +39,16 @@ export function HomeScreen() {
 
   const serviceCount = ibadahAccess.isCanView ? (ibadah.data?.length ?? 0) : 0;
 
-  // Delapan pintasan pertama, sesuai mockup. Sisanya lewat "Tampilkan semua".
-  const shortcuts = session.menu.slice(0, 8);
+  const shortcuts = BERANDA_SHORTCUTS.flatMap(
+    (slug) => session.menu.find((domain) => domain.slug === slug) ?? [],
+  );
 
   return (
     <div className="pb-6">
       <PageHeader
         leading={<Avatar label={name} />}
-        title={`${siteConfig.shortName} · ${siteConfig.name}`}
-        subtitle={session.roleUser.name}
+        eyebrow={`${siteConfig.shortName} · ${siteConfig.name}`}
+        title={session.roleUser.name}
         action={SHOW_DUMMY ? <NotificationBell /> : null}
       />
 
@@ -67,7 +68,7 @@ export function HomeScreen() {
         </div>
       ) : null}
 
-      <section className="mt-8 px-gutter">
+      <section className="mt-6 px-gutter">
         <SectionHeader
           title="Aksi cepat"
           actionLabel="Tampilkan semua"
@@ -85,7 +86,9 @@ export function HomeScreen() {
         </ul>
       </section>
 
-      {ibadahAccess.isCanView ? <TodaySchedule query={ibadah} /> : null}
+      {ibadahAccess.isCanView ? (
+        <TodaySchedule query={ibadah} now={now} />
+      ) : null}
     </div>
   );
 }

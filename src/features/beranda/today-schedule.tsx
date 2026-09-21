@@ -10,11 +10,14 @@ import { TimeBadge } from "@/components/common/time-badge";
 import { MENU, menuHref } from "@/config/menu";
 
 import type { useIbadahByDate } from "./api";
+import { findNextService } from "./time";
 
 const IBADAH_HREF = menuHref(MENU.PERIBADAHAN, MENU.IBADAH);
 
 /**
- * Ibadah hari ini, jam naik. Pemanggil yang memegang query (subjudul tanggal
+ * Ibadah hari ini, jam naik. Kotak jam ibadah berikutnya (≥ `now`, WIB)
+ * berlatar; sisanya polos.
+ * Pemanggil yang memegang query (subjudul tanggal
  * juga butuh jumlahnya) dan yang memeriksa IBADAH VIEW.
  *
  * Belum ada layar detail ibadah, jadi baris menuju layar Ibadah. Badge
@@ -23,13 +26,16 @@ const IBADAH_HREF = menuHref(MENU.PERIBADAHAN, MENU.IBADAH);
  */
 export function TodaySchedule({
   query,
+  now,
 }: {
   query: ReturnType<typeof useIbadahByDate>;
+  now: Date;
 }) {
   const items = query.data;
+  const next = items ? findNextService(items, now) : undefined;
 
   return (
-    <section className="mt-8">
+    <section className="mt-6">
       <div className="px-gutter">
         <SectionHeader
           title="Hari ini"
@@ -49,13 +55,16 @@ export function TodaySchedule({
           items={items}
           getKey={(item) => item.code}
           label="Ibadah hari ini"
+          inset
           error={query.error}
           onRetry={() => void query.refetch()}
         >
           {(item) => (
             <DataListRow
               className="relative"
-              leading={<TimeBadge time={item.startTime} />}
+              leading={
+                <TimeBadge time={item.startTime} highlighted={item === next} />
+              }
               title={
                 <Link
                   href={IBADAH_HREF}

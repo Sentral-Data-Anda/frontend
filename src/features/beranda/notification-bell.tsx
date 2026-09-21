@@ -35,7 +35,7 @@ export function NotificationBell() {
     <>
       <Button
         type="button"
-        variant="outline"
+        variant="ghost"
         size="icon"
         onClick={isSheetOpen.onTrue}
         aria-haspopup="dialog"
@@ -44,7 +44,7 @@ export function NotificationBell() {
             ? `Notifikasi, ${unread} belum dibaca`
             : "Notifikasi, semua sudah dibaca"
         }
-        className="relative rounded-full"
+        className="bg-card relative rounded-full border-0 shadow-sm"
       >
         <Bell aria-hidden />
 
@@ -52,7 +52,7 @@ export function NotificationBell() {
           <span
             aria-hidden
             data-testid="unread-dot"
-            className="bg-destructive ring-background absolute top-1.5 right-1.5 size-2 rounded-full ring-2"
+            className="bg-primary absolute top-1.5 right-1.5 size-1.5 rounded-full"
           />
         ) : null}
       </Button>
@@ -83,7 +83,7 @@ export function NotificationBell() {
               leading={
                 <span
                   aria-hidden
-                  className={`size-2 shrink-0 rounded-full ${item.isRead ? "" : "bg-destructive"}`}
+                  className={`size-2 shrink-0 rounded-full ${item.isRead ? "" : "bg-primary"}`}
                 />
               }
               title={

@@ -31,7 +31,7 @@ export function CashSummaryCard() {
   const { balance, income, expense } = DUMMY_CASH_SUMMARY;
 
   return (
-    <Card className="rounded-lg">
+    <Card className="rounded-lg shadow-sm">
       <CardContent>
         <div className="flex items-baseline justify-between gap-3">
           <p className="text-muted-foreground text-body">Kas gabungan</p>
@@ -44,13 +44,13 @@ export function CashSummaryCard() {
           </Link>
         </div>
 
-        <p className="text-title font-semibold tabular-nums">
+        <p className="text-lead font-semibold tabular-nums">
           {formatRupiah(balance)}
         </p>
 
         <dl className="border-border mt-3 grid grid-cols-2 border-t pt-3">
           <div>
-            <dt className="text-muted-foreground text-caption font-medium uppercase">
+            <dt className="text-caption font-semibold tracking-wide uppercase">
               Masuk
             </dt>
             <dd className="text-body font-semibold tabular-nums">
@@ -59,7 +59,7 @@ export function CashSummaryCard() {
           </div>
 
           <div className="border-border border-l pl-3.5">
-            <dt className="text-muted-foreground text-caption font-medium uppercase">
+            <dt className="text-caption font-semibold tracking-wide uppercase">
               Keluar
             </dt>
             <dd className="text-body font-semibold tabular-nums">
