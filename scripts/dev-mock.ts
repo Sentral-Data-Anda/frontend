@@ -11,6 +11,12 @@
  *   MOCK_SINGLE_LEAF=1 bun run dev:mock → Peribadahan hanya IBADAH (tile & /peribadahan
  *                                         langsung ke layarnya), Pengaturan tidak dipegang
  *                                         (/pengaturan harus 404)
+ *   MOCK_MANY_JEMAAT=1 bun run dev:mock → 60 jemaat (6 halaman): infinite scroll mobile
+ *                                         dan elipsis pager desktop (dengan ?limit=5)
+ *   MOCK_FAIL_PAGE=3 bun run dev:mock   → halaman 3 daftar jemaat menjawab 500 —
+ *                                         baris "Gagal memuat — Coba lagi" di mobile
+ *   MOCK_API_ONLY=1 bun run dev:mock    → hanya tiruan API, tanpa `next dev` (untuk
+ *                                         `next start` hasil build di port lain)
  *
  * Port bisa digeser supaya berjalan di samping `dev:mock` lain:
  *   MOCK_API_PORT=3011 PORT=3010 bun run dev:mock
@@ -41,7 +47,17 @@ const NAMES = [
   "Lidya Hutagalung",
 ];
 
-const rows = NAMES.map((name, index) => ({
+const SURNAMES = ["Sitanggang", "Kusuma", "Wijaya", "Manurung", "Panggabean"];
+
+// 12 nama × 5 marga. `NAMES` apa adanya tetap bawaan: layar yang sudah
+// di-review dengan 12 jemaat tidak berubah diam-diam.
+const names = process.env.MOCK_MANY_JEMAAT
+  ? SURNAMES.flatMap((surname) =>
+      NAMES.map((name) => `${name.split(" ")[0]} ${surname}`),
+    )
+  : NAMES;
+
+const rows = names.map((name, index) => ({
   code: `JMT-${String(index + 1).padStart(4, "0")}`,
   name,
   gender: index % 2 === 0 ? "L" : "P",
@@ -177,6 +193,10 @@ Bun.serve({
       const page = Number(url.searchParams.get("page") ?? 1);
       const limit = Number(url.searchParams.get("limit") ?? 10);
 
+      if (page === Number(process.env.MOCK_FAIL_PAGE)) {
+        return json({ status: 500, error: "Kesalahan server." }, 500);
+      }
+
       const matched = rows.filter(
         (row) =>
           (!filter ||
@@ -237,15 +257,18 @@ Bun.serve({
   },
 });
 
-const next = Bun.spawn(["bunx", "next", "dev", "-p", String(WEB_PORT)], {
-  stdio: ["inherit", "inherit", "inherit"],
-  env: {
-    ...process.env,
-    API_BASE_URL: `http://localhost:${API_PORT}/api`,
-    NEXT_PUBLIC_SITE_URL: `http://localhost:${WEB_PORT}`,
-  },
-});
+// Tanpa `next dev`, `Bun.serve` di atas yang menahan proses tetap hidup.
+if (!process.env.MOCK_API_ONLY) {
+  const next = Bun.spawn(["bunx", "next", "dev", "-p", String(WEB_PORT)], {
+    stdio: ["inherit", "inherit", "inherit"],
+    env: {
+      ...process.env,
+      API_BASE_URL: `http://localhost:${API_PORT}/api`,
+      NEXT_PUBLIC_SITE_URL: `http://localhost:${WEB_PORT}`,
+    },
+  });
 
-process.exit(await next.exited);
+  process.exit(await next.exited);
+}
 
 export {};
