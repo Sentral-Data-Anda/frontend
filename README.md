@@ -141,10 +141,12 @@ Tinggi kontrol (**keputusan user, menggantikan tombol/input 44px**): input
 dan tombol 30px (`h-control`, radius 8px `rounded-control`), jadi ukuran
 default `ui/input.tsx` dan `ui/button.tsx`. Tangga tombol xs 24 · sm 28 ·
 default 30 · lg 36; semuanya ≥ 24px (WCAG 2.2 AA 2.5.8), tetapi di bawah
-pedoman sentuh 44px iOS. Input fokus **tanpa border dan ring**: indikator
-fokusnya latar yang naik ke `input-fill-active` (primary-100) dan hilangnya
-garis `--input`; invalid = garis `destructive`, saat fokus latar
-`destructive/10`. Baris daftar (56px) dan item navigasi tidak ikut mengecil.
+pedoman sentuh 44px iOS. Input **tampil sama sebelum dan saat diketik**
+(keputusan user): tidak ada border, ring, atau perubahan latar saat fokus —
+penanda fokus hanya caret. Varian `filled` = bidang abu tanpa garis. Ini tidak
+memenuhi WCAG 2.4.7 dan 1.4.11; diterima user. Invalid = latar
+`destructive/10` + pesan galat. Baris daftar (56px) dan item navigasi tidak
+ikut mengecil.
 
 Pratinjau tiga ukuran sekaligus (development saja):
 

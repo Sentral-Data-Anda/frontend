@@ -91,7 +91,6 @@
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-input-fill: var(--input-fill);
-  --color-input-fill-active: var(--input-fill-active);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
   --color-success: var(--success);
@@ -197,8 +196,6 @@
   --border: var(--color-primary-200);
   --input: var(--color-primary-500);
   --input-fill: var(--color-primary-50);
-  /* Latar input saat fokus — indikator fokusnya (tanpa border/ring). */
-  --input-fill-active: var(--color-primary-100);
   --ring: var(--color-primary-600);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
