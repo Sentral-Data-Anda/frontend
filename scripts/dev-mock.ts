@@ -6,12 +6,20 @@
  *
  * Varian untuk menguji keadaan layar:
  *   MOCK_NO_CREATE=1 bun run dev:mock   → DAFTAR_JEMAAT hanya VIEW, tombol Tambah harus hilang
- *   MOCK_500=1 bun run dev:mock         → daftar jemaat menjawab 500, layar galat
+ *   MOCK_500=1 bun run dev:mock         → daftar jemaat & ibadah menjawab 500, layar galat
+ *   MOCK_NO_IBADAH=1 bun run dev:mock   → tidak ada ibadah hari ini (404 be-sada)
+ *
+ * Port bisa digeser supaya berjalan di samping `dev:mock` lain:
+ *   MOCK_API_PORT=3011 PORT=3010 bun run dev:mock
  *
  * Ini alat review, bukan kontrak. Bentuk respons yang benar tetap ditentukan
  * be-sada; kalau tiruan ini dan be-sada berselisih, be-sada yang benar.
  */
 import { MENU, type MenuSlug } from "../src/config/menu";
+import { toDateKey } from "../src/features/beranda/time";
+
+const API_PORT = Number(process.env.MOCK_API_PORT ?? 3001);
+const WEB_PORT = Number(process.env.PORT ?? 3000);
 
 const NAMES = [
   "Andreas Sitanggang",
@@ -159,6 +167,37 @@ const session = {
   })),
 };
 
+/**
+ * Dua ibadah HARI INI (Asia/Jakarta, sama dengan yang diminta Beranda).
+ * Bentuk baris = `ibadahRepository.findAllWithPagination` di be-sada: kolom
+ * `ibadah` tanpa FK dan kolom audit, plus relasi `{ id, code, name }`.
+ */
+const ibadahRow = (
+  id: number,
+  startTime: string,
+  endTime: string,
+  preacher: string | null,
+  typeName: string,
+) => ({
+  id,
+  publicId: `00000000-0000-4000-8000-00000000000${id}`,
+  code: `IBD-${String(id).padStart(4, "0")}`,
+  date: `${toDateKey(new Date())}T00:00:00.000Z`,
+  startTime,
+  endTime,
+  theme: null,
+  bibleVerse: null,
+  preacher,
+  maleCount: 0,
+  femaleCount: 0,
+  childCount: 0,
+  note: null,
+  typeIbadah: { id, code: `TI-${id}`, name: typeName },
+  room: null,
+  bapel: null,
+  jadwalPelayan: null,
+});
+
 const COOKIES = ["accessToken", "refreshToken"];
 const setCookies = (value: string, maxAge: number) =>
   COOKIES.map(
@@ -173,7 +212,7 @@ const json = (body: unknown, status = 200, cookies: string[] = []) => {
 };
 
 Bun.serve({
-  port: 3001,
+  port: API_PORT,
   fetch(request) {
     const url = new URL(request.url);
     const path = url.pathname.replace(/^\/api\/v1/, "");
@@ -235,16 +274,50 @@ Bun.serve({
       });
     }
 
+    if (path === "/ibadah") {
+      if (process.env.MOCK_500) {
+        return json({ status: 500, error: "Kesalahan server." }, 500);
+      }
+
+      const date = url.searchParams.get("date");
+      // Urutan be-sada: date desc, startTime desc.
+      const matched =
+        process.env.MOCK_NO_IBADAH || (date && date !== toDateKey(new Date()))
+          ? []
+          : [
+              ibadahRow(2, "17:00", "18:30", null, "Ibadah Minggu II"),
+              ibadahRow(
+                1,
+                "08:00",
+                "09:30",
+                "Pdt. Yohanes Simatupang",
+                "Ibadah Minggu I",
+              ),
+            ];
+
+      if (matched.length === 0) {
+        return json({ status: 404, error: "Data Ibadah Tidak Ditemukan" }, 404);
+      }
+
+      return json({
+        status: 200,
+        message: "Berhasil Mendapatkan Semua Data Ibadah",
+        totalData: matched.length,
+        totalPage: 1,
+        data: matched,
+      });
+    }
+
     return json({ status: 404, error: "Tidak Ditemukan" }, 404);
   },
 });
 
-const next = Bun.spawn(["bunx", "next", "dev"], {
+const next = Bun.spawn(["bunx", "next", "dev", "-p", String(WEB_PORT)], {
   stdio: ["inherit", "inherit", "inherit"],
   env: {
     ...process.env,
-    API_BASE_URL: "http://localhost:3001/api",
-    NEXT_PUBLIC_SITE_URL: "http://localhost:3000",
+    API_BASE_URL: `http://localhost:${API_PORT}/api`,
+    NEXT_PUBLIC_SITE_URL: `http://localhost:${WEB_PORT}`,
   },
 });
 
