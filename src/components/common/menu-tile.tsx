@@ -4,13 +4,15 @@ import Link from "next/link";
 import { DomainIcon } from "@/components/common/domain-tile";
 
 /**
- * Tile bento satu layar di halaman domain: ikon layar ber-tint domain,
- * judul, penjelasan maks. dua baris. Seluruh tile satu `Link`; garis tipis
+ * Tile bento satu layar di halaman domain dan hasil cari `/modul`: ikon layar
+ * ber-tint domain, judul, penjelasan maks. dua baris. `domainLabel` (hasil
+ * cari) menaruh nama domain di samping ikon sebagai konteks. Seluruh tile satu `Link`; garis tipis
  * `ring-foreground/10` sama dengan kartu kas di Beranda.
  */
 export function MenuTile({
   href,
   domainSlug,
+  domainLabel,
   icon,
   title,
   description,
@@ -18,6 +20,7 @@ export function MenuTile({
   href: string;
   /** Slug domain, untuk tint (dan ikon cadangan bila `icon` kosong). */
   domainSlug: string;
+  domainLabel?: string;
   icon?: LucideIcon;
   title: string;
   description?: string;
@@ -28,7 +31,15 @@ export function MenuTile({
         href={href}
         className="bg-card ring-foreground/10 hover:bg-accent focus-visible:ring-ring flex h-full flex-col gap-2.5 rounded-lg p-3.5 ring-1 outline-none focus-visible:ring-2 motion-safe:transition motion-safe:active:scale-97"
       >
-        <DomainIcon slug={domainSlug} icon={icon} size="sm" />
+        <span className="flex items-center gap-2">
+          <DomainIcon slug={domainSlug} icon={icon} size="sm" />
+
+          {domainLabel ? (
+            <span className="text-muted-foreground truncate text-caption">
+              {domainLabel}
+            </span>
+          ) : null}
+        </span>
 
         <span className="min-w-0">
           <span className="block text-body font-medium">{title}</span>

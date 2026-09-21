@@ -1,8 +1,23 @@
 import { describe, expect, test } from "bun:test";
 
+import { MENU } from "@/config/menu";
 import type { MenuNode } from "@/features/auth/types";
 
-import { filterDomains } from "./module-grid";
+import { searchModules } from "./module-grid";
+
+const leaf = (publicId: string, slug: string, name: string): MenuNode => ({
+  publicId,
+  slug,
+  name,
+  order: 1,
+  action: ["VIEW"],
+  children: [],
+});
+
+const kasKeluar = leaf("2", MENU.KAS_KELUAR, "Kas Keluar");
+const kasMasuk = leaf("5", MENU.KAS_MASUK, "Kas Masuk");
+const daftarJemaat = leaf("4", MENU.DAFTAR_JEMAAT, "Daftar Jemaat");
+const keluarga = leaf("6", MENU.KELUARGA, "Keluarga");
 
 const keuangan: MenuNode = {
   publicId: "1",
@@ -10,16 +25,7 @@ const keuangan: MenuNode = {
   name: "Keuangan",
   order: 1,
   action: [],
-  children: [
-    {
-      publicId: "2",
-      slug: "KAS_KELUAR",
-      name: "Kas Keluar",
-      order: 1,
-      action: ["VIEW"],
-      children: [],
-    },
-  ],
+  children: [kasKeluar, kasMasuk],
 };
 
 const kejemaatan: MenuNode = {
@@ -28,50 +34,57 @@ const kejemaatan: MenuNode = {
   name: "Kejemaatan",
   order: 2,
   action: [],
-  children: [
-    {
-      publicId: "4",
-      slug: "DAFTAR_JEMAAT",
-      name: "Daftar Jemaat",
-      order: 1,
-      action: ["VIEW"],
-      children: [],
-    },
-  ],
+  children: [daftarJemaat, keluarga],
 };
 
 const domains: MenuNode[] = [keuangan, kejemaatan];
 
-describe("filterDomains", () => {
+describe("searchModules", () => {
   test("kata kunci kosong mengembalikan seluruh domain apa adanya", () => {
-    expect(filterDomains(domains, "")).toBe(domains);
-  });
-
-  test("cocok lewat nama domain", () => {
-    expect(filterDomains(domains, "kejemaatan")).toEqual([kejemaatan]);
-  });
-
-  test("cocok lewat nama layar, bukan hanya nama domain", () => {
-    expect(filterDomains(domains, "kas keluar")).toEqual([keuangan]);
-  });
-
-  test("tidak ada yang cocok mengembalikan larik kosong", () => {
-    expect(filterDomains(domains, "tidak ada begini")).toEqual([]);
-  });
-
-  // Yang diketik user lewat begitu saja ke sini — huruf besar dari
-  // autokapitalisasi keyboard ponsel, dan spasi ujung dari tap spasi setelah
-  // kata. Keduanya harus dinormalkan di dalam fungsi, bukan diandalkan dari
-  // pemanggil.
-  test("menormalkan huruf besar pada kata kunci", () => {
-    expect(filterDomains(domains, "Kas Keluar")).toEqual([keuangan]);
-  });
-
-  test("menormalkan spasi di ujung kata kunci", () => {
-    expect(filterDomains(domains, "  Kejemaatan  ")).toEqual([kejemaatan]);
+    expect(searchModules(domains, "")).toEqual({ kind: "domains", domains });
   });
 
   test("kata kunci berisi spasi saja dianggap kosong", () => {
-    expect(filterDomains(domains, "   ")).toBe(domains);
+    expect(searchModules(domains, "   ").kind).toBe("domains");
+  });
+
+  test("cocok lewat nama layar", () => {
+    expect(searchModules(domains, "kas keluar")).toEqual({
+      kind: "screens",
+      hits: [{ domain: keuangan, leaf: kasKeluar }],
+    });
+  });
+
+  test("cocok lewat penjelasan layar", () => {
+    // Hanya penjelasan DAFTAR_JEMAAT ("Catat dan cari data ...") yang memuatnya.
+    expect(searchModules(domains, "cari data")).toEqual({
+      kind: "screens",
+      hits: [{ domain: kejemaatan, leaf: daftarJemaat }],
+    });
+  });
+
+  test("cocok lewat nama domain mengembalikan semua layarnya", () => {
+    expect(searchModules(domains, "keuangan")).toEqual({
+      kind: "screens",
+      hits: [
+        { domain: keuangan, leaf: kasKeluar },
+        { domain: keuangan, leaf: kasMasuk },
+      ],
+    });
+  });
+
+  test("tidak ada yang cocok mengembalikan daftar layar kosong", () => {
+    expect(searchModules(domains, "tidak ada begini")).toEqual({
+      kind: "screens",
+      hits: [],
+    });
+  });
+
+  // Huruf besar dari autokapitalisasi keyboard ponsel, spasi dari tap ganda.
+  test("tidak peka huruf besar dan spasi berlebih", () => {
+    expect(searchModules(domains, "  Kas   KELUAR ")).toEqual({
+      kind: "screens",
+      hits: [{ domain: keuangan, leaf: kasKeluar }],
+    });
   });
 });

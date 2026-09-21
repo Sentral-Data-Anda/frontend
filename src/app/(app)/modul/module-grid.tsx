@@ -4,42 +4,64 @@ import { Search } from "lucide-react";
 import { useState } from "react";
 
 import { DomainTileGrid } from "@/components/common/domain-tile";
+import { EmptyState } from "@/components/common/empty-state";
 import { Input } from "@/components/common/input";
+import { MenuTile, MenuTileGrid } from "@/components/common/menu-tile";
 import { PageHeader } from "@/components/layout/page-header";
+import {
+  MENU_DESCRIPTION,
+  leafIcon,
+  menuHref,
+  type MenuSlug,
+} from "@/config/menu";
 import { useSession } from "@/features/auth/session-provider";
 import type { MenuNode } from "@/features/auth/types";
 
+export type ScreenHit = { domain: MenuNode; leaf: MenuNode };
+
+export type ModuleSearch =
+  | { kind: "domains"; domains: MenuNode[] }
+  | { kind: "screens"; hits: ScreenHit[] };
+
+const descriptionOf = (leaf: MenuNode) =>
+  MENU_DESCRIPTION[leaf.slug as MenuSlug];
+
 /**
- * Pencarian menjangkau nama layar, bukan hanya nama domain: yang dicari
- * orang adalah "Kas Keluar", dan mereka belum tentu tahu itu ada di bawah
- * Keuangan. Domain tetap tampil bila namanya sendiri ATAU salah satu
- * layarnya cocok. Kata kunci kosong mengembalikan seluruh domain apa adanya.
+ * Kata kunci kosong → grid domain apa adanya. Berisi → daftar LAYAR yang
+ * cocok, supaya "keluarga" langsung memberi layarnya, bukan domain yang harus
+ * ditebak lalu diketuk lagi. Layar cocok lewat namanya, penjelasannya, atau
+ * nama domainnya ("keuangan" → semua layar Keuangan).
  *
- * Diekstrak dan diuji terpisah mengikuti pola `getVisibleTabs`/`isTabActive`
- * di `bottom-tab.tsx`: ada dua cabang nyata (kosong vs tidak, domain vs
- * layar) yang lebih murah diuji lewat unit test daripada dibaca ulang setiap
- * review.
- *
- * Normalisasi kata kunci terjadi DI SINI, bukan di pemanggil. Fungsi ini
- * diekspor, jadi kontraknya tidak boleh berupa syarat tak tertulis
- * ("panggil `.trim().toLowerCase()` dulu") yang hanya diketahui satu
- * pemanggil yang kebetulan ada hari ini — pemanggil kedua akan
- * melewatkannya, dan hasilnya bukan galat melainkan daftar kosong yang
- * terlihat seperti "tidak ada yang cocok".
+ * Sumbernya `domains` (= `session.menu`), jadi layar yang tidak dipegang
+ * peran tidak pernah muncul. Normalisasi kata kunci (huruf besar dari
+ * autokapitalisasi ponsel, spasi berlebih) terjadi di sini, bukan di
+ * pemanggil — syarat tak tertulis semacam itu akan dilewatkan pemanggil
+ * berikutnya, dan hasilnya terlihat seperti "tidak ada yang cocok".
  */
-export function filterDomains(
+export function searchModules(
   domains: MenuNode[],
   keyword: string,
-): MenuNode[] {
-  const needle = keyword.trim().toLowerCase();
+): ModuleSearch {
+  const needle = keyword.trim().replace(/\s+/g, " ").toLowerCase();
 
-  if (!needle) return domains;
+  if (!needle) return { kind: "domains", domains };
 
-  return domains.filter(
-    (domain) =>
-      domain.name.toLowerCase().includes(needle) ||
-      domain.children.some((leaf) => leaf.name.toLowerCase().includes(needle)),
-  );
+  const matches = (text: string | undefined) =>
+    text?.toLowerCase().includes(needle) ?? false;
+
+  return {
+    kind: "screens",
+    hits: domains.flatMap((domain) =>
+      domain.children
+        .filter(
+          (leaf) =>
+            matches(domain.name) ||
+            matches(leaf.name) ||
+            matches(descriptionOf(leaf)),
+        )
+        .map((leaf) => ({ domain, leaf })),
+    ),
+  };
 }
 
 export function ModuleGrid() {
@@ -47,7 +69,7 @@ export function ModuleGrid() {
 
   const [searchData, setSearchData] = useState("");
 
-  const domains = filterDomains(session.menu, searchData);
+  const result = searchModules(session.menu, searchData);
 
   return (
     <div className="pb-6">
@@ -71,15 +93,34 @@ export function ModuleGrid() {
         </div>
       </div>
 
-      {domains.length === 0 ? (
-        <p className="text-muted-foreground px-gutter py-10 text-center text-body">
-          Tidak ada modul yang cocok dengan &ldquo;{searchData}&rdquo;.
-        </p>
-      ) : (
-        <div className="px-gutter">
-          <DomainTileGrid domains={domains} />
-        </div>
-      )}
+      <p className="sr-only" role="status">
+        {result.kind === "screens" ? `${result.hits.length} layar cocok` : ""}
+      </p>
+
+      <div className="px-gutter">
+        {result.kind === "domains" ? (
+          <DomainTileGrid domains={result.domains} />
+        ) : result.hits.length === 0 ? (
+          <EmptyState
+            title="Tidak ada modul atau layar yang cocok"
+            description="Coba kata lain, mis. nama layar atau modulnya."
+          />
+        ) : (
+          <MenuTileGrid label="Hasil pencarian">
+            {result.hits.map(({ domain, leaf }) => (
+              <MenuTile
+                key={leaf.publicId}
+                href={menuHref(domain.slug, leaf.slug)}
+                domainSlug={domain.slug}
+                domainLabel={domain.name}
+                icon={leafIcon(leaf.slug, domain.slug)}
+                title={leaf.name}
+                description={descriptionOf(leaf)}
+              />
+            ))}
+          </MenuTileGrid>
+        )}
+      </div>
     </div>
   );
 }
