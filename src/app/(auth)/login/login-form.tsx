@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { User } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -60,14 +61,14 @@ export function LoginForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit(onLogin)} className="w-full space-y-4">
+    <form onSubmit={handleSubmit(onLogin)} className="w-full space-y-5">
       <FormField
         label="Username / Kode induk"
         htmlFor="username"
         error={errors.username?.message}
       >
         <Input
-          variant="filled"
+          icon={<User />}
           autoComplete="username"
           autoCapitalize="none"
           {...register("username")}
@@ -80,7 +81,6 @@ export function LoginForm() {
         error={errors.password?.message}
       >
         <PasswordInput
-          variant="filled"
           autoComplete="current-password"
           {...register("password")}
         />

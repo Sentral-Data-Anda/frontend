@@ -81,7 +81,6 @@ export function FirstLoginForm({ code }: { code: string }) {
         error={errors.newPassword?.message}
       >
         <PasswordInput
-          variant="filled"
           autoComplete="new-password"
           {...register("newPassword")}
         />
@@ -93,7 +92,6 @@ export function FirstLoginForm({ code }: { code: string }) {
         error={errors.confirmPassword?.message}
       >
         <PasswordInput
-          variant="filled"
           autoComplete="new-password"
           {...register("confirmPassword")}
         />

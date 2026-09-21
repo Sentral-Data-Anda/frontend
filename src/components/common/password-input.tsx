@@ -1,10 +1,10 @@
 "use client";
 
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Lock } from "lucide-react";
 import type { ComponentProps } from "react";
 
+import { Input } from "@/components/common/input";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useBoolean } from "@/hooks/use-boolean";
 import { cn } from "@/lib/utils";
 
@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
  *
  * Tombolnya `type="button"` — tanpa itu, menekannya men-submit form. Target
  * sentuhnya 30px (`size="icon"`) penuh setinggi input, bukan ikon 16px.
+ * Ikon gembok di kiri selalu ada, sama seperti ikon field lain di form masuk.
  */
 export function PasswordInput({
   className,
@@ -23,6 +24,7 @@ export function PasswordInput({
   return (
     <div className="relative">
       <Input
+        icon={<Lock />}
         type={isVisible.value ? "text" : "password"}
         className={cn("pr-8", className)}
         {...props}

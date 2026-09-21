@@ -9,12 +9,12 @@ export const metadata = { title: "Masuk" };
 export default function Page() {
   return (
     <div className="flex w-full flex-col gap-8">
-      <div className="flex flex-col items-center gap-4 text-center">
+      <div className="flex flex-col items-start gap-6">
         <LogoWordmark />
         <div className="space-y-1">
-          <h1 className="text-title font-semibold">Selamat Datang</h1>
+          <h1 className="text-title font-semibold">Masuk</h1>
           <p className="text-muted-foreground text-body">
-            Masuk untuk melanjutkan
+            Silakan masuk ke akun Anda
           </p>
         </div>
       </div>
