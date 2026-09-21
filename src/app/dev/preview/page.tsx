@@ -18,10 +18,11 @@ const FRAMES = [
 /**
  * Alat review development-only: `/dev/preview?path=/kejemaatan/daftar-jemaat`.
  *
- * Halaman ini lewat gerbang auth seperti halaman lain — iframe-nya butuh sesi
- * yang sama. Iframe same-origin hanya diizinkan di development
- * (`frame-ancestors 'self'` di csp.ts, `X-Frame-Options: SAMEORIGIN` di
- * next.config.ts); di production keduanya tetap menolak semua framing.
+ * Halaman ini sendiri terbuka tanpa sesi di development (lihat PUBLIC_PATHS
+ * di proxy.ts) supaya `?path=/login` bisa dipratinjau saat belum masuk; tiap
+ * iframe tetap lewat gerbang auth. Iframe same-origin hanya diizinkan di
+ * development (`frame-ancestors 'self'` di csp.ts, `X-Frame-Options:
+ * SAMEORIGIN` di next.config.ts); di production keduanya tetap menolak.
  */
 export default async function Page({
   searchParams,
@@ -59,7 +60,7 @@ export default async function Page({
                 title={`${frame.label} ${frame.width}×${frame.height}`}
                 width={frame.width}
                 height={frame.height}
-                className="origin-top-left"
+                className="block origin-top-left"
                 style={{ transform: `scale(${frame.scale})` }}
               />
             </div>

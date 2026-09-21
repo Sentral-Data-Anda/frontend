@@ -70,8 +70,21 @@ import { buildContentSecurityPolicy, generateNonce } from "@/lib/security/csp";
 const ACCESS_COOKIE = "accessToken";
 const REFRESH_COOKIE = "refreshToken";
 
-/** Halaman yang boleh dibuka tanpa sesi. */
-const PUBLIC_PATHS = new Set(["/login", "/authentication"]);
+/**
+ * Halaman yang boleh dibuka tanpa sesi.
+ *
+ * `/dev/preview` ikut HANYA di development (di production halamannya 404).
+ * Tanpa itu `?path=/login` tidak pernah bisa dipratinjau: tanpa sesi,
+ * halaman pratinjaunya sendiri dialihkan ke `/login`; dengan sesi, `/login`
+ * di dalam iframe dialihkan ke `/authentication`. Halaman pratinjau tidak
+ * memuat data apa pun — setiap iframe di dalamnya tetap lewat gerbang ini
+ * sendiri-sendiri.
+ */
+const PUBLIC_PATHS = new Set([
+  "/login",
+  "/authentication",
+  ...(process.env.NODE_ENV === "development" ? ["/dev/preview"] : []),
+]);
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
