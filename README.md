@@ -174,9 +174,21 @@ Nama domain & layar di tiruan disalin dari be-sada (`NAME` di
 
 Latar seluruh `(app)` adalah `bg-canvas` (primary-50), dipasang sekali di
 `AppShell`. Apa pun yang harus putih menulis `bg-card` sendiri (kartu, sidebar,
-bottom tab, sheet); `DataList` bawaan sudah memberi baris putih, `DataList
-inset` membiarkan baris di atas kanvas. Jangan pakai `bg-muted` sebagai bidang
+bottom tab, sheet); `DataList` bawaan sudah membungkus barisnya dalam satu
+kartu putih bergutter (`DataListFrame`), `DataList inset` membiarkan baris di
+atas kanvas. Jangan pakai `bg-muted` sebagai bidang
 di atas kanvas — nilainya sama (primary-50) dan tidak terlihat.
+
+### Layar daftar
+
+`DataList` bawaan = satu kartu putih (radius 12px, `shadow-sm`, seperti kartu
+kas Beranda) bergutter di atas kanvas; memuat, kosong, dan galat tampil di
+kartu yang sama. Garis pemisah digambar di badan baris (`data-slot="row-body"`),
+jadi otomatis inset dari tepi kiri judul sampai padding kanan kartu, berapa pun
+lebar `leading`. Baris daftar memakai `<Avatar tone="soft" />` (lingkaran
+primary-100) dan badge status ringan (`success` / `neutral`) di semua baris.
+Paginasi ringkas `‹ 1 / 2 ›` rata tengah di bawah kartu, tersembunyi bila hanya
+satu halaman. `DataListRow` belum punya `href`, jadi belum ada chevron.
 
 ### Halaman domain
 
