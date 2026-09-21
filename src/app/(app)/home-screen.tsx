@@ -1,29 +1,43 @@
 "use client";
 
-import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 
+import { Avatar } from "@/components/common/avatar";
 import { DomainTile } from "@/components/common/domain-tile";
 import { SectionHeader } from "@/components/common/section-header";
 import { PageHeader } from "@/components/layout/page-header";
-import { menuHref } from "@/config/menu";
+import { MENU, menuHref } from "@/config/menu";
+import { siteConfig } from "@/config/site";
 import { useSession } from "@/features/auth/session-provider";
+import { useMenuAccess } from "@/features/auth/use-menu-access";
+import { useIbadahByDate } from "@/features/beranda/api";
+import { CashSummaryCard } from "@/features/beranda/cash-summary-card";
+import { SHOW_DUMMY } from "@/features/beranda/dummy";
+import { NotificationBell } from "@/features/beranda/notification-bell";
+import { formatLongDate, greetingOf, toDateKey } from "@/features/beranda/time";
+import { TodaySchedule } from "@/features/beranda/today-schedule";
 
 /**
- * Beranda sementara.
+ * Beranda, susunan mobile & tablet. Desktop sementara memakai susunan yang
+ * sama; tampilan desktop sendiri (berdampingan dengan sidebar) dirancang
+ * terpisah nanti.
  *
- * Mockup menampilkan kartu kas gabungan, pemasukan, pengeluaran, dan grafik
- * persembahan enam minggu. Angka-angka itu belum punya endpoint agregat di
- * be-sada — `/api/v1/report` hanya berisi tujuh laporan jemaat — jadi layar
- * ini berisi pintasan saja sampai Fase 6, ketika keputusan endpointnya
- * diambil. Merakitnya dari belasan panggilan di FE akan lambat dan boros, dan
- * mengganti perakitan itu dengan satu endpoint nanti berarti membuang
- * pekerjaannya.
+ * Kartu kas dan lonceng masih DUMMY dan hanya dirender di luar production —
+ * lihat `features/beranda/dummy.ts`.
  */
 export function HomeScreen() {
   const session = useSession();
+  const ibadahAccess = useMenuAccess(MENU.IBADAH);
 
-  const greeting = session.jemaat?.name ?? session.username;
+  // ponytail: dihitung sekali per render; halaman yang dibiarkan terbuka
+  // melewati tengah malam tetap menampilkan kemarin sampai dimuat ulang.
+  const now = new Date();
+  const ibadah = useIbadahByDate(toDateKey(now), ibadahAccess.isCanView);
+
+  const name = session.jemaat?.name ?? session.username;
+  const firstName = name.trim().split(/\s+/)[0];
+
+  const serviceCount = ibadahAccess.isCanView ? (ibadah.data?.length ?? 0) : 0;
 
   // Delapan pintasan pertama, sesuai mockup. Sisanya lewat "Tampilkan semua".
   const shortcuts = session.menu.slice(0, 8);
@@ -31,11 +45,29 @@ export function HomeScreen() {
   return (
     <div className="pb-6">
       <PageHeader
-        title={`Selamat datang, ${greeting}`}
+        leading={<Avatar label={name} />}
+        title={`${siteConfig.shortName} · ${siteConfig.name}`}
         subtitle={session.roleUser.name}
+        action={SHOW_DUMMY ? <NotificationBell /> : null}
       />
 
       <section className="px-gutter">
+        <p className="text-title font-semibold">
+          {greetingOf(now)}, {firstName}
+        </p>
+        <p className="text-muted-foreground text-caption tabular-nums">
+          {formatLongDate(now)}
+          {serviceCount > 0 ? ` · ${serviceCount} kebaktian` : null}
+        </p>
+      </section>
+
+      {SHOW_DUMMY ? (
+        <div className="mt-5 px-gutter">
+          <CashSummaryCard />
+        </div>
+      ) : null}
+
+      <section className="mt-8 px-gutter">
         <SectionHeader
           title="Aksi cepat"
           actionLabel="Tampilkan semua"
@@ -62,25 +94,7 @@ export function HomeScreen() {
         </ul>
       </section>
 
-      <section className="mt-8 px-gutter">
-        <SectionHeader title="Semua modul" />
-
-        <Link
-          href="/modul"
-          className="border-border flex h-14 items-center justify-between rounded-xl border px-3.5"
-        >
-          <span className="text-body">
-            {session.menu.length} domain ·{" "}
-            {session.menu.reduce(
-              (total, domain) => total + domain.children.length,
-              0,
-            )}{" "}
-            layar
-          </span>
-
-          <ChevronRight className="text-muted-foreground size-4" aria-hidden />
-        </Link>
-      </section>
+      {ibadahAccess.isCanView ? <TodaySchedule query={ibadah} /> : null}
     </div>
   );
 }
