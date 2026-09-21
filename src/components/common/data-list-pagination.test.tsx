@@ -1,8 +1,8 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, jest, test } from "bun:test";
 
-import { DataList, DataListRow, type DataListPagination } from "./data-list";
-import { getPageItems } from "./data-list-pagination";
+import { DataList, DataListRow } from "./data-list";
+import { getPageItems, type DataListPagination } from "./data-list-pagination";
 
 afterEach(cleanup);
 
@@ -54,8 +54,7 @@ const more = (
   isLoadingMore: false,
   isLoadMoreError: false,
   isBusy: false,
-  loadedPages: 1,
-  lastPageSize: 2,
+  totalData: 5,
   onLoadMore: () => {},
   ...next,
 });
@@ -124,11 +123,15 @@ describe("DataList — muat lebih banyak (mobile/tablet)", () => {
     expect(screen.getByRole("button", { name: "Coba lagi" })).toBeTruthy();
   });
 
-  test("mengumumkan jumlah baris baru", () => {
-    onRenderList(more({ loadedPages: 2, lastPageSize: 10 }));
+  test("mengumumkan jumlah yang tampil, plus galat bila ada", () => {
+    const { onUpdate } = onRenderList(more());
+
+    expect(screen.getByText("2 dari 5 ditampilkan.")).toBeTruthy();
+
+    onUpdate(more({ isLoadMoreError: true }));
 
     expect(
-      screen.getByText("Daftar uji: 10 lagi dimuat.", { exact: false }),
+      screen.getByText("2 dari 5 ditampilkan. Gagal memuat data berikutnya."),
     ).toBeTruthy();
   });
 
@@ -138,10 +141,10 @@ describe("DataList — muat lebih banyak (mobile/tablet)", () => {
    * dari atas halaman.
    */
   test("fokus pindah ke teks penutup saat tombol yang difokus hilang", () => {
-    const { onUpdate } = onRenderList(more({ loadedPages: 2 }));
+    const { onUpdate } = onRenderList(more());
 
     screen.getByRole("button", { name: "Muat lebih banyak" }).focus();
-    onUpdate(more({ loadedPages: 3, hasMore: false }));
+    onUpdate(more({ hasMore: false }));
 
     expect(document.activeElement?.textContent).toBe(
       "Semua data sudah ditampilkan",
@@ -181,10 +184,10 @@ describe("DataList — muat lebih banyak (mobile/tablet)", () => {
     }
   });
 
-  test("tidak ada teks penutup bila semua muat di satu halaman", () => {
-    onRenderList(more({ hasMore: false }));
+  test("teks penutup juga saat semua muat di satu halaman", () => {
+    onRenderList(more({ hasMore: false, totalData: 2 }));
 
-    expect(screen.queryByText("Semua data sudah ditampilkan")).toBeNull();
+    expect(screen.getByText("Semua data sudah ditampilkan")).toBeTruthy();
     expect(
       screen.queryByRole("button", { name: "Muat lebih banyak" }),
     ).toBeNull();

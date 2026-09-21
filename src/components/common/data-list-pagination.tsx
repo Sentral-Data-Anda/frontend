@@ -27,9 +27,7 @@ export type DataListPagination =
        * setelah invalidasi. `onLoadMore` diabaikan selama itu.
        */
       isBusy: boolean;
-      /** Jumlah halaman yang sudah ditumpuk; pengumuman hanya mulai dari 2. */
-      loadedPages: number;
-      lastPageSize: number;
+      totalData: number;
       onLoadMore: () => void;
     };
 
@@ -133,19 +131,19 @@ export function DataListPager({
  * Tombol TIDAK diganti elemen lain selama masih ada data: memuat dan galat
  * hanya mengubah labelnya, jadi fokus keyboard tetap di tempatnya
  * (`focusableWhenDisabled` menjaga fokus saat ia nonaktif sementara). Saat
- * data habis tombolnya hilang; bila ia sedang difokus, fokus dipindah ke teks
- * penutup alih-alih jatuh ke `<body>`.
+ * data habis tombolnya diganti teks penutup (juga bila semua muat di satu
+ * halaman); bila tombol sedang difokus, fokus dipindah ke teks itu alih-alih
+ * jatuh ke `<body>`.
  */
 export function DataListMore({
-  label,
+  shown,
+  totalData,
   hasMore,
   isLoadingMore,
   isLoadMoreError,
   isBusy,
-  loadedPages,
-  lastPageSize,
   onLoadMore,
-}: Extract<DataListPagination, { mode: "more" }> & { label: string }) {
+}: Extract<DataListPagination, { mode: "more" }> & { shown: number }) {
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const isButtonFocusedRef = useRef(false);
   const isAutoLoad = hasMore && !isBusy && !isLoadMoreError;
@@ -175,18 +173,11 @@ export function DataListMore({
     return () => observer.disconnect();
   }, [isAutoLoad]);
 
-  const announcement = [
-    loadedPages > 1 && !isLoadingMore
-      ? `${label}: ${lastPageSize} lagi dimuat.`
-      : "",
-    isLoadMoreError ? "Gagal memuat data berikutnya." : "",
-    !hasMore && loadedPages > 1 ? "Semua data sudah ditampilkan." : "",
-  ].join(" ");
-
   return (
     <>
       <p aria-live="polite" className="sr-only">
-        {announcement}
+        {`${shown} dari ${totalData} ditampilkan.`}
+        {isLoadMoreError ? " Gagal memuat data berikutnya." : null}
       </p>
 
       {hasMore ? (
@@ -223,7 +214,7 @@ export function DataListMore({
                 : "Muat lebih banyak"}
           </Button>
         </div>
-      ) : loadedPages > 1 ? (
+      ) : (
         <p
           ref={(node) => {
             if (node && isButtonFocusedRef.current) {
@@ -236,7 +227,7 @@ export function DataListMore({
         >
           Semua data sudah ditampilkan
         </p>
-      ) : null}
+      )}
     </>
   );
 }

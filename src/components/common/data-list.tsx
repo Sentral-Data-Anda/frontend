@@ -80,8 +80,6 @@ export function DataListRow({
   );
 }
 
-export type { DataListPagination };
-
 /**
  * Bingkai daftar. Bawaan: satu kartu putih bersudut 12px di atas kanvas,
  * bergutter kiri-kanan — bentuk yang sama dengan kartu kas Beranda.
@@ -246,7 +244,7 @@ export function DataList<T>({
         </ul>
 
         {pagination?.mode === "more" ? (
-          <DataListMore {...pagination} label={label} />
+          <DataListMore {...pagination} shown={items.length} />
         ) : null}
       </DataListFrame>
 

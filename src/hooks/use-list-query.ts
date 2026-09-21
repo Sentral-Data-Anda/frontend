@@ -7,7 +7,7 @@ import {
   type QueryKey,
 } from "@tanstack/react-query";
 
-import type { DataListPagination } from "@/components/common/data-list";
+import type { DataListPagination } from "@/components/common/data-list-pagination";
 import { useIsDesktop } from "@/hooks/use-is-desktop";
 import { toApiQuery, type ListState } from "@/hooks/use-list-params";
 import type { ApiListResponse } from "@/types/api";
@@ -113,8 +113,7 @@ export function useListQuery<T>({
       isLoadingMore: more.isFetchingNextPage,
       isLoadMoreError: more.isFetchNextPageError,
       isBusy: more.isFetching,
-      loadedPages: loaded?.length ?? 0,
-      lastPageSize: loaded?.at(-1)?.data.length ?? 0,
+      totalData: loaded?.[0]?.totalData ?? 0,
       // `isFetching`: pengamat di ujung daftar bisa memanggil ini berulang,
       // dan `fetchNextPage` bawaan membatalkan-lalu-mengulang permintaan yang
       // sedang jalan alih-alih menunggunya.

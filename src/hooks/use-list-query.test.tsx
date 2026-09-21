@@ -146,8 +146,7 @@ describe("useListQuery — mobile/tablet (infinite)", () => {
     expect(result.current.pagination).toMatchObject({
       mode: "more",
       hasMore: false,
-      loadedPages: 3,
-      lastPageSize: 1,
+      totalData: 5,
     });
 
     // Sudah habis: memanggil lagi tidak menembak apa pun.
@@ -180,7 +179,6 @@ describe("useListQuery — mobile/tablet (infinite)", () => {
       expect(codes(result.current.items)).toEqual(["budi-1", "budi-2"]),
     );
     expect(server.requests.at(-1)).toBe("page=1&limit=2&filter=budi");
-    expect(result.current.pagination).toMatchObject({ loadedPages: 1 });
   });
 
   test("galat halaman berikutnya tidak menelan daftar yang sudah ada", async () => {
