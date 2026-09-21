@@ -66,7 +66,7 @@ export function ModuleGrid() {
         backHref="/"
       />
 
-      <div className="px-4 pb-4">
+      <div className="px-gutter pb-4">
         <div className="border-input bg-background flex h-11 items-center gap-2 rounded-xl border px-3">
           <Search
             className="text-muted-foreground size-4 shrink-0"
@@ -84,11 +84,11 @@ export function ModuleGrid() {
       </div>
 
       {domains.length === 0 ? (
-        <p className="text-muted-foreground px-4 py-10 text-center text-sm">
+        <p className="text-muted-foreground px-gutter py-10 text-center text-sm">
           Tidak ada modul yang cocok dengan &ldquo;{searchData}&rdquo;.
         </p>
       ) : (
-        <ul className="grid grid-cols-3 gap-4 px-4">
+        <ul className="grid grid-cols-3 gap-4 px-gutter">
           {domains.map((domain) => {
             const Icon = MENU_ICON[domain.slug];
 
@@ -114,7 +114,7 @@ export function ModuleGrid() {
         </ul>
       )}
 
-      <p className="text-muted-foreground px-4 pt-8 text-xs">
+      <p className="text-muted-foreground px-gutter pt-8 text-xs">
         Modul yang tidak Anda pegang tidak ditampilkan.
       </p>
 
@@ -134,7 +134,7 @@ export function ModuleGrid() {
               <Link
                 href={menuHref(pickDomain.slug, leaf.slug)}
                 onClick={onCloseSheet}
-                className="flex h-14 items-center justify-between px-4"
+                className="flex h-14 items-center justify-between px-gutter"
               >
                 <span className="min-w-0">
                   <span className="block truncate text-sm">{leaf.name}</span>

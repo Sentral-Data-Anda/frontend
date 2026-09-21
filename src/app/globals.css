@@ -109,6 +109,12 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  /*
+   * Grid dari lembar brand: gutter halaman 20px. Satu token untuk semua yang
+   * menyentuh tepi kiri-kanan layar (header, baris daftar, pager, chip) —
+   * `px-gutter`, bukan `px-4`/`px-5` per komponen.
+   */
+  --spacing-gutter: 1.25rem;
   /* Skala teks 14/12/10 (kelipatan 2): text-sm, text-xs, text-2xs. */
   --text-2xs: 0.625rem;
   --text-2xs--line-height: calc(0.875 / 0.625);

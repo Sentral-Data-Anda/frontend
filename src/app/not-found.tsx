@@ -9,7 +9,7 @@ export default function NotFound() {
     <div
       className={cn(
         shellWidth,
-        "flex min-h-[60vh] flex-col items-center justify-center gap-4 px-4 text-center",
+        "flex min-h-[60vh] flex-col items-center justify-center gap-4 px-gutter text-center",
       )}
     >
       <p className="text-5xl font-semibold text-primary">404</p>

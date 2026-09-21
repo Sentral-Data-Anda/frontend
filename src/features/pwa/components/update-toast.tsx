@@ -20,7 +20,7 @@ export function UpdateToast({ onApply }: UpdateToastProps) {
     <div
       role="status"
       aria-live="polite"
-      className="bg-background fixed inset-x-4 bottom-4 z-50 mx-auto flex max-w-md flex-wrap items-center justify-between gap-3 rounded-lg border p-4 shadow-lg"
+      className="bg-background fixed inset-x-gutter bottom-4 z-50 mx-auto flex max-w-md flex-wrap items-center justify-between gap-3 rounded-lg border p-3.5 shadow-lg"
     >
       <div>
         <p className="text-sm font-medium">Versi baru tersedia</p>

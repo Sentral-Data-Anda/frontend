@@ -18,7 +18,7 @@ export function InstallPrompt() {
 
   if (canPrompt) {
     return (
-      <div className="flex flex-col gap-2 rounded-lg border p-4">
+      <div className="flex flex-col gap-2 rounded-lg border p-3.5">
         <p className="text-sm font-medium">Pasang SADA di perangkat ini</p>
         <p className="text-muted-foreground text-xs">
           Aplikasi terbuka di jendelanya sendiri, tanpa alamat browser.
@@ -35,7 +35,7 @@ export function InstallPrompt() {
   // diklik. Yang bisa diberikan cuma panduan.
   if (needsManualGuide) {
     return (
-      <div className="flex flex-col gap-2 rounded-lg border p-4">
+      <div className="flex flex-col gap-2 rounded-lg border p-3.5">
         <p className="text-sm font-medium">Pasang SADA di perangkat ini</p>
         <p className="text-muted-foreground text-xs">
           Di Safari, ketuk tombol Bagikan lalu pilih{" "}

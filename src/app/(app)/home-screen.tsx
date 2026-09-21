@@ -33,7 +33,7 @@ export function HomeScreen() {
         subtitle={session.roleUser.name}
       />
 
-      <section className="px-4">
+      <section className="px-gutter">
         <div className="mb-3 flex items-baseline justify-between">
           <h2 className="text-sm font-medium">Aksi cepat</h2>
 
@@ -67,12 +67,12 @@ export function HomeScreen() {
         </ul>
       </section>
 
-      <section className="mt-8 px-4">
+      <section className="mt-8 px-gutter">
         <h2 className="mb-3 text-sm font-medium">Semua modul</h2>
 
         <Link
           href="/modul"
-          className="border-border flex h-14 items-center justify-between rounded-xl border px-4"
+          className="border-border flex h-14 items-center justify-between rounded-xl border px-3.5"
         >
           <span className="text-sm">
             {session.menu.length} domain ·{" "}

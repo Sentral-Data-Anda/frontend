@@ -42,7 +42,7 @@ export function DataListRow({
   className?: string;
 }) {
   return (
-    <li className={cn("flex h-14 items-center gap-3 px-4", className)}>
+    <li className={cn("flex h-14 items-center gap-3 px-gutter", className)}>
       {leading}
 
       <div className="min-w-0 flex-1">
@@ -195,7 +195,7 @@ function DataListPager({ page, totalPage, onPickPage }: DataListPagination) {
   return (
     <nav
       aria-label="Paginasi"
-      className="border-border flex items-center justify-between gap-3 border-t px-4 py-3"
+      className="border-border flex items-center justify-between gap-3 border-t px-gutter py-3"
     >
       <Button
         type="button"

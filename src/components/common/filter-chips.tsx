@@ -38,9 +38,9 @@ export function FilterChips({
       role="group"
       aria-label={label}
       className={cn(
-        // `-mx-4 px-4` membuat chip pertama dan terakhir tetap sejajar dengan
+        // `-mx-gutter px-gutter` membuat chip pertama dan terakhir tetap sejajar dengan
         // isi layar, sementara area gesernya membentang penuh sampai tepi.
-        "-mx-4 flex gap-2 overflow-x-auto px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+        "-mx-gutter flex gap-2 overflow-x-auto px-gutter [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
         className,
       )}
     >

@@ -32,7 +32,7 @@ export default function AuthLayout({
       <AuthWaves className="text-primary/10 absolute inset-x-0 top-0 h-28 w-full md:h-40 lg:hidden" />
       <AuthWaves className="text-primary/10 absolute inset-x-0 bottom-0 h-28 w-full rotate-180 md:h-40 lg:hidden" />
 
-      <main className="relative flex flex-1 flex-col items-center justify-center px-6 pt-[max(5rem,env(safe-area-inset-top))] pb-[max(5rem,env(safe-area-inset-bottom))] md:py-16 lg:px-12">
+      <main className="relative flex flex-1 flex-col items-center justify-center px-gutter pt-[max(5rem,env(safe-area-inset-top))] pb-[max(5rem,env(safe-area-inset-bottom))] md:py-16 lg:px-12">
         <div className="w-full max-w-sm md:bg-background md:rounded-2xl md:p-8 md:shadow-sm lg:rounded-none lg:bg-transparent lg:p-0 lg:shadow-none">
           {children}
         </div>

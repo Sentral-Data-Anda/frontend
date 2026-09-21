@@ -66,7 +66,7 @@ export function JemaatListScreen() {
         }
       />
 
-      <div className="space-y-3 px-4 pb-3">
+      <div className="space-y-3 px-gutter pb-3">
         <SearchInput
           value={listParams.search}
           onSearch={listParams.onSearch}

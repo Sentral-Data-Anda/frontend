@@ -23,7 +23,7 @@ export default function NotFound() {
     <div>
       <PageHeader title="Layar belum tersedia" backHref="/" />
 
-      <div className="flex flex-col items-start gap-3 px-4">
+      <div className="flex flex-col items-start gap-3 px-gutter">
         <p className="text-muted-foreground text-sm">
           Layar ini belum dibangun. Menu dan hak aksesnya sudah aktif, tampilan
           serta datanya menyusul pada tahap berikutnya.

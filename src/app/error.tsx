@@ -52,7 +52,7 @@ export default function Error({
     <div
       className={cn(
         shellWidth,
-        "flex min-h-[60vh] flex-col items-center justify-center gap-4 px-4 text-center",
+        "flex min-h-[60vh] flex-col items-center justify-center gap-4 px-gutter text-center",
       )}
     >
       <h1 className="text-2xl font-semibold">Terjadi kesalahan</h1>

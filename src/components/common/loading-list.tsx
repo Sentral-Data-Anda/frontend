@@ -23,7 +23,7 @@ export function LoadingList({
             list normal adalah skeleton adalah placeholder sementara, bukan data
             nyata dengan ID yang stabil. */}
         {Array.from({ length: rows }, (_, index) => (
-          <li key={index} className="flex h-14 items-center gap-3 px-4">
+          <li key={index} className="flex h-14 items-center gap-3 px-gutter">
             <span className="bg-muted size-9 animate-pulse rounded-full" />
 
             <span className="flex-1 space-y-1.5">
