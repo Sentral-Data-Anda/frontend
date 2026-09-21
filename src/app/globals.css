@@ -116,12 +116,13 @@
    */
   --spacing-gutter: 1.25rem;
   /*
-   * Tinggi kontrol (input & tombol) 30px — keputusan user, menggantikan 44px.
-   * Masih ≥ 24px (WCAG 2.2 AA 2.5.8). Radius 8px: 12px di tinggi 30px nyaris
-   * pil. `h-control`, `size-control`, `rounded-control`. Baris daftar (56px)
-   * dan item navigasi tidak ikut.
+   * Tinggi kontrol (input & tombol) mengikuti standar platform — keputusan
+   * user: 44px < lg (disentuh jari, pedoman iOS HIG), 36px ≥ lg (diklik
+   * mouse, standar web/desktop). Nilainya di `--control-height` (:root, naik
+   * di bawah). `h-control`, `size-control`, `pr-control`, `rounded-control`.
+   * Baris daftar (56px) dan item navigasi tidak ikut.
    */
-  --spacing-control: 1.875rem;
+  --spacing-control: var(--control-height);
   --radius-control: 0.5rem;
   /*
    * Skala teks — keputusan user: terbesar 12px di mobile/tablet, 14px hanya di
@@ -223,11 +224,14 @@
 
   /* Judul: 12px < lg, 14px ≥ lg. Dibaca `text-title` di @theme. */
   --font-size-title: 0.75rem;
+  /* Tinggi kontrol: 44px < lg, 36px ≥ lg. Dibaca `--spacing-control`. */
+  --control-height: 2.75rem;
 }
 
 @media (min-width: 64rem) {
   :root {
     --font-size-title: 0.875rem;
+    --control-height: 2.25rem;
   }
 }
 

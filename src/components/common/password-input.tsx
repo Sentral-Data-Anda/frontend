@@ -26,7 +26,7 @@ export function PasswordInput({
       <Input
         icon={<Lock />}
         type={isVisible.value ? "text" : "password"}
-        className={cn("pr-8", className)}
+        className={cn("pr-control", className)}
         {...props}
       />
       <Button

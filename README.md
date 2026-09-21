@@ -137,11 +137,12 @@ auto-zoom saat fokus pada input <16px, dicegah `maximumScale: 1` di
 `viewport` (`src/app/layout.tsx`) — di iOS pinch-zoom manual tetap bisa, di
 Android Chrome pinch-zoom ikut mati. Diterima user.
 
-Tinggi kontrol (**keputusan user, menggantikan tombol/input 44px**): input
-dan tombol 30px (`h-control`, radius 8px `rounded-control`), jadi ukuran
-default `ui/input.tsx` dan `ui/button.tsx`. Tangga tombol xs 24 · sm 28 ·
-default 30 · lg 36; semuanya ≥ 24px (WCAG 2.2 AA 2.5.8), tetapi di bawah
-pedoman sentuh 44px iOS. Input **tampil sama sebelum dan saat diketik**
+Tinggi kontrol (**keputusan user, mengikuti standar platform**): input dan
+tombol **44px di < lg** (disentuh jari, pedoman iOS HIG) dan **36px di ≥ lg**
+(diklik mouse, standar web/desktop) — satu token `--control-height` di
+`globals.css` yang berubah di `lg`, dibaca `h-control`/`size-control`/
+`pr-control`; radius 8px `rounded-control`. Jadi ukuran default `ui/input.tsx`
+dan `ui/button.tsx`. Ukuran tombol lain (xs 24 · sm 28 · lg 36) tetap. Input **tampil sama sebelum dan saat diketik**
 (keputusan user): tidak ada border, ring, atau perubahan latar saat fokus —
 penanda fokus hanya caret. Varian `filled` = bidang abu tanpa garis. Ini tidak
 memenuhi WCAG 2.4.7 dan 1.4.11; diterima user. Invalid = latar
