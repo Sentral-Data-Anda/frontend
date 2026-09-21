@@ -32,15 +32,17 @@ import { useListParams } from "@/hooks/use-list-params";
 export function JemaatListScreen() {
   const { isCanCreate } = useMenuAccess(MENU.DAFTAR_JEMAAT);
   const listParams = useListParams();
-  const jemaatList = useJemaatList(listParams.query);
-
-  const totalData = jemaatList.data?.totalData ?? 0;
+  const jemaatList = useJemaatList(listParams);
 
   return (
     <div className="pb-6">
       <PageHeader
         title="Daftar Jemaat"
-        subtitle={jemaatList.data ? `${totalData} jemaat` : undefined}
+        subtitle={
+          jemaatList.totalData === undefined
+            ? undefined
+            : `${jemaatList.totalData} jemaat`
+        }
         backHref="/modul"
         action={
           // Tombol ini ada ATAU TIDAK ADA SAMA SEKALI di DOM — bukan tampil
@@ -86,24 +88,20 @@ export function JemaatListScreen() {
       </div>
 
       <DataList
-        items={jemaatList.data?.data}
+        items={jemaatList.items}
         getKey={(jemaat) => jemaat.code}
         label="Daftar jemaat"
-        isLoading={jemaatList.isPending}
-        isRefreshing={jemaatList.isFetching}
+        isLoading={jemaatList.isLoading}
+        isRefreshing={jemaatList.isRefreshing}
         error={jemaatList.error}
-        onRetry={() => jemaatList.refetch()}
+        onRetry={jemaatList.onRetry}
         emptyTitle="Tidak ada jemaat"
         emptyDescription={
           listParams.search || listParams.status
             ? "Tidak ada jemaat yang cocok dengan pencarian atau filter ini."
             : "Data jemaat akan muncul di sini setelah ditambahkan."
         }
-        pagination={{
-          page: listParams.page,
-          totalPage: jemaatList.data?.totalPage ?? 0,
-          onPickPage: listParams.onPickPage,
-        }}
+        pagination={jemaatList.pagination}
       >
         {(jemaat) => <JemaatListItemRow jemaat={jemaat} />}
       </DataList>

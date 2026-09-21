@@ -84,7 +84,12 @@ describe("DataList", () => {
 
   test("paginasi disembunyikan saat hanya ada satu halaman", () => {
     onRenderList({
-      pagination: { page: 1, totalPage: 1, onPickPage: () => {} },
+      pagination: {
+        mode: "pages",
+        page: 1,
+        totalPage: 1,
+        onPickPage: () => {},
+      },
     });
 
     expect(screen.queryByRole("navigation", { name: "Paginasi" })).toBeNull();
@@ -92,7 +97,12 @@ describe("DataList", () => {
 
   test("tombol sebelumnya mati di halaman pertama, berikutnya di terakhir", () => {
     onRenderList({
-      pagination: { page: 1, totalPage: 3, onPickPage: () => {} },
+      pagination: {
+        mode: "pages",
+        page: 1,
+        totalPage: 3,
+        onPickPage: () => {},
+      },
     });
 
     expect(
@@ -109,7 +119,12 @@ describe("DataList", () => {
 
   test("nomor halaman dibacakan utuh, bukan '1 / 3'", () => {
     onRenderList({
-      pagination: { page: 1, totalPage: 3, onPickPage: () => {} },
+      pagination: {
+        mode: "pages",
+        page: 1,
+        totalPage: 3,
+        onPickPage: () => {},
+      },
     });
 
     expect(screen.getByText("Halaman 1 dari 3")).toBeTruthy();

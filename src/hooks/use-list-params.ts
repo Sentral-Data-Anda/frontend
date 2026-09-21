@@ -121,6 +121,7 @@ export function useListParams(limitPerPage = DEFAULT_LIMIT) {
     [onWrite],
   );
 
+  /** Hanya dipakai pager desktop; di mobile `page` URL diabaikan (lihat `useListQuery`). */
   const onPickPage = useCallback(
     (page: number) => onWrite({ page }),
     [onWrite],
@@ -128,9 +129,10 @@ export function useListParams(limitPerPage = DEFAULT_LIMIT) {
 
   return {
     ...params,
-    query: toApiQuery(params),
     onSearch,
     onPickStatus,
     onPickPage,
   };
 }
+
+export type ListState = ReturnType<typeof useListParams>;

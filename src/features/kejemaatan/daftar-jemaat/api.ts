@@ -1,7 +1,7 @@
 "use client";
 
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
-
+import type { ListState } from "@/hooks/use-list-params";
+import { useListQuery } from "@/hooks/use-list-query";
 import { fetchList } from "@/lib/api/fetcher";
 
 import type { JemaatListItem } from "./types";
@@ -12,34 +12,26 @@ import type { JemaatListItem } from "./types";
  * Invalidasi setelah tambah/ubah/hapus (Fase 3b) harus menyebut kunci yang
  * SAMA PERSIS dengan yang dipakai daftar ini. Dua literal array yang ditulis
  * di dua berkas akan berbeda suatu saat, dan gejalanya bukan galat melainkan
- * daftar yang tidak ikut berubah setelah menyimpan.
+ * daftar yang tidak ikut berubah setelah menyimpan. Invalidasi `lists()`
+ * mengenai daftar berhalaman (desktop) dan daftar bertumpuk (mobile) sekaligus.
  */
 export const jemaatKeys = {
   all: ["jemaat"] as const,
-  list: (query: string) => [...jemaatKeys.all, "list", query] as const,
+  lists: () => [...jemaatKeys.all, "list"] as const,
 };
 
 /**
- * Daftar jemaat.
- *
- * `query` sudah berupa query string untuk be-sada (`toApiQuery` di
- * `useListParams` yang menerjemahkan `search` → `filter`). Ia dipakai apa
- * adanya sebagai bagian kunci cache: dua kombinasi filter yang berbeda adalah
- * dua daftar yang berbeda, dan stringnya sudah ternormalisasi.
- *
- * `keepPreviousData` adalah yang membuat paginasi dan pencarian terasa tenang:
- * tanpa itu, setiap perubahan kunci mengosongkan `data` dan daftar runtuh jadi
- * skeleton di antara dua halaman. `DataList` memakai `isFetching` untuk
- * meredupkan daftar lama alih-alih menghapusnya.
+ * Daftar jemaat. Mode ambil (berhalaman vs bertumpuk), kunci per filter, dan
+ * `keepPreviousData` diurus `useListQuery`; di sini hanya alamat dan tipenya.
  *
  * Yang TIDAK ditulis di sini, karena `providers.tsx` sudah mengaturnya untuk
  * seluruh aplikasi: `staleTime`, kebijakan `retry` yang menolak 4xx, dan
  * `refetchOnWindowFocus`.
  */
-export function useJemaatList(query: string) {
-  return useQuery({
-    queryKey: jemaatKeys.list(query),
-    queryFn: () => fetchList<JemaatListItem>(`/jemaat?${query}`),
-    placeholderData: keepPreviousData,
+export function useJemaatList(params: ListState) {
+  return useListQuery({
+    queryKey: jemaatKeys.lists(),
+    fetchPage: (apiQuery) => fetchList<JemaatListItem>(`/jemaat?${apiQuery}`),
+    params,
   });
 }

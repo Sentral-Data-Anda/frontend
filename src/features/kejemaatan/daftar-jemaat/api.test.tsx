@@ -1,14 +1,44 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, renderHook, waitFor } from "@testing-library/react";
-import { afterEach, describe, expect, test } from "bun:test";
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  describe,
+  expect,
+  test,
+} from "bun:test";
+
+import type { ListState } from "@/hooks/use-list-params";
+
+import { onStubViewport } from "../../../../tests/viewport";
 
 import { useJemaatList } from "./api";
 
 afterEach(cleanup);
 
+/** Mode berhalaman (desktop): satu permintaan per render, mudah dibaca. */
+let viewport: ReturnType<typeof onStubViewport>;
+
+beforeAll(() => {
+  viewport = onStubViewport(true);
+});
+afterAll(() => viewport.onRestore());
+
+const onParams = (next: Partial<ListState>): ListState => ({
+  page: 1,
+  limit: 10,
+  search: "",
+  status: "",
+  onSearch: () => {},
+  onPickStatus: () => {},
+  onPickPage: () => {},
+  ...next,
+});
+
 /**
- * Pemakaian `useQuery` pertama di repo ini, jadi yang diuji bukan cuma hook-nya
- * melainkan bahwa rantainya benar-benar tersambung: `useQuery` → `fetchList` →
+ * Yang diuji bukan cuma hook-nya melainkan bahwa rantainya benar-benar
+ * tersambung: `useListQuery` → `fetchList` →
  * `/api/v1/...` → amplop be-sada.
  *
  * `QueryClient` dibuat per test dengan `retry: false`. Kebijakan retry
@@ -16,12 +46,12 @@ afterEach(cleanup);
  * retry menyala, test jalur galat harus menunggu dua percobaan ulang beserta
  * backoff-nya sebelum `isError` menyala.
  */
-const onRenderQuery = (query: string) => {
+const onRenderQuery = (params: ListState) => {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
 
-  return renderHook(() => useJemaatList(query), {
+  return renderHook(() => useJemaatList(params), {
     wrapper: ({ children }) => (
       <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
     ),
@@ -40,7 +70,7 @@ const onStubFetch = (handler: (url: string) => Response) => {
 };
 
 describe("useJemaatList", () => {
-  test("menembak /api/v1/jemaat dengan query apa adanya", async () => {
+  test("menembak /api/v1/jemaat dengan search diterjemahkan jadi filter", async () => {
     let requested = "";
 
     const onRestore = onStubFetch((url) => {
@@ -66,13 +96,13 @@ describe("useJemaatList", () => {
       });
     });
 
-    const { result } = onRenderQuery("page=1&limit=10&filter=and");
+    const { result } = onRenderQuery(onParams({ search: "and" }));
 
-    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    await waitFor(() => expect(result.current.items).toBeDefined());
 
     expect(requested).toBe("/api/v1/jemaat?page=1&limit=10&filter=and");
-    expect(result.current.data?.data[0]?.name).toBe("Andreas");
-    expect(result.current.data?.totalPage).toBe(1);
+    expect(result.current.items?.[0]?.name).toBe("Andreas");
+    expect(result.current.totalData).toBe(1);
 
     onRestore();
   });
@@ -90,13 +120,13 @@ describe("useJemaatList", () => {
       ),
     );
 
-    const { result } = onRenderQuery("page=1&limit=10&filter=zzz");
+    const { result } = onRenderQuery(onParams({ search: "zzz" }));
 
-    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    await waitFor(() => expect(result.current.items).toBeDefined());
 
-    expect(result.current.isError).toBe(false);
-    expect(result.current.data?.data).toEqual([]);
-    expect(result.current.data?.totalData).toBe(0);
+    expect(result.current.error).toBeNull();
+    expect(result.current.items).toEqual([]);
+    expect(result.current.totalData).toBe(0);
 
     onRestore();
   });
@@ -109,9 +139,9 @@ describe("useJemaatList", () => {
       ),
     );
 
-    const { result } = onRenderQuery("page=1&limit=10");
+    const { result } = onRenderQuery(onParams({}));
 
-    await waitFor(() => expect(result.current.isError).toBe(true));
+    await waitFor(() => expect(result.current.error).not.toBeNull());
 
     expect(result.current.error?.message).toBe("Kesalahan server.");
 

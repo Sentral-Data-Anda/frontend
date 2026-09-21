@@ -1,10 +1,19 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, TriangleAlert } from "lucide-react";
+import { TriangleAlert } from "lucide-react";
 import { Fragment, type ReactNode } from "react";
 
+import {
+  DataListMore,
+  DataListPager,
+  type DataListPagination,
+} from "@/components/common/data-list-pagination";
 import { EmptyState } from "@/components/common/empty-state";
-import { LIST_DIVIDER, LoadingList } from "@/components/common/loading-list";
+import {
+  LIST_DIVIDER,
+  LoadingList,
+  LoadingRows,
+} from "@/components/common/loading-list";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -71,11 +80,7 @@ export function DataListRow({
   );
 }
 
-export type DataListPagination = {
-  page: number;
-  totalPage: number;
-  onPickPage: (page: number) => void;
-};
+export type { DataListPagination };
 
 /**
  * Bingkai daftar. Bawaan: satu kartu putih bersudut 12px di atas kanvas,
@@ -121,6 +126,11 @@ export function DataListFrame({
  * tempatnya dan hanya diredupkan. Tanpa pembedaan ini, setiap huruf yang
  * diketik meruntuhkan daftar jadi skeleton lalu membangunnya lagi, dan
  * layarnya berkedip.
+ *
+ * `pagination` datang utuh dari `useListQuery` dan bentuknya sudah memutuskan
+ * mode: `"pages"` → pager bernomor di bawah kartu (desktop), `"more"` → daftar
+ * bertumpuk dengan skeleton dan tombol "Muat lebih banyak" di ujung kartu
+ * (mobile/tablet). Layar tidak tahu mode mana yang aktif.
  *
  * DAFTAR KOSONG BUKAN GALAT. be-sada menjawab 404 saat filter tidak menemukan
  * apa pun; `fetchList` sudah menerjemahkannya jadi array kosong, jadi yang
@@ -229,67 +239,20 @@ export function DataList<T>({
             // garis pemisah dan merusak struktur daftar bagi pembaca layar.
             <Fragment key={getKey(item)}>{children(item)}</Fragment>
           ))}
+
+          {pagination?.mode === "more" && pagination.isLoadingMore ? (
+            <LoadingRows rows={3} />
+          ) : null}
         </ul>
+
+        {pagination?.mode === "more" ? (
+          <DataListMore {...pagination} label={label} />
+        ) : null}
       </DataListFrame>
 
-      {pagination && pagination.totalPage > 1 ? (
+      {pagination?.mode === "pages" && pagination.totalPage > 1 ? (
         <DataListPager {...pagination} />
       ) : null}
     </div>
-  );
-}
-
-/**
- * Paginasi ringkas "‹ 1 / 2 ›", rata tengah di bawah kartu.
- *
- * Bukan deretan nomor halaman: pada 390px sepuluh nomor tidak muat, dan
- * memotongnya jadi "1 … 4 5 6 … 12" adalah logika yang harus dijaga untuk
- * imbalan yang tidak diminta siapa pun. Lompat ke halaman tertentu ditambahkan
- * kalau ternyata benar-benar dicari.
- */
-function DataListPager({ page, totalPage, onPickPage }: DataListPagination) {
-  return (
-    <nav
-      aria-label="Paginasi"
-      className="mt-4 flex items-center justify-center gap-2 px-gutter"
-    >
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        aria-label="Halaman sebelumnya"
-        disabled={page <= 1}
-        onClick={() => onPickPage(page - 1)}
-      >
-        <ChevronLeft aria-hidden />
-      </Button>
-
-      {/* aria-live: pengguna pembaca layar yang pindah halaman tidak melihat
-          daftar berubah, jadi perubahan nomor halamanlah yang mengabarkannya.
-          "1 / 2" dibacakan "satu garis miring dua", maka teks bacanya
-          terpisah. */}
-      <p
-        aria-live="polite"
-        className="text-muted-foreground min-w-12 text-center text-body tabular-nums"
-      >
-        <span aria-hidden>
-          {page} / {totalPage}
-        </span>
-        <span className="sr-only">
-          Halaman {page} dari {totalPage}
-        </span>
-      </p>
-
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        aria-label="Halaman berikutnya"
-        disabled={page >= totalPage}
-        onClick={() => onPickPage(page + 1)}
-      >
-        <ChevronRight aria-hidden />
-      </Button>
-    </nav>
   );
 }
