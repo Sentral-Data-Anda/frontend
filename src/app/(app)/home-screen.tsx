@@ -52,10 +52,10 @@ export function HomeScreen() {
       />
 
       <section className="px-gutter">
-        <p className="text-title font-semibold">
+        <p className="text-lead font-semibold">
           {greetingOf(now)}, {firstName}
         </p>
-        <p className="text-muted-foreground text-caption tabular-nums">
+        <p className="text-muted-foreground text-body tabular-nums">
           {formatLongDate(now)}
           {serviceCount > 0 ? ` · ${serviceCount} kebaktian` : null}
         </p>

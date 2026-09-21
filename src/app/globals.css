@@ -130,7 +130,12 @@
    * `text-title`/`text-body`/`text-caption`, dan lint menolak `text-sm`,
    * `text-lg`, `text-[18px]`, dst. di seluruh src/. `--font-size-title` naik
    * di breakpoint (lihat :root di bawah), sehingga layar tidak butuh `lg:`.
+   *
+   * Pengecualian (revisi user): `text-lead` 14px di SEMUA ukuran, untuk judul
+   * header halaman dan sapaan Beranda — satu-satunya teks 14px di mobile.
    */
+  --text-lead: 0.875rem;
+  --text-lead--line-height: 1.4;
   --text-title: var(--font-size-title);
   --text-title--line-height: 1.4;
   --text-body: 0.75rem;
