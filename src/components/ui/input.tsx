@@ -19,7 +19,7 @@ const inputVariants = cva(
       variant: {
         // Batas penuh 1px `--input` (≥3:1 terhadap latar, WCAG 1.4.11).
         outline:
-          "rounded-control border border-input bg-transparent disabled:bg-muted",
+          "rounded-control border border-input bg-card disabled:bg-primary-100",
         // Bidang abu tanpa garis, seperti mockup.
         filled: "rounded-control border-0 bg-input-fill",
       },

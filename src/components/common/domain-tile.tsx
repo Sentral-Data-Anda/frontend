@@ -8,16 +8,17 @@ import { MENU, MENU_ICON } from "@/config/menu";
  * Hidup di sini, bukan di layar: lint melarang langkah skala (`bg-primary-50`)
  * di `src/app` dan `src/features`. Ikon memakai langkah 900 dari skala yang
  * sama — kontras non-teks (WCAG 1.4.11, syarat 3:1) di atas bidangnya:
- * primary 6.74, secondary 5.59, warning 3.11, success 4.92. Label tidak pernah
- * berwarna; ia di bawah tile, di atas putih.
+ * primary 6.74, secondary 5.02, warning 3.11, success 4.46. Semua bidang langkah
+ * 100: langkah 50 (secondary/success) hilang di atas kanvas primary-50.
+ * Label tidak pernah berwarna.
  *
  * Empat domain yang tidak ada di mockup dipasangkan menurut kedekatan isi.
  */
 const TINT = {
   primary: { bg: "bg-primary-100", fg: "text-primary-900" },
-  secondary: { bg: "bg-secondary-50", fg: "text-secondary-900" },
+  secondary: { bg: "bg-secondary-100", fg: "text-secondary-900" },
   warning: { bg: "bg-warning-100", fg: "text-warning-900" },
-  success: { bg: "bg-success-50", fg: "text-success-900" },
+  success: { bg: "bg-success-100", fg: "text-success-900" },
 } as const;
 
 const tintOf = (slug: string) => TINT[DOMAIN_TINT[slug] ?? "primary"];
