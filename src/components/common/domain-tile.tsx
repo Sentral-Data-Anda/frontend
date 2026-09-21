@@ -33,31 +33,55 @@ const DOMAIN_TINT: Record<string, keyof typeof TINT> = {
   [MENU.SDM]: "success",
 };
 
+const ICON_SIZE = {
+  sm: { box: "size-control rounded-control", icon: "size-4" },
+  md: { box: "size-12 rounded-lg", icon: "size-5" },
+  lg: { box: "size-16 rounded-lg", icon: "size-7" },
+} as const;
+
+/**
+ * Kotak ber-tint berisi ikon domain. Diekspor supaya kartu lain (mis.
+ * `MenuCard`) memakai tint yang sama tanpa menyalin tabelnya.
+ */
+export function DomainIcon({
+  slug,
+  size = "md",
+}: {
+  slug: string;
+  size?: keyof typeof ICON_SIZE;
+}) {
+  const Icon = MENU_ICON[slug];
+
+  return (
+    <span
+      className={`flex shrink-0 items-center justify-center ${ICON_SIZE[size].box} ${TINT[DOMAIN_TINT[slug] ?? "primary"]}`}
+    >
+      {Icon ? <Icon className={ICON_SIZE[size].icon} aria-hidden /> : null}
+    </span>
+  );
+}
+
 /**
  * Ikon domain ber-tint dengan label di bawahnya.
  *
- * Hanya isi: pembungkus interaktifnya (`Link` di Beranda, `button` pembuka
- * sheet di Semua modul) milik pemanggil.
+ * Hanya isi: pembungkus interaktifnya (`Link` di Beranda dan Semua modul)
+ * milik pemanggil.
  */
 export function DomainTile({
   slug,
   label,
   meta,
+  size = "md",
 }: {
   slug: string;
   label: string;
   /** Baris kecil di bawah label, mis. "7 layar". */
   meta?: string;
+  size?: "md" | "lg";
 }) {
-  const Icon = MENU_ICON[slug];
-
   return (
     <span className="flex flex-col items-center gap-1.5 text-center">
-      <span
-        className={`flex size-12 items-center justify-center rounded-lg ${TINT[DOMAIN_TINT[slug] ?? "primary"]}`}
-      >
-        {Icon ? <Icon className="size-5" aria-hidden /> : null}
-      </span>
+      <DomainIcon slug={slug} size={size} />
 
       <span className="text-body leading-tight">{label}</span>
 
