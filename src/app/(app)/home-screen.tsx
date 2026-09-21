@@ -3,9 +3,10 @@
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 
+import { DomainTile } from "@/components/common/domain-tile";
 import { SectionHeader } from "@/components/common/section-header";
 import { PageHeader } from "@/components/layout/page-header";
-import { MENU_ICON, menuHref } from "@/config/menu";
+import { menuHref } from "@/config/menu";
 import { useSession } from "@/features/auth/session-provider";
 
 /**
@@ -43,7 +44,6 @@ export function HomeScreen() {
 
         <ul className="grid grid-cols-4 gap-3">
           {shortcuts.map((domain) => {
-            const Icon = MENU_ICON[domain.slug];
             const firstLeaf = domain.children[0];
 
             return (
@@ -52,15 +52,9 @@ export function HomeScreen() {
                   href={
                     firstLeaf ? menuHref(domain.slug, firstLeaf.slug) : "/modul"
                   }
-                  className="flex flex-col items-center gap-1.5 text-center"
+                  className="block"
                 >
-                  <span className="bg-muted flex size-12 items-center justify-center rounded-xl">
-                    {Icon ? <Icon className="size-5" aria-hidden /> : null}
-                  </span>
-
-                  <span className="text-caption leading-tight">
-                    {domain.name}
-                  </span>
+                  <DomainTile slug={domain.slug} label={domain.name} />
                 </Link>
               </li>
             );

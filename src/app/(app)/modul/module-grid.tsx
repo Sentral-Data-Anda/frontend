@@ -5,9 +5,10 @@ import Link from "next/link";
 import { useState } from "react";
 
 import { BottomSheet } from "@/components/common/bottom-sheet";
+import { DomainTile } from "@/components/common/domain-tile";
 import { Input } from "@/components/common/input";
 import { PageHeader } from "@/components/layout/page-header";
-import { MENU_ICON, menuHref } from "@/config/menu";
+import { menuHref } from "@/config/menu";
 import { useSession } from "@/features/auth/session-provider";
 import type { MenuNode } from "@/features/auth/types";
 
@@ -91,28 +92,21 @@ export function ModuleGrid() {
         </p>
       ) : (
         <ul className="grid grid-cols-3 gap-4 px-gutter">
-          {domains.map((domain) => {
-            const Icon = MENU_ICON[domain.slug];
-
-            return (
-              <li key={domain.publicId}>
-                <button
-                  type="button"
-                  onClick={() => setPickDomain(domain)}
-                  className="flex w-full flex-col items-center gap-1.5 text-center"
-                >
-                  <span className="bg-muted flex size-14 items-center justify-center rounded-2xl">
-                    {Icon ? <Icon className="size-6" aria-hidden /> : null}
-                  </span>
-
-                  <span className="text-body leading-tight">{domain.name}</span>
-                  <span className="text-muted-foreground text-caption">
-                    {domain.children.length} layar
-                  </span>
-                </button>
-              </li>
-            );
-          })}
+          {domains.map((domain) => (
+            <li key={domain.publicId}>
+              <button
+                type="button"
+                onClick={() => setPickDomain(domain)}
+                className="w-full"
+              >
+                <DomainTile
+                  slug={domain.slug}
+                  label={domain.name}
+                  meta={`${domain.children.length} layar`}
+                />
+              </button>
+            </li>
+          ))}
         </ul>
       )}
 
