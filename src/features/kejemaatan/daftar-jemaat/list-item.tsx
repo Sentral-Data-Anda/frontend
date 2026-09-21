@@ -1,3 +1,4 @@
+import { Avatar } from "@/components/common/avatar";
 import { DataListRow } from "@/components/common/data-list";
 import { Badge } from "@/components/ui/badge";
 
@@ -6,17 +7,6 @@ import {
   TYPE_JEMAAT_LABEL,
   type JemaatListItem,
 } from "./types";
-
-/**
- * Inisial nama untuk avatar.
- *
- * Satu huruf, bukan dua. Nama jemaat di sini lazim berupa nama lengkap tiga
- * kata ("Andreas Sitanggang Pardede"), dan dua huruf pada lingkaran 36px
- * membuat hurufnya mengecil sampai tidak terbaca justru pada layar yang paling
- * banyak dipakai.
- */
-const onPickInitial = (name: string): string =>
-  name.trim().charAt(0).toUpperCase() || "?";
 
 /**
  * Satu baris Daftar Jemaat.
@@ -40,14 +30,7 @@ export function JemaatListItemRow({ jemaat }: { jemaat: JemaatListItem }) {
 
   return (
     <DataListRow
-      leading={
-        <span
-          aria-hidden
-          className="bg-muted flex size-9 shrink-0 items-center justify-center rounded-full text-caption font-medium"
-        >
-          {onPickInitial(jemaat.name)}
-        </span>
-      }
+      leading={<Avatar label={jemaat.name} />}
       title={jemaat.name}
       meta={meta}
       trailing={
