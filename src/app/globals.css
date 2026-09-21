@@ -91,6 +91,7 @@
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-input-fill: var(--input-fill);
+  --color-input-fill-active: var(--input-fill-active);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
   --color-success: var(--success);
@@ -115,6 +116,14 @@
    * `px-gutter`, bukan `px-4`/`px-5` per komponen.
    */
   --spacing-gutter: 1.25rem;
+  /*
+   * Tinggi kontrol (input & tombol) 30px — keputusan user, menggantikan 44px.
+   * Masih ≥ 24px (WCAG 2.2 AA 2.5.8). Radius 8px: 12px di tinggi 30px nyaris
+   * pil. `h-control`, `size-control`, `rounded-control`. Baris daftar (56px)
+   * dan item navigasi tidak ikut.
+   */
+  --spacing-control: 1.875rem;
+  --radius-control: 0.5rem;
   /*
    * Skala teks — keputusan user: terbesar 12px di mobile/tablet, 14px hanya di
    * desktop (≥ lg), terkecil 10px. Hierarki lewat bobot (400–600) dan warna,
@@ -151,6 +160,7 @@
    * | foreground (p-900) / background           | 8.44:1 | 4.5:1  |
    * | muted-foreground (p-800) / background     | 6.20:1 | 4.5:1  |
    * | muted-foreground (p-800) / input-fill p50 | 5.66:1 | 4.5:1  |
+   * | muted-foreground (p-800) / fill aktif p100| 4.96:1 | 4.5:1  |
    * | input (p-500) / background                | 3.61:1 | 3:1    |
    * | input (p-500) / input-fill p50            | 3.29:1 | 3:1    |
    * | primary-foreground (putih) / primary p900 | 8.44:1 | 4.5:1  |
@@ -187,6 +197,8 @@
   --border: var(--color-primary-200);
   --input: var(--color-primary-500);
   --input-fill: var(--color-primary-50);
+  /* Latar input saat fokus — indikator fokusnya (tanpa border/ring). */
+  --input-fill-active: var(--color-primary-100);
   --ring: var(--color-primary-600);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);

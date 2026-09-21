@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 
 import { BottomSheet } from "@/components/common/bottom-sheet";
+import { Input } from "@/components/common/input";
 import { PageHeader } from "@/components/layout/page-header";
 import { MENU_ICON, menuHref } from "@/config/menu";
 import { useSession } from "@/features/auth/session-provider";
@@ -67,18 +68,19 @@ export function ModuleGrid() {
       />
 
       <div className="px-gutter pb-4">
-        <div className="border-input bg-background flex h-11 items-center gap-2 rounded-xl border px-3">
+        <div className="relative">
           <Search
-            className="text-muted-foreground size-4 shrink-0"
+            className="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2"
             aria-hidden
           />
 
-          <input
+          <Input
+            type="search"
             value={searchData}
             onChange={(event) => setSearchData(event.target.value)}
             placeholder="Cari modul atau layar"
             aria-label="Cari modul atau layar"
-            className="h-full w-full bg-transparent text-body outline-none"
+            className="pl-8"
           />
         </div>
       </div>

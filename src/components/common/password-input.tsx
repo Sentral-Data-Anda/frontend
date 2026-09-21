@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
  * Input password dengan tombol tampilkan/sembunyikan.
  *
  * Tombolnya `type="button"` — tanpa itu, menekannya men-submit form. Target
- * sentuhnya 44px (size-11) penuh setinggi input, bukan ikon 16px.
+ * sentuhnya 30px (`size="icon"`) penuh setinggi input, bukan ikon 16px.
  */
 export function PasswordInput({
   className,
@@ -24,7 +24,7 @@ export function PasswordInput({
     <div className="relative">
       <Input
         type={isVisible.value ? "text" : "password"}
-        className={cn("pr-12", className)}
+        className={cn("pr-8", className)}
         {...props}
       />
       <Button

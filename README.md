@@ -137,6 +137,15 @@ auto-zoom saat fokus pada input <16px, dicegah `maximumScale: 1` di
 `viewport` (`src/app/layout.tsx`) — di iOS pinch-zoom manual tetap bisa, di
 Android Chrome pinch-zoom ikut mati. Diterima user.
 
+Tinggi kontrol (**keputusan user, menggantikan tombol/input 44px**): input
+dan tombol 30px (`h-control`, radius 8px `rounded-control`), jadi ukuran
+default `ui/input.tsx` dan `ui/button.tsx`. Tangga tombol xs 24 · sm 28 ·
+default 30 · lg 36; semuanya ≥ 24px (WCAG 2.2 AA 2.5.8), tetapi di bawah
+pedoman sentuh 44px iOS. Input fokus **tanpa border dan ring**: indikator
+fokusnya latar yang naik ke `input-fill-active` (primary-100) dan hilangnya
+garis `--input`; invalid = garis `destructive`, saat fokus latar
+`destructive/10`. Baris daftar (56px) dan item navigasi tidak ikut mengecil.
+
 Pratinjau tiga ukuran sekaligus (development saja):
 
 ```bash

@@ -76,7 +76,7 @@ export default function GlobalError({
           <button
             type="button"
             onClick={() => unstable_retry()}
-            className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-md px-4 py-2 text-body font-medium"
+            className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex h-control items-center rounded-control px-3 text-body font-medium"
           >
             Coba lagi
           </button>

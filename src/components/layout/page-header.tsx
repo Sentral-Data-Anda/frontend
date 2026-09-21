@@ -25,7 +25,9 @@ export function PageHeader({
         <Link
           href={backHref}
           aria-label="Kembali"
-          className="border-border flex size-11 shrink-0 items-center justify-center rounded-full border"
+          // Tampil 30px; `after:` memperluas area sentuh tak terlihat ke 42px
+          // tanpa membesarkan layout.
+          className="border-border relative flex size-control shrink-0 items-center justify-center rounded-full border after:absolute after:-inset-1.5"
         >
           <ArrowLeft className="size-4" aria-hidden />
         </Link>
