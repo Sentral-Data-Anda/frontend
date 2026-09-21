@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { connection } from "next/server";
 
-import { Container } from "@/components/layout/container";
+import { shellWidth } from "@/components/layout/shell-width";
+import { cn } from "@/lib/utils";
 
 /**
  * Halaman fallback saat navigasi gagal karena tidak ada jaringan.
@@ -28,12 +29,17 @@ export default async function OfflinePage() {
   await connection();
 
   return (
-    <Container className="flex min-h-[60vh] flex-col items-center justify-center gap-4 text-center">
+    <div
+      className={cn(
+        shellWidth,
+        "flex min-h-[60vh] flex-col items-center justify-center gap-4 px-4 text-center",
+      )}
+    >
       <h1 className="text-2xl font-semibold">Tidak ada koneksi</h1>
       <p className="text-muted-foreground max-w-md text-sm">
         Halaman ini butuh jaringan dan perangkat Anda sedang offline. Periksa
         koneksi, lalu muat ulang.
       </p>
-    </Container>
+    </div>
   );
 }

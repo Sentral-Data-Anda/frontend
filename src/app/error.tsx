@@ -3,7 +3,8 @@
 import { useEffect } from "react";
 
 import { Button } from "@/components/common/button";
-import { Container } from "@/components/layout/container";
+import { shellWidth } from "@/components/layout/shell-width";
+import { cn } from "@/lib/utils";
 
 /**
  * Error boundary tingkat root (lihat
@@ -48,7 +49,12 @@ export default function Error({
   }, [error]);
 
   return (
-    <Container className="flex min-h-[60vh] flex-col items-center justify-center gap-4 text-center">
+    <div
+      className={cn(
+        shellWidth,
+        "flex min-h-[60vh] flex-col items-center justify-center gap-4 px-4 text-center",
+      )}
+    >
       <h1 className="text-2xl font-semibold">Terjadi kesalahan</h1>
       <p className="max-w-md text-muted-foreground">
         Maaf, terjadi kendala saat memuat halaman. Silakan coba lagi beberapa
@@ -61,6 +67,6 @@ export default function Error({
         </p>
       )}
       <Button onClick={() => unstable_retry()}>Coba lagi</Button>
-    </Container>
+    </div>
   );
 }

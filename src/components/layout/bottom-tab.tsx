@@ -76,7 +76,7 @@ export function BottomTab() {
   return (
     <nav
       aria-label="Navigasi utama"
-      className="border-border bg-background sticky bottom-0 z-40 border-t pb-[env(safe-area-inset-bottom)]"
+      className="border-border bg-background sticky bottom-0 z-40 border-t pb-[env(safe-area-inset-bottom)] lg:hidden"
     >
       <ul className="flex">
         {tabs.map((tab) => {

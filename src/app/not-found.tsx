@@ -1,11 +1,17 @@
 import Link from "next/link";
 
 import { buttonVariants } from "@/components/common/button";
-import { Container } from "@/components/layout/container";
+import { shellWidth } from "@/components/layout/shell-width";
+import { cn } from "@/lib/utils";
 
 export default function NotFound() {
   return (
-    <Container className="flex min-h-[60vh] flex-col items-center justify-center gap-4 text-center">
+    <div
+      className={cn(
+        shellWidth,
+        "flex min-h-[60vh] flex-col items-center justify-center gap-4 px-4 text-center",
+      )}
+    >
       <p className="text-5xl font-bold text-primary">404</p>
       <h1 className="text-2xl font-semibold">Halaman tidak ditemukan</h1>
       <p className="max-w-md text-muted-foreground">
@@ -14,6 +20,6 @@ export default function NotFound() {
       <Link href="/" className={buttonVariants()}>
         Kembali ke beranda
       </Link>
-    </Container>
+    </div>
   );
 }

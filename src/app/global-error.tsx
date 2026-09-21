@@ -24,7 +24,7 @@ import "./globals.css";
  * 3. Global styles tidak ikut sendiri; karena itu globals.css diimpor
  *    eksplisit di atas.
  *
- * Sengaja TIDAK memakai komponen bersama (Container, Button). Kalau yang
+ * Sengaja TIDAK memakai komponen bersama (shellWidth, Button). Kalau yang
  * gagal justru salah satu komponen itu, halaman inipun akan gagal — dan
  * jaring terakhir yang ikut jebol tidak menangkap apa pun.
  *
