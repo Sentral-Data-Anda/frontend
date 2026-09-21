@@ -91,4 +91,10 @@ describe("isTabActive", () => {
   test("'/' aktif tepat di '/'", () => {
     expect(isTabActive("/", "/")).toBe(true);
   });
+
+  test("halaman domain tidak menyalakan tab mana pun", () => {
+    for (const tab of TABS) {
+      expect(isTabActive(tab.href, "/peribadahan")).toBe(false);
+    }
+  });
 });

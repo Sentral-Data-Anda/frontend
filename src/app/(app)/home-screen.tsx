@@ -6,7 +6,7 @@ import { Avatar } from "@/components/common/avatar";
 import { DomainTile } from "@/components/common/domain-tile";
 import { SectionHeader } from "@/components/common/section-header";
 import { PageHeader } from "@/components/layout/page-header";
-import { MENU, menuHref } from "@/config/menu";
+import { MENU, domainEntryHref } from "@/config/menu";
 import { siteConfig } from "@/config/site";
 import { useSession } from "@/features/auth/session-provider";
 import { useMenuAccess } from "@/features/auth/use-menu-access";
@@ -75,22 +75,13 @@ export function HomeScreen() {
         />
 
         <ul className="grid grid-cols-4 gap-3">
-          {shortcuts.map((domain) => {
-            const firstLeaf = domain.children[0];
-
-            return (
-              <li key={domain.publicId}>
-                <Link
-                  href={
-                    firstLeaf ? menuHref(domain.slug, firstLeaf.slug) : "/modul"
-                  }
-                  className="block"
-                >
-                  <DomainTile slug={domain.slug} label={domain.name} />
-                </Link>
-              </li>
-            );
-          })}
+          {shortcuts.map((domain) => (
+            <li key={domain.publicId}>
+              <Link href={domainEntryHref(domain)} className="block">
+                <DomainTile slug={domain.slug} label={domain.name} />
+              </Link>
+            </li>
+          ))}
         </ul>
       </section>
 

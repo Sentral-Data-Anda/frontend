@@ -1,14 +1,13 @@
 "use client";
 
-import { ChevronRight, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
-import { BottomSheet } from "@/components/common/bottom-sheet";
 import { DomainTile } from "@/components/common/domain-tile";
 import { Input } from "@/components/common/input";
 import { PageHeader } from "@/components/layout/page-header";
-import { menuHref } from "@/config/menu";
+import { domainEntryHref } from "@/config/menu";
 import { useSession } from "@/features/auth/session-provider";
 import type { MenuNode } from "@/features/auth/types";
 
@@ -48,12 +47,7 @@ export function filterDomains(
 export function ModuleGrid() {
   const session = useSession();
 
-  const [pickDomain, setPickDomain] = useState<MenuNode | null>(null);
   const [searchData, setSearchData] = useState("");
-
-  const onCloseSheet = () => {
-    setPickDomain(null);
-  };
 
   const domains = filterDomains(session.menu, searchData);
 
@@ -94,17 +88,13 @@ export function ModuleGrid() {
         <ul className="grid grid-cols-3 gap-4 px-gutter">
           {domains.map((domain) => (
             <li key={domain.publicId}>
-              <button
-                type="button"
-                onClick={() => setPickDomain(domain)}
-                className="w-full"
-              >
+              <Link href={domainEntryHref(domain)} className="block">
                 <DomainTile
                   slug={domain.slug}
                   label={domain.name}
                   meta={`${domain.children.length} layar`}
                 />
-              </button>
+              </Link>
             </li>
           ))}
         </ul>
@@ -113,41 +103,6 @@ export function ModuleGrid() {
       <p className="text-muted-foreground px-gutter pt-8 text-caption">
         Modul yang tidak Anda pegang tidak ditampilkan.
       </p>
-
-      <BottomSheet
-        isOpen={pickDomain !== null}
-        title={pickDomain?.name ?? ""}
-        subtitle={
-          pickDomain
-            ? `${pickDomain.children.length} layar · ${pickDomain.slug}`
-            : undefined
-        }
-        onClose={onCloseSheet}
-      >
-        <ul className="divide-border divide-y">
-          {pickDomain?.children.map((leaf) => (
-            <li key={leaf.publicId}>
-              <Link
-                href={menuHref(pickDomain.slug, leaf.slug)}
-                onClick={onCloseSheet}
-                className="flex h-14 items-center justify-between px-gutter"
-              >
-                <span className="min-w-0">
-                  <span className="block truncate text-body">{leaf.name}</span>
-                  <span className="text-muted-foreground block truncate text-caption">
-                    {leaf.slug}
-                  </span>
-                </span>
-
-                <ChevronRight
-                  className="text-muted-foreground size-4 shrink-0"
-                  aria-hidden
-                />
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </BottomSheet>
     </div>
   );
 }
