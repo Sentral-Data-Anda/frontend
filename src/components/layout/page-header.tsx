@@ -6,6 +6,7 @@ import Link from "next/link";
  *
  * `leading` mengisi slot kiri yang sama dengan tombol kembali (mis. avatar di
  * Beranda). Layar dengan `backHref` tidak butuh keduanya sekaligus.
+ * `eyebrow` adalah baris kecil kapital di atas judul (Beranda: nama aplikasi).
  *
  * `backHref` berupa tautan, bukan `router.back()`. Layar ini bisa dibuka
  * langsung dari notifikasi push atau dari tautan yang dibagikan, dan pada
@@ -13,12 +14,14 @@ import Link from "next/link";
  */
 export function PageHeader({
   title,
+  eyebrow,
   subtitle,
   backHref,
   leading,
   action,
 }: {
   title: string;
+  eyebrow?: string;
   subtitle?: string;
   backHref?: string;
   leading?: React.ReactNode;
@@ -41,6 +44,11 @@ export function PageHeader({
       )}
 
       <div className="min-w-0 flex-1">
+        {eyebrow ? (
+          <p className="text-muted-foreground truncate text-caption font-medium tracking-wider uppercase">
+            {eyebrow}
+          </p>
+        ) : null}
         <h1 className="truncate text-lead font-semibold">{title}</h1>
         {subtitle ? (
           <p className="text-muted-foreground truncate text-body">{subtitle}</p>

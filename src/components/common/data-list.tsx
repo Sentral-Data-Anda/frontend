@@ -100,6 +100,7 @@ export function DataList<T>({
   emptyDescription,
   emptyAction,
   pagination,
+  inset = false,
 }: {
   items: T[] | undefined;
   /** Kunci stabil dari data. Indeks array dilarang (§7 aturan 5). */
@@ -115,6 +116,12 @@ export function DataList<T>({
   emptyDescription?: string;
   emptyAction?: ReactNode;
   pagination?: DataListPagination;
+  /**
+   * Garis pemisah mulai dari tepi kiri judul (setelah `leading` 40px + gap
+   * 12px) sampai gutter kanan, baris langsung di atas kanvas. Bawaan: baris
+   * putih (`bg-card`) dengan garis full-bleed, untuk layar daftar.
+   */
+  inset?: boolean;
 }) {
   if (error) {
     return (
@@ -144,7 +151,8 @@ export function DataList<T>({
     );
   }
 
-  if (isLoading || !items) return <LoadingList />;
+  if (isLoading || !items)
+    return <LoadingList className={inset ? undefined : "bg-card"} />;
 
   if (items.length === 0) {
     return (
@@ -161,7 +169,10 @@ export function DataList<T>({
       <ul
         aria-label={label}
         className={cn(
-          "divide-border divide-y transition-opacity",
+          "transition-opacity",
+          inset
+            ? "[&>li]:relative [&>li+li]:before:absolute [&>li+li]:before:top-0 [&>li+li]:before:right-gutter [&>li+li]:before:left-[calc(var(--spacing-gutter)+3.25rem)] [&>li+li]:before:border-t [&>li+li]:before:border-border"
+            : "divide-border bg-card divide-y",
           isRefreshing && "opacity-60",
         )}
       >
