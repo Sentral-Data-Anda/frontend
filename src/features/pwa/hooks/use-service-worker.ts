@@ -30,6 +30,13 @@ type ServiceWorkerState = {
  * ada — yang membedakan "ada update" dari "instalasi pertama". Pada instalasi
  * pertama belum ada controller, dan menampilkan toast "versi baru tersedia"
  * di situ akan membingungkan: tidak ada versi lama yang digantikan.
+ *
+ * Instalasi pertama juga memicu `controllerchange`: `clients.claim()` di
+ * `activate` (public/sw.js) mengambil alih halaman yang tadinya tanpa
+ * controller. Langkah 5 karena itu hanya me-reload bila halaman ini dibuka
+ * di bawah controller lama, atau bila update sudah terdeteksi di sesi ini
+ * (`waitingRef`) — tanpa syarat itu setiap kunjungan pertama memuat ulang
+ * dokumen, mengulang semua request API, dan menghapus isian form login.
  */
 export function useServiceWorker(): ServiceWorkerState {
   const isUpdateReady = useBoolean(false);
@@ -55,6 +62,7 @@ export function useServiceWorker(): ServiceWorkerState {
     }
 
     let cancelled = false;
+    const hadController = !!navigator.serviceWorker.controller;
 
     const markWaiting = (worker: ServiceWorker | null) => {
       if (cancelled || !worker) {
@@ -72,7 +80,7 @@ export function useServiceWorker(): ServiceWorkerState {
     };
 
     const onControllerChange = () => {
-      if (reloadingRef.current) {
+      if (reloadingRef.current || (!hadController && !waitingRef.current)) {
         return;
       }
       reloadingRef.current = true;
