@@ -4,8 +4,9 @@ import { ChevronLeft, ChevronRight, TriangleAlert } from "lucide-react";
 import { Fragment, type ReactNode } from "react";
 
 import { EmptyState } from "@/components/common/empty-state";
-import { LoadingList } from "@/components/common/loading-list";
+import { LIST_DIVIDER, LoadingList } from "@/components/common/loading-list";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 /**
@@ -45,19 +46,27 @@ export function DataListRow({
     <li className={cn("flex h-14 items-center gap-3 px-gutter", className)}>
       {leading}
 
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-body font-medium">{title}</p>
+      {/* `data-slot="row-body"`: garis pemisah `DataList` digambar di sini,
+          bukan di `<li>`, supaya garisnya mulai tepat di tepi kiri judul
+          berapa pun lebar `leading` (avatar 36px, kotak jam 40px, kosong). */}
+      <div
+        data-slot="row-body"
+        className="flex min-w-0 flex-1 items-center gap-3 self-stretch border-border"
+      >
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-body font-medium">{title}</p>
 
-        {meta ? (
-          <p className="text-muted-foreground truncate text-caption tabular-nums">
-            {meta}
-          </p>
+          {meta ? (
+            <p className="text-muted-foreground truncate text-caption tabular-nums">
+              {meta}
+            </p>
+          ) : null}
+        </div>
+
+        {trailing ? (
+          <div className="flex shrink-0 items-center gap-2">{trailing}</div>
         ) : null}
       </div>
-
-      {trailing ? (
-        <div className="flex shrink-0 items-center gap-2">{trailing}</div>
-      ) : null}
     </li>
   );
 }
@@ -69,11 +78,42 @@ export type DataListPagination = {
 };
 
 /**
+ * Bingkai daftar. Bawaan: satu kartu putih bersudut 12px di atas kanvas,
+ * bergutter kiri-kanan — bentuk yang sama dengan kartu kas Beranda.
+ * `[&_li]:px-3.5` mengganti `px-gutter` baris dengan padding kartu 14px;
+ * selektor induk menang atas kelas baris karena spesifisitasnya lebih tinggi.
+ *
+ * `inset`: tanpa kartu, baris langsung di atas kanvas (Beranda "Hari ini").
+ *
+ * Diekspor untuk fallback `Suspense` layar daftar, supaya skeleton sebelum
+ * layar termuat sudah berbentuk kartu yang sama.
+ */
+export function DataListFrame({
+  inset = false,
+  children,
+}: {
+  inset?: boolean;
+  children: ReactNode;
+}) {
+  if (inset) return <>{children}</>;
+
+  return (
+    <div className="px-gutter">
+      <Card className="gap-0 rounded-lg py-0 shadow-sm [&_li]:px-3.5">
+        {children}
+      </Card>
+    </div>
+  );
+}
+
+/**
  * Daftar berpaginasi beserta SELURUH keadaannya: memuat, kosong, galat, isi.
  *
  * Empat keadaan itu adalah alasan komponen ini ada. Ditulis di layar, tiap
  * layar memilih sendiri mana yang diurus — dan yang paling sering terlupa
- * adalah galat, karena ia tidak pernah muncul saat menyusun layarnya.
+ * adalah galat, karena ia tidak pernah muncul saat menyusun layarnya. Keempatnya
+ * tampil di dalam bingkai yang sama (`DataListFrame`), jadi kartu tidak
+ * melompat bentuk saat data tiba atau gagal.
  *
  * `isLoading` vs `isRefreshing` adalah pembedaan yang menentukan rasa layar
  * ini. Skeleton hanya tampil saat BELUM ADA APA-APA. Pindah halaman atau
@@ -116,75 +156,81 @@ export function DataList<T>({
   emptyDescription?: string;
   emptyAction?: ReactNode;
   pagination?: DataListPagination;
-  /**
-   * Garis pemisah mulai dari tepi kiri judul (setelah `leading` 40px + gap
-   * 12px) sampai gutter kanan, baris langsung di atas kanvas. Bawaan: baris
-   * putih (`bg-card`) dengan garis full-bleed, untuk layar daftar.
-   */
+  /** Lihat `DataListFrame`. Bawaan: kartu (layar daftar). */
   inset?: boolean;
 }) {
   if (error) {
     return (
-      <div
-        role="alert"
-        className="flex flex-col items-center justify-center px-6 py-16 text-center"
-      >
-        <TriangleAlert className="text-destructive mb-3 size-8" aria-hidden />
+      <DataListFrame inset={inset}>
+        <div
+          role="alert"
+          className="flex flex-col items-center justify-center px-6 py-12 text-center"
+        >
+          <TriangleAlert className="text-destructive mb-3 size-8" aria-hidden />
 
-        <p className="text-body font-medium">Gagal memuat data</p>
+          <p className="text-body font-medium">Gagal memuat data</p>
 
-        <p className="text-muted-foreground mt-1 max-w-xs text-body text-balance">
-          {error.message}
-        </p>
+          <p className="text-muted-foreground mt-1 max-w-xs text-body text-balance">
+            {error.message}
+          </p>
 
-        {onRetry ? (
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onRetry}
-            className="mt-4"
-          >
-            Coba lagi
-          </Button>
-        ) : null}
-      </div>
+          {onRetry ? (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onRetry}
+              className="mt-4"
+            >
+              Coba lagi
+            </Button>
+          ) : null}
+        </div>
+      </DataListFrame>
     );
   }
 
-  if (isLoading || !items)
-    return <LoadingList className={inset ? undefined : "bg-card"} />;
+  if (isLoading || !items) {
+    return (
+      <DataListFrame inset={inset}>
+        <LoadingList />
+      </DataListFrame>
+    );
+  }
 
   if (items.length === 0) {
     return (
-      <EmptyState
-        title={emptyTitle}
-        description={emptyDescription}
-        action={emptyAction}
-      />
+      <DataListFrame inset={inset}>
+        <EmptyState
+          title={emptyTitle}
+          description={emptyDescription}
+          action={emptyAction}
+          className="py-12"
+        />
+      </DataListFrame>
     );
   }
 
   return (
     <div aria-busy={isRefreshing || undefined}>
-      <ul
-        aria-label={label}
-        className={cn(
-          "transition-opacity",
-          inset
-            ? "[&>li]:relative [&>li+li]:before:absolute [&>li+li]:before:top-0 [&>li+li]:before:right-gutter [&>li+li]:before:left-[calc(var(--spacing-gutter)+3.25rem)] [&>li+li]:before:border-t [&>li+li]:before:border-border"
-            : "divide-border bg-card divide-y",
-          isRefreshing && "opacity-60",
-        )}
-      >
-        {items.map((item) => (
-          // `Fragment` berkunci, bukan `<div key>`: kunci harus ada di
-          // elemen terluar yang dikembalikan `.map()`, sementara
-          // `children(item)` sudah membawa `<li>`-nya sendiri. Elemen nyata
-          // apa pun yang diselipkan antara `<ul>` dan `<li>` mematikan
-          // `divide-y` dan merusak struktur daftar bagi pembaca layar.
-          <Fragment key={getKey(item)}>{children(item)}</Fragment>
-        ))}
-      </ul>
+      <DataListFrame inset={inset}>
+        <ul
+          aria-label={label}
+          className={cn(
+            LIST_DIVIDER,
+            "transition-opacity",
+            isRefreshing && "opacity-60",
+          )}
+        >
+          {items.map((item) => (
+            // `Fragment` berkunci, bukan `<div key>`: kunci harus ada di
+            // elemen terluar yang dikembalikan `.map()`, sementara
+            // `children(item)` sudah membawa `<li>`-nya sendiri. Elemen nyata
+            // apa pun yang diselipkan antara `<ul>` dan `<li>` mematikan
+            // garis pemisah dan merusak struktur daftar bagi pembaca layar.
+            <Fragment key={getKey(item)}>{children(item)}</Fragment>
+          ))}
+        </ul>
+      </DataListFrame>
 
       {pagination && pagination.totalPage > 1 ? (
         <DataListPager {...pagination} />
@@ -194,49 +240,54 @@ export function DataList<T>({
 }
 
 /**
- * Paginasi "sebelumnya / halaman x dari y / berikutnya".
+ * Paginasi ringkas "‹ 1 / 2 ›", rata tengah di bawah kartu.
  *
  * Bukan deretan nomor halaman: pada 390px sepuluh nomor tidak muat, dan
  * memotongnya jadi "1 … 4 5 6 … 12" adalah logika yang harus dijaga untuk
  * imbalan yang tidak diminta siapa pun. Lompat ke halaman tertentu ditambahkan
- * kalau ternyata benar-benar dicari — sampai itu terbukti, dua tombol sudah
- * mengerjakan seluruh tugasnya.
+ * kalau ternyata benar-benar dicari.
  */
 function DataListPager({ page, totalPage, onPickPage }: DataListPagination) {
   return (
     <nav
       aria-label="Paginasi"
-      className="border-border flex items-center justify-between gap-3 border-t px-gutter py-3"
+      className="mt-4 flex items-center justify-center gap-2 px-gutter"
     >
       <Button
         type="button"
-        variant="outline"
-        size="sm"
+        variant="ghost"
+        size="icon"
+        aria-label="Halaman sebelumnya"
         disabled={page <= 1}
         onClick={() => onPickPage(page - 1)}
       >
         <ChevronLeft aria-hidden />
-        Sebelumnya
       </Button>
 
-      {/* aria-live: pengguna pembaca layar yang menekan "Berikutnya" tidak
-          melihat daftar berubah, jadi perubahan nomor halamanlah yang
-          mengabarkannya. */}
+      {/* aria-live: pengguna pembaca layar yang pindah halaman tidak melihat
+          daftar berubah, jadi perubahan nomor halamanlah yang mengabarkannya.
+          "1 / 2" dibacakan "satu garis miring dua", maka teks bacanya
+          terpisah. */}
       <p
         aria-live="polite"
-        className="text-muted-foreground text-caption tabular-nums"
+        className="text-muted-foreground min-w-12 text-center text-body tabular-nums"
       >
-        Halaman {page} dari {totalPage}
+        <span aria-hidden>
+          {page} / {totalPage}
+        </span>
+        <span className="sr-only">
+          Halaman {page} dari {totalPage}
+        </span>
       </p>
 
       <Button
         type="button"
-        variant="outline"
-        size="sm"
+        variant="ghost"
+        size="icon"
+        aria-label="Halaman berikutnya"
         disabled={page >= totalPage}
         onClick={() => onPickPage(page + 1)}
       >
-        Berikutnya
         <ChevronRight aria-hidden />
       </Button>
     </nav>

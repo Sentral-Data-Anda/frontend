@@ -7,10 +7,12 @@ import { cn } from "@/lib/utils";
  *
  * Bentuk sebelumnya (`rounded-lg border border-dashed py-16`) adalah kotak
  * melayang di tengah halaman. Itu benar untuk kartu, tapi salah di sini:
- * tempat komponen ini muncul adalah di dalam daftar full-bleed ber-`divide-y`,
+ * tempat komponen ini muncul adalah di dalam bingkai daftar,
  * dan kotak bergaris putus-putus di sana terbaca sebagai potongan dari bahasa
  * desain yang lain — seolah ada komponen yang gagal dimuat. Daftar yang kosong
- * harus terlihat seperti daftar yang kosong, bukan seperti kesalahan.
+ * harus terlihat seperti daftar yang kosong, bukan seperti kesalahan. Di layar
+ * daftar, bingkainya adalah kartu `DataListFrame` — komponen ini tidak
+ * membawa bingkai sendiri.
  */
 export function EmptyState({
   title = "Belum ada data",

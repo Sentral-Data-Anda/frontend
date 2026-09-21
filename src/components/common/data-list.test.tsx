@@ -97,13 +97,33 @@ describe("DataList", () => {
 
     expect(
       screen
-        .getByRole("button", { name: "Sebelumnya" })
+        .getByRole("button", { name: "Halaman sebelumnya" })
         .hasAttribute("disabled"),
     ).toBe(true);
     expect(
       screen
-        .getByRole("button", { name: "Berikutnya" })
+        .getByRole("button", { name: "Halaman berikutnya" })
         .hasAttribute("disabled"),
     ).toBe(false);
+  });
+
+  test("nomor halaman dibacakan utuh, bukan '1 / 3'", () => {
+    onRenderList({
+      pagination: { page: 1, totalPage: 3, onPickPage: () => {} },
+    });
+
+    expect(screen.getByText("Halaman 1 dari 3")).toBeTruthy();
+  });
+
+  /**
+   * Garis pemisah digambar di badan baris, bukan `<li>` — kalau `DataListRow`
+   * kehilangan `data-slot`, garisnya hilang diam-diam tanpa ada yang gagal.
+   */
+  test("setiap baris membawa badan tempat garis pemisah digambar", () => {
+    const { container } = onRenderList({});
+
+    expect(
+      container.querySelectorAll("li > [data-slot=row-body]"),
+    ).toHaveLength(2);
   });
 });
