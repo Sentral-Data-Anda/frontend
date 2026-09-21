@@ -153,11 +153,32 @@ Pratinjau tiga ukuran sekaligus (development saja):
 ```bash
 bun run dev:mock
 # http://localhost:3000/dev/preview?path=/login                   (belum masuk)
+# http://localhost:3000/dev/preview?path=/                        (Beranda)
 # http://localhost:3000/dev/preview?path=/kejemaatan/daftar-jemaat
 ```
 
 Tiga iframe: 390×844, 820×1180, dan 1440×900 (diperkecil 50%). `path` harus
 path di origin ini. Framing same-origin hanya diizinkan di development.
+
+Varian tiruan: `MOCK_NO_CREATE=1` (tanpa tombol Tambah), `MOCK_500=1` (daftar
+jemaat & ibadah galat), `MOCK_NO_IBADAH=1` (tidak ada ibadah hari ini). Port
+bisa digeser dengan `MOCK_API_PORT` dan `PORT`, tapi Next menolak `next dev`
+kedua di direktori yang sama — matikan yang lama dulu.
+
+### Data dummy Beranda
+
+Kartu **Kas gabungan** dan **lonceng notifikasi** di Beranda masih dummy
+(endpoint agregat kas dan modul notifikasi be-sada belum ada). Seluruh datanya
+di `src/features/beranda/dummy.ts`, dan keduanya hanya dirender bila
+`SHOW_DUMMY` — `process.env.NODE_ENV !== "production"`. Di production keduanya
+tidak muncul sama sekali, dan string dummy-nya tidak ikut ke bundle client.
+
+Menyalakannya di production (hanya bila diminta, mis. untuk demo): ubah baris
+itu menjadi
+`process.env.NODE_ENV !== "production" || process.env.NEXT_PUBLIC_SHOW_DUMMY === "1"`
+lalu build dengan `NEXT_PUBLIC_SHOW_DUMMY=1`. Nilainya ditanam saat **build**,
+bukan saat start. Saat data asli ada: hapus `dummy.ts` beserta kedua
+pemeriksaannya di `src/app/(app)/home-screen.tsx`.
 
 ## Struktur
 
