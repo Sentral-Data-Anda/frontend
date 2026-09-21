@@ -88,6 +88,42 @@ hapus pemulihan itu.
 komponen; auto-cleanup-nya bergantung pada hook global Jest/Vitest yang tidak
 ada di `bun test`.
 
+## Responsif
+
+Urutan review selalu **mobile → tablet → desktop**. Hanya dua breakpoint,
+default Tailwind: `md` (768px) dan `lg` (1024px). `sm:`, `xl:`, `2xl:`,
+`min-[…]`, dan `max-[…]` tidak dipakai di mana pun.
+
+Siapa boleh menulis apa:
+
+| Tempat                          | Boleh                                             |
+| ------------------------------- | ------------------------------------------------- |
+| `src/components/layout/**`      | media query `md:` / `lg:` (shell, sidebar, tab)   |
+| `src/components/common/**`      | container query (`@container`, `@md:`)            |
+| `src/app/(auth)/layout.tsx`     | media query — rumah seluruh responsif layar masuk |
+| `src/app/**`, `src/features/**` | **tidak ada** — layar bebas breakpoint            |
+
+Baris terakhir ditegakkan ESLint (`no-restricted-syntax`, beserta larangan
+warna palet mentah, `-[#…]`, dan `dark:`); pembagian layout vs common adalah
+konvensi review. Bukti aturannya: `bunx eslint --no-inline-config
+tests/fixtures/eslint-kelas.tsx`.
+
+Lebar konten milik shell, bukan layar: `shellWidth` di
+`src/components/layout/shell-width.ts` — penuh → `md:max-w-2xl` →
+`lg:max-w-3xl`. Di bawah `lg` navigasinya bottom tab; mulai `lg` sidebar
+berlabel 16rem dari `session.menu`. Keduanya ditukar lewat CSS, bukan JS.
+
+Pratinjau tiga ukuran sekaligus (development saja):
+
+```bash
+bun run dev:mock
+# http://localhost:3000/dev/preview?path=/login                   (belum masuk)
+# http://localhost:3000/dev/preview?path=/kejemaatan/daftar-jemaat
+```
+
+Tiga iframe: 390×844, 820×1180, dan 1440×900 (diperkecil 50%). `path` harus
+path di origin ini. Framing same-origin hanya diizinkan di development.
+
 ## Struktur
 
 - `src/app` — routing, tipis. Metadata, manifest, ikon, halaman.
