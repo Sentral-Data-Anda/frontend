@@ -154,6 +154,7 @@ Pratinjau tiga ukuran sekaligus (development saja):
 bun run dev:mock
 # http://localhost:3000/dev/preview?path=/login                   (belum masuk)
 # http://localhost:3000/dev/preview?path=/                        (Beranda)
+# http://localhost:3000/dev/preview?path=/kejemaatan                (halaman domain)
 # http://localhost:3000/dev/preview?path=/kejemaatan/daftar-jemaat
 ```
 
@@ -161,9 +162,32 @@ Tiga iframe: 390×844, 820×1180, dan 1440×900 (diperkecil 50%). `path` harus
 path di origin ini. Framing same-origin hanya diizinkan di development.
 
 Varian tiruan: `MOCK_NO_CREATE=1` (tanpa tombol Tambah), `MOCK_500=1` (daftar
-jemaat & ibadah galat), `MOCK_NO_IBADAH=1` (tidak ada ibadah hari ini). Port
+jemaat & ibadah galat), `MOCK_NO_IBADAH=1` (tidak ada ibadah hari ini), `MOCK_SINGLE_LEAF=1`
+(Peribadahan hanya punya Ibadah → tile-nya dan `/peribadahan` langsung ke
+layar itu; Pengaturan tidak dipegang → `/pengaturan` 404). Port
 bisa digeser dengan `MOCK_API_PORT` dan `PORT`, tapi Next menolak `next dev`
 kedua di direktori yang sama — matikan yang lama dulu.
+
+### Halaman domain
+
+`/<domain>` (`src/app/(app)/[domain]/page.tsx`) melayani 12 domain dari satu
+berkas. Daftar kartunya = anak simpul domain di `session.menu`; penjelasan
+per layar dari `MENU_DESCRIPTION` di `src/config/menu.ts`. Tautan ke domain
+selalu lewat `domainHref`/`domainEntryHref`, bukan string literal.
+Penjaganya `resolveDomain` (diuji terpisah): slug asing atau domain yang tidak
+dipegang → 404, domain berlayar satu → dialihkan ke layarnya.
+
+Dua hal yang perlu diketahui saat memeriksa dengan curl:
+
+- `dynamicParams = false` hanya ditegakkan `next dev`. Di production rute ini
+  dinamis (membaca cookie) sehingga slug asing tetap sampai ke halaman dan
+  ditolak `resolveDomain`. `/favicon.ico` karena itu disajikan sebagai berkas
+  (`src/app/favicon.ico`), supaya permintaan otomatis browser tidak pernah
+  sampai ke layout.
+- `notFound()` dan `redirect()` di halaman mana pun di bawah `(app)` terjadi
+  sesudah `(app)/loading.tsx` mulai di-stream, jadi status HTTP-nya 200 (isi
+  404 / pengalihan lewat payload RSC dan `meta refresh`), bukan 404/307.
+  Berlaku juga untuk `/<domain>/<layar>` yang belum dibangun.
 
 ### Data dummy Beranda
 
