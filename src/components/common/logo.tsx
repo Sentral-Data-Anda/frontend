@@ -41,8 +41,14 @@ export function Logo({ className }: { className?: string }) {
 }
 
 /**
- * Logo + nama "SADA", HANYA untuk latar gelap (`--primary`): di sana
- * kontrasnya 5.23:1, di atas putih 1.61:1 — nyaris tak terlihat.
+ * Logo-nama asli dari user, apa adanya — tanpa bidang, tanpa teks tambahan.
+ *
+ * Asetnya abu-kebiruan terang (~#d4dcec). Di atas putih kontrasnya hanya
+ * ~1.6:1. Itu KEPUTUSAN USER (revisi login 2026-09-21): user sudah diberi tahu
+ * dan memilih logo asli dibanding ikon di bidang navy — jangan diwarnai ulang
+ * atau diberi kotak. Nama aplikasi tetap terbaca pembaca layar lewat `alt`.
+ *
+ * Lebar bawaan 96px (tinggi ~45px) — sebanding dengan skala teks 12/14px.
  */
 export function LogoWordmark({ className }: { className?: string }) {
   return (
@@ -51,8 +57,9 @@ export function LogoWordmark({ className }: { className?: string }) {
       alt={siteConfig.shortName}
       width={496}
       height={232}
-      sizes="256px"
-      className={cn("h-auto w-64", className)}
+      sizes="96px"
+      className={cn("h-auto w-24", className)}
+      priority
     />
   );
 }
