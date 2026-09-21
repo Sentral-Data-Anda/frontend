@@ -18,8 +18,10 @@
  * Ini alat review, bukan kontrak. Bentuk respons yang benar tetap ditentukan
  * be-sada; kalau tiruan ini dan be-sada berselisih, be-sada yang benar.
  */
-import { MENU, type MenuSlug } from "../src/config/menu";
+import { MENU } from "../src/config/menu";
 import { toDateKey } from "../src/features/beranda/time";
+
+import { TREE } from "./menu-tree";
 
 const API_PORT = Number(process.env.MOCK_API_PORT ?? 3001);
 const WEB_PORT = Number(process.env.PORT ?? 3000);
@@ -56,83 +58,6 @@ const rows = NAMES.map((name, index) => ({
         },
   status: index % 7 === 0 ? "TIDAK_AKTIF" : "AKTIF",
 }));
-
-/**
- * Pohon menu lengkap (12 domain, 61 layar) supaya sidebar desktop bisa dinilai
- * utuh. Slug diambil dari `src/config/menu.ts`, bukan disalin sebagai string;
- * pengelompokan domain → layar hanya ada di sini karena menu.ts sengaja tidak
- * menyimpan pohonnya (pohon milik be-sada).
- */
-const TREE: Record<string, MenuSlug[]> = {
-  [MENU.KEJEMAATAN]: [
-    MENU.DAFTAR_JEMAAT,
-    MENU.KELUARGA,
-    MENU.PERNIKAHAN,
-    MENU.RIWAYAT_JEMAAT,
-    MENU.ROLE_JEMAAT,
-    MENU.BAPEL,
-    MENU.REPORT_JEMAAT,
-  ],
-  [MENU.PELAYANAN]: [
-    MENU.JADWAL_PELAYAN,
-    MENU.TEMPLATE_JADWAL,
-    MENU.DAFTAR_PELAYAN,
-    MENU.ROLE_PELAYAN,
-    MENU.SKILL_MUSIK,
-  ],
-  [MENU.PERIBADAHAN]: [MENU.IBADAH, MENU.TIPE_IBADAH],
-  [MENU.KEGIATAN]: [
-    MENU.EVENT,
-    MENU.PENDAFTARAN_EVENT,
-    MENU.GALERI,
-    MENU.PENGUMUMAN,
-  ],
-  [MENU.FASILITAS]: [MENU.PEMINJAMAN_RUANG, MENU.RUANG],
-  [MENU.INVENTARIS]: [
-    MENU.BARANG,
-    MENU.TIPE_BARANG,
-    MENU.SATUAN,
-    MENU.BARANG_PERSEDIAAN,
-    MENU.MUTASI_STOK,
-    MENU.STOK_OPNAME,
-    MENU.SIKLUS_ASET,
-    MENU.PENYUSUTAN,
-  ],
-  [MENU.PENGADAAN]: [
-    MENU.SUPPLIER,
-    MENU.PERMINTAAN_PEMBELIAN,
-    MENU.PESANAN_PEMBELIAN,
-    MENU.PENERIMAAN_BARANG,
-    MENU.RETUR_PEMBELIAN,
-    MENU.FAKTUR_SUPPLIER,
-  ],
-  [MENU.KEUANGAN]: [
-    MENU.PERSEMBAHAN,
-    MENU.TIPE_PERSEMBAHAN,
-    MENU.AKUN,
-    MENU.KAS_MASUK,
-    MENU.KAS_KELUAR,
-    MENU.JURNAL,
-    MENU.PERIODE_FISKAL,
-    MENU.LAPORAN_KEUANGAN,
-    MENU.PEMBAYARAN,
-    MENU.MATA_UANG,
-    MENU.SETELAN_AKUNTANSI,
-  ],
-  [MENU.ANGGARAN]: [MENU.PROGRAM, MENU.LAPORAN_BUDGET, MENU.PAGU_ANGGARAN],
-  [MENU.SDM]: [
-    MENU.KARYAWAN,
-    MENU.CUTI,
-    MENU.TIPE_CUTI,
-    MENU.KONTRAK_KARYAWAN,
-    MENU.ABSENSI_KARYAWAN,
-    MENU.PAYROLL,
-    MENU.KOMPONEN_PAYROLL,
-    MENU.PAJAK_PPH21,
-  ],
-  [MENU.PERSETUJUAN]: [MENU.PERMINTAAN_PERSETUJUAN, MENU.SETELAN_PERSETUJUAN],
-  [MENU.PENGATURAN]: [MENU.USER, MENU.ROLE_USER, MENU.ACTIVITY_LOG],
-};
 
 if (process.env.MOCK_SINGLE_LEAF) {
   TREE[MENU.PERIBADAHAN] = [MENU.IBADAH];

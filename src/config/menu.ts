@@ -1,16 +1,72 @@
 import {
+  Activity,
+  Armchair,
+  ArrowDownToLine,
+  ArrowLeftRight,
+  ArrowUpFromLine,
+  BadgeCheck,
+  Banknote,
+  BookOpen,
+  Briefcase,
+  Calculator,
+  CalendarCheck,
+  CalendarClock,
+  CalendarCog,
   CalendarDays,
+  CalendarPlus,
+  ChartColumn,
+  ChartPie,
   Church,
+  ClipboardCheck,
   ClipboardList,
+  Coins,
   CreditCard,
+  DoorOpen,
+  FileChartColumn,
+  FilePen,
+  FilePlus,
   Flag,
+  Gauge,
+  HandCoins,
+  HandHeart,
+  HeartHandshake,
+  History,
   House,
+  IdCard,
+  Images,
+  Inbox,
+  LayoutTemplate,
+  Lightbulb,
+  ListTree,
+  Megaphone,
+  Music,
+  Network,
+  NotebookPen,
   Package,
+  PackageCheck,
+  PackageOpen,
+  Percent,
   PiggyBank,
+  Plane,
+  ReceiptText,
+  RefreshCw,
+  Ruler,
   Settings,
+  Shapes,
+  ShieldCheck,
   ShoppingBasket,
+  ShoppingCart,
+  SlidersHorizontal,
   Stamp,
+  Ticket,
+  TrendingDown,
+  Truck,
+  Undo2,
+  UserCheck,
+  UserCog,
   UserPlus,
+  Users,
+  Workflow,
   type LucideIcon,
 } from "lucide-react";
 
@@ -219,10 +275,7 @@ export const MENU_DESCRIPTION: Partial<Record<MenuSlug, string>> = {
   [MENU.ACTIVITY_LOG]: "Riwayat perubahan data oleh pengguna",
 };
 
-/**
- * Ikon per domain. Hanya 12 entri: layar daun belum punya ikon sendiri, jadi
- * kartunya di halaman domain memakai ikon domainnya.
- */
+/** Ikon per domain: tile Beranda, `/modul`, sidebar, banner halaman domain. */
 export const MENU_ICON: Record<string, LucideIcon> = {
   [MENU.KEJEMAATAN]: UserPlus,
   [MENU.PELAYANAN]: CalendarDays,
@@ -237,6 +290,96 @@ export const MENU_ICON: Record<string, LucideIcon> = {
   [MENU.PERSETUJUAN]: Stamp,
   [MENU.PENGATURAN]: Settings,
 };
+
+/**
+ * Ikon per layar untuk tile di halaman domain. Dalam satu domain tidak ada dua
+ * layar berikon sama (dijaga `menu.test.ts`); antar domain boleh sama bila
+ * maknanya sama — semua layar "Tipe …" memakai `Shapes`.
+ */
+export const MENU_LEAF_ICON: Partial<Record<MenuSlug, LucideIcon>> = {
+  [MENU.DAFTAR_JEMAAT]: Users,
+  [MENU.KELUARGA]: House,
+  [MENU.PERNIKAHAN]: HeartHandshake,
+  [MENU.RIWAYAT_JEMAAT]: History,
+  [MENU.ROLE_JEMAAT]: BadgeCheck,
+  [MENU.BAPEL]: Network,
+  [MENU.REPORT_JEMAAT]: ChartPie,
+
+  [MENU.JADWAL_PELAYAN]: CalendarCheck,
+  [MENU.TEMPLATE_JADWAL]: LayoutTemplate,
+  [MENU.DAFTAR_PELAYAN]: HandHeart,
+  [MENU.ROLE_PELAYAN]: IdCard,
+  [MENU.SKILL_MUSIK]: Music,
+
+  [MENU.IBADAH]: BookOpen,
+  [MENU.TIPE_IBADAH]: Shapes,
+
+  [MENU.EVENT]: CalendarPlus,
+  [MENU.PENDAFTARAN_EVENT]: Ticket,
+  [MENU.GALERI]: Images,
+  [MENU.PENGUMUMAN]: Megaphone,
+
+  [MENU.PEMINJAMAN_RUANG]: CalendarClock,
+  [MENU.RUANG]: DoorOpen,
+
+  [MENU.BARANG]: Armchair,
+  [MENU.TIPE_BARANG]: Shapes,
+  [MENU.SATUAN]: Ruler,
+  [MENU.BARANG_PERSEDIAAN]: PackageOpen,
+  [MENU.MUTASI_STOK]: ArrowLeftRight,
+  [MENU.STOK_OPNAME]: ClipboardCheck,
+  [MENU.SIKLUS_ASET]: RefreshCw,
+  [MENU.PENYUSUTAN]: TrendingDown,
+
+  [MENU.SUPPLIER]: Truck,
+  [MENU.PERMINTAAN_PEMBELIAN]: FilePlus,
+  [MENU.PESANAN_PEMBELIAN]: ShoppingCart,
+  [MENU.PENERIMAAN_BARANG]: PackageCheck,
+  [MENU.RETUR_PEMBELIAN]: Undo2,
+  [MENU.FAKTUR_SUPPLIER]: ReceiptText,
+
+  [MENU.PERSEMBAHAN]: HandCoins,
+  [MENU.TIPE_PERSEMBAHAN]: Shapes,
+  [MENU.AKUN]: ListTree,
+  [MENU.KAS_MASUK]: ArrowDownToLine,
+  [MENU.KAS_KELUAR]: ArrowUpFromLine,
+  [MENU.JURNAL]: NotebookPen,
+  [MENU.PERIODE_FISKAL]: CalendarCog,
+  [MENU.LAPORAN_KEUANGAN]: FileChartColumn,
+  [MENU.PEMBAYARAN]: CreditCard,
+  [MENU.MATA_UANG]: Coins,
+  [MENU.SETELAN_AKUNTANSI]: SlidersHorizontal,
+
+  [MENU.PROGRAM]: Lightbulb,
+  [MENU.LAPORAN_BUDGET]: ChartColumn,
+  [MENU.PAGU_ANGGARAN]: Gauge,
+
+  [MENU.KARYAWAN]: Briefcase,
+  [MENU.CUTI]: Plane,
+  [MENU.TIPE_CUTI]: Shapes,
+  [MENU.KONTRAK_KARYAWAN]: FilePen,
+  [MENU.ABSENSI_KARYAWAN]: UserCheck,
+  [MENU.PAYROLL]: Banknote,
+  [MENU.KOMPONEN_PAYROLL]: Calculator,
+  [MENU.PAJAK_PPH21]: Percent,
+
+  [MENU.PERMINTAAN_PERSETUJUAN]: Inbox,
+  [MENU.SETELAN_PERSETUJUAN]: Workflow,
+
+  [MENU.USER]: UserCog,
+  [MENU.ROLE_USER]: ShieldCheck,
+  [MENU.ACTIVITY_LOG]: Activity,
+};
+
+/**
+ * Ikon satu layar; slug yang belum dipetakan (menu baru dari be-sada) memakai
+ * ikon domainnya, bukan kotak kosong.
+ */
+export const leafIcon = (
+  leafSlug: string,
+  domainSlug: string,
+): LucideIcon | undefined =>
+  MENU_LEAF_ICON[leafSlug as MenuSlug] ?? MENU_ICON[domainSlug];
 
 /**
  * Rute satu layar diturunkan dari slugnya, bukan dari tabel 61 baris.
