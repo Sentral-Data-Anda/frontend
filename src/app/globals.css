@@ -25,6 +25,7 @@
   --color-chart-1: var(--chart-1);
   --color-ring: var(--ring);
   --color-input: var(--input);
+  --color-input-fill: var(--input-fill);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
   --color-accent-foreground: var(--accent-foreground);
@@ -49,30 +50,48 @@
 }
 
 :root {
+  /**
+   * Kontras dihitung dari nilai sRGB hasil konversi oklch (rumus luminans
+   * relatif WCAG), bukan ditaksir mata:
+   *
+   * | Pasangan                              | Rasio   | Syarat |
+   * | ------------------------------------- | ------- | ------ |
+   * | muted-foreground / background         | 6.00:1  | 4.5:1  |
+   * | muted-foreground / input-fill         | 5.26:1  | 4.5:1  |
+   * | input (batas kontrol) / background    | 3.64:1  | 3:1    |
+   * | input (batas kontrol) / input-fill    | 3.19:1  | 3:1    |
+   * | primary-foreground / primary          | 15.55:1 | 4.5:1  |
+   *
+   * `--input` adalah batas KONTROL form (WCAG 1.4.11) — 0.64 yang pertama
+   * dicoba jatuh ke 2.95:1 di atas `--input-fill`, jadi diturunkan ke 0.62.
+   * `--border` tetap 0.922 karena ia divider/kartu dekoratif, bukan batas
+   * kontrol. Mengubah salah satu angka di atas berarti menghitung ulang tabel.
+   */
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.24 0.045 259);
+  --primary-foreground: oklch(0.98 0.006 259);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
+  --muted-foreground: oklch(0.5 0 0);
   --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  --input: oklch(0.62 0 0);
+  --input-fill: oklch(0.955 0 0);
+  --ring: oklch(0.45 0.09 259);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
+  --radius: 0.75rem;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
@@ -122,6 +141,7 @@
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
+  --input-fill: oklch(1 0 0 / 8%);
   --ring: oklch(0.556 0 0);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
