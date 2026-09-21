@@ -59,9 +59,7 @@ export function HomeScreen() {
                     {Icon ? <Icon className="size-5" aria-hidden /> : null}
                   </span>
 
-                  <span className="text-[11px] leading-tight">
-                    {domain.name}
-                  </span>
+                  <span className="text-2xs leading-tight">{domain.name}</span>
                 </Link>
               </li>
             );

@@ -12,6 +12,12 @@ import "./globals.css";
 const instrumentSans = Instrument_Sans({
   variable: "--font-sans",
   subsets: ["latin"],
+  // Hanya 400–600 (lembar brand). Diukur: Google tetap menyajikan berkas
+  // variable yang sama (2 woff2, ~41 KB) untuk ketiga bobot, jadi ini tidak
+  // menghemat unduhan — yang dibatasi adalah @font-face yang dideklarasikan,
+  // sehingga `font-bold` tidak lagi mendapat glyph 700 asli. Lint melarang
+  // font-bold di layar.
+  weight: ["400", "500", "600"],
 });
 
 export const metadata: Metadata = {

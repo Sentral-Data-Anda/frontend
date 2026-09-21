@@ -109,6 +109,9 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  /* Skala teks 14/12/10 (kelipatan 2): text-sm, text-xs, text-2xs. */
+  --text-2xs: 0.625rem;
+  --text-2xs--line-height: calc(0.875 / 0.625);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -248,8 +251,13 @@
   * {
     @apply border-border outline-ring/50;
   }
+  /*
+   * Teks isi 14px (skala 14/12/10). Input SENGAJA 16px (`text-base` di
+   * ui/input.tsx): di bawah 16px Safari iOS memperbesar halaman saat input
+   * difokus dan zoom-nya tidak kembali sendiri — lebih penting dari skala.
+   */
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground text-sm;
   }
   html {
     @apply font-sans;

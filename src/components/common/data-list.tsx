@@ -49,7 +49,9 @@ export function DataListRow({
         <p className="truncate text-sm font-medium">{title}</p>
 
         {meta ? (
-          <p className="text-muted-foreground truncate text-[11px]">{meta}</p>
+          <p className="text-muted-foreground truncate text-xs tabular-nums">
+            {meta}
+          </p>
         ) : null}
       </div>
 
@@ -209,7 +211,10 @@ function DataListPager({ page, totalPage, onPickPage }: DataListPagination) {
       {/* aria-live: pengguna pembaca layar yang menekan "Berikutnya" tidak
           melihat daftar berubah, jadi perubahan nomor halamanlah yang
           mengabarkannya. */}
-      <p aria-live="polite" className="text-muted-foreground text-xs">
+      <p
+        aria-live="polite"
+        className="text-muted-foreground text-xs tabular-nums"
+      >
         Halaman {page} dari {totalPage}
       </p>
 

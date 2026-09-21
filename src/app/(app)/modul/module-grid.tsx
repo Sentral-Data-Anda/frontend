@@ -104,7 +104,7 @@ export function ModuleGrid() {
                   </span>
 
                   <span className="text-xs leading-tight">{domain.name}</span>
-                  <span className="text-muted-foreground text-[11px]">
+                  <span className="text-muted-foreground text-2xs">
                     {domain.children.length} layar
                   </span>
                 </button>
@@ -138,7 +138,7 @@ export function ModuleGrid() {
               >
                 <span className="min-w-0">
                   <span className="block truncate text-sm">{leaf.name}</span>
-                  <span className="text-muted-foreground block truncate text-[11px]">
+                  <span className="text-muted-foreground block truncate text-2xs">
                     {leaf.slug}
                   </span>
                 </span>
