@@ -18,10 +18,10 @@
  * Ini alat review, bukan kontrak. Bentuk respons yang benar tetap ditentukan
  * be-sada; kalau tiruan ini dan be-sada berselisih, be-sada yang benar.
  */
-import { MENU } from "../src/config/menu";
+import { MENU, type MenuSlug } from "../src/config/menu";
 import { toDateKey } from "../src/features/beranda/time";
 
-import { TREE } from "./menu-tree";
+import { NAME, TREE } from "./menu-tree";
 
 const API_PORT = Number(process.env.MOCK_API_PORT ?? 3001);
 const WEB_PORT = Number(process.env.PORT ?? 3000);
@@ -64,14 +64,6 @@ if (process.env.MOCK_SINGLE_LEAF) {
   delete TREE[MENU.PENGATURAN];
 }
 
-/** "DAFTAR_JEMAAT" → "Daftar Jemaat". Cukup untuk review; label asli dari be-sada. */
-const toLabel = (slug: string) =>
-  slug
-    .toLowerCase()
-    .split("_")
-    .map((word) => word[0].toUpperCase() + word.slice(1))
-    .join(" ");
-
 const leafActions = (slug: string) =>
   slug === MENU.DAFTAR_JEMAAT && !process.env.MOCK_NO_CREATE
     ? ["VIEW", "CREATE"]
@@ -86,13 +78,13 @@ const session = {
   menu: Object.entries(TREE).map(([domain, leaves], domainIndex) => ({
     publicId: domain,
     slug: domain,
-    name: toLabel(domain),
+    name: NAME[domain as MenuSlug],
     order: domainIndex + 1,
     action: [],
     children: leaves.map((leaf, leafIndex) => ({
       publicId: leaf,
       slug: leaf,
-      name: toLabel(leaf),
+      name: NAME[leaf],
       order: leafIndex + 1,
       action: leafActions(leaf),
       children: [],
