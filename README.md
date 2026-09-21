@@ -113,6 +113,13 @@ Lebar konten milik shell, bukan layar: `shellWidth` di
 `lg:max-w-3xl`. Di bawah `lg` navigasinya bottom tab; mulai `lg` sidebar
 berlabel 16rem dari `session.menu`. Keduanya ditukar lewat CSS, bukan JS.
 
+Jarak tepi halaman memakai token `px-gutter` (20px, `--spacing-gutter` di
+`globals.css`), bukan `px-4` per komponen. Warna hanya lewat token semantik
+(`primary`, `muted-foreground`, `success`, `warning`, `destructive`, …) yang
+dipetakan ke skala brand di `globals.css`; langkah skala (`bg-primary-50`)
+dan `font-bold` ditolak lint di layar. Skala teks 14/12/10 (`text-sm`,
+`text-xs`, `text-2xs`); input tetap 16px karena zoom iOS.
+
 Pratinjau tiga ukuran sekaligus (development saja):
 
 ```bash
