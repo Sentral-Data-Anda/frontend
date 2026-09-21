@@ -3,9 +3,10 @@ import { afterEach, describe, expect, test } from "bun:test";
 
 import type { MenuSlug } from "@/config/menu";
 
+import { findMenuNode } from "./menu-tree";
 import { SessionProvider } from "./session-provider";
 import type { Session } from "./types";
-import { findMenuNode, useMenuAccess } from "./use-menu-access";
+import { useMenuAccess } from "./use-menu-access";
 
 /**
  * `cleanup()` dipanggil manual: auto-cleanup Testing Library bergantung pada

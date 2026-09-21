@@ -1,6 +1,7 @@
 import "server-only";
 
 import { cookies } from "next/headers";
+import { cache } from "react";
 import { z } from "zod";
 
 import { ApiError, apiClient } from "@/lib/api/client";
@@ -21,8 +22,11 @@ import { sessionSchema, type Session } from "./types";
  *
  * Dipanggil dari Server Component, jadi cookienya diteruskan manual: fetch di
  * server tidak membawa cookie permintaan masuk dengan sendirinya.
+ *
+ * Dibungkus `cache()`: `(app)/layout.tsx` dan halaman domain sama-sama
+ * memanggilnya, dan keduanya harus berbagi satu `/auth/me` per request.
  */
-export async function getSession(): Promise<Session | null> {
+export const getSession = cache(async (): Promise<Session | null> => {
   const cookieStore = await cookies();
   const cookieHeader = cookieStore.toString();
 
@@ -58,4 +62,4 @@ export async function getSession(): Promise<Session | null> {
 
     throw error;
   }
-}
+});

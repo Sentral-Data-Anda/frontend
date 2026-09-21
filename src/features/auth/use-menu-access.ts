@@ -4,21 +4,9 @@ import { useMemo } from "react";
 
 import type { MenuSlug } from "@/config/menu";
 
+import { findMenuNode } from "./menu-tree";
 import { useSession } from "./session-provider";
-import type { MenuAction, MenuNode } from "./types";
-
-/** Telusuri pohon menu untuk satu slug. Diekspor supaya bisa diuji sendiri. */
-export function findMenuNode(nodes: MenuNode[], slug: string): MenuNode | null {
-  for (const node of nodes) {
-    if (node.slug === slug) return node;
-
-    const found = findMenuNode(node.children, slug);
-
-    if (found) return found;
-  }
-
-  return null;
-}
+import type { MenuAction } from "./types";
 
 /**
  * Hak akses peran atas satu layar.
@@ -32,7 +20,7 @@ export function findMenuNode(nodes: MenuNode[], slug: string): MenuNode | null {
  * `slug` bertipe `MenuSlug`, bukan `string`: `useMenuAccess("DAFTAR_JEMAT")`
  * yang salah ketik tidak melempar apa pun — ia mengembalikan seluruh aksi
  * bernilai false dan menyembunyikan tombol yang seharusnya ada, kegagalan yang
- * tidak meninggalkan jejak apa pun untuk ditelusuri. `findMenuNode` di atas
+ * tidak meninggalkan jejak apa pun untuk ditelusuri. `findMenuNode`
  * tetap menerima `string`, karena ia penelusur pohon umum yang juga dipakai
  * `bottom-tab.tsx` untuk slug yang datang dari data.
  *
