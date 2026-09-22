@@ -27,6 +27,17 @@ export const getNextPageParam = (
   lastPageParam < lastPage.totalPage ? lastPageParam + 1 : undefined;
 
 /**
+ * 15 menit, bukan bawaan 5 (list-state.md §2.3).
+ *
+ * Yang dibuang saat cache daftar dikumpulkan bukan cuma satu permintaan:
+ * di mobile ia membawa SELURUH halaman infinite yang sudah ditumpuk, dan
+ * bersamanya tinggi halaman — jadi kembali dari detail setelah membaca lima
+ * menit berarti daftar mulai lagi dari 20 baris di scroll 0. Biayanya kecil:
+ * satu daftar ≈ 60 baris JSON.
+ */
+const LIST_GC_TIME = 15 * 60 * 1000;
+
+/**
  * Data daftar untuk `DataList`, dengan pola ambil yang berbeda per lebar:
  *
  * - desktop (≥ lg): satu halaman per `useQuery`, halaman dari `?page=` URL —
@@ -63,6 +74,7 @@ export function useListQuery<T>({
     queryKey: [...queryKey, pageQuery],
     queryFn: () => fetchPage(pageQuery),
     placeholderData: keepPreviousData,
+    gcTime: LIST_GC_TIME,
     enabled: isDesktop === true,
   });
 
@@ -73,6 +85,7 @@ export function useListQuery<T>({
     initialPageParam: 1,
     getNextPageParam,
     placeholderData: keepPreviousData,
+    gcTime: LIST_GC_TIME,
     enabled: isDesktop === false,
   });
 
