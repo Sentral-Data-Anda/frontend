@@ -25,6 +25,10 @@ import { TodaySchedule } from "@/features/beranda/today-schedule";
 export function HomeScreen() {
   const session = useSession();
   const ibadahAccess = useMenuAccess(MENU.IBADAH);
+  // Saldo gereja hanya untuk pemegang izin laporan keuangan — tanpa gate ini
+  // setiap peran (termasuk jemaat) melihatnya. Sama dengan guard be-sada
+  // `/laporan-keuangan/*`.
+  const financeAccess = useMenuAccess(MENU.LAPORAN_KEUANGAN);
 
   // ponytail: dihitung sekali per render; halaman yang dibiarkan terbuka
   // melewati tengah malam tetap menampilkan kemarin sampai dimuat ulang.
@@ -57,7 +61,7 @@ export function HomeScreen() {
         </p>
       </section>
 
-      {SHOW_DUMMY ? (
+      {SHOW_DUMMY && financeAccess.isCanView ? (
         <div className="mt-5 px-gutter">
           <CashSummaryCard />
         </div>
