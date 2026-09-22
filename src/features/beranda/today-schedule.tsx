@@ -55,7 +55,6 @@ export function TodaySchedule({
           items={items}
           getKey={(item) => item.code}
           label="Ibadah hari ini"
-          inset
           error={query.error}
           onRetry={() => void query.refetch()}
         >

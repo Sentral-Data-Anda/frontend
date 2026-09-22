@@ -11,8 +11,7 @@ import { cn } from "@/lib/utils";
  * dan kotak bergaris putus-putus di sana terbaca sebagai potongan dari bahasa
  * desain yang lain — seolah ada komponen yang gagal dimuat. Daftar yang kosong
  * harus terlihat seperti daftar yang kosong, bukan seperti kesalahan. Di layar
- * daftar, bingkainya adalah kartu `DataListFrame` — komponen ini tidak
- * membawa bingkai sendiri.
+ * daftar ia rata di kanvas, sama seperti barisnya.
  */
 export function EmptyState({
   title = "Belum ada data",

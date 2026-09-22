@@ -27,20 +27,20 @@ export function LoadingRows({ rows }: { rows: number }) {
       aria-hidden
       className="flex h-14 items-center gap-3 px-gutter"
     >
-      <span className="bg-primary-100 size-9 shrink-0 animate-pulse rounded-full" />
+      <span className="bg-primary-200 size-9 shrink-0 animate-pulse rounded-full" />
 
       <span
         data-slot="row-body"
         className="flex flex-1 flex-col justify-center gap-1.5 self-stretch border-border"
       >
-        <span className="bg-primary-100 block h-3 w-2/5 animate-pulse rounded" />
-        <span className="bg-primary-100 block h-2.5 w-1/4 animate-pulse rounded" />
+        <span className="bg-primary-200 block h-3 w-2/5 animate-pulse rounded" />
+        <span className="bg-primary-200 block h-2.5 w-1/4 animate-pulse rounded" />
       </span>
     </li>
   ));
 }
 
-/** Skeleton daftar, tanpa bingkai — `DataListFrame` yang memberinya kartu. */
+/** Skeleton daftar, rata di kanvas seperti `DataList`. */
 export function LoadingList({ rows = 6 }: { rows?: number }) {
   return (
     <div role="status" aria-busy="true">

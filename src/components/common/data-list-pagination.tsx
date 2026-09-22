@@ -52,7 +52,7 @@ export function getPageItems(page: number, totalPage: number): PageItem[] {
   return [1, "gap-start", page - 1, page, page + 1, "gap-end", totalPage];
 }
 
-/** Pager bernomor desktop: satu grup ringkas di bawah kartu. */
+/** Pager bernomor desktop: satu grup ringkas di bawah daftar. */
 export function DataListPager({
   page,
   totalPage,
@@ -123,7 +123,7 @@ export function DataListPager({
 }
 
 /**
- * Ujung daftar mobile/tablet, di dalam kartu. Tombolnya sekaligus sentinel:
+ * Ujung daftar mobile/tablet, rata tengah tanpa garis. Tombolnya sekaligus sentinel:
  * `IntersectionObserver` memanggil `onLoadMore` saat tombol mendekati layar
  * (400px sebelum terlihat), dan tombol yang sama bisa difokus/ditekan bila
  * pengamatnya tidak terpicu atau pengguna memakai keyboard/pembaca layar.
@@ -181,7 +181,7 @@ export function DataListMore({
       </p>
 
       {hasMore ? (
-        <div className="border-border flex min-h-12 items-center justify-center gap-1 border-t px-3.5 py-2">
+        <div className="flex min-h-12 items-center justify-center gap-1 px-gutter py-2">
           {isLoadMoreError ? (
             <p className="text-destructive text-body">Gagal memuat —</p>
           ) : null}
@@ -223,7 +223,7 @@ export function DataListMore({
             }
           }}
           tabIndex={-1}
-          className="border-border text-muted-foreground flex min-h-12 items-center justify-center border-t text-caption outline-none"
+          className="text-muted-foreground flex min-h-12 items-center justify-center px-gutter text-caption outline-none"
         >
           Semua data sudah ditampilkan
         </p>
