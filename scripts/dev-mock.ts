@@ -18,9 +18,8 @@
  *   MOCK_API_ONLY=1 bun run dev:mock    → hanya tiruan API, tanpa `next dev` (untuk
  *                                         `next start` hasil build di port lain)
  *   MOCK_PERSONA=bendahara bun run dev:mock → Beranda per izin; persona:
- *                                         sekretariat (bawaan) | bendahara |
- *                                         majelis | admin (pohon menu lengkap,
- *                                         untuk menilai sidebar 12 domain).
+ *                                         admin (bawaan, pohon menu lengkap) |
+ *                                         sekretariat | bendahara | majelis.
  *                                         Lihat `scripts/mock-dashboard.ts`.
  *   MOCK_MAJELIS_NO_FINANCE=1           → majelis tanpa LAPORAN_KEUANGAN
  *   MOCK_NO_APPROVAL=1                  → antrean persetujuan kosong
@@ -101,7 +100,7 @@ if (process.env.MOCK_SINGLE_LEAF) {
   delete TREE[MENU.PENGATURAN];
 }
 
-const PERSONA_KEY = process.env.MOCK_PERSONA ?? "sekretariat";
+const PERSONA_KEY = process.env.MOCK_PERSONA ?? "admin";
 const persona = PERSONAS[PERSONA_KEY];
 
 if (!persona) {

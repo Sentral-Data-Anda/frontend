@@ -4,7 +4,7 @@
  * berkas di tiap fungsi). Widget yang endpoint-nya belum ada memakai fixture
  * FE di `src/features/beranda/dummy.ts`, bukan tiruan di sini.
  *
- *   MOCK_PERSONA=sekretariat (bawaan) | bendahara | majelis | admin
+ *   MOCK_PERSONA=admin (bawaan) | sekretariat | bendahara | majelis
  *
  * `admin` = pohon menu lengkap dengan semua aksi (be-sada menyintesis aksi
  * untuk `isAdmin`) — dipakai untuk menilai sidebar 12 domain / 61 layar.

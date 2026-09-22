@@ -204,10 +204,10 @@ pohon menu hanya berisi layar yang diizinkan (seperti `menuService.findTree`
 be-sada) dan endpoint menjawab 403 untuk izin yang tidak dipegang:
 
 ```bash
-bun run dev:mock                          # sekretariat (bawaan)
+bun run dev:mock                          # admin (bawaan): 12 domain / 61 layar, semua aksi
+MOCK_PERSONA=sekretariat bun run dev:mock # sekretariat
 MOCK_PERSONA=bendahara bun run dev:mock   # keuangan, kas keluar, persembahan
 MOCK_PERSONA=majelis bun run dev:mock     # persetujuan, keuangan, anggaran, ulang tahun
-MOCK_PERSONA=admin bun run dev:mock       # 12 domain / 61 layar, semua aksi (menilai sidebar)
 ```
 
 `MOCK_MAJELIS_NO_FINANCE=1` (majelis tanpa `LAPORAN_KEUANGAN` — sel KPI dan
