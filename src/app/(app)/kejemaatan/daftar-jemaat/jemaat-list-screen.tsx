@@ -7,7 +7,7 @@ import { DataList } from "@/components/common/data-list";
 import { FilterChips } from "@/components/common/filter-chips";
 import { SearchInput } from "@/components/common/search-input";
 import { PageHeader } from "@/components/layout/page-header";
-import { MENU } from "@/config/menu";
+import { MENU, domainHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth/use-menu-access";
 import { useJemaatList } from "@/features/kejemaatan/daftar-jemaat/api";
 import { JemaatListItemRow } from "@/features/kejemaatan/daftar-jemaat/list-item";
@@ -43,7 +43,7 @@ export function JemaatListScreen() {
             ? undefined
             : `${jemaatList.totalData} jemaat`
         }
-        backHref="/modul"
+        backHref={domainHref(MENU.KEJEMAATAN)}
         action={
           // Tombol ini ada ATAU TIDAK ADA SAMA SEKALI di DOM — bukan tampil
           // dalam keadaan mati. Itu syarat verifikasi §13.4, dan sekaligus
