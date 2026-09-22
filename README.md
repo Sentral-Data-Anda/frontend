@@ -318,9 +318,21 @@ pertama naik ke main. Tata letak milik `DashboardGrid` + `KpiStrip`
 (`components/layout`: sapaan, tanggal, maks 2 aksi dari izin, lonceng di ≥ lg).
 Beranda memakai `PageContainer size="wide"`; layar lain `default`.
 
+**v2 (bahasa C, `docs/design/dashboard-desktop.md` §10).** Strip KPI adalah
+toolbar hairline berisi maks 5 sel dari SATU grup (`finance` atau `umum`,
+yang selnya terbanyak setelah batas; seri → finance). Grup itu juga
+menentukan jenis dashboard: widget ber-`kind` hanya tampil di jenisnya —
+bendahara mendapat grafik 12 bulan, tabel "Perlu diselesaikan" (lima sumber,
+gate per baris), saldo rekening, pemasukan per jenis, dan kesiapan tutup
+buku; dashboard umum mendapat Agenda minggu ini, Menunggu tindakan saya, dan
+jemaat per wilayah. Angka KPI memakai token `text-kpi` (14px < lg, 22px ≥ lg)
+— satu-satunya teks di atas 14px. Beranda memakai `PageContainer
+size="dashboard"`: mengisi kolom konten di desktop, dibatasi 100rem.
+
 Menambah widget: komponen yang mengambil datanya sendiri (bungkus
-`DashboardCard` dengan `query` → kerangka `minHeight` + galat per kartu),
-lalu satu entri di `WIDGETS`. Teks bertanggal yang dirender tanpa menunggu
+`DashboardCard` dengan `query` → kerangka `minHeight` + galat per kartu;
+tabel memakai `DashboardTable`, status memakai `Badge`, keadaan kosong
+memakai `EmptyState isCompact`), lalu satu entri di `WIDGETS`. Teks bertanggal yang dirender tanpa menunggu
 query memakai `useNow()` (aman hidrasi). Cek per persona:
 `MOCK_PERSONA=bendahara|majelis|sekretariat bun run dev:mock`.
 
