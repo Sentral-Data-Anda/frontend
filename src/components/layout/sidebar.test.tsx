@@ -133,9 +133,9 @@ describe("SidebarNav", () => {
 });
 
 describe("SidebarNav ringkas", () => {
-  test("setiap ikon punya aria-label; domain menuju domainEntryHref", () => {
+  test("setiap ikon bernama (label tersembunyi, tanpa aria-label ganda); domain menuju domainEntryHref", () => {
     render(
-      <SidebarNav menu={MENU} pathname="/kejemaatan/keluarga" isCollapsed />,
+      <SidebarNav menu={MENU} pathname="/kejemaatan/keluarga" mode="rail" />,
     );
 
     const links = screen.getAllByRole("link");
@@ -143,7 +143,8 @@ describe("SidebarNav ringkas", () => {
     expect(links).toHaveLength(1 + MENU.length);
     expect(screen.queryByRole("link", { name: /Cari/ })).toBeNull();
     for (const link of links) {
-      expect(link.getAttribute("aria-label")).toBeTruthy();
+      expect(link.hasAttribute("aria-label")).toBe(false);
+      expect(link.textContent).toBeTruthy();
     }
 
     // Dua layar → halaman domain; satu layar → langsung ke layarnya.
@@ -159,7 +160,7 @@ describe("SidebarNav ringkas", () => {
 
   test("domain yang memuat layar aktif diberi chip aktif", () => {
     render(
-      <SidebarNav menu={MENU} pathname="/kejemaatan/keluarga" isCollapsed />,
+      <SidebarNav menu={MENU} pathname="/kejemaatan/keluarga" mode="rail" />,
     );
 
     expect(
@@ -197,12 +198,52 @@ describe("cookie sidebar", () => {
     expect(document.activeElement).toBe(toggle);
     expect(toggle.hasAttribute("aria-expanded")).toBe(false);
     expect(toggle.closest("aside")).toBeNull();
-    expect(screen.getByRole("link", { name: "Kejemaatan" })).toBeTruthy();
+    // Tanpa animasi (happy-dom) isi rail menggantikan isi penuh seketika.
+    expect(
+      await screen.findByRole("link", { name: "Kejemaatan" }),
+    ).toBeTruthy();
+    expect(screen.queryByRole("link", { name: /Cari/ })).toBeNull();
+    expect(
+      document.querySelector("aside")?.hasAttribute("data-collapsed"),
+    ).toBe(true);
 
     await act(async () => fireEvent.click(toggle));
     expect(document.cookie).toContain(`${SIDEBAR_COOKIE}=0`);
     expect(toggle.getAttribute("aria-label")).toBe("Ciutkan menu");
     expect(document.activeElement).toBe(toggle);
+    expect(
+      document.querySelector("aside")?.hasAttribute("data-collapsed"),
+    ).toBe(false);
+    expect(domainOf("Kejemaatan").open).toBe(true);
+    expect(
+      screen.getByRole("link", { name: "Cari modul atau layar" }),
+    ).toBeTruthy();
+  });
+
+  test("selama menyempit isi penuh bertahan sampai transisi lebar selesai", async () => {
+    let finish = () => {};
+    const finished = new Promise<void>((resolve) => (finish = resolve));
+    const spy = spyOn(HTMLElement.prototype, "getAnimations").mockReturnValue([
+      { finished } as unknown as Animation,
+    ]);
+
+    renderSidebar(false);
+    const toggle = screen.getByRole("button", { name: "Ciutkan menu" });
+
+    await act(async () => fireEvent.click(toggle));
+    // Gaya ringkas sudah berlaku, tapi accordion dan Cari belum ditukar.
+    expect(
+      document.querySelector("aside")?.hasAttribute("data-collapsed"),
+    ).toBe(true);
+    expect(domainOf("Kejemaatan")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: /^Akun/ })).toBeNull();
+
+    await act(async () => finish());
+    expect(document.querySelector("details")).toBeNull();
+    expect(
+      screen.getByRole("button", { name: "Akun: sekretaris" }),
+    ).toBeTruthy();
+    spy.mockRestore();
   });
 
   test("atribut cookie: seluruh situs, Lax, setahun", () => {

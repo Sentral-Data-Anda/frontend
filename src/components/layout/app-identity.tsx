@@ -2,6 +2,8 @@ import { LogoMark } from "@/components/common/logo";
 import { siteConfig } from "@/config/site";
 import { cn } from "@/lib/utils";
 
+import { SIDEBAR_MOTION } from "./sidebar-collapse";
+
 const TONE = {
   canvas: { mark: "", eyebrow: "text-muted-foreground", role: "" },
   // Bidang logo = primary-900 = latar sidebar, jadi di sidebar bidangnya
@@ -27,13 +29,23 @@ export function AppIdentity({
 }: {
   role: string;
   tone?: keyof typeof TONE;
-  /** Logo saja — sidebar ringkas. */
+  /**
+   * Logo saja — sidebar ringkas. Teks memudar dan terpotong (tidak dilepas
+   * dari DOM), jadi logo tidak bergeser selama lebar sidebar beranimasi.
+   */
   isCompact?: boolean;
 }) {
   return (
     <div className="flex min-w-0 items-center gap-3">
       <LogoMark className={TONE[tone].mark} />
-      <div className={cn("min-w-0", isCompact && "hidden")}>
+      <div
+        aria-hidden={isCompact || undefined}
+        className={cn(
+          "min-w-0 transition-opacity",
+          SIDEBAR_MOTION,
+          isCompact && "opacity-0 [&>p]:text-clip",
+        )}
+      >
         <p
           className={cn(
             "truncate text-caption font-medium tracking-wider uppercase",
