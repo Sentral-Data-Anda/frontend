@@ -10,7 +10,9 @@ import { FirstLoginForm } from "./first-login-form";
 export const metadata = { title: "Menyiapkan" };
 
 /**
- * Jeda minimum supaya animasi huruf sempat terbaca.
+ * Jeda minimum supaya animasi huruf sempat terbaca: 150ms jeda tampil
+ * `LoadingPage` + 800ms gerakannya = 950ms, dibulatkan ke 1 detik. Itu juga
+ * batas atas yang disepakati untuk waktu tambahan yang dirasakan user.
  *
  * Dipasang pada kerja SERVER, bukan di client, dan itu bukan pilihan gaya:
  * `loading.tsx` dicabut Next begitu kerja server segmen ini selesai, terlepas
@@ -20,7 +22,7 @@ export const metadata = { title: "Menyiapkan" };
  * Hanya berlaku di layar ini. Menambahkannya ke navigasi lain berarti
  * memperlambat aplikasi demi animasi.
  */
-const MINIMUM_HOLD_MS = 800;
+const MINIMUM_HOLD_MS = 1_000;
 
 export default async function Page({
   searchParams,

@@ -1,15 +1,30 @@
+"use client";
+
+import { useLoadingWindow } from "@/hooks/use-loading-window";
+
 import styles from "./loading-page.module.css";
 
 /**
- * Layar tunggu penuh dengan animasi huruf S · A · D.
+ * Layar tunggu penuh dengan animasi huruf S · A · D (bootstrap dan
+ * `app/loading.tsx`).
  *
- * Dipakai HANYA saat bootstrap — `(auth)/authentication/loading.tsx`. Animasi
- * ini berdurasi 2 detik dan berakhir pada `opacity: 0`, jadi menempatkannya di
- * tunggu pendek (simpan yang selesai 300ms, pindah layar di dalam app shell)
- * hanya memperlihatkan kedipan huruf setengah jalan. Untuk itu ada
- * `LoadingGlobal`.
+ * Jendela tampil (keputusan user 2026-09-23):
+ * - **150ms jeda** sebelum muncul: perpindahan yang selesai lebih cepat dari
+ *   itu tidak menampilkan apa pun — tidak ada kedipan, dan tidak ada waktu
+ *   yang ditambahkan.
+ * - **800ms gerakan** yang berhenti diam, lalu denyut halus. Berapa pun ia
+ *   sempat tampil, yang terlihat adalah gerakan yang selesai, bukan potongan.
+ *
+ * Batas MINIMUM tampil tidak bisa dipasang dari sini: fallback `loading.tsx`
+ * dicabut Next begitu kerja server segmennya selesai. Di layar yang memang
+ * butuh (bootstrap `authentication`) penahannya ada di kerja servernya.
+ * `LoadingGlobal` (spinner mutation) sengaja tanpa jendela apa pun.
  */
 export function LoadingPage() {
+  const isShown = useLoadingWindow(true);
+
+  if (!isShown) return null;
+
   return (
     <div
       role="status"
