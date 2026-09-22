@@ -29,6 +29,11 @@ import { cn } from "@/lib/utils";
  * Urutan baca tidak berubah: kolom samping mengalir baris demi baris (kiri ke
  * kanan), jadi widget terpenting tetap di baris teratas.
  *
+ * Dipecah hanya bila kartu sampingnya **lima atau lebih** (`:has(>
+ * *:nth-child(5))`). Dengan empat kartu atau kurang, memecahnya justru membalik
+ * ketimpangannya: kolom samping jadi setengah tinggi kolom utama (terukur di
+ * persona majelis).
+ *
  * Slot kosong runtuh: samping kosong → main penuh, dan sebaliknya; jumlah
  * kartu samping ganjil di baris 2 kolom → kartu terakhir selebar baris.
  * Tidak pernah ada lubang.
@@ -64,7 +69,7 @@ export function DashboardGrid({
             <div className="grid min-w-0 gap-4">{main}</div>
           ) : null}
           {side.length ? (
-            <div className="grid min-w-0 gap-4 @min-[40rem]:grid-cols-2 @min-[40rem]:[&>*:last-child:nth-child(odd)]:col-span-2 @min-[55rem]:grid-cols-1 @min-[55rem]:[&>*:last-child:nth-child(odd)]:col-span-1 @min-[70rem]:grid-cols-2 @min-[70rem]:[&>*:last-child:nth-child(odd)]:col-span-2">
+            <div className="grid min-w-0 gap-4 @min-[40rem]:grid-cols-2 @min-[40rem]:[&>*:last-child:nth-child(odd)]:col-span-2 @min-[55rem]:grid-cols-1 @min-[55rem]:[&>*:last-child:nth-child(odd)]:col-span-1 @min-[70rem]:has-[>*:nth-child(5)]:grid-cols-2 @min-[70rem]:has-[>*:nth-child(5)]:[&>*:last-child:nth-child(odd)]:col-span-2">
               {side}
             </div>
           ) : null}
