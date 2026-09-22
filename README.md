@@ -188,8 +188,8 @@ sama dengan "Hari ini" di Beranda. Memuat, kosong, dan galat juga rata di
 kanvas. Garis pemisah digambar di badan baris (`data-slot="row-body"`), jadi
 otomatis mulai dari tepi kiri judul sampai gutter kanan, berapa pun lebar
 `leading`. Baris daftar memakai `<Avatar tone="soft" />` (lingkaran
-primary-200) dan badge status bergaris tepi (`success` / `neutral`) di semua
-baris — bidang tint saja hilang di atas kanvas.
+primary-200) dan status berupa titik + teks tanpa bidang (`success` /
+`neutral`) di semua baris — teksnya lolos kontras langsung di atas kanvas.
 `DataListRow` belum punya `href`, jadi belum ada chevron.
 
 Paginasi berbeda PERILAKU per lebar, dan layar tidak tahu mode mana yang aktif:
