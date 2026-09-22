@@ -173,10 +173,6 @@ describe("cookie sidebar", () => {
 
     const toggle = screen.getByRole("button", { name: "Ciutkan menu" });
 
-    expect(toggle.getAttribute("aria-expanded")).toBe("true");
-    expect(toggle.getAttribute("aria-controls")).toBe("sidebar-nav");
-    expect(document.getElementById("sidebar-nav")).not.toBeNull();
-
     await act(async () => {
       toggle.focus();
       fireEvent.click(toggle);
@@ -184,7 +180,6 @@ describe("cookie sidebar", () => {
 
     expect(document.cookie).toContain(`${SIDEBAR_COOKIE}=1`);
     expect(toggle.getAttribute("aria-label")).toBe("Lebarkan menu");
-    expect(toggle.getAttribute("aria-expanded")).toBe("false");
     expect(document.activeElement).toBe(toggle);
     expect(screen.getByRole("link", { name: "Kejemaatan" })).toBeTruthy();
 

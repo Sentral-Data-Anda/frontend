@@ -32,8 +32,6 @@ import { isTabActive } from "./bottom-tab";
 import { LogoutButton } from "./logout-button";
 import { sidebarCookie } from "./sidebar-collapse";
 
-const NAV_ID = "sidebar-nav";
-
 // Offset 2px: ring selalu berbatasan dengan navy (5.20:1), termasuk di
 // sekeliling chip aktif yang terang.
 const FOCUS =
@@ -129,13 +127,9 @@ export function Sidebar({ defaultCollapsed }: { defaultCollapsed: boolean }) {
               variant="ghost"
               size={isCollapsed.value ? "icon" : "default"}
               aria-label={toggleLabel}
-              aria-expanded={!isCollapsed.value}
-              aria-controls={NAV_ID}
               onClick={onToggle}
               className={cn(
                 ICON_BUTTON,
-                // Ghost bawaan mewarnai `aria-expanded` seperti menu terbuka.
-                "aria-expanded:text-sidebar-muted-foreground aria-expanded:hover:bg-sidebar-accent aria-expanded:hover:text-sidebar-accent-foreground aria-expanded:bg-transparent",
                 isCollapsed.value
                   ? "mx-auto flex"
                   : "w-full justify-start gap-3",
@@ -159,7 +153,9 @@ export function Sidebar({ defaultCollapsed }: { defaultCollapsed: boolean }) {
             isCollapsed.value ? "flex-col items-center" : "items-center px-4",
           )}
         >
-          <Avatar label={name} />
+          {/* Di rail avatar tanpa nama tidak menyampaikan apa pun, dan
+              memakan baris yang membuat ikon terakhir terpotong di 1024×768. */}
+          {isCollapsed.value ? null : <Avatar label={name} />}
           {isCollapsed.value ? null : (
             <div className="min-w-0 flex-1">
               <p className="truncate text-body font-medium">{name}</p>
@@ -249,7 +245,6 @@ function RailLink({
 function RailNav({ menu, pathname }: { menu: MenuNode[]; pathname: string }) {
   return (
     <nav
-      id={NAV_ID}
       aria-label="Navigasi utama"
       className="flex-1 overflow-y-auto overscroll-contain py-3"
     >
@@ -345,7 +340,6 @@ export function SidebarNav({
 
   return (
     <nav
-      id={NAV_ID}
       aria-label="Navigasi utama"
       className="flex-1 overflow-y-auto overscroll-contain px-3 py-3"
     >
