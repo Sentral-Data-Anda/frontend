@@ -36,6 +36,10 @@ import { cn } from "@/lib/utils";
  * dan tanggal di layar jadwal. Menyempitkannya ke satu jenis nilai hanya akan
  * melahirkan `DataListRowWithAmount` di layar ketujuh.
  */
+/** Teks lengkap untuk `title` bila isinya string — terlihat saat terpotong. */
+const textOf = (node: ReactNode) =>
+  typeof node === "string" ? node : undefined;
+
 export function DataListRow({
   title,
   meta,
@@ -62,10 +66,15 @@ export function DataListRow({
         className="flex min-w-0 flex-1 items-center gap-3 self-stretch border-border"
       >
         <div className="min-w-0 flex-1">
-          <p className="truncate text-body font-medium">{title}</p>
+          <p className="truncate text-body font-medium" title={textOf(title)}>
+            {title}
+          </p>
 
           {meta ? (
-            <p className="text-muted-foreground truncate text-caption tabular-nums">
+            <p
+              className="text-muted-foreground truncate text-caption tabular-nums"
+              title={textOf(meta)}
+            >
               {meta}
             </p>
           ) : null}

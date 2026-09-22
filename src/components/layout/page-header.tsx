@@ -58,10 +58,17 @@ export function PageHeader({
 
       <div className="min-w-0 flex-1">
         {title ? (
-          <h1 className="truncate text-lead font-semibold">{title}</h1>
+          <h1 className="truncate text-lead font-semibold" title={title}>
+            {title}
+          </h1>
         ) : null}
         {subtitle ? (
-          <p className="text-muted-foreground truncate text-body">{subtitle}</p>
+          <p
+            className="text-muted-foreground truncate text-body"
+            title={subtitle}
+          >
+            {subtitle}
+          </p>
         ) : null}
       </div>
 

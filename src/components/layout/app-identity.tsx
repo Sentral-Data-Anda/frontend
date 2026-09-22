@@ -54,7 +54,10 @@ export function AppIdentity({
         >
           {siteConfig.shortName} · {siteConfig.name}
         </p>
-        <p className={cn("truncate text-lead font-semibold", TONE[tone].role)}>
+        <p
+          className={cn("truncate text-lead font-semibold", TONE[tone].role)}
+          title={role}
+        >
           {role}
         </p>
       </div>

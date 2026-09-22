@@ -35,7 +35,10 @@ export function MenuTile({
           <DomainIcon slug={domainSlug} icon={icon} size="sm" />
 
           {domainLabel ? (
-            <span className="text-muted-foreground truncate text-caption">
+            <span
+              className="text-muted-foreground truncate text-caption"
+              title={domainLabel}
+            >
               {domainLabel}
             </span>
           ) : null}

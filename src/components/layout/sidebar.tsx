@@ -203,8 +203,13 @@ export function Sidebar({ defaultCollapsed }: { defaultCollapsed: boolean }) {
                 <Avatar label={name} />
               </div>
               <div className={cn("min-w-0 flex-1", HIDE_IN_RAIL)}>
-                <p className="truncate text-body font-medium">{name}</p>
-                <p className="text-sidebar-muted-foreground truncate text-caption">
+                <p className="truncate text-body font-medium" title={name}>
+                  {name}
+                </p>
+                <p
+                  className="text-sidebar-muted-foreground truncate text-caption"
+                  title={role}
+                >
                   {role}
                 </p>
               </div>
@@ -253,10 +258,16 @@ const AccountMenu = memo(function AccountMenu({
           <Menu.Popup className="bg-popover text-popover-foreground ring-border min-w-48 rounded-control p-1 shadow-md ring-1 outline-none">
             <Menu.Group>
               <Menu.GroupLabel className="px-2 py-1.5">
-                <span className="block truncate text-lead font-semibold">
+                <span
+                  className="block truncate text-lead font-semibold"
+                  title={name}
+                >
                   {name}
                 </span>
-                <span className="text-muted-foreground block truncate text-body">
+                <span
+                  className="text-muted-foreground block truncate text-body"
+                  title={role}
+                >
                   {role}
                 </span>
               </Menu.GroupLabel>

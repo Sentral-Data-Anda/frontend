@@ -87,6 +87,13 @@ describe("DataList", () => {
     expect(button.hasAttribute("disabled")).toBe(true);
   });
 
+  test("baris: judul dan meta string punya title (teks lengkap saat terpotong)", () => {
+    onRenderList({});
+
+    expect(screen.getByText("Andreas").getAttribute("title")).toBe("Andreas");
+    expect(screen.getByText("JMT-0001").getAttribute("title")).toBe("JMT-0001");
+  });
+
   test("galat menang atas data yang masih tersisa di cache", () => {
     onRenderList({ error: new Error("Jaringan terputus.") });
 
