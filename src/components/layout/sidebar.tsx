@@ -240,7 +240,9 @@ function RailLink({
 
 /**
  * Mode ringkas: ikon saja, tanpa accordion dan tanpa flyout. Ikon domain
- * membuka `domainEntryHref` — tujuan yang sama dengan tile Beranda.
+ * membuka `domainEntryHref` — tujuan yang sama dengan tile Beranda. Tanpa
+ * Cari (keputusan 2026-09-22): rail hanya untuk berpindah; Cari tetap ada
+ * di mode penuh.
  */
 function RailNav({ menu, pathname }: { menu: MenuNode[]; pathname: string }) {
   return (
@@ -255,15 +257,6 @@ function RailNav({ menu, pathname }: { menu: MenuNode[]; pathname: string }) {
             label="Beranda"
             icon={House}
             isActive={isTabActive("/", pathname)}
-            pathname={pathname}
-          />
-        </li>
-        <li>
-          <RailLink
-            href="/modul"
-            label="Cari modul atau layar"
-            icon={Search}
-            isActive={isTabActive("/modul", pathname)}
             pathname={pathname}
           />
         </li>

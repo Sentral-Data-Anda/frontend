@@ -114,7 +114,8 @@ describe("SidebarNav ringkas", () => {
 
     const links = screen.getAllByRole("link");
 
-    expect(links).toHaveLength(2 + MENU.length);
+    expect(links).toHaveLength(1 + MENU.length);
+    expect(screen.queryByRole("link", { name: /Cari/ })).toBeNull();
     for (const link of links) {
       expect(link.getAttribute("aria-label")).toBeTruthy();
     }
