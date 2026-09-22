@@ -66,7 +66,11 @@ export function CashExpenseWidget() {
 /** Bulan ini (WIB) untuk `/report/jemaat/birth/:month`. */
 const useMonthBirthdays = () => useBirthdays(monthOf(new Date()));
 
-/** Ulang tahun anggota jemaat bulan ini (`REPORT_JEMAAT` VIEW). */
+/**
+ * Ulang tahun anggota jemaat bulan ini (`REPORT_JEMAAT` VIEW). Hanya nama dan
+ * tanggal — tanpa usia maupun tahun lahir (keputusan BA/TL, privasi), meski
+ * be-sada mengirim `umur`.
+ */
 export function BirthdaysWidget() {
   const query = useMonthBirthdays();
   const items = query.data ?? [];
@@ -88,7 +92,6 @@ export function BirthdaysWidget() {
               key={`${item.name}-${item.birthDate}`}
               title={item.name}
               meta={formatDayMonth(item.birthDate)}
-              trailing={`${item.umur} th`}
             />
           ))}
         </DashboardList>
