@@ -1,10 +1,12 @@
 "use client";
 
+import { Menu } from "@base-ui/react/menu";
 import { Tooltip } from "@base-ui/react/tooltip";
 import {
   ChevronDown,
   House,
   LayoutGrid,
+  LogOut,
   PanelLeftClose,
   PanelLeftOpen,
   Search,
@@ -15,7 +17,6 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
 
 import { Avatar } from "@/components/common/avatar";
-import { Button } from "@/components/common/button";
 import {
   MENU_ICON,
   domainEntryHref,
@@ -29,7 +30,7 @@ import { cn } from "@/lib/utils";
 
 import { AppIdentity } from "./app-identity";
 import { isTabActive } from "./bottom-tab";
-import { LogoutButton } from "./logout-button";
+import { LogoutButton, logout } from "./logout-button";
 import { sidebarCookie } from "./sidebar-collapse";
 
 // Offset 2px: ring selalu berbatasan dengan navy (5.20:1), termasuk di
@@ -47,31 +48,31 @@ const IDLE = "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground";
 
 const ACTIVE = "bg-sidebar-primary text-sidebar-primary-foreground font-medium";
 
-const ICON_BUTTON = cn(
-  "text-sidebar-muted-foreground focus-visible:border-transparent focus-visible:ring-0",
-  IDLE,
-  FOCUS,
-);
-
 /**
  * Seluruh chrome global desktop (≥ lg) — tidak ada top bar. Identitas di
- * atas dan pengguna + Keluar di bawah diam; hanya navigasi di tengah yang
- * scroll, supaya 1024×768 dengan domain Keuangan (11 layar) terbuka tidak
- * memotong apa pun.
+ * atas dan pengguna di bawah diam; hanya navigasi di tengah yang scroll,
+ * supaya 1024×768 dengan domain Keuangan (11 layar) terbuka tidak memotong
+ * apa pun.
  *
  * Bisa diringkas jadi rail ikon 72px (permintaan user 2026-09-22). Nilai
  * awalnya dari cookie yang dibaca `AppShell` di server; toggle menulis cookie
- * yang sama tanpa reload. Anak tiap bagian dijaga di posisi pohon yang sama
- * di kedua mode, supaya tombol toggle tidak dipasang ulang dan fokus tetap
- * di sana.
+ * yang sama tanpa reload.
+ *
+ * Toggle duduk di garis tepi kanan, di LUAR `<aside>`: aside butuh
+ * `overflow-hidden` selama transisi lebar dan akan memotong separuh tombol.
+ * Pembungkus sticky yang memegang keduanya; `right-0` membuat tombol ikut
+ * bergeser bersama lebar aside tanpa `fixed` + `left` hitungan. Satu elemen
+ * di kedua mode (hanya label dan ikon yang berganti), jadi fokus bertahan.
  */
 export function Sidebar({ defaultCollapsed }: { defaultCollapsed: boolean }) {
   const session = useSession();
   const pathname = usePathname();
   const isCollapsed = useBoolean(defaultCollapsed);
   const name = session.jemaat?.name ?? session.username;
+  const role = session.roleUser.name;
   const ref = useRef<HTMLElement>(null);
   const toggleLabel = isCollapsed.value ? "Lebarkan menu" : "Ciutkan menu";
+  const ToggleIcon = isCollapsed.value ? PanelLeftOpen : PanelLeftClose;
 
   // Di 1024×768 layar ke-11 Keuangan ada di bawah lipatan navigasi.
   useEffect(() => {
@@ -89,108 +90,151 @@ export function Sidebar({ defaultCollapsed }: { defaultCollapsed: boolean }) {
 
   return (
     <Tooltip.Provider>
-      <aside
-        ref={ref}
-        className={cn(
-          "bg-sidebar text-sidebar-foreground sticky top-0 hidden h-dvh shrink-0 flex-col overflow-hidden transition-[width] duration-200 ease-out motion-reduce:transition-none lg:flex",
-          isCollapsed.value ? "w-18" : "w-64",
-        )}
-      >
-        <div
+      <div className="sticky top-0 z-30 hidden h-dvh shrink-0 lg:flex">
+        <RailTip label={toggleLabel}>
+          <button
+            type="button"
+            aria-label={toggleLabel}
+            onClick={onToggle}
+            className={cn(
+              // top-5: pusatnya = pusat logo (py-4 + 36px / 2 = 34px).
+              // Bidang 28px — pengecualian aturan 36px; `after:` memperluas
+              // area sentuh ke ±44px tanpa membesarkan bidangnya.
+              "absolute top-5 right-0 z-10 flex size-7 translate-x-1/2 items-center justify-center rounded-full after:absolute after:-inset-2",
+              // Navy + cincin p200: batas 5.20:1 di navy, bidang 7.70:1 di
+              // kanvas. Bidang putih hanya 1.10:1 di kanvas.
+              "bg-sidebar text-sidebar-foreground ring-sidebar-ring shadow-md ring-1 transition-colors",
+              IDLE,
+              // Fokus dua warna: cincin p200 menebal (terbaca di navy) +
+              // outline navy (terbaca di kanvas).
+              "focus-visible:outline-sidebar focus-visible:ring-2 focus-visible:outline-2 focus-visible:outline-offset-2",
+            )}
+          >
+            <ToggleIcon className="size-3.5" aria-hidden />
+          </button>
+        </RailTip>
+
+        <aside
+          ref={ref}
           className={cn(
-            "border-sidebar-border flex border-b py-4",
-            isCollapsed.value ? "justify-center" : "px-4",
+            "bg-sidebar text-sidebar-foreground flex shrink-0 flex-col overflow-hidden transition-[width] duration-200 ease-out motion-reduce:transition-none",
+            isCollapsed.value ? "w-18" : "w-64",
           )}
         >
-          <AppIdentity
-            role={session.roleUser.name}
-            tone="sidebar"
-            isCompact={isCollapsed.value}
+          <div
+            className={cn(
+              "border-sidebar-border flex border-b py-4",
+              isCollapsed.value ? "justify-center" : "px-4",
+            )}
+          >
+            <AppIdentity
+              role={role}
+              tone="sidebar"
+              isCompact={isCollapsed.value}
+            />
+          </div>
+
+          <SidebarNav
+            menu={session.menu}
+            pathname={pathname}
+            isCollapsed={isCollapsed.value}
           />
-        </div>
 
-        <SidebarNav
-          menu={session.menu}
-          pathname={pathname}
-          isCollapsed={isCollapsed.value}
-        />
-
-        {/*
-          Tombol ciutkan di bawah navigasi, bukan di baris identitas: di sana
-          ia memotong "SADA · SENTRAL DATA ANDA". Tempatnya sama di kedua mode
-          — user menemukannya di tempat ia meninggalkannya, dan elemennya
-          tidak dipasang ulang sehingga fokus bertahan.
-        */}
-        <div className="border-sidebar-border border-t px-3 py-2">
-          <RailTip label={toggleLabel} isDisabled={!isCollapsed.value}>
-            <Button
-              variant="ghost"
-              size={isCollapsed.value ? "icon" : "default"}
-              aria-label={toggleLabel}
-              onClick={onToggle}
-              className={cn(
-                ICON_BUTTON,
-                isCollapsed.value
-                  ? "mx-auto flex"
-                  : "w-full justify-start gap-3",
-              )}
-            >
-              {isCollapsed.value ? (
-                <PanelLeftOpen className="size-4" aria-hidden />
-              ) : (
-                <PanelLeftClose className="size-4" aria-hidden />
-              )}
-              {isCollapsed.value ? null : (
-                <span className="truncate">{toggleLabel}</span>
-              )}
-            </Button>
-          </RailTip>
-        </div>
-
-        <div
-          className={cn(
-            "border-sidebar-border flex gap-3 border-t py-3",
-            isCollapsed.value ? "flex-col items-center" : "items-center px-4",
-          )}
-        >
-          {/* Di rail avatar tanpa nama tidak menyampaikan apa pun, dan
-              memakan baris yang membuat ikon terakhir terpotong di 1024×768. */}
-          {isCollapsed.value ? null : <Avatar label={name} />}
-          {isCollapsed.value ? null : (
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-body font-medium">{name}</p>
-              <p className="text-sidebar-muted-foreground truncate text-caption">
-                {session.roleUser.name}
-              </p>
-            </div>
-          )}
-          <RailTip label="Keluar" isDisabled={!isCollapsed.value}>
-            <LogoutButton className={cn(IDLE, FOCUS)} />
-          </RailTip>
-        </div>
-      </aside>
+          <div
+            className={cn(
+              "border-sidebar-border flex items-center gap-3 border-t py-3",
+              isCollapsed.value ? "justify-center" : "px-4",
+            )}
+          >
+            {isCollapsed.value ? (
+              <AccountMenu name={name} role={role} />
+            ) : (
+              <>
+                <Avatar label={name} />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-body font-medium">{name}</p>
+                  <p className="text-sidebar-muted-foreground truncate text-caption">
+                    {role}
+                  </p>
+                </div>
+                <LogoutButton className={cn(IDLE, FOCUS)} />
+              </>
+            )}
+          </div>
+        </aside>
+      </div>
     </Tooltip.Provider>
   );
 }
 
 /**
- * Label terlihat untuk ikon rail, muncul saat hover DAN fokus keyboard.
- * Primitif Base UI (sudah terpasang) memenuhi WCAG 1.4.13: hilang dengan
- * Escape tanpa memindah fokus, bisa di-hover tanpa menutup, dan bertahan
- * sampai pointer/fokus pergi. Nama aksesibel tetap `aria-label` pemicunya —
- * tooltip hanya untuk mata.
+ * Rail tidak punya ruang untuk nama + tombol Keluar, jadi avatar menjadi
+ * pemicu menu. Primitif Base UI mengurus `aria-haspopup`, panah, Escape
+ * (menutup + fokus kembali ke avatar) dan portal (lolos dari
+ * `overflow-hidden` aside). Hanya ada di rail — mode penuh tetap 1 klik.
+ */
+function AccountMenu({ name, role }: { name: string; role: string }) {
+  return (
+    <Menu.Root>
+      <RailTip label={name}>
+        <Menu.Trigger
+          aria-label={`Akun: ${name}`}
+          className={cn("rounded-full", FOCUS)}
+        >
+          <Avatar label={name} />
+        </Menu.Trigger>
+      </RailTip>
+      <Menu.Portal>
+        <Menu.Positioner
+          side="right"
+          align="end"
+          sideOffset={10}
+          className="z-50"
+        >
+          <Menu.Popup className="bg-popover text-popover-foreground ring-border min-w-48 rounded-control p-1 shadow-md ring-1 outline-none">
+            <Menu.Group>
+              <Menu.GroupLabel className="px-2 py-1.5">
+                <span className="block truncate text-lead font-semibold">
+                  {name}
+                </span>
+                <span className="text-muted-foreground block truncate text-body">
+                  {role}
+                </span>
+              </Menu.GroupLabel>
+            </Menu.Group>
+            <Menu.Separator className="bg-border -mx-1 my-1 h-px" />
+            {/* Sorotan navy + teks putih (8.44:1): sorotan p50 di atas putih
+                hanya 1.10:1 dan tidak terbaca sebagai fokus. */}
+            <Menu.Item
+              onClick={() => void logout()}
+              className="data-highlighted:bg-primary data-highlighted:text-primary-foreground flex h-control cursor-default items-center gap-2 rounded-control px-2 text-body font-medium outline-none select-none"
+            >
+              <LogOut className="size-4" aria-hidden />
+              Keluar
+            </Menu.Item>
+          </Menu.Popup>
+        </Menu.Positioner>
+      </Menu.Portal>
+    </Menu.Root>
+  );
+}
+
+/**
+ * Label terlihat untuk kontrol ikon saja, muncul saat hover DAN fokus
+ * keyboard. Primitif Base UI (sudah terpasang) memenuhi WCAG 1.4.13: hilang
+ * dengan Escape tanpa memindah fokus, bisa di-hover tanpa menutup, dan
+ * bertahan sampai pointer/fokus pergi. Nama aksesibel tetap `aria-label`
+ * pemicunya — tooltip hanya untuk mata.
  */
 function RailTip({
   label,
-  isDisabled = false,
   children,
 }: {
   label: string;
-  isDisabled?: boolean;
   children: React.ReactElement;
 }) {
   return (
-    <Tooltip.Root disabled={isDisabled}>
+    <Tooltip.Root>
       <Tooltip.Trigger render={children} />
       <Tooltip.Portal>
         <Tooltip.Positioner side="right" sideOffset={10} className="z-50">

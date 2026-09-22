@@ -25,11 +25,7 @@ export async function logout(): Promise<void> {
   }
 }
 
-/** Sisa prop diteruskan supaya bisa jadi pemicu tooltip di sidebar ringkas. */
-export function LogoutButton({
-  className,
-  ...props
-}: Omit<React.ComponentProps<typeof Button>, "onClick" | "children">) {
+export function LogoutButton({ className }: { className?: string }) {
   const isPending = useBoolean();
 
   const onLogout = () => {
@@ -39,7 +35,6 @@ export function LogoutButton({
 
   return (
     <Button
-      {...props}
       variant="ghost"
       size="icon"
       aria-label="Keluar"
