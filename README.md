@@ -199,9 +199,27 @@ bun run dev:mock
 Tiga iframe: 390×844, 820×1180, dan 1440×900 (diperkecil 50%). `path` harus
 path di origin ini. Framing same-origin hanya diizinkan di development.
 
+**Persona (Beranda per izin).** `MOCK_PERSONA` memilih peran yang login;
+pohon menu hanya berisi layar yang diizinkan (seperti `menuService.findTree`
+be-sada) dan endpoint menjawab 403 untuk izin yang tidak dipegang:
+
+```bash
+bun run dev:mock                          # sekretariat (bawaan)
+MOCK_PERSONA=bendahara bun run dev:mock   # keuangan, kas keluar, persetujuan
+MOCK_PERSONA=majelis bun run dev:mock     # persetujuan, keuangan, anggaran, ulang tahun
+MOCK_PERSONA=admin bun run dev:mock       # 12 domain / 61 layar, semua aksi (menilai sidebar)
+```
+
+`MOCK_MAJELIS_NO_FINANCE=1` (majelis tanpa `LAPORAN_KEUANGAN` — sel KPI dan
+grafik keuangan hilang, grid merapat), `MOCK_NO_APPROVAL=1` (antrean
+persetujuan kosong). Tiruan hanya meniru endpoint yang ada di be-sada
+(`scripts/mock-dashboard.ts`, dengan rujukan berkas be-sada per endpoint);
+widget yang endpoint-nya belum ada memakai fixture `SHOW_DUMMY`
+(`src/features/beranda/dummy.ts`) dan tidak muncul di build production.
+
 Varian tiruan: `MOCK_NO_CREATE=1` (tanpa tombol Tambah), `MOCK_500=1` (daftar
 jemaat & ibadah galat), `MOCK_NO_IBADAH=1` (tidak ada ibadah hari ini), `MOCK_SINGLE_LEAF=1`
-(Peribadahan hanya punya Ibadah → tile-nya dan `/peribadahan` langsung ke
+(bersama `MOCK_PERSONA=admin`: Peribadahan hanya punya Ibadah → tile-nya dan `/peribadahan` langsung ke
 layar itu; Pengaturan tidak dipegang → `/pengaturan` 404), `MOCK_MANY_JEMAAT=1`
 (60 jemaat; buka `?limit=5` di desktop untuk elipsis pager), `MOCK_FAIL_PAGE=3`
 (halaman 3 menjawab 500 — baris "Gagal memuat" di mobile), `MOCK_API_ONLY=1`

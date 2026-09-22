@@ -17,6 +17,13 @@
  *                                         baris "Gagal memuat — Coba lagi" di mobile
  *   MOCK_API_ONLY=1 bun run dev:mock    → hanya tiruan API, tanpa `next dev` (untuk
  *                                         `next start` hasil build di port lain)
+ *   MOCK_PERSONA=bendahara bun run dev:mock → Beranda per izin; persona:
+ *                                         sekretariat (bawaan) | bendahara |
+ *                                         majelis | admin (pohon menu lengkap,
+ *                                         untuk menilai sidebar 12 domain).
+ *                                         Lihat `scripts/mock-dashboard.ts`.
+ *   MOCK_MAJELIS_NO_FINANCE=1           → majelis tanpa LAPORAN_KEUANGAN
+ *   MOCK_NO_APPROVAL=1                  → antrean persetujuan kosong
  *
  * Port bisa digeser supaya berjalan di samping `dev:mock` lain:
  *   MOCK_API_PORT=3011 PORT=3010 bun run dev:mock
@@ -25,9 +32,23 @@
  * be-sada; kalau tiruan ini dan be-sada berselisih, be-sada yang benar.
  */
 import { MENU, type MenuSlug } from "../src/config/menu";
-import { toDateKey } from "../src/features/beranda/time";
 
 import { NAME, TREE } from "./menu-tree";
+import {
+  PERSONAS,
+  actionsOf,
+  guardSlugOf,
+  listBirthdays,
+  listCashExpense,
+  listEvent,
+  listIbadah,
+  listLoanRoom,
+  listMyOfferings,
+  listPublicAnnouncements,
+  listWaitingApprovals,
+  neraca,
+  surplusDefisit,
+} from "./mock-dashboard";
 
 const API_PORT = Number(process.env.MOCK_API_PORT ?? 3001);
 const WEB_PORT = Number(process.env.PORT ?? 3000);
@@ -80,64 +101,60 @@ if (process.env.MOCK_SINGLE_LEAF) {
   delete TREE[MENU.PENGATURAN];
 }
 
-const leafActions = (slug: string) =>
-  slug === MENU.DAFTAR_JEMAAT && !process.env.MOCK_NO_CREATE
-    ? ["VIEW", "CREATE"]
-    : ["VIEW"];
+const PERSONA_KEY = process.env.MOCK_PERSONA ?? "sekretariat";
+const persona = PERSONAS[PERSONA_KEY];
+
+if (!persona) {
+  throw new Error(
+    `MOCK_PERSONA tidak dikenal: "${PERSONA_KEY}". Pilih: ${Object.keys(PERSONAS).join(", ")}.`,
+  );
+}
+
+/**
+ * Seperti `menuService.findTree` be-sada: layar tampil bila peran memegang
+ * aksinya, domain tampil bila punya anak.
+ */
+const menu = Object.entries(TREE).flatMap(([domain, leaves], domainIndex) => {
+  const children = leaves.flatMap((leaf, leafIndex) => {
+    const action = actionsOf(persona, leaf);
+    return action.length
+      ? [
+          {
+            publicId: leaf,
+            slug: leaf,
+            name: NAME[leaf],
+            order: leafIndex + 1,
+            action,
+            children: [],
+          },
+        ]
+      : [];
+  });
+
+  return children.length
+    ? [
+        {
+          publicId: domain,
+          slug: domain,
+          name: NAME[domain as MenuSlug],
+          order: domainIndex + 1,
+          action: [],
+          children,
+        },
+      ]
+    : [];
+});
 
 const session = {
   code: "U-0001",
   username: "A-0184",
   status: "ACTIVE",
-  roleUser: { name: "Sekretariat", isAdmin: false },
-  jemaat: { name: "Andreas Sitanggang" },
-  menu: Object.entries(TREE).map(([domain, leaves], domainIndex) => ({
-    publicId: domain,
-    slug: domain,
-    name: NAME[domain as MenuSlug],
-    order: domainIndex + 1,
-    action: [],
-    children: leaves.map((leaf, leafIndex) => ({
-      publicId: leaf,
-      slug: leaf,
-      name: NAME[leaf],
-      order: leafIndex + 1,
-      action: leafActions(leaf),
-      children: [],
-    })),
-  })),
+  roleUser: { name: persona.roleName, isAdmin: persona.isAdmin },
+  jemaat: { name: persona.jemaatName },
+  menu,
 };
 
-/**
- * Dua ibadah HARI INI (Asia/Jakarta, sama dengan yang diminta Beranda).
- * Bentuk baris = `ibadahRepository.findAllWithPagination` di be-sada: kolom
- * `ibadah` tanpa FK dan kolom audit, plus relasi `{ id, code, name }`.
- */
-const ibadahRow = (
-  id: number,
-  startTime: string,
-  endTime: string,
-  preacher: string | null,
-  typeName: string,
-) => ({
-  id,
-  publicId: `00000000-0000-4000-8000-00000000000${id}`,
-  code: `IBD-${String(id).padStart(4, "0")}`,
-  date: `${toDateKey(new Date())}T00:00:00.000Z`,
-  startTime,
-  endTime,
-  theme: null,
-  bibleVerse: null,
-  preacher,
-  maleCount: 0,
-  femaleCount: 0,
-  childCount: 0,
-  note: null,
-  typeIbadah: { id, code: `TI-${id}`, name: typeName },
-  room: null,
-  bapel: null,
-  jadwalPelayan: null,
-});
+const canView = (slug: string) => actionsOf(persona, slug).includes("VIEW");
 
 const COOKIES = ["accessToken", "refreshToken"];
 const setCookies = (value: string, maxAge: number) =>
@@ -150,6 +167,40 @@ const json = (body: unknown, status = 200, cookies: string[] = []) => {
   const headers = new Headers({ "content-type": "application/json" });
   for (const cookie of cookies) headers.append("set-cookie", cookie);
   return new Response(JSON.stringify(body), { status, headers });
+};
+
+/** `parsePagination` be-sada: bawaan 10, maks 100, nilai buruk → bawaan. */
+const paging = (url: URL) => {
+  const page = Math.max(1, Number(url.searchParams.get("page")) || 1);
+  const limit = Math.min(
+    100,
+    Math.max(1, Number(url.searchParams.get("limit")) || 10),
+  );
+  return { page, limit };
+};
+
+/**
+ * Daftar berpaginasi gaya be-sada: `{ status, message, totalData, totalPage,
+ * data }`, dan 404 `"<X> Tidak Ditemukan"` bila kosong.
+ */
+const list = (
+  rows: unknown[],
+  url: URL,
+  okName: string,
+  emptyName: string,
+  message = `Berhasil Mendapatkan Semua ${okName}`,
+) => {
+  if (rows.length === 0) {
+    return json({ status: 404, error: `${emptyName} Tidak Ditemukan` }, 404);
+  }
+  const { page, limit } = paging(url);
+  return json({
+    status: 200,
+    message,
+    totalData: rows.length,
+    totalPage: Math.ceil(rows.length / limit),
+    data: rows.slice((page - 1) * limit, page * limit),
+  });
 };
 
 Bun.serve({
@@ -219,37 +270,126 @@ Bun.serve({
       });
     }
 
+    // Guard be-sada `Authorization(MENU.X, "VIEW")`; admin melewatinya.
+    const guard = guardSlugOf(path);
+    if (guard && !canView(guard)) {
+      return json(
+        { status: 403, error: "Access denied: You do not have permission" },
+        403,
+      );
+    }
+
     if (path === "/ibadah") {
       if (process.env.MOCK_500) {
         return json({ status: 500, error: "Kesalahan server." }, 500);
       }
+      return list(
+        listIbadah(url.searchParams),
+        url,
+        "Data Ibadah",
+        "Data Ibadah",
+      );
+    }
 
-      const date = url.searchParams.get("date");
-      // Urutan be-sada: date desc, startTime desc.
-      const matched =
-        process.env.MOCK_NO_IBADAH || (date && date !== toDateKey(new Date()))
-          ? []
-          : [
-              ibadahRow(2, "17:00", "18:30", null, "Ibadah Minggu II"),
-              ibadahRow(
-                1,
-                "08:00",
-                "09:30",
-                "Pdt. Yohanes Simatupang",
-                "Ibadah Minggu I",
-              ),
-            ];
+    if (path === "/event") {
+      // Pesan sukses be-sada memang salin-tempel: "…Semua Barang".
+      return list(listEvent(url.searchParams), url, "Barang", "Event");
+    }
 
-      if (matched.length === 0) {
-        return json({ status: 404, error: "Data Ibadah Tidak Ditemukan" }, 404);
-      }
+    if (
+      path === "/persetujuan" &&
+      url.searchParams.get("menunggu") === "saya"
+    ) {
+      return list(
+        listWaitingApprovals(PERSONA_KEY),
+        url,
+        "",
+        "Permintaan Persetujuan",
+        "Berhasil Mendapatkan Permintaan Persetujuan",
+      );
+    }
 
+    if (path === "/kas-keluar") {
+      return list(
+        listCashExpense(url.searchParams),
+        url,
+        "Kas Keluar",
+        "Kas Keluar",
+      );
+    }
+
+    if (path === "/loan-room") {
+      return list(
+        listLoanRoom(url.searchParams),
+        url,
+        "Pemakaian Ruangan",
+        "Pemakaian Ruangan",
+      );
+    }
+
+    // 200 `[]` bila kosong — tidak ada 404 di endpoint "saya".
+    if (path === "/persembahan/saya") {
+      const all = listMyOfferings(url.searchParams, persona.jemaatName);
+      const { page, limit } = paging(url);
       return json({
         status: 200,
-        message: "Berhasil Mendapatkan Semua Data Ibadah",
-        totalData: matched.length,
-        totalPage: 1,
-        data: matched,
+        message: "Berhasil Mendapatkan Riwayat Persembahan Anda",
+        totalData: all.length,
+        totalPage: Math.ceil(all.length / limit),
+        data: all.slice((page - 1) * limit, page * limit),
+      });
+    }
+
+    // Tanpa sesi, hanya `limit`, tanpa totalData/totalPage.
+    if (path === "/public/announcement") {
+      return json({
+        status: 200,
+        message: "Berhasil Mendapatkan Pengumuman",
+        data: listPublicAnnouncements(paging(url).limit),
+      });
+    }
+
+    if (path === "/laporan-keuangan/neraca") {
+      const date = url.searchParams.get("date");
+      if (!date) {
+        return json(
+          { status: 400, error: "Mohon Lengkapi Tanggal Laporan" },
+          400,
+        );
+      }
+      return json({
+        status: 200,
+        message: "Berhasil Mendapatkan Neraca",
+        data: neraca(date),
+      });
+    }
+
+    if (path === "/laporan-keuangan/surplus-defisit") {
+      const from = url.searchParams.get("from");
+      const to = url.searchParams.get("to");
+      if (!from || !to) {
+        return json(
+          { status: 400, error: "Mohon Lengkapi Tanggal Mulai Dan Selesai" },
+          400,
+        );
+      }
+      return json({
+        status: 200,
+        message: "Berhasil Mendapatkan Laporan Surplus Defisit",
+        data: surplusDefisit(from, to),
+      });
+    }
+
+    const birth = path.match(/^\/report\/jemaat\/birth\/([^/]+)$/);
+    if (birth) {
+      const data = listBirthdays(Number(birth[1]));
+      if (data.length === 0) {
+        return json({ status: 404, error: "Report Tidak Ditemukan" }, 404);
+      }
+      return json({
+        status: 200,
+        message: "Berhasil Mendapatkan Report",
+        data,
       });
     }
 
