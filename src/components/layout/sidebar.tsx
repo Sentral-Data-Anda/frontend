@@ -201,17 +201,18 @@ function AccountMenu({ name, role }: { name: string; role: string }) {
                   {role}
                 </span>
               </Menu.GroupLabel>
+              <Menu.Separator className="bg-border -mx-1 my-1 h-px" />
+              {/* Di dalam group, supaya label nama/role menamai item ini
+                  (bukan group kosong). Sorotan navy + teks putih (8.44:1):
+                  sorotan p50 di atas putih hanya 1.10:1. */}
+              <Menu.Item
+                onClick={() => void logout()}
+                className="data-highlighted:bg-primary data-highlighted:text-primary-foreground flex h-control cursor-default items-center gap-2 rounded-control px-2 text-body font-medium outline-none select-none"
+              >
+                <LogOut className="size-4" aria-hidden />
+                Keluar
+              </Menu.Item>
             </Menu.Group>
-            <Menu.Separator className="bg-border -mx-1 my-1 h-px" />
-            {/* Sorotan navy + teks putih (8.44:1): sorotan p50 di atas putih
-                hanya 1.10:1 dan tidak terbaca sebagai fokus. */}
-            <Menu.Item
-              onClick={() => void logout()}
-              className="data-highlighted:bg-primary data-highlighted:text-primary-foreground flex h-control cursor-default items-center gap-2 rounded-control px-2 text-body font-medium outline-none select-none"
-            >
-              <LogOut className="size-4" aria-hidden />
-              Keluar
-            </Menu.Item>
           </Menu.Popup>
         </Menu.Positioner>
       </Menu.Portal>

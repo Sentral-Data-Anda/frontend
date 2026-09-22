@@ -39,7 +39,9 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
         kolapsnya address bar, momentum scroll, pull-to-refresh. Scroll
         dokumen dipertahankan; sidebar desktop yang punya scroll sendiri.
       */}
-      <main className="min-w-0 flex-1 pb-[calc(var(--bottom-tab-height)+env(safe-area-inset-bottom))] lg:pb-0">
+      {/* lg:pl-3.5 = tonjolan tombol ciut di tepi sidebar (14px), supaya
+          konten tidak menempel padanya saat kolom konten mengisi penuh. */}
+      <main className="min-w-0 flex-1 pb-[calc(var(--bottom-tab-height)+env(safe-area-inset-bottom))] lg:pb-0 lg:pl-3.5">
         <div className={shellWidth}>{children}</div>
       </main>
 
