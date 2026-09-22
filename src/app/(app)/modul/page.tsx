@@ -1,6 +1,6 @@
 import { ModuleGrid } from "./module-grid";
 
-export const metadata = { title: "Semua modul" };
+export const metadata = { title: "Pencarian" };
 
 /**
  * Sengaja tipis. Seluruh isinya berasal dari sesi yang sudah dibagikan

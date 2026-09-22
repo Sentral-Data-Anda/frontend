@@ -64,6 +64,13 @@ export function searchModules(
   };
 }
 
+/**
+ * Layar "Pencarian" (revisi user 2026-09-22; dulu "Semua modul"). Kelak
+ * mencari data dan transaksi juga, tapi be-sada belum punya pencarian
+ * global — sampai kontraknya ada, yang dicari tetap modul dan layar, dan
+ * placeholder-nya mengatakan itu apa adanya supaya nomor transaksi tidak
+ * diketik lalu berakhir "tidak ada yang cocok".
+ */
 export function ModuleGrid() {
   const session = useSession();
 
@@ -73,7 +80,7 @@ export function ModuleGrid() {
 
   return (
     <div className="pb-6">
-      <PageHeader title="Semua modul" backHref="/" />
+      <PageHeader title="Pencarian" backHref="/" />
 
       <div className="px-gutter pb-4">
         <div className="relative">

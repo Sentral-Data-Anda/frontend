@@ -297,7 +297,7 @@ function RailTip({
   children: React.ReactElement;
 }) {
   // `use` bersyarat (sah untuk `use`): hanya pemicu yang terlihat di kedua
-  // mode (Beranda, Cari) yang berlangganan dan ikut dirender ulang saat
+  // mode (Beranda, Pencarian) yang berlangganan dan ikut dirender ulang saat
   // toggle. Tautan rail domain dan avatar menu akun tidak perlu: di mode
   // penuh keduanya tak terlihat, jadi tooltipnya tidak mungkin terbuka.
   const isDisabled = isRailOnly && !use(CollapsedContext);
@@ -317,7 +317,7 @@ function RailTip({
 }
 
 /**
- * Isi yang hanya ada di mode penuh (Cari, sub-layar domain) selalu
+ * Isi yang hanya ada di mode penuh (Pencarian, sub-layar domain) selalu
  * ter-mount dan mengempis ke tinggi 0 lewat `grid-template-rows` 1fr → 0fr,
  * jadi baris di bawahnya bergerak perlahan.
  *
@@ -467,7 +467,7 @@ export const SidebarNav = memo(function SidebarNav({
             <div className="pt-0.5">
               <NavLink
                 href="/modul"
-                label="Cari modul atau layar"
+                label="Pencarian"
                 icon={Search}
                 pathname={pathname}
               />
