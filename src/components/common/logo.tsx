@@ -24,19 +24,36 @@ export function Logo({ className }: { className?: string }) {
       href="/"
       className={cn("flex items-center gap-2 font-semibold", className)}
     >
-      <span className="bg-primary flex size-8 items-center justify-center rounded-md">
-        <Image
-          src="/brand/logo-icon.png"
-          alt=""
-          width={24}
-          height={24}
-          sizes="24px"
-          className="size-6"
-          priority
-        />
-      </span>
+      <LogoMark className="size-8 rounded-md" />
       <span className="text-title">{siteConfig.shortName}</span>
     </Link>
+  );
+}
+
+/**
+ * Ikon logo di bidang navy, tanpa teks — penanda aplikasi di header Beranda
+ * (36px, sudut kontrol, sama dengan kotak lain di header) dan di `Logo`.
+ * Dekoratif: nama aplikasi sudah tertulis di sebelahnya.
+ */
+export function LogoMark({ className }: { className?: string }) {
+  return (
+    <span
+      aria-hidden
+      className={cn(
+        "bg-primary flex size-9 shrink-0 items-center justify-center rounded-control",
+        className,
+      )}
+    >
+      <Image
+        src="/brand/logo-icon.png"
+        alt=""
+        width={28}
+        height={28}
+        sizes="28px"
+        className="size-3/4"
+        priority
+      />
+    </span>
   );
 }
 

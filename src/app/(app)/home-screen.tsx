@@ -1,7 +1,7 @@
 "use client";
 
-import { Avatar } from "@/components/common/avatar";
 import { DomainTileGrid } from "@/components/common/domain-tile";
+import { LogoMark } from "@/components/common/logo";
 import { SectionHeader } from "@/components/common/section-header";
 import { PageHeader } from "@/components/layout/page-header";
 import { BERANDA_SHORTCUTS, MENU } from "@/config/menu";
@@ -44,7 +44,7 @@ export function HomeScreen() {
   return (
     <div className="pb-6">
       <PageHeader
-        leading={<Avatar label={name} />}
+        leading={<LogoMark />}
         eyebrow={`${siteConfig.shortName} · ${siteConfig.name}`}
         title={session.roleUser.name}
         action={SHOW_DUMMY ? <NotificationBell /> : null}

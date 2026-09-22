@@ -30,7 +30,7 @@ export function JemaatListItemRow({ jemaat }: { jemaat: JemaatListItem }) {
 
   return (
     <DataListRow
-      leading={<Avatar label={jemaat.name} tone="soft" />}
+      leading={<Avatar label={jemaat.name} />}
       title={jemaat.name}
       meta={meta}
       trailing={
