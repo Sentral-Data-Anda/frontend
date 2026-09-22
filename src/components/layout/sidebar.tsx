@@ -500,7 +500,7 @@ export const SidebarNav = memo(function SidebarNav({
                   className={cn(
                     ITEM,
                     "invisible absolute inset-x-0 top-0 opacity-0 transition-[opacity,visibility,color,background-color]",
-                    "group-data-collapsed/sidebar:visible group-data-collapsed/sidebar:opacity-100",
+                    "pointer-events-none group-data-collapsed/sidebar:pointer-events-auto group-data-collapsed/sidebar:visible group-data-collapsed/sidebar:opacity-100",
                     SIDEBAR_MOTION,
                     isActive
                       ? ACTIVE
