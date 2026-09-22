@@ -381,7 +381,7 @@ export function SidebarNav({
       aria-label="Navigasi utama"
       className="flex-1 overflow-y-auto overscroll-contain px-3 py-3"
     >
-      <ul className="space-y-1">
+      <ul className="space-y-0.5">
         <li>
           <NavLink href="/" label="Beranda" icon={House} pathname={pathname} />
         </li>
@@ -395,7 +395,7 @@ export function SidebarNav({
         </li>
       </ul>
 
-      <ul className="border-sidebar-border mt-3 space-y-1 border-t pt-3">
+      <ul className="border-sidebar-border mt-3 space-y-0.5 border-t pt-3">
         {menu.map((domain) => {
           const Icon = MENU_ICON[domain.slug];
 
