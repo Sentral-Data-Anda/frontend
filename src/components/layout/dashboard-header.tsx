@@ -40,18 +40,23 @@ export function DashboardHeader({
 
       {actions.length || trailing ? (
         <div className="hidden shrink-0 items-center gap-2 lg:flex">
-          {actions.slice(0, 2).map((action, index) => (
-            <Link
-              key={action.href}
-              href={action.href}
-              className={buttonVariants({
-                variant: index === 0 ? "default" : "outline",
-                className: "whitespace-nowrap",
-              })}
-            >
-              {action.label}
-            </Link>
-          ))}
+          {/* Prioritas tertinggi = tombol utama, dan tombol utama duduk
+              PALING KANAN (dekat lonceng), seperti mockup §10.3. */}
+          {actions
+            .slice(0, 2)
+            .reverse()
+            .map((action, index, list) => (
+              <Link
+                key={action.href}
+                href={action.href}
+                className={buttonVariants({
+                  variant: index === list.length - 1 ? "default" : "outline",
+                  className: "whitespace-nowrap",
+                })}
+              >
+                {action.label}
+              </Link>
+            ))}
           {trailing}
         </div>
       ) : null}

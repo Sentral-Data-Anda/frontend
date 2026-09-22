@@ -99,6 +99,8 @@ export const DUMMY_ZONES = [
   { id: "w2", name: "Wilayah II", count: 241 },
   { id: "w3", name: "Wilayah III", count: 198 },
   { id: "w4", name: "Wilayah IV", count: 174 },
+  { id: "w5", name: "Wilayah V", count: 216 },
+  { id: "w6", name: "Wilayah VI", count: 149 },
 ];
 
 /** Jemaat baru bulan ini — `Jemaat.createdAt` bukan tanggal bergabung. */

@@ -439,15 +439,31 @@ const node = (
   children,
 });
 
-/** Masuk/keluar satu bulan (rupiah). Deterministik per bulan. */
-const monthFlow = (month: number) => ({
-  income: 70_000_000 + ((month * 7919) % 25) * 1_000_000,
-  expense: 52_000_000 + ((month * 104_729) % 22) * 1_000_000,
-});
+/**
+ * Masuk/keluar satu bulan (rupiah). Deterministik per bulan DAN tahun —
+ * tahun sebelumnya lebih kecil, supaya delta "vs tahun lalu" punya angka.
+ */
+const monthFlow = (month: number, year: number) => {
+  const base = {
+    income: 70_000_000 + ((month * 7919) % 25) * 1_000_000,
+    expense: 52_000_000 + ((month * 104_729) % 22) * 1_000_000,
+  };
+  const yearsBack = Number(today().slice(0, 4)) - year;
+
+  return yearsBack <= 0
+    ? base
+    : {
+        income: Math.round(base.income * (1 - 0.11 * yearsBack)),
+        expense: Math.round(base.expense * (1 - 0.04 * yearsBack)),
+      };
+};
 
 export function surplusDefisit(from: string, to: string) {
   const month = Number(from.slice(5, 7));
-  const flow = from > today() ? { income: 0, expense: 0 } : monthFlow(month);
+  const flow =
+    from > today()
+      ? { income: 0, expense: 0 }
+      : monthFlow(month, Number(from.slice(0, 4)));
   // Empat jenis persembahan (48/31/14/7%) — bentuk yang sama dengan pohon
   // INCOME be-sada; dipakai widget "Pemasukan per jenis".
   const income = [

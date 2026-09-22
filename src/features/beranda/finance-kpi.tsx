@@ -58,14 +58,16 @@ function useMonthFlow() {
     now: number | undefined,
     before: number,
     isUpGood: boolean,
-  ): KpiDelta | null =>
-    !hasComparison || now === undefined || before <= 0
+  ): KpiDelta | null => {
+    if (!hasComparison || now === undefined || before <= 0) return null;
+    const percent = ((now - before) / before) * 100;
+
+    // Selisih yang membulat ke 0% bukan kabar apa-apa — panah dan warnanya
+    // justru menyesatkan.
+    return Math.round(Math.abs(percent)) === 0
       ? null
-      : {
-          percent: ((now - before) / before) * 100,
-          label: `vs ${ranges.monthLabel}`,
-          isUpGood,
-        };
+      : { percent, label: `vs ${ranges.monthLabel}`, isUpGood };
+  };
 
   return { ranges, query: thisYear, previous, deltaOf };
 }

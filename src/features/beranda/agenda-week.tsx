@@ -43,6 +43,8 @@ type AgendaItem = {
   name: string;
   room: string;
   href: string;
+  /** Kegiatan berhari-hari: tanggal terakhirnya. */
+  until?: string;
 };
 
 /** Ibadah + kegiatan pada satu rentang, urut hari lalu jam. */
@@ -60,20 +62,27 @@ export function buildAgenda(
       room: item.room?.name ?? "—",
       href: IBADAH_HREF,
     })),
-    ...events.flatMap((item) =>
-      days
-        .filter(
-          (day) => dayOf(item.startDate) <= day && day <= dayOf(item.endDate),
-        )
-        .map((day) => ({
-          key: `event-${item.code}-${day}`,
-          day,
-          time: null,
-          name: item.name,
-          room: item.room?.name ?? item.location ?? "—",
-          href: EVENT_HREF,
-        })),
-    ),
+    // Satu baris per kegiatan (hari pertamanya di dalam rentang), bukan satu
+    // baris per hari: kegiatan berhari-hari tidak mengulang dirinya.
+    ...events.flatMap((item) => {
+      const first = days.find(
+        (day) => dayOf(item.startDate) <= day && day <= dayOf(item.endDate),
+      );
+      return first
+        ? [
+            {
+              key: `event-${item.code}`,
+              day: first,
+              time: null,
+              name: item.name,
+              room: item.room?.name ?? item.location ?? "—",
+              href: EVENT_HREF,
+              until:
+                dayOf(item.endDate) > first ? dayOf(item.endDate) : undefined,
+            },
+          ]
+        : [];
+    }),
   ];
 
   return rows.sort(
@@ -117,7 +126,11 @@ export function AgendaWeekWidget() {
       <span key="time" className="text-muted-foreground truncate">
         {row.time ? row.time.replace(":", ".") : "—"}
       </span>,
-      <TableTitle key="name" title={row.name} />,
+      <TableTitle
+        key="name"
+        title={row.name}
+        meta={row.until ? `s.d. ${formatDayMonth(row.until)}` : undefined}
+      />,
       <span key="room" className="text-muted-foreground truncate">
         {row.room}
       </span>,
