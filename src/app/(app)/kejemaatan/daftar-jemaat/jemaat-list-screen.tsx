@@ -63,6 +63,9 @@ export function JemaatListScreen() {
               type="button"
               size="icon"
               disabled
+              // Lingkaran, sama dengan tombol kembali di kiri header: kotak
+              // 36px terlihat lebih besar daripada lingkaran 36px.
+              className="rounded-full"
               aria-label="Tambah jemaat (belum tersedia)"
             >
               <Plus aria-hidden />
