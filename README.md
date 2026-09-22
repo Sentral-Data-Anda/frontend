@@ -301,20 +301,41 @@ Dua hal yang perlu diketahui saat memeriksa dengan curl:
 mengembalikan layar yang cocok lewat nama, `MENU_DESCRIPTION`, atau nama
 domainnya, dirender dengan `MenuTile` (prop `domainLabel`).
 
+### Beranda per izin (dashboard)
+
+Beranda disusun dari **registry widget** di `src/features/beranda/widgets.tsx`
+(rancangan: `docs/design/dashboard-desktop.md`). Tiap widget punya `slot`
+(`kpi` / `main` / `side`) dan `gate` = guard endpoint yang dibacanya;
+`selectWidgets(session.menu)` memilih lewat `findMenuNode` — tidak pernah
+`role.name`. KPI maks 4 sel, urutan tetap; main kosong → widget samping
+pertama naik ke main. Tata letak milik `DashboardGrid` + `KpiStrip`
+(`components/common`, container query: tumpuk < 40rem, main penuh + samping
+2 kolom sampai 55rem, lalu [main 2fr │ samping 1fr]) dan `DashboardHeader`
+(`components/layout`: sapaan, tanggal, maks 2 aksi dari izin, lonceng di ≥ lg).
+Beranda memakai `PageContainer size="wide"`; layar lain `default`.
+
+Menambah widget: komponen yang mengambil datanya sendiri (bungkus
+`DashboardCard` dengan `query` → kerangka `minHeight` + galat per kartu),
+lalu satu entri di `WIDGETS`. Teks bertanggal yang dirender tanpa menunggu
+query memakai `useNow()` (aman hidrasi). Cek per persona:
+`MOCK_PERSONA=bendahara|majelis|sekretariat bun run dev:mock`.
+
 ### Data dummy Beranda
 
-Kartu **Kas gabungan** dan **lonceng notifikasi** di Beranda masih dummy
-(endpoint agregat kas dan modul notifikasi be-sada belum ada). Seluruh datanya
-di `src/features/beranda/dummy.ts`, dan keduanya hanya dirender bila
-`SHOW_DUMMY` — `process.env.NODE_ENV !== "production"`. Di production keduanya
-tidak muncul sama sekali, dan string dummy-nya tidak ikut ke bundle client.
+Widget yang endpoint-nya belum ada di be-sada — **Jadwal pelayanan saya**
+(juga tab "Tugas saya" di Agenda), **Pagu terpakai**, KPI **komisi > 80%
+pagu**, **Kesiapan pembukuan** — dan **lonceng notifikasi** memakai fixture di
+`src/features/beranda/dummy.ts`. Widgetnya ditandai `isDummy` di registry dan
+hanya dirender bila `SHOW_DUMMY` — `process.env.NODE_ENV !== "production"`. Di
+production semuanya tidak muncul sama sekali (diuji di
+`widgets.test.ts` per persona). `dev:mock` tidak meniru endpoint yang tidak ada.
 
 Menyalakannya di production (hanya bila diminta, mis. untuk demo): ubah baris
 itu menjadi
 `process.env.NODE_ENV !== "production" || process.env.NEXT_PUBLIC_SHOW_DUMMY === "1"`
 lalu build dengan `NEXT_PUBLIC_SHOW_DUMMY=1`. Nilainya ditanam saat **build**,
-bukan saat start. Saat data asli ada: hapus `dummy.ts` beserta kedua
-pemeriksaannya di `src/app/(app)/home-screen.tsx`.
+bukan saat start. Saat endpoint asli ada: ganti fixture dengan hook data dan
+hapus `isDummy` widget itu.
 
 ## Struktur
 
