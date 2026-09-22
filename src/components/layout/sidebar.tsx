@@ -14,8 +14,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
-import { flushSync } from "react-dom";
+import { createContext, memo, use, useEffect, useRef } from "react";
 
 import { Avatar } from "@/components/common/avatar";
 import {
@@ -26,6 +25,7 @@ import {
 } from "@/config/menu";
 import { useSession } from "@/features/auth/session-provider";
 import type { MenuNode } from "@/features/auth/types";
+import { useBoolean } from "@/hooks/use-boolean";
 import { cn } from "@/lib/utils";
 
 import { AppIdentity } from "./app-identity";
@@ -53,27 +53,32 @@ const IDLE = "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground";
 
 const ACTIVE = "bg-sidebar-primary text-sidebar-primary-foreground font-medium";
 
-// Isi yang hanya milik mode penuh memudar selama aside menyempit/melebar.
-const FADE = cn(
-  "transition-opacity group-data-collapsed/sidebar:opacity-0",
+// Semua gaya ringkas digerakkan satu atribut, `data-collapsed` pada aside.
+// `invisible` bertransisi (pemakai menulis `transition-[…visibility]`):
+// hilang di AKHIR saat menyempit, muncul di AWAL saat melebar — sekaligus
+// mengeluarkan isinya dari urutan Tab dan pohon a11y tanpa state React.
+const RAIL_HIDDEN = cn(
+  "group-data-collapsed/sidebar:invisible",
   SIDEBAR_MOTION,
 );
 
-// Satu baris, terpotong rapi — tidak pernah wrap, tanpa elipsis yang
-// bergeser tiap frame saat menyempit.
-const LABEL = cn(
-  "min-w-0 flex-1 truncate group-data-collapsed/sidebar:text-clip",
-  FADE,
+// Isi yang hanya milik mode penuh: memudar lalu tak terlihat.
+const HIDE_IN_RAIL = cn(
+  "transition-[opacity,visibility] group-data-collapsed/sidebar:opacity-0",
+  RAIL_HIDDEN,
 );
 
-/**
- * - `full`: isi mode penuh, lebar 16rem.
- * - `narrow`: isi mode penuh dengan gaya ringkas — hanya hidup selama
- *   transisi. Label memudar, Cari dan sub-layar mengempis ke 0, domain aktif
- *   memakai chip rail; geometrinya identik dengan `rail`.
- * - `rail`: isi rail (tautan domain, tooltip, menu akun), lebar 72px.
- */
-export type SidebarMode = "full" | "narrow" | "rail";
+// Satu baris, terpotong rapi — tidak pernah wrap, tanpa elipsis yang
+// bergeser tiap frame saat menyempit. Hanya opacity (bukan `invisible`):
+// di rail label Beranda tetap nama aksesibel tautannya.
+const LABEL = cn(
+  "min-w-0 flex-1 truncate transition-opacity group-data-collapsed/sidebar:text-clip group-data-collapsed/sidebar:opacity-0",
+  SIDEBAR_MOTION,
+);
+
+// Tooltip nav hanya berarti di rail. Konteks, bukan prop: `SidebarNav`
+// di-memo dan tidak ikut dirender ulang saat toggle — hanya `RailTip`.
+const CollapsedContext = createContext(false);
 
 /**
  * Seluruh chrome global desktop (≥ lg) — tidak ada top bar. Identitas di
@@ -85,13 +90,12 @@ export type SidebarMode = "full" | "narrow" | "rail";
  * awalnya dari cookie yang dibaca `AppShell` di server; toggle menulis cookie
  * yang sama tanpa reload.
  *
- * Gerak ciut/lebar = satu gerakan (keluhan user 2026-09-22: "masih ga
- * smooth"). Rail dan mode penuh berbagi geometri: ikon, logo dan avatar di
- * kolom x yang sama, jadi hanya lebar aside + label yang bergerak. Perilaku
- * yang berbeda (accordion vs tautan domain, menu akun) ditukar saat tidak
- * terlihat: menyempit = gaya ringkas dulu (`narrow`), isi rail setelah
- * transisi selesai; melebar = isi penuh dengan gaya ringkas di-commit dulu,
- * lalu gayanya dilepas supaya label, Cari dan sub-layar ikut bertransisi.
+ * Ciut/lebar = satu gerakan CSS (keluhan user 2026-09-22: "masih ga
+ * smooth"). Satu DOM untuk kedua mode — isi rail dan isi penuh selalu
+ * ter-mount, ditukar lewat varian `group-data-collapsed/sidebar:*`; klik
+ * hanya membalik satu atribut, tanpa me-mount apa pun. Ikon, logo dan avatar
+ * di kolom x yang sama, jadi hanya lebar aside + label yang bergerak. Klik
+ * beruntun aman: transisi CSS berbalik arah sendiri.
  *
  * Toggle duduk di garis tepi kanan, di LUAR `<aside>`: aside butuh
  * `overflow-hidden` selama transisi lebar dan akan memotong separuh tombol.
@@ -102,15 +106,12 @@ export type SidebarMode = "full" | "narrow" | "rail";
 export function Sidebar({ defaultCollapsed }: { defaultCollapsed: boolean }) {
   const session = useSession();
   const pathname = usePathname();
-  const [mode, setMode] = useState<SidebarMode>(
-    defaultCollapsed ? "rail" : "full",
-  );
-  const isCollapsed = mode !== "full";
+  const isCollapsed = useBoolean(defaultCollapsed);
   const name = session.jemaat?.name ?? session.username;
   const role = session.roleUser.name;
   const ref = useRef<HTMLElement>(null);
-  const toggleLabel = isCollapsed ? "Lebarkan menu" : "Ciutkan menu";
-  const ToggleIcon = isCollapsed ? ChevronRight : ChevronLeft;
+  const toggleLabel = isCollapsed.value ? "Lebarkan menu" : "Ciutkan menu";
+  const ToggleIcon = isCollapsed.value ? ChevronRight : ChevronLeft;
 
   // Di 1024×768 layar ke-11 Keuangan ada di bawah lipatan navigasi.
   useEffect(() => {
@@ -120,28 +121,10 @@ export function Sidebar({ defaultCollapsed }: { defaultCollapsed: boolean }) {
   }, [pathname]);
 
   const onToggle = () => {
-    document.cookie = sidebarCookie(!isCollapsed);
+    const next = !isCollapsed.value;
 
-    if (isCollapsed) {
-      if (mode === "rail") {
-        flushSync(() => setMode("narrow"));
-        // Paksa gaya ringkas isi baru terhitung dulu; tanpa ini browser
-        // langsung melihat keadaan akhir dan tidak ada yang bertransisi.
-        ref.current?.getBoundingClientRect();
-      }
-      setMode("full");
-      return;
-    }
-
-    flushSync(() => setMode("narrow"));
-    // Tanpa animasi (motion-reduce) daftarnya kosong → rail seketika.
-    // Transisi yang dibatalkan (klik lagi di tengah jalan) menolak `finished`.
-    Promise.all(
-      (ref.current?.getAnimations() ?? []).map((a) => a.finished),
-    ).then(
-      () => setMode((m) => (m === "narrow" ? "rail" : m)),
-      () => {},
-    );
+    document.cookie = sidebarCookie(next);
+    isCollapsed.setValue(next);
   };
 
   return (
@@ -170,39 +153,44 @@ export function Sidebar({ defaultCollapsed }: { defaultCollapsed: boolean }) {
           </button>
         </RailTip>
 
-        <aside
-          ref={ref}
-          data-collapsed={isCollapsed || undefined}
-          className={cn(
-            "group/sidebar bg-sidebar text-sidebar-foreground flex shrink-0 flex-col overflow-hidden transition-[width]",
-            SIDEBAR_MOTION,
-            isCollapsed ? "w-18" : "w-64",
-          )}
-        >
-          {/* px-4.5: pusat logo & avatar 36px = 18 + 18 = pusat rail. */}
-          <div className="border-sidebar-border flex border-b px-4.5 py-4">
-            <AppIdentity role={role} tone="sidebar" isCompact={isCollapsed} />
-          </div>
-
-          <SidebarNav menu={session.menu} pathname={pathname} mode={mode} />
-
-          <div className="border-sidebar-border flex items-center gap-3 border-t px-4.5 py-3">
-            {mode === "rail" ? (
-              <AccountMenu name={name} role={role} />
-            ) : (
-              <>
-                <Avatar label={name} />
-                <div className={cn("min-w-0 flex-1", FADE)}>
-                  <p className="truncate text-body font-medium">{name}</p>
-                  <p className="text-sidebar-muted-foreground truncate text-caption">
-                    {role}
-                  </p>
-                </div>
-                <LogoutButton className={cn(IDLE, FOCUS, FADE)} />
-              </>
+        <CollapsedContext value={isCollapsed.value}>
+          <aside
+            ref={ref}
+            data-collapsed={isCollapsed.value || undefined}
+            className={cn(
+              "group/sidebar bg-sidebar text-sidebar-foreground flex shrink-0 flex-col overflow-hidden transition-[width]",
+              SIDEBAR_MOTION,
+              isCollapsed.value ? "w-18" : "w-64",
             )}
-          </div>
-        </aside>
+          >
+            {/* px-4.5: pusat logo & avatar 36px = 18 + 18 = pusat rail. */}
+            <div className="border-sidebar-border flex border-b px-4.5 py-4">
+              <AppIdentity
+                role={role}
+                tone="sidebar"
+                isCompact={isCollapsed.value}
+              />
+            </div>
+
+            <SidebarNav menu={session.menu} pathname={pathname} />
+
+            {/* Dua avatar di titik yang sama: pemicu menu akun (rail) dan
+                avatar biasa (penuh) — tukar `display` tanpa beda piksel. */}
+            <div className="border-sidebar-border flex items-center gap-3 border-t px-4.5 py-3">
+              <AccountMenu name={name} role={role} />
+              <div className="group-data-collapsed/sidebar:hidden">
+                <Avatar label={name} />
+              </div>
+              <div className={cn("min-w-0 flex-1", HIDE_IN_RAIL)}>
+                <p className="truncate text-body font-medium">{name}</p>
+                <p className="text-sidebar-muted-foreground truncate text-caption">
+                  {role}
+                </p>
+              </div>
+              <LogoutButton className={cn(IDLE, FOCUS, HIDE_IN_RAIL)} />
+            </div>
+          </aside>
+        </CollapsedContext>
       </div>
     </Tooltip.Provider>
   );
@@ -212,15 +200,24 @@ export function Sidebar({ defaultCollapsed }: { defaultCollapsed: boolean }) {
  * Rail tidak punya ruang untuk nama + tombol Keluar, jadi avatar menjadi
  * pemicu menu. Primitif Base UI mengurus `aria-haspopup`, panah, Escape
  * (menutup + fokus kembali ke avatar) dan portal (lolos dari
- * `overflow-hidden` aside). Hanya ada di rail — mode penuh tetap 1 klik.
+ * `overflow-hidden` aside). Hanya tampil di rail — mode penuh tetap 1 klik.
  */
-function AccountMenu({ name, role }: { name: string; role: string }) {
+const AccountMenu = memo(function AccountMenu({
+  name,
+  role,
+}: {
+  name: string;
+  role: string;
+}) {
   return (
     <Menu.Root>
       <RailTip label={name}>
         <Menu.Trigger
           aria-label={`Akun: ${name}`}
-          className={cn("rounded-full", FOCUS)}
+          className={cn(
+            "hidden rounded-full group-data-collapsed/sidebar:block",
+            FOCUS,
+          )}
         >
           <Avatar label={name} />
         </Menu.Trigger>
@@ -259,25 +256,31 @@ function AccountMenu({ name, role }: { name: string; role: string }) {
       </Menu.Portal>
     </Menu.Root>
   );
-}
+});
 
 /**
  * Label terlihat untuk kontrol ikon saja, muncul saat hover DAN fokus
  * keyboard. Primitif Base UI (sudah terpasang) memenuhi WCAG 1.4.13: hilang
  * dengan Escape tanpa memindah fokus, bisa di-hover tanpa menutup, dan
  * bertahan sampai pointer/fokus pergi. Nama aksesibel tetap nama pemicunya
- * — tooltip hanya untuk mata. `isDisabled` (mode penuh dan selama transisi)
- * mempertahankan elemen pemicunya, jadi tautan tidak di-mount ulang.
+ * — tooltip hanya untuk mata. `isRailOnly`: mati di mode penuh, tempat
+ * labelnya sudah terlihat.
  */
 function RailTip({
   label,
-  isDisabled = false,
+  isRailOnly = false,
   children,
 }: {
   label: string;
-  isDisabled?: boolean;
+  isRailOnly?: boolean;
   children: React.ReactElement;
 }) {
+  // `use` bersyarat (sah untuk `use`): hanya pemicu yang terlihat di kedua
+  // mode (Beranda, Cari) yang berlangganan dan ikut dirender ulang saat
+  // toggle. Tautan rail domain dan avatar menu akun tidak perlu: di mode
+  // penuh keduanya tak terlihat, jadi tooltipnya tidak mungkin terbuka.
+  const isDisabled = isRailOnly && !use(CollapsedContext);
+
   return (
     <Tooltip.Root disabled={isDisabled}>
       <Tooltip.Trigger render={children} />
@@ -293,7 +296,33 @@ function RailTip({
 }
 
 /**
- * Satu bentuk untuk kedua mode. Di rail labelnya tetap di DOM (memudar,
+ * Isi yang hanya ada di mode penuh (Cari, sub-layar domain) selalu
+ * ter-mount dan mengempis ke tinggi 0 lewat `grid-template-rows` 1fr → 0fr,
+ * jadi baris di bawahnya bergerak perlahan.
+ *
+ * `grid-cols-1` (= `minmax(0, 1fr)`): kolom implisit `auto` selebar
+ * max-content teksnya dan membuat nav rail bisa digulir ke samping.
+ *
+ * `-m-1 p-1` pada pemotong: ruang 4px untuk outline fokus anak; margin
+ * negatif membuat sumbangan tingginya tetap 0 saat terlipat. `overflow-clip`,
+ * bukan `hidden`: bukan wadah scroll, jadi `scrollIntoView` layar aktif di
+ * rail tidak bisa menggulir isinya diam-diam.
+ */
+function Fold({ children }: { children: React.ReactNode }) {
+  return (
+    <div
+      className={cn(
+        "grid grid-cols-1 grid-rows-[1fr] transition-[grid-template-rows,opacity,visibility] group-data-collapsed/sidebar:grid-rows-[0fr] group-data-collapsed/sidebar:opacity-0",
+        RAIL_HIDDEN,
+      )}
+    >
+      <div className="-m-1 min-h-0 overflow-clip p-1">{children}</div>
+    </div>
+  );
+}
+
+/**
+ * Satu tautan untuk kedua mode. Di rail labelnya tetap di DOM (memudar,
  * lebar 0) sebagai nama aksesibel — dibaca sekali, tanpa `aria-label`
  * ganda; tooltip menampilkannya untuk mata.
  */
@@ -301,22 +330,20 @@ function NavLink({
   href,
   label,
   icon: Icon,
-  current,
-  hasTip = false,
+  pathname,
 }: {
   href: string;
   label: string;
   icon: LucideIcon;
-  current?: "page" | "true";
-  hasTip?: boolean;
+  pathname: string;
 }) {
-  const isActive = current !== undefined;
+  const isActive = isTabActive(href, pathname);
 
   return (
-    <RailTip label={label} isDisabled={!hasTip}>
+    <RailTip label={label} isRailOnly>
       <Link
         href={href}
-        aria-current={current}
+        aria-current={isActive ? "page" : undefined}
         className={cn(
           ITEM,
           "text-title",
@@ -337,62 +364,29 @@ function NavLink({
 }
 
 /**
- * Isi yang hanya ada di mode penuh (Cari, sub-layar domain) mengempis ke
- * tinggi 0 lewat `grid-template-rows` 1fr → 0fr, jadi baris di bawahnya
- * naik perlahan, bukan melompat saat isi rail menggantikannya.
- *
- * `-m-1 p-1` pada pemotong: ruang 4px untuk outline fokus anak yang
- * `overflow-hidden` akan memotong; margin negatif membuat sumbangan tingginya
- * tetap 0 saat terlipat.
- */
-function Fold({
-  isFolded,
-  children,
-}: {
-  isFolded: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <div
-      inert={isFolded}
-      className={cn(
-        "grid grid-rows-[1fr] transition-[grid-template-rows,opacity] group-data-collapsed/sidebar:grid-rows-[0fr] group-data-collapsed/sidebar:opacity-0",
-        SIDEBAR_MOTION,
-      )}
-    >
-      <div className="-m-1 min-h-0 overflow-hidden p-1">{children}</div>
-    </div>
-  );
-}
-
-const currentOf = (href: string, pathname: string) =>
-  isTabActive(href, pathname) ? "page" : undefined;
-
-/**
- * Isinya `session.menu` apa adanya (sudah difilter per peran).
+ * Isinya `session.menu` apa adanya (sudah difilter per peran). Satu DOM
+ * untuk kedua mode; `data-collapsed` pada aside yang memilih apa yang
+ * tampil.
  *
  * Mode penuh: tiap domain `<details name="sidebar-domain">` — accordion
  * eksklusif bawaan browser, membuka satu menutup yang lain, tanpa state
  * React. Domain yang memuat rute aktif (halaman domain atau salah satu
  * layarnya) dirender `open`.
  *
- * Rail: tanpa accordion dan tanpa flyout. Domain = tautan ke
- * `domainEntryHref` — tujuan yang sama dengan tile Beranda; domain yang
- * memuat layar aktif diberi chip aktif. Tanpa Cari (keputusan 2026-09-22):
- * rail hanya untuk berpindah.
+ * Rail: `<details>` tak terlihat (tetap memegang baris 40px-nya), di atasnya
+ * tautan ke `domainEntryHref` — tujuan yang sama dengan tile Beranda, tanpa
+ * accordion dan tanpa flyout; domain yang memuat layar aktif diberi chip
+ * aktif. Keduanya bertukar lewat `visibility` + `opacity` (crossfade), bukan
+ * `display`, supaya chip rail memudar masuk alih-alih muncul tiba-tiba. Tanpa
+ * Cari (keputusan 2026-09-22): rail hanya untuk berpindah.
  */
-export function SidebarNav({
+export const SidebarNav = memo(function SidebarNav({
   menu,
   pathname,
-  mode = "full",
 }: {
   menu: MenuNode[];
   pathname: string;
-  mode?: SidebarMode;
 }) {
-  const isRail = mode === "rail";
-  const isFolded = mode !== "full";
-
   return (
     <nav
       aria-label="Navigasi utama"
@@ -400,28 +394,21 @@ export function SidebarNav({
     >
       <ul>
         <li>
-          <NavLink
-            href="/"
-            label="Beranda"
-            icon={House}
-            current={currentOf("/", pathname)}
-            hasTip={isRail}
-          />
+          <NavLink href="/" label="Beranda" icon={House} pathname={pathname} />
         </li>
-        {isRail ? null : (
-          <li>
-            <Fold isFolded={isFolded}>
-              <div className="pt-0.5">
-                <NavLink
-                  href="/modul"
-                  label="Cari modul atau layar"
-                  icon={Search}
-                  current={currentOf("/modul", pathname)}
-                />
-              </div>
-            </Fold>
-          </li>
-        )}
+        {/* `li` ikut tak terlihat: tanpa ini rail punya listitem kosong. */}
+        <li className={cn("transition-[visibility]", RAIL_HIDDEN)}>
+          <Fold>
+            <div className="pt-0.5">
+              <NavLink
+                href="/modul"
+                label="Cari modul atau layar"
+                icon={Search}
+                pathname={pathname}
+              />
+            </div>
+          </Fold>
+        </li>
       </ul>
 
       {/* Garis pemisah hanya milik mode penuh (rail tanpa garis — keluhan
@@ -437,46 +424,24 @@ export function SidebarNav({
         {menu.map((domain) => {
           const Icon = MENU_ICON[domain.slug] ?? LayoutGrid;
           const isActive = isTabActive(domainHref(domain.slug), pathname);
-
-          if (isRail) {
-            const href = domainEntryHref(domain);
-
-            // "true", bukan "page", bila yang dibuka layar di dalamnya:
-            // halaman yang dibuka adalah layarnya, bukan domainnya.
-            return (
-              <li key={domain.slug}>
-                <NavLink
-                  href={href}
-                  label={domain.name}
-                  icon={Icon}
-                  current={
-                    href === pathname ? "page" : isActive ? "true" : undefined
-                  }
-                  hasTip
-                />
-              </li>
-            );
-          }
+          const entryHref = domainEntryHref(domain);
 
           return (
-            <li key={domain.slug}>
-              <details name="sidebar-domain" open={isActive} className="group">
+            <li key={domain.slug} className="relative">
+              <details
+                name="sidebar-domain"
+                open={isActive}
+                className={cn("group transition-[visibility]", RAIL_HIDDEN)}
+              >
                 <summary
                   className={cn(
                     ITEM,
                     IDLE,
                     "text-sidebar-foreground cursor-pointer list-none text-title font-medium [&::-webkit-details-marker]:hidden",
-                    // Selama transisi ke rail, chip aktif rail memudar masuk
-                    // di sini, bukan muncul tiba-tiba saat isinya ditukar.
-                    isActive &&
-                      "group-data-collapsed/sidebar:bg-sidebar-primary group-data-collapsed/sidebar:text-sidebar-primary-foreground",
                   )}
                 >
                   <Icon
-                    className={cn(
-                      "text-sidebar-muted-foreground size-5 shrink-0",
-                      isActive && "group-data-collapsed/sidebar:text-current",
-                    )}
+                    className="text-sidebar-muted-foreground size-5 shrink-0"
                     aria-hidden
                   />
                   <span className={LABEL}>{domain.name}</span>
@@ -489,7 +454,7 @@ export function SidebarNav({
                   />
                 </summary>
 
-                <Fold isFolded={isFolded}>
+                <Fold>
                   <ul className="mt-1 mb-2 space-y-1">
                     {domain.children.map((leaf) => {
                       const href = menuHref(domain.slug, leaf.slug);
@@ -517,10 +482,39 @@ export function SidebarNav({
                   </ul>
                 </Fold>
               </details>
+
+              {/* Setelah `<details>`: `scrollIntoView` [aria-current]
+                  pertama tetap menemukan layar aktif di mode penuh. */}
+              <RailTip label={domain.name}>
+                <Link
+                  href={entryHref}
+                  // "true", bukan "page", bila yang dibuka layar di dalamnya:
+                  // halaman yang dibuka adalah layarnya, bukan domainnya.
+                  aria-current={
+                    entryHref === pathname
+                      ? "page"
+                      : isActive
+                        ? "true"
+                        : undefined
+                  }
+                  className={cn(
+                    ITEM,
+                    "invisible absolute inset-x-0 top-0 opacity-0 transition-[opacity,visibility,color,background-color]",
+                    "group-data-collapsed/sidebar:visible group-data-collapsed/sidebar:opacity-100",
+                    SIDEBAR_MOTION,
+                    isActive
+                      ? ACTIVE
+                      : cn("text-sidebar-muted-foreground bg-sidebar", IDLE),
+                  )}
+                >
+                  <Icon className="size-5 shrink-0" aria-hidden />
+                  <span className="sr-only">{domain.name}</span>
+                </Link>
+              </RailTip>
             </li>
           );
         })}
       </ul>
     </nav>
   );
-}
+});

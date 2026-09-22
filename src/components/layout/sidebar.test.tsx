@@ -72,7 +72,20 @@ const renderSidebar = (defaultCollapsed: boolean) =>
   );
 
 const domainOf = (name: string) =>
-  screen.getByText(name).closest("details") as HTMLDetailsElement;
+  [...document.querySelectorAll("details")].find(
+    (d) => d.querySelector("summary")?.textContent === name,
+  ) as HTMLDetailsElement;
+
+// Tautan rail domain = tautan yang bukan layar dan bukan Beranda/Cari.
+const railLinkOf = (name: string) =>
+  domainOf(name).parentElement?.querySelector(
+    ":scope > a",
+  ) as HTMLAnchorElement;
+
+// happy-dom tidak menerapkan Tailwind: "tampil per mode" diuji lewat kelas
+// yang dipilih `data-collapsed` pada aside.
+const RAIL_ONLY = ["invisible", "group-data-collapsed/sidebar:visible"];
+const FULL_ONLY = "group-data-collapsed/sidebar:invisible";
 
 describe("SidebarNav", () => {
   test("hanya domain yang memuat layar aktif yang terbuka", () => {
@@ -132,47 +145,51 @@ describe("SidebarNav", () => {
   });
 });
 
-describe("SidebarNav ringkas", () => {
-  test("setiap ikon bernama (label tersembunyi, tanpa aria-label ganda); domain menuju domainEntryHref", () => {
-    render(
-      <SidebarNav menu={MENU} pathname="/kejemaatan/keluarga" mode="rail" />,
-    );
+describe("SidebarNav satu DOM untuk kedua mode", () => {
+  test("tiap domain punya accordion (penuh) dan tautan rail, hanya satu tampil per mode", () => {
+    render(<SidebarNav menu={MENU} pathname="/kejemaatan/keluarga" />);
 
-    const links = screen.getAllByRole("link");
+    for (const { name } of MENU) {
+      const details = domainOf(name);
+      const rail = railLinkOf(name);
 
-    expect(links).toHaveLength(1 + MENU.length);
-    expect(screen.queryByRole("link", { name: /Cari/ })).toBeNull();
-    for (const link of links) {
-      expect(link.hasAttribute("aria-label")).toBe(false);
-      expect(link.textContent).toBeTruthy();
+      expect(details.getAttribute("name")).toBe("sidebar-domain");
+      expect(details.className).toContain(FULL_ONLY);
+      for (const cls of RAIL_ONLY) expect(rail.classList).toContain(cls);
+      // Nama dari label tersembunyi, tanpa aria-label ganda.
+      expect(rail.hasAttribute("aria-label")).toBe(false);
+      expect(rail.textContent).toBe(name);
     }
 
     // Dua layar → halaman domain; satu layar → langsung ke layarnya.
-    expect(
-      screen.getByRole("link", { name: "Kejemaatan" }).getAttribute("href"),
-    ).toBe("/kejemaatan");
-    expect(
-      screen.getByRole("link", { name: "Keuangan" }).getAttribute("href"),
-    ).toBe("/keuangan/kas-masuk");
-    expect(screen.queryByRole("group")).toBeNull();
-    expect(document.querySelector("details")).toBeNull();
+    expect(railLinkOf("Kejemaatan").getAttribute("href")).toBe("/kejemaatan");
+    expect(railLinkOf("Keuangan").getAttribute("href")).toBe(
+      "/keuangan/kas-masuk",
+    );
   });
 
-  test("domain yang memuat layar aktif diberi chip aktif", () => {
-    render(
-      <SidebarNav menu={MENU} pathname="/kejemaatan/keluarga" mode="rail" />,
-    );
+  test("Cari dan sub-layar hanya milik mode penuh (dilipat di rail)", () => {
+    render(<SidebarNav menu={MENU} pathname="/kejemaatan/keluarga" />);
 
+    const cari = screen.getByRole("link", { name: "Cari modul atau layar" });
+    const leaf = screen.getByRole("link", { name: "Keluarga" });
+
+    for (const el of [cari, leaf]) {
+      expect(el.closest(`[class~="${FULL_ONLY}"]`)).toBeTruthy();
+    }
+    // Beranda tampil di kedua mode.
     expect(
       screen
-        .getByRole("link", { name: "Kejemaatan" })
-        .getAttribute("aria-current"),
-    ).toBe("true");
-    expect(
-      screen
-        .getByRole("link", { name: "Keuangan" })
-        .getAttribute("aria-current"),
+        .getByRole("link", { name: "Beranda" })
+        .closest(`[class~="${FULL_ONLY}"]`),
     ).toBeNull();
+  });
+
+  test("tautan rail domain yang memuat layar aktif diberi chip aktif", () => {
+    render(<SidebarNav menu={MENU} pathname="/kejemaatan/keluarga" />);
+
+    expect(railLinkOf("Kejemaatan").getAttribute("aria-current")).toBe("true");
+    expect(railLinkOf("Keuangan").getAttribute("aria-current")).toBeNull();
   });
 });
 
@@ -183,10 +200,15 @@ describe("cookie sidebar", () => {
     expect(isSidebarCollapsed(undefined)).toBe(false);
   });
 
-  test("toggle satu elemen: menulis cookie, label berganti, fokus bertahan", async () => {
+  test("toggle satu elemen: menulis cookie, membalik data-collapsed, fokus bertahan, tanpa mount ulang", async () => {
     renderSidebar(false);
 
     const toggle = screen.getByRole("button", { name: "Ciutkan menu" });
+    const aside = document.querySelector("aside") as HTMLElement;
+    const details = domainOf("Kejemaatan");
+    const rail = railLinkOf("Kejemaatan");
+
+    expect(aside.hasAttribute("data-collapsed")).toBe(false);
 
     await act(async () => {
       toggle.focus();
@@ -198,52 +220,26 @@ describe("cookie sidebar", () => {
     expect(document.activeElement).toBe(toggle);
     expect(toggle.hasAttribute("aria-expanded")).toBe(false);
     expect(toggle.closest("aside")).toBeNull();
-    // Tanpa animasi (happy-dom) isi rail menggantikan isi penuh seketika.
-    expect(
-      await screen.findByRole("link", { name: "Kejemaatan" }),
-    ).toBeTruthy();
-    expect(screen.queryByRole("link", { name: /Cari/ })).toBeNull();
-    expect(
-      document.querySelector("aside")?.hasAttribute("data-collapsed"),
-    ).toBe(true);
+    expect(aside.hasAttribute("data-collapsed")).toBe(true);
+    expect(domainOf("Kejemaatan")).toBe(details);
+    expect(railLinkOf("Kejemaatan")).toBe(rail);
 
     await act(async () => fireEvent.click(toggle));
     expect(document.cookie).toContain(`${SIDEBAR_COOKIE}=0`);
     expect(toggle.getAttribute("aria-label")).toBe("Ciutkan menu");
     expect(document.activeElement).toBe(toggle);
-    expect(
-      document.querySelector("aside")?.hasAttribute("data-collapsed"),
-    ).toBe(false);
-    expect(domainOf("Kejemaatan").open).toBe(true);
-    expect(
-      screen.getByRole("link", { name: "Cari modul atau layar" }),
-    ).toBeTruthy();
+    expect(aside.hasAttribute("data-collapsed")).toBe(false);
+    expect(domainOf("Kejemaatan")).toBe(details);
+    expect(details.open).toBe(true);
   });
 
-  test("selama menyempit isi penuh bertahan sampai transisi lebar selesai", async () => {
-    let finish = () => {};
-    const finished = new Promise<void>((resolve) => (finish = resolve));
-    const spy = spyOn(HTMLElement.prototype, "getAnimations").mockReturnValue([
-      { finished } as unknown as Animation,
-    ]);
+  test("render awal mengikuti cookie", () => {
+    renderSidebar(true);
 
-    renderSidebar(false);
-    const toggle = screen.getByRole("button", { name: "Ciutkan menu" });
-
-    await act(async () => fireEvent.click(toggle));
-    // Gaya ringkas sudah berlaku, tapi accordion dan Cari belum ditukar.
     expect(
       document.querySelector("aside")?.hasAttribute("data-collapsed"),
     ).toBe(true);
-    expect(domainOf("Kejemaatan")).toBeTruthy();
-    expect(screen.queryByRole("button", { name: /^Akun/ })).toBeNull();
-
-    await act(async () => finish());
-    expect(document.querySelector("details")).toBeNull();
-    expect(
-      screen.getByRole("button", { name: "Akun: sekretaris" }),
-    ).toBeTruthy();
-    spy.mockRestore();
+    expect(screen.getByRole("button", { name: "Lebarkan menu" })).toBeTruthy();
   });
 
   test("atribut cookie: seluruh situs, Lax, setahun", () => {
@@ -315,13 +311,14 @@ describe("menu akun", () => {
     expect(document.activeElement).toBe(trigger);
   });
 
-  test("mode penuh tanpa menu akun: Keluar langsung", () => {
+  test("menu akun hanya tampil di rail; mode penuh Keluar langsung", () => {
     renderSidebar(false);
 
-    expect(screen.queryByRole("button", { name: /^Akun/ })).toBeNull();
-    expect(screen.getByRole("button", { name: "Keluar" })).toBeTruthy();
-    expect(
-      screen.getByRole("link", { name: "Cari modul atau layar" }),
-    ).toBeTruthy();
+    const trigger = screen.getByRole("button", { name: "Akun: sekretaris" });
+    const keluar = screen.getByRole("button", { name: "Keluar" });
+
+    expect(trigger.classList).toContain("hidden");
+    expect(trigger.classList).toContain("group-data-collapsed/sidebar:block");
+    expect(keluar.classList).toContain(FULL_ONLY);
   });
 });
