@@ -57,6 +57,8 @@ export const PERSONAS: Record<string, Persona> = {
       [MENU.PERIODE_FISKAL]: V,
       [MENU.LAPORAN_KEUANGAN]: V,
       [MENU.FAKTUR_SUPPLIER]: V,
+      [MENU.PEMBAYARAN]: V,
+      [MENU.PAYROLL]: V,
       [MENU.IBADAH]: V,
       [MENU.EVENT]: V,
     },
@@ -109,6 +111,11 @@ export const GUARD: Record<string, MenuSlug> = {
   "/laporan-keuangan/neraca": MENU.LAPORAN_KEUANGAN,
   "/laporan-keuangan/surplus-defisit": MENU.LAPORAN_KEUANGAN,
   "/kas-keluar": MENU.KAS_KELUAR,
+  "/faktur-supplier": MENU.FAKTUR_SUPPLIER,
+  "/pembayaran": MENU.PEMBAYARAN,
+  "/payroll": MENU.PAYROLL,
+  "/periode-fiskal": MENU.PERIODE_FISKAL,
+  "/jurnal": MENU.JURNAL,
   "/loan-room": MENU.PEMINJAMAN_RUANG,
   "/jemaat": MENU.DAFTAR_JEMAAT,
 };
@@ -441,10 +448,26 @@ const monthFlow = (month: number) => ({
 export function surplusDefisit(from: string, to: string) {
   const month = Number(from.slice(5, 7));
   const flow = from > today() ? { income: 0, expense: 0 } : monthFlow(month);
+  // Empat jenis persembahan (48/31/14/7%) — bentuk yang sama dengan pohon
+  // INCOME be-sada; dipakai widget "Pemasukan per jenis".
   const income = [
     node(10, "4-0000", "Pendapatan", "INCOME", flow.income, [
-      node(11, "4-1000", "Persembahan", "INCOME", flow.income * 0.8),
-      node(12, "4-2000", "Pendapatan lain", "INCOME", flow.income * 0.2),
+      node(11, "4-1000", "Kolekte", "INCOME", Math.round(flow.income * 0.48)),
+      node(
+        12,
+        "4-2000",
+        "Perpuluhan",
+        "INCOME",
+        Math.round(flow.income * 0.31),
+      ),
+      node(13, "4-3000", "Syukur", "INCOME", Math.round(flow.income * 0.14)),
+      node(
+        14,
+        "4-4000",
+        "Persembahan khusus",
+        "INCOME",
+        Math.round(flow.income * 0.07),
+      ),
     ]),
   ];
   const expense = [
@@ -670,4 +693,236 @@ export function listLoanRoom(params: URLSearchParams) {
         ? row.date >= iso(start) && row.date <= iso(end)
         : true,
   );
+}
+
+// ---------------------------------------------------------------------------
+// GET /faktur-supplier — `faktur_supplier.repository.ts:5-45`. `status`
+// hanya SATU nilai (daftar berkoma → 400). Urut `dueDate` naik.
+
+const invoice = (
+  id: number,
+  dueInDays: number,
+  supplier: string,
+  total: number,
+  paid: number,
+  status: string,
+) => ({
+  id,
+  publicId: `inv-${id}`,
+  code: `INV-2026-${String(id).padStart(4, "0")}`,
+  supplierInvoiceNumber: `SUP/IX/${id}`,
+  supplierId: id,
+  purchaseOrderId: null,
+  invoiceDate: iso(addDays(today(), dueInDays - 30)),
+  dueDate: iso(addDays(today(), dueInDays)),
+  currencyCode: "IDR",
+  exchangeRate: "1",
+  totalForeignCurrency: String(total),
+  totalIDR: String(total),
+  paidAmountIDR: String(paid),
+  status,
+  ...audit,
+  supplier: { publicId: `sup-${id}`, code: `SUP-000${id}`, name: supplier },
+  currency: { code: "IDR", name: "Rupiah", symbol: "Rp" },
+  purchaseOrder: null,
+  payments: [],
+});
+
+export function listInvoices(params: URLSearchParams) {
+  const rows = [
+    invoice(31, -4, "Katering Sumber Rejeki", 2_100_000, 0, "AWAITING_PAYMENT"),
+    invoice(32, 3, "CV Nada Indah", 3_400_000, 1_000_000, "PARTIALLY_PAID"),
+    invoice(33, 12, "Toko Buku Agape", 1_250_000, 0, "AWAITING_PAYMENT"),
+  ];
+  const status = params.get("status");
+
+  return status ? rows.filter((row) => row.status === status) : rows;
+}
+
+// ---------------------------------------------------------------------------
+// GET /pembayaran — `pembayaran.repository.ts:9-21`, urut `id` menurun.
+
+const payment = (
+  id: number,
+  daysAgo: number,
+  amount: number,
+  status: string,
+  purpose: string,
+  jemaatName: string | null,
+) => ({
+  id,
+  publicId: `pay-${id}`,
+  code: `PAY-2026-${String(id).padStart(4, "0")}`,
+  purpose,
+  amount: String(amount),
+  status,
+  method: "QRIS",
+  providerTransactionId: `inv_${id}`,
+  paidAt: null,
+  expiredAt: iso(addDays(today(), -daysAgo + 1)),
+  invoiceUrl: null,
+  typePersembahanId: 1,
+  jemaatId: jemaatName ? 12 : null,
+  donorName: jemaatName ? null : "Hamba Tuhan",
+  period: null,
+  createdBy: 4,
+  createdAt: `${addDays(today(), -daysAgo)}T02:00:00.000Z`,
+  updatedAt: null,
+  typePersembahan: { publicId: "tp-1", code: "TP-0001", name: "Perpuluhan" },
+  jemaat: jemaatName
+    ? { publicId: "jmt-12", code: "JMT-0012", name: jemaatName }
+    : null,
+  persembahan: null,
+  eventRegistration: null,
+});
+
+export function listPayments(params: URLSearchParams) {
+  const rows = [
+    payment(118, 1, 250_000, "FAILED", "PERSEMBAHAN", "Debora Manurung"),
+    payment(117, 3, 150_000, "EXPIRED", "PERSEMBAHAN", null),
+    payment(116, 5, 500_000, "PAID", "PERSEMBAHAN", "Christian Wijaya"),
+  ];
+  const status = params.get("status");
+
+  return status ? rows.filter((row) => row.status === status) : rows;
+}
+
+// ---------------------------------------------------------------------------
+// GET /payroll — `payroll.repository.ts:41-46`, tanpa relasi, urut tahun &
+// bulan menurun. Tidak ada jumlah karyawan di daftar.
+
+export function listPayrolls(params: URLSearchParams) {
+  const month = Number(today().slice(5, 7));
+  const year = Number(today().slice(0, 4));
+  const rows = [
+    {
+      id: 9,
+      publicId: "pyr-9",
+      code: "PYR-2026-0009",
+      year,
+      month,
+      status: "DRAFT",
+      totalGross: "45000000",
+      totalDeduction: "2500000",
+      totalNet: "5200000",
+      approvedBy: null,
+      approvedAt: null,
+      paidAt: null,
+      createdBy: 1,
+      createdAt: `${addDays(today(), -6)}T02:00:00.000Z`,
+      updatedBy: null,
+      updatedAt: null,
+    },
+    {
+      id: 8,
+      publicId: "pyr-8",
+      code: "PYR-2026-0008",
+      year,
+      month: month === 1 ? 12 : month - 1,
+      status: "PAID",
+      totalGross: "44000000",
+      totalDeduction: "2400000",
+      totalNet: "41600000",
+      approvedBy: 1,
+      approvedAt: `${addDays(today(), -30)}T02:00:00.000Z`,
+      paidAt: `${addDays(today(), -28)}T02:00:00.000Z`,
+      createdBy: 1,
+      createdAt: `${addDays(today(), -36)}T02:00:00.000Z`,
+      updatedBy: null,
+      updatedAt: null,
+    },
+  ];
+  const status = params.get("status");
+
+  return status ? rows.filter((row) => row.status === status) : rows;
+}
+
+// ---------------------------------------------------------------------------
+// GET /periode-fiskal — `periode_fiskal.service.ts:74-99`: `id` = publicId,
+// `label` "September 2026", tanpa `code`/`name`. Urut tahun menurun, bulan naik.
+
+const MONTH_LABEL = [
+  "Januari",
+  "Februari",
+  "Maret",
+  "April",
+  "Mei",
+  "Juni",
+  "Juli",
+  "Agustus",
+  "September",
+  "Oktober",
+  "November",
+  "Desember",
+];
+
+export function listFiscalPeriods(params: URLSearchParams) {
+  const year = Number(today().slice(0, 4));
+  const month = Number(today().slice(5, 7));
+  const rows = Array.from({ length: 12 }, (_, index) => {
+    const m = index + 1;
+    return {
+      id: `fp-${year}-${m}`,
+      year,
+      month: m,
+      label: `${MONTH_LABEL[index]} ${year}`,
+      status: m < month ? "CLOSED" : "OPEN",
+      startDate: iso(`${year}-${String(m).padStart(2, "0")}-01`),
+      endDate: iso(`${year}-${String(m).padStart(2, "0")}-28`),
+      closedBy: m < month ? 1 : null,
+      closedAt:
+        m < month ? iso(`${year}-${String(m).padStart(2, "0")}-28`) : null,
+      reopenedBy: null,
+      reopenedAt: null,
+      reopenReason: null,
+    };
+  });
+  const status = params.get("status");
+
+  return ["OPEN", "CLOSED"].includes(status ?? "")
+    ? rows.filter((row) => row.status === status)
+    : rows;
+}
+
+// ---------------------------------------------------------------------------
+// GET /jurnal — `jurnal.repository.ts:6-68`. Total dihitung dari `lines`.
+
+export function listJournals(params: URLSearchParams) {
+  const rows = [1, 2].map((index) => ({
+    id: 20 + index,
+    publicId: `jrn-${index}`,
+    code: `JRN-2026-00${20 + index}`,
+    entryDate: iso(addDays(today(), -index * 2)),
+    description: index === 1 ? "Biaya listrik September" : "Koreksi kas kecil",
+    status: "DRAFT",
+    sourceType: "MANUAL",
+    sourceId: null,
+    fiscalPeriodId: 9,
+    reversalOfId: null,
+    postedBy: null,
+    postedAt: null,
+    ...audit,
+    fiscalPeriod: {
+      year: Number(today().slice(0, 4)),
+      month: Number(today().slice(5, 7)),
+      status: "OPEN",
+    },
+    lines: [],
+  }));
+  const status = params.get("status");
+
+  return ["DRAFT", "POSTED", "REVERSED"].includes(status ?? "")
+    ? rows.filter((row) => row.status === status)
+    : rows;
+}
+
+// ---------------------------------------------------------------------------
+// GET /report/jemaat/type-gender — `report.service.ts:14-32`. Tanpa paginasi;
+// 200 `[]` bila kosong (cabang 404 tidak terjangkau).
+
+export function jemaatTypeGender() {
+  return [
+    { typeJemaat: "ANGGOTA", ALL: 1204, L: 552, P: 652 },
+    { typeJemaat: "SIMPATISAN", ALL: 86, L: 39, P: 47 },
+  ];
 }

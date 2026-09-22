@@ -39,6 +39,12 @@ import {
   guardSlugOf,
   listBirthdays,
   listCashExpense,
+  listFiscalPeriods,
+  listInvoices,
+  listJournals,
+  listPayments,
+  listPayrolls,
+  jemaatTypeGender,
   listEvent,
   listIbadah,
   listLoanRoom,
@@ -315,6 +321,58 @@ Bun.serve({
         "Kas Keluar",
         "Kas Keluar",
       );
+    }
+
+    if (path === "/faktur-supplier") {
+      return list(
+        listInvoices(url.searchParams),
+        url,
+        "",
+        "Faktur Supplier",
+        "Berhasil Mendapatkan Faktur Supplier",
+      );
+    }
+
+    if (path === "/pembayaran") {
+      return list(
+        listPayments(url.searchParams),
+        url,
+        "",
+        "Pembayaran",
+        "Berhasil Mendapatkan Pembayaran",
+      );
+    }
+
+    if (path === "/payroll") {
+      return list(
+        listPayrolls(url.searchParams),
+        url,
+        "",
+        "Penggajian",
+        "Berhasil Mendapatkan Penggajian",
+      );
+    }
+
+    if (path === "/periode-fiskal") {
+      return list(
+        listFiscalPeriods(url.searchParams),
+        url,
+        "Periode Fiskal",
+        "Periode Fiskal",
+      );
+    }
+
+    if (path === "/jurnal") {
+      return list(listJournals(url.searchParams), url, "Jurnal", "Jurnal");
+    }
+
+    // Tanpa paginasi; 200 [] bila kosong.
+    if (path === "/report/jemaat/type-gender") {
+      return json({
+        status: 200,
+        message: "Berhasil Mendapatkan Report",
+        data: jemaatTypeGender(),
+      });
     }
 
     if (path === "/loan-room") {

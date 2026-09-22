@@ -210,6 +210,10 @@ MOCK_PERSONA=bendahara bun run dev:mock   # keuangan, kas keluar, persembahan
 MOCK_PERSONA=majelis bun run dev:mock     # persetujuan, keuangan, anggaran, ulang tahun
 ```
 
+Tiruan meliputi endpoint dashboard v2: `/faktur-supplier`, `/pembayaran`,
+`/payroll`, `/periode-fiskal`, `/jurnal`, dan `/report/jemaat/type-gender`
+(filter `status` bernilai tunggal, persis seperti be-sada).
+
 `MOCK_MAJELIS_NO_FINANCE=1` (majelis tanpa `LAPORAN_KEUANGAN` — sel KPI dan
 grafik keuangan hilang, grid merapat), `MOCK_NO_APPROVAL=1` (antrean
 persetujuan kosong). Tiruan hanya meniru endpoint yang ada di be-sada
