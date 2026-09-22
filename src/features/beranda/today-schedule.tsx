@@ -1,11 +1,13 @@
 "use client";
 
 import { ChevronRight } from "lucide-react";
-import Link from "next/link";
 
-import { DataList, DataListRow } from "@/components/common/data-list";
-import { LoadingList } from "@/components/common/loading-list";
-import { SectionHeader } from "@/components/common/section-header";
+import {
+  DashboardCard,
+  DashboardEmpty,
+  DashboardList,
+  DashboardRow,
+} from "@/components/common/dashboard-card";
 import { TimeBadge } from "@/components/common/time-badge";
 import { MENU, menuHref } from "@/config/menu";
 
@@ -31,47 +33,29 @@ export function TodaySchedule() {
   // melewati tengah malam tetap menampilkan kemarin sampai dimuat ulang.
   const now = new Date();
   const query = useIbadahByDate(toDateKey(now), true);
-  const items = query.data;
-  const next = items ? findNextService(items, now) : undefined;
+  const items = query.data ?? [];
+  const next = findNextService(items, now);
 
   return (
-    <section>
-      <div className="px-gutter">
-        <SectionHeader
-          title="Hari ini"
-          actionLabel="Kalender"
-          actionHref={IBADAH_HREF}
-        />
-      </div>
-
-      {query.isPending ? (
-        <LoadingList rows={2} />
-      ) : !query.error && items?.length === 0 ? (
-        <ul>
-          <DataListRow title="Tidak ada ibadah hari ini" />
-        </ul>
+    <DashboardCard
+      title="Hari ini"
+      actionLabel="Kalender"
+      actionHref={IBADAH_HREF}
+      query={query}
+      minHeight="min-h-28"
+    >
+      {items.length === 0 ? (
+        <DashboardEmpty>Tidak ada ibadah hari ini</DashboardEmpty>
       ) : (
-        <DataList
-          items={items}
-          getKey={(item) => item.code}
-          label="Ibadah hari ini"
-          error={query.error}
-          onRetry={() => void query.refetch()}
-        >
-          {(item) => (
-            <DataListRow
-              className="relative"
+        <DashboardList label="Ibadah hari ini">
+          {items.map((item) => (
+            <DashboardRow
+              key={item.code}
               leading={
                 <TimeBadge time={item.startTime} highlighted={item === next} />
               }
-              title={
-                <Link
-                  href={IBADAH_HREF}
-                  className="outline-none after:absolute after:inset-0 focus-visible:after:ring-2 focus-visible:after:ring-ring focus-visible:after:ring-inset"
-                >
-                  {item.typeIbadah.name}
-                </Link>
-              }
+              title={item.typeIbadah.name}
+              href={IBADAH_HREF}
               meta={item.preacher ?? undefined}
               trailing={
                 <ChevronRight
@@ -80,9 +64,9 @@ export function TodaySchedule() {
                 />
               }
             />
-          )}
-        </DataList>
+          ))}
+        </DashboardList>
       )}
-    </section>
+    </DashboardCard>
   );
 }

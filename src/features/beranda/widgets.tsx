@@ -1,6 +1,7 @@
 import type { ComponentType } from "react";
 
-import { MENU, type MenuSlug } from "@/config/menu";
+import type { HeaderAction } from "@/components/layout/dashboard-header";
+import { MENU, type MenuSlug, menuHref } from "@/config/menu";
 import { findMenuNode } from "@/features/auth/menu-tree";
 import type { MenuAction, MenuNode } from "@/features/auth/types";
 
@@ -103,3 +104,51 @@ export function selectWidgets(
     side: main.length ? side : side.slice(1),
   };
 }
+
+/**
+ * Aksi utama di kepala dashboard (≥ lg), maks 2, dari izin CREATE/VIEW
+ * layarnya. Urutan = prioritas BA §4: persetujuan → keuangan → sekretariat →
+ * komisi; user berizin gabungan mendapat dua yang teratas.
+ */
+const HEADER_ACTIONS: readonly (HeaderAction & { gate: WidgetGate })[] = [
+  {
+    label: "Buka antrean persetujuan",
+    href: menuHref(MENU.PERSETUJUAN, MENU.PERMINTAAN_PERSETUJUAN),
+    gate: view(MENU.PERMINTAAN_PERSETUJUAN),
+  },
+  {
+    label: "Catat kas keluar",
+    href: menuHref(MENU.KEUANGAN, MENU.KAS_KELUAR),
+    gate: { slug: MENU.KAS_KELUAR, action: "CREATE" },
+  },
+  {
+    label: "Input persembahan",
+    href: menuHref(MENU.KEUANGAN, MENU.PERSEMBAHAN),
+    gate: { slug: MENU.PERSEMBAHAN, action: "CREATE" },
+  },
+  {
+    label: "Buat pengumuman",
+    href: menuHref(MENU.KEGIATAN, MENU.PENGUMUMAN),
+    gate: { slug: MENU.PENGUMUMAN, action: "CREATE" },
+  },
+  {
+    label: "Tambah jadwal ibadah",
+    href: menuHref(MENU.PERIBADAHAN, MENU.IBADAH),
+    gate: { slug: MENU.IBADAH, action: "CREATE" },
+  },
+  {
+    label: "Ajukan program",
+    href: menuHref(MENU.ANGGARAN, MENU.PROGRAM),
+    gate: { slug: MENU.PROGRAM, action: "CREATE" },
+  },
+  {
+    label: "Buat laporan pemakaian",
+    href: menuHref(MENU.ANGGARAN, MENU.LAPORAN_BUDGET),
+    gate: { slug: MENU.LAPORAN_BUDGET, action: "CREATE" },
+  },
+];
+
+export const selectHeaderActions = (menu: MenuNode[]): HeaderAction[] =>
+  HEADER_ACTIONS.filter(({ gate }) => hasGrant(menu, gate))
+    .slice(0, 2)
+    .map(({ label, href }) => ({ label, href }));

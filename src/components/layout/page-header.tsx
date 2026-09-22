@@ -1,6 +1,8 @@
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
+import { cn } from "@/lib/utils";
+
 /**
  * Header satu layar: slot kiri, judul, satu aksi di kanan.
  *
@@ -29,7 +31,15 @@ export function PageHeader({
   action?: React.ReactNode;
 }) {
   return (
-    <header className="flex items-center gap-3 px-gutter pt-[max(1rem,env(safe-area-inset-top))] pb-3">
+    <header
+      className={cn(
+        "flex items-center gap-3 px-gutter pt-[max(1rem,env(safe-area-inset-top))] pb-3",
+        // Tanpa judul, baris ini di ≥ lg hanya berisi aksi (slot kiri
+        // disembunyikan di lg) — "lonceng sendirian". Di Beranda desktop
+        // aksi itu pindah ke `DashboardHeader`.
+        !title && !subtitle && "lg:hidden",
+      )}
+    >
       <div className="contents lg:hidden">
         {backHref ? (
           <Link
