@@ -1,7 +1,8 @@
 "use client";
 
 import { TriangleAlert } from "lucide-react";
-import { Fragment, type ReactNode } from "react";
+import { usePathname } from "next/navigation";
+import { Fragment, useEffect, useRef, type ReactNode } from "react";
 
 import {
   DataListMore,
@@ -15,6 +16,7 @@ import {
   LoadingRows,
 } from "@/components/common/loading-list";
 import { Button } from "@/components/ui/button";
+import { takeListFocus } from "@/lib/list-return";
 import { cn } from "@/lib/utils";
 
 /**
@@ -41,12 +43,18 @@ const textOf = (node: ReactNode) =>
   typeof node === "string" ? node : undefined;
 
 export function DataListRow({
+  id,
   title,
   meta,
   leading,
   trailing,
   className,
 }: {
+  /**
+   * Id baris ini di be-sada (`publicId`). Dipakai `DataList` untuk menyorot
+   * baris yang barusan dibuka saat user kembali dari detailnya.
+   */
+  id?: string;
   title: ReactNode;
   /** Baris kedua: kode, kategori, apa pun yang membedakan dua nama yang sama. */
   meta?: ReactNode;
@@ -55,7 +63,10 @@ export function DataListRow({
   className?: string;
 }) {
   return (
-    <li className={cn("flex h-14 items-center gap-3 px-gutter", className)}>
+    <li
+      data-row-id={id}
+      className={cn("flex h-14 items-center gap-3 px-gutter", className)}
+    >
       {leading}
 
       {/* `data-slot="row-body"`: garis pemisah `DataList` digambar di sini,
@@ -145,6 +156,49 @@ export function DataList<T>({
   emptyAction?: ReactNode;
   pagination?: DataListPagination;
 }) {
+  const pathname = usePathname();
+  const listRef = useRef<HTMLUListElement>(null);
+
+  /**
+   * Kembali dari detail: baris yang tadi dibuka disorot sebentar
+   * (list-state.md §2.4), supaya mata menemukan kembali tempatnya tanpa
+   * membaca ulang satu layar penuh nama.
+   *
+   * Dikerjakan lewat DOM, bukan state: baris datang dari `children(item)`
+   * milik layar, dan menyorotnya lewat state berarti setiap layar harus
+   * meneruskan prop "baris mana yang disorot" sampai ke bawah. Penandanya
+   * dibaca sekali lalu dibuang, jadi efek ini hanya menyala satu kali walau
+   * `items` berubah lagi karena penyegaran latar.
+   *
+   * `scrollIntoView` hanya bila scroll masih 0: kalau browser sudah
+   * memulihkan posisinya, menggeser lagi justru memindahkan daftar dari
+   * tempat yang user tinggalkan.
+   */
+  useEffect(() => {
+    const list = listRef.current;
+
+    if (!list) return;
+
+    const id = takeListFocus(pathname);
+    const row = id
+      ? [...list.querySelectorAll<HTMLElement>("[data-row-id]")].find(
+          (element) => element.dataset.rowId === id,
+        )
+      : undefined;
+
+    if (!row) return;
+
+    row.dataset.focus = "";
+
+    if (window.scrollY === 0) row.scrollIntoView({ block: "nearest" });
+
+    const onEnd = () => delete row.dataset.focus;
+
+    row.addEventListener("animationend", onEnd, { once: true });
+
+    return () => row.removeEventListener("animationend", onEnd);
+  }, [pathname, items]);
+
   if (error) {
     return (
       <div
@@ -194,6 +248,7 @@ export function DataList<T>({
   return (
     <div aria-busy={isRefreshing || undefined}>
       <ul
+        ref={listRef}
         aria-label={label}
         className={cn(
           LIST_DIVIDER,

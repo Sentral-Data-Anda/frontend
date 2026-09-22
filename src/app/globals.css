@@ -372,4 +372,39 @@
   [aria-disabled="true"] {
     cursor: not-allowed;
   }
+
+  /*
+   * Sorotan baris yang barusan dibuka, saat user kembali dari layar detail
+   * (docs/design/list-state.md §2.4). Dipasang `DataList` lewat atribut, dan
+   * padam sendiri dalam 2 detik: begitu mata menemukan barisnya, penandanya
+   * tidak punya urusan lagi di layar.
+   *
+   * Cincin DI DALAM (`inset`), bukan `outline`: baris daftar menempel di
+   * gutter halaman, dan garis di luar akan terpotong tepi layar.
+   */
+  [data-focus] {
+    animation: row-focus 2s ease-out both;
+  }
+
+  @keyframes row-focus {
+    0%,
+    55% {
+      background-color: var(--accent);
+      box-shadow: inset 0 0 0 1px var(--ring);
+    }
+    100% {
+      background-color: transparent;
+      box-shadow: inset 0 0 0 1px transparent;
+    }
+  }
+
+  /*
+   * Gerakan dimatikan, penandanya tidak: warnanya tetap menyala lalu padam.
+   */
+  @media (prefers-reduced-motion: reduce) {
+    [data-focus] {
+      animation-duration: 1ms;
+      background-color: var(--accent);
+    }
+  }
 }
