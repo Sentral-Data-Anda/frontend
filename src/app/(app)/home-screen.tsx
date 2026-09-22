@@ -69,6 +69,7 @@ export function HomeScreen() {
       <section className="mt-6 px-gutter">
         <SectionHeader
           title="Aksi cepat"
+          isTitleHidden
           actionLabel="Tampilkan semua"
           actionHref="/modul"
         />
