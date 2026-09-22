@@ -1,7 +1,9 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
+
+import { saveListReturn } from "@/lib/list-return";
 
 /** Sama dengan `DEFAULT_PAGE_SIZE` di `be-sada/src/common/utils/query.ts`. */
 export const DEFAULT_LIMIT = 10;
@@ -66,6 +68,21 @@ export function useListParams(limitPerPage = DEFAULT_LIMIT) {
     }),
     [limitPerPage, searchParams],
   );
+
+  /**
+   * Jalan kembali dari layar detail (list-state.md §2.2, L-2): satu efek di
+   * sini, bukan satu pemanggilan di tiap layar daftar — kalau tidak, layar ke
+   * 61 akan lupa dan tombol kembalinya membuang filter user.
+   *
+   * Ditulis pada setiap perubahan parameter, termasuk saat daftar pertama
+   * dibuka: yang disimpan adalah keadaan terakhir daftar, apa pun rutenya
+   * menuju detail.
+   */
+  const query = searchParams.toString();
+
+  useEffect(() => {
+    saveListReturn(pathname, query ? `${pathname}?${query}` : pathname);
+  }, [pathname, query]);
 
   /**
    * Query string dibaca dari `window.location.search`, BUKAN dari
