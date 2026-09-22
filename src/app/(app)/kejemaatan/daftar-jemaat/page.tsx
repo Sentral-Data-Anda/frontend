@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 
 import { LoadingList } from "@/components/common/loading-list";
+import { PageContainer } from "@/components/layout/page-container";
 
 import { JemaatListScreen } from "./jemaat-list-screen";
 
@@ -21,8 +22,10 @@ export const metadata: Metadata = {
  */
 export default function Page() {
   return (
-    <Suspense fallback={<LoadingList />}>
-      <JemaatListScreen />
-    </Suspense>
+    <PageContainer>
+      <Suspense fallback={<LoadingList />}>
+        <JemaatListScreen />
+      </Suspense>
+    </PageContainer>
   );
 }

@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { buttonVariants } from "@/components/common/button";
+import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
 
 /**
@@ -20,7 +21,7 @@ import { PageHeader } from "@/components/layout/page-header";
  */
 export default function NotFound() {
   return (
-    <div>
+    <PageContainer>
       <PageHeader title="Layar belum tersedia" backHref="/" />
 
       <div className="flex flex-col items-start gap-3 px-gutter">
@@ -37,6 +38,6 @@ export default function NotFound() {
           Lihat semua modul
         </Link>
       </div>
-    </div>
+    </PageContainer>
   );
 }

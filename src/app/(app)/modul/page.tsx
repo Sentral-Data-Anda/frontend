@@ -1,3 +1,5 @@
+import { PageContainer } from "@/components/layout/page-container";
+
 import { ModuleGrid } from "./module-grid";
 
 export const metadata = { title: "Pencarian" };
@@ -8,5 +10,9 @@ export const metadata = { title: "Pencarian" };
  * kenapa `ModuleGrid` client, bukan server.
  */
 export default function Page() {
-  return <ModuleGrid />;
+  return (
+    <PageContainer>
+      <ModuleGrid />
+    </PageContainer>
+  );
 }
