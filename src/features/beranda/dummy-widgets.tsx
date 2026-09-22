@@ -23,6 +23,7 @@ import {
   formatWeekdayShort,
   toDateKey,
 } from "./time";
+import { useNow } from "./use-now";
 
 /*
  * DUMMY — widget yang endpoint-nya belum ada di be-sada. Registry
@@ -30,15 +31,25 @@ import {
  * production. Lihat `dummy.ts`.
  */
 
-const dutyDate = (inDays: number) => addDaysKey(toDateKey(new Date()), inDays);
+const dutyDate = (now: Date, inDays: number) =>
+  addDaysKey(toDateKey(now), inDays);
 
-/** Jadwal pelayanan saya, 4 minggu ke depan. */
+/**
+ * Jadwal pelayanan saya, 4 minggu ke depan. Tanggal dihitung dari `useNow`
+ * (tanpa query yang menunda render, tanggal ini ikut SSR).
+ */
 export function MyDutiesWidget() {
+  const now = useNow();
+
   return (
-    <DashboardCard title="Jadwal pelayanan saya">
+    <DashboardCard
+      title="Jadwal pelayanan saya"
+      query={{ isPending: now === null, error: null, refetch: () => {} }}
+      minHeight="min-h-40"
+    >
       <DashboardList label="Jadwal pelayanan saya">
         {DUMMY_MY_DUTIES.map((duty) => {
-          const date = dutyDate(duty.inDays);
+          const date = dutyDate(now ?? new Date(), duty.inDays);
           return (
             <DashboardRow
               key={duty.id}
@@ -54,8 +65,8 @@ export function MyDutiesWidget() {
 }
 
 /** Untuk tab "Tugas saya" Agenda: tugas pada satu hari. */
-export const dutiesOn = (day: string) =>
-  DUMMY_MY_DUTIES.filter((duty) => dutyDate(duty.inDays) === day);
+export const dutiesOn = (now: Date, day: string) =>
+  DUMMY_MY_DUTIES.filter((duty) => dutyDate(now, duty.inDays) === day);
 
 const usedRatio = ({ budget, used }: BudgetUse) =>
   budget > 0 ? used / budget : 0;

@@ -74,7 +74,7 @@ export function AgendaWidget() {
     ...(isEventShown ? [["kegiatan", "Kegiatan"]] : []),
     ...(SHOW_DUMMY ? [["tugas", "Tugas saya"]] : []),
   ];
-  const duties = SHOW_DUMMY ? dutiesOn(day) : [];
+  const duties = SHOW_DUMMY ? dutiesOn(now, day) : [];
 
   const ibadahList =
     ibadahOfDay.length === 0 ? (

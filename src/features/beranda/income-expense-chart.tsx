@@ -6,6 +6,7 @@ import { formatRupiah, formatRupiahCompact } from "@/lib/format";
 
 import { useMonthlyFlow } from "./api";
 import { toDateKey } from "./time";
+import { useNow } from "./use-now";
 
 const MONTH_LABEL = [
   "Jan",
@@ -43,8 +44,11 @@ const GRID = [1, 0.5, 0];
  * `aria-hidden`.
  */
 export function IncomeExpenseChart() {
+  // Kunci query boleh dari jam render (query tidak jalan di server); teks
+  // tahun di judul ikut SSR, jadi dari `useNow`.
   const today = toDateKey(new Date());
-  const year = today.slice(0, 4);
+  const now = useNow();
+  const year = now ? toDateKey(now).slice(0, 4) : "";
   const flow = useMonthlyFlow(today);
   const max = niceCeiling(
     Math.max(0, ...flow.months.flatMap((m) => [m.income, m.expense])),
@@ -63,7 +67,7 @@ export function IncomeExpenseChart() {
 
   return (
     <DashboardCard
-      title={`Masuk vs keluar · ${year}`}
+      title={year ? `Masuk vs keluar · ${year}` : "Masuk vs keluar"}
       actionLabel="Laporan"
       actionHref={menuHref(MENU.KEUANGAN, MENU.LAPORAN_KEUANGAN)}
       query={flow}
