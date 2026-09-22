@@ -1,6 +1,7 @@
 "use client";
 
 import { DomainTileGrid } from "@/components/common/domain-tile";
+import { KpiStrip } from "@/components/common/kpi-strip";
 import { SectionHeader } from "@/components/common/section-header";
 import { AppIdentity } from "@/components/layout/app-identity";
 import { PageHeader } from "@/components/layout/page-header";
@@ -8,27 +9,24 @@ import { BERANDA_SHORTCUTS, MENU } from "@/config/menu";
 import { useSession } from "@/features/auth/session-provider";
 import { useMenuAccess } from "@/features/auth/use-menu-access";
 import { useIbadahByDate } from "@/features/beranda/api";
-import { CashSummaryCard } from "@/features/beranda/cash-summary-card";
 import { SHOW_DUMMY } from "@/features/beranda/dummy";
 import { NotificationBell } from "@/features/beranda/notification-bell";
 import { formatLongDate, greetingOf, toDateKey } from "@/features/beranda/time";
-import { TodaySchedule } from "@/features/beranda/today-schedule";
+import { selectWidgets } from "@/features/beranda/widgets";
 
 /**
- * Beranda, susunan mobile & tablet. Desktop sementara memakai susunan yang
- * sama; tampilan desktop sendiri (berdampingan dengan sidebar) dirancang
- * terpisah nanti.
+ * Beranda per izin (docs/design/dashboard-desktop.md). Isinya daftar widget
+ * dari registry `features/beranda/widgets.tsx` yang gate-nya dipegang peran
+ * ini — satu daftar untuk semua ukuran; di sini ditumpuk: KPI → Aksi cepat →
+ * main → samping.
  *
- * Kartu kas dan lonceng masih DUMMY dan hanya dirender di luar production —
- * lihat `features/beranda/dummy.ts`.
+ * Lonceng masih DUMMY dan hanya dirender di luar production — lihat
+ * `features/beranda/dummy.ts`.
  */
 export function HomeScreen() {
   const session = useSession();
   const ibadahAccess = useMenuAccess(MENU.IBADAH);
-  // Saldo gereja hanya untuk pemegang izin laporan keuangan — tanpa gate ini
-  // setiap peran (termasuk jemaat) melihatnya. Sama dengan guard be-sada
-  // `/laporan-keuangan/*`.
-  const financeAccess = useMenuAccess(MENU.LAPORAN_KEUANGAN);
+  const widgets = selectWidgets(session.menu);
 
   // ponytail: dihitung sekali per render; halaman yang dibiarkan terbuka
   // melewati tengah malam tetap menampilkan kemarin sampai dimuat ulang.
@@ -61,9 +59,13 @@ export function HomeScreen() {
         </p>
       </section>
 
-      {SHOW_DUMMY && financeAccess.isCanView ? (
+      {widgets.kpi.length ? (
         <div className="mt-5 px-gutter">
-          <CashSummaryCard />
+          <KpiStrip label="Ringkasan">
+            {widgets.kpi.map(({ id, Component }) => (
+              <Component key={id} />
+            ))}
+          </KpiStrip>
         </div>
       ) : null}
 
@@ -78,9 +80,11 @@ export function HomeScreen() {
         <DomainTileGrid domains={shortcuts} />
       </section>
 
-      {ibadahAccess.isCanView ? (
-        <TodaySchedule query={ibadah} now={now} />
-      ) : null}
+      <div className="mt-6 space-y-6">
+        {[...widgets.main, ...widgets.side].map(({ id, Component }) => (
+          <Component key={id} />
+        ))}
+      </div>
     </div>
   );
 }

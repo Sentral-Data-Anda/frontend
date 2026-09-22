@@ -9,33 +9,33 @@ import { SectionHeader } from "@/components/common/section-header";
 import { TimeBadge } from "@/components/common/time-badge";
 import { MENU, menuHref } from "@/config/menu";
 
-import type { useIbadahByDate } from "./api";
-import { findNextService } from "./time";
+import { useIbadahByDate } from "./api";
+import { findNextService, toDateKey } from "./time";
 
 const IBADAH_HREF = menuHref(MENU.PERIBADAHAN, MENU.IBADAH);
 
 /**
  * Ibadah hari ini, jam naik. Kotak jam ibadah berikutnya (≥ `now`, WIB)
  * berlatar; sisanya polos.
- * Pemanggil yang memegang query (subjudul tanggal
- * juga butuh jumlahnya) dan yang memeriksa IBADAH VIEW.
+ *
+ * Mandiri: mengambil datanya sendiri. Gate IBADAH VIEW di registry
+ * (`widgets.tsx`); subjudul "· 2 kebaktian" di Beranda memakai query yang
+ * sama — TanStack Query men-dedupe, bukan permintaan kedua.
  *
  * Belum ada layar detail ibadah, jadi baris menuju layar Ibadah. Badge
  * "1 kosong" di mockup sengaja tidak dibangun: definisi slot pelayan kosong
  * di be-sada belum konsisten.
  */
-export function TodaySchedule({
-  query,
-  now,
-}: {
-  query: ReturnType<typeof useIbadahByDate>;
-  now: Date;
-}) {
+export function TodaySchedule() {
+  // ponytail: dihitung sekali per render; halaman yang dibiarkan terbuka
+  // melewati tengah malam tetap menampilkan kemarin sampai dimuat ulang.
+  const now = new Date();
+  const query = useIbadahByDate(toDateKey(now), true);
   const items = query.data;
   const next = items ? findNextService(items, now) : undefined;
 
   return (
-    <section className="mt-6">
+    <section>
       <div className="px-gutter">
         <SectionHeader
           title="Hari ini"

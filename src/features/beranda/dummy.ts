@@ -11,13 +11,13 @@
  *  - Notifikasi: modul notifikasi be-sada ditunda.
  *
  *  Karena itu keduanya HANYA dirender saat `SHOW_DUMMY` — di luar production.
- *  Di production kartu kas dan lonceng tidak muncul sama sekali (bukan "Rp 0",
+ *  Di production angka kas dan lonceng tidak muncul sama sekali (bukan "Rp 0",
  *  bukan placeholder). Angka palsu di layar bendahara lebih berbahaya daripada
- *  tidak ada angka.
+ *  tidak ada angka. Widget yang memakai fixture di sini ditandai `isDummy` di
+ *  registry (`widgets.tsx`), yang menyaringnya dengan `SHOW_DUMMY`.
  *
- *  Saat endpoint asli tersedia: hapus berkas ini, ganti impornya di
- *  `cash-summary-card.tsx` dan `notification-bell.tsx` dengan hook data, dan
- *  hapus kedua pemeriksaan `SHOW_DUMMY` di `home-screen.tsx`.
+ *  Saat endpoint asli tersedia: ganti fixture dengan hook data, hapus
+ *  `isDummy` widget itu di registry, dan hapus fixture-nya dari berkas ini.
  *
  *  Tidak ditiru di `scripts/dev-mock.ts`: tiruan itu hanya untuk endpoint yang
  *  memang ada di be-sada.

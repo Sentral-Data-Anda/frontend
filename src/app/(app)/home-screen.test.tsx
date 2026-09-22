@@ -37,26 +37,29 @@ const renderHome = (menu: MenuNode[]) =>
     </QueryClientProvider>,
   );
 
-describe("kartu kas di Beranda", () => {
+describe("angka kas di Beranda", () => {
   test("tanpa LAPORAN_KEUANGAN VIEW tidak dirender", () => {
     renderHome([
       {
         ...node(MENU.KEUANGAN, []),
-        children: [node(MENU.KAS_MASUK, ["VIEW"])],
+        children: [node(MENU.KAS_KELUAR, ["VIEW"])],
       },
     ]);
 
-    expect(screen.queryByText("Kas gabungan")).toBeNull();
+    expect(screen.queryByText("Saldo kas")).toBeNull();
   });
 
-  test("dengan LAPORAN_KEUANGAN VIEW dirender", () => {
+  test("dengan LAPORAN_KEUANGAN + KAS_KELUAR VIEW dirender", () => {
     renderHome([
       {
         ...node(MENU.KEUANGAN, []),
-        children: [node(MENU.LAPORAN_KEUANGAN, ["VIEW"])],
+        children: [
+          node(MENU.LAPORAN_KEUANGAN, ["VIEW"]),
+          node(MENU.KAS_KELUAR, ["VIEW"]),
+        ],
       },
     ]);
 
-    expect(screen.getByText("Kas gabungan")).toBeTruthy();
+    expect(screen.getByText("Saldo kas")).toBeTruthy();
   });
 });

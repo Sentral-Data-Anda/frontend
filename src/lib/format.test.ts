@@ -1,6 +1,11 @@
 import { describe, expect, test } from "bun:test";
 
-import { formatDate, formatDateTime } from "./format";
+import {
+  formatDate,
+  formatDateTime,
+  formatRupiah,
+  formatRupiahCompact,
+} from "./format";
 
 describe("formatDate", () => {
   /**
@@ -37,5 +42,19 @@ describe("formatDateTime", () => {
 
   test("mengembalikan tanda hubung untuk nilai yang tidak bisa diurai", () => {
     expect(formatDateTime(new Date("x"))).toBe("-");
+  });
+});
+
+describe("formatRupiah", () => {
+  test("titik ribuan, Rp di depan, minus sebelum Rp", () => {
+    expect(formatRupiah(248_560_000)).toBe("Rp 248.560.000");
+    expect(formatRupiah(-1_500)).toBe("−Rp 1.500");
+  });
+
+  // ICU memisahkan angka dan satuan dengan NBSP.
+  test("ringkas: jt / M", () => {
+    expect(formatRupiahCompact(86_400_000)).toBe("Rp 86,4\u00a0jt");
+    expect(formatRupiahCompact(1_250_000_000)).toBe("Rp 1,3\u00a0M");
+    expect(formatRupiahCompact(-2_100_000)).toBe("−Rp 2,1\u00a0jt");
   });
 });

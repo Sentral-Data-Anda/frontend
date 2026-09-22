@@ -55,3 +55,23 @@ export function formatDateTime(value: string | Date) {
 
   return date ? instantFormat.format(date) : "-";
 }
+
+const rupiahFormat = new Intl.NumberFormat("id-ID");
+
+const rupiahCompactFormat = new Intl.NumberFormat("id-ID", {
+  notation: "compact",
+  maximumFractionDigits: 1,
+});
+
+/**
+ * "Rp 248.560.000". "Rp " ditulis sendiri, bukan `style: "currency"`: pemisah
+ * antara "Rp" dan angka berbeda antar versi ICU (spasi, nbsp, atau tanpa
+ * spasi), sehingga server dan browser bisa merender teks yang berbeda. Tanda
+ * minus di depan "Rp", bukan di tengah ("Rp -1").
+ */
+export const formatRupiah = (value: number) =>
+  `${value < 0 ? "−" : ""}Rp ${rupiahFormat.format(Math.abs(value))}`;
+
+/** "Rp 86,4 jt" — angka ringkas untuk KPI dan sumbu grafik. */
+export const formatRupiahCompact = (value: number) =>
+  `${value < 0 ? "−" : ""}Rp ${rupiahCompactFormat.format(Math.abs(value))}`;
