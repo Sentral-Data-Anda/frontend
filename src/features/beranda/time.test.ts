@@ -1,6 +1,17 @@
 import { describe, expect, test } from "bun:test";
 
-import { findNextService, formatLongDate, greetingOf, toDateKey } from "./time";
+import {
+  daysSince,
+  findNextService,
+  formatDayMonth,
+  formatLongDate,
+  formatMonthYear,
+  formatWeekdayShort,
+  greetingOf,
+  monthOf,
+  toDateKey,
+  weekKeys,
+} from "./time";
 
 /** Jam WIB → instant UTC (WIB = UTC+7, tanpa DST). */
 const wib = (date: string, time: string) =>
@@ -85,5 +96,34 @@ describe("findNextService", () => {
     expect(
       findNextService(services, new Date("2026-08-16T16:30:00Z")),
     ).toBeUndefined();
+  });
+});
+
+describe("tanggal dashboard", () => {
+  // 23.30 WIB Selasa 22 Sep = 16.30 UTC.
+  const lateTuesday = new Date("2026-09-22T16:30:00Z");
+
+  test("tujuh hari mulai hari ini (WIB), melewati akhir bulan", () => {
+    expect(weekKeys(new Date("2026-09-27T20:00:00Z"))).toEqual([
+      "2026-09-28",
+      "2026-09-29",
+      "2026-09-30",
+      "2026-10-01",
+      "2026-10-02",
+      "2026-10-03",
+      "2026-10-04",
+    ]);
+  });
+
+  test("label hari & tanggal tidak bergeser dari tanggal kalender UTC", () => {
+    expect(formatWeekdayShort("2026-09-22")).toBe("Sel");
+    expect(formatDayMonth("2026-09-20T00:00:00.000Z")).toBe("20 Sep");
+    expect(formatMonthYear("2026-09-01T00:00:00.000Z")).toBe("Sep 2026");
+  });
+
+  test("bulan dan umur tunggu memakai hari WIB", () => {
+    expect(monthOf(new Date("2026-09-30T18:00:00Z"))).toBe(10);
+    expect(daysSince("2026-09-20T03:10:00.000Z", lateTuesday)).toBe(2);
+    expect(daysSince("2026-09-22T16:00:00.000Z", lateTuesday)).toBe(0);
   });
 });

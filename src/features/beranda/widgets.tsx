@@ -5,9 +5,18 @@ import { MENU, type MenuSlug, menuHref } from "@/config/menu";
 import { findMenuNode } from "@/features/auth/menu-tree";
 import type { MenuAction, MenuNode } from "@/features/auth/types";
 
+import { AgendaWidget, KpiAgendaWeek } from "./agenda";
+import { ApprovalsWidget, KpiWaitingApprovals } from "./approvals";
 import { SHOW_DUMMY } from "./dummy";
 import { KpiCashBalance, KpiExpense, KpiIncome } from "./kpi";
-import { TodaySchedule } from "./today-schedule";
+import {
+  BirthdaysWidget,
+  CashExpenseWidget,
+  KpiBirthdays,
+  KpiPendingLoans,
+  LoanRoomsWidget,
+} from "./office-widgets";
+import { AnnouncementsWidget, MyOfferingsWidget } from "./personal-widgets";
 
 export type WidgetSlot = "kpi" | "main" | "side";
 
@@ -64,10 +73,73 @@ export const WIDGETS: readonly Widget[] = [
     Component: KpiExpense,
   },
   {
-    id: "today-schedule",
+    id: "kpi-waiting-approvals",
+    slot: "kpi",
+    gate: [view(MENU.PERMINTAAN_PERSETUJUAN)],
+    Component: KpiWaitingApprovals,
+  },
+  {
+    id: "kpi-agenda-week",
+    slot: "kpi",
+    gate: [view(MENU.IBADAH)],
+    Component: KpiAgendaWeek,
+  },
+  {
+    id: "kpi-pending-loans",
+    slot: "kpi",
+    gate: [view(MENU.PEMINJAMAN_RUANG)],
+    Component: KpiPendingLoans,
+  },
+  {
+    id: "kpi-birthdays",
+    slot: "kpi",
+    gate: [view(MENU.REPORT_JEMAAT)],
+    Component: KpiBirthdays,
+  },
+
+  {
+    id: "approvals",
+    slot: "main",
+    gate: [view(MENU.PERMINTAAN_PERSETUJUAN)],
+    Component: ApprovalsWidget,
+  },
+  {
+    id: "cash-expense",
+    slot: "main",
+    gate: [view(MENU.KAS_KELUAR)],
+    Component: CashExpenseWidget,
+  },
+
+  // Agenda menjadi main untuk peran tanpa widget main (sekretariat).
+  {
+    id: "agenda",
     slot: "side",
     gate: [view(MENU.IBADAH)],
-    Component: TodaySchedule,
+    Component: AgendaWidget,
+  },
+  {
+    id: "loan-rooms",
+    slot: "side",
+    gate: [view(MENU.PEMINJAMAN_RUANG)],
+    Component: LoanRoomsWidget,
+  },
+  {
+    id: "birthdays",
+    slot: "side",
+    gate: [view(MENU.REPORT_JEMAAT)],
+    Component: BirthdaysWidget,
+  },
+  {
+    id: "announcements",
+    slot: "side",
+    gate: [],
+    Component: AnnouncementsWidget,
+  },
+  {
+    id: "my-offerings",
+    slot: "side",
+    gate: [],
+    Component: MyOfferingsWidget,
   },
 ];
 

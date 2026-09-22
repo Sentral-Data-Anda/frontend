@@ -16,6 +16,7 @@ import { SHOW_DUMMY } from "@/features/beranda/dummy";
 import { NotificationBell } from "@/features/beranda/notification-bell";
 import { formatLongDate, greetingOf, toDateKey } from "@/features/beranda/time";
 import { selectHeaderActions, selectWidgets } from "@/features/beranda/widgets";
+import { firstNameOf } from "@/lib/format";
 
 /**
  * Beranda per izin (docs/design/dashboard-desktop.md). Isinya widget dari
@@ -37,8 +38,7 @@ export function HomeScreen() {
   const now = new Date();
   const ibadah = useIbadahByDate(toDateKey(now), ibadahAccess.isCanView);
 
-  const name = session.jemaat?.name ?? session.username;
-  const firstName = name.trim().split(/\s+/)[0];
+  const firstName = firstNameOf(session.jemaat?.name ?? session.username);
 
   const serviceCount = ibadahAccess.isCanView ? (ibadah.data?.length ?? 0) : 0;
 

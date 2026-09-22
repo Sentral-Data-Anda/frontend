@@ -49,3 +49,185 @@ export function useIbadahByDate(date: string, isEnabled: boolean) {
     enabled: isEnabled,
   });
 }
+
+// ---------------------------------------------------------------------------
+// Widget dashboard. Bentuk dan perilaku tiap endpoint diverifikasi dari
+// be-sada (rujukan berkas di tiap tipe). Gate izin sudah dicek registry
+// sebelum widget dirender, jadi hook di sini tidak menerima `isEnabled`.
+// Uang be-sada (`Decimal`) tiba sebagai STRING — diubah ke number di sini.
+
+const toAmount = (value: string | null | undefined) => Number(value ?? 0);
+
+/** `persetujuan.repository.ts:46-64`. Tanpa nama pengaju / nomor dokumen. */
+export type ApprovalItem = {
+  code: string;
+  documentType: string;
+  amount: string;
+  submittedAt: string;
+  steps: { order: number; approverBapel: { name: string } | null }[];
+  currentOrder: number;
+};
+
+/**
+ * `GET /persetujuan?menunggu=saya` — urut paling lama menunggu dulu. 404
+ * (kosong) → `[]` lewat `fetchList`. Dipakai KPI (totalData) dan daftar.
+ */
+export function useWaitingApprovals() {
+  return useQuery({
+    queryKey: ["persetujuan", "menunggu-saya"],
+    queryFn: () =>
+      fetchList<ApprovalItem>("/persetujuan?menunggu=saya&limit=5"),
+  });
+}
+
+/** `ibadah.service.ts:98-105`: `startDate` + `endDate`, inklusif per hari. */
+export type IbadahWeekItem = IbadahListItem & { date: string };
+
+export function useIbadahRange(start: string, end: string) {
+  const query = `startDate=${start}&endDate=${end}&limit=100`;
+
+  return useQuery({
+    queryKey: ibadahKeys.list(query),
+    queryFn: () => fetchList<IbadahWeekItem>(`/ibadah?${query}`),
+    select: (response) => response.data,
+  });
+}
+
+/**
+ * `event.service.ts:48-53` — tanggal saja, tanpa jam; rentang =
+ * CONTAINMENT (acara harus seluruhnya di dalam rentang). Acara yang mulai
+ * sebelum hari ini dan masih berjalan tidak ikut.
+ */
+export type EventItem = {
+  code: string;
+  name: string;
+  startDate: string;
+  endDate: string;
+  location: string | null;
+  room: { name: string } | null;
+  bapel: { name: string };
+};
+
+export function useEventRange(start: string, end: string, isEnabled: boolean) {
+  const query = `startDate=${start}&endDate=${end}&limit=100`;
+
+  return useQuery({
+    queryKey: ["event", "list", query],
+    queryFn: () => fetchList<EventItem>(`/event?${query}`),
+    select: (response) => response.data,
+    enabled: isEnabled,
+  });
+}
+
+/** `public.service.ts:8-16` — tanpa sesi; hanya `limit`. */
+export type AnnouncementItem = {
+  id: string;
+  category: string;
+  title: string;
+  publishDate: string;
+  isPinned: boolean;
+};
+
+export function usePublicAnnouncements(limit: number) {
+  return useQuery({
+    queryKey: ["public", "announcement", limit],
+    queryFn: () =>
+      fetchList<AnnouncementItem>(`/public/announcement?limit=${limit}`),
+    select: (response) => response.data,
+  });
+}
+
+/** `persembahan.repository.ts:6-31` — hanya ACTIVE, urut periode menurun. */
+export type OfferingItem = {
+  code: string;
+  amount: string;
+  period: string | null;
+  receivedDate: string;
+  typePersembahan: { name: string };
+};
+
+/**
+ * Persembahan user sendiri tahun ini (`periodStart`/`periodEnd` pada
+ * `period`). Total dihitung dari daftar — be-sada belum punya total;
+ * `limit=100` (batas be-sada) cukup untuk satu tahun persembahan bulanan.
+ */
+export function useMyOfferings(year: string) {
+  const query = `periodStart=${year}-01&periodEnd=${year}-12&limit=100`;
+
+  return useQuery({
+    queryKey: ["persembahan", "saya", query],
+    queryFn: () => fetchList<OfferingItem>(`/persembahan/saya?${query}`),
+    select: (response) => ({
+      items: response.data,
+      count: response.totalData,
+      total: response.data.reduce((sum, row) => sum + toAmount(row.amount), 0),
+    }),
+  });
+}
+
+/** `kas_keluar.repository.ts:6-19` — urut `expenseDate` menurun. */
+export type CashExpenseItem = {
+  code: string;
+  expenseDate: string;
+  description: string;
+  payee: string;
+  totalAmount: string;
+  bapel: { name: string } | null;
+};
+
+export function useDraftCashExpenses() {
+  return useQuery({
+    queryKey: ["kas-keluar", "list", "status=DRAFT"],
+    queryFn: () =>
+      fetchList<CashExpenseItem>("/kas-keluar?status=DRAFT&limit=5"),
+  });
+}
+
+export const amountOf = toAmount;
+
+/** `report.service.ts:112-120` — tanpa paginasi, 404 bila kosong. */
+export type BirthdayItem = {
+  name: string;
+  gender: "L" | "P";
+  birthDate: string;
+  umur: number;
+};
+
+export function useBirthdays(month: number) {
+  return useQuery({
+    queryKey: ["report", "birth", month],
+    queryFn: () => fetchList<BirthdayItem>(`/report/jemaat/birth/${month}`),
+    select: (response) => response.data,
+  });
+}
+
+/** `loan_room.repository.ts:30-57`. */
+export type LoanRoomItem = {
+  code: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  purpose: string;
+  status: "PENDING" | "APPROVED" | "REJECTED" | "CANCELLED";
+  room: { name: string };
+  jemaat: { name: string };
+};
+
+/**
+ * Peminjaman menunggu persetujuan, 30 hari ke depan. be-sada TIDAK punya
+ * filter status (`loan_room.service.ts:26-73`), jadi disaring di sini dari
+ * satu halaman 100 baris.
+ *
+ * ponytail: > 100 peminjaman dalam 30 hari → sebagian tidak terhitung;
+ * minta `?status=PENDING` ke be-sada bila itu terjadi.
+ */
+export function usePendingLoanRooms(start: string, end: string) {
+  const query = `startDate=${start}&endDate=${end}&limit=100`;
+
+  return useQuery({
+    queryKey: ["loan-room", "list", query],
+    queryFn: () => fetchList<LoanRoomItem>(`/loan-room?${query}`),
+    select: (response) =>
+      response.data.filter((row) => row.status === "PENDING"),
+  });
+}

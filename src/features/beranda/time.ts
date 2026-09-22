@@ -65,3 +65,63 @@ export const findNextService = <T extends { startTime: string }>(
 
   return items.find((item) => item.startTime >= clock);
 };
+
+/** "YYYY-MM-DD" + n hari (kalender, bukan 24 jam — aman dari DST/zona). */
+export const addDaysKey = (key: string, days: number): string => {
+  const date = new Date(`${key}T00:00:00Z`);
+  date.setUTCDate(date.getUTCDate() + days);
+  return date.toISOString().slice(0, 10);
+};
+
+/** Tujuh hari mulai hari ini (WIB). */
+export const weekKeys = (now: Date): string[] => {
+  const today = toDateKey(now);
+  return Array.from({ length: 7 }, (_, i) => addDaysKey(today, i));
+};
+
+const weekdayShortFormat = new Intl.DateTimeFormat("id-ID", {
+  weekday: "short",
+  timeZone: "UTC",
+});
+
+const dayMonthFormat = new Intl.DateTimeFormat("id-ID", {
+  day: "numeric",
+  month: "short",
+  timeZone: "UTC",
+});
+
+const monthYearFormat = new Intl.DateTimeFormat("id-ID", {
+  month: "short",
+  year: "numeric",
+  timeZone: "UTC",
+});
+
+/**
+ * Tanggal kalender be-sada (`@db.Date` → "…T00:00:00.000Z") atau
+ * "YYYY-MM-DD". Diformat di UTC supaya tidak bergeser sehari.
+ */
+const calendarDate = (value: string) =>
+  new Date(value.length === 10 ? `${value}T00:00:00Z` : value);
+
+/** "Sel". */
+export const formatWeekdayShort = (key: string): string =>
+  weekdayShortFormat.format(calendarDate(key));
+
+/** "20 Sep". */
+export const formatDayMonth = (value: string): string =>
+  dayMonthFormat.format(calendarDate(value));
+
+/** "Sep 2026" — periode persembahan. */
+export const formatMonthYear = (value: string): string =>
+  monthYearFormat.format(calendarDate(value));
+
+/** Bulan WIB, 1–12. */
+export const monthOf = (now: Date): number =>
+  Number(toDateKey(now).slice(5, 7));
+
+/** Hari kalender WIB antara instant `iso` dan `now` (≥ 0). */
+export const daysSince = (iso: string, now: Date): number => {
+  const from = Date.parse(`${toDateKey(new Date(iso))}T00:00:00Z`);
+  const to = Date.parse(`${toDateKey(now)}T00:00:00Z`);
+  return Math.max(0, Math.round((to - from) / 86_400_000));
+};

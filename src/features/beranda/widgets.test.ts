@@ -3,6 +3,9 @@ import { describe, expect, test } from "bun:test";
 import { MENU } from "@/config/menu";
 import type { MenuNode } from "@/features/auth/types";
 
+import { TREE } from "../../../scripts/menu-tree";
+import { actionsOf, PERSONAS } from "../../../scripts/mock-dashboard";
+
 import { MAX_KPI, selectWidgets, type Widget } from "./widgets";
 
 const leaf = (slug: string, action: MenuNode["action"]): MenuNode => ({
@@ -91,5 +94,48 @@ describe("selectWidgets", () => {
 
     expect(ids(picked.main)).toEqual(["m"]);
     expect(ids(picked.side)).toEqual(["s1"]);
+  });
+});
+
+describe("persona dev:mock", () => {
+  // Pohon menu seperti `menuService.findTree` untuk persona di
+  // scripts/mock-dashboard.ts — hasilnya harus sama dengan rancangan
+  // dashboard-desktop.md §3b/3c/3e.
+  const menuOf = (key: string): MenuNode[] =>
+    Object.entries(TREE).flatMap(([slug, leaves]) => {
+      const children = leaves.flatMap((child) => {
+        const action = actionsOf(PERSONAS[key], child);
+        return action.length ? [leaf(child, action)] : [];
+      });
+      return children.length ? [{ ...leaf(slug, []), children }] : [];
+    });
+
+  const picked = (key: string, isDummyShown = false) => {
+    const { kpi, main, side } = selectWidgets(
+      menuOf(key),
+      undefined,
+      isDummyShown,
+    );
+    return { kpi: ids(kpi), main: ids(main), side: ids(side) };
+  };
+
+  test("sekretariat: tanpa angka keuangan, Agenda di main", () => {
+    expect(picked("sekretariat")).toEqual({
+      kpi: ["kpi-agenda-week", "kpi-pending-loans", "kpi-birthdays"],
+      main: ["agenda"],
+      side: ["loan-rooms", "birthdays", "announcements", "my-offerings"],
+    });
+  });
+
+  test("majelis: tindakan dulu", () => {
+    const { kpi, main } = picked("majelis");
+    expect(kpi[0]).toBe("kpi-waiting-approvals");
+    expect(main[0]).toBe("approvals");
+  });
+
+  test("bendahara: perlu dibayar, tanpa antrean persetujuan", () => {
+    const { main } = picked("bendahara");
+    expect(main).toContain("cash-expense");
+    expect(main).not.toContain("approvals");
   });
 });

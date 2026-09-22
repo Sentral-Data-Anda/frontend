@@ -75,3 +75,13 @@ export const formatRupiah = (value: number) =>
 /** "Rp 86,4 jt" — angka ringkas untuk KPI dan sumbu grafik. */
 export const formatRupiahCompact = (value: number) =>
   `${value < 0 ? "−" : ""}Rp ${rupiahCompactFormat.format(Math.abs(value))}`;
+
+/**
+ * Nama sapaan: kata pertama yang bukan gelar ("Pdt. Yohanes Simatupang" →
+ * "Yohanes"). Gelar gerejawi/sapaan ditulis dengan titik (Pdt., Pnt., Dkn.,
+ * Bpk., Sdr.); nama tanpa kata bertitik apa adanya.
+ */
+export const firstNameOf = (fullName: string): string => {
+  const words = fullName.trim().split(/\s+/);
+  return words.find((word) => !word.endsWith(".")) ?? words[0] ?? "";
+};
