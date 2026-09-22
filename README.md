@@ -117,8 +117,8 @@ Sidebar desktop (`components/layout/sidebar.tsx`) = seluruh chrome global
 desktop, tanpa top bar: `AppIdentity` di atas, navigasi di tengah (satu-
 satunya bagian yang scroll), pengguna + tombol Keluar di bawah. Warnanya navy
 lewat token `--sidebar-*` di `:root` (tabel kontras di `globals.css`), bukan
-dark mode. Tombol tepi bulat 28px "Ciutkan menu"/"Lebarkan menu" (di garis
-kanan sidebar, sejajar logo; hidup di pembungkus sticky di luar `<aside>`
+dark mode. Tombol tepi bulat 24px putih bergaris, ikon chevron, "Ciutkan menu"/"Lebarkan menu" (di garis
+kanan sidebar, di garis bawah baris identitas; hidup di pembungkus sticky di luar `<aside>`
 karena aside `overflow-hidden`) meringkasnya jadi rail ikon 72px — Beranda +
 ikon domain menuju `domainEntryHref` (tanpa Cari), label lewat `aria-label` +
 tooltip Base UI. Di rail, avatar membuka menu akun Base UI (nama + peran,

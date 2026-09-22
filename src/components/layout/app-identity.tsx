@@ -4,10 +4,11 @@ import { cn } from "@/lib/utils";
 
 const TONE = {
   canvas: { mark: "", eyebrow: "text-muted-foreground", role: "" },
-  // Bidang logo = primary-900 = latar sidebar; garis tipis membuatnya tetap
-  // terbaca sebagai lencana. Ikon di atas bidangnya tetap 6.13:1.
+  // Bidang logo = primary-900 = latar sidebar, jadi di sidebar bidangnya
+  // menyatu dan yang terlihat hanya logonya (6.13:1) — tanpa garis tepi, yang
+  // terlihat seperti kotak di dalam kotak.
   sidebar: {
-    mark: "ring-1 ring-sidebar-border",
+    mark: "",
     eyebrow: "text-sidebar-muted-foreground",
     role: "text-sidebar-foreground",
   },

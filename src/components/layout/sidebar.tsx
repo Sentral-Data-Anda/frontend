@@ -4,11 +4,11 @@ import { Menu } from "@base-ui/react/menu";
 import { Tooltip } from "@base-ui/react/tooltip";
 import {
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   House,
   LayoutGrid,
   LogOut,
-  PanelLeftClose,
-  PanelLeftOpen,
   Search,
   type LucideIcon,
 } from "lucide-react";
@@ -72,7 +72,7 @@ export function Sidebar({ defaultCollapsed }: { defaultCollapsed: boolean }) {
   const role = session.roleUser.name;
   const ref = useRef<HTMLElement>(null);
   const toggleLabel = isCollapsed.value ? "Lebarkan menu" : "Ciutkan menu";
-  const ToggleIcon = isCollapsed.value ? PanelLeftOpen : PanelLeftClose;
+  const ToggleIcon = isCollapsed.value ? ChevronRight : ChevronLeft;
 
   // Di 1024×768 layar ke-11 Keuangan ada di bawah lipatan navigasi.
   useEffect(() => {
@@ -97,20 +97,20 @@ export function Sidebar({ defaultCollapsed }: { defaultCollapsed: boolean }) {
             aria-label={toggleLabel}
             onClick={onToggle}
             className={cn(
-              // top-5: pusatnya = pusat logo (py-4 + 36px / 2 = 34px).
-              // Bidang 28px — pengecualian aturan 36px; `after:` memperluas
-              // area sentuh ke ±44px tanpa membesarkan bidangnya.
-              "absolute top-5 right-0 z-10 flex size-7 translate-x-1/2 items-center justify-center rounded-full after:absolute after:-inset-2",
-              // Navy + cincin p200: batas 5.20:1 di navy, bidang 7.70:1 di
-              // kanvas. Bidang putih hanya 1.10:1 di kanvas.
-              "bg-sidebar text-sidebar-foreground ring-sidebar-ring shadow-md ring-1 transition-colors",
-              IDLE,
-              // Fokus dua warna: cincin p200 menebal (terbaca di navy) +
-              // outline navy (terbaca di kanvas).
-              "focus-visible:outline-sidebar focus-visible:ring-2 focus-visible:outline-2 focus-visible:outline-offset-2",
+              // Duduk di persimpangan garis bawah baris identitas (py-4 + 36px
+              // = 68px) dan garis tepi sidebar — jauh dari logo, tidak
+              // berdesakan dengannya. Bidang 24px (pengecualian aturan 36px);
+              // `after:` memperluas area sentuh ke ±40px.
+              "absolute top-17 right-0 z-10 flex size-6 translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full after:absolute after:-inset-2",
+              // Bidang putih: 8.44:1 terhadap navy. Garis `--input` (p500):
+              // ≥3:1 terhadap kanvas, jadi batasnya terbaca di kedua sisi.
+              "bg-card text-foreground border-input hover:border-primary border shadow-sm transition-colors",
+              // Fokus dua warna: cincin p200 (terbaca di navy) + outline navy
+              // (terbaca di kanvas).
+              "focus-visible:outline-sidebar focus-visible:ring-sidebar-ring focus-visible:ring-2 focus-visible:outline-2 focus-visible:outline-offset-2",
             )}
           >
-            <ToggleIcon className="size-3.5" aria-hidden />
+            <ToggleIcon className="size-3.5" strokeWidth={2.5} aria-hidden />
           </button>
         </RailTip>
 
@@ -307,7 +307,7 @@ function RailNav({ menu, pathname }: { menu: MenuNode[]; pathname: string }) {
         </li>
       </ul>
 
-      <ul className="border-sidebar-border mx-3 mt-3 space-y-1 border-t pt-3">
+      <ul className="mx-3 mt-1 space-y-1">
         {menu.map((domain) => (
           <li key={domain.slug}>
             <RailLink
