@@ -120,14 +120,16 @@ lewat token `--sidebar-*` di `:root` (tabel kontras di `globals.css`), bukan
 dark mode. Tombol tepi bulat 24px putih bergaris, ikon chevron, "Ciutkan menu"/"Lebarkan menu" (di garis
 kanan sidebar, di garis bawah baris identitas; hidup di pembungkus sticky di luar `<aside>`
 karena aside `overflow-hidden`) meringkasnya jadi rail ikon 72px — Beranda +
-ikon domain menuju `domainEntryHref` (tanpa Cari), label tersembunyi (memudar,
-lebar 0) sebagai nama aksesibel + tooltip Base UI. Ciut/lebar = satu gerakan
-200ms `cubic-bezier(0.2,0,0,1)` (`SIDEBAR_MOTION`, mati di reduced-motion): rail
-dan mode penuh berbagi geometri (ikon, logo, avatar di pusat 36px pada kedua
-mode), label memudar dan terpotong, Cari dan sub-layar mengempis lewat
-`grid-template-rows`; isi rail ditukar setelah transisi selesai saat menyempit
-(mode `narrow` di antaranya) dan isi penuh di-commit dengan gaya ringkas dulu
-saat melebar. Di rail, avatar membuka menu akun Base UI (nama + peran,
+ikon domain menuju `domainEntryHref` (tanpa Cari), label tersembunyi (memudar
+atau `sr-only`) sebagai nama aksesibel + tooltip Base UI. Ciut/lebar = satu gerakan
+200ms `cubic-bezier(0.2,0,0,1)` (`SIDEBAR_MOTION`, mati di reduced-motion)
+dengan **satu DOM**: isi rail dan isi penuh selalu ter-mount, ditukar lewat
+varian `group-data-collapsed/sidebar:*` dari atribut `data-collapsed` di aside
+— klik hanya membalik satu boolean, tidak me-mount apa pun. Ikon, logo, avatar
+di pusat 36px pada kedua mode; label memudar dan terpotong; Cari dan sub-layar
+dilipat lewat `grid-template-rows` dan `invisible` di rail; tautan rail domain
+adalah overlay di atas `summary` yang crossfade lewat `visibility` + `opacity`.
+Di rail, avatar membuka menu akun Base UI (nama + peran,
 "Keluar"); mode penuh tetap tombol Keluar langsung. Keduanya memanggil
 `logout()` di `logout-button.tsx`. Pilihan disimpan di cookie
 `sidebar_collapsed` (`sidebar-collapse.ts`) yang dibaca `AppShell` di server,
