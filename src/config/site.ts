@@ -2,7 +2,7 @@
  * Identitas situs dipusatkan di sini agar tidak hardcode bertebaran.
  *
  * Berkas ini SENGAJA tidak menyentuh process.env sama sekali. Berkas ini
- * diimpor oleh komponen client (Logo → SiteHeader ber-"use client"), jadi
+ * diimpor oleh komponen client (mis. `AppIdentity`), jadi
  * apa pun yang ada di sini otomatis ikut ke bundle browser. Sebelumnya
  * `url` diisi dari `process.env.SITE_URL` langsung di sini — di browser
  * variabel non-NEXT_PUBLIC_ itu selalu undefined, sehingga diam-diam selalu

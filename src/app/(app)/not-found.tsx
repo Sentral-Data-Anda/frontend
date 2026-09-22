@@ -30,7 +30,7 @@ export default function NotFound() {
         </p>
 
         <p className="text-muted-foreground text-body">
-          Modul lain tetap bisa dibuka lewat navigasi di bawah.
+          Modul lain tetap bisa dibuka lewat menu navigasi.
         </p>
 
         <Link href="/modul" className={buttonVariants({ variant: "outline" })}>

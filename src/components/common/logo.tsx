@@ -1,38 +1,17 @@
 import Image from "next/image";
-import Link from "next/link";
 
 import { siteConfig } from "@/config/site";
 import { cn } from "@/lib/utils";
 
 /**
- * Lencana logo SADA untuk latar TERANG (putih, muted).
+ * Ikon logo di bidang navy, tanpa teks — penanda aplikasi di `AppIdentity`
+ * (header Beranda dan sidebar). 36px, sudut kontrol.
  *
- * Aset logo dari user berwarna abu-kebiruan terang (~#d4dcec) yang dirancang
- * untuk latar gelap: di atas putih kontrasnya hanya 1.38:1 dan garis tepi
- * navy-nya sub-piksel pada ukuran lencana. Karena itu ikon diletakkan di atas
- * bidang `--primary` — latar yang memang dimaksud aset itu, sama seperti ikon
- * PWA — bukan diwarnai ulang: ikon di atas primary 6.13:1, bidangnya di atas
- * putih 8.44:1.
+ * Aset logo user abu-kebiruan terang (~#d4dcec), dirancang untuk latar gelap:
+ * di atas putih hanya 1.38:1, jadi ikon selalu di atas bidang `--primary`
+ * (6.13:1), tidak diwarnai ulang. Sumbernya `public/brand/logo-icon.png` 256px
+ * (ekspor dari PNG 3000px yang terbungkus di `ic_logo.svg`).
  *
- * Sumbernya `public/brand/logo-icon.png` 256px (ekspor dari PNG 3000px yang
- * terbungkus di `ic_logo.svg`); `next/image` menurunkan ukuran 1x/2x dari
- * `sizes`.
- */
-export function Logo({ className }: { className?: string }) {
-  return (
-    <Link
-      href="/"
-      className={cn("flex items-center gap-2 font-semibold", className)}
-    >
-      <LogoMark className="size-8 rounded-md" />
-      <span className="text-title">{siteConfig.shortName}</span>
-    </Link>
-  );
-}
-
-/**
- * Ikon logo di bidang navy, tanpa teks — penanda aplikasi di header Beranda
- * (36px, sudut kontrol, sama dengan kotak lain di header) dan di `Logo`.
  * Dekoratif: nama aplikasi sudah tertulis di sebelahnya.
  */
 export function LogoMark({ className }: { className?: string }) {
