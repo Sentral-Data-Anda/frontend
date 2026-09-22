@@ -79,9 +79,15 @@ export function DashboardCard({
           <span className="bg-muted block h-3 w-2/3 animate-pulse rounded-control" />
         </div>
       ) : query?.error ? (
+        // Tinggi galat = tinggi kerangka, bukan satu baris teks. Kartu yang
+        // menciut jadi 40px membuat kolomnya terlihat pecah, dan tata letak
+        // melompat lagi begitu "Coba lagi" berhasil.
         <p
           role="alert"
-          className="text-muted-foreground flex items-center gap-2 text-body"
+          className={cn(
+            "text-muted-foreground flex items-center gap-2 text-body",
+            minHeight,
+          )}
         >
           Gagal memuat.
           <button

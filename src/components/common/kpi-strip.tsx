@@ -110,7 +110,9 @@ export function KpiCell({
       {isLoading ? (
         <span className="bg-muted mt-2 block h-5 w-24 animate-pulse rounded-control lg:h-7" />
       ) : isError ? (
-        <p className="text-muted-foreground mt-1.5 flex items-center gap-1.5 truncate text-body">
+        // Setinggi baris angkanya (dan kerangkanya), supaya sel yang galat
+        // tidak memendekkan barisnya sendiri di toolbar.
+        <p className="text-muted-foreground mt-1.5 flex min-h-5 items-center gap-1.5 truncate text-body lg:min-h-7">
           <TriangleAlert className="size-3.5 shrink-0" aria-hidden />
           Gagal dimuat
         </p>
