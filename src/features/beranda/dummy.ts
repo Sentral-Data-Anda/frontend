@@ -56,3 +56,82 @@ export const DUMMY_NOTIFICATIONS: Notification[] = [
     isRead: true,
   },
 ];
+
+/*
+ * Widget dashboard yang endpoint-nya belum ada di be-sada
+ * (dashboard-desktop.md §4 status B/X). Tanggal relatif terhadap hari ini
+ * supaya fixture tidak basi.
+ */
+
+/** Jadwal pelayanan saya — butuh `GET /jadwal-pelayan/saya`. */
+export type MyDuty = {
+  id: string;
+  /** Hari dari hari ini. */
+  inDays: number;
+  time: string;
+  service: string;
+  role: string;
+};
+
+export const DUMMY_MY_DUTIES: MyDuty[] = [
+  {
+    id: "d1",
+    inDays: 5,
+    time: "08:00",
+    service: "Ibadah Minggu I",
+    role: "Pemusik",
+  },
+  {
+    id: "d2",
+    inDays: 12,
+    time: "17:00",
+    service: "Ibadah Minggu II",
+    role: "Lektor",
+  },
+  {
+    id: "d3",
+    inDays: 19,
+    time: "08:00",
+    service: "Ibadah Minggu I",
+    role: "Pemusik",
+  },
+];
+
+/** Pagu vs terpakai per komisi — dihitung internal `program.service.ts`, belum diekspos. */
+export type BudgetUse = {
+  id: string;
+  commission: string;
+  budget: number;
+  used: number;
+};
+
+export const DUMMY_BUDGET_USE: BudgetUse[] = [
+  {
+    id: "b1",
+    commission: "Komisi Pemuda",
+    budget: 60_000_000,
+    used: 51_600_000,
+  },
+  {
+    id: "b2",
+    commission: "Komisi Musik",
+    budget: 25_000_000,
+    used: 21_250_000,
+  },
+  {
+    id: "b3",
+    commission: "Komisi Wanita",
+    budget: 40_000_000,
+    used: 22_000_000,
+  },
+  { id: "b4", commission: "Komisi Anak", budget: 30_000_000, used: 9_300_000 },
+];
+
+/** Kesiapan pembukuan — gabungan periode fiskal + setelan akuntansi (isu I9). */
+export type BookkeepingCheck = { id: string; label: string; isReady: boolean };
+
+export const DUMMY_BOOKKEEPING: BookkeepingCheck[] = [
+  { id: "k1", label: "Periode bulan ini terbuka", isReady: true },
+  { id: "k2", label: "Setelan akun kas & bank lengkap", isReady: false },
+  { id: "k3", label: "Jurnal bulan lalu diposting", isReady: true },
+];

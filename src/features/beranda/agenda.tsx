@@ -16,6 +16,8 @@ import { useMenuAccess } from "@/features/auth/use-menu-access";
 import { cn } from "@/lib/utils";
 
 import { sortByStartTime, useEventRange, useIbadahRange } from "./api";
+import { SHOW_DUMMY } from "./dummy";
+import { dutiesOn } from "./dummy-widgets";
 import {
   findNextService,
   formatDayMonth,
@@ -47,9 +49,10 @@ function useWeekAgenda() {
 const dayOf = (iso: string) => iso.slice(0, 10);
 
 /**
- * Agenda (dashboard-desktop.md §4): strip 7 hari + tab Ibadah / Kegiatan —
- * tab hanya yang diizinkan (Kegiatan butuh EVENT VIEW; gate widget = IBADAH
- * VIEW di registry). Hari pertama = hari ini; ibadah berikutnya hari ini
+ * Agenda (dashboard-desktop.md §4): strip 7 hari + tab Ibadah / Kegiatan /
+ * Tugas saya — tab hanya yang diizinkan (Kegiatan butuh EVENT VIEW; gate
+ * widget = IBADAH VIEW di registry; Tugas saya DUMMY, hanya di luar
+ * production). Hari pertama = hari ini; ibadah berikutnya hari ini
  * diberi kotak jam berlatar, seperti "Hari ini" sebelumnya.
  */
 export function AgendaWidget() {
@@ -64,6 +67,14 @@ export function AgendaWidget() {
   const eventsOfDay = (events.data ?? []).filter(
     (item) => dayOf(item.startDate) <= day && day <= dayOf(item.endDate),
   );
+
+  // "Tugas saya" butuh `GET /jadwal-pelayan/saya` (belum ada) — DUMMY.
+  const tabs = [
+    ["ibadah", "Ibadah"],
+    ...(isEventShown ? [["kegiatan", "Kegiatan"]] : []),
+    ...(SHOW_DUMMY ? [["tugas", "Tugas saya"]] : []),
+  ];
+  const duties = SHOW_DUMMY ? dutiesOn(day) : [];
 
   const ibadahList =
     ibadahOfDay.length === 0 ? (
@@ -120,13 +131,10 @@ export function AgendaWidget() {
         ))}
       </div>
 
-      {isEventShown ? (
+      {tabs.length > 1 ? (
         <Tabs.Root defaultValue="ibadah">
           <Tabs.List className="bg-muted mb-2 inline-flex rounded-control p-0.5">
-            {[
-              ["ibadah", "Ibadah"],
-              ["kegiatan", "Kegiatan"],
-            ].map(([value, label]) => (
+            {tabs.map(([value, label]) => (
               <Tabs.Tab
                 key={value}
                 value={value}
@@ -158,6 +166,22 @@ export function AgendaWidget() {
                         ? undefined
                         : `s.d. ${formatDayMonth(item.endDate)}`
                     }
+                  />
+                ))}
+              </DashboardList>
+            )}
+          </Tabs.Panel>
+          <Tabs.Panel value="tugas">
+            {duties.length === 0 ? (
+              <DashboardEmpty>Tidak ada tugas pelayanan</DashboardEmpty>
+            ) : (
+              <DashboardList label={`Tugas saya ${formatDayMonth(day)}`}>
+                {duties.map((duty) => (
+                  <DashboardRow
+                    key={duty.id}
+                    leading={<TimeBadge time={duty.time} />}
+                    title={duty.role}
+                    meta={duty.service}
                   />
                 ))}
               </DashboardList>

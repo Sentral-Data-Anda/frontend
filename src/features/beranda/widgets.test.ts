@@ -6,7 +6,7 @@ import type { MenuNode } from "@/features/auth/types";
 import { TREE } from "../../../scripts/menu-tree";
 import { actionsOf, PERSONAS } from "../../../scripts/mock-dashboard";
 
-import { MAX_KPI, selectWidgets, type Widget } from "./widgets";
+import { MAX_KPI, selectWidgets, WIDGETS, type Widget } from "./widgets";
 
 const leaf = (slug: string, action: MenuNode["action"]): MenuNode => ({
   publicId: slug,
@@ -137,5 +137,18 @@ describe("persona dev:mock", () => {
     const { main } = picked("bendahara");
     expect(main).toContain("cash-expense");
     expect(main).not.toContain("approvals");
+  });
+
+  test("production: tidak ada widget dummy untuk persona mana pun", () => {
+    const dummies = new Set(WIDGETS.filter((w) => w.isDummy).map((w) => w.id));
+
+    for (const key of Object.keys(PERSONAS)) {
+      const { kpi, main, side } = picked(key);
+      expect(
+        [...kpi, ...main, ...side].filter((id) => dummies.has(id)),
+      ).toEqual([]);
+    }
+    expect(picked("majelis", true).main).toContain("budget-use");
+    expect(picked("majelis", true).kpi).toContain("kpi-budget-high");
   });
 });

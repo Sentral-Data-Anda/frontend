@@ -8,6 +8,12 @@ import type { MenuAction, MenuNode } from "@/features/auth/types";
 import { AgendaWidget, KpiAgendaWeek } from "./agenda";
 import { ApprovalsWidget, KpiWaitingApprovals } from "./approvals";
 import { SHOW_DUMMY } from "./dummy";
+import {
+  BookkeepingWidget,
+  BudgetUseWidget,
+  KpiBudgetHigh,
+  MyDutiesWidget,
+} from "./dummy-widgets";
 import { IncomeExpenseChart } from "./income-expense-chart";
 import {
   KpiExpense,
@@ -85,6 +91,13 @@ export const WIDGETS: readonly Widget[] = [
     Component: KpiSurplusYear,
   },
   {
+    id: "kpi-budget-high",
+    slot: "kpi",
+    gate: [view(MENU.PAGU_ANGGARAN)],
+    isDummy: true,
+    Component: KpiBudgetHigh,
+  },
+  {
     id: "kpi-agenda-week",
     slot: "kpi",
     gate: [view(MENU.IBADAH)],
@@ -121,6 +134,20 @@ export const WIDGETS: readonly Widget[] = [
     gate: [view(MENU.KAS_KELUAR)],
     Component: CashExpenseWidget,
   },
+  {
+    id: "budget-use",
+    slot: "main",
+    gate: [view(MENU.PAGU_ANGGARAN)],
+    isDummy: true,
+    Component: BudgetUseWidget,
+  },
+  {
+    id: "bookkeeping",
+    slot: "main",
+    gate: [view(MENU.PERIODE_FISKAL)],
+    isDummy: true,
+    Component: BookkeepingWidget,
+  },
 
   // Agenda menjadi main untuk peran tanpa widget main (sekretariat).
   {
@@ -140,6 +167,13 @@ export const WIDGETS: readonly Widget[] = [
     slot: "side",
     gate: [view(MENU.REPORT_JEMAAT)],
     Component: BirthdaysWidget,
+  },
+  {
+    id: "my-duties",
+    slot: "side",
+    gate: [],
+    isDummy: true,
+    Component: MyDutiesWidget,
   },
   {
     id: "announcements",
