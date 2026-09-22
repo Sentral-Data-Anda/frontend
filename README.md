@@ -136,11 +136,14 @@ Skala teks (**keputusan user, menggantikan skala 14/12/10 + input 16px**):
 terbesar 12px di mobile/tablet dan 14px hanya di desktop, terkecil 10px.
 Hierarki lewat bobot dan warna, bukan ukuran.
 
-| Token          | < `lg` | ≥ `lg` | Peran                                    |
-| -------------- | ------ | ------ | ---------------------------------------- |
-| `text-title`   | 12px   | 14px   | judul halaman/bagian, sapaan, angka 404  |
-| `text-body`    | 12px   | 12px   | isi, label, tombol, **input**, galat     |
-| `text-caption` | 10px   | 10px   | keterangan, meta, hint, label tab, badge |
+| Token          | < `lg` | ≥ `lg` | Peran                                   |
+| -------------- | ------ | ------ | --------------------------------------- |
+| `text-title`   | 12px   | 14px   | judul halaman/bagian, sapaan, angka 404 |
+| `text-body`    | 12px   | 12px   | isi, label, tombol, **input**, galat    |
+| `text-caption` | 10px   | 10px   | keterangan, meta, hint, badge           |
+
+Pengecualian (keputusan user 2026-09-22): label tab bawah dan status daftar
+(badge `success`/`neutral`) 12px — `text-body` ditulis eksplisit.
 
 Nilainya di `globals.css` (`--font-size-title` naik di `@media (min-width:
 64rem)`), jadi layar tidak menulis `lg:`. `text-sm`, `text-lg`, `text-[18px]`

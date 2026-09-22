@@ -24,12 +24,14 @@ const badgeVariants = cva(
         // success-900 4.80:1, muted-foreground (primary-800) 5.66:1 — keduanya
         // lolos tanpa bidang. Titik aktif success-900 (4.80:1, non-teks ≥3:1);
         // titik tidak aktif primary-300 dekoratif, maknanya dibawa teks.
+        // `text-body` (12px) eksplisit — pengecualian skala, keputusan user
+        // 2026-09-22; bawaan badge `text-caption` (10px).
         // warning: primary-900 di atas warning-100 = 7.66:1; teks kuning tidak
         // pernah dipakai.
         success:
-          "gap-1.5 px-0 text-success-900 before:size-1.5 before:rounded-full before:bg-success-900",
+          "gap-1.5 px-0 text-body text-success-900 before:size-1.5 before:rounded-full before:bg-success-900",
         neutral:
-          "gap-1.5 px-0 text-muted-foreground before:size-1.5 before:rounded-full before:bg-primary-300",
+          "gap-1.5 px-0 text-body text-muted-foreground before:size-1.5 before:rounded-full before:bg-primary-300",
         warning: "bg-warning-100 text-warning-foreground",
       },
     },
