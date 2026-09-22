@@ -177,19 +177,19 @@ Nama domain & layar di tiruan disalin dari be-sada (`NAME` di
 
 Latar seluruh `(app)` adalah `bg-canvas` (primary-50), dipasang sekali di
 `AppShell`. Apa pun yang harus putih menulis `bg-card` sendiri (kartu, sidebar,
-bottom tab, sheet); `DataList` bawaan sudah membungkus barisnya dalam satu
-kartu putih bergutter (`DataListFrame`), `DataList inset` membiarkan baris di
-atas kanvas. Jangan pakai `bg-muted` sebagai bidang
+bottom tab, sheet); `DataList` tidak — barisnya rata di kanvas. Jangan pakai `bg-muted` sebagai bidang
 di atas kanvas — nilainya sama (primary-50) dan tidak terlihat.
 
 ### Layar daftar
 
-`DataList` bawaan = satu kartu putih (radius 12px, `shadow-sm`, seperti kartu
-kas Beranda) bergutter di atas kanvas; memuat, kosong, dan galat tampil di
-kartu yang sama. Garis pemisah digambar di badan baris (`data-slot="row-body"`),
-jadi otomatis inset dari tepi kiri judul sampai padding kanan kartu, berapa pun
-lebar `leading`. Baris daftar memakai `<Avatar tone="soft" />` (lingkaran
-primary-100) dan badge status ringan (`success` / `neutral`) di semua baris.
+`DataList` punya satu bentuk: rata di kanvas (keputusan user, menggantikan
+kartu terkelompok), baris di gutter halaman tanpa kartu dan tanpa bayangan —
+sama dengan "Hari ini" di Beranda. Memuat, kosong, dan galat juga rata di
+kanvas. Garis pemisah digambar di badan baris (`data-slot="row-body"`), jadi
+otomatis mulai dari tepi kiri judul sampai gutter kanan, berapa pun lebar
+`leading`. Baris daftar memakai `<Avatar tone="soft" />` (lingkaran
+primary-200) dan badge status bergaris tepi (`success` / `neutral`) di semua
+baris — bidang tint saja hilang di atas kanvas.
 `DataListRow` belum punya `href`, jadi belum ada chevron.
 
 Paginasi berbeda PERILAKU per lebar, dan layar tidak tahu mode mana yang aktif:
@@ -197,12 +197,12 @@ fitur memanggil `useListQuery` (lihat `useJemaatList`) lalu meneruskan
 `items`/`isLoading`/`isRefreshing`/`error`/`onRetry`/`pagination` ke `DataList`.
 
 - **< lg (mobile/tablet)**: `useInfiniteQuery`. Halaman berikutnya ditumpuk saat
-  tombol "Muat lebih banyak" di ujung kartu mendekati layar
+  tombol "Muat lebih banyak" di ujung daftar mendekati layar
   (`IntersectionObserver`, 400px); tombol yang sama bisa difokus/ditekan.
   `?page=` diabaikan; kunci query memuat filter, jadi ganti cari/status mulai
   dari halaman 1.
 - **≥ lg (desktop)**: `useQuery` per halaman `?page=`, pager bernomor dengan
-  elipsis di bawah kartu, tersembunyi bila hanya satu halaman.
+  elipsis di bawah daftar, tersembunyi bila hanya satu halaman.
 
 Batasnya `useIsDesktop` (`(min-width: 64rem)`, dijaga test agar sama dengan
 `--breakpoint-lg` Tailwind). Selama hidrasi mode belum diketahui (`null`):
