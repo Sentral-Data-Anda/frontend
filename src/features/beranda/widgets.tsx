@@ -189,7 +189,7 @@ export const WIDGETS: readonly Widget[] = [
   },
 ];
 
-export const MAX_KPI = 4;
+export const MAX_KPI = 5;
 
 export const hasGrant = (menu: MenuNode[], { slug, action }: WidgetGate) =>
   findMenuNode(menu, slug)?.action.includes(action) ?? false;

@@ -6,7 +6,7 @@ export const metadata = { title: "Beranda" };
 
 export default function Page() {
   return (
-    <PageContainer size="wide">
+    <PageContainer size="dashboard">
       <HomeScreen />
     </PageContainer>
   );

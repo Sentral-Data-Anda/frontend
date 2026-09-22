@@ -94,6 +94,14 @@
   --color-input: var(--input);
   --color-input-fill: var(--input-fill);
   --color-border: var(--border);
+  --color-hairline: var(--hairline);
+  --color-chart-income: var(--chart-income);
+  --color-chart-expense: var(--chart-expense);
+  --color-status-due: var(--status-due);
+  --color-status-draft: var(--status-draft);
+  --color-status-wait: var(--status-wait);
+  --color-status-ok: var(--status-ok);
+  --color-status-idle: var(--status-idle);
   --color-destructive: var(--destructive);
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
@@ -144,6 +152,13 @@
   --text-body--line-height: 1.5;
   --text-caption: 0.625rem;
   --text-caption--line-height: 1.4;
+  /*
+   * Angka KPI dashboard: 14px < lg, 22px ≥ lg — pengecualian satu-satunya di
+   * atas 14px (dikonfirmasi user, dashboard-desktop.md §10). Hanya untuk lima
+   * angka strip KPI, bukan teks lain.
+   */
+  --text-kpi: var(--font-size-kpi);
+  --text-kpi--line-height: 1.25;
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -209,6 +224,29 @@
   --warning: var(--color-warning-400);
   --warning-foreground: var(--color-primary-900);
   --border: var(--color-primary-200);
+  /*
+   * Garis dashboard bahasa C (#e5e9ee): lebih halus dari `--border` (p-200),
+   * pemisah kartu/sel/baris dashboard. Dekoratif, bukan batas kontrol.
+   */
+  --hairline: #e5e9ee;
+  /*
+   * Batang grafik masuk/keluar. Mockup memakai success-500 / primary-300
+   * (2.4:1 / 2.3:1 terhadap putih); objek grafik butuh 3:1 (WCAG 1.4.11),
+   * jadi naik satu-dua langkah dengan rona yang sama: success-700 (3.2:1),
+   * primary-500 (3.6:1).
+   */
+  --chart-income: var(--color-success-700);
+  --chart-expense: var(--color-primary-500);
+  /*
+   * Titik status (6px, selalu disertai teks): lewat tempo, draf, menunggu,
+   * selesai/lengkap, netral. Titik = objek grafik (3:1); teks status memakai
+   * token teks biasa, bukan warna titik (warning < 3:1 sebagai teks).
+   */
+  --status-due: var(--color-failed-700);
+  --status-draft: var(--color-warning-400);
+  --status-wait: var(--color-secondary-700);
+  --status-ok: var(--color-success-700);
+  --status-idle: var(--color-primary-300);
   --input: var(--color-primary-500);
   --input-fill: var(--color-primary-50);
   --ring: var(--color-primary-600);
@@ -258,11 +296,14 @@
 
   /* Judul: 12px < lg, 14px ≥ lg. Dibaca `text-title` di @theme. */
   --font-size-title: 0.75rem;
+  /* Angka KPI: 14px < lg, 22px ≥ lg. Dibaca `text-kpi` di @theme. */
+  --font-size-kpi: 0.875rem;
 }
 
 :root {
   @variant lg {
     --font-size-title: 0.875rem;
+    --font-size-kpi: 1.375rem;
   }
 }
 

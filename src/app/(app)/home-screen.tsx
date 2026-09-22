@@ -66,7 +66,7 @@ export function HomeScreen() {
         <DashboardGrid
           kpi={
             widgets.kpi.length ? (
-              <KpiStrip label="Ringkasan" count={widgets.kpi.length}>
+              <KpiStrip label="Ringkasan">
                 {widgets.kpi.map(({ id, Component }) => (
                   <Component key={id} />
                 ))}

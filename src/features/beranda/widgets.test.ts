@@ -69,12 +69,9 @@ describe("selectWidgets", () => {
   test(`KPI dibatasi ${MAX_KPI} sel, urutan registry`, () => {
     const widgets = Array.from({ length: 6 }, (_, i) => widget(`k${i}`, "kpi"));
 
-    expect(ids(selectWidgets([], widgets, true).kpi)).toEqual([
-      "k0",
-      "k1",
-      "k2",
-      "k3",
-    ]);
+    expect(ids(selectWidgets([], widgets, true).kpi)).toEqual(
+      ["k0", "k1", "k2", "k3", "k4", "k5"].slice(0, MAX_KPI),
+    );
   });
 
   test("main kosong → widget samping pertama naik ke main", () => {
