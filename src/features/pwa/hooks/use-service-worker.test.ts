@@ -1,4 +1,4 @@
-import { cleanup, renderHook, waitFor } from "@testing-library/react";
+import { act, cleanup, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, jest, test } from "bun:test";
 
 import { useServiceWorker } from "./use-service-worker";
@@ -6,14 +6,20 @@ import { useServiceWorker } from "./use-service-worker";
 /**
  * `navigator.serviceWorker` tiruan: `onClaim` memicu `controllerchange`
  * seperti `clients.claim()` di sw.js, baik pada instalasi pertama maupun
- * setelah `SKIP_WAITING`.
+ * setelah `SKIP_WAITING`. `onInstalled` meniru versi baru yang selesai
+ * `install` dan berhenti di `waiting`.
  */
 const onStubServiceWorker = (controller: ServiceWorker | null) => {
   const listeners = new Set<() => void>();
-  const registered = Promise.resolve({
+  let onUpdateFound = () => {};
+  const registration = {
     waiting: null,
-    addEventListener: () => {},
-  });
+    installing: null as ServiceWorker | null,
+    addEventListener: (_type: string, listener: () => void) => {
+      onUpdateFound = listener;
+    },
+  };
+  const registered = Promise.resolve(registration);
 
   const container = {
     controller,
@@ -34,6 +40,18 @@ const onStubServiceWorker = (controller: ServiceWorker | null) => {
     onClaim: () => {
       container.controller = {} as ServiceWorker;
       for (const listener of listeners) listener();
+    },
+    onInstalled: () => {
+      let onStateChange = () => {};
+      registration.installing = {
+        state: "installed",
+        postMessage: () => {},
+        addEventListener: (_type: string, listener: () => void) => {
+          onStateChange = listener;
+        },
+      } as unknown as ServiceWorker;
+      onUpdateFound();
+      onStateChange();
     },
   };
 };
@@ -76,6 +94,24 @@ describe("useServiceWorker — controllerchange", () => {
     renderHook(() => useServiceWorker());
     await sw.registered;
 
+    sw.onClaim();
+    sw.onClaim();
+
+    await waitFor(() => expect(reload).toHaveBeenCalledTimes(1));
+  });
+
+  test("kunjungan pertama lalu update v2 memuat ulang tepat sekali", async () => {
+    const sw = onStubServiceWorker(null);
+    const { result } = renderHook(() => useServiceWorker());
+    await sw.registered;
+
+    sw.onClaim();
+    expect(reload).not.toHaveBeenCalled();
+
+    act(() => sw.onInstalled());
+    expect(result.current.updateReady).toBe(true);
+
+    act(() => result.current.applyUpdate());
     sw.onClaim();
     sw.onClaim();
 
