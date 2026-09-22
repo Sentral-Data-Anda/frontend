@@ -332,6 +332,7 @@ function RailTip({
 function Fold({ children }: { children: React.ReactNode }) {
   return (
     <div
+      data-slot="fold"
       className={cn(
         "grid grid-cols-1 grid-rows-[1fr] transition-[grid-template-rows,opacity] group-data-collapsed/sidebar:grid-rows-[0fr] group-data-collapsed/sidebar:opacity-0 group-data-collapsed/sidebar:transition-[grid-template-rows,opacity,visibility]",
         RAIL_HIDDEN,
@@ -406,14 +407,16 @@ function openFromRail(details: HTMLDetailsElement, onExpand: () => void) {
   flushSync(onExpand);
   details.querySelector("summary")?.focus({ preventScroll: true });
 
-  const fold = details.lastElementChild as HTMLElement;
+  const fold = details.querySelector<HTMLElement>(
+    ':scope > [data-slot="fold"]',
+  );
   let isDone = false;
   const follow = () => {
     details.scrollIntoView({ block: "nearest" });
     if (!isDone) requestAnimationFrame(follow);
   };
 
-  Promise.all(fold.getAnimations().map((a) => a.finished))
+  Promise.all((fold?.getAnimations() ?? []).map((a) => a.finished))
     .catch(() => {})
     .finally(() => (isDone = true));
   requestAnimationFrame(follow);
