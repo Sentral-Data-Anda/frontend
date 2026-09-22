@@ -97,11 +97,6 @@
   --color-hairline: var(--hairline);
   --color-chart-income: var(--chart-income);
   --color-chart-expense: var(--chart-expense);
-  --color-status-due: var(--status-due);
-  --color-status-draft: var(--status-draft);
-  --color-status-wait: var(--status-wait);
-  --color-status-ok: var(--status-ok);
-  --color-status-idle: var(--status-idle);
   --color-destructive: var(--destructive);
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
@@ -237,16 +232,6 @@
    */
   --chart-income: var(--color-success-700);
   --chart-expense: var(--color-primary-500);
-  /*
-   * Titik status (6px, selalu disertai teks): lewat tempo, draf, menunggu,
-   * selesai/lengkap, netral. Titik = objek grafik (3:1); teks status memakai
-   * token teks biasa, bukan warna titik (warning < 3:1 sebagai teks).
-   */
-  --status-due: var(--color-failed-700);
-  --status-draft: var(--color-warning-400);
-  --status-wait: var(--color-secondary-700);
-  --status-ok: var(--color-success-700);
-  --status-idle: var(--color-primary-300);
   --input: var(--color-primary-500);
   --input-fill: var(--color-primary-50);
   --ring: var(--color-primary-600);

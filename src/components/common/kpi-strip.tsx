@@ -1,9 +1,8 @@
 import { ArrowDown, ArrowUp } from "lucide-react";
 import { Children, type ReactNode } from "react";
 
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-
-import { DummyTag } from "./dummy-tag";
 
 /**
  * Toolbar KPI bahasa C (dashboard-desktop.md §10.5): satu kartu putih,
@@ -103,7 +102,7 @@ export function KpiCell({
     <div className="px-3.5 py-3.5 lg:px-6">
       <p className="text-muted-foreground flex flex-wrap items-center gap-x-1.5 text-caption font-medium tracking-wide uppercase">
         <span className="truncate">{label}</span>
-        {isDummy ? <DummyTag /> : null}
+        {isDummy ? <Badge variant="sample">contoh data</Badge> : null}
       </p>
       {isLoading ? (
         <span className="bg-muted mt-2 block h-5 w-24 animate-pulse rounded-control lg:h-7" />

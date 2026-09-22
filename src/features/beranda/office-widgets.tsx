@@ -2,10 +2,10 @@
 
 import {
   DashboardCard,
-  DashboardEmpty,
   DashboardList,
   DashboardRow,
 } from "@/components/common/dashboard-card";
+import { EmptyState } from "@/components/common/empty-state";
 import { KpiCell } from "@/components/common/kpi-strip";
 import { MENU, menuHref } from "@/config/menu";
 import { formatRupiahCompact } from "@/lib/format";
@@ -41,9 +41,10 @@ export function CashExpenseWidget() {
       minHeight="min-h-36"
     >
       {items.length === 0 ? (
-        <DashboardEmpty>
-          Tidak ada kas keluar yang menunggu dibayar
-        </DashboardEmpty>
+        <EmptyState
+          isCompact
+          title="Tidak ada kas keluar yang menunggu dibayar"
+        />
       ) : (
         <DashboardList label="Kas keluar draf">
           {items.map((item) => (
@@ -84,7 +85,7 @@ export function BirthdaysWidget() {
       minHeight="min-h-36"
     >
       {items.length === 0 ? (
-        <DashboardEmpty>Tidak ada yang berulang tahun bulan ini</DashboardEmpty>
+        <EmptyState isCompact title="Tidak ada yang berulang tahun bulan ini" />
       ) : (
         <DashboardList label="Ulang tahun bulan ini">
           {items.slice(0, 5).map((item) => (
@@ -132,7 +133,7 @@ export function LoanRoomsWidget() {
       minHeight="min-h-28"
     >
       {items.length === 0 ? (
-        <DashboardEmpty>Tidak ada peminjaman yang menunggu</DashboardEmpty>
+        <EmptyState isCompact title="Tidak ada peminjaman yang menunggu" />
       ) : (
         <DashboardList label="Peminjaman menunggu">
           {items.slice(0, 4).map((item) => (

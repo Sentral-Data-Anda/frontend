@@ -1,66 +1,96 @@
+import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-
-import { SectionHeader } from "./section-header";
 
 type QueryState = {
   isPending: boolean;
+  /** Sedang memuat ulang (mis. setelah "Coba lagi") — tombolnya menunggu. */
+  isFetching?: boolean;
   error: Error | null;
   refetch: () => unknown;
 };
 
 /**
- * Kartu satu widget dashboard: putih, radius 12, `shadow-sm`, padding 14 —
- * gaya kartu kas yang sudah di-review.
+ * Panel satu widget dashboard, bahasa C (dashboard-desktop.md §10.9): putih,
+ * garis hairline, radius 12, tanpa bayangan; padding 24 di ≥ lg (16 di HP);
+ * judul 12/600 kapital, aksi kanan 12px.
  *
  * `query`: selama memuat tampil kerangka setinggi `minHeight` (tinggi isi
- * sebenarnya, supaya kartu di bawahnya tidak melompat); galat = satu baris +
- * "Coba lagi" di kartu ini saja, tidak menjatuhkan halaman.
+ * sebenarnya, supaya panel di bawahnya tidak melompat); galat = satu baris +
+ * "Coba lagi" di panel ini saja — tombolnya nonaktif "Memuat…" selama
+ * memuat ulang, lalu isi berganti. `isDummy` → tanda "contoh data".
  */
 export function DashboardCard({
   title,
   actionLabel,
   actionHref,
+  trailing,
   query,
+  isDummy = false,
   minHeight = "min-h-24",
   children,
 }: {
   title: string;
   actionLabel?: string;
   actionHref?: string;
+  /** Isi kanan kepala panel selain tautan (legenda, hitungan, navigasi). */
+  trailing?: ReactNode;
   query?: QueryState;
+  isDummy?: boolean;
   /** Kelas `min-h-*` untuk kerangka memuat. */
   minHeight?: string;
   children: ReactNode;
 }) {
   return (
-    <section className="bg-card min-w-0 rounded-lg p-3.5 shadow-sm">
-      <SectionHeader
-        title={title}
-        actionLabel={actionLabel}
-        actionHref={actionHref}
-      />
+    <section
+      aria-label={title}
+      className="bg-card border-hairline min-w-0 rounded-lg border p-4 lg:p-6"
+    >
+      <div className="mb-4 flex min-h-6 items-center justify-between gap-3">
+        <h2 className="text-muted-foreground flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-body font-semibold tracking-wide uppercase">
+          <span className="truncate">{title}</span>
+          {isDummy ? <Badge variant="sample">contoh data</Badge> : null}
+        </h2>
+
+        <div className="flex shrink-0 items-center gap-3">
+          {trailing}
+          {actionLabel && actionHref ? (
+            <Link
+              href={actionHref}
+              className="text-muted-foreground hover:text-foreground focus-visible:ring-ring inline-flex min-h-6 items-center rounded-control text-body font-medium underline-offset-2 outline-none hover:underline focus-visible:ring-2"
+            >
+              {actionLabel}
+            </Link>
+          ) : null}
+        </div>
+      </div>
 
       {query?.isPending ? (
         <div
           role="status"
           aria-label={`Memuat ${title}`}
-          className={cn("space-y-2", minHeight)}
+          className={cn("space-y-3", minHeight)}
         >
-          <span className="bg-muted block h-4 w-3/4 animate-pulse rounded-control" />
-          <span className="bg-muted block h-4 w-1/2 animate-pulse rounded-control" />
+          <span className="bg-muted block h-3 w-3/4 animate-pulse rounded-control" />
+          <span className="bg-muted block h-3 w-1/2 animate-pulse rounded-control" />
+          <span className="bg-muted block h-3 w-2/3 animate-pulse rounded-control" />
         </div>
       ) : query?.error ? (
-        <p className="text-muted-foreground flex items-center gap-2 text-body">
+        <p
+          role="alert"
+          className="text-muted-foreground flex items-center gap-2 text-body"
+        >
           Gagal memuat.
           <button
             type="button"
+            disabled={query.isFetching}
             onClick={() => void query.refetch()}
-            className="text-foreground inline-flex min-h-6 items-center font-medium underline-offset-2 hover:underline"
+            className="text-foreground focus-visible:ring-ring inline-flex min-h-6 items-center rounded-control font-medium underline-offset-2 outline-none hover:underline focus-visible:ring-2 disabled:no-underline disabled:opacity-60"
           >
-            Coba lagi
+            {query.isFetching ? "Memuat…" : "Coba lagi"}
           </button>
         </p>
       ) : (
@@ -70,12 +100,7 @@ export function DashboardCard({
   );
 }
 
-/** Satu baris "tidak ada …" — widget kosong tetap tampil, tidak hilang. */
-export function DashboardEmpty({ children }: { children: ReactNode }) {
-  return <p className="text-muted-foreground text-body">{children}</p>;
-}
-
-/** Daftar baris di dalam kartu dashboard, dipisah garis tipis. */
+/** Daftar baris di dalam panel, dipisah hairline. */
 export function DashboardList({
   label,
   children,
@@ -84,15 +109,16 @@ export function DashboardList({
   children: ReactNode;
 }) {
   return (
-    <ul aria-label={label} className="divide-border divide-y">
+    <ul aria-label={label} className="divide-hairline -mx-2.5 divide-y">
       {children}
     </ul>
   );
 }
 
 /**
- * Satu baris. `href` → judul menjadi tautan yang meregang ke seluruh baris
- * (satu target, satu nama aksesibel = judulnya).
+ * Satu baris. `href` → seluruh baris bisa diklik (tautan judul diregangkan):
+ * hover bidang tipis + chevron muncul, cincin fokus di seluruh baris
+ * (§10.7). Judul/meta string mendapat `title` (teks lengkap saat terpotong).
  */
 export function DashboardRow({
   title,
@@ -108,15 +134,23 @@ export function DashboardRow({
   href?: string;
 }) {
   return (
-    <li className="relative flex min-h-12 items-center gap-3 py-2">
+    <li
+      className={cn(
+        "group/row relative flex min-h-11 items-center gap-3 rounded-control px-2.5 py-2",
+        href && "hover:bg-muted pr-7 transition-colors",
+      )}
+    >
       {leading}
 
       <div className="min-w-0 flex-1">
-        <p className="truncate text-body font-medium">
+        <p
+          className="truncate text-body font-medium"
+          title={typeof title === "string" ? title : undefined}
+        >
           {href ? (
             <Link
               href={href}
-              className="outline-none after:absolute after:inset-0 after:rounded-control focus-visible:after:ring-2 focus-visible:after:ring-ring"
+              className="focus-visible:ring-ring outline-none after:absolute after:inset-0 after:rounded-control focus-visible:after:ring-2"
             >
               {title}
             </Link>
@@ -125,7 +159,10 @@ export function DashboardRow({
           )}
         </p>
         {meta ? (
-          <p className="text-muted-foreground truncate text-caption tabular-nums">
+          <p
+            className="text-muted-foreground truncate text-caption tabular-nums"
+            title={typeof meta === "string" ? meta : undefined}
+          >
             {meta}
           </p>
         ) : null}
@@ -135,6 +172,13 @@ export function DashboardRow({
         <div className="flex shrink-0 items-center gap-2 text-body tabular-nums">
           {trailing}
         </div>
+      ) : null}
+
+      {href ? (
+        <ChevronRight
+          className="text-muted-foreground absolute top-1/2 right-2 size-3.5 -translate-y-1/2 opacity-0 transition-opacity group-hover/row:opacity-100"
+          aria-hidden
+        />
       ) : null}
     </li>
   );

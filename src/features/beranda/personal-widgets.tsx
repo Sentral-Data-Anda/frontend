@@ -2,10 +2,10 @@
 
 import {
   DashboardCard,
-  DashboardEmpty,
   DashboardList,
   DashboardRow,
 } from "@/components/common/dashboard-card";
+import { EmptyState } from "@/components/common/empty-state";
 import { MENU, menuHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth/use-menu-access";
 import { formatRupiah, formatRupiahCompact } from "@/lib/format";
@@ -43,7 +43,7 @@ export function AnnouncementsWidget() {
       minHeight="min-h-40"
     >
       {items.length === 0 ? (
-        <DashboardEmpty>Belum ada pengumuman</DashboardEmpty>
+        <EmptyState isCompact title="Belum ada pengumuman" />
       ) : (
         <DashboardList label="Pengumuman terbaru">
           {items.map((item) => (
@@ -79,9 +79,10 @@ export function MyOfferingsWidget() {
   return (
     <DashboardCard title="Persembahan saya" query={query} minHeight="min-h-28">
       {!data || data.count === 0 ? (
-        <DashboardEmpty>
-          Belum ada persembahan tercatat tahun {year}
-        </DashboardEmpty>
+        <EmptyState
+          isCompact
+          title={`Belum ada persembahan tercatat tahun ${year}`}
+        />
       ) : (
         <>
           <p className="text-body">

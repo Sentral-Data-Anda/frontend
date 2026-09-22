@@ -33,6 +33,18 @@ const badgeVariants = cva(
         neutral:
           "gap-1.5 px-0 text-body text-muted-foreground before:size-1.5 before:rounded-full before:bg-primary-300",
         warning: "bg-warning-100 text-warning-foreground",
+        // Status dashboard (bahasa C, §10.9): titik + teks, sama dengan
+        // success/neutral. Teks memakai token yang lolos 4.5:1 terhadap
+        // putih; titik (objek grafik, 3:1) boleh warna skala. Teks kuning
+        // tidak pernah dipakai (warning < 3:1) — draf = teks netral.
+        due: "gap-1.5 px-0 text-body text-destructive before:size-1.5 before:rounded-full before:bg-failed-700",
+        draft:
+          "gap-1.5 px-0 text-body text-foreground before:size-1.5 before:rounded-full before:bg-warning-400",
+        wait: "gap-1.5 px-0 text-body text-secondary-foreground before:size-1.5 before:rounded-full before:bg-secondary-700",
+        // Penanda "contoh data" untuk widget berdata fixture (hanya di luar
+        // production, `SHOW_DUMMY`).
+        sample:
+          "h-auto rounded-sm border-dashed border-border px-1.5 py-0 text-muted-foreground tracking-normal normal-case italic",
       },
     },
     defaultVariants: {

@@ -2,10 +2,10 @@
 
 import {
   DashboardCard,
-  DashboardEmpty,
   DashboardList,
   DashboardRow,
 } from "@/components/common/dashboard-card";
+import { EmptyState } from "@/components/common/empty-state";
 import { KpiCell } from "@/components/common/kpi-strip";
 import { MENU, menuHref } from "@/config/menu";
 import { formatRupiahCompact } from "@/lib/format";
@@ -58,7 +58,7 @@ export function ApprovalsWidget() {
       minHeight="min-h-36"
     >
       {items.length === 0 ? (
-        <DashboardEmpty>Tidak ada yang menunggu</DashboardEmpty>
+        <EmptyState isCompact title="Tidak ada yang menunggu" />
       ) : (
         <DashboardList label="Dokumen menunggu persetujuan">
           {items.map((item) => (

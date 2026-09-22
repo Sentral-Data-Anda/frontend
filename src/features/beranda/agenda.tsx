@@ -5,10 +5,10 @@ import { useState } from "react";
 
 import {
   DashboardCard,
-  DashboardEmpty,
   DashboardList,
   DashboardRow,
 } from "@/components/common/dashboard-card";
+import { EmptyState } from "@/components/common/empty-state";
 import { KpiCell } from "@/components/common/kpi-strip";
 import { TimeBadge } from "@/components/common/time-badge";
 import { MENU, menuHref } from "@/config/menu";
@@ -78,7 +78,7 @@ export function AgendaWidget() {
 
   const ibadahList =
     ibadahOfDay.length === 0 ? (
-      <DashboardEmpty>Tidak ada ibadah</DashboardEmpty>
+      <EmptyState isCompact title="Tidak ada ibadah" />
     ) : (
       <DashboardList label={`Ibadah ${formatDayMonth(day)}`}>
         {ibadahOfDay.map((item) => (
@@ -100,7 +100,17 @@ export function AgendaWidget() {
       title="Agenda"
       actionLabel="Kalender"
       actionHref={IBADAH_HREF}
-      query={ibadah}
+      // Satu kerangka untuk seluruh panel sampai ibadah DAN kegiatan tiba —
+      // bukan teks "Memuat…" di dalam tab.
+      query={{
+        isPending: ibadah.isPending || (isEventShown && events.isPending),
+        isFetching: ibadah.isFetching || events.isFetching,
+        error: ibadah.error ?? events.error,
+        refetch: () => {
+          void ibadah.refetch();
+          if (isEventShown) void events.refetch();
+        },
+      }}
       minHeight="min-h-40"
     >
       <div
@@ -138,7 +148,7 @@ export function AgendaWidget() {
               <Tabs.Tab
                 key={value}
                 value={value}
-                className="text-muted-foreground data-active:bg-card data-active:text-foreground focus-visible:ring-ring h-7 rounded-control px-3 text-body font-medium outline-none focus-visible:ring-2 data-active:shadow-sm"
+                className="text-muted-foreground hover:text-foreground data-active:bg-card data-active:text-foreground focus-visible:ring-ring h-7 rounded-control px-3 text-body font-medium transition-colors outline-none focus-visible:ring-2 data-active:shadow-sm"
               >
                 {label}
               </Tabs.Tab>
@@ -147,10 +157,8 @@ export function AgendaWidget() {
 
           <Tabs.Panel value="ibadah">{ibadahList}</Tabs.Panel>
           <Tabs.Panel value="kegiatan">
-            {events.isPending ? (
-              <DashboardEmpty>Memuat…</DashboardEmpty>
-            ) : eventsOfDay.length === 0 ? (
-              <DashboardEmpty>Tidak ada kegiatan</DashboardEmpty>
+            {eventsOfDay.length === 0 ? (
+              <EmptyState isCompact title="Tidak ada kegiatan" />
             ) : (
               <DashboardList label={`Kegiatan ${formatDayMonth(day)}`}>
                 {eventsOfDay.map((item) => (
@@ -173,7 +181,7 @@ export function AgendaWidget() {
           </Tabs.Panel>
           <Tabs.Panel value="tugas">
             {duties.length === 0 ? (
-              <DashboardEmpty>Tidak ada tugas pelayanan</DashboardEmpty>
+              <EmptyState isCompact title="Tidak ada tugas pelayanan" />
             ) : (
               <DashboardList label={`Tugas saya ${formatDayMonth(day)}`}>
                 {duties.map((duty) => (
