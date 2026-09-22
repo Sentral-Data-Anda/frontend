@@ -39,7 +39,7 @@ const FOCUS =
   "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sidebar-ring";
 
 const ITEM = cn(
-  "flex h-control items-center gap-3 rounded-control px-3 transition-colors",
+  "flex h-10 items-center gap-3 rounded-control px-3 transition-colors",
   FOCUS,
 );
 
@@ -272,12 +272,12 @@ function RailLink({
         aria-label={label}
         aria-current={current}
         className={cn(
-          "mx-auto flex size-control items-center justify-center rounded-control transition-colors",
+          "mx-auto flex size-10 items-center justify-center rounded-control transition-colors",
           FOCUS,
           isActive ? ACTIVE : cn("text-sidebar-muted-foreground", IDLE),
         )}
       >
-        <Icon className="size-4" aria-hidden />
+        <Icon className="size-5" aria-hidden />
       </Link>
     </RailTip>
   );
@@ -349,7 +349,7 @@ function NavLink({
     >
       <Icon
         className={cn(
-          "size-4 shrink-0",
+          "size-5 shrink-0",
           !isActive && "text-sidebar-muted-foreground",
         )}
         aria-hidden
@@ -415,7 +415,7 @@ export function SidebarNav({
                 >
                   {Icon ? (
                     <Icon
-                      className="text-sidebar-muted-foreground size-4 shrink-0"
+                      className="text-sidebar-muted-foreground size-5 shrink-0"
                       aria-hidden
                     />
                   ) : null}
@@ -438,7 +438,7 @@ export function SidebarNav({
                           aria-current={isActive ? "page" : undefined}
                           className={cn(
                             ITEM,
-                            "pl-10 text-body",
+                            "pl-11 text-title",
                             isActive
                               ? ACTIVE
                               : cn("text-sidebar-muted-foreground", IDLE),
