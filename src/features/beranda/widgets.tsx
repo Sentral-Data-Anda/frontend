@@ -8,7 +8,14 @@ import type { MenuAction, MenuNode } from "@/features/auth/types";
 import { AgendaWidget, KpiAgendaWeek } from "./agenda";
 import { ApprovalsWidget, KpiWaitingApprovals } from "./approvals";
 import { SHOW_DUMMY } from "./dummy";
-import { KpiCashBalance, KpiExpense, KpiIncome } from "./kpi";
+import { IncomeExpenseChart } from "./income-expense-chart";
+import {
+  KpiExpense,
+  KpiIncome,
+  KpiSurplusMonth,
+  KpiSurplusYear,
+  KpiTotalAssets,
+} from "./kpi";
 import {
   BirthdaysWidget,
   CashExpenseWidget,
@@ -52,31 +59,30 @@ const CASH_DESK = [view(MENU.LAPORAN_KEUANGAN), view(MENU.KAS_KELUAR)];
  */
 export const WIDGETS: readonly Widget[] = [
   {
-    id: "kpi-cash-balance",
+    id: "kpi-total-assets",
     slot: "kpi",
     gate: CASH_DESK,
-    isDummy: true,
-    Component: KpiCashBalance,
+    Component: KpiTotalAssets,
   },
+  { id: "kpi-income", slot: "kpi", gate: CASH_DESK, Component: KpiIncome },
+  { id: "kpi-expense", slot: "kpi", gate: CASH_DESK, Component: KpiExpense },
   {
-    id: "kpi-income",
+    id: "kpi-surplus-month",
     slot: "kpi",
     gate: CASH_DESK,
-    isDummy: true,
-    Component: KpiIncome,
-  },
-  {
-    id: "kpi-expense",
-    slot: "kpi",
-    gate: CASH_DESK,
-    isDummy: true,
-    Component: KpiExpense,
+    Component: KpiSurplusMonth,
   },
   {
     id: "kpi-waiting-approvals",
     slot: "kpi",
     gate: [view(MENU.PERMINTAAN_PERSETUJUAN)],
     Component: KpiWaitingApprovals,
+  },
+  {
+    id: "kpi-surplus-year",
+    slot: "kpi",
+    gate: [view(MENU.LAPORAN_KEUANGAN)],
+    Component: KpiSurplusYear,
   },
   {
     id: "kpi-agenda-week",
@@ -102,6 +108,12 @@ export const WIDGETS: readonly Widget[] = [
     slot: "main",
     gate: [view(MENU.PERMINTAAN_PERSETUJUAN)],
     Component: ApprovalsWidget,
+  },
+  {
+    id: "income-expense-chart",
+    slot: "main",
+    gate: [view(MENU.LAPORAN_KEUANGAN)],
+    Component: IncomeExpenseChart,
   },
   {
     id: "cash-expense",

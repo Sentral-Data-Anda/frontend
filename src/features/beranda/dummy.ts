@@ -3,15 +3,12 @@
  *  DATA DUMMY BERANDA — HAPUS SAAT DATA ASLI ADA
  * ============================================================================
  *
- *  Sumber data asli untuk dua bagian ini BELUM ADA:
+ *  Sumber data asli untuk bagian-bagian ini BELUM ADA di be-sada:
  *
- *  - Kas gabungan / masuk / keluar: endpoint agregat (keputusan D20) dan
- *    modul Keuangan be-sada belum disiapkan. `/api/v1/report` hanya berisi
- *    laporan jemaat.
  *  - Notifikasi: modul notifikasi be-sada ditunda.
  *
- *  Karena itu keduanya HANYA dirender saat `SHOW_DUMMY` — di luar production.
- *  Di production angka kas dan lonceng tidak muncul sama sekali (bukan "Rp 0",
+ *  Karena itu semuanya HANYA dirender saat `SHOW_DUMMY` — di luar production.
+ *  Di production widget dummy dan lonceng tidak muncul sama sekali (bukan "Rp 0",
  *  bukan placeholder). Angka palsu di layar bendahara lebih berbahaya daripada
  *  tidak ada angka. Widget yang memakai fixture di sini ditandai `isDummy` di
  *  registry (`widgets.tsx`), yang menyaringnya dengan `SHOW_DUMMY`.
@@ -26,18 +23,6 @@
 
 /** Ditulis literal supaya Next menggantinya jadi konstanta saat build. */
 export const SHOW_DUMMY = process.env.NODE_ENV !== "production";
-
-export type CashSummary = {
-  balance: number;
-  income: number;
-  expense: number;
-};
-
-export const DUMMY_CASH_SUMMARY: CashSummary = {
-  balance: 248_560_000,
-  income: 86_400_000,
-  expense: 61_200_000,
-};
 
 export type Notification = {
   id: string;

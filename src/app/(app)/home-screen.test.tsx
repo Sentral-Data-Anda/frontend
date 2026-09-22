@@ -46,7 +46,7 @@ describe("angka kas di Beranda", () => {
       },
     ]);
 
-    expect(screen.queryByText("Saldo kas")).toBeNull();
+    expect(screen.queryByText("Total aset")).toBeNull();
   });
 
   test("dengan LAPORAN_KEUANGAN + KAS_KELUAR VIEW dirender", () => {
@@ -60,6 +60,6 @@ describe("angka kas di Beranda", () => {
       },
     ]);
 
-    expect(screen.getByText("Saldo kas")).toBeTruthy();
+    expect(screen.getByText("Total aset")).toBeTruthy();
   });
 });

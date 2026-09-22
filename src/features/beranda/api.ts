@@ -1,8 +1,8 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useQueries, useQuery } from "@tanstack/react-query";
 
-import { fetchList } from "@/lib/api/fetcher";
+import { fetchList, fetchOne } from "@/lib/api/fetcher";
 
 /**
  * Satu baris `GET /api/v1/ibadah`, hanya field yang dipakai Beranda.
@@ -229,5 +229,81 @@ export function usePendingLoanRooms(start: string, end: string) {
     queryFn: () => fetchList<LoanRoomItem>(`/loan-room?${query}`),
     select: (response) =>
       response.data.filter((row) => row.status === "PENDING"),
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Laporan keuangan — `laporan_keuangan.service.ts` + `financialReport.ts`.
+// Hanya jurnal POSTED; tanpa 404 (akun nol tetap dikirim). Sebelum bagan
+// akun & periode fiskal siap (E1/E11) angkanya bisa nol semua.
+
+type Totals<K extends string> = { totals: Record<K, string> };
+
+/** `GET /laporan-keuangan/neraca?date=` — `date` wajib. */
+export function useNeraca(date: string) {
+  return useQuery({
+    queryKey: ["laporan-keuangan", "neraca", date],
+    queryFn: () =>
+      fetchOne<Totals<"assets" | "liabilities" | "equity" | "surplus">>(
+        `/laporan-keuangan/neraca?date=${date}`,
+      ),
+    select: (response) => ({ assets: toAmount(response.data.totals.assets) }),
+  });
+}
+
+const surplusDefisitQuery = (from: string, to: string) => ({
+  queryKey: ["laporan-keuangan", "surplus-defisit", from, to],
+  queryFn: () =>
+    fetchOne<Totals<"income" | "expense" | "surplus">>(
+      `/laporan-keuangan/surplus-defisit?from=${from}&to=${to}`,
+    ),
+  select: (response: { data: Totals<"income" | "expense" | "surplus"> }) => ({
+    income: toAmount(response.data.totals.income),
+    expense: toAmount(response.data.totals.expense),
+    surplus: toAmount(response.data.totals.surplus),
+  }),
+});
+
+/** `GET /laporan-keuangan/surplus-defisit?from=&to=` — keduanya wajib. */
+export function useSurplusDefisit(from: string, to: string) {
+  return useQuery(surplusDefisitQuery(from, to));
+}
+
+/** Hari terakhir bulan `YYYY-MM`. */
+const lastDayOf = (month: string) => {
+  const [year, m] = month.split("-").map(Number);
+  return `${month}-${String(new Date(Date.UTC(year, m, 0)).getUTCDate()).padStart(2, "0")}`;
+};
+
+/**
+ * Masuk/keluar per bulan, Januari s.d. bulan `today` (tahun kalender —
+ * asumsi BA #8). MVP = satu `surplus-defisit` per bulan (dashboard-desktop.md
+ * §4); bulan yang belum datang tidak diminta. Bulan berjalan dihitung
+ * sampai hari ini.
+ */
+export function useMonthlyFlow(today: string) {
+  const year = today.slice(0, 4);
+  const months = Array.from(
+    { length: Number(today.slice(5, 7)) },
+    (_, i) => `${year}-${String(i + 1).padStart(2, "0")}`,
+  );
+
+  return useQueries({
+    queries: months.map((month) =>
+      surplusDefisitQuery(
+        `${month}-01`,
+        month === today.slice(0, 7) ? today : lastDayOf(month),
+      ),
+    ),
+    combine: (results) => ({
+      months: results.map((result, i) => ({
+        month: months[i],
+        income: result.data?.income ?? 0,
+        expense: result.data?.expense ?? 0,
+      })),
+      isPending: results.some((result) => result.isPending),
+      error: results.find((result) => result.error)?.error ?? null,
+      refetch: () => results.forEach((result) => void result.refetch()),
+    }),
   });
 }
