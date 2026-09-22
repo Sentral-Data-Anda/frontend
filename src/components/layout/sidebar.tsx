@@ -424,7 +424,16 @@ export function SidebarNav({
         )}
       </ul>
 
-      <ul className="border-sidebar-border mt-3 space-y-0.5 border-t pt-3">
+      {/* Garis pemisah hanya milik mode penuh (rail tanpa garis — keluhan
+          user). Ringkas: mt-px + garis 1px transparan → jarak Beranda ke
+          domain pertama = 42px, sama dengan jarak antar-ikon. */}
+      <ul
+        className={cn(
+          "border-sidebar-border mt-3 space-y-0.5 border-t pt-3 transition-[margin,padding,border-color]",
+          "group-data-collapsed/sidebar:mt-px group-data-collapsed/sidebar:border-transparent group-data-collapsed/sidebar:pt-0",
+          SIDEBAR_MOTION,
+        )}
+      >
         {menu.map((domain) => {
           const Icon = MENU_ICON[domain.slug] ?? LayoutGrid;
           const isActive = isTabActive(domainHref(domain.slug), pathname);
