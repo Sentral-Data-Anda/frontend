@@ -188,32 +188,65 @@ describe("persona dev:mock", () => {
     });
 
   const picked = (key: string, isDummyShown = false) => {
-    const { kpi, main, side } = selectWidgets(
+    const { kind, kpi, main, side } = selectWidgets(
       menuOf(key),
       undefined,
       isDummyShown,
     );
-    return { kpi: ids(kpi), main: ids(main), side: ids(side) };
+    return { kind, kpi: ids(kpi), main: ids(main), side: ids(side) };
   };
 
-  test("sekretariat: tanpa angka keuangan, Agenda di main", () => {
-    expect(picked("sekretariat")).toEqual({
-      kpi: ["kpi-agenda-week", "kpi-pending-loans", "kpi-birthdays"],
-      main: ["agenda"],
-      side: ["loan-rooms", "birthdays", "announcements", "my-offerings"],
-    });
+  test("sekretariat: dashboard umum, tanpa angka keuangan", () => {
+    const { kpi, main, side } = picked("sekretariat", true);
+
+    expect(kpi).toEqual([
+      "kpi-agenda-week",
+      "kpi-birthdays",
+      "kpi-pending-loans",
+    ]);
+    expect(main).toEqual(["zones"]);
+    expect(side).toEqual([
+      "birthdays",
+      "announcements",
+      "loan-rooms",
+      "new-members",
+      "my-offerings",
+    ]);
   });
 
-  test("majelis: tindakan dulu", () => {
-    const { kpi, main } = picked("majelis");
-    expect(kpi[0]).toBe("kpi-waiting-approvals");
-    expect(main[0]).toBe("approvals");
-  });
+  test("bendahara: dashboard keuangan (§10.3)", () => {
+    const { kind, kpi, main, side } = picked("bendahara", true);
 
-  test("bendahara: perlu dibayar, tanpa antrean persetujuan", () => {
-    const { main } = picked("bendahara");
-    expect(main).toContain("cash-expense");
+    expect(kind).toBe("finance");
+    expect(kpi).toEqual([
+      "kpi-cash-balance",
+      "kpi-income",
+      "kpi-expense",
+      "kpi-surplus-year",
+      "kpi-payables",
+    ]);
+    expect(main).toEqual(["income-expense-chart", "payables"]);
+    expect(side.slice(0, 4)).toEqual([
+      "cash-accounts",
+      "income-by-type",
+      "closing-readiness",
+      "agenda",
+    ]);
+    // Widget umum tidak ikut ke dashboard keuangan.
     expect(main).not.toContain("approvals");
+    expect(side).not.toContain("zones");
+  });
+
+  test("majelis berizin laporan keuangan tetap mendapat strip umum (§10.1 #2)", () => {
+    const { kind, kpi, main } = picked("majelis", true);
+
+    expect(kind).toBe("umum");
+    expect(kpi[0]).toBe("kpi-agenda-week");
+    expect(kpi).toContain("kpi-waiting-approvals");
+    expect(main).toContain("approvals");
+    // Angka keuangannya tidak hilang: grafik hanya ada di dashboard keuangan,
+    // jadi di sini tidak dirender.
+    expect(main).not.toContain("income-expense-chart");
   });
 
   test("production: tidak ada widget dummy untuk persona mana pun", () => {

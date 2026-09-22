@@ -72,24 +72,26 @@ export type ApprovalItem = {
  * `GET /persetujuan?menunggu=saya` — urut paling lama menunggu dulu. 404
  * (kosong) → `[]` lewat `fetchList`. Dipakai KPI (totalData) dan daftar.
  */
-export function useWaitingApprovals() {
+export function useWaitingApprovals(isEnabled = true) {
   return useQuery({
     queryKey: ["persetujuan", "menunggu-saya"],
     queryFn: () =>
-      fetchList<ApprovalItem>("/persetujuan?menunggu=saya&limit=5"),
+      fetchList<ApprovalItem>("/persetujuan?menunggu=saya&limit=10"),
+    enabled: isEnabled,
   });
 }
 
 /** `ibadah.service.ts:98-105`: `startDate` + `endDate`, inklusif per hari. */
 export type IbadahWeekItem = IbadahListItem & { date: string };
 
-export function useIbadahRange(start: string, end: string) {
+export function useIbadahRange(start: string, end: string, isEnabled = true) {
   const query = `startDate=${start}&endDate=${end}&limit=100`;
 
   return useQuery({
     queryKey: ibadahKeys.list(query),
     queryFn: () => fetchList<IbadahWeekItem>(`/ibadah?${query}`),
     select: (response) => response.data,
+    enabled: isEnabled,
   });
 }
 
@@ -175,11 +177,16 @@ export type CashExpenseItem = {
   bapel: { name: string } | null;
 };
 
-export function useDraftCashExpenses() {
+/**
+ * Kas keluar DRAF. `limit=100` (batas be-sada): total "Perlu dibayar"
+ * dijumlah dari daftar — be-sada tidak mengirim total.
+ */
+export function useDraftCashExpenses(isEnabled = true) {
   return useQuery({
     queryKey: ["kas-keluar", "list", "status=DRAFT"],
     queryFn: () =>
-      fetchList<CashExpenseItem>("/kas-keluar?status=DRAFT&limit=5"),
+      fetchList<CashExpenseItem>("/kas-keluar?status=DRAFT&limit=100"),
+    enabled: isEnabled,
   });
 }
 
@@ -269,6 +276,176 @@ export function useSurplusDefisit(from: string, to: string) {
   return useQuery(surplusDefisitQuery(from, to));
 }
 
+/** Simpul akun `financialReport.ts:5-18` (uang = string Decimal). */
+export type AccountNode = {
+  code: string;
+  name: string;
+  total: string;
+  children: AccountNode[];
+};
+
+/**
+ * Pemasukan per jenis: anak langsung simpul pendapatan tingkat atas di
+ * pohon INCOME `surplus-defisit` (akar tanpa anak dihitung sendiri). Kunci
+ * cache sama dengan `useSurplusDefisit` — satu permintaan.
+ *
+ * Benar sebagai "per jenis persembahan" hanya bila satu jenis = satu akun
+ * pendapatan (pertanyaan U2, dashboard-desktop.md §10.6).
+ */
+export function useIncomeByType(from: string, to: string) {
+  return useQuery({
+    queryKey: ["laporan-keuangan", "surplus-defisit", from, to],
+    queryFn: () =>
+      fetchOne<{ income: AccountNode[]; totals: Record<string, string> }>(
+        `/laporan-keuangan/surplus-defisit?from=${from}&to=${to}`,
+      ),
+    select: (response) => {
+      const parts = response.data.income.flatMap((root) =>
+        root.children.length ? root.children : [root],
+      );
+      return {
+        total: toAmount(response.data.totals.income),
+        parts: parts
+          .map((node) => ({
+            code: node.code,
+            name: node.name,
+            amount: toAmount(node.total),
+          }))
+          .filter((part) => part.amount > 0)
+          .sort((a, b) => b.amount - a.amount),
+      };
+    },
+  });
+}
+
+/** `faktur_supplier.repository.ts:5-45` — urut `dueDate` naik. */
+export type SupplierInvoiceItem = {
+  code: string;
+  dueDate: string;
+  totalIDR: string;
+  paidAmountIDR: string;
+  status: "AWAITING_PAYMENT" | "PARTIALLY_PAID";
+  supplier: { name: string };
+};
+
+/**
+ * Faktur belum lunas. `status` be-sada hanya menerima SATU nilai (daftar
+ * berkoma → 400), jadi dua permintaan. Sisa tagihan = `totalIDR −
+ * paidAmountIDR` (tidak dikirim be-sada).
+ */
+export function useUnpaidInvoices(isEnabled: boolean) {
+  return useQueries({
+    queries: (["AWAITING_PAYMENT", "PARTIALLY_PAID"] as const).map(
+      (status) => ({
+        queryKey: ["faktur-supplier", "list", `status=${status}`],
+        queryFn: () =>
+          fetchList<SupplierInvoiceItem>(
+            `/faktur-supplier?status=${status}&limit=100`,
+          ),
+        enabled: isEnabled,
+      }),
+    ),
+    combine: combineLists,
+  });
+}
+
+/** `pembayaran.repository.ts:9-21` — urut `id` menurun. */
+export type PaymentItem = {
+  code: string;
+  purpose: "PERSEMBAHAN" | "EVENT_REGISTRATION";
+  amount: string;
+  status: "FAILED" | "EXPIRED";
+  createdAt: string;
+  jemaat: { name: string } | null;
+  donorName: string | null;
+};
+
+/** Pembayaran online gagal atau kedaluwarsa (dua permintaan, `status` tunggal). */
+export function useFailedPayments(isEnabled: boolean) {
+  return useQueries({
+    queries: (["FAILED", "EXPIRED"] as const).map((status) => ({
+      queryKey: ["pembayaran", "list", `status=${status}`],
+      queryFn: () =>
+        fetchList<PaymentItem>(`/pembayaran?status=${status}&limit=20`),
+      enabled: isEnabled,
+    })),
+    combine: combineLists,
+  });
+}
+
+/** `payroll.repository.ts:41-46` — tanpa relasi, urut tahun/bulan menurun. */
+export type PayrollItem = {
+  code: string;
+  year: number;
+  month: number;
+  status: "DRAFT" | "CALCULATED" | "APPROVED" | "PAID" | "CANCELLED";
+  totalNet: string;
+  createdAt: string;
+};
+
+/**
+ * Penggajian yang belum dibayar. Satu permintaan (12 terbaru) disaring di FE
+ * — `status` tunggal akan butuh tiga permintaan (DRAFT/CALCULATED/APPROVED).
+ */
+export function useOpenPayrolls(isEnabled: boolean) {
+  return useQuery({
+    queryKey: ["payroll", "list", "limit=12"],
+    queryFn: () => fetchList<PayrollItem>("/payroll?limit=12"),
+    select: (response) =>
+      response.data.filter(
+        (row) => row.status !== "PAID" && row.status !== "CANCELLED",
+      ),
+    enabled: isEnabled,
+  });
+}
+
+/** `periode_fiskal.service.ts:74-99` — `id` = publicId, `label` "September 2026". */
+export type FiscalPeriodItem = {
+  id: string;
+  year: number;
+  month: number;
+  label: string;
+  status: "OPEN" | "CLOSED";
+};
+
+/** 24 periode terbaru (dua tahun) — cukup untuk bulan ini dan bulan lalu. */
+export function useFiscalPeriods() {
+  return useQuery({
+    queryKey: ["periode-fiskal", "list", "limit=24"],
+    queryFn: () => fetchList<FiscalPeriodItem>("/periode-fiskal?limit=24"),
+    select: (response) => response.data,
+  });
+}
+
+/** Jumlah jurnal DRAF (`totalData`; satu baris cukup). */
+export function useDraftJournalCount(isEnabled: boolean) {
+  return useQuery({
+    queryKey: ["jurnal", "list", "status=DRAFT&limit=1"],
+    queryFn: () => fetchList<unknown>("/jurnal?status=DRAFT&limit=1"),
+    select: (response) => response.totalData,
+    enabled: isEnabled,
+  });
+}
+
+/** Satukan beberapa daftar berpaginasi menjadi satu keadaan widget. */
+function combineLists<T>(
+  results: {
+    data?: { data: T[] };
+    isPending: boolean;
+    isFetching: boolean;
+    error: Error | null;
+    refetch: () => unknown;
+  }[],
+) {
+  return {
+    data: results.flatMap((result) => result.data?.data ?? []),
+    isPending: results.some((result) => result.isPending),
+    isFetching: results.some((result) => result.isFetching),
+    error: results.find((result) => result.error)?.error ?? null,
+    refetch: () => results.forEach((result) => void result.refetch()),
+  };
+}
+
 /** Hari terakhir bulan `YYYY-MM`. */
 const lastDayOf = (month: string) => {
   const [year, m] = month.split("-").map(Number);
@@ -302,6 +479,7 @@ export function useMonthlyFlow(today: string) {
         expense: result.data?.expense ?? 0,
       })),
       isPending: results.some((result) => result.isPending),
+      isFetching: results.some((result) => result.isFetching),
       error: results.find((result) => result.error)?.error ?? null,
       refetch: () => results.forEach((result) => void result.refetch()),
     }),

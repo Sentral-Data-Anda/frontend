@@ -42,14 +42,14 @@ describe("angka kas di Beranda", () => {
     renderHome([
       {
         ...node(MENU.KEUANGAN, []),
-        children: [node(MENU.KAS_KELUAR, ["VIEW"])],
+        children: [node(MENU.KAS_MASUK, ["VIEW"])],
       },
     ]);
 
-    expect(screen.queryByText("Total aset")).toBeNull();
+    expect(screen.queryByText("Saldo kas & bank")).toBeNull();
   });
 
-  test("dengan LAPORAN_KEUANGAN + KAS_KELUAR VIEW dirender", () => {
+  test("dengan LAPORAN_KEUANGAN VIEW dirender", () => {
     renderHome([
       {
         ...node(MENU.KEUANGAN, []),
@@ -60,6 +60,6 @@ describe("angka kas di Beranda", () => {
       },
     ]);
 
-    expect(screen.getByText("Total aset")).toBeTruthy();
+    expect(screen.getByText("Saldo kas & bank")).toBeTruthy();
   });
 });

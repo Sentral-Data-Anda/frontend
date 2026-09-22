@@ -16,7 +16,7 @@ import { daysSince } from "./time";
 const QUEUE_HREF = menuHref(MENU.PERSETUJUAN, MENU.PERMINTAAN_PERSETUJUAN);
 
 /** `enum DocumentType` be-sada (`schema.prisma:1725-1745`). */
-const DOCUMENT_LABEL: Record<string, string> = {
+export const DOCUMENT_LABEL: Record<string, string> = {
   PURCHASE_REQUEST: "Permintaan pembelian",
   PROGRAM: "Program",
   PROGRAM_MENDADAK: "Program mendadak",

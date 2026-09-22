@@ -9,26 +9,29 @@ import { AgendaWidget, KpiAgendaWeek } from "./agenda";
 import { ApprovalsWidget, KpiWaitingApprovals } from "./approvals";
 import { SHOW_DUMMY } from "./dummy";
 import {
-  BookkeepingWidget,
   BudgetUseWidget,
-  KpiBudgetHigh,
-  MyDutiesWidget,
+  NewMembersWidget,
+  ZonesWidget,
 } from "./dummy-widgets";
-import { IncomeExpenseChart } from "./income-expense-chart";
 import {
+  KpiCashBalance,
   KpiExpense,
   KpiIncome,
-  KpiSurplusMonth,
   KpiSurplusYear,
-  KpiTotalAssets,
-} from "./kpi";
+} from "./finance-kpi";
+import {
+  CashAccountsWidget,
+  ClosingReadinessWidget,
+  IncomeByTypeWidget,
+} from "./finance-widgets";
+import { IncomeExpenseChart } from "./income-expense-chart";
 import {
   BirthdaysWidget,
-  CashExpenseWidget,
   KpiBirthdays,
   KpiPendingLoans,
   LoanRoomsWidget,
 } from "./office-widgets";
+import { KpiPayables, PayablesWidget } from "./payables";
 import { AnnouncementsWidget, MyOfferingsWidget } from "./personal-widgets";
 
 export type WidgetSlot = "kpi" | "main" | "side";
@@ -73,17 +76,26 @@ const view = (slug: MenuSlug): WidgetGate => ({ slug, action: "VIEW" });
  */
 const CASH_DESK = [view(MENU.LAPORAN_KEUANGAN), view(MENU.KAS_KELUAR)];
 
+/** Sumber kewajiban "Perlu dibayar" (§10.3): cukup salah satu. */
+const PAYABLE_SOURCES = [
+  view(MENU.KAS_KELUAR),
+  view(MENU.FAKTUR_SUPPLIER),
+  view(MENU.PAYROLL),
+];
+
 /**
  * Urutan di sini = urutan tampil di slotnya (dashboard-desktop.md §4:
  * tindakan → uang → jadwal → pribadi). KPI dibatasi `MAX_KPI` sel.
  */
 export const WIDGETS: readonly Widget[] = [
+  // ---- KPI keuangan (§10.3) -------------------------------------------
   {
-    id: "kpi-total-assets",
+    id: "kpi-cash-balance",
     slot: "kpi",
     group: "finance",
-    gate: CASH_DESK,
-    Component: KpiTotalAssets,
+    gate: [view(MENU.LAPORAN_KEUANGAN)],
+    isDummy: true,
+    Component: KpiCashBalance,
   },
   {
     id: "kpi-income",
@@ -100,11 +112,35 @@ export const WIDGETS: readonly Widget[] = [
     Component: KpiExpense,
   },
   {
-    id: "kpi-surplus-month",
+    id: "kpi-surplus-year",
     slot: "kpi",
     group: "finance",
-    gate: CASH_DESK,
-    Component: KpiSurplusMonth,
+    gate: [view(MENU.LAPORAN_KEUANGAN)],
+    Component: KpiSurplusYear,
+  },
+  {
+    id: "kpi-payables",
+    slot: "kpi",
+    group: "finance",
+    gate: [],
+    gateAny: PAYABLE_SOURCES,
+    Component: KpiPayables,
+  },
+
+  // ---- KPI umum (§10.4) -----------------------------------------------
+  {
+    id: "kpi-agenda-week",
+    slot: "kpi",
+    group: "umum",
+    gate: [view(MENU.IBADAH)],
+    Component: KpiAgendaWeek,
+  },
+  {
+    id: "kpi-birthdays",
+    slot: "kpi",
+    group: "umum",
+    gate: [view(MENU.REPORT_JEMAAT)],
+    Component: KpiBirthdays,
   },
   {
     id: "kpi-waiting-approvals",
@@ -114,81 +150,102 @@ export const WIDGETS: readonly Widget[] = [
     Component: KpiWaitingApprovals,
   },
   {
-    id: "kpi-surplus-year",
-    slot: "kpi",
-    group: "finance",
-    gate: [view(MENU.LAPORAN_KEUANGAN)],
-    Component: KpiSurplusYear,
-  },
-  {
-    id: "kpi-budget-high",
-    slot: "kpi",
-    group: "finance",
-    gate: [view(MENU.PAGU_ANGGARAN)],
-    isDummy: true,
-    Component: KpiBudgetHigh,
-  },
-  {
-    id: "kpi-agenda-week",
-    slot: "kpi",
-    group: "umum",
-    gate: [view(MENU.IBADAH)],
-    Component: KpiAgendaWeek,
-  },
-  {
     id: "kpi-pending-loans",
     slot: "kpi",
     group: "umum",
     gate: [view(MENU.PEMINJAMAN_RUANG)],
     Component: KpiPendingLoans,
   },
-  {
-    id: "kpi-birthdays",
-    slot: "kpi",
-    group: "umum",
-    gate: [view(MENU.REPORT_JEMAAT)],
-    Component: KpiBirthdays,
-  },
 
-  {
-    id: "approvals",
-    slot: "main",
-    gate: [view(MENU.PERMINTAAN_PERSETUJUAN)],
-    Component: ApprovalsWidget,
-  },
+  // ---- Main: keuangan --------------------------------------------------
   {
     id: "income-expense-chart",
     slot: "main",
+    kind: "finance",
     gate: [view(MENU.LAPORAN_KEUANGAN)],
     Component: IncomeExpenseChart,
   },
   {
-    id: "cash-expense",
+    id: "payables",
     slot: "main",
-    gate: [view(MENU.KAS_KELUAR)],
-    Component: CashExpenseWidget,
+    kind: "finance",
+    gate: [],
+    gateAny: [
+      ...PAYABLE_SOURCES,
+      view(MENU.PERMINTAAN_PERSETUJUAN),
+      view(MENU.PEMBAYARAN),
+    ],
+    Component: PayablesWidget,
   },
   {
     id: "budget-use",
     slot: "main",
+    kind: "finance",
     gate: [view(MENU.PAGU_ANGGARAN)],
     isDummy: true,
     Component: BudgetUseWidget,
   },
+
+  // ---- Main: umum ------------------------------------------------------
   {
-    id: "bookkeeping",
+    id: "approvals",
     slot: "main",
-    gate: [view(MENU.PERIODE_FISKAL)],
+    kind: "umum",
+    gate: [view(MENU.PERMINTAAN_PERSETUJUAN)],
+    Component: ApprovalsWidget,
+  },
+  {
+    id: "zones",
+    slot: "main",
+    kind: "umum",
+    gate: [view(MENU.REPORT_JEMAAT)],
     isDummy: true,
-    Component: BookkeepingWidget,
+    Component: ZonesWidget,
   },
 
-  // Agenda menjadi main untuk peran tanpa widget main (sekretariat).
+  // ---- Samping: keuangan ----------------------------------------------
+  {
+    id: "cash-accounts",
+    slot: "side",
+    kind: "finance",
+    gate: [view(MENU.LAPORAN_KEUANGAN)],
+    isDummy: true,
+    Component: CashAccountsWidget,
+  },
+  {
+    id: "income-by-type",
+    slot: "side",
+    kind: "finance",
+    gate: [view(MENU.LAPORAN_KEUANGAN)],
+    Component: IncomeByTypeWidget,
+  },
+  {
+    id: "closing-readiness",
+    slot: "side",
+    kind: "finance",
+    gate: [view(MENU.PERIODE_FISKAL)],
+    Component: ClosingReadinessWidget,
+  },
   {
     id: "agenda",
     slot: "side",
+    kind: "finance",
     gate: [view(MENU.IBADAH)],
     Component: AgendaWidget,
+  },
+
+  // ---- Samping: keduanya (urutan §10.3/§10.4) --------------------------
+  {
+    id: "birthdays",
+    slot: "side",
+    gate: [view(MENU.REPORT_JEMAAT)],
+    Component: BirthdaysWidget,
+  },
+  {
+    id: "announcements",
+    slot: "side",
+    gate: [],
+    Component: AnnouncementsWidget,
   },
   {
     id: "loan-rooms",
@@ -197,23 +254,12 @@ export const WIDGETS: readonly Widget[] = [
     Component: LoanRoomsWidget,
   },
   {
-    id: "birthdays",
+    id: "new-members",
     slot: "side",
+    kind: "umum",
     gate: [view(MENU.REPORT_JEMAAT)],
-    Component: BirthdaysWidget,
-  },
-  {
-    id: "my-duties",
-    slot: "side",
-    gate: [],
     isDummy: true,
-    Component: MyDutiesWidget,
-  },
-  {
-    id: "announcements",
-    slot: "side",
-    gate: [],
-    Component: AnnouncementsWidget,
+    Component: NewMembersWidget,
   },
   {
     id: "my-offerings",
