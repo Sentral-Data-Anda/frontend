@@ -19,13 +19,18 @@ const badgeVariants = cva(
         ghost:
           "hover:bg-muted hover:text-muted-foreground dark:hover:bg-muted/50",
         link: "text-primary underline-offset-4 hover:underline",
-        // Status: tint 50/100 sebagai bidang, teks gelap dari skala yang sama,
-        // tanpa garis tepi (success-900 di atas success-50 = 4.92:1 — di atas
-        // success-100 hanya 4.46, jadi bukan 100; primary-800 di atas
-        // primary-100 = 4.96:1; primary-900 di atas warning-100 = 7.66:1).
-        // Teks kuning tidak pernah dipakai.
-        success: "bg-success-50 text-success-900",
-        neutral: "bg-primary-100 text-primary-800",
+        // Status, duduk di atas kanvas primary-50 (baris daftar rata di
+        // kanvas). Bidang tint 50/100 hilang di kanvas (success-50 1.02:1,
+        // primary-100 1.14:1), jadi bentuknya dibawa garis tepi langkah 300
+        // (success-300 1.61:1, primary-300 2.04:1 thd kanvas) dan bidangnya
+        // tetap tint supaya teks lolos: success-900 di atas success-50 =
+        // 4.92:1, primary-800 di atas primary-100 = 4.96:1. Bidang yang lebih
+        // gelap tidak bisa: success-900 di atas success-100 hanya 4.46.
+        // Keduanya satu bentuk, supaya "Tidak aktif" tidak lebih berat dari
+        // "Aktif". warning: primary-900 di atas warning-100 = 7.66:1. Teks
+        // kuning tidak pernah dipakai.
+        success: "border-success-300 bg-success-50 text-success-900",
+        neutral: "border-primary-300 bg-primary-100 text-primary-800",
         warning: "bg-warning-100 text-warning-foreground",
       },
     },

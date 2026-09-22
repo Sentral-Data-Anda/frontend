@@ -5,7 +5,9 @@ import { cn } from "@/lib/utils";
  *
  * - `solid` (bawaan): kotak navy bersudut kontrol 8px — satu avatar penanda
  *   pengguna di header Beranda.
- * - `soft`: lingkaran primary-100, huruf primary-900 (6.74:1) — baris daftar.
+ * - `soft`: lingkaran primary-200, huruf primary-900 (5.20:1) — baris daftar
+ *   di atas kanvas primary-50. primary-100 hanya 1.14:1 terhadap kanvas, jadi
+ *   lingkarannya hilang; primary-200 1.48:1 masih terbaca sebagai bentuk.
  *   Sepuluh kotak navy berjejer terlalu berat; yang dicari di daftar adalah
  *   namanya, bukan inisialnya.
  *
@@ -30,7 +32,7 @@ export function Avatar({
         "flex size-9 shrink-0 items-center justify-center text-body font-semibold",
         tone === "solid"
           ? "bg-primary text-primary-foreground rounded-control"
-          : "bg-primary-100 text-primary-900 rounded-full",
+          : "bg-primary-200 text-primary-900 rounded-full",
       )}
     >
       {label.trim().charAt(0).toUpperCase() || "?"}
