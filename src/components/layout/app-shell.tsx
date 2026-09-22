@@ -1,6 +1,9 @@
+import { cookies } from "next/headers";
+
 import { BottomTab } from "./bottom-tab";
 import { shellWidth } from "./shell-width";
 import { Sidebar } from "./sidebar";
+import { SIDEBAR_COOKIE, isSidebarCollapsed } from "./sidebar-collapse";
 
 /**
  * Kerangka setiap layar di dalam `(app)`.
@@ -13,10 +16,15 @@ import { Sidebar } from "./sidebar";
  * `matchMedia`: server tidak tahu lebar layar, jadi percabangan di JS pasti
  * menghasilkan hydration mismatch atau kedipan nav yang salah.
  */
-export function AppShell({ children }: { children: React.ReactNode }) {
+export async function AppShell({ children }: { children: React.ReactNode }) {
+  const cookieStore = await cookies();
+  const isCollapsed = isSidebarCollapsed(
+    cookieStore.get(SIDEBAR_COOKIE)?.value,
+  );
+
   return (
     <div className="bg-canvas flex min-h-dvh flex-col lg:flex-row">
-      <Sidebar />
+      <Sidebar defaultCollapsed={isCollapsed} />
 
       {/*
         Di bawah lg, BottomTab sticky ke bawah viewport sebagai flex-sibling

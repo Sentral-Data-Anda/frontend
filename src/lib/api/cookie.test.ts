@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { stripCookieDomain } from "./cookie";
+import { pickSessionCookies, stripCookieDomain } from "./cookie";
 
 describe("stripCookieDomain", () => {
   test("membuang atribut Domain dan mempertahankan sisanya", () => {
@@ -18,5 +18,19 @@ describe("stripCookieDomain", () => {
     expect(stripCookieDomain("a=b;   DOMAIN=x.test; Path=/")).not.toContain(
       "x.test",
     );
+  });
+});
+
+describe("pickSessionCookies", () => {
+  test("hanya cookie sesi yang tersisa", () => {
+    expect(
+      pickSessionCookies(
+        "sidebar_collapsed=1; accessToken=s%3Aa.b; x=y;refreshToken=r",
+      ),
+    ).toBe("accessToken=s%3Aa.b; refreshToken=r");
+  });
+
+  test("tanpa cookie sesi = kosong", () => {
+    expect(pickSessionCookies("sidebar_collapsed=1")).toBe("");
   });
 });

@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server";
 
-import { stripCookieDomain } from "@/lib/api/cookie";
+import { pickSessionCookies, stripCookieDomain } from "@/lib/api/cookie";
 import { env } from "@/lib/env";
 
 /**
@@ -99,7 +99,7 @@ const onBuildForwardHeaders = (request: NextRequest): Headers => {
     const value = request.headers.get(name);
 
     if (value !== null) {
-      headers.set(name, value);
+      headers.set(name, name === "cookie" ? pickSessionCookies(value) : value);
     }
   }
 

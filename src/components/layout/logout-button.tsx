@@ -12,7 +12,11 @@ import { cn } from "@/lib/utils";
  * dan sesi di memori — penting di PC bersama sekretariat. Cookie sudah
  * dihapus oleh route BFF, jadi `/login` tidak lagi mengalihkan balik.
  */
-export function LogoutButton({ className }: { className?: string }) {
+/** Sisa prop diteruskan supaya bisa jadi pemicu tooltip di sidebar ringkas. */
+export function LogoutButton({
+  className,
+  ...props
+}: Omit<React.ComponentProps<typeof Button>, "onClick" | "children">) {
   const isPending = useBoolean();
 
   const onLogout = async () => {
@@ -30,6 +34,7 @@ export function LogoutButton({ className }: { className?: string }) {
 
   return (
     <Button
+      {...props}
       variant="ghost"
       size="icon"
       aria-label="Keluar"

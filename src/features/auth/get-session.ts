@@ -5,6 +5,7 @@ import { cache } from "react";
 import { z } from "zod";
 
 import { ApiError, apiClient } from "@/lib/api/client";
+import { pickSessionCookies } from "@/lib/api/cookie";
 import type { ApiResponse } from "@/types/api";
 
 import { sessionSchema, type Session } from "./types";
@@ -28,7 +29,7 @@ import { sessionSchema, type Session } from "./types";
  */
 export const getSession = cache(async (): Promise<Session | null> => {
   const cookieStore = await cookies();
-  const cookieHeader = cookieStore.toString();
+  const cookieHeader = pickSessionCookies(cookieStore.toString());
 
   // Tanpa cookie tidak ada yang bisa ditanyakan, dan menembak API hanya untuk
   // menerima 401 berarti satu perjalanan bolak-balik pada setiap kunjungan

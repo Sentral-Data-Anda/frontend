@@ -1,4 +1,4 @@
-import { stripCookieDomain } from "@/lib/api/cookie";
+import { pickSessionCookies, stripCookieDomain } from "@/lib/api/cookie";
 import { env } from "@/lib/env";
 
 export type RefreshResult = {
@@ -44,7 +44,7 @@ const onRefresh = async (cookieHeader: string): Promise<RefreshResult> => {
 
   try {
     response = await fetch(`${env.API_BASE_URL}/v1/auth/refresh-token`, {
-      headers: { Cookie: cookieHeader },
+      headers: { Cookie: pickSessionCookies(cookieHeader) },
       cache: "no-store",
     });
   } catch {

@@ -3,6 +3,25 @@ export const ACCESS_COOKIE = "accessToken";
 export const REFRESH_COOKIE = "refreshToken";
 
 /**
+ * Header `Cookie` yang dikirim ke be-sada hanya memuat cookie sesi. Cookie
+ * milik FE (mis. `sidebar_collapsed`) tidak punya urusan di sana — daftar-
+ * putih, sama seperti header BFF: cookie FE baru tidak ikut bocor sampai ada
+ * yang sengaja mengizinkannya. be-sada hanya membaca dua ini
+ * (`req.signedCookies`).
+ */
+export function pickSessionCookies(header: string): string {
+  return header
+    .split(";")
+    .map((part) => part.trim())
+    .filter((part) => {
+      const name = part.slice(0, part.indexOf("="));
+
+      return name === ACCESS_COOKIE || name === REFRESH_COOKIE;
+    })
+    .join("; ");
+}
+
+/**
  * Membuang atribut `Domain` dari satu header `Set-Cookie`.
  *
  * be-sada memasang `Domain=<CORS_DOMAIN>` pada cookie sesinya. Diteruskan apa

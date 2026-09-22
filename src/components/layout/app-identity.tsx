@@ -22,14 +22,17 @@ const TONE = {
 export function AppIdentity({
   role,
   tone = "canvas",
+  isCompact = false,
 }: {
   role: string;
   tone?: keyof typeof TONE;
+  /** Logo saja — sidebar ringkas. */
+  isCompact?: boolean;
 }) {
   return (
     <div className="flex min-w-0 items-center gap-3">
       <LogoMark className={TONE[tone].mark} />
-      <div className="min-w-0">
+      <div className={cn("min-w-0", isCompact && "hidden")}>
         <p
           className={cn(
             "truncate text-caption font-medium tracking-wider uppercase",

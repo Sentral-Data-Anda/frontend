@@ -1,6 +1,10 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-import { ACCESS_COOKIE, REFRESH_COOKIE } from "@/lib/api/cookie";
+import {
+  ACCESS_COOKIE,
+  REFRESH_COOKIE,
+  pickSessionCookies,
+} from "@/lib/api/cookie";
 import { env } from "@/lib/env";
 
 /**
@@ -16,7 +20,9 @@ export async function DELETE(request: NextRequest): Promise<Response> {
   try {
     const upstream = await fetch(`${env.API_BASE_URL}/v1/auth/logout`, {
       method: "DELETE",
-      headers: { cookie: request.headers.get("cookie") ?? "" },
+      headers: {
+        cookie: pickSessionCookies(request.headers.get("cookie") ?? ""),
+      },
       redirect: "manual",
       cache: "no-store",
       // be-sada yang menggantung tidak boleh menahan tombol Keluar.

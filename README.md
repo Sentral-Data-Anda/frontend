@@ -117,7 +117,13 @@ Sidebar desktop (`components/layout/sidebar.tsx`) = seluruh chrome global
 desktop, tanpa top bar: `AppIdentity` di atas, navigasi di tengah (satu-
 satunya bagian yang scroll), pengguna + tombol Keluar di bawah. Warnanya navy
 lewat token `--sidebar-*` di `:root` (tabel kontras di `globals.css`), bukan
-dark mode. Identitas yang sama dirender header Beranda lewat slot `leading`
+dark mode. Tombol "Ciutkan menu" (di atas baris pengguna) meringkasnya jadi
+rail ikon 72px — ikon domain menuju `domainEntryHref`, label lewat
+`aria-label` + tooltip Base UI. Pilihan disimpan di cookie
+`sidebar_collapsed` (`sidebar-collapse.ts`) yang dibaca `AppShell` di server,
+jadi render pertama sudah benar. Cookie itu milik FE: `pickSessionCookies`
+(`lib/api/cookie.ts`) menyaring header `Cookie` ke be-sada (BFF, logout,
+`getSession`, refresh) hanya ke `accessToken`/`refreshToken`. Identitas yang sama dirender header Beranda lewat slot `leading`
 `PageHeader`; slot kiri itu (identitas atau tombol back) hanya tampil < lg.
 
 Keluar: `DELETE /api/v1/auth/logout` (route BFF statis) meneruskan ke be-sada

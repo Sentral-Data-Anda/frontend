@@ -130,6 +130,16 @@ describe("BFF", () => {
     expect(lastRequest?.cookie).toBe("accessToken=abc");
   });
 
+  test("cookie milik FE tidak diteruskan ke be-sada", async () => {
+    const { request, context } = onCall("GET", ["v1", "jemaat"], {
+      cookie: "sidebar_collapsed=1; accessToken=abc; refreshToken=def",
+    });
+
+    await route.GET(request as never, context as never);
+
+    expect(lastRequest?.cookie).toBe("accessToken=abc; refreshToken=def");
+  });
+
   test("meneruskan badan permintaan tulis", async () => {
     const { request, context } = onCall("POST", ["v1", "jemaat"], {
       body: JSON.stringify({ name: "Christian Halim" }),
