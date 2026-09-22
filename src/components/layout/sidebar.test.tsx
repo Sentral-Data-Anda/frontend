@@ -76,11 +76,11 @@ const domainOf = (name: string) =>
     (d) => d.querySelector("summary")?.textContent === name,
   ) as HTMLDetailsElement;
 
-// Tautan rail domain = tautan yang bukan layar dan bukan Beranda/Cari.
-const railLinkOf = (name: string) =>
+// Tombol rail domain = saudara `<details>` domain itu.
+const railButtonOf = (name: string) =>
   domainOf(name).parentElement?.querySelector(
-    ":scope > a",
-  ) as HTMLAnchorElement;
+    ":scope > button",
+  ) as HTMLButtonElement;
 
 // happy-dom tidak menerapkan Tailwind: "tampil per mode" diuji lewat kelas
 // yang dipilih `data-collapsed` pada aside.
@@ -146,12 +146,12 @@ describe("SidebarNav", () => {
 });
 
 describe("SidebarNav satu DOM untuk kedua mode", () => {
-  test("tiap domain punya accordion (penuh) dan tautan rail, hanya satu tampil per mode", () => {
+  test("tiap domain punya accordion (penuh) dan tombol rail, hanya satu tampil per mode", () => {
     render(<SidebarNav menu={MENU} pathname="/kejemaatan/keluarga" />);
 
     for (const { name } of MENU) {
       const details = domainOf(name);
-      const rail = railLinkOf(name);
+      const rail = railButtonOf(name);
 
       expect(details.getAttribute("name")).toBe("sidebar-domain");
       expect(details.className).toContain(FULL_ONLY);
@@ -161,11 +161,9 @@ describe("SidebarNav satu DOM untuk kedua mode", () => {
       expect(rail.textContent).toBe(name);
     }
 
-    // Dua layar → halaman domain; satu layar → langsung ke layarnya.
-    expect(railLinkOf("Kejemaatan").getAttribute("href")).toBe("/kejemaatan");
-    expect(railLinkOf("Keuangan").getAttribute("href")).toBe(
-      "/keuangan/kas-masuk",
-    );
+    // Bukan navigasi: di desktop halaman domain hanya lewat URL.
+    expect(screen.queryByRole("link", { name: "Kejemaatan" })).toBeNull();
+    expect(railButtonOf("Kejemaatan").getAttribute("type")).toBe("button");
   });
 
   test("Cari dan sub-layar hanya milik mode penuh (dilipat di rail)", () => {
@@ -185,11 +183,13 @@ describe("SidebarNav satu DOM untuk kedua mode", () => {
     ).toBeNull();
   });
 
-  test("tautan rail domain yang memuat layar aktif diberi chip aktif", () => {
+  test("tombol rail domain yang memuat layar aktif diberi chip aktif", () => {
     render(<SidebarNav menu={MENU} pathname="/kejemaatan/keluarga" />);
 
-    expect(railLinkOf("Kejemaatan").getAttribute("aria-current")).toBe("true");
-    expect(railLinkOf("Keuangan").getAttribute("aria-current")).toBeNull();
+    expect(railButtonOf("Kejemaatan").getAttribute("aria-current")).toBe(
+      "true",
+    );
+    expect(railButtonOf("Keuangan").getAttribute("aria-current")).toBeNull();
   });
 });
 
@@ -206,7 +206,7 @@ describe("cookie sidebar", () => {
     const toggle = screen.getByRole("button", { name: "Ciutkan menu" });
     const aside = document.querySelector("aside") as HTMLElement;
     const details = domainOf("Kejemaatan");
-    const rail = railLinkOf("Kejemaatan");
+    const rail = railButtonOf("Kejemaatan");
 
     expect(aside.hasAttribute("data-collapsed")).toBe(false);
 
@@ -222,7 +222,7 @@ describe("cookie sidebar", () => {
     expect(toggle.closest("aside")).toBeNull();
     expect(aside.hasAttribute("data-collapsed")).toBe(true);
     expect(domainOf("Kejemaatan")).toBe(details);
-    expect(railLinkOf("Kejemaatan")).toBe(rail);
+    expect(railButtonOf("Kejemaatan")).toBe(rail);
 
     await act(async () => fireEvent.click(toggle));
     expect(document.cookie).toContain(`${SIDEBAR_COOKIE}=0`);
@@ -231,6 +231,27 @@ describe("cookie sidebar", () => {
     expect(aside.hasAttribute("data-collapsed")).toBe(false);
     expect(domainOf("Kejemaatan")).toBe(details);
     expect(details.open).toBe(true);
+  });
+
+  test("klik domain di rail: melebar, cookie tertulis, accordion domain itu terbuka dan difokus", async () => {
+    renderSidebar(true);
+
+    const aside = document.querySelector("aside") as HTMLElement;
+
+    expect(domainOf("Kejemaatan").open).toBe(true);
+    expect(domainOf("Keuangan").open).toBe(false);
+
+    await act(async () =>
+      fireEvent.click(screen.getByRole("button", { name: "Keuangan" })),
+    );
+
+    expect(aside.hasAttribute("data-collapsed")).toBe(false);
+    expect(document.cookie).toContain(`${SIDEBAR_COOKIE}=0`);
+    expect(domainOf("Keuangan").open).toBe(true);
+    expect(document.activeElement).toBe(
+      domainOf("Keuangan").querySelector("summary"),
+    );
+    expect(screen.getByRole("button", { name: "Ciutkan menu" })).toBeTruthy();
   });
 
   test("render awal mengikuti cookie", () => {

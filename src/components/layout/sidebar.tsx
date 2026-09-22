@@ -14,15 +14,18 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { createContext, memo, use, useEffect, useRef } from "react";
+import {
+  createContext,
+  memo,
+  use,
+  useCallback,
+  useEffect,
+  useRef,
+} from "react";
+import { flushSync } from "react-dom";
 
 import { Avatar } from "@/components/common/avatar";
-import {
-  MENU_ICON,
-  domainEntryHref,
-  domainHref,
-  menuHref,
-} from "@/config/menu";
+import { MENU_ICON, domainHref, menuHref } from "@/config/menu";
 import { useSession } from "@/features/auth/session-provider";
 import type { MenuNode } from "@/features/auth/types";
 import { useBoolean } from "@/hooks/use-boolean";
@@ -54,17 +57,24 @@ const IDLE = "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground";
 const ACTIVE = "bg-sidebar-primary text-sidebar-primary-foreground font-medium";
 
 // Semua gaya ringkas digerakkan satu atribut, `data-collapsed` pada aside.
-// `invisible` bertransisi (pemakai menulis `transition-[…visibility]`):
-// hilang di AKHIR saat menyempit, muncul di AWAL saat melebar — sekaligus
-// mengeluarkan isinya dari urutan Tab dan pohon a11y tanpa state React.
+// `invisible` mengeluarkan isi mode penuh dari urutan Tab dan pohon a11y
+// tanpa state React. `visibility` hanya ada di daftar transisi keadaan
+// RINGKAS (`group-data-collapsed/sidebar:transition-[…visibility]`; daftar
+// dasar tanpa `visibility`, `transition-none` bila perlu — `duration-*`
+// tanpa daftar berarti `all`). Transisi memakai daftar keadaan tujuan: saat
+// menyempit isi tetap terlihat sampai akhir, saat melebar langsung terlihat.
+// Kalau ikut ditransisikan saat melebar, di awal gerak nilainya masih
+// `hidden` dan `focus()` ke summary (klik domain di rail) gagal.
 const RAIL_HIDDEN = cn(
-  "group-data-collapsed/sidebar:invisible",
+  // Varian ringkas lebih spesifik daripada `motion-reduce:transition-none`
+  // di SIDEBAR_MOTION, jadi dimatikan lagi di tingkat yang sama.
+  "group-data-collapsed/sidebar:invisible motion-reduce:group-data-collapsed/sidebar:transition-none",
   SIDEBAR_MOTION,
 );
 
 // Isi yang hanya milik mode penuh: memudar lalu tak terlihat.
 const HIDE_IN_RAIL = cn(
-  "transition-[opacity,visibility] group-data-collapsed/sidebar:opacity-0",
+  "transition-opacity group-data-collapsed/sidebar:transition-[opacity,visibility] group-data-collapsed/sidebar:opacity-0",
   RAIL_HIDDEN,
 );
 
@@ -127,6 +137,13 @@ export function Sidebar({ defaultCollapsed }: { defaultCollapsed: boolean }) {
     isCollapsed.setValue(next);
   };
 
+  // Stabil (setter useBoolean stabil): `SidebarNav` di-memo.
+  const { onFalse: expand } = isCollapsed;
+  const onExpand = useCallback(() => {
+    document.cookie = sidebarCookie(false);
+    expand();
+  }, [expand]);
+
   return (
     <Tooltip.Provider>
       <div className="sticky top-0 z-30 hidden h-dvh shrink-0 lg:flex">
@@ -172,7 +189,11 @@ export function Sidebar({ defaultCollapsed }: { defaultCollapsed: boolean }) {
               />
             </div>
 
-            <SidebarNav menu={session.menu} pathname={pathname} />
+            <SidebarNav
+              menu={session.menu}
+              pathname={pathname}
+              onExpand={onExpand}
+            />
 
             {/* Dua avatar di titik yang sama: pemicu menu akun (rail) dan
                 avatar biasa (penuh) — tukar `display` tanpa beda piksel. */}
@@ -312,7 +333,7 @@ function Fold({ children }: { children: React.ReactNode }) {
   return (
     <div
       className={cn(
-        "grid grid-cols-1 grid-rows-[1fr] transition-[grid-template-rows,opacity,visibility] group-data-collapsed/sidebar:grid-rows-[0fr] group-data-collapsed/sidebar:opacity-0",
+        "grid grid-cols-1 grid-rows-[1fr] transition-[grid-template-rows,opacity] group-data-collapsed/sidebar:grid-rows-[0fr] group-data-collapsed/sidebar:opacity-0 group-data-collapsed/sidebar:transition-[grid-template-rows,opacity,visibility]",
         RAIL_HIDDEN,
       )}
     >
@@ -364,6 +385,41 @@ function NavLink({
 }
 
 /**
+ * Klik domain di rail (permintaan user 2026-09-22): lebarkan sidebar dan buka
+ * accordion domain itu — di desktop sub-layar dibuka di sidebar, bukan lewat
+ * halaman domain (`/<domain>` tetap untuk HP/tablet dan URL langsung).
+ *
+ * Urutan penting untuk satu gerakan:
+ * 1. `open = true` saat gaya ringkas masih berlaku — `<details name>`
+ *    menutup domain lain; lipatan sub-layarnya dihitung di 0fr (paksa
+ *    layout), jadi ia tumbuh ke tinggi penuh bersama lebar aside.
+ * 2. `flushSync`: atribut `data-collapsed` lepas sekarang, summary sudah
+ *    terlihat saat difokus.
+ * 3. Selama lipatan tumbuh, tiap frame domain digulir ke pandangan
+ *    (`nearest`): gulirnya ikut gerakan yang sama, bukan lompatan sesudahnya.
+ *    Tanpa animasi (motion-reduce) cukup sekali; diciutkan lagi di tengah
+ *    jalan (`finished` ditolak) → berhenti.
+ */
+function openFromRail(details: HTMLDetailsElement, onExpand: () => void) {
+  details.open = true;
+  details.getBoundingClientRect();
+  flushSync(onExpand);
+  details.querySelector("summary")?.focus({ preventScroll: true });
+
+  const fold = details.lastElementChild as HTMLElement;
+  let isDone = false;
+  const follow = () => {
+    details.scrollIntoView({ block: "nearest" });
+    if (!isDone) requestAnimationFrame(follow);
+  };
+
+  Promise.all(fold.getAnimations().map((a) => a.finished))
+    .catch(() => {})
+    .finally(() => (isDone = true));
+  requestAnimationFrame(follow);
+}
+
+/**
  * Isinya `session.menu` apa adanya (sudah difilter per peran). Satu DOM
  * untuk kedua mode; `data-collapsed` pada aside yang memilih apa yang
  * tampil.
@@ -374,18 +430,22 @@ function NavLink({
  * layarnya) dirender `open`.
  *
  * Rail: `<details>` tak terlihat (tetap memegang baris 40px-nya), di atasnya
- * tautan ke `domainEntryHref` — tujuan yang sama dengan tile Beranda, tanpa
- * accordion dan tanpa flyout; domain yang memuat layar aktif diberi chip
- * aktif. Keduanya bertukar lewat `visibility` + `opacity` (crossfade), bukan
- * `display`, supaya chip rail memudar masuk alih-alih muncul tiba-tiba. Tanpa
- * Cari (keputusan 2026-09-22): rail hanya untuk berpindah.
+ * tombol ikon domain yang melebarkan sidebar dan membuka accordion domain
+ * itu (`openFromRail`), tanpa flyout; domain yang memuat layar aktif diberi
+ * chip aktif. Keduanya bertukar lewat `visibility` + `opacity` (crossfade),
+ * bukan `display`, supaya chip rail memudar masuk alih-alih muncul
+ * tiba-tiba. Tanpa Pencarian (keputusan 2026-09-22): rail hanya untuk
+ * berpindah.
  */
 export const SidebarNav = memo(function SidebarNav({
   menu,
   pathname,
+  onExpand = () => {},
 }: {
   menu: MenuNode[];
   pathname: string;
+  /** Lebarkan sidebar + tulis cookie — dipanggil tombol domain di rail. */
+  onExpand?: () => void;
 }) {
   return (
     <nav
@@ -397,7 +457,12 @@ export const SidebarNav = memo(function SidebarNav({
           <NavLink href="/" label="Beranda" icon={House} pathname={pathname} />
         </li>
         {/* `li` ikut tak terlihat: tanpa ini rail punya listitem kosong. */}
-        <li className={cn("transition-[visibility]", RAIL_HIDDEN)}>
+        <li
+          className={cn(
+            "transition-none group-data-collapsed/sidebar:transition-[visibility]",
+            RAIL_HIDDEN,
+          )}
+        >
           <Fold>
             <div className="pt-0.5">
               <NavLink
@@ -424,14 +489,16 @@ export const SidebarNav = memo(function SidebarNav({
         {menu.map((domain) => {
           const Icon = MENU_ICON[domain.slug] ?? LayoutGrid;
           const isActive = isTabActive(domainHref(domain.slug), pathname);
-          const entryHref = domainEntryHref(domain);
 
           return (
             <li key={domain.slug} className="relative">
               <details
                 name="sidebar-domain"
                 open={isActive}
-                className={cn("group transition-[visibility]", RAIL_HIDDEN)}
+                className={cn(
+                  "group transition-none group-data-collapsed/sidebar:transition-[visibility]",
+                  RAIL_HIDDEN,
+                )}
               >
                 <summary
                   className={cn(
@@ -486,20 +553,21 @@ export const SidebarNav = memo(function SidebarNav({
               {/* Setelah `<details>`: `scrollIntoView` [aria-current]
                   pertama tetap menemukan layar aktif di mode penuh. */}
               <RailTip label={domain.name}>
-                <Link
-                  href={entryHref}
-                  // "true", bukan "page", bila yang dibuka layar di dalamnya:
-                  // halaman yang dibuka adalah layarnya, bukan domainnya.
-                  aria-current={
-                    entryHref === pathname
-                      ? "page"
-                      : isActive
-                        ? "true"
-                        : undefined
+                <button
+                  type="button"
+                  onClick={(event) =>
+                    openFromRail(
+                      event.currentTarget.parentElement?.querySelector(
+                        "details",
+                      ) as HTMLDetailsElement,
+                      onExpand,
+                    )
                   }
+                  // "true": domain ini memuat halaman yang sedang dibuka.
+                  aria-current={isActive ? "true" : undefined}
                   className={cn(
                     ITEM,
-                    "invisible absolute inset-x-0 top-0 opacity-0 transition-[opacity,visibility,color,background-color]",
+                    "invisible absolute inset-x-0 top-0 w-full cursor-pointer opacity-0 transition-[opacity,visibility,color,background-color]",
                     "pointer-events-none group-data-collapsed/sidebar:pointer-events-auto group-data-collapsed/sidebar:visible group-data-collapsed/sidebar:opacity-100",
                     SIDEBAR_MOTION,
                     isActive
@@ -509,7 +577,7 @@ export const SidebarNav = memo(function SidebarNav({
                 >
                   <Icon className="size-5 shrink-0" aria-hidden />
                   <span className="sr-only">{domain.name}</span>
-                </Link>
+                </button>
               </RailTip>
             </li>
           );
