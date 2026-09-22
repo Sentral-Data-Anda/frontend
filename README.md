@@ -113,6 +113,19 @@ Lebar konten milik shell, bukan layar: `shellWidth` di
 `lg:max-w-3xl`. Di bawah `lg` navigasinya bottom tab; mulai `lg` sidebar
 berlabel 16rem dari `session.menu`. Keduanya ditukar lewat CSS, bukan JS.
 
+Sidebar desktop (`components/layout/sidebar.tsx`) = seluruh chrome global
+desktop, tanpa top bar: `AppIdentity` di atas, navigasi di tengah (satu-
+satunya bagian yang scroll), pengguna + tombol Keluar di bawah. Warnanya navy
+lewat token `--sidebar-*` di `:root` (tabel kontras di `globals.css`), bukan
+dark mode. Identitas yang sama dirender header Beranda lewat slot `leading`
+`PageHeader`; slot kiri itu (identitas atau tombol back) hanya tampil < lg.
+
+Keluar: `DELETE /api/v1/auth/logout` (route BFF statis) meneruskan ke be-sada
+lalu **selalu** menghapus kedua cookie dan membalas 204, apa pun hasil
+upstream; proxy tidak menyegarkan token untuk path ini. Klien lalu
+`window.location.replace("/login")` — navigasi keras membuang cache TanStack
+Query dan sesi di memori (PC bersama).
+
 Jarak tepi halaman memakai token `px-gutter` (20px, `--spacing-gutter` di
 `globals.css`), bukan `px-4` per komponen. Warna hanya lewat token semantik
 (`primary`, `muted-foreground`, `success`, `warning`, `destructive`, …) yang
@@ -176,8 +189,8 @@ Nama domain & layar di tiruan disalin dari be-sada (`NAME` di
 ### Kanvas & permukaan
 
 Latar seluruh `(app)` adalah `bg-canvas` (primary-50), dipasang sekali di
-`AppShell`. Apa pun yang harus putih menulis `bg-card` sendiri (kartu, sidebar,
-bottom tab, sheet); `DataList` tidak — barisnya rata di kanvas. Jangan pakai `bg-muted` sebagai bidang
+`AppShell`. Apa pun yang harus putih menulis `bg-card` sendiri (kartu,
+bottom tab, sheet; sidebar desktop navy); `DataList` tidak — barisnya rata di kanvas. Jangan pakai `bg-muted` sebagai bidang
 di atas kanvas — nilainya sama (primary-50) dan tidak terlihat.
 
 ### Layar daftar
