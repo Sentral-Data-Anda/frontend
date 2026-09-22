@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 import { refreshSession } from "@/features/auth/refresh";
+import { ACCESS_COOKIE, REFRESH_COOKIE } from "@/lib/api/cookie";
 import { buildContentSecurityPolicy, generateNonce } from "@/lib/security/csp";
 
 /**
@@ -67,8 +68,16 @@ import { buildContentSecurityPolicy, generateNonce } from "@/lib/security/csp";
  * satunya jalan keluar `onContinue` tanpa CSP — dan itu dikendalikan header
  * yang dikirim klien.
  */
-const ACCESS_COOKIE = "accessToken";
-const REFRESH_COOKIE = "refreshToken";
+/**
+ * Logout tidak boleh memicu penyegaran: menyegarkan sesi yang sedang dicabut
+ * hanya merotasi token untuk langsung dibuang. Route-nya sendiri yang
+ * menghapus kedua cookie.
+ *
+ * ponytail: bila access token sudah kedaluwarsa, be-sada menolak logout (401)
+ * dan sesi di DB tidak tercabut — hanya cookie di browser yang hilang. Jalan
+ * naiknya: be-sada menerima refresh cookie di `DELETE /auth/logout`.
+ */
+const LOGOUT_PATH = "/api/v1/auth/logout";
 
 /**
  * Halaman yang boleh dibuka tanpa sesi.
@@ -129,7 +138,7 @@ export async function proxy(request: NextRequest) {
   // jadi ketidakhadirannya di samping refresh token yang masih ada berarti
   // persis "perlu disegarkan". Tidak ada token yang diverifikasi di sini; FE
   // tidak memegang kunci tanda tangan be-sada dan tidak perlu.
-  if (!accessToken && refreshToken) {
+  if (!accessToken && refreshToken && pathname !== LOGOUT_PATH) {
     const refreshed = await refreshSession(
       request.headers.get("cookie") ?? "",
       refreshToken,

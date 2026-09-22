@@ -1,3 +1,7 @@
+/** Nama cookie sesi be-sada. Dipakai proxy dan route logout. */
+export const ACCESS_COOKIE = "accessToken";
+export const REFRESH_COOKIE = "refreshToken";
+
 /**
  * Membuang atribut `Domain` dari satu header `Set-Cookie`.
  *
