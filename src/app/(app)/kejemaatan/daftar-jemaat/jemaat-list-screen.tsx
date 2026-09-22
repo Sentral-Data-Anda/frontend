@@ -58,18 +58,27 @@ export function JemaatListScreen() {
           // Varian isi (navy), bukan `outline`: outline pada opacity 50% di
           // atas kanvas terbaca sebagai kotak kosong yang rusak; navy pudar
           // terbaca sebagai tombol utama yang sedang nonaktif.
+          //
+          // Pembungkus bertitle: tombol nonaktif ber-`pointer-events-none`
+          // tidak menerima hover, jadi tanpa ini pengguna mouse tidak pernah
+          // tahu kenapa tombolnya abu.
           isCanCreate ? (
-            <Button
-              type="button"
-              size="icon"
-              disabled
-              // Lingkaran, sama dengan tombol kembali di kiri header: kotak
-              // 36px terlihat lebih besar daripada lingkaran 36px.
-              className="rounded-full"
-              aria-label="Tambah jemaat (belum tersedia)"
+            <span
+              title="Tambah jemaat — segera tersedia"
+              className="inline-flex cursor-not-allowed rounded-full"
             >
-              <Plus aria-hidden />
-            </Button>
+              <Button
+                type="button"
+                size="icon"
+                disabled
+                // Lingkaran, sama dengan tombol kembali di kiri header: kotak
+                // 36px terlihat lebih besar daripada lingkaran 36px.
+                className="rounded-full"
+                aria-label="Tambah jemaat (belum tersedia)"
+              >
+                <Plus aria-hidden />
+              </Button>
+            </span>
           ) : null
         }
       />

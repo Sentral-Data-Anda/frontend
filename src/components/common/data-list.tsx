@@ -151,13 +151,16 @@ export function DataList<T>({
         </p>
 
         {onRetry ? (
+          // Galat tetap tersimpan selama refetch, jadi tanpa ini klik
+          // "Coba lagi" tidak memberi tanda apa pun sampai jawabannya tiba.
           <Button
             type="button"
             variant="outline"
             onClick={onRetry}
+            disabled={isRefreshing}
             className="mt-4"
           >
-            Coba lagi
+            {isRefreshing ? "Memuat…" : "Coba lagi"}
           </Button>
         ) : null}
       </div>

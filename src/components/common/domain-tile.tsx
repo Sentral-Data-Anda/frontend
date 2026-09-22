@@ -53,17 +53,19 @@ export function DomainIcon({
   slug,
   icon,
   size = "md",
+  className,
 }: {
   /** Slug domain: menentukan tint, dan ikon bila `icon` kosong. */
   slug: string;
   icon?: LucideIcon;
   size?: keyof typeof ICON_SIZE;
+  className?: string;
 }) {
   const Icon = icon ?? MENU_ICON[slug];
 
   return (
     <span
-      className={`flex shrink-0 items-center justify-center ${ICON_SIZE[size].box} ${tintOf(slug).bg} ${tintOf(slug).fg}`}
+      className={`flex shrink-0 items-center justify-center ${ICON_SIZE[size].box} ${tintOf(slug).bg} ${tintOf(slug).fg} ${className ?? ""}`}
     >
       {Icon ? <Icon className={ICON_SIZE[size].icon} aria-hidden /> : null}
     </span>
@@ -74,9 +76,14 @@ export function DomainIcon({
 function DomainTile({ slug, label }: { slug: string; label: string }) {
   return (
     <span className="flex flex-col items-center gap-1.5 text-center">
-      <DomainIcon slug={slug} />
+      <DomainIcon
+        slug={slug}
+        className="transition group-hover:brightness-95 group-active:brightness-90"
+      />
 
-      <span className="text-body leading-tight">{label}</span>
+      <span className="text-body leading-tight underline-offset-2 group-hover:underline">
+        {label}
+      </span>
     </span>
   );
 }
@@ -91,7 +98,10 @@ export function DomainTileGrid({ domains }: { domains: MenuNode[] }) {
     <ul className="grid grid-cols-4 gap-3">
       {domains.map((domain) => (
         <li key={domain.publicId}>
-          <Link href={domainEntryHref(domain)} className="block">
+          <Link
+            href={domainEntryHref(domain)}
+            className="group focus-visible:ring-ring block rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-offset-2 motion-safe:transition motion-safe:active:scale-97"
+          >
             <DomainTile slug={domain.slug} label={domain.name} />
           </Link>
         </li>

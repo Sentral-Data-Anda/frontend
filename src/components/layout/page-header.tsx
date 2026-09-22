@@ -47,7 +47,7 @@ export function PageHeader({
             aria-label="Kembali"
             // Tampil 36px; `after:` memperluas area sentuh tak terlihat ke 48px
             // tanpa membesarkan layout.
-            className="border-border relative flex size-control shrink-0 items-center justify-center rounded-full border after:absolute after:-inset-1.5"
+            className="border-border hover:bg-muted active:bg-accent focus-visible:ring-ring relative flex size-control shrink-0 items-center justify-center rounded-full border transition-colors outline-none after:absolute after:-inset-1.5 focus-visible:ring-2"
           >
             <ArrowLeft className="size-4" aria-hidden />
           </Link>

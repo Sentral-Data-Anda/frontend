@@ -28,7 +28,7 @@ export function SectionHeader({
         // min-h-6: target sentuh 24px (WCAG 2.5.8) tanpa menggeser baseline.
         <Link
           href={actionHref}
-          className="inline-flex min-h-6 items-center text-body font-medium"
+          className="focus-visible:ring-ring inline-flex min-h-6 items-center rounded-control text-body font-medium underline-offset-2 outline-none hover:underline focus-visible:ring-2"
         >
           {actionLabel}
         </Link>

@@ -266,7 +266,7 @@ const AccountMenu = memo(function AccountMenu({
                   sorotan p50 di atas putih hanya 1.10:1. */}
               <Menu.Item
                 onClick={() => void logout()}
-                className="data-highlighted:bg-primary data-highlighted:text-primary-foreground flex h-control cursor-default items-center gap-2 rounded-control px-2 text-body font-medium outline-none select-none"
+                className="data-highlighted:bg-primary data-highlighted:text-primary-foreground flex h-control items-center gap-2 rounded-control px-2 text-body font-medium outline-none select-none"
               >
                 <LogOut className="size-4" aria-hidden />
                 Keluar

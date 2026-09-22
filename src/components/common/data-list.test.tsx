@@ -76,6 +76,17 @@ describe("DataList", () => {
     expect(screen.getByRole("button", { name: "Coba lagi" })).toBeTruthy();
   });
 
+  test("coba lagi yang sedang berjalan: tombol nonaktif dan bertuliskan memuat", () => {
+    onRenderList({
+      error: new Error("Permintaan gagal (500)."),
+      onRetry: () => {},
+      isRefreshing: true,
+    });
+
+    const button = screen.getByRole("button", { name: "Memuat…" });
+    expect(button.hasAttribute("disabled")).toBe(true);
+  });
+
   test("galat menang atas data yang masih tersisa di cache", () => {
     onRenderList({ error: new Error("Jaringan terputus.") });
 
