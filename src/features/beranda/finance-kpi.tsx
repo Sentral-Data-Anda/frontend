@@ -79,6 +79,7 @@ export function KpiIncome() {
       value={query.data ? formatRupiahCompact(query.data.income) : undefined}
       delta={deltaOf(query.data?.income, previous?.income ?? 0, true)}
       isLoading={query.isPending}
+      isError={query.isError}
     />
   );
 }
@@ -92,6 +93,7 @@ export function KpiExpense() {
       value={query.data ? formatRupiahCompact(query.data.expense) : undefined}
       delta={deltaOf(query.data?.expense, previous?.expense ?? 0, false)}
       isLoading={query.isPending}
+      isError={query.isError}
     />
   );
 }
@@ -112,6 +114,7 @@ export function KpiSurplusYear() {
       }
       hint={ranges.untilLabel}
       isLoading={query.isPending}
+      isError={query.isError}
     />
   );
 }

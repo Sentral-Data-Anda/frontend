@@ -8,93 +8,69 @@ import {
 import { EmptyState } from "@/components/common/empty-state";
 import { KpiCell } from "@/components/common/kpi-strip";
 import { MENU, menuHref } from "@/config/menu";
-import { formatRupiahCompact } from "@/lib/format";
 
 import {
-  amountOf,
-  useBirthdays,
-  useDraftCashExpenses,
+  useBirthdaysInRange,
+  useJemaatStats,
   usePendingLoanRooms,
 } from "./api";
-import { addDaysKey, formatDayMonth, monthOf, toDateKey } from "./time";
+import {
+  addDaysKey,
+  formatDayMonth,
+  formatWeekdayShort,
+  toDateKey,
+  weekKeys,
+} from "./time";
 
-const CASH_EXPENSE_HREF = menuHref(MENU.KEUANGAN, MENU.KAS_KELUAR);
 const LOAN_ROOM_HREF = menuHref(MENU.FASILITAS, MENU.PEMINJAMAN_RUANG);
 const REPORT_JEMAAT_HREF = menuHref(MENU.KEJEMAATAN, MENU.REPORT_JEMAAT);
 
+/** Ulang tahun tujuh hari ke depan (1–2 panggilan `/birth/:month`). */
+const useWeekBirthdays = () => {
+  // ponytail: dihitung sekali per render (WIB).
+  const days = weekKeys(new Date());
+  return { days, query: useBirthdaysInRange(days) };
+};
+
 /**
- * Perlu dibayar: kas keluar berstatus DRAFT (`KAS_KELUAR` VIEW). Bagian
- * faktur jatuh tempo belum dibangun — filter status/`dueDate` di
- * `/faktur-supplier` belum dipastikan (dashboard-desktop.md §4, "T-B").
+ * Ulang tahun minggu ini (`REPORT_JEMAAT` VIEW). Nama + hari saja — tanpa
+ * usia maupun tahun lahir (keputusan BA/TL, privasi).
  */
-export function CashExpenseWidget() {
-  const query = useDraftCashExpenses();
-  const items = query.data?.data ?? [];
-  const total = query.data?.totalData ?? 0;
+export function BirthdaysWidget() {
+  const { days, query } = useWeekBirthdays();
+  const items = query.data;
 
   return (
     <DashboardCard
-      title="Perlu dibayar"
-      actionLabel={total > items.length ? `Semua (${total})` : "Kas keluar"}
-      actionHref={CASH_EXPENSE_HREF}
+      title="Ulang tahun minggu ini"
+      actionLabel={items.length > 5 ? `Semua (${items.length})` : undefined}
+      actionHref={items.length > 5 ? REPORT_JEMAAT_HREF : undefined}
       query={query}
-      minHeight="min-h-36"
+      minHeight="min-h-32"
     >
       {items.length === 0 ? (
         <EmptyState
           isCompact
-          title="Tidak ada kas keluar yang menunggu dibayar"
+          title="Tidak ada yang berulang tahun minggu ini"
         />
       ) : (
-        <DashboardList label="Kas keluar draf">
-          {items.map((item) => (
-            <DashboardRow
-              key={item.code}
-              title={item.description}
-              meta={[item.code, item.bapel?.name ?? item.payee]
-                .filter(Boolean)
-                .join(" · ")}
-              href={CASH_EXPENSE_HREF}
-              trailing={formatRupiahCompact(amountOf(item.totalAmount))}
-            />
-          ))}
-        </DashboardList>
-      )}
-    </DashboardCard>
-  );
-}
-
-/** Bulan ini (WIB) untuk `/report/jemaat/birth/:month`. */
-const useMonthBirthdays = () => useBirthdays(monthOf(new Date()));
-
-/**
- * Ulang tahun anggota jemaat bulan ini (`REPORT_JEMAAT` VIEW). Hanya nama dan
- * tanggal — tanpa usia maupun tahun lahir (keputusan BA/TL, privasi), meski
- * be-sada mengirim `umur`.
- */
-export function BirthdaysWidget() {
-  const query = useMonthBirthdays();
-  const items = query.data ?? [];
-
-  return (
-    <DashboardCard
-      title="Ulang tahun bulan ini"
-      actionLabel={items.length > 5 ? `Semua (${items.length})` : undefined}
-      actionHref={items.length > 5 ? REPORT_JEMAAT_HREF : undefined}
-      query={query}
-      minHeight="min-h-36"
-    >
-      {items.length === 0 ? (
-        <EmptyState isCompact title="Tidak ada yang berulang tahun bulan ini" />
-      ) : (
-        <DashboardList label="Ulang tahun bulan ini">
-          {items.slice(0, 5).map((item) => (
-            <DashboardRow
-              key={`${item.name}-${item.birthDate}`}
-              title={item.name}
-              meta={formatDayMonth(item.birthDate)}
-            />
-          ))}
+        <DashboardList label="Ulang tahun minggu ini">
+          {items.slice(0, 5).map((item) => {
+            const day = days.find((key) => key.slice(5) === item.dayKey);
+            return (
+              <DashboardRow
+                key={`${item.name}-${item.dayKey}`}
+                title={item.name}
+                trailing={
+                  <span className="text-muted-foreground">
+                    {day
+                      ? `${formatWeekdayShort(day)} ${Number(day.slice(8, 10))}`
+                      : formatDayMonth(item.birthDate)}
+                  </span>
+                }
+              />
+            );
+          })}
         </DashboardList>
       )}
     </DashboardCard>
@@ -102,19 +78,41 @@ export function BirthdaysWidget() {
 }
 
 export function KpiBirthdays() {
-  const query = useMonthBirthdays();
+  const { query } = useWeekBirthdays();
 
   return (
     <KpiCell
-      label="Ulang tahun bulan ini"
-      value={`${query.data?.length ?? 0} jemaat`}
+      label="Ulang tahun"
+      value={`${query.data.length}`}
+      hint="minggu ini"
       isLoading={query.isPending}
+      isError={query.error !== null}
+    />
+  );
+}
+
+/** KPI "Jumlah jemaat" — hanya dari `/report/*` (bukan daftar jemaat). */
+export function KpiJemaatTotal() {
+  const query = useJemaatStats();
+
+  return (
+    <KpiCell
+      label="Jumlah jemaat"
+      value={query.data?.total.toLocaleString("id-ID")}
+      hint={
+        query.data
+          ? `Anggota ${query.data.member.toLocaleString("id-ID")}`
+          : undefined
+      }
+      isLoading={query.isPending}
+      isError={query.isError}
     />
   );
 }
 
 /** 30 hari ke depan (WIB). */
 const usePendingLoans = () => {
+  // ponytail: dihitung sekali per render (WIB).
   const today = toDateKey(new Date());
   return usePendingLoanRooms(today, addDaysKey(today, 30));
 };
@@ -126,14 +124,17 @@ export function LoanRoomsWidget() {
 
   return (
     <DashboardCard
-      title="Peminjaman ruang menunggu"
+      title="Peminjaman ruang"
       actionLabel="Peminjaman"
       actionHref={LOAN_ROOM_HREF}
       query={query}
       minHeight="min-h-28"
     >
       {items.length === 0 ? (
-        <EmptyState isCompact title="Tidak ada peminjaman yang menunggu" />
+        <EmptyState
+          isCompact
+          title="Tidak ada peminjaman yang menunggu persetujuan"
+        />
       ) : (
         <DashboardList label="Peminjaman menunggu">
           {items.slice(0, 4).map((item) => (
@@ -142,7 +143,7 @@ export function LoanRoomsWidget() {
               title={item.room.name}
               meta={`${item.purpose} · ${item.jemaat.name}`}
               href={LOAN_ROOM_HREF}
-              trailing={`${formatDayMonth(item.date)} ${item.startTime}`}
+              trailing={`${formatDayMonth(item.date)} ${item.startTime.replace(":", ".")}`}
             />
           ))}
         </DashboardList>
@@ -157,9 +158,10 @@ export function KpiPendingLoans() {
   return (
     <KpiCell
       label="Peminjaman menunggu"
-      value={`${query.data?.length ?? 0} permintaan`}
+      value={`${query.data?.length ?? 0}`}
       hint="30 hari ke depan"
       isLoading={query.isPending}
+      isError={query.isError}
     />
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, LoaderCircle } from "lucide-react";
 import { useEffect, useEffectEvent, useRef } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -207,11 +207,16 @@ export function DataListMore({
               isLoadMoreError ? "text-primary" : "text-muted-foreground",
             )}
           >
-            {isLoadMoreError
-              ? "Coba lagi"
-              : isLoadingMore
-                ? "Memuat…"
-                : "Muat lebih banyak"}
+            {isLoadMoreError ? (
+              "Coba lagi"
+            ) : isLoadingMore ? (
+              <>
+                <LoaderCircle className="animate-spin" aria-hidden />
+                <span className="sr-only">Memuat…</span>
+              </>
+            ) : (
+              "Muat lebih banyak"
+            )}
           </Button>
         </div>
       ) : (

@@ -5,7 +5,12 @@ import { MENU, type MenuSlug, menuHref } from "@/config/menu";
 import { findMenuNode } from "@/features/auth/menu-tree";
 import type { MenuAction, MenuNode } from "@/features/auth/types";
 
-import { AgendaWidget, KpiAgendaWeek } from "./agenda";
+import { AgendaWidget } from "./agenda";
+import {
+  AgendaWeekWidget,
+  KpiEventsFortnight,
+  KpiServicesWeek,
+} from "./agenda-week";
 import { ApprovalsWidget, KpiWaitingApprovals } from "./approvals";
 import { SHOW_DUMMY } from "./dummy";
 import {
@@ -28,6 +33,7 @@ import { IncomeExpenseChart } from "./income-expense-chart";
 import {
   BirthdaysWidget,
   KpiBirthdays,
+  KpiJemaatTotal,
   KpiPendingLoans,
   LoanRoomsWidget,
 } from "./office-widgets";
@@ -127,13 +133,28 @@ export const WIDGETS: readonly Widget[] = [
     Component: KpiPayables,
   },
 
-  // ---- KPI umum (§10.4) -----------------------------------------------
+  // ---- KPI umum (§10.4), urut: jemaat → ibadah → kegiatan → ulang tahun
+  //      → menunggu TTD → peminjaman ---------------------------------------
   {
-    id: "kpi-agenda-week",
+    id: "kpi-jemaat-total",
+    slot: "kpi",
+    group: "umum",
+    gate: [view(MENU.REPORT_JEMAAT)],
+    Component: KpiJemaatTotal,
+  },
+  {
+    id: "kpi-services-week",
     slot: "kpi",
     group: "umum",
     gate: [view(MENU.IBADAH)],
-    Component: KpiAgendaWeek,
+    Component: KpiServicesWeek,
+  },
+  {
+    id: "kpi-events-fortnight",
+    slot: "kpi",
+    group: "umum",
+    gate: [view(MENU.EVENT)],
+    Component: KpiEventsFortnight,
   },
   {
     id: "kpi-birthdays",
@@ -187,6 +208,13 @@ export const WIDGETS: readonly Widget[] = [
   },
 
   // ---- Main: umum ------------------------------------------------------
+  {
+    id: "agenda-week",
+    slot: "main",
+    kind: "umum",
+    gate: [view(MENU.IBADAH)],
+    Component: AgendaWeekWidget,
+  },
   {
     id: "approvals",
     slot: "main",

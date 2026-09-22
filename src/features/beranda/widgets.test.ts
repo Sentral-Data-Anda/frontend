@@ -199,12 +199,16 @@ describe("persona dev:mock", () => {
   test("sekretariat: dashboard umum, tanpa angka keuangan", () => {
     const { kpi, main, side } = picked("sekretariat", true);
 
+    // §10.4: jemaat → ibadah → kegiatan → ulang tahun → TTD → peminjaman,
+    // maks 5; sekretariat tanpa PERMINTAAN_PERSETUJUAN.
     expect(kpi).toEqual([
-      "kpi-agenda-week",
+      "kpi-jemaat-total",
+      "kpi-services-week",
+      "kpi-events-fortnight",
       "kpi-birthdays",
       "kpi-pending-loans",
     ]);
-    expect(main).toEqual(["zones"]);
+    expect(main).toEqual(["agenda-week", "zones"]);
     expect(side).toEqual([
       "birthdays",
       "announcements",
@@ -241,9 +245,9 @@ describe("persona dev:mock", () => {
     const { kind, kpi, main } = picked("majelis", true);
 
     expect(kind).toBe("umum");
-    expect(kpi[0]).toBe("kpi-agenda-week");
+    expect(kpi[0]).toBe("kpi-jemaat-total");
     expect(kpi).toContain("kpi-waiting-approvals");
-    expect(main).toContain("approvals");
+    expect(main).toEqual(["agenda-week", "approvals", "zones"]);
     // Angka keuangannya tidak hilang: grafik hanya ada di dashboard keuangan,
     // jadi di sini tidak dirender.
     expect(main).not.toContain("income-expense-chart");

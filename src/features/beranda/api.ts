@@ -24,8 +24,9 @@ export type IbadahListItem = {
  * yang terbaru). Jadwal satu hari dibaca dari pagi ke malam. "HH:mm" yang
  * di-pad nol terurut benar secara leksikografis.
  */
-export const sortByStartTime = (items: IbadahListItem[]): IbadahListItem[] =>
-  [...items].sort((a, b) => a.startTime.localeCompare(b.startTime));
+export const sortByStartTime = <T extends { startTime: string }>(
+  items: T[],
+): T[] => [...items].sort((a, b) => a.startTime.localeCompare(b.startTime));
 
 export const ibadahKeys = {
   all: ["ibadah"] as const,
@@ -82,7 +83,10 @@ export function useWaitingApprovals(isEnabled = true) {
 }
 
 /** `ibadah.service.ts:98-105`: `startDate` + `endDate`, inklusif per hari. */
-export type IbadahWeekItem = IbadahListItem & { date: string };
+export type IbadahWeekItem = IbadahListItem & {
+  date: string;
+  room: { name: string } | null;
+};
 
 export function useIbadahRange(start: string, end: string, isEnabled = true) {
   const query = `startDate=${start}&endDate=${end}&limit=100`;
@@ -478,6 +482,59 @@ export function useMonthlyFlow(today: string) {
         income: result.data?.income ?? 0,
         expense: result.data?.expense ?? 0,
       })),
+      isPending: results.some((result) => result.isPending),
+      isFetching: results.some((result) => result.isFetching),
+      error: results.find((result) => result.error)?.error ?? null,
+      refetch: () => results.forEach((result) => void result.refetch()),
+    }),
+  });
+}
+
+/** `report.service.ts:14-32` — satu baris per tipe jemaat yang ada. */
+export type JemaatTypeCount = {
+  typeJemaat: "ANGGOTA" | "SIMPATISAN";
+  ALL: number;
+  L: number;
+  P: number;
+};
+
+/** Jumlah jemaat per tipe & gender (tanpa paginasi; 200 `[]` bila kosong). */
+export function useJemaatStats() {
+  return useQuery({
+    queryKey: ["report", "type-gender"],
+    queryFn: () => fetchList<JemaatTypeCount>("/report/jemaat/type-gender"),
+    select: (response) => {
+      const rows = response.data;
+      const total = rows.reduce((sum, row) => sum + row.ALL, 0);
+      return {
+        total,
+        member: rows.find((row) => row.typeJemaat === "ANGGOTA")?.ALL ?? 0,
+      };
+    },
+  });
+}
+
+/**
+ * Ulang tahun pada rentang tujuh hari: `/report/jemaat/birth/:month` per
+ * bulan yang disentuh minggu itu (1–2 panggilan, §10.2), disaring di FE.
+ */
+export function useBirthdaysInRange(days: string[]) {
+  const months = [...new Set(days.map((day) => Number(day.slice(5, 7))))];
+
+  return useQueries({
+    queries: months.map((month) => ({
+      queryKey: ["report", "birth", month],
+      queryFn: () => fetchList<BirthdayItem>(`/report/jemaat/birth/${month}`),
+      select: (response: { data: BirthdayItem[] }) => response.data,
+    })),
+    combine: (results) => ({
+      // Cocokkan "MM-DD" ulang tahun dengan hari-hari minggu ini (tahun
+      // lahir diabaikan, dan tidak pernah ditampilkan — privasi).
+      data: results
+        .flatMap((result) => result.data ?? [])
+        .map((row) => ({ ...row, dayKey: row.birthDate.slice(5, 10) }))
+        .filter((row) => days.some((day) => day.slice(5) === row.dayKey))
+        .sort((a, b) => a.dayKey.localeCompare(b.dayKey)),
       isPending: results.some((result) => result.isPending),
       isFetching: results.some((result) => result.isFetching),
       error: results.find((result) => result.error)?.error ?? null,

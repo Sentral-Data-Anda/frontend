@@ -1,4 +1,4 @@
-import { ArrowDown, ArrowUp } from "lucide-react";
+import { ArrowDown, ArrowUp, TriangleAlert } from "lucide-react";
 import { Children, type ReactNode } from "react";
 
 import { Badge } from "@/components/ui/badge";
@@ -87,6 +87,7 @@ export function KpiCell({
   delta,
   isDummy = false,
   isLoading = false,
+  isError = false,
 }: {
   label: string;
   value?: ReactNode;
@@ -94,6 +95,8 @@ export function KpiCell({
   delta?: KpiDelta | null;
   isDummy?: boolean;
   isLoading?: boolean;
+  /** Angkanya gagal dimuat — sel tetap ada, tapi tidak berpura-pura nol. */
+  isError?: boolean;
 }) {
   const isUp = (delta?.percent ?? 0) >= 0;
   const isGood = delta ? isUp === delta.isUpGood : false;
@@ -106,12 +109,17 @@ export function KpiCell({
       </p>
       {isLoading ? (
         <span className="bg-muted mt-2 block h-5 w-24 animate-pulse rounded-control lg:h-7" />
+      ) : isError ? (
+        <p className="text-muted-foreground mt-1.5 flex items-center gap-1.5 truncate text-body">
+          <TriangleAlert className="size-3.5 shrink-0" aria-hidden />
+          Gagal dimuat
+        </p>
       ) : (
         <p className="mt-1.5 truncate text-kpi font-semibold tracking-tight tabular-nums">
           {value ?? "—"}
         </p>
       )}
-      {delta ? (
+      {isError ? null : delta ? (
         <p
           className={cn(
             "mt-1 flex items-center gap-1 text-caption tabular-nums",

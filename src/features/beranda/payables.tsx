@@ -361,6 +361,7 @@ export function KpiPayables() {
       value={`${payable.length} dok.`}
       hint={payable.length ? formatRupiahCompact(total) : "Semua lunas"}
       isLoading={state.isPending}
+      isError={state.error !== null}
     />
   );
 }

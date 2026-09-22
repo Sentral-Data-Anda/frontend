@@ -1,12 +1,14 @@
 "use client";
 
+import { DashboardCard } from "@/components/common/dashboard-card";
 import {
-  DashboardCard,
-  DashboardList,
-  DashboardRow,
-} from "@/components/common/dashboard-card";
+  DashboardTable,
+  TableTitle,
+  type TableRow,
+} from "@/components/common/dashboard-table";
 import { EmptyState } from "@/components/common/empty-state";
 import { KpiCell } from "@/components/common/kpi-strip";
+import { Badge } from "@/components/ui/badge";
 import { MENU, menuHref } from "@/config/menu";
 import { formatRupiahCompact } from "@/lib/format";
 
@@ -47,7 +49,43 @@ const ageOf = (days: number) =>
 export function ApprovalsWidget() {
   const query = useWaitingApprovals();
   const items = query.data?.data ?? [];
+  // ponytail: dihitung sekali per render.
   const now = new Date();
+
+  const rows: TableRow[] = items.slice(0, 5).map((item) => {
+    const kind = DOCUMENT_LABEL[item.documentType] ?? item.documentType;
+    const amount = amountOf(item.amount);
+    const meta = [bapelOf(item), ageOf(daysSince(item.submittedAt, now))]
+      .filter(Boolean)
+      .join(" · ");
+    const status = <Badge variant="wait">Menunggu</Badge>;
+
+    return {
+      key: item.code,
+      href: QUEUE_HREF,
+      label: `${item.code} · ${kind}`,
+      cells: [
+        <TableTitle key="item" title={`${item.code} · ${kind}`} meta={meta} />,
+        <span key="kind" className="text-muted-foreground truncate">
+          {kind}
+        </span>,
+        <span key="amount" className="font-semibold">
+          {amount > 0 ? formatRupiahCompact(amount) : "—"}
+        </span>,
+        status,
+      ],
+      compact: {
+        title: `${item.code} · ${kind}`,
+        meta: (
+          <>
+            <span className="truncate">{meta}</span>
+            {status}
+          </>
+        ),
+        trailing: amount > 0 ? formatRupiahCompact(amount) : undefined,
+      },
+    };
+  });
 
   return (
     <DashboardCard
@@ -57,30 +95,19 @@ export function ApprovalsWidget() {
       query={query}
       minHeight="min-h-36"
     >
-      {items.length === 0 ? (
+      {rows.length === 0 ? (
         <EmptyState isCompact title="Tidak ada yang menunggu" />
       ) : (
-        <DashboardList label="Dokumen menunggu persetujuan">
-          {items.map((item) => (
-            <DashboardRow
-              key={item.code}
-              title={DOCUMENT_LABEL[item.documentType] ?? item.documentType}
-              meta={[
-                item.code,
-                bapelOf(item),
-                ageOf(daysSince(item.submittedAt, now)),
-              ]
-                .filter(Boolean)
-                .join(" · ")}
-              href={QUEUE_HREF}
-              trailing={
-                amountOf(item.amount) > 0
-                  ? formatRupiahCompact(amountOf(item.amount))
-                  : undefined
-              }
-            />
-          ))}
-        </DashboardList>
+        <DashboardTable
+          label="Menunggu tindakan saya"
+          columns={[
+            { label: "Item", width: "2.3fr" },
+            { label: "Jenis", width: "1fr", align: "right" },
+            { label: "Nominal", width: "0.9fr", align: "right" },
+            { label: "Status", width: "1fr", align: "right" },
+          ]}
+          rows={rows}
+        />
       )}
     </DashboardCard>
   );
@@ -88,12 +115,21 @@ export function ApprovalsWidget() {
 
 export function KpiWaitingApprovals() {
   const query = useWaitingApprovals();
+  const items = query.data?.data ?? [];
+  // Daftar sudah urut paling lama dulu (`submittedAt asc`).
+  const oldest = items[0];
 
   return (
     <KpiCell
-      label="Menunggu tanda tangan"
-      value={`${query.data?.totalData ?? 0} dokumen`}
+      label="Menunggu TTD"
+      value={`${query.data?.totalData ?? 0}`}
+      hint={
+        oldest
+          ? `tertua ${daysSince(oldest.submittedAt, new Date())} hari`
+          : undefined
+      }
       isLoading={query.isPending}
+      isError={query.isError}
     />
   );
 }
