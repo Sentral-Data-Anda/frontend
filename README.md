@@ -205,7 +205,7 @@ be-sada) dan endpoint menjawab 403 untuk izin yang tidak dipegang:
 
 ```bash
 bun run dev:mock                          # sekretariat (bawaan)
-MOCK_PERSONA=bendahara bun run dev:mock   # keuangan, kas keluar, persetujuan
+MOCK_PERSONA=bendahara bun run dev:mock   # keuangan, kas keluar, persembahan
 MOCK_PERSONA=majelis bun run dev:mock     # persetujuan, keuangan, anggaran, ulang tahun
 MOCK_PERSONA=admin bun run dev:mock       # 12 domain / 61 layar, semua aksi (menilai sidebar)
 ```

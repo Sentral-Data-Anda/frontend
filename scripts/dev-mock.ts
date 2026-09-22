@@ -301,7 +301,7 @@ Bun.serve({
       url.searchParams.get("menunggu") === "saya"
     ) {
       return list(
-        listWaitingApprovals(PERSONA_KEY),
+        listWaitingApprovals(),
         url,
         "",
         "Permintaan Persetujuan",

@@ -41,8 +41,9 @@ export const PERSONAS: Record<string, Persona> = {
       [MENU.PEMINJAMAN_RUANG]: V,
     },
   },
-  // §3b. IBADAH/EVENT VIEW supaya Agenda dan "· 2 kebaktian" di rancangan
-  // §3b tampil — daftar izin §3b sendiri tidak menyebutnya.
+  // §3b apa adanya (tanpa PERMINTAAN_PERSETUJUAN — "Menunggu tindakan saya
+  // jika memegang izin"), plus IBADAH/EVENT VIEW supaya Agenda dan
+  // "· 2 kebaktian" di rancangan §3b tampil.
   bendahara: {
     roleName: "Bendahara",
     isAdmin: false,
@@ -56,7 +57,6 @@ export const PERSONAS: Record<string, Persona> = {
       [MENU.PERIODE_FISKAL]: V,
       [MENU.LAPORAN_KEUANGAN]: V,
       [MENU.FAKTUR_SUPPLIER]: V,
-      [MENU.PERMINTAAN_PERSETUJUAN]: ["VIEW", "APPROVE", "REJECT"],
       [MENU.IBADAH]: V,
       [MENU.EVENT]: V,
     },
@@ -315,11 +315,8 @@ const approval = (
   ],
 });
 
-export function listWaitingApprovals(persona: string) {
+export function listWaitingApprovals() {
   if (process.env.MOCK_NO_APPROVAL) return [];
-  if (persona === "bendahara") {
-    return [approval(21, "PURCHASE_REQUEST", 3_200_000, 1, "Komisi Anak")];
-  }
   return [
     approval(19, "PROGRAM", 12_000_000, 5, "Komisi Wanita"),
     approval(20, "LOAN_ROOM", 0, 3, "Komisi Musik"),
