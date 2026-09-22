@@ -35,18 +35,32 @@ export type WidgetSlot = "kpi" | "main" | "side";
 
 export type WidgetGate = { slug: MenuSlug; action: MenuAction };
 
+/** Grup KPI — satu strip tidak pernah mencampur keduanya (§10.1 #2). */
+export type KpiGroup = "finance" | "umum";
+
 /**
- * Satu widget Beranda. `gate` = guard endpoint yang dibacanya (semua harus
- * dipegang; kosong = setiap user). Widget mengambil datanya sendiri, jadi
- * kontraknya seragam: gate lolos → render `Component`, tanpa props.
+ * Satu widget Beranda.
  *
- * `isDummy`: datanya fixture FE (`dummy.ts`) karena endpoint-nya belum ada di
- * be-sada — tidak pernah dirender di production.
+ * - `gate`: guard endpoint yang dibacanya — SEMUA harus dipegang (kosong =
+ *   setiap user).
+ * - `gateAny`: cukup SALAH SATU (widget gabungan beberapa sumber, mis.
+ *   "Perlu diselesaikan"; tiap bagian di dalamnya memakai gate sendiri).
+ * - `group`: grup KPI (hanya slot `kpi`).
+ * - `kind`: hanya di dashboard jenis itu (lihat `selectWidgets`); tanpa
+ *   `kind` = keduanya.
+ * - `isDummy`: datanya fixture FE (`dummy.ts`) karena endpoint-nya belum ada
+ *   di be-sada — tidak pernah dirender di production.
+ *
+ * Widget mengambil datanya sendiri, jadi kontraknya seragam: gate lolos →
+ * render `Component`, tanpa props.
  */
 export type Widget = {
   id: string;
   slot: WidgetSlot;
   gate: readonly WidgetGate[];
+  gateAny?: readonly WidgetGate[];
+  group?: KpiGroup;
+  kind?: KpiGroup;
   isDummy?: boolean;
   Component: ComponentType;
 };
@@ -67,32 +81,49 @@ export const WIDGETS: readonly Widget[] = [
   {
     id: "kpi-total-assets",
     slot: "kpi",
+    group: "finance",
     gate: CASH_DESK,
     Component: KpiTotalAssets,
   },
-  { id: "kpi-income", slot: "kpi", gate: CASH_DESK, Component: KpiIncome },
-  { id: "kpi-expense", slot: "kpi", gate: CASH_DESK, Component: KpiExpense },
+  {
+    id: "kpi-income",
+    slot: "kpi",
+    group: "finance",
+    gate: CASH_DESK,
+    Component: KpiIncome,
+  },
+  {
+    id: "kpi-expense",
+    slot: "kpi",
+    group: "finance",
+    gate: CASH_DESK,
+    Component: KpiExpense,
+  },
   {
     id: "kpi-surplus-month",
     slot: "kpi",
+    group: "finance",
     gate: CASH_DESK,
     Component: KpiSurplusMonth,
   },
   {
     id: "kpi-waiting-approvals",
     slot: "kpi",
+    group: "umum",
     gate: [view(MENU.PERMINTAAN_PERSETUJUAN)],
     Component: KpiWaitingApprovals,
   },
   {
     id: "kpi-surplus-year",
     slot: "kpi",
+    group: "finance",
     gate: [view(MENU.LAPORAN_KEUANGAN)],
     Component: KpiSurplusYear,
   },
   {
     id: "kpi-budget-high",
     slot: "kpi",
+    group: "finance",
     gate: [view(MENU.PAGU_ANGGARAN)],
     isDummy: true,
     Component: KpiBudgetHigh,
@@ -100,18 +131,21 @@ export const WIDGETS: readonly Widget[] = [
   {
     id: "kpi-agenda-week",
     slot: "kpi",
+    group: "umum",
     gate: [view(MENU.IBADAH)],
     Component: KpiAgendaWeek,
   },
   {
     id: "kpi-pending-loans",
     slot: "kpi",
+    group: "umum",
     gate: [view(MENU.PEMINJAMAN_RUANG)],
     Component: KpiPendingLoans,
   },
   {
     id: "kpi-birthdays",
     slot: "kpi",
+    group: "umum",
     gate: [view(MENU.REPORT_JEMAAT)],
     Component: KpiBirthdays,
   },
@@ -199,8 +233,14 @@ export const hasGrant = (menu: MenuNode[], { slug, action }: WidgetGate) =>
  * layar (bukan `return null` di dalam widget) karena grid harus tahu slot
  * mana yang kosong sebelum render.
  *
- * Main kosong (mis. sekretariat) → widget samping pertama naik ke main,
- * supaya kolom utama tidak pernah kosong di samping kolom samping.
+ * Strip KPI diisi SATU grup: yang punya sel lolos-gate terbanyak (dihitung
+ * setelah batas `MAX_KPI` — strip yang lebih penuh; seri → finance). Grup
+ * itu juga menentukan jenis dashboard (`kind`): bendahara (§10.3) atau umum
+ * (§10.4); widget ber-`kind` lain tidak dipilih. Tanpa KPI sama sekali →
+ * umum.
+ *
+ * Main kosong → widget samping pertama naik ke main, supaya kolom utama
+ * tidak pernah kosong di samping kolom samping.
  */
 export function selectWidgets(
   menu: MenuNode[],
@@ -210,14 +250,26 @@ export function selectWidgets(
   const allowed = widgets.filter(
     (widget) =>
       (isDummyShown || !widget.isDummy) &&
-      widget.gate.every((gate) => hasGrant(menu, gate)),
+      widget.gate.every((gate) => hasGrant(menu, gate)) &&
+      (!widget.gateAny || widget.gateAny.some((gate) => hasGrant(menu, gate))),
   );
-  const of = (slot: WidgetSlot) => allowed.filter((w) => w.slot === slot);
+  const kpiOf = (group: KpiGroup) =>
+    allowed
+      .filter((w) => w.slot === "kpi" && w.group === group)
+      .slice(0, MAX_KPI);
+  const finance = kpiOf("finance");
+  const umum = kpiOf("umum");
+  const kind: KpiGroup =
+    finance.length > 0 && finance.length >= umum.length ? "finance" : "umum";
+
+  const of = (slot: WidgetSlot) =>
+    allowed.filter((w) => w.slot === slot && (!w.kind || w.kind === kind));
   const main = of("main");
   const side = of("side");
 
   return {
-    kpi: of("kpi").slice(0, MAX_KPI),
+    kind,
+    kpi: kind === "finance" ? finance : umum,
     main: main.length ? main : side.slice(0, 1),
     side: main.length ? side : side.slice(1),
   };

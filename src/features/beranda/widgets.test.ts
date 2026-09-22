@@ -6,7 +6,13 @@ import type { MenuNode } from "@/features/auth/types";
 import { TREE } from "../../../scripts/menu-tree";
 import { actionsOf, PERSONAS } from "../../../scripts/mock-dashboard";
 
-import { MAX_KPI, selectWidgets, WIDGETS, type Widget } from "./widgets";
+import {
+  MAX_KPI,
+  selectWidgets,
+  WIDGETS,
+  type KpiGroup,
+  type Widget,
+} from "./widgets";
 
 const leaf = (slug: string, action: MenuNode["action"]): MenuNode => ({
   publicId: slug,
@@ -29,7 +35,14 @@ const widget = (
   slot: Widget["slot"],
   gate: Widget["gate"] = [],
   isDummy = false,
-): Widget => ({ id, slot, gate, isDummy, Component: Noop });
+): Widget => ({
+  id,
+  slot,
+  gate,
+  isDummy,
+  group: slot === "kpi" ? "umum" : undefined,
+  Component: Noop,
+});
 
 const ids = (list: Widget[]) => list.map((w) => w.id);
 
@@ -94,6 +107,73 @@ describe("selectWidgets", () => {
   });
 });
 
+describe("grup KPI", () => {
+  const kpi = (id: string, group: KpiGroup, slug?: string): Widget => ({
+    id,
+    slot: "kpi",
+    group,
+    gate: slug
+      ? [{ slug: slug as Widget["gate"][number]["slug"], action: "VIEW" }]
+      : [],
+    Component: Noop,
+  });
+
+  test("strip tidak pernah mencampur grup; grup terbanyak menang", () => {
+    const widgets = [
+      kpi("f1", "finance"),
+      kpi("u1", "umum"),
+      kpi("u2", "umum"),
+    ];
+    const picked = selectWidgets([], widgets, true);
+
+    expect(picked.kind).toBe("umum");
+    expect(ids(picked.kpi)).toEqual(["u1", "u2"]);
+  });
+
+  test("seri → finance; dihitung setelah batas MAX_KPI", () => {
+    const widgets = [
+      ...Array.from({ length: 5 }, (_, i) => kpi(`f${i}`, "finance")),
+      ...Array.from({ length: 6 }, (_, i) => kpi(`u${i}`, "umum")),
+    ];
+
+    expect(selectWidgets([], widgets, true).kind).toBe("finance");
+  });
+
+  test("widget ber-kind hanya di dashboard jenis itu", () => {
+    const widgets: Widget[] = [
+      kpi("f1", "finance"),
+      { id: "fm", slot: "main", gate: [], kind: "finance", Component: Noop },
+      { id: "um", slot: "main", gate: [], kind: "umum", Component: Noop },
+      { id: "both", slot: "main", gate: [], Component: Noop },
+    ];
+
+    expect(ids(selectWidgets([], widgets, true).main)).toEqual(["fm", "both"]);
+  });
+
+  test("gateAny: cukup salah satu izin", () => {
+    const widgets: Widget[] = [
+      {
+        id: "any",
+        slot: "main",
+        gate: [],
+        gateAny: [
+          { slug: MENU.KAS_KELUAR, action: "VIEW" },
+          { slug: MENU.PAYROLL, action: "VIEW" },
+        ],
+        Component: Noop,
+      },
+    ];
+
+    expect(ids(selectWidgets([], widgets, true).main)).toEqual([]);
+    expect(
+      ids(
+        selectWidgets([domain([leaf(MENU.PAYROLL, ["VIEW"])])], widgets, true)
+          .main,
+      ),
+    ).toEqual(["any"]);
+  });
+});
+
 describe("persona dev:mock", () => {
   // Pohon menu seperti `menuService.findTree` untuk persona di
   // scripts/mock-dashboard.ts — hasilnya harus sama dengan rancangan
@@ -145,7 +225,5 @@ describe("persona dev:mock", () => {
         [...kpi, ...main, ...side].filter((id) => dummies.has(id)),
       ).toEqual([]);
     }
-    expect(picked("majelis", true).main).toContain("budget-use");
-    expect(picked("majelis", true).kpi).toContain("kpi-budget-high");
   });
 });

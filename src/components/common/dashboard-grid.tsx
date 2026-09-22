@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
  *
  * | Kolom      | Susunan                                           |
  * | ---------- | ------------------------------------------------- |
- * | ≥ 55rem    | KPI · [main 2fr │ samping 1fr]                    |
+ * | ≥ 55rem    | KPI · [main 1.6fr │ samping 1fr]                  |
  * | 40–55rem   | KPI · main penuh · samping jadi baris 2 kolom     |
  * | < 40rem    | tumpuk satu kolom                                 |
  *
@@ -44,7 +44,7 @@ export function DashboardGrid({
         <div
           className={cn(
             "grid items-start gap-4",
-            isSplit && "@min-[55rem]:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]",
+            isSplit && "@min-[55rem]:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]",
           )}
         >
           {main.length ? (
