@@ -66,4 +66,29 @@ describe("SidebarNav", () => {
     expect(domainOf("Kejemaatan").open).toBe(false);
     expect(domainOf("Keuangan").open).toBe(false);
   });
+
+  test("Beranda aktif hanya di /", () => {
+    render(<SidebarNav menu={MENU} pathname="/" />);
+    expect(
+      screen
+        .getByRole("link", { name: "Beranda" })
+        .getAttribute("aria-current"),
+    ).toBe("page");
+    cleanup();
+
+    render(<SidebarNav menu={MENU} pathname="/modul" />);
+    expect(
+      screen
+        .getByRole("link", { name: "Beranda" })
+        .getAttribute("aria-current"),
+    ).toBeNull();
+  });
+
+  test("halaman domain membuka domainnya; semua domain satu grup accordion", () => {
+    render(<SidebarNav menu={MENU} pathname="/keuangan" />);
+
+    expect(domainOf("Keuangan").open).toBe(true);
+    expect(domainOf("Kejemaatan").open).toBe(false);
+    expect(domainOf("Kejemaatan").getAttribute("name")).toBe("sidebar-domain");
+  });
 });

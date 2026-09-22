@@ -1,11 +1,10 @@
 "use client";
 
 import { DomainTileGrid } from "@/components/common/domain-tile";
-import { LogoMark } from "@/components/common/logo";
 import { SectionHeader } from "@/components/common/section-header";
+import { AppIdentity } from "@/components/layout/app-identity";
 import { PageHeader } from "@/components/layout/page-header";
 import { BERANDA_SHORTCUTS, MENU } from "@/config/menu";
-import { siteConfig } from "@/config/site";
 import { useSession } from "@/features/auth/session-provider";
 import { useMenuAccess } from "@/features/auth/use-menu-access";
 import { useIbadahByDate } from "@/features/beranda/api";
@@ -44,16 +43,14 @@ export function HomeScreen() {
   return (
     <div className="pb-6">
       <PageHeader
-        leading={<LogoMark />}
-        eyebrow={`${siteConfig.shortName} · ${siteConfig.name}`}
-        title={session.roleUser.name}
+        leading={<AppIdentity role={session.roleUser.name} />}
         action={SHOW_DUMMY ? <NotificationBell /> : null}
       />
 
       <section className="px-gutter">
-        <p className="text-lead font-semibold">
+        <h1 className="text-lead font-semibold">
           {greetingOf(now)}, {firstName}
-        </p>
+        </h1>
         <p className="text-muted-foreground text-body tabular-nums">
           {formatLongDate(now)}
           {serviceCount > 0 ? ` · ${serviceCount} kebaktian` : null}
