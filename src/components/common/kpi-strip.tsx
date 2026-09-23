@@ -136,7 +136,7 @@ export function KpiCell({
           {percentFormat.format(Math.abs(delta.percent))}% {delta.label}
         </p>
       ) : hint ? (
-        <p className="text-muted-foreground mt-1 truncate text-caption">
+        <p className="text-muted-foreground mt-1 truncate text-caption tabular-nums">
           {hint}
         </p>
       ) : null}

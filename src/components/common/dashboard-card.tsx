@@ -51,7 +51,9 @@ export function DashboardCard({
     >
       <div className="mb-4 flex min-h-6 items-center justify-between gap-3">
         <h2 className="text-muted-foreground flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-body font-semibold tracking-wide uppercase">
-          <span className="truncate">{title}</span>
+          <span className="truncate" title={title}>
+            {title}
+          </span>
           {isDummy ? <Badge variant="sample">contoh data</Badge> : null}
         </h2>
 

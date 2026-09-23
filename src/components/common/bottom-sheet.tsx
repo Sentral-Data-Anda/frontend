@@ -72,7 +72,7 @@ export function BottomSheet({
           type="button"
           onClick={onClose}
           aria-label="Tutup"
-          className="bg-muted flex size-control shrink-0 items-center justify-center rounded-full"
+          className="bg-muted hover:bg-border focus-visible:ring-ring flex size-control shrink-0 items-center justify-center rounded-full transition-colors outline-none focus-visible:ring-2"
         >
           <X className="size-4" aria-hidden />
         </button>
