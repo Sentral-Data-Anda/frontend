@@ -3,6 +3,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
 
+import { ToastHost } from "@/components/common/toast";
 import { shouldRetryQuery } from "@/lib/api/retry";
 
 /**
@@ -37,7 +38,13 @@ export function Providers({ children }: { children: React.ReactNode }) {
       }),
   );
 
+  /**
+   * `ToastHost` di atas seluruh rute, bukan di dalam layar: pesan sukses
+   * setelah menyimpan harus selamat melewati perpindahan kembali ke daftar.
+   */
   return (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    <QueryClientProvider client={queryClient}>
+      <ToastHost>{children}</ToastHost>
+    </QueryClientProvider>
   );
 }
