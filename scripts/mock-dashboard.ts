@@ -25,6 +25,18 @@ export type Persona = {
 const V: Action[] = ["VIEW"];
 const VC: Action[] = ["VIEW", "CREATE"];
 
+/**
+ * Sekretariat memang boleh menambah DAN mengubah data jemaat
+ * (docs/12-form-jemaat.md §5). `MOCK_NO_CREATE` dan `MOCK_NO_UPDATE`
+ * mencabutnya satu per satu, supaya gate tombol "+" dan aksi "Ubah" bisa
+ * dinilai lewat render, bukan hanya lewat unit test.
+ */
+const JEMAAT_ACTIONS: Action[] = [
+  "VIEW",
+  ...(process.env.MOCK_NO_CREATE ? [] : (["CREATE"] as Action[])),
+  ...(process.env.MOCK_NO_UPDATE ? [] : (["UPDATE"] as Action[])),
+];
+
 export const PERSONAS: Record<string, Persona> = {
   // docs/design/dashboard-desktop.md §3e.
   sekretariat: {
@@ -32,7 +44,7 @@ export const PERSONAS: Record<string, Persona> = {
     isAdmin: false,
     jemaatName: "Andreas Sitanggang",
     grants: {
-      [MENU.DAFTAR_JEMAAT]: process.env.MOCK_NO_CREATE ? V : VC,
+      [MENU.DAFTAR_JEMAAT]: JEMAAT_ACTIONS,
       [MENU.REPORT_JEMAAT]: V,
       [MENU.IBADAH]: VC,
       [MENU.JADWAL_PELAYAN]: V,

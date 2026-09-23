@@ -5,7 +5,9 @@
  * sana. Login dengan username/password apa saja. Ctrl+C mematikan keduanya.
  *
  * Varian untuk menguji keadaan layar:
- *   MOCK_NO_CREATE=1 bun run dev:mock   → DAFTAR_JEMAAT hanya VIEW, tombol Tambah harus hilang
+ *   MOCK_NO_CREATE=1 bun run dev:mock   → DAFTAR_JEMAAT tanpa CREATE, tombol "+" harus hilang
+ *   MOCK_NO_UPDATE=1 bun run dev:mock   → DAFTAR_JEMAAT tanpa UPDATE, aksi "Ubah" harus hilang
+ *                                         (keduanya hanya berlaku untuk persona non-admin)
  *   MOCK_500=1 bun run dev:mock         → daftar jemaat & ibadah menjawab 500, layar galat
  *   MOCK_NO_IBADAH=1 bun run dev:mock   → tidak ada ibadah hari ini (404 be-sada)
  *   MOCK_SINGLE_LEAF=1 bun run dev:mock → Peribadahan hanya IBADAH (tile & /peribadahan

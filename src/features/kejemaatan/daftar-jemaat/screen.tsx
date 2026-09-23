@@ -1,8 +1,9 @@
 "use client";
 
 import { Plus } from "lucide-react";
+import Link from "next/link";
 
-import { Button } from "@/components/common/button";
+import { buttonVariants } from "@/components/common/button";
 import { DataList } from "@/components/common/data-list";
 import { FilterChips } from "@/components/common/filter-chips";
 import { SearchInput } from "@/components/common/search-input";
@@ -10,9 +11,11 @@ import { PageHeader } from "@/components/layout/page-header";
 import { MENU, domainHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth/use-menu-access";
 import { useJemaatList } from "@/features/kejemaatan/daftar-jemaat/api";
+import { JEMAAT_LIST_PATH } from "@/features/kejemaatan/daftar-jemaat/model";
 import { STATUS_JEMAAT_CHIPS } from "@/features/kejemaatan/daftar-jemaat/types";
 import { JemaatListItemRow } from "@/features/kejemaatan/daftar-jemaat/ui/list-item";
 import { useListParams } from "@/hooks/use-list-params";
+import { cn } from "@/lib/utils";
 
 /**
  * Layar cetakan: ini bentuk yang direplikasi ke puluhan layar daftar lain.
@@ -30,7 +33,7 @@ import { useListParams } from "@/hooks/use-list-params";
  * data — dan itu bukan kebetulan, melainkan D10 yang sedang bekerja.
  */
 export function JemaatListScreen() {
-  const { isCanCreate } = useMenuAccess(MENU.DAFTAR_JEMAAT);
+  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.DAFTAR_JEMAAT);
   const listParams = useListParams();
   const jemaatList = useJemaatList(listParams);
 
@@ -51,34 +54,22 @@ export function JemaatListScreen() {
           // ditekan membuat user mengira aplikasinya rusak, bukan mengira
           // dirinya tidak berhak.
           //
-          // `disabled` di bawah bukan soal izin melainkan soal fase:
-          // formulir tambah adalah Fase 3b dan rutenya belum ada, jadi
-          // menautkannya sekarang berujung 404 di luar app shell.
-          //
-          // Varian isi (navy), bukan `outline`: outline pada opacity 50% di
-          // atas kanvas terbaca sebagai kotak kosong yang rusak; navy pudar
-          // terbaca sebagai tombol utama yang sedang nonaktif.
-          //
-          // Pembungkus bertitle: tombol nonaktif ber-`pointer-events-none`
-          // tidak menerima hover, jadi tanpa ini pengguna mouse tidak pernah
-          // tahu kenapa tombolnya abu.
+          // Gate-nya MENYALIN guard endpoint (`DAFTAR_JEMAAT` CREATE); ia
+          // bukan pengaman. Pengamannya tetap `Authorization` di be-sada.
           isCanCreate ? (
-            <span
-              title="Tambah jemaat — segera tersedia"
-              className="inline-flex cursor-not-allowed rounded-full"
+            // `<Link>` bergaya tombol: lihat alasannya di `ui/list-item.tsx`.
+            // Lingkaran, sama dengan tombol kembali di kiri header — kotak
+            // 36px terlihat lebih besar daripada lingkaran 36px.
+            <Link
+              href={`${JEMAAT_LIST_PATH}/baru`}
+              aria-label="Tambah jemaat"
+              className={cn(
+                buttonVariants({ size: "icon" }),
+                "cursor-pointer rounded-full",
+              )}
             >
-              <Button
-                type="button"
-                size="icon"
-                disabled
-                // Lingkaran, sama dengan tombol kembali di kiri header: kotak
-                // 36px terlihat lebih besar daripada lingkaran 36px.
-                className="rounded-full"
-                aria-label="Tambah jemaat (belum tersedia)"
-              >
-                <Plus aria-hidden />
-              </Button>
-            </span>
+              <Plus aria-hidden />
+            </Link>
           ) : null
         }
       />
@@ -115,7 +106,9 @@ export function JemaatListScreen() {
         }
         pagination={jemaatList.pagination}
       >
-        {(jemaat) => <JemaatListItemRow jemaat={jemaat} />}
+        {(jemaat) => (
+          <JemaatListItemRow jemaat={jemaat} isCanUpdate={isCanUpdate} />
+        )}
       </DataList>
     </div>
   );

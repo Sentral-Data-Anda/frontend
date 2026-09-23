@@ -1,7 +1,14 @@
+import { Pencil } from "lucide-react";
+import Link from "next/link";
+
 import { Avatar } from "@/components/common/avatar";
+import { buttonVariants } from "@/components/common/button";
 import { DataListRow } from "@/components/common/data-list";
 import { Badge } from "@/components/ui/badge";
+import { saveListFocus } from "@/lib/list-return";
+import { cn } from "@/lib/utils";
 
+import { JEMAAT_LIST_PATH } from "../model";
 import {
   STATUS_JEMAAT_LABEL,
   TYPE_JEMAAT_LABEL,
@@ -19,7 +26,14 @@ import {
  * Keluarga ikut ditampilkan bila ada — dua jemaat bernama sama dibedakan oleh
  * keluarganya, dan itulah pertanyaan pertama yang muncul saat melihat daftar.
  */
-export function JemaatListItemRow({ jemaat }: { jemaat: JemaatListItem }) {
+export function JemaatListItemRow({
+  jemaat,
+  isCanUpdate = false,
+}: {
+  jemaat: JemaatListItem;
+  /** Menyalin guard endpoint `DAFTAR_JEMAAT` UPDATE — tampilan, bukan pengaman. */
+  isCanUpdate?: boolean;
+}) {
   const meta = [
     jemaat.code,
     TYPE_JEMAAT_LABEL[jemaat.type],
@@ -38,9 +52,33 @@ export function JemaatListItemRow({ jemaat }: { jemaat: JemaatListItem }) {
       title={jemaat.name}
       meta={meta}
       trailing={
-        <Badge variant={jemaat.status === "AKTIF" ? "success" : "neutral"}>
-          {STATUS_JEMAAT_LABEL[jemaat.status]}
-        </Badge>
+        <>
+          <Badge variant={jemaat.status === "AKTIF" ? "success" : "neutral"}>
+            {STATUS_JEMAAT_LABEL[jemaat.status]}
+          </Badge>
+
+          {isCanUpdate ? (
+            // `<Link>` bergaya tombol, BUKAN `Button` ber-`render`: aksi ini
+            // adalah perpindahan halaman, dan Base UI memasang `role="button"`
+            // pada elemen yang dirender — yang menghapus semantik tautan
+            // beserta klik-tengah dan "buka di tab baru".
+            //
+            // Menandai baris SEBELUM pergi, bukan sesudah kembali: saat
+            // kembali, layar ini dirender ulang dari cache dan tidak lagi
+            // tahu baris mana yang dibuka.
+            <Link
+              href={`${JEMAAT_LIST_PATH}/${jemaat.code}/ubah`}
+              onClick={() => saveListFocus(JEMAAT_LIST_PATH, jemaat.code)}
+              aria-label={`Ubah ${jemaat.name}`}
+              className={cn(
+                buttonVariants({ variant: "ghost", size: "icon-sm" }),
+                "cursor-pointer",
+              )}
+            >
+              <Pencil aria-hidden />
+            </Link>
+          ) : null}
+        </>
       }
     />
   );
