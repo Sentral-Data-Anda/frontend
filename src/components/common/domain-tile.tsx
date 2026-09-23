@@ -2,7 +2,7 @@ import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
 
 import { MENU, MENU_ICON, domainEntryHref } from "@/config/menu";
-import type { MenuNode } from "@/features/auth/types";
+import type { MenuNode } from "@/types/menu";
 
 /**
  * Tint per domain, mengikuti warna tile di `docs/design/beranda-reference.png`.

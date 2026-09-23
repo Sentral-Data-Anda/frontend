@@ -69,7 +69,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-import type { MenuNode } from "@/features/auth/types";
+import type { MenuNode } from "@/types/menu";
 
 /**
  * Slug menu, disalin dari `be-sada/src/common/constants/menu.ts`.

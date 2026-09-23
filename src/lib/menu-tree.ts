@@ -1,4 +1,4 @@
-import type { MenuNode } from "./types";
+import type { MenuNode } from "@/types/menu";
 
 /**
  * Telusuri pohon menu untuk satu slug.

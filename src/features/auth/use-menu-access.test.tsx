@@ -2,8 +2,8 @@ import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
 import type { MenuSlug } from "@/config/menu";
+import { findMenuNode } from "@/lib/menu-tree";
 
-import { findMenuNode } from "./menu-tree";
 import { SessionProvider } from "./session-provider";
 import type { Session } from "./types";
 import { useMenuAccess } from "./use-menu-access";

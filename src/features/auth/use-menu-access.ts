@@ -3,10 +3,10 @@
 import { useMemo } from "react";
 
 import type { MenuSlug } from "@/config/menu";
+import { findMenuNode } from "@/lib/menu-tree";
+import type { MenuAction } from "@/types/menu";
 
-import { findMenuNode } from "./menu-tree";
 import { useSession } from "./session-provider";
-import type { MenuAction } from "./types";
 
 /**
  * Hak akses peran atas satu layar.

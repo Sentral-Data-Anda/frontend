@@ -28,9 +28,9 @@ import { Avatar } from "@/components/common/avatar";
 import { MENU_ITEM, MENU_POPUP } from "@/components/common/menu";
 import { MENU_ICON, domainHref, menuHref } from "@/config/menu";
 import { useSession } from "@/features/auth/session-provider";
-import type { MenuNode } from "@/features/auth/types";
 import { useBoolean } from "@/hooks/use-boolean";
 import { cn } from "@/lib/utils";
+import type { MenuNode } from "@/types/menu";
 
 import { AppIdentity } from "./app-identity";
 import { isTabActive } from "./bottom-tab";

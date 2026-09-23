@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { House } from "lucide-react";
 
-import type { MenuNode } from "@/features/auth/types";
+import type { MenuNode } from "@/types/menu";
 
 import { getVisibleTabs, isTabActive, type Tab } from "./bottom-tab";
 

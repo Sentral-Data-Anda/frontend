@@ -1,6 +1,6 @@
 import { DOMAIN_SLUGS, domainEntryHref, domainHref } from "@/config/menu";
-import { findMenuNode } from "@/features/auth/menu-tree";
-import type { MenuNode } from "@/features/auth/types";
+import { findMenuNode } from "@/lib/menu-tree";
+import type { MenuNode } from "@/types/menu";
 
 export type DomainResolution =
   | { kind: "not-found" }

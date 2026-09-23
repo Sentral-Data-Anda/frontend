@@ -11,10 +11,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { MENU, menuHref } from "@/config/menu";
-import { findMenuNode } from "@/features/auth/menu-tree";
 import { useSession } from "@/features/auth/session-provider";
-import type { MenuNode } from "@/features/auth/types";
+import { findMenuNode } from "@/lib/menu-tree";
 import { cn } from "@/lib/utils";
+import type { MenuNode } from "@/types/menu";
 
 export type Tab = {
   label: string;

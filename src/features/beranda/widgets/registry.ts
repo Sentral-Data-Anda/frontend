@@ -2,8 +2,8 @@ import type { ComponentType } from "react";
 
 import type { HeaderAction } from "@/components/layout/dashboard-header";
 import { MENU, type MenuSlug, menuHref } from "@/config/menu";
-import { findMenuNode } from "@/features/auth/menu-tree";
-import type { MenuAction, MenuNode } from "@/features/auth/types";
+import { findMenuNode } from "@/lib/menu-tree";
+import type { MenuAction, MenuNode } from "@/types/menu";
 
 import { SHOW_DUMMY } from "../fixtures";
 import {

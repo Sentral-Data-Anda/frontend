@@ -1,49 +1,6 @@
 import { z } from "zod";
 
-/**
- * Aksi yang bisa dipegang sebuah peran atas satu menu.
- *
- * Cerminan `enum MenuAction` di `be-sada/src/config/schema.prisma:409`. RESET
- * bukan sinonim UPDATE: ia menerbitkan ulang kredensial sekaligus mencabut
- * sesi.
- */
-export const MENU_ACTIONS = [
-  "VIEW",
-  "CREATE",
-  "UPDATE",
-  "DELETE",
-  "RESET",
-  "APPROVE",
-  "REJECT",
-] as const;
-
-export type MenuAction = (typeof MENU_ACTIONS)[number];
-
-export type MenuNode = {
-  publicId: string;
-  slug: string;
-  name: string;
-  order: number;
-  action: MenuAction[];
-  children: MenuNode[];
-};
-
-/**
- * Schema divalidasi di batas jaringan, bukan diasumsikan.
- *
- * `z.lazy` dipakai karena simpul menu bersarang ke dirinya sendiri; tanpa itu
- * referensinya dipakai sebelum terdefinisi.
- */
-export const menuNodeSchema: z.ZodType<MenuNode> = z.lazy(() =>
-  z.object({
-    publicId: z.string(),
-    slug: z.string(),
-    name: z.string(),
-    order: z.number(),
-    action: z.array(z.enum(MENU_ACTIONS)),
-    children: z.array(menuNodeSchema),
-  }),
-);
+import { menuNodeSchema } from "@/types/menu";
 
 export const USER_STATUSES = ["PENDING", "ACTIVE", "DEACTIVATED"] as const;
 

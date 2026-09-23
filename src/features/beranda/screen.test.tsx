@@ -4,7 +4,8 @@ import { afterEach, describe, expect, test } from "bun:test";
 
 import { MENU } from "@/config/menu";
 import { SessionProvider } from "@/features/auth/session-provider";
-import type { MenuNode, Session } from "@/features/auth/types";
+import type { Session } from "@/features/auth/types";
+import type { MenuNode } from "@/types/menu";
 
 import { HomeScreen } from "./screen";
 

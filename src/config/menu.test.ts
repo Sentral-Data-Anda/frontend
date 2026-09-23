@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import type { MenuNode } from "@/features/auth/types";
+import type { MenuNode } from "@/types/menu";
 
 import { TREE } from "../../scripts/menu-tree";
 

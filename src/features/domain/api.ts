@@ -2,7 +2,7 @@ import { notFound, redirect } from "next/navigation";
 
 import { resolveDomain } from "@/config/resolve-domain";
 import { getSession } from "@/features/auth/get-session";
-import type { MenuNode } from "@/features/auth/types";
+import type { MenuNode } from "@/types/menu";
 
 /**
  * Simpul domain untuk satu slug rute, atau keluar lewat 404/redirect.

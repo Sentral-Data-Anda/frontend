@@ -6,7 +6,7 @@ import {
   menuHref,
   type MenuSlug,
 } from "@/config/menu";
-import type { MenuNode } from "@/features/auth/types";
+import type { MenuNode } from "@/types/menu";
 
 /**
  * Halaman domain: daftar layar yang boleh dibuka peran ini. Sumbernya anak

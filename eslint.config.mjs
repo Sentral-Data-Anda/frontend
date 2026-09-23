@@ -245,6 +245,18 @@ const eslintConfig = defineConfig([
       "boundaries/include": [
         "src/{app,features,components,lib,hooks,config,types}/**/*.{ts,tsx}",
       ],
+      // Hanya EMPAT berkas auth yang boleh disentuh lintas lapisan, dan
+      // keempatnya memang "sesi": penyedia sesi, pembaca sesi di server, hook
+      // izin, dan kontrak sesinya sendiri (`types.ts`, setelah tipe menu
+      // pindah ke `types/menu.ts`). `refresh.ts` — rotasi token — tidak ikut,
+      // dan itulah yang membuat penyempitan ini ada artinya.
+      "boundaries/files": [
+        {
+          category: "auth-session",
+          pattern:
+            "src/features/auth/{use-menu-access,session-provider,get-session,types}.{ts,tsx}",
+        },
+      ],
       "boundaries/elements": [
         { type: "app", pattern: "src/app/**" },
         { type: "feature", pattern: "src/features/*", capture: ["feature"] },
@@ -286,15 +298,11 @@ const eslintConfig = defineConfig([
                 },
               },
             },
-            // Sesi, menu, dan izin dipakai semua lapisan — pengecualian sadar
-            // yang sudah tertulis di §7 dokumen struktur.
-            {
-              allow: {
-                to: {
-                  element: { type: "feature", captured: { feature: "auth" } },
-                },
-              },
-            },
+            // Sesi dan izin dipakai semua lapisan — pengecualian sadar (§7),
+            // tapi hanya untuk ketiga berkasnya, bukan seluruh features/auth.
+            // Tanpa penyempitan ini, fitur mana pun boleh mengimpor
+            // `features/auth/refresh.ts` tanpa satu pun alarm.
+            { allow: { to: { file: { categories: ["auth-session"] } } } },
             {
               from: { element: { type: "shared" } },
               allow: { to: { element: { type: "shared" } } },

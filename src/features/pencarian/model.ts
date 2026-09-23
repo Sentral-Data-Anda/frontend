@@ -1,5 +1,5 @@
 import { MENU_DESCRIPTION, type MenuSlug } from "@/config/menu";
-import type { MenuNode } from "@/features/auth/types";
+import type { MenuNode } from "@/types/menu";
 
 export type ScreenHit = { domain: MenuNode; leaf: MenuNode };
 

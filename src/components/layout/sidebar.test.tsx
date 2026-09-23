@@ -18,7 +18,8 @@ import {
 } from "bun:test";
 
 import { SessionProvider } from "@/features/auth/session-provider";
-import type { MenuNode, Session } from "@/features/auth/types";
+import type { Session } from "@/features/auth/types";
+import type { MenuNode } from "@/types/menu";
 
 mock.module("next/navigation", () => ({
   usePathname: () => "/kejemaatan/keluarga",
