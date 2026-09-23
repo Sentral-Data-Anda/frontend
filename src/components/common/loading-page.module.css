@@ -1,10 +1,15 @@
 /*
- * Muncul dengan lembut: 150ms fade, supaya kemunculannya tidak "menjentik"
- * setelah jeda tampil di `LoadingPage`.
+ * Jendela tampil, dijalankan CSS supaya markupnya tetap ikut terkirim di HTML
+ * fallback (lihat `loading-page.tsx`): tak terlihat selama 150ms pertama
+ * (`both` = fill backwards), lalu muncul dengan 150ms fade supaya
+ * kemunculannya tidak "menjentik".
  */
+.page {
+  animation: appear 150ms ease-out 150ms both;
+}
+
 .stage {
   position: relative;
-  animation: appear 150ms ease-out both;
   display: flex;
   width: 200px;
   height: 200px;
@@ -44,24 +49,24 @@
   -webkit-mask-image: url("/loading/sada-s.png");
   mask-image: url("/loading/sada-s.png");
   animation:
-    floatS 800ms cubic-bezier(0.2, 0, 0, 1) forwards,
-    breathe 1800ms ease-in-out 800ms infinite;
+    floatS 800ms cubic-bezier(0.2, 0, 0, 1) 150ms forwards,
+    breathe 1800ms ease-in-out 950ms infinite;
 }
 
 .letterA {
   -webkit-mask-image: url("/loading/sada-a.png");
   mask-image: url("/loading/sada-a.png");
   animation:
-    floatA 800ms cubic-bezier(0.2, 0, 0, 1) forwards,
-    breathe 1800ms ease-in-out 800ms infinite;
+    floatA 800ms cubic-bezier(0.2, 0, 0, 1) 150ms forwards,
+    breathe 1800ms ease-in-out 950ms infinite;
 }
 
 .letterD {
   -webkit-mask-image: url("/loading/sada-d.png");
   mask-image: url("/loading/sada-d.png");
   animation:
-    floatD 800ms cubic-bezier(0.2, 0, 0, 1) forwards,
-    breathe 1800ms ease-in-out 800ms infinite;
+    floatD 800ms cubic-bezier(0.2, 0, 0, 1) 150ms forwards,
+    breathe 1800ms ease-in-out 950ms infinite;
 }
 
 @keyframes appear {
@@ -166,5 +171,10 @@
   .letterA,
   .letterD {
     animation: none;
+  }
+
+  /* Jeda tampil tetap; yang hilang cuma fade-nya. */
+  .page {
+    animation: appear 1ms linear 150ms both;
   }
 }

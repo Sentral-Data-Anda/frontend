@@ -23,6 +23,7 @@
  *                                         Lihat `scripts/mock-dashboard.ts`.
  *   MOCK_MAJELIS_NO_FINANCE=1           → majelis tanpa LAPORAN_KEUANGAN
  *   MOCK_NO_APPROVAL=1                  → antrean persetujuan kosong
+ *   MOCK_DELAY_MS=3000 bun run dev:mock → semua jawaban ditunda 3 detik (layar tunggu)
  *
  * Port bisa digeser supaya berjalan di samping `dev:mock` lain:
  *   MOCK_API_PORT=3011 PORT=3010 bun run dev:mock
@@ -208,9 +209,14 @@ const list = (
   });
 };
 
+/** `MOCK_DELAY_MS=3000` — menunda SEMUA jawaban, untuk menguji layar tunggu. */
+const DELAY_MS = Number(process.env.MOCK_DELAY_MS ?? 0);
+
 Bun.serve({
   port: API_PORT,
-  fetch(request) {
+  async fetch(request) {
+    if (DELAY_MS > 0) await Bun.sleep(DELAY_MS);
+
     const url = new URL(request.url);
     const path = url.pathname.replace(/^\/api\/v1/, "");
 
