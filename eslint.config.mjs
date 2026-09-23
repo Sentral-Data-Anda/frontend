@@ -2,6 +2,7 @@ import { defineConfig, globalIgnores } from "eslint/config";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
 import eslintConfigPrettier from "eslint-config-prettier";
+import boundaries from "eslint-plugin-boundaries";
 
 // Selector `no-restricted-syntax` disimpan sebagai konstanta karena di flat
 // config blok yang lebih akhir MENGGANTIKAN seluruh array opsi aturan yang sama
@@ -31,7 +32,7 @@ const NAMING_SELECTORS = [
     selector:
       "VariableDeclarator[init.callee.name='useBoolean'][id.name!=/^is[A-Z0-9]/]",
     message:
-      "Nama state boolean wajib diawali \"is\". \"has\", \"should\", \"can\", dan \"show\" tidak dikecualikan.",
+      'Nama state boolean wajib diawali "is". "has", "should", "can", dan "show" tidak dikecualikan.',
   },
 ];
 
@@ -54,6 +55,21 @@ const TEXT_SIZE_SELECTORS = [
       "Ukuran teks hanya lewat token: text-title (12→14px di lg), text-body (12px), text-caption (10px). Maks 14px, dan hanya di desktop.",
   },
 ];
+
+// Barrel menyembunyikan letak berkas (§6). Regex, bukan glob: pola glob
+// "@/features/*" di no-restricted-imports juga cocok dengan sub-jalur, jadi
+// ia akan melarang semua impor fitur, bukan hanya impor foldernya.
+const NO_BARREL_IMPORT = {
+  regex: "^@/features/[^/]+(/index)?$",
+  message:
+    "Tanpa barrel: sebut berkasnya, mis. @/features/beranda/widgets/registry.",
+};
+
+const NO_UI_PRIMITIVE_IMPORT = {
+  group: ["@/components/ui/*"],
+  message:
+    "Layar memakai wrapper di @/components/common, bukan primitif shadcn langsung.",
+};
 
 const CLASS_SELECTORS = [
   {
@@ -78,7 +94,9 @@ const CLASS_SELECTORS = [
       "Langkah skala brand (primary-50 … failed-900) hanya dipakai lewat token semantik di globals.css, bukan langsung di layar.",
   },
   {
-    selector: inClassName(String.raw`/(^|[\s:])font-(bold|extrabold|black)($|\s)/`),
+    selector: inClassName(
+      String.raw`/(^|[\s:])font-(bold|extrabold|black)($|\s)/`,
+    ),
     message:
       "Roboto hanya dimuat 400–600. Pakai font-semibold, bukan bobot 700 ke atas.",
   },
@@ -184,6 +202,15 @@ const eslintConfig = defineConfig([
     },
   },
 
+  // Impor menyebut berkasnya, bukan barrel (§6). Barrel menyembunyikan letak
+  // berkas — persis keluhan yang memicu dokumen struktur.
+  {
+    files: ["src/**/*.{ts,tsx}"],
+    rules: {
+      "no-restricted-imports": ["error", { patterns: [NO_BARREL_IMPORT] }],
+    },
+  },
+
   // Layar hanya boleh memakai wrapper, bukan primitif shadcn langsung. Begitu
   // satu layar merangkai primitif sendiri, warna dan jaraknya ikut tersalin ke
   // layar itu, dan dua halaman sejenis pelan-pelan berbeda tanpa ada yang
@@ -194,15 +221,128 @@ const eslintConfig = defineConfig([
     rules: {
       "no-restricted-imports": [
         "error",
+        { patterns: [NO_UI_PRIMITIVE_IMPORT, NO_BARREL_IMPORT] },
+      ],
+    },
+  },
+
+  // Arah impor antar-lapisan (docs/design/frontend-structure.md §1 dan §9).
+  // Tanpa penegakan, konvensi ini luntur di layar ke-20, bukan ke-61: satu
+  // fitur mengimpor isi fitur lain, lalu keduanya tidak bisa dipindah atau
+  // dihapus tanpa membaca seluruh repo.
+  //
+  //   app      → feature, shared
+  //   feature  → shared, fitur yang SAMA, dan features/auth (sesi & izin)
+  //   shared   → shared
+  //   tidak ada yang boleh mengimpor app
+  {
+    files: ["src/**/*.{ts,tsx}"],
+    plugins: { boundaries },
+    settings: {
+      // Titik masuk runtime Next di akar `src` (`proxy.ts`,
+      // `instrumentation*.ts`) tidak termasuk: keduanya bukan lapisan, dan
+      // plugin ini mengklasifikasi folder, bukan berkas lepas.
+      "boundaries/include": [
+        "src/{app,features,components,lib,hooks,config,types}/**/*.{ts,tsx}",
+      ],
+      "boundaries/elements": [
+        { type: "app", pattern: "src/app/**" },
+        { type: "feature", pattern: "src/features/*", capture: ["feature"] },
         {
-          patterns: [
+          type: "shared",
+          pattern: "src/{components,lib,hooks,config,types}/**",
+        },
+      ],
+    },
+    rules: {
+      "boundaries/dependencies": [
+        "error",
+        {
+          default: "disallow",
+          message:
+            "Arah impor: app → feature/shared, feature → shared + fitur yang sama + features/auth, shared → shared. Lihat docs/design/frontend-structure.md §1.",
+          policies: [
             {
-              group: ["@/components/ui/*"],
-              message:
-                "Layar memakai wrapper di @/components/common, bukan primitif shadcn langsung.",
+              from: { element: { type: "app" } },
+              allow: {
+                to: { element: { types: { anyOf: ["feature", "shared"] } } },
+              },
+            },
+            {
+              from: { element: { type: "feature" } },
+              allow: { to: { element: { type: "shared" } } },
+            },
+            // Fitur hanya boleh menyentuh dirinya sendiri.
+            {
+              from: { element: { type: "feature" } },
+              allow: {
+                to: {
+                  element: {
+                    type: "feature",
+                    captured: {
+                      feature: "{{ from.element.captured.feature }}",
+                    },
+                  },
+                },
+              },
+            },
+            // Sesi, menu, dan izin dipakai semua lapisan — pengecualian sadar
+            // yang sudah tertulis di §7 dokumen struktur.
+            {
+              allow: {
+                to: {
+                  element: { type: "feature", captured: { feature: "auth" } },
+                },
+              },
+            },
+            {
+              from: { element: { type: "shared" } },
+              allow: { to: { element: { type: "shared" } } },
             },
           ],
         },
+      ],
+    },
+  },
+
+  // Impor menyebut berkasnya, bukan barrel (§6). Barrel menyembunyikan letak
+  // berkas — persis keluhan yang memicu dokumen struktur.
+  {
+    files: ["src/**/*.{ts,tsx}"],
+    rules: {
+      "no-restricted-imports": ["error", { patterns: [NO_BARREL_IMPORT] }],
+    },
+  },
+
+  // Layar hanya boleh memakai wrapper, bukan primitif shadcn langsung. Begitu
+  // satu layar merangkai primitif sendiri, warna dan jaraknya ikut tersalin ke
+  // layar itu, dan dua halaman sejenis pelan-pelan berbeda tanpa ada yang
+  // sadar. Yang boleh menyentuh primitif hanya components/common dan
+  // components/layout.
+  {
+    files: ["src/app/**/*.{ts,tsx}"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        { patterns: [NO_UI_PRIMITIVE_IMPORT, NO_BARREL_IMPORT] },
+      ],
+    },
+  },
+
+  // page.tsx hanya metadata + satu komponen layar (§5). Begitu logika mulai
+  // menumpuk di rute, ia tidak bisa diuji dan tidak bisa dipakai ulang.
+  //
+  // Komentar dan baris kosong tidak dihitung: batas ini soal banyaknya KODE
+  // di rute, dan menghitung komentar justru menghukum berkas yang menjelaskan
+  // keputusan rutenya (mis. `dynamicParams` di `[domain]/page.tsx`).
+  // `dev/**` dikecualikan seperti pada aturan kelas: bukan layar produk.
+  {
+    files: ["src/app/**/page.tsx"],
+    ignores: ["src/app/dev/**"],
+    rules: {
+      "max-lines": [
+        "error",
+        { max: 30, skipComments: true, skipBlankLines: true },
       ],
     },
   },

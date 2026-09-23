@@ -1,19 +1,9 @@
 import type { Metadata } from "next";
-import { notFound, redirect } from "next/navigation";
 
-import { MenuTile, MenuTileGrid } from "@/components/common/menu-tile";
 import { PageContainer } from "@/components/layout/page-container";
-import { PageHeader } from "@/components/layout/page-header";
-import {
-  DOMAIN_SLUGS,
-  MENU_DESCRIPTION,
-  domainHref,
-  leafIcon,
-  menuHref,
-  type MenuSlug,
-} from "@/config/menu";
-import { resolveDomain } from "@/config/resolve-domain";
-import { getSession } from "@/features/auth/get-session";
+import { DOMAIN_SLUGS, domainHref } from "@/config/menu";
+import { loadDomain } from "@/features/domain/api";
+import { DomainScreen } from "@/features/domain/screen";
 
 type Props = { params: Promise<{ domain: string }> };
 
@@ -34,52 +24,16 @@ export function generateStaticParams() {
   return DOMAIN_SLUGS.map((slug) => ({ domain: domainHref(slug).slice(1) }));
 }
 
-async function loadDomain(param: string) {
-  const session = await getSession();
-
-  if (!session) redirect("/login");
-
-  const result = resolveDomain(session.menu, param);
-
-  if (result.kind === "not-found") notFound();
-  if (result.kind === "redirect") redirect(result.href);
-
-  return result.domain;
-}
-
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const domain = await loadDomain((await params).domain);
-
-  return { title: domain.name };
+  return { title: (await loadDomain((await params).domain)).name };
 }
 
-/**
- * Halaman domain: daftar layar yang boleh dibuka peran ini. Sumbernya anak
- * simpul domain di `session.menu` — sama dengan sidebar dan `/modul`.
- */
 export default async function Page({ params }: Props) {
   const domain = await loadDomain((await params).domain);
 
   return (
     <PageContainer>
-      <div className="pb-6">
-        <PageHeader title={domain.name} backHref="/" />
-
-        <div className="px-gutter pt-2">
-          <MenuTileGrid label={`Layar ${domain.name}`}>
-            {domain.children.map((leaf) => (
-              <MenuTile
-                key={leaf.publicId}
-                href={menuHref(domain.slug, leaf.slug)}
-                domainSlug={domain.slug}
-                icon={leafIcon(leaf.slug, domain.slug)}
-                title={leaf.name}
-                description={MENU_DESCRIPTION[leaf.slug as MenuSlug]}
-              />
-            ))}
-          </MenuTileGrid>
-        </div>
-      </div>
+      <DomainScreen domain={domain} />
     </PageContainer>
   );
 }
