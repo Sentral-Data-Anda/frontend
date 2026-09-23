@@ -175,7 +175,15 @@ export function RiwayatSection({
                 name={`additional.${index}.date`}
                 label="Tanggal"
               >
-                {(field) => <DateField {...field} />}
+                {(field) => (
+                  <DateField
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    onBlur={field.onBlur}
+                    disabled={isDisabled}
+                    label="Tanggal riwayat"
+                  />
+                )}
               </ControlField>
 
               <ControlField

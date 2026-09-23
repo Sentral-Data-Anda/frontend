@@ -113,14 +113,15 @@ export function IdentitySection({
         name="birthDate"
         label="Tanggal lahir"
         isOptional
-        hint="Kosongkan bila tidak diketahui; bisa dilengkapi nanti."
       >
         {(field) => (
           <DateField
-            {...field}
-            // Tanggal lahir tidak bisa di masa depan; batas atas dari
-            // peramban lebih murah daripada satu aturan zod lagi.
-            max={new Date().toISOString().slice(0, 10)}
+            value={field.value}
+            onValueChange={field.onChange}
+            onBlur={field.onBlur}
+            disabled={field.disabled}
+            variant="lahir"
+            label="Tanggal lahir"
           />
         )}
       </ControlField>
@@ -242,7 +243,15 @@ export function MembershipSection({
         isOptional
         hint="Tanggal jemaat ini bergabung di gereja, bukan tanggal pencatatan."
       >
-        {(field) => <DateField {...field} value={field.value} />}
+        {(field) => (
+          <DateField
+            value={field.value}
+            onValueChange={field.onChange}
+            onBlur={field.onBlur}
+            disabled={field.disabled}
+            label="Tanggal bergabung"
+          />
+        )}
       </ControlField>
     </FormSection>
   );

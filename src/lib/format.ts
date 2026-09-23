@@ -56,6 +56,24 @@ export function formatDateTime(value: string | Date) {
   return date ? instantFormat.format(date) : "-";
 }
 
+const weekdayFormat = new Intl.DateTimeFormat("id-ID", {
+  weekday: "long",
+  timeZone: "UTC",
+});
+
+/**
+ * Nama hari sebuah calendar date ("Rabu").
+ *
+ * `timeZone: "UTC"` dengan alasan yang sama persis seperti `formatDate`, dan
+ * di sini akibat salahnya lebih terlihat: hari yang bergeser satu membuat
+ * baris konfirmasi menyebut hari yang bukan hari itu.
+ */
+export function formatWeekday(value: string | Date) {
+  const date = onParse(value);
+
+  return date ? weekdayFormat.format(date) : "-";
+}
+
 const rupiahFormat = new Intl.NumberFormat("id-ID");
 
 const rupiahCompactFormat = new Intl.NumberFormat("id-ID", {

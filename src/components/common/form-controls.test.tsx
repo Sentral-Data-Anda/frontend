@@ -43,7 +43,7 @@ describe("kontrol baru tersambung ke FormField", () => {
         options={OPTIONS}
       />,
     ],
-    ["DateField", <DateField key="d" />],
+    ["DateField", <DateField key="d" value="" onValueChange={() => {}} />],
     ["Textarea", <Textarea key="t" />],
   ])("%s menerima id dan aria dari FormField", (_name, control) => {
     render(
@@ -131,16 +131,21 @@ describe("ComboboxField", () => {
 });
 
 describe("DateField", () => {
-  test("input tanggal native, bukan kalender bikinan sendiri", () => {
+  test("kotak diketik, BUKAN input tanggal native", () => {
     render(
       <FormField label="Tanggal lahir" htmlFor="birthDate">
-        <DateField />
+        <DateField value="" onValueChange={() => {}} />
       </FormField>,
     );
 
-    expect(screen.getByLabelText("Tanggal lahir").getAttribute("type")).toBe(
-      "date",
-    );
+    // Sejak `date-input.md §7`, kalendernya milik kita: kotaknya teks biasa
+    // ber-`inputMode="numeric"`, bukan `type="date"` yang membawa pemilih
+    // bawaan peramban.
+    const box = screen.getByLabelText("Tanggal lahir");
+
+    expect(box.getAttribute("type")).not.toBe("date");
+    expect(box.getAttribute("inputmode")).toBe("numeric");
+    expect(box.getAttribute("placeholder")).toBe("dd/mm/yyyy");
   });
 });
 
