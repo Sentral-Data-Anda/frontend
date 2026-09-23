@@ -187,7 +187,44 @@ export function FormWide({
  * atas sebagai tepinya — baris melayang di desktop hanya memakan tinggi
  * jendela.
  */
-export function FormActions({ children }: { children: ReactNode }) {
+export function FormActions({
+  status,
+  children,
+}: {
+  /**
+   * Satu kalimat status form (mis. "Belum lengkap: …"). Di bawah `lg` ia
+   * duduk di atas bilah yang menempel, di aliran halaman; di `lg` ke atas ia
+   * pindah ke KIRI tombol — status di kiri, aksi di kanan. Di bawah kelompok
+   * terakhir ia terbaca seperti catatan milik kelompok itu.
+   *
+   * Dirender dua kali, dan hanya satu yang tampil (`display: none` pada yang
+   * lain), jadi pembaca layar juga hanya menemukan satu.
+   */
+  status?: ReactNode;
+  children: ReactNode;
+}) {
+  return (
+    <>
+      {status ? (
+        <div className={cn(shellWidthForm, "lg:hidden")}>
+          <p className="text-muted-foreground px-gutter pb-4 text-caption">
+            {status}
+          </p>
+        </div>
+      ) : null}
+
+      <FormActionsBar status={status}>{children}</FormActionsBar>
+    </>
+  );
+}
+
+function FormActionsBar({
+  status,
+  children,
+}: {
+  status?: ReactNode;
+  children: ReactNode;
+}) {
   return (
     <div className="border-border bg-card sticky bottom-0 z-30 border-t pb-[env(safe-area-inset-bottom)] lg:static lg:border-t-0 lg:bg-transparent lg:pb-8">
       {/*
@@ -195,7 +232,13 @@ export function FormActions({ children }: { children: ReactNode }) {
         berhenti di tepi field, sejajar dengan garis pemisah kelompok.
       */}
       <div className={cn(shellWidthForm, "md:px-gutter")}>
-        <div className="lg:border-border flex justify-end gap-2 px-gutter py-3 md:px-0 lg:border-t lg:pt-5">
+        <div className="lg:border-border flex items-center justify-end gap-2 px-gutter py-3 md:px-0 lg:border-t lg:pt-5">
+          {status ? (
+            <p className="text-muted-foreground hidden flex-1 pr-4 text-caption lg:block">
+              {status}
+            </p>
+          ) : null}
+
           {children}
         </div>
       </div>

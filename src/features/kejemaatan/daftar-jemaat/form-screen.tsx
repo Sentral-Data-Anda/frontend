@@ -209,7 +209,22 @@ export function JemaatFormScreen({ code }: { code?: string }) {
     <FormLayout
       onSubmit={onSave}
       actions={
-        <FormActions>
+        <FormActions
+          status={
+            /*
+              Penanda data belum lengkap (keputusan user): peringatan, bukan
+              penghalang. Jemaatnya tetap boleh disimpan dan dilengkapi nanti —
+              menahan seluruh orang karena satu angka yang tidak diketahui
+              justru membuat orangnya tidak tercatat sama sekali.
+            */
+            missing.length > 0 ? (
+              <>
+                Belum lengkap: {missing.join(", ")}. Jemaat tetap bisa disimpan
+                dan dilengkapi nanti.
+              </>
+            ) : undefined
+          }
+        >
           <Button
             type="button"
             variant="outline"
@@ -256,25 +271,13 @@ export function JemaatFormScreen({ code }: { code?: string }) {
         <RiwayatSection form={form} isDisabled={isSubmitting} isEdit={isEdit} />
       </div>
 
-      <div className="space-y-3 px-gutter pb-4">
+      {/* `empty:hidden`: tanpa peringatan duplikat dan galat, jalurnya hilang. */}
+      <div className="space-y-3 px-gutter pb-4 empty:hidden">
         <DuplicateWarning
           name={watched.name ?? ""}
           birthDate={watched.birthDate ?? ""}
           ownCode={code}
         />
-
-        {/*
-          Penanda data belum lengkap (keputusan user): peringatan, bukan
-          penghalang. Jemaatnya tetap boleh disimpan dan dilengkapi nanti —
-          menahan seluruh orang karena satu angka yang tidak diketahui justru
-          membuat orangnya tidak tercatat sama sekali.
-        */}
-        {missing.length > 0 ? (
-          <p className="text-muted-foreground text-caption">
-            Belum lengkap: {missing.join(", ")}. Jemaat tetap bisa disimpan dan
-            dilengkapi nanti.
-          </p>
-        ) : null}
 
         {/*
           Galat tingkat form mendapat BIDANG, bukan satu baris merah: ia
