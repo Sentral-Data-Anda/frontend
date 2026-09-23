@@ -206,8 +206,8 @@ export function MembershipSection({
         isHintWarning={isCodeIndukChanged}
         hint={
           isCodeIndukChanged
-            ? "Kode induk diubah. Kalau jemaat ini punya akun, username-nya ikut berubah."
-            : "Nomor anggota gereja, bebas formatnya. Juga menjadi username akun jemaat ini."
+            ? "Bila jemaat ini punya akun, username-nya ikut berubah."
+            : "Bebas formatnya; juga menjadi username akun jemaat."
         }
       >
         {(field) => (

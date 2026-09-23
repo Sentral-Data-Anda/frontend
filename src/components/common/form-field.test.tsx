@@ -66,9 +66,11 @@ describe("FormField", () => {
 
   test("slot pesan tetap memakai ruang walau kosong", () => {
     const { container } = onRenderField({});
-    const slot = container.querySelector("p");
+    const slot = container.querySelector('[class*="min-h-"]');
 
+    // Slotnya ada dan memesan tinggi walau tidak ada pesan — kalau tidak,
+    // pesan yang menyisip menggeser semua kontrol di bawahnya.
     expect(slot).not.toBeNull();
-    expect(slot?.className).toContain("min-h-");
+    expect(slot?.textContent).toBe("");
   });
 });

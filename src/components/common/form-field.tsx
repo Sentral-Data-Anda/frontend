@@ -91,19 +91,35 @@ export function FormField({
         fokus mendarat di kontrol yang aria-invalid. role="alert" hanya milik
         galat tingkat form.
       */}
-      <p
-        id={messageId}
-        className={cn(
-          "min-h-[1.125rem] text-caption",
-          error
-            ? "text-destructive text-body"
-            : isHintWarning
-              ? "border-warning bg-warning/10 rounded-control border px-2 py-1"
-              : "text-muted-foreground",
-        )}
-      >
-        {message}
-      </p>
+      {/*
+        Slot bertinggi TETAP 22px: muat satu baris galat (`text-body`, 18px)
+        dengan 4px sisa, atau satu baris petunjuk (`text-caption`, 14px)
+        dengan 8px sisa, dan kosong pun tetap 22px. Karena tingginya tidak
+        bergantung isi, galat yang menggantikan petunjuk — atau muncul di
+        slot kosong — tidak menggeser apa pun di bawahnya.
+
+        Syaratnya satu: pesan di slot ini SATU BARIS di 390. Petunjuk yang
+        butuh dua baris membuat slotnya memanjang, dan saat galat satu baris
+        menggantikannya slot itu memendek — pergeseran yang sama yang mau
+        dicegah. Kalimat panjang milik catatan kelompok (`FormSection note`).
+      */}
+      <div className="min-h-[1.375rem]">
+        {message ? (
+          <p
+            id={messageId}
+            className={cn(
+              "text-caption",
+              error
+                ? "text-destructive text-body"
+                : isHintWarning
+                  ? "border-warning bg-warning/10 rounded-control border px-2 py-0.5"
+                  : "text-muted-foreground",
+            )}
+          >
+            {message}
+          </p>
+        ) : null}
+      </div>
     </div>
   );
 }
