@@ -64,13 +64,14 @@ describe("FormField", () => {
     expect(screen.getByText("Terlalu pendek")).toBeTruthy();
   });
 
-  test("slot pesan tetap memakai ruang walau kosong", () => {
+  /**
+   * Pesan hanya memakan ruang bila ada. Slot kosong bertinggi tetap sempat
+   * dipakai, tapi membuat jarak antar-field tidak rata; pergeseran dicegah
+   * di sumbernya — form memvalidasi saat submit, bukan saat blur.
+   */
+  test("tanpa petunjuk dan galat, tidak ada elemen pesan sama sekali", () => {
     const { container } = onRenderField({});
-    const slot = container.querySelector('[class*="min-h-"]');
 
-    // Slotnya ada dan memesan tinggi walau tidak ada pesan — kalau tidak,
-    // pesan yang menyisip menggeser semua kontrol di bawahnya.
-    expect(slot).not.toBeNull();
-    expect(slot?.textContent).toBe("");
+    expect(container.querySelector("p")).toBeNull();
   });
 });

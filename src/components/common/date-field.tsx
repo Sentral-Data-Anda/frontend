@@ -46,6 +46,7 @@ export function DateField({
   label = "Tanggal",
   min = MIN_DEFAULT,
   max,
+  hint = "Ketik dd/mm/yyyy, mis. 12/05/1990.",
   isClearable = true,
   disabled = false,
   onBlur,
@@ -60,6 +61,12 @@ export function DateField({
   label?: string;
   min?: string;
   max?: string;
+  /**
+   * Petunjuk field tanggal, ditampilkan DI BARIS KONFIRMASI saat belum ada
+   * tanggal yang sah — bukan lewat `hint` `FormField`. Field tanggal hanya
+   * punya satu baris pesan (lihat komentar pada baris itu). Satu baris di 390.
+   */
+  hint?: string;
   /** Kaki kalender menampilkan "Hapus" — untuk field yang boleh kosong. */
   isClearable?: boolean;
   disabled?: boolean;
@@ -182,7 +189,7 @@ export function DateField({
   );
 
   return (
-    <div className="space-y-1">
+    <div>
       <div className="relative">
         <Input
           ref={boxRef}
@@ -293,14 +300,22 @@ export function DateField({
         ditulis layar, dan digantikan pesan galat selama ada galat.
       */}
       {/*
-        Satu slot bertinggi tetap, sama seperti `FormField`: baris ini
-        muncul-hilang mengikuti isian, dan kalau ia menggeser tata letak maka
-        kontrol di bawahnya ikut bergerak tepat saat user hendak menekannya.
+        SATU-SATUNYA slot bertinggi tetap di form, dan alasannya khusus:
+        field tanggal memang memvalidasi ketikannya saat kotak ditinggalkan —
+        menunda "31/02/1990" sampai Simpan berarti nilainya diam-diam dikirim
+        kosong, karena bagi skema form tanggal lahir yang kosong itu sah.
+        Maka baris ini SELALU berisi satu baris teks — petunjuk selagi belum
+        ada tanggal, "12 Mei 1990 · Sabtu" sesudahnya, atau galat — dan
+        pergantian di antara ketiganya tidak mengubah tingginya, jadi tidak
+        menggeser apa pun di bawahnya saat kotak ditinggalkan dengan klik.
+
+        Karena selalu berisi, jaraknya ke field berikutnya sama dengan field
+        berpetunjuk lain, dan field tanggal tidak lagi punya dua baris pesan.
       */}
       <p
         aria-live="polite"
         className={cn(
-          "min-h-[1.125rem] text-caption",
+          "mt-1.5 min-h-3.5 truncate text-caption",
           error ? "text-destructive" : "text-muted-foreground",
         )}
       >
@@ -313,7 +328,7 @@ export function DateField({
               ]
                 .filter(Boolean)
                 .join(" · ")
-            : null)}
+            : hint)}
       </p>
 
       {/*

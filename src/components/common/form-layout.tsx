@@ -97,16 +97,12 @@ export function FormSection({
       ) : null}
 
       {/*
-        TANPA jarak antar-field. Ritmenya dibawa slot pesan `FormField` yang
-        bertinggi tetap satu baris: slot itu MENGGANTIKAN jarak, bukan
-        menambahnya. Dulu keduanya bertumpuk (16px jarak + 18px slot), dan di
-        390 itu ±380px ruang kosong yang tidak dipakai apa pun.
-
-        Akibatnya untuk pemakai: anak `FormSection` yang BUKAN field (daftar,
-        tombol, catatan) tidak lagi berjarak otomatis — bungkus sendiri dengan
-        `space-y-*`, seperti kelompok riwayat.
+        SATU sumber jarak antar-field: 16px dari elemen terakhir sebuah field
+        (kontrol, atau pesannya bila ada) ke label field berikutnya — sama
+        untuk field berpetunjuk, tanpa petunjuk, dan bergalat. `FormField`
+        sendiri tidak memberi jarak ke bawah, jadi tidak ada jarak ganda.
       */}
-      <div>{children}</div>
+      <div className="space-y-4">{children}</div>
     </fieldset>
   );
 }

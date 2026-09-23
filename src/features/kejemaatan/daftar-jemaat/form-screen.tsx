@@ -53,11 +53,17 @@ import { RiwayatSection } from "./ui/riwayat-fields";
  * awal, judul, label tombol, dan kata kerja HTTP-nya. Dua berkas untuk itu
  * akan berbeda pelan-pelan tanpa ada yang sengaja membedakannya.
  *
- * `mode: "onTouched"` (form-pattern.md §3.6): galat pertama kali muncul saat
- * field DITINGGALKAN, bukan saat huruf pertama diketik — mengetik "Mar" dari
- * "Maria" tidak boleh langsung berwarna merah. Setelah sebuah field pernah
- * salah, `reValidateMode: "onChange"` memeriksanya tiap ketikan supaya
- * pesannya hilang begitu benar.
+ * `mode: "onSubmit"` (form-pattern.md §3.6, revisi user 2026-09-23): galat
+ * pertama kali muncul saat SIMPAN ditekan, bukan saat field ditinggalkan.
+ * Sesudah itu `reValidateMode: "onChange"` memeriksa ulang tiap ketikan,
+ * sehingga pesan sebuah field hilang begitu isinya benar.
+ *
+ * Kenapa bukan saat blur lagi: galat yang muncul saat blur menyisip dan
+ * menggeser kontrol di bawahnya tepat saat user menekannya — blur terjadi
+ * pada `mousedown` kontrol berikutnya, galatnya muncul, kontrolnya bergeser,
+ * dan `mouseup` jatuh di tempat lain sehingga klik tertelan. Dengan validasi
+ * saat submit, klik sudah selesai saat galat muncul, dan tidak perlu ada
+ * slot kosong yang dipesan di bawah setiap field.
  */
 export function JemaatFormScreen({ code }: { code?: string }) {
   const router = useRouter();
@@ -87,7 +93,7 @@ export function JemaatFormScreen({ code }: { code?: string }) {
 
   const form = useForm<JemaatFormValues>({
     resolver: zodResolver(jemaatFormSchema),
-    mode: "onTouched",
+    mode: "onSubmit",
     reValidateMode: "onChange",
     defaultValues: EMPTY_JEMAAT_FORM,
   });

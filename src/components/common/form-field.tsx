@@ -51,20 +51,22 @@ export function FormField({
   children: ReactElement<FieldControlProps>;
 }) {
   /**
-   * SATU baris pesan, dan ruangnya disediakan sejak awal.
+   * Satu pesan: galat MENGGANTIKAN petunjuk, bukan menumpuk di bawahnya —
+   * karena itu pesan galat wajib berdiri sendiri (membawa contoh atau akibat
+   * yang tadinya ada di petunjuk).
    *
-   * Dulu petunjuk dan galat adalah dua `<p>` yang muncul-hilang, dan itu
-   * punya akibat yang tidak terlihat sebagai masalah tampilan: pesan galat
-   * yang menyisip MENGGESER seluruh isi di bawahnya. Kalau pergeseran itu
-   * terjadi tepat di antara `mousedown` dan `mouseup` — persis yang terjadi
-   * saat user meninggalkan field wajib lalu menekan kontrol di bawahnya —
-   * `click` tidak pernah terbentuk dan tekanan pertama tertelan. Terukur di
-   * ikon kalender, tapi ia akan memukul tautan, checkbox, dan tombol biasa
-   * yang tidak punya jalan keluar lain.
+   * Pesan hanya memakan ruang BILA ADA. Slot bertinggi tetap sempat dipakai
+   * untuk mencegah galat yang menyisip menggeser kontrol di bawahnya di
+   * antara `mousedown` dan `mouseup`, tapi slot kosong 22px membuat jarak
+   * antar-field tidak rata (field tanpa petunjuk berjarak jauh, field
+   * berpetunjuk sesak). Masalah pergeseran kini diselesaikan di sumbernya:
+   * form memvalidasi saat SUBMIT (`mode: "onSubmit"`), jadi tidak ada galat
+   * yang muncul saat sebuah field ditinggalkan — saat galat muncul, kliknya
+   * sudah selesai.
    *
-   * Karena itu: galat MENGGANTIKAN petunjuk (bukan menumpuk di bawahnya), dan
-   * slotnya punya tinggi minimum satu baris walau kosong. Harganya satu baris
-   * per field; yang dibeli adalah klik yang selalu mendarat.
+   * Ritme: label → kontrol 6px, kontrol → pesan 6px. Jarak ke field
+   * berikutnya milik pembungkusnya (`FormSection`, form login), bukan milik
+   * field ini — supaya tidak ada jarak ganda.
    */
   const message = error ?? hint;
   const messageId = message
@@ -72,8 +74,8 @@ export function FormField({
     : undefined;
 
   return (
-    <div className="space-y-1.5">
-      <label htmlFor={htmlFor} className="block text-body font-medium">
+    <div>
+      <label htmlFor={htmlFor} className="mb-1.5 block text-body font-medium">
         {label}
       </label>
 
@@ -91,35 +93,21 @@ export function FormField({
         fokus mendarat di kontrol yang aria-invalid. role="alert" hanya milik
         galat tingkat form.
       */}
-      {/*
-        Slot bertinggi TETAP 22px: muat satu baris galat (`text-body`, 18px)
-        dengan 4px sisa, atau satu baris petunjuk (`text-caption`, 14px)
-        dengan 8px sisa, dan kosong pun tetap 22px. Karena tingginya tidak
-        bergantung isi, galat yang menggantikan petunjuk — atau muncul di
-        slot kosong — tidak menggeser apa pun di bawahnya.
-
-        Syaratnya satu: pesan di slot ini SATU BARIS di 390. Petunjuk yang
-        butuh dua baris membuat slotnya memanjang, dan saat galat satu baris
-        menggantikannya slot itu memendek — pergeseran yang sama yang mau
-        dicegah. Kalimat panjang milik catatan kelompok (`FormSection note`).
-      */}
-      <div className="min-h-[1.375rem]">
-        {message ? (
-          <p
-            id={messageId}
-            className={cn(
-              "text-caption",
-              error
-                ? "text-destructive text-body"
-                : isHintWarning
-                  ? "border-warning bg-warning/10 rounded-control border px-2 py-0.5"
-                  : "text-muted-foreground",
-            )}
-          >
-            {message}
-          </p>
-        ) : null}
-      </div>
+      {message ? (
+        <p
+          id={messageId}
+          className={cn(
+            "mt-1.5 text-caption",
+            error
+              ? "text-destructive text-body"
+              : isHintWarning
+                ? "border-warning bg-warning/10 rounded-control border px-2 py-0.5"
+                : "text-muted-foreground",
+          )}
+        >
+          {message}
+        </p>
+      ) : null}
     </div>
   );
 }

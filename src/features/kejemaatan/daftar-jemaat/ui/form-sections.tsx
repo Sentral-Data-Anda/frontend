@@ -241,7 +241,6 @@ export function MembershipSection({
         name="joinedAt"
         label="Tanggal bergabung"
         isOptional
-        hint="Tanggal jemaat ini bergabung di gereja, bukan tanggal pencatatan."
       >
         {(field) => (
           <DateField
@@ -250,6 +249,7 @@ export function MembershipSection({
             onBlur={field.onBlur}
             disabled={field.disabled}
             label="Tanggal bergabung"
+            hint="Tanggal bergabung di gereja, bukan tanggal pencatatan."
           />
         )}
       </ControlField>

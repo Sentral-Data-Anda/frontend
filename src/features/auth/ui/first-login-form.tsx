@@ -62,10 +62,11 @@ export function FirstLoginForm({ code }: { code: string }) {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmitPassword)} className="w-full">
-      {/* Tanpa space-y: slot pesan FormField (22px, selalu ada) sudah
-          menjadi jarak antar-field dan jarak ke tombol. */}
-      <div className="mb-4 space-y-1">
+    <form
+      onSubmit={handleSubmit(onSubmitPassword)}
+      className="w-full space-y-4"
+    >
+      <div className="space-y-1">
         <h1 className="text-title font-semibold">Buat password Anda</h1>
         <p className="text-muted-foreground text-body">
           Akun ini baru pertama kali dipakai. Setelah password dibuat, Anda akan
@@ -97,7 +98,7 @@ export function FirstLoginForm({ code }: { code: string }) {
       </FormField>
 
       {errors.root ? (
-        <p role="alert" className="text-destructive text-body mb-4">
+        <p role="alert" className="text-destructive text-body">
           {errors.root.message}
         </p>
       ) : null}
