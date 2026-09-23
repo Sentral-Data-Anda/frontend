@@ -37,9 +37,17 @@ export function FormLayout({
 /**
  * Satu kelompok field: `<fieldset>` + `<legend>`.
  *
- * `fieldset` bukan kosmetik — `disabled` padanya mematikan SELURUH kontrol di
- * dalamnya dalam satu atribut, dan itulah yang dipakai saat form sedang
- * menyimpan supaya tidak ada perubahan yang masuk setelah payload dikirim.
+ * `fieldset` bukan kosmetik — `disabled` padanya mematikan SELURUH kontrol
+ * native di dalamnya dalam satu atribut, dan itulah yang dipakai saat form
+ * sedang menyimpan supaya tidak ada perubahan yang masuk setelah payload
+ * dikirim.
+ *
+ * TIDAK CUKUP SENDIRIAN, dan ini terukur: kontrol Base UI (`Select`,
+ * `Combobox`) memasang pemicunya lewat handler sendiri dan popup-nya di
+ * portal, DI LUAR fieldset — selagi menyimpan, popup pilihan masih bisa
+ * terbuka dan nilainya berubah setelah payload dikirim. Karena itu layar
+ * TETAP meneruskan `disabled` ke tiap kontrol pilihan; fieldset menjaga yang
+ * native, prop menjaga sisanya.
  */
 export function FormSection({
   legend,

@@ -162,6 +162,7 @@ export function RiwayatSection({
                     value={field.value}
                     onValueChange={field.onChange}
                     options={optionsFor(field.value)}
+                    disabled={isDisabled}
                     placeholder="Pilih jenis riwayat"
                   />
                 )}

@@ -76,6 +76,7 @@ export function IdentitySection({
             value={field.value}
             onValueChange={field.onChange}
             options={GENDER_OPTIONS}
+            disabled={isDisabled}
             placeholder="Pilih jenis kelamin"
           />
         )}
@@ -144,6 +145,7 @@ export function MembershipSection({
             value={field.value}
             onValueChange={field.onChange}
             options={TYPE_OPTIONS}
+            disabled={isDisabled}
             placeholder="Pilih tipe jemaat"
           />
         )}
@@ -159,6 +161,7 @@ export function MembershipSection({
             value={field.value}
             onValueChange={field.onChange}
             options={STATUS_OPTIONS}
+            disabled={isDisabled}
             placeholder="Pilih status"
           />
         )}
@@ -192,6 +195,7 @@ export function MembershipSection({
             options={zoneChurch.options}
             isLoading={zoneChurch.isLoading}
             isClearable={!isAnggota}
+            disabled={isDisabled}
             placeholder="Cari wilayah"
             emptyMessage="Belum ada data wilayah"
           />
@@ -293,6 +297,7 @@ export function SocialSection({
             value={field.value}
             onValueChange={field.onChange}
             options={MARITAL_OPTIONS}
+            disabled={isDisabled}
             placeholder="Pilih status pernikahan"
           />
         )}
@@ -311,6 +316,7 @@ export function SocialSection({
             options={profession.options}
             isLoading={profession.isLoading}
             isClearable
+            disabled={isDisabled}
             placeholder="Cari pekerjaan"
             emptyMessage="Belum ada data pekerjaan"
           />
@@ -330,6 +336,7 @@ export function SocialSection({
             options={ethnicGroup.options}
             isLoading={ethnicGroup.isLoading}
             isClearable={!isAnggota}
+            disabled={isDisabled}
             placeholder="Cari suku"
             emptyMessage="Belum ada data suku"
           />
@@ -348,6 +355,7 @@ export function SocialSection({
             value={field.value}
             onValueChange={field.onChange}
             options={EDUCATION_OPTIONS}
+            disabled={isDisabled}
             placeholder="Pilih pendidikan"
           />
         )}
@@ -371,6 +379,7 @@ export function SocialSection({
             value={field.value}
             onValueChange={field.onChange}
             options={BLOOD_OPTIONS}
+            disabled={isDisabled}
             placeholder="Pilih golongan darah"
           />
         )}
@@ -448,6 +457,7 @@ export function AddressSection({
             onValueChange={(value) => onPickLevel("provincesCode", value)}
             options={provinces.options}
             isLoading={provinces.isLoading}
+            disabled={isDisabled}
             placeholder="Cari provinsi"
             emptyMessage="Belum ada data provinsi"
           />
@@ -466,7 +476,7 @@ export function AddressSection({
             onValueChange={(value) => onPickLevel("regenciesCode", value)}
             options={regencies.options}
             isLoading={regencies.isLoading}
-            disabled={!provincesCode}
+            disabled={isDisabled || !provincesCode}
             placeholder="Cari kabupaten/kota"
             emptyMessage="Belum ada data kabupaten/kota"
           />
@@ -485,7 +495,7 @@ export function AddressSection({
             onValueChange={(value) => onPickLevel("districtsCode", value)}
             options={districts.options}
             isLoading={districts.isLoading}
-            disabled={!regenciesCode}
+            disabled={isDisabled || !regenciesCode}
             placeholder="Cari kecamatan"
             emptyMessage="Belum ada data kecamatan"
           />
@@ -504,7 +514,7 @@ export function AddressSection({
             onValueChange={field.onChange}
             options={villages.options}
             isLoading={villages.isLoading}
-            disabled={!districtsCode}
+            disabled={isDisabled || !districtsCode}
             placeholder="Cari kelurahan/desa"
             emptyMessage="Belum ada data kelurahan/desa"
           />
@@ -564,6 +574,7 @@ export function FamilySection({
             isLoading={keluarga.isLoading}
             onSearch={keluarga.onSearch}
             isClearable
+            disabled={isDisabled}
             placeholder="Cari keluarga"
             emptyMessage="Belum ada data keluarga"
           />
@@ -581,7 +592,7 @@ export function FamilySection({
             value={field.value}
             onValueChange={field.onChange}
             options={ROLE_OPTIONS}
-            disabled={!keluargaId}
+            disabled={isDisabled || !keluargaId}
             placeholder={keluargaId ? "Pilih peran" : "Pilih keluarga dulu"}
           />
         )}
@@ -602,6 +613,7 @@ export function FamilySection({
             isLoading={keluarga.isLoading}
             onSearch={keluarga.onSearch}
             isClearable
+            disabled={isDisabled}
             placeholder="Cari keluarga asal"
             emptyMessage="Belum ada data keluarga"
           />
