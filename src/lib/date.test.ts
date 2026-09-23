@@ -1,12 +1,18 @@
 import { describe, expect, test } from "bun:test";
 
 import {
+  addDays,
+  addMonths,
   ageInYears,
   DATE_ERROR,
+  isSameMonth,
+  isWithin,
+  monthGrid,
   parseDateInput,
   toInputText,
   toIsoDate,
   todayJakarta,
+  weekdayIndex,
 } from "./date";
 
 /** Test wajib `date-input.md §7.10` no. 1–5. */
@@ -165,5 +171,51 @@ describe("todayJakarta", () => {
 
   test("bentuknya YYYY-MM-DD, siap dibandingkan sebagai string", () => {
     expect(todayJakarta()).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+  });
+});
+
+describe("aritmetika kalender (kisi §7.5)", () => {
+  test("addDays menyeberangi bulan dan tahun", () => {
+    expect(addDays("1990-05-12", 1)).toBe("1990-05-13");
+    expect(addDays("1990-05-31", 1)).toBe("1990-06-01");
+    expect(addDays("1990-01-01", -1)).toBe("1989-12-31");
+    expect(addDays("2024-02-28", 1)).toBe("2024-02-29");
+  });
+
+  /**
+   * Penjepitan ini yang membuat panah bulan tidak pernah MELEWATI satu bulan:
+   * `setUTCMonth` bawaan mengubah 31 Januari + 1 bulan jadi 3 Maret.
+   */
+  test("addMonths menjepit ke akhir bulan tujuan, bukan melimpah", () => {
+    expect(addMonths("1990-01-31", 1)).toBe("1990-02-28");
+    expect(addMonths("2024-01-31", 1)).toBe("2024-02-29");
+    expect(addMonths("1990-05-12", -5)).toBe("1989-12-12");
+    expect(addMonths("1990-12-01", 1)).toBe("1991-01-01");
+  });
+
+  test("weekdayIndex: Senin 0 … Minggu 6", () => {
+    expect(weekdayIndex("2026-09-21")).toBe(0); // Senin
+    expect(weekdayIndex("2026-09-23")).toBe(2); // Rabu
+    expect(weekdayIndex("2026-09-27")).toBe(6); // Minggu
+  });
+
+  test("monthGrid selalu 42 sel, mulai Senin, memuat seluruh bulan", () => {
+    const grid = monthGrid("2026-09-15");
+
+    expect(grid).toHaveLength(42);
+    expect(weekdayIndex(grid[0])).toBe(0);
+    expect(grid).toContain("2026-09-01");
+    expect(grid).toContain("2026-09-30");
+    // Tinggi kisi tidak berubah antar bulan — tombol di bawahnya tidak bergeser.
+    expect(monthGrid("2026-02-01")).toHaveLength(42);
+  });
+
+  test("isSameMonth dan isWithin", () => {
+    expect(isSameMonth("2026-09-30", "2026-09-01")).toBe(true);
+    expect(isSameMonth("2026-10-01", "2026-09-01")).toBe(false);
+    expect(isWithin("1990-05-12", "1900-01-01", "2026-09-23")).toBe(true);
+    expect(isWithin("2030-01-01", "1900-01-01", "2026-09-23")).toBe(false);
+    expect(isWithin("1899-01-01", "1900-01-01")).toBe(false);
+    expect(isWithin("2030-01-01")).toBe(true);
   });
 });

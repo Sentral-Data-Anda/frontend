@@ -155,3 +155,101 @@ export function ageInYears(
 
   return age < 0 ? null : age;
 }
+
+/**
+ * Aritmetika kalender.
+ *
+ * Di sini `Date` DIPAKAI, dan itu aman justru karena caranya: selalu
+ * `Date.UTC(...)` dengan tiga angka, tidak pernah mem-parse string tanggal.
+ * Yang berbahaya dan dilarang di seluruh repo adalah `new Date("1990-05-12")`
+ * — parsing string yang hasilnya bergantung zona waktu pembaca. Membangun
+ * momen UTC dari angka lalu membacanya kembali dengan `getUTC*` bebas dari
+ * pergeseran itu, dan menghemat menulis ulang algoritma hari-Julian sendiri.
+ */
+const toUtc = (iso: string): Date | null => {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso.trim());
+
+  return match
+    ? new Date(
+        Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3])),
+      )
+    : null;
+};
+
+const fromUtc = (date: Date): string =>
+  `${String(date.getUTCFullYear()).padStart(4, "0")}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())}`;
+
+/** Geser sejumlah hari; nilai cacat menghasilkan string kosong. */
+export function addDays(iso: string, days: number): string {
+  const date = toUtc(iso);
+
+  if (!date) return "";
+
+  date.setUTCDate(date.getUTCDate() + days);
+
+  return fromUtc(date);
+}
+
+/**
+ * Geser sejumlah bulan, **menjepit** tanggalnya ke akhir bulan tujuan.
+ *
+ * 31 Januari + 1 bulan = 28/29 Februari, bukan 3 Maret. Bawaan `setUTCMonth`
+ * melimpahkan kelebihannya ke bulan berikutnya, dan di kalender itu terlihat
+ * sebagai bulan yang dilewati saat menekan panah.
+ */
+export function addMonths(iso: string, months: number): string {
+  const date = toUtc(iso);
+
+  if (!date) return "";
+
+  const day = date.getUTCDate();
+  const target = new Date(
+    Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + months, 1),
+  );
+  const lastDay = daysInMonth(
+    target.getUTCMonth() + 1,
+    target.getUTCFullYear(),
+  );
+
+  target.setUTCDate(Math.min(day, lastDay));
+
+  return fromUtc(target);
+}
+
+/** Hari pertama bulan yang memuat `iso`. */
+export const startOfMonth = (iso: string): string =>
+  /^(\d{4})-(\d{2})/.test(iso.trim()) ? `${iso.slice(0, 7)}-01` : "";
+
+/** 0 = Senin … 6 = Minggu — pekan Indonesia dimulai Senin (`date-input.md §7.5`). */
+export function weekdayIndex(iso: string): number {
+  const date = toUtc(iso);
+
+  if (!date) return -1;
+
+  return (date.getUTCDay() + 6) % 7;
+}
+
+/**
+ * Enam pekan × tujuh hari yang memuat bulan `iso`, selalu 42 sel.
+ *
+ * Jumlahnya dipatok supaya tinggi kalender tidak berubah saat bulan berganti
+ * — kisi yang melompat satu baris membuat tombol di bawahnya berpindah tepat
+ * saat user hendak menekannya.
+ */
+export function monthGrid(iso: string): string[] {
+  const first = startOfMonth(iso);
+
+  if (!first) return [];
+
+  const start = addDays(first, -weekdayIndex(first));
+
+  return Array.from({ length: 42 }, (_, index) => addDays(start, index));
+}
+
+/** Apakah `iso` berada di dalam bulan yang sama dengan `monthIso`. */
+export const isSameMonth = (iso: string, monthIso: string): boolean =>
+  iso.slice(0, 7) === monthIso.slice(0, 7);
+
+/** `iso` di dalam rentang (batas ikut dihitung); batas kosong = tanpa batas. */
+export const isWithin = (iso: string, min?: string, max?: string): boolean =>
+  (!min || iso >= min) && (!max || iso <= max);

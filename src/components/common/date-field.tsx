@@ -1,8 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { Popover } from "@base-ui/react/popover";
+import { CalendarDays } from "lucide-react";
+import { useRef, useState } from "react";
 
+import { BottomSheet } from "@/components/common/bottom-sheet";
+import { Calendar } from "@/components/common/calendar";
+import { FIELD_POPUP } from "@/components/common/select-field";
 import { Input } from "@/components/ui/input";
+import { useBoolean } from "@/hooks/use-boolean";
+import { useIsDesktop } from "@/hooks/use-is-desktop";
 import {
   DATE_ERROR,
   ageInYears,
@@ -11,6 +18,7 @@ import {
   todayJakarta,
 } from "@/lib/date";
 import { formatDate, formatWeekday } from "@/lib/format";
+import { cn } from "@/lib/utils";
 
 /**
  * Tanggal kalender: **diketik**, dengan baris konfirmasi yang mengeja ulang
@@ -38,6 +46,7 @@ export function DateField({
   label = "Tanggal",
   min = MIN_DEFAULT,
   max,
+  isClearable = true,
   disabled = false,
   onBlur,
   ...aria
@@ -51,6 +60,8 @@ export function DateField({
   label?: string;
   min?: string;
   max?: string;
+  /** Kaki kalender menampilkan "Hapus" — untuk field yang boleh kosong. */
+  isClearable?: boolean;
   disabled?: boolean;
   onBlur?: () => void;
   "aria-invalid"?: boolean;
@@ -76,6 +87,9 @@ export function DateField({
   const [text, setText] = useState(() => toInputText(value));
   const [error, setError] = useState("");
   const [lastValue, setLastValue] = useState(value);
+  const isCalendarOpen = useBoolean();
+  const isDesktop = useIsDesktop();
+  const boxRef = useRef<HTMLInputElement>(null);
 
   /**
    * Menyesuaikan state saat prop berubah — dikerjakan SAAT RENDER, bukan di
@@ -139,24 +153,125 @@ export function DateField({
   const confirmed = !error && parseDateInput(text).iso;
   const age = confirmed && variant === "lahir" ? ageInYears(confirmed) : null;
 
+  /** Kalender memilih → kotak, nilai form, dan galat disetel sekaligus. */
+  const onPick = (iso: string) => {
+    setText(toInputText(iso));
+    setError("");
+    onValueChange(iso);
+    if (isDesktop) isCalendarOpen.onFalse();
+  };
+
+  const onDismiss = () => {
+    isCalendarOpen.onFalse();
+    // Fokus kembali ke kotak (APG §7.8) — tanpa ini, Escape membuang fokus
+    // ke `<body>` dan pengguna keyboard harus menyusuri form dari awal.
+    boxRef.current?.focus();
+  };
+
+  const calendar = (
+    <Calendar
+      value={confirmed || ""}
+      onPick={onPick}
+      onClose={onDismiss}
+      min={min}
+      max={upperBound}
+      startInYearGrid={variant === "lahir" && !confirmed}
+      isClearable={isClearable}
+      hasConfirm={isDesktop === false}
+    />
+  );
+
   return (
     <div className="space-y-1">
-      <Input
-        id={id}
-        {...aria}
-        value={text}
-        onChange={(event) => onType(event.target.value)}
-        onBlur={onLeave}
-        disabled={disabled}
-        // `numeric`, bukan `type="date"`: papan tik angka muncul, tapi
-        // kotaknya tetap milik kita — bukan pemilih bawaan perangkat.
-        inputMode="numeric"
-        autoComplete={variant === "lahir" ? "bday" : "off"}
-        placeholder="dd/mm/yyyy"
-        maxLength={10}
-        aria-invalid={aria["aria-invalid"] ?? (error ? true : undefined)}
-        className="tabular-nums"
-      />
+      <div className="relative">
+        <Input
+          ref={boxRef}
+          id={id}
+          {...aria}
+          value={text}
+          onChange={(event) => onType(event.target.value)}
+          onBlur={onLeave}
+          disabled={disabled}
+          // `numeric`, bukan `type="date"`: papan tik angka muncul, tapi
+          // kotaknya tetap milik kita — bukan pemilih bawaan perangkat.
+          inputMode="numeric"
+          autoComplete={variant === "lahir" ? "bday" : "off"}
+          placeholder="dd/mm/yyyy"
+          maxLength={10}
+          aria-invalid={aria["aria-invalid"] ?? (error ? true : undefined)}
+          // Ruang untuk tombol kalender di dalam kotak.
+          className="pr-control tabular-nums"
+          onKeyDown={(event) => {
+            // `Alt+↓` membuka kalender (APG). Panah biasa tetap milik kotak
+            // teks, jadi mengetik tidak pernah membuka apa pun.
+            if (event.altKey && event.key === "ArrowDown") {
+              event.preventDefault();
+              isCalendarOpen.onTrue();
+            }
+          }}
+        />
+
+        {/*
+        Tombolnya SEBAGIAN kotak, bukan seluruh kotak: mengklik teks harus
+        menaruh kursor untuk mengetik (§7.1). Kalender yang terbuka setiap kali
+        kotak disentuh akan menghalangi jalan yang justru paling cepat.
+      */}
+        {isDesktop === false ? (
+          <button
+            type="button"
+            disabled={disabled}
+            onClick={isCalendarOpen.onTrue}
+            aria-label="Buka kalender"
+            aria-haspopup="dialog"
+            aria-expanded={isCalendarOpen.value}
+            className={CALENDAR_BUTTON}
+          >
+            <CalendarDays className="size-4" aria-hidden />
+          </button>
+        ) : (
+          <Popover.Root
+            open={isCalendarOpen.value}
+            onOpenChange={(next) => {
+              isCalendarOpen.setValue(next);
+              if (!next) boxRef.current?.focus();
+            }}
+          >
+            <Popover.Trigger
+              disabled={disabled}
+              aria-label="Buka kalender"
+              className={CALENDAR_BUTTON}
+            >
+              <CalendarDays className="size-4" aria-hidden />
+            </Popover.Trigger>
+
+            <Popover.Portal>
+              <Popover.Positioner
+                side="bottom"
+                align="end"
+                sideOffset={4}
+                className="z-50 outline-none"
+              >
+                {/*
+                  Cangkang yang SAMA dengan select dan combobox — bukan
+                  permukaan ketiga. Dua hal dari `FIELD_POPUP` sengaja
+                  ditimpa: lebarnya TIDAK mengikuti pemicu (kalender butuh
+                  tujuh kolom, sementara kotak tanggalnya selebar form), dan
+                  batas 18rem dicabut karena kisi + kaki tombolnya ±350px —
+                  dengan batas itu "Hari ini" dan "Hapus" tergulir keluar
+                  pandangan. `--available-height` tetap dipakai supaya popup
+                  tidak pernah melebihi layar.
+                */}
+                <Popover.Popup
+                  aria-label="Pilih tanggal"
+                  className={cn(FIELD_POPUP, "max-h-(--available-height) w-72")}
+                >
+                  {calendar}
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        )}
+      </div>
 
       {/*
         Baris konfirmasi mengeja ulang tanggal dalam bentuk yang tidak bisa
@@ -177,8 +292,34 @@ export function DateField({
             .join(" · ")}
         </p>
       ) : null}
+
+      {/*
+        Di HP panel penuh dari bawah, memakai `BottomSheet` yang sudah ada —
+        `<dialog>` native, jadi lapisan atas, Escape, dan pengurungan fokus
+        datang dari peramban, bukan dari kode yang harus dijaga sendiri.
+      */}
+      {isDesktop === false ? (
+        <BottomSheet
+          isOpen={isCalendarOpen.value}
+          title="Pilih tanggal"
+          subtitle={label}
+          onClose={onDismiss}
+        >
+          {/*
+            Isinya dirender HANYA saat terbuka. `<dialog>` yang tertutup tetap
+            memasang anaknya di DOM, jadi tanpa penjaga ini setiap field
+            tanggal di halaman membawa satu kalender lengkap yang tidak
+            terlihat siapa pun — tiga field berarti tiga kisi 42 sel.
+          */}
+          {isCalendarOpen.value ? calendar : null}
+        </BottomSheet>
+      ) : null}
     </div>
   );
 }
+
+/** Tombol kalender di dalam kotak, 36×36 — target sentuh penuh tinggi kotak. */
+const CALENDAR_BUTTON =
+  "text-muted-foreground hover:text-foreground focus-visible:ring-ring absolute inset-y-0 right-0 flex size-control cursor-pointer items-center justify-center rounded-control transition-colors outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50";
 
 export { DATE_ERROR };
