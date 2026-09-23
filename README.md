@@ -214,6 +214,15 @@ Tiruan meliputi endpoint dashboard v2: `/faktur-supplier`, `/pembayaran`,
 `/payroll`, `/periode-fiskal`, `/jurnal`, dan `/report/jemaat/type-gender`
 (filter `status` bernilai tunggal, persis seperti be-sada).
 
+Varian tiruan untuk **form jemaat**: `MOCK_SAVE_ERROR=validasi` (400 dengan
+`issues[]` — harus mendarat di fieldnya masing-masing), `=induk` / `=email`
+(pesan unik → fieldnya), `=kepala` (kepala keluarga ganda → field peran),
+`=500` (galat tingkat form, isian tetap ada); `MOCK_DDL_EMPTY=1` (semua daftar
+pilihan kosong), `MOCK_DDL_MANY=1` (keluarga 400 baris, membuktikan
+`?filter=&limit=20` sisi server), `MOCK_NO_UPDATE=1` (aksi "Ubah" per baris
+hilang). Jemaat yang ditambahkan lewat form benar-benar masuk ke daftar tiruan
+(di memori), supaya baris baru dan sorotannya bisa dilihat.
+
 `MOCK_MAJELIS_NO_FINANCE=1` (majelis tanpa `LAPORAN_KEUANGAN` — sel KPI dan
 grafik keuangan hilang, grid merapat), `MOCK_NO_APPROVAL=1` (antrean
 persetujuan kosong). Tiruan hanya meniru endpoint yang ada di be-sada
@@ -239,6 +248,41 @@ Latar seluruh `(app)` adalah `bg-canvas` (primary-50), dipasang sekali di
 `AppShell`. Apa pun yang harus putih menulis `bg-card` sendiri (kartu,
 bottom tab, sheet; sidebar desktop navy); `DataList` tidak — barisnya rata di kanvas. Jangan pakai `bg-muted` sebagai bidang
 di atas kanvas — nilainya sama (primary-50) dan tidak terlihat.
+
+### Layar isian (form)
+
+Bentuknya satu dokumen: **[docs/design/form-pattern.md](../docs/design/form-pattern.md)**.
+Layar pertamanya `features/kejemaatan/daftar-jemaat/form-screen.tsx`, dipakai
+dua rute: `/kejemaatan/daftar-jemaat/baru` dan `/kejemaatan/daftar-jemaat/[code]/ubah`
+(kunci `code`, bukan `publicId` — daftar be-sada tidak mengirim `publicId`).
+
+Form adalah **halaman rute sendiri** di semua ukuran, satu kolom `max-w-lg`,
+tujuh kelompok `<fieldset>` urut cara bertanya. Kerangkanya `FormLayout` +
+`FormSection` + `FormActions` di `components/common/form-layout.tsx`; baris
+aksi menempel di bawah layar < lg (di atas bottom tab) dan ikut mengalir ≥ lg.
+
+| Hal                       | Aturannya                                                                                                                                                     |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Kapan galat muncul        | `mode: "onTouched"` + `reValidateMode: "onChange"` — saat field ditinggalkan, bukan saat huruf pertama diketik                                                |
+| Submit dengan galat       | RHF memindahkan fokus, layar menggulir ke field galat pertama. Tanpa ringkasan galat di atas form                                                             |
+| Yang ditandai             | Yang **opsional** (` (opsional)` pudar), bukan yang wajib — di form ini hampir semua wajib                                                                    |
+| Menyimpan                 | Seluruh `<fieldset>` disabled + tombol "Menyimpan…". Tanpa overlay                                                                                            |
+| Berhasil                  | Toast berisi `message` dari server, lalu kembali ke daftar lewat `afterSavePath` (filter terakhir + baris tersorot)                                           |
+| Gagal                     | `applyServerError` di `lib/form-error.ts`: `issues[]` → per field, pesan unik yang dikenal → fieldnya, sisanya galat tingkat form. Isian tidak pernah dibuang |
+| Keluar dengan isian kotor | `beforeunload` + `ConfirmDialog`. Tombol back peramban tidak bisa dicegat App Router — diterima                                                               |
+| Field relasi              | `SelectField` ≤ ±15 nilai tetap, `ComboboxField` di atas itu. 404 dari `ddl/*` = daftar kosong, bukan galat                                                   |
+| Alamat                    | Empat tingkat; mengubah tingkat atas mengosongkan yang di bawahnya, tingkat bawah terkunci sampai atasnya terisi                                              |
+
+Tujuh komponen bersama yang lahir dari layar ini — semuanya tipis di atas Base
+UI yang sudah terpasang, tanpa dependency baru: `select-field`,
+`combobox-field`, `date-field`, `textarea`, `confirm-dialog`, `form-layout`
+(termasuk `LoadingForm`), dan `toast` (`ToastHost` dipasang di `providers.tsx`
+supaya pesan sukses selamat melewati perpindahan ke daftar).
+
+**Galat simpan dipakai ulang semua form**, bukan hanya jemaat:
+`applyServerError(error, setError, mapMessage?)` di `src/lib/form-error.ts`.
+`FetchError` membawa `issues: [{ path, message }]` dari be-sada, dan `path`
+bertitik sudah sebentuk dengan nama field react-hook-form.
 
 ### Layar daftar
 
