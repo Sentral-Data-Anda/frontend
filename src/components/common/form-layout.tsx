@@ -48,7 +48,7 @@ export function FormLayout({
         className={cn("w-full", className)}
         {...props}
       >
-        <div className={shellWidthForm}>{children}</div>
+        <div className={cn(shellWidthForm, "@container/form")}>{children}</div>
         {actions}
       </form>
     </div>
@@ -109,8 +109,13 @@ export function FormSection({
       tablet ke atas gutter-nya menjadi MARGIN, sehingga garis berhenti tepat
       di tepi field, bukan 20px di luarnya.
 
-      Desktop (≥ lg): judul + catatan kelompok di kolom kiri 14rem, field di
-      kanan dalam grid dua kolom (pola halaman pengaturan). Urutan DOM tidak
+      Kolom form ≥ 44rem (704px): judul + catatan kelompok di kolom kiri
+      14rem, field di kanan (pola halaman pengaturan). Container query, bukan
+      breakpoint layar: yang menentukan adalah lebar FORM. Ambang 44rem jatuh
+      di antara kolom tablet (672px) dan kolom desktop tersempit (754px di
+      1024 dengan sidebar penuh, ±737px bila peramban memakai scrollbar
+      klasik), jadi pembagiannya sama dengan `lg` di semua lebar yang
+      diukur. Urutan DOM tidak
       berubah — legend, catatan, lalu field berurutan — jadi urutan baca dan
       Tab tetap kiri ke kanan, baris demi baris. Baris kedua grid `1fr`:
       tinggi field yang membentang dua baris diserap di sana, sehingga
@@ -118,14 +123,14 @@ export function FormSection({
     */
     <fieldset
       disabled={disabled}
-      className="border-border border-b px-gutter py-5 last-of-type:border-b-0 md:mx-gutter md:px-0 lg:grid lg:grid-cols-[14rem_minmax(0,1fr)] lg:grid-rows-[auto_1fr] lg:gap-x-8"
+      className="border-border border-b px-gutter py-5 last-of-type:border-b-0 md:mx-gutter md:px-0 @min-[44rem]/form:grid @min-[44rem]/form:grid-cols-[14rem_minmax(0,1fr)] @min-[44rem]/form:grid-rows-[auto_1fr] @min-[44rem]/form:gap-x-8"
     >
-      <legend className="float-left mb-3 w-full text-title font-semibold lg:col-start-1 lg:row-start-1 lg:mb-1">
+      <legend className="float-left mb-3 w-full text-title font-semibold @min-[44rem]/form:col-start-1 @min-[44rem]/form:row-start-1 @min-[44rem]/form:mb-1">
         {legend}
       </legend>
 
       {note ? (
-        <p className="text-muted-foreground clear-left mb-4 text-caption lg:col-start-1 lg:row-start-2 lg:mb-0">
+        <p className="text-muted-foreground clear-left mb-4 text-caption @min-[44rem]/form:col-start-1 @min-[44rem]/form:row-start-2 @min-[44rem]/form:mb-0">
           {note}
         </p>
       ) : null}
@@ -138,13 +143,13 @@ export function FormSection({
         grid desktop jaraknya sama (16px) dari field yang lebih tinggi di
         barisnya; dua field sebaris selalu sejajar atas.
       */}
-      <div className="@container clear-left lg:col-start-2 lg:row-span-2 lg:row-start-1">
+      <div className="@container clear-left @min-[44rem]/form:col-start-2 @min-[44rem]/form:row-span-2 @min-[44rem]/form:row-start-1">
         {/*
           Dua kolom hanya bila kolom kanan ≥ 36rem (field ≥ 280px). Di 1024
           dengan sidebar penuh kolom kanan 458px: dua field 221px memotong
           petunjuk tanggal satu baris, jadi di sana field tetap satu kolom.
         */}
-        <div className="space-y-4 lg:grid lg:gap-4 lg:space-y-0 @xl:grid-cols-2">
+        <div className="space-y-4 @min-[44rem]/form:grid @min-[44rem]/form:gap-4 @min-[44rem]/form:space-y-0 @xl:grid-cols-2">
           {children}
         </div>
       </div>
