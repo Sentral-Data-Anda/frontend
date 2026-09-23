@@ -11,6 +11,7 @@ import {
   FormLayout,
   LoadingForm,
 } from "@/components/common/form-layout";
+import { useToast } from "@/components/common/toast";
 import { PageHeader } from "@/components/layout/page-header";
 import { MENU, menuHref } from "@/config/menu";
 import { applyServerError, firstErrorField } from "@/lib/form-error";
@@ -52,6 +53,7 @@ export const JEMAAT_LIST_PATH = menuHref(MENU.KEJEMAATAN, MENU.DAFTAR_JEMAAT);
  */
 export function JemaatFormScreen({ code }: { code?: string }) {
   const router = useRouter();
+  const toast = useToast();
   const isEdit = Boolean(code);
   const saveJemaat = useSaveJemaat(code);
   const detail = useJemaatDetail(code);
@@ -86,8 +88,20 @@ export function JemaatFormScreen({ code }: { code?: string }) {
 
   const onSave = form.handleSubmit(
     async (values) => {
+      // Galat tingkat form dari percobaan SEBELUMNYA tidak dihapus resolver
+      // (ia hanya mengurus field), jadi tanpa baris ini "Kesalahan server."
+      // tetap terbaca di bawah tombol saat percobaan kedua berhasil.
+      form.clearErrors("root");
+
       try {
-        await saveJemaat.mutateAsync(toJemaatPayload(values, isEdit));
+        const saved = await saveJemaat.mutateAsync(
+          toJemaatPayload(values, isEdit),
+        );
+
+        // Pesan sukses datang dari server apa adanya ("Berhasil Membuat Data
+        // Jemaat"): satu kalimat, satu sumber, dan tidak ada dua versi yang
+        // harus dijaga sejalan.
+        toast.add({ title: saved.message });
         router.replace(JEMAAT_LIST_PATH);
       } catch (error) {
         // Isian TIDAK PERNAH dibuang karena gagal simpan: yang hilang bukan

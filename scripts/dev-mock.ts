@@ -278,32 +278,46 @@ const list = (
 };
 
 /**
- * Jawaban galat untuk simpan, dipilih lewat `MOCK_SAVE_ERROR`:
+ * Jawaban galat untuk simpan, dipilih lewat `MOCK_SAVE_ERROR`. Tiga jalur
+ * galat di form tidak bisa dinilai dengan mata tanpa cara memunculkannya:
  *
- *   phone   → 400 "No Handphone Sudah Tersedia" (harus mendarat di field telepon)
- *   induk   → 400 "Kode Induk Sudah Tersedia"
- *   kepala  → 500 kepala keluarga ganda (harus mendarat di field peran)
- *   validasi→ 400 pesan validasi yang TIDAK dikenal (harus jadi galat form)
- *   500     → 500 kesalahan server
+ *   validasi → 400 dengan `issues[]` — HARUS mendarat di fieldnya masing-masing
+ *   induk    → 400 "Kode Induk Sudah Tersedia" (pesan unik, mendarat di kode induk)
+ *   email    → 400 "Email Sudah Tersedia"
+ *   kepala   → 500 kepala keluarga ganda (mendarat di field peran)
+ *   500      → 500 kesalahan server (galat tingkat form, isian tidak hilang)
  */
-const SAVE_ERROR: Record<string, [number, string]> = {
-  phone: [400, "No Handphone Sudah Tersedia"],
-  induk: [400, "Kode Induk Sudah Tersedia"],
-  email: [400, "Email Sudah Tersedia"],
-  kepala: [
-    500,
-    'duplicate key value violates unique constraint "keluarga_member_one_head"',
-  ],
-  validasi: [400, "Nama Minimal 3 Karakter"],
-  "500": [500, "Kesalahan server."],
+type SaveError = {
+  status: number;
+  error: string;
+  issues?: { path: string; message: string }[];
+};
+
+const SAVE_ERROR: Record<string, SaveError> = {
+  induk: { status: 400, error: "Kode Induk Sudah Tersedia" },
+  email: { status: 400, error: "Email Sudah Tersedia" },
+  kepala: {
+    status: 500,
+    error:
+      'duplicate key value violates unique constraint "keluarga_member_one_head"',
+  },
+  // Bentuk galat validasi sejak 2026-09-23: `issues[]` ber-`path` bertitik,
+  // yang langsung bisa dipakai `setError(path)` di FE.
+  validasi: {
+    status: 400,
+    error: "Data Tidak Valid",
+    issues: [
+      { path: "name", message: "Nama minimal 3 karakter menurut server" },
+      { path: "birthPlace", message: "Tempat lahir tidak dikenali server" },
+    ],
+  },
+  "500": { status: 500, error: "Kesalahan server." },
 };
 
 const saveFailure = () => {
   const failure = SAVE_ERROR[process.env.MOCK_SAVE_ERROR ?? ""];
 
-  return failure
-    ? json({ status: failure[0], error: failure[1] }, failure[0])
-    : null;
+  return failure ? json(failure, failure.status) : null;
 };
 
 /** `MOCK_DELAY_MS=3000` — menunda SEMUA jawaban, untuk menguji layar tunggu. */
