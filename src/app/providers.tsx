@@ -3,7 +3,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
 
-import { FetchError } from "@/lib/api/fetcher";
+import { shouldRetryQuery } from "@/lib/api/retry";
 
 /**
  * `QueryClient` dibuat di dalam state, bukan di module scope.
@@ -23,13 +23,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
             // cukup pendek supaya data jemaat tidak terasa basi.
             staleTime: 30_000,
 
-            // 4xx berarti permintaannya sendiri yang salah — mengulanginya
-            // tiga kali hanya menunda pesan galat sampai ke user. 401 apalagi:
-            // yang menyelesaikannya penyegaran token di proxy.ts, bukan retry.
-            retry: (failureCount, error) =>
-              error instanceof FetchError && error.status < 500
-                ? false
-                : failureCount < 2,
+            // Satu aturan untuk seluruh aplikasi, bukan per query: jawaban
+            // galat dari server (4xx DAN 5xx) tidak diulang, galat jaringan
+            // diulang. Alasannya di `lib/api/retry.ts`.
+            retry: shouldRetryQuery,
 
             // Aplikasi ini dipakai berjam-jam dengan layar terbuka. Refetch
             // tiap kali jendela difokuskan berarti puluhan permintaan yang
