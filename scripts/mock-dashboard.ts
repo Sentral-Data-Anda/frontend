@@ -942,3 +942,150 @@ export function jemaatTypeGender() {
     { typeJemaat: "SIMPATISAN", ALL: 86, L: 39, P: 47 },
   ];
 }
+
+// ---------------------------------------------------------------------------
+// Daftar pilihan `GET /ddl/*` (form jemaat).
+//
+// Bentuknya `{ id, code, name }`, urut nama, tanpa paginasi, dan 404 saat
+// kosong — sama seperti `ddl.controller.ts` be-sada. Tiap tingkat alamat
+// menyertakan baris `code = "UNKNOWN"`: itu jawaban sah "tidak diketahui",
+// jadi FE menampilkannya apa adanya, bukan menyaringnya diam-diam.
+
+const UNKNOWN_ROW = { id: 0, code: "UNKNOWN", name: "Tidak diketahui" };
+
+const PROFESSIONS = [
+  "Buruh",
+  "Guru",
+  "Ibu rumah tangga",
+  "Karyawan swasta",
+  "Pelajar/mahasiswa",
+  "Pendeta",
+  "Pensiunan",
+  "Perawat",
+  "Petani",
+  "PNS/ASN",
+  "TNI/Polri",
+  "Wiraswasta",
+  "Tidak diketahui",
+];
+
+const ETHNIC_GROUPS = [
+  "Batak Toba",
+  "Batak Karo",
+  "Jawa",
+  "Minahasa",
+  "Nias",
+  "Sunda",
+  "Tionghoa",
+  "Timor",
+  "Tidak diketahui",
+];
+
+const ZONE_CHURCHES = ["Wilayah I", "Wilayah II", "Wilayah III", "Wilayah IV"];
+
+const rowsOf = (names: string[], prefix: string) =>
+  names.map((name, index) => ({
+    id: index + 1,
+    code: `${prefix}-${index + 1}`,
+    name,
+  }));
+
+/**
+ * `MOCK_DDL_MANY=1` membesarkan daftar keluarga ke 400 baris: itu ukuran yang
+ * membuat combobox harus benar-benar menyaring, dan yang menunjukkan kenapa
+ * `?filter=` di be-sada (B9) dibutuhkan.
+ */
+const KELUARGA_COUNT = process.env.MOCK_DDL_MANY ? 400 : 24;
+
+const KELUARGA = Array.from({ length: KELUARGA_COUNT }, (_, index) => ({
+  id: index + 1,
+  code: `KEL-${String(index + 1).padStart(4, "0")}`,
+  name: `Keluarga ${["Sitanggang", "Kusuma", "Wijaya", "Manurung", "Panggabean", "Halim", "Saragih", "Nainggolan"][index % 8]} ${index + 1}`,
+}));
+
+const PROVINCES = [
+  { id: 1, code: "32", name: "Jawa Barat" },
+  { id: 2, code: "31", name: "DKI Jakarta" },
+  { id: 3, code: "36", name: "Banten" },
+  UNKNOWN_ROW,
+];
+
+const REGENCIES: Record<string, { id: number; code: string; name: string }[]> =
+  {
+    "32": [
+      { id: 11, code: "3273", name: "Kota Bandung" },
+      { id: 12, code: "3276", name: "Kota Depok" },
+      UNKNOWN_ROW,
+    ],
+    "31": [{ id: 13, code: "3171", name: "Jakarta Selatan" }, UNKNOWN_ROW],
+    "36": [
+      { id: 14, code: "3671", name: "Kota Tangerang Selatan" },
+      UNKNOWN_ROW,
+    ],
+  };
+
+const DISTRICTS: Record<string, { id: number; code: string; name: string }[]> =
+  {
+    "3273": [
+      { id: 21, code: "327301", name: "Bandung Kulon" },
+      { id: 22, code: "327302", name: "Babakan Ciparay" },
+      UNKNOWN_ROW,
+    ],
+    "3671": [
+      { id: 23, code: "367101", name: "Serpong" },
+      { id: 24, code: "367102", name: "Pondok Aren" },
+      UNKNOWN_ROW,
+    ],
+  };
+
+const VILLAGES: Record<
+  string,
+  { id: number; code: string; name: string; postalCode?: string }[]
+> = {
+  "327301": [
+    { id: 31, code: "3273011001", name: "Cijerah", postalCode: "40213" },
+    { id: 32, code: "3273011002", name: "Gempolsari", postalCode: "40214" },
+    UNKNOWN_ROW,
+  ],
+  "367101": [
+    {
+      id: 33,
+      code: "3671011001",
+      name: "Lengkong Gudang",
+      postalCode: "15321",
+    },
+    { id: 34, code: "3671011002", name: "Rawa Buntu", postalCode: "15318" },
+    UNKNOWN_ROW,
+  ],
+};
+
+/** Daftar untuk satu path `ddl`; `undefined` = endpoint tidak dikenal. */
+export function ddlRows(
+  name: string,
+  params: URLSearchParams,
+): unknown[] | undefined {
+  // `MOCK_DDL_EMPTY=1`: semua daftar pilihan kosong, supaya keadaan "belum ada
+  // data wilayah" di dalam popup bisa dinilai lewat render.
+  if (process.env.MOCK_DDL_EMPTY) return [];
+
+  switch (name) {
+    case "profession":
+      return rowsOf(PROFESSIONS, "PRF");
+    case "ethnic-group":
+      return rowsOf(ETHNIC_GROUPS, "ETH");
+    case "zone-church":
+      return rowsOf(ZONE_CHURCHES, "ZON");
+    case "keluarga":
+      return KELUARGA;
+    case "provinces":
+      return PROVINCES;
+    case "regencies":
+      return REGENCIES[params.get("provincesCode") ?? ""] ?? [UNKNOWN_ROW];
+    case "districts":
+      return DISTRICTS[params.get("regenciesCode") ?? ""] ?? [UNKNOWN_ROW];
+    case "villages":
+      return VILLAGES[params.get("districtsCode") ?? ""] ?? [UNKNOWN_ROW];
+    default:
+      return undefined;
+  }
+}

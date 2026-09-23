@@ -21,6 +21,7 @@ import {
 import {
   AddressSection,
   ContactSection,
+  FamilySection,
   IdentitySection,
   MembershipSection,
   SocialSection,
@@ -92,6 +93,11 @@ export function JemaatFormScreen({ code }: { code?: string }) {
       <MembershipSection form={form} isDisabled={isSubmitting} />
       <ContactSection form={form} isDisabled={isSubmitting} />
       <AddressSection form={form} isDisabled={isSubmitting} />
+      <FamilySection
+        form={form}
+        isDisabled={isSubmitting}
+        isEdit={Boolean(code)}
+      />
       <SocialSection form={form} isDisabled={isSubmitting} />
 
       <div className="space-y-3 px-gutter pt-4">

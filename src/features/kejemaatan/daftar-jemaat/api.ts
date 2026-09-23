@@ -1,12 +1,12 @@
 "use client";
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import type { ListState } from "@/hooks/use-list-params";
 import { useListQuery } from "@/hooks/use-list-query";
 import { fetchList, fetchOne } from "@/lib/api/fetcher";
 
-import type { JemaatListItem, JemaatPayload } from "./types";
+import type { DdlOption, JemaatListItem, JemaatPayload } from "./types";
 
 /**
  * Kunci query disusun di satu tempat, bukan ditulis inline di hook.
@@ -62,4 +62,53 @@ export function useSaveJemaat(code?: string) {
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: jemaatKeys.lists() }),
   });
+}
+
+/**
+ * Daftar pilihan `GET /api/v1/ddl/*`.
+ *
+ * Tiga hal yang membuat hook ini ada, dan ketiganya berlaku untuk SEMUA form
+ * berikutnya — bukan hanya jemaat:
+ *
+ * 1. **404 berarti daftar kosong, bukan galat.** `fetchList` sudah
+ *    menerjemahkannya, jadi kontrolnya menampilkan keadaan kosong, bukan layar
+ *    merah.
+ * 2. **Bertingkat.** `path` bernilai `null` selama tingkat di atasnya belum
+ *    dipilih; `enabled` menahan permintaannya, sehingga tidak ada panggilan
+ *    `regencies?provincesCode=` tanpa provinsi.
+ * 3. **Nilainya berbeda per endpoint.** Alamat memakai `code` (string),
+ *    relasi lain memakai `id`. Menebaknya di layar adalah cara `professionId`
+ *    terisi kode dan gagal diam-diam di server.
+ *
+ * `staleTime` 10 menit: daftar provinsi dan pekerjaan tidak berubah selama
+ * satu sesi pengisian, dan form ini membuka delapan daftar sekaligus.
+ */
+export const ddlKeys = {
+  all: ["ddl"] as const,
+  list: (path: string) => [...ddlKeys.all, path] as const,
+};
+
+export function useDdlOptions(
+  path: string | null,
+  valueKey: "id" | "code" = "id",
+) {
+  const query = useQuery({
+    queryKey: ddlKeys.list(path ?? ""),
+    queryFn: () => fetchList<DdlOption>(`/ddl/${path}`),
+    enabled: path !== null,
+    staleTime: 10 * 60_000,
+    select: (response) =>
+      response.data.map((row) => ({
+        value: String(row[valueKey]),
+        label: row.name,
+      })),
+  });
+
+  return {
+    options: query.data ?? [],
+    // `isFetching`, bukan `isLoading`: saat provinsi diganti, kunci query
+    // kabupaten berganti dan daftar lama masih tersimpan — tanpa ini kontrol
+    // sempat menampilkan kabupaten provinsi sebelumnya sebagai pilihan.
+    isLoading: query.isFetching,
+  };
 }

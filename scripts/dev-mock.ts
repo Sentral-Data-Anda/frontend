@@ -28,6 +28,8 @@
  *                                         keadaan kosong tiap layar dan tiap widget
  *   MOCK_SAVE_ERROR=phone|induk|email|kepala|validasi|500
  *                                       → simpan jemaat gagal dengan jawaban itu
+ *   MOCK_DDL_EMPTY=1                    → semua daftar pilihan form kosong (404)
+ *   MOCK_DDL_MANY=1                     → daftar keluarga 400 baris (combobox panjang)
  *
  * Port bisa digeser supaya berjalan di samping `dev:mock` lain:
  *   MOCK_API_PORT=3011 PORT=3010 bun run dev:mock
@@ -41,6 +43,7 @@ import { NAME, TREE } from "./menu-tree";
 import {
   PERSONAS,
   actionsOf,
+  ddlRows,
   guardSlugOf,
   listBirthdays,
   listCashExpense,
@@ -278,6 +281,22 @@ Bun.serve({
     }
     if (path.startsWith("/auth/")) {
       return json({ status: 200, message: "Berhasil", data: session });
+    }
+
+    // Daftar pilihan form: tanpa paginasi, 404 saat kosong.
+    if (path.startsWith("/ddl/")) {
+      const rows = ddlRows(path.slice(5), url.searchParams);
+
+      if (!rows) return json({ status: 404, error: "Tidak Ditemukan" }, 404);
+      if (rows.length === 0) {
+        return json({ status: 404, error: "Data Tidak Ditemukan" }, 404);
+      }
+
+      return json({
+        status: 200,
+        message: "Berhasil Mendapatkan Data",
+        data: rows,
+      });
     }
 
     /**

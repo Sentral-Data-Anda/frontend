@@ -2,6 +2,7 @@
 
 import { useWatch, type UseFormReturn } from "react-hook-form";
 
+import { ComboboxField } from "@/components/common/combobox-field";
 import { DateField } from "@/components/common/date-field";
 import { FormSection } from "@/components/common/form-layout";
 import { Input } from "@/components/common/input";
@@ -11,6 +12,7 @@ import {
 } from "@/components/common/select-field";
 import { Textarea } from "@/components/common/textarea";
 
+import { useDdlOptions } from "../api";
 import {
   LAST_EDUCATION_OPTIONS,
   normalizePhone,
@@ -19,6 +21,7 @@ import {
 import {
   BLOOD_TYPE_LABEL,
   GENDER_LABEL,
+  ROLE_IN_FAMILY_LABEL,
   STATUS_JEMAAT_LABEL,
   STATUS_PERNIKAHAN_LABEL,
   TYPE_JEMAAT_LABEL,
@@ -40,6 +43,7 @@ const TYPE_OPTIONS = optionsOf(TYPE_JEMAAT_LABEL);
 const STATUS_OPTIONS = optionsOf(STATUS_JEMAAT_LABEL);
 const MARITAL_OPTIONS = optionsOf(STATUS_PERNIKAHAN_LABEL);
 const BLOOD_OPTIONS = optionsOf(BLOOD_TYPE_LABEL);
+const ROLE_OPTIONS = optionsOf(ROLE_IN_FAMILY_LABEL);
 const EDUCATION_OPTIONS: SelectOption[] = LAST_EDUCATION_OPTIONS.map(
   (value) => ({ value, label: value }),
 );
@@ -139,6 +143,7 @@ export function MembershipSection({
 }) {
   const isAnggota =
     useWatch({ control: form.control, name: "typeJemaat" }) === "ANGGOTA";
+  const zoneChurch = useDdlOptions("zone-church");
 
   return (
     <FormSection legend="Keanggotaan" disabled={isDisabled}>
@@ -184,6 +189,26 @@ export function MembershipSection({
       >
         {(field) => (
           <Input {...field} maxLength={50} autoCapitalize="characters" />
+        )}
+      </ControlField>
+
+      <ControlField
+        control={form.control}
+        name="zoneChurchId"
+        label="Wilayah"
+        isOptional={!isAnggota}
+        hint="Dasar pembagian pelayanan dan statistik per wilayah."
+      >
+        {(field) => (
+          <ComboboxField
+            value={field.value}
+            onValueChange={field.onChange}
+            options={zoneChurch.options}
+            isLoading={zoneChurch.isLoading}
+            isClearable={!isAnggota}
+            placeholder="Cari wilayah"
+            emptyMessage="Belum ada data wilayah"
+          />
         )}
       </ControlField>
 
@@ -266,6 +291,8 @@ export function SocialSection({
 }) {
   const isAnggota =
     useWatch({ control: form.control, name: "typeJemaat" }) === "ANGGOTA";
+  const profession = useDdlOptions("profession");
+  const ethnicGroup = useDdlOptions("ethnic-group");
 
   return (
     <FormSection legend="Data sosial" disabled={isDisabled}>
@@ -281,6 +308,44 @@ export function SocialSection({
             onValueChange={field.onChange}
             options={MARITAL_OPTIONS}
             placeholder="Pilih status pernikahan"
+          />
+        )}
+      </ControlField>
+
+      <ControlField
+        control={form.control}
+        name="professionId"
+        label="Pekerjaan"
+        isOptional={!isAnggota}
+      >
+        {(field) => (
+          <ComboboxField
+            value={field.value}
+            onValueChange={field.onChange}
+            options={profession.options}
+            isLoading={profession.isLoading}
+            isClearable={!isAnggota}
+            placeholder="Cari pekerjaan"
+            emptyMessage="Belum ada data pekerjaan"
+          />
+        )}
+      </ControlField>
+
+      <ControlField
+        control={form.control}
+        name="ethnicGroupId"
+        label="Suku"
+        isOptional={!isAnggota}
+      >
+        {(field) => (
+          <ComboboxField
+            value={field.value}
+            onValueChange={field.onChange}
+            options={ethnicGroup.options}
+            isLoading={ethnicGroup.isLoading}
+            isClearable={!isAnggota}
+            placeholder="Cari suku"
+            emptyMessage="Belum ada data suku"
           />
         )}
       </ControlField>
@@ -323,6 +388,18 @@ export function SocialSection({
   );
 }
 
+/**
+ * Alamat bertingkat: provinsi → kabupaten → kecamatan → kelurahan.
+ *
+ * Mengubah tingkat atas MENGOSONGKAN seluruh tingkat di bawahnya. Tanpa itu,
+ * mengganti provinsi menyisakan kelurahan dari provinsi sebelumnya — kombinasi
+ * yang lolos validasi FE, diterima server, dan baru ketahuan salah saat ada
+ * yang berkunjung ke alamatnya.
+ *
+ * Tingkat bawah terkunci selama tingkat atasnya kosong, dengan kalimat yang
+ * menyebut apa yang harus dipilih dulu — daftar kosong tanpa penjelasan
+ * terbaca sebagai data yang belum ada.
+ */
 export function AddressSection({
   form,
   isDisabled,
@@ -330,8 +407,119 @@ export function AddressSection({
   form: JemaatForm;
   isDisabled: boolean;
 }) {
+  const [provincesCode, regenciesCode, districtsCode] = useWatch({
+    control: form.control,
+    name: ["provincesCode", "regenciesCode", "districtsCode"],
+  });
+
+  const provinces = useDdlOptions("provinces", "code");
+  const regencies = useDdlOptions(
+    provincesCode ? `regencies?provincesCode=${provincesCode}` : null,
+    "code",
+  );
+  const districts = useDdlOptions(
+    regenciesCode ? `districts?regenciesCode=${regenciesCode}` : null,
+    "code",
+  );
+  const villages = useDdlOptions(
+    districtsCode ? `villages?districtsCode=${districtsCode}` : null,
+    "code",
+  );
+
+  /** Satu tingkat berganti → tingkat di bawahnya dikosongkan, berurutan. */
+  const onPickLevel = (
+    level: "provincesCode" | "regenciesCode" | "districtsCode",
+    value: string,
+  ) => {
+    const below = {
+      provincesCode: ["regenciesCode", "districtsCode", "villagesCode"],
+      regenciesCode: ["districtsCode", "villagesCode"],
+      districtsCode: ["villagesCode"],
+    } as const;
+
+    form.setValue(level, value, { shouldDirty: true, shouldValidate: true });
+
+    for (const field of below[level]) {
+      form.setValue(field, "", { shouldDirty: true });
+    }
+  };
+
   return (
     <FormSection legend="Alamat" disabled={isDisabled}>
+      <ControlField
+        control={form.control}
+        name="provincesCode"
+        label="Provinsi"
+      >
+        {(field) => (
+          <ComboboxField
+            value={field.value}
+            onValueChange={(value) => onPickLevel("provincesCode", value)}
+            options={provinces.options}
+            isLoading={provinces.isLoading}
+            placeholder="Cari provinsi"
+            emptyMessage="Belum ada data provinsi"
+          />
+        )}
+      </ControlField>
+
+      <ControlField
+        control={form.control}
+        name="regenciesCode"
+        label="Kabupaten/kota"
+        hint={provincesCode ? undefined : "Pilih provinsi dulu."}
+      >
+        {(field) => (
+          <ComboboxField
+            value={field.value}
+            onValueChange={(value) => onPickLevel("regenciesCode", value)}
+            options={regencies.options}
+            isLoading={regencies.isLoading}
+            disabled={!provincesCode}
+            placeholder="Cari kabupaten/kota"
+            emptyMessage="Belum ada data kabupaten/kota"
+          />
+        )}
+      </ControlField>
+
+      <ControlField
+        control={form.control}
+        name="districtsCode"
+        label="Kecamatan"
+        hint={regenciesCode ? undefined : "Pilih kabupaten/kota dulu."}
+      >
+        {(field) => (
+          <ComboboxField
+            value={field.value}
+            onValueChange={(value) => onPickLevel("districtsCode", value)}
+            options={districts.options}
+            isLoading={districts.isLoading}
+            disabled={!regenciesCode}
+            placeholder="Cari kecamatan"
+            emptyMessage="Belum ada data kecamatan"
+          />
+        )}
+      </ControlField>
+
+      <ControlField
+        control={form.control}
+        name="villagesCode"
+        label="Kelurahan/desa"
+        hint={districtsCode ? undefined : "Pilih kecamatan dulu."}
+      >
+        {(field) => (
+          <ComboboxField
+            value={field.value}
+            onValueChange={field.onChange}
+            options={villages.options}
+            isLoading={villages.isLoading}
+            disabled={!districtsCode}
+            placeholder="Cari kelurahan/desa"
+            emptyMessage="Belum ada data kelurahan/desa"
+          />
+        )}
+      </ControlField>
+
       <ControlField
         control={form.control}
         name="address"
@@ -340,6 +528,96 @@ export function AddressSection({
       >
         {(field) => (
           <Textarea {...field} maxLength={150} autoComplete="street-address" />
+        )}
+      </ControlField>
+    </FormSection>
+  );
+}
+
+/**
+ * Keluarga itu opsional — banyak jemaat tinggal sendiri atau kos — tapi peran
+ * WAJIB begitu keluarga dipilih: `KeluargaMember` di be-sada butuh keduanya,
+ * dan salah satunya sendirian tidak tersimpan tanpa pesan apa pun.
+ */
+export function FamilySection({
+  form,
+  isDisabled,
+  isEdit,
+}: {
+  form: JemaatForm;
+  isDisabled: boolean;
+  isEdit: boolean;
+}) {
+  const keluargaId = useWatch({ control: form.control, name: "keluargaId" });
+  const keluarga = useDdlOptions("keluarga");
+
+  return (
+    <FormSection legend="Keluarga" disabled={isDisabled}>
+      <ControlField
+        control={form.control}
+        name="keluargaId"
+        label="Keluarga"
+        isOptional
+      >
+        {(field) => (
+          <ComboboxField
+            value={field.value}
+            onValueChange={(value) => {
+              field.onChange(value);
+              // Keluarga dikosongkan → peran ikut kosong. Peran tanpa keluarga
+              // ditolak skema, dan membiarkannya berarti galat yang muncul di
+              // field yang bukan baru saja disentuh user.
+              if (!value) {
+                form.setValue("roleInFamily", "", { shouldDirty: true });
+              }
+            }}
+            options={keluarga.options}
+            isLoading={keluarga.isLoading}
+            isClearable
+            placeholder="Cari keluarga"
+            emptyMessage="Belum ada data keluarga"
+          />
+        )}
+      </ControlField>
+
+      <ControlField
+        control={form.control}
+        name="roleInFamily"
+        label="Peran dalam keluarga"
+        isOptional={!keluargaId}
+      >
+        {(field) => (
+          <SelectField
+            value={field.value}
+            onValueChange={field.onChange}
+            options={ROLE_OPTIONS}
+            disabled={!keluargaId}
+            placeholder={keluargaId ? "Pilih peran" : "Pilih keluarga dulu"}
+          />
+        )}
+      </ControlField>
+
+      <ControlField
+        control={form.control}
+        name="keluargaAsalId"
+        label="Keluarga asal"
+        isOptional
+        hint={
+          isEdit
+            ? "MENUNGGU BACKEND: keluarga asal yang sudah terisi belum bisa diubah dari mana pun (B3)."
+            : "Untuk menelusuri anak yang kini berkeluarga sendiri."
+        }
+      >
+        {(field) => (
+          <ComboboxField
+            value={field.value}
+            onValueChange={field.onChange}
+            options={keluarga.options}
+            isLoading={keluarga.isLoading}
+            isClearable
+            placeholder="Cari keluarga asal"
+            emptyMessage="Belum ada data keluarga"
+          />
         )}
       </ControlField>
     </FormSection>
