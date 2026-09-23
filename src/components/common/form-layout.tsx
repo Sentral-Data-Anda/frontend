@@ -81,28 +81,41 @@ export function FormSection({
 }) {
   return (
     /*
-      Field dibungkus satu `div`, bukan menjadi anak langsung fieldset:
-      `<legend>` dirender DI GARIS ATAS fieldset dan `padding-block-start`
-      berlaku SESUDAHNYA, jadi `space-y` pada fieldset menambahkan jarak kedua
-      di bawah judul — 36px di bawah legend sementara antar-field 16px.
+      Jarak di sekitar garis pemisah SIMETRIS: isi terakhir → garis 20px, dan
+      garis → judul kelompok berikutnya 20px. Judul → isinya sendiri lebih
+      rapat (12px), supaya judul terbaca milik isi di bawahnya, bukan milik
+      garis di atasnya.
+
+      Kenapa `<legend>` diapungkan: bawaan peramban melukis legend DI GARIS
+      ATAS fieldset, dan `padding-top` baru berlaku sesudahnya — jadi padding
+      apa pun tidak pernah memberi ruang di ATAS judul, dan judulnya menempel
+      pada garis kelompok sebelumnya (terukur 0px). Legend yang diapungkan
+      selebar penuh kembali ke aliran biasa: padding atas fieldset jatuh di
+      atasnya, persis seperti elemen lain. Semantiknya tidak berubah —
+      tetap `<legend>` pertama milik fieldset, jadi tetap nama grupnya.
     */
     <fieldset
       disabled={disabled}
-      className="border-border border-b px-gutter py-4 last-of-type:border-b-0"
+      className="border-border border-b px-gutter py-5 last-of-type:border-b-0"
     >
-      <legend className="text-title font-semibold">{legend}</legend>
+      <legend className="float-left mb-3 w-full text-title font-semibold">
+        {legend}
+      </legend>
 
-      {note ? (
-        <p className="text-muted-foreground mb-4 text-caption">{note}</p>
-      ) : null}
+      <div className="clear-left">
+        {note ? (
+          <p className="text-muted-foreground mb-4 text-caption">{note}</p>
+        ) : null}
 
-      {/*
-        SATU sumber jarak antar-field: 16px dari elemen terakhir sebuah field
-        (kontrol, atau pesannya bila ada) ke label field berikutnya — sama
-        untuk field berpetunjuk, tanpa petunjuk, dan bergalat. `FormField`
-        sendiri tidak memberi jarak ke bawah, jadi tidak ada jarak ganda.
-      */}
-      <div className="space-y-4">{children}</div>
+        {/*
+          SATU sumber jarak antar-field: 16px dari elemen terakhir sebuah
+          field (kontrol, atau pesannya bila ada) ke label field berikutnya —
+          sama untuk field berpetunjuk, tanpa petunjuk, dan bergalat.
+          `FormField` sendiri tidak memberi jarak ke bawah, jadi tidak ada
+          jarak ganda.
+        */}
+        <div className="space-y-4">{children}</div>
+      </div>
     </fieldset>
   );
 }
