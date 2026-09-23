@@ -27,7 +27,18 @@ export function FormLayout({
         `noValidate`: validasinya milik zod, dan gelembung bawaan peramban
         muncul di tempat lain, berbahasa lain, dan hanya untuk satu field.
       */}
-      <form noValidate className={cn("pb-6", className)} {...props}>
+      {/*
+        `data-slot`: penanda yang dibaca `globals.css` untuk memasang
+        `scroll-padding-bottom` di dokumen, supaya field terakhir dan baris
+        catatan tidak tersembunyi di balik baris aksi yang menempel. Satu
+        aturan untuk semua form, tanpa layar mengatur padding sendiri.
+      */}
+      <form
+        noValidate
+        data-slot="form-layout"
+        className={cn("pb-6", className)}
+        {...props}
+      >
         {children}
       </form>
     </div>

@@ -386,6 +386,27 @@
     animation: row-focus 2s ease-out both;
   }
 
+  /*
+   * Layar isian: sisakan ruang di bawah saat SESUATU digulir ke pandangan.
+   *
+   * Baris aksi form menempel di bawah layar (`FormActions`), jadi tanpa ini
+   * dua hal tersembunyi persis di baliknya: field terakhir saat user menekan
+   * Tab (terukur di 390 — `#zoneChurchId` mendarat di y=810 sementara bilah
+   * mulai di y≈783), dan baris "Belum lengkap: …" di ujung halaman.
+   *
+   * `scroll-padding` harus duduk di WADAH GULIR, dan wadahnya di sini adalah
+   * dokumen — halaman digulir di level dokumen, bukan di dalam `main`. Karena
+   * itu aturannya di `:root`, dan `:has()` yang membatasinya HANYA ke layar
+   * yang memang punya kerangka form: nilainya tidak boleh bocor ke layar
+   * daftar, tempat `scrollIntoView({ block: "nearest" })` milik sorotan baris
+   * justru akan menyisakan ruang kosong yang tidak diminta siapa pun.
+   *
+   * 7rem = tinggi bilah aksi (36px tombol + padding) ditambah satu napas.
+   */
+  :root:has(form[data-slot="form-layout"]) {
+    scroll-padding-bottom: 7rem;
+  }
+
   @keyframes row-focus {
     0%,
     55% {
