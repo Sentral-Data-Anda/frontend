@@ -3,9 +3,8 @@ import { setTimeout as delay } from "node:timers/promises";
 import { redirect } from "next/navigation";
 
 import { getSession } from "@/features/auth/get-session";
+import { FirstLoginForm } from "@/features/auth/ui/first-login-form";
 import { isSafeRedirectPath } from "@/lib/redirect";
-
-import { FirstLoginForm } from "./first-login-form";
 
 export const metadata = { title: "Menyiapkan" };
 

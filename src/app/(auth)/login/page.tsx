@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 
-import { LoginForm } from "./login-form";
+import { LoginForm } from "@/features/auth/ui/login-form";
 
 export const metadata = { title: "Masuk" };
 
