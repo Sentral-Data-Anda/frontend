@@ -122,20 +122,25 @@ export function RiwayatSection({
     );
 
   return (
-    <FormSection legend="Riwayat gerejawi" disabled={isDisabled}>
+    /*
+      Satu baris catatan, BUKAN `EmptyState`: kelompok ini kosong pada hampir
+      setiap pendaftaran, dan blok kosong berikon memakan 114px untuk
+      menyampaikan dua kalimat yang sama. `EmptyState` tetap benar di layar
+      daftar, tempat kosongnya adalah kabar; di sini kosong adalah keadaan
+      biasa. Ia catatan KELOMPOK (`note`), jadi di desktop duduk di kolom
+      kiri di bawah judul, sama seperti catatan Kontak dan Keluarga.
+    */
+    <FormSection
+      legend="Riwayat gerejawi"
+      note={
+        rows.fields.length === 0
+          ? "Tambahkan baptis, sidi, atau atestasi bila suratnya dibawa sekarang."
+          : undefined
+      }
+      disabled={isDisabled}
+    >
       <FormWide className="space-y-3">
-        {/*
-        Satu baris catatan, BUKAN `EmptyState`: kelompok ini kosong pada
-        hampir setiap pendaftaran, dan blok kosong berikon memakan 114px untuk
-        menyampaikan dua kalimat yang sama. `EmptyState` tetap benar di layar
-        daftar, tempat kosongnya adalah kabar; di sini kosong adalah keadaan
-        biasa.
-      */}
-        {rows.fields.length === 0 ? (
-          <p className="text-muted-foreground text-caption">
-            Tambahkan baptis, sidi, atau atestasi bila suratnya dibawa sekarang.
-          </p>
-        ) : (
+        {rows.fields.length === 0 ? null : (
           <ul className="space-y-4">
             {rows.fields.map((row, index) => (
               <li
