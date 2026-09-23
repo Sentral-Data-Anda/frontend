@@ -117,7 +117,12 @@ export function ComboboxField({
       </Combobox.InputGroup>
 
       <Combobox.Portal>
-        <Combobox.Positioner sideOffset={4} className="z-50 outline-none">
+        <Combobox.Positioner
+          side="bottom"
+          align="start"
+          sideOffset={4}
+          className="z-50 outline-none"
+        >
           <Combobox.Popup className={FIELD_POPUP}>
             {options.length === 0 ? (
               <EmptyState title={emptyMessage} isCompact />

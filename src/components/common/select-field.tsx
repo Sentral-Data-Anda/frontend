@@ -4,24 +4,28 @@ import { Select } from "@base-ui/react/select";
 import { Check, ChevronDown } from "lucide-react";
 
 import { EmptyState } from "@/components/common/empty-state";
+import { MENU_ITEM, MENU_POPUP } from "@/components/common/menu";
 import { inputVariants } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
 export type SelectOption = { value: string; label: string };
 
 /**
- * Kelas popup pilihan, dipakai bersama `ComboboxField` supaya dua kontrol
- * yang berdampingan di form yang sama tidak punya dua bahasa visual.
+ * Cangkang popup pilihan — MENUMPANG pada `MENU_POPUP` yang sudah dipakai menu
+ * akun sidebar dan pemilih tampilan dashboard, supaya tidak lahir bahasa
+ * visual ketiga untuk hal yang sama: daftar pilihan di atas permukaan.
+ *
+ * Yang ditambahkan hanya yang khas kontrol form: lebar mengikuti PEMICU
+ * (`--anchor-width`) dan tinggi dibatasi ruang yang tersedia.
  */
-export const FIELD_POPUP =
-  "bg-popover text-popover-foreground border-border max-h-(--available-height) w-(--anchor-width) origin-(--transform-origin) overflow-y-auto overscroll-contain rounded-control border py-1 shadow-lg transition-[opacity,scale] duration-100 data-ending-style:scale-[0.98] data-ending-style:opacity-0 data-starting-style:scale-[0.98] data-starting-style:opacity-0";
+export const FIELD_POPUP = `${MENU_POPUP} max-h-(--available-height) w-(--anchor-width) origin-(--transform-origin) overflow-y-auto overscroll-contain transition-[opacity,scale] duration-100 data-ending-style:scale-[0.98] data-ending-style:opacity-0 data-starting-style:scale-[0.98] data-starting-style:opacity-0`;
 
 /**
- * Item pilihan. Tinggi 32px dengan area sentuh penuh lebar — di 390px daftar
- * yang rapat lebih sering salah tekan daripada daftar yang panjang.
+ * Item pilihan — juga `MENU_ITEM`, jadi tinggi (36px), sorotan navy, dan
+ * ukuran teks persis sama dengan menu yang sudah ada. Yang ditambahkan hanya
+ * kolom penanda "terpilih" di kiri.
  */
-export const FIELD_ITEM =
-  "grid min-h-8 cursor-pointer grid-cols-[1rem_1fr] items-center gap-2 px-2.5 text-body outline-none select-none data-highlighted:bg-accent data-highlighted:text-accent-foreground";
+export const FIELD_ITEM = `${MENU_ITEM} grid cursor-pointer grid-cols-[1rem_1fr]`;
 
 /**
  * Kontrol pilihan untuk daftar pendek dan tetap (≤ ±15 nilai): jenis kelamin,
@@ -89,7 +93,22 @@ export function SelectField({
       </Select.Trigger>
 
       <Select.Portal>
-        <Select.Positioner sideOffset={4} className="z-50 outline-none">
+        {/*
+          `alignItemWithTrigger={false}` — WAJIB, dan bawaannya `true`.
+          Bawaan Base UI menaruh item TERPILIH tepat di atas pemicu, sehingga
+          popup menutupi pemicunya sendiri dan bergeser ke kiri mengikuti teks
+          item, bukan kotak pemicunya. Terukur di 1440: popup mulai di x=596
+          padahal pemicu di x=619, dan y keduanya sama persis (433).
+          Perilaku itu masuk akal untuk menu bergaya macOS; di form ia
+          menyembunyikan field yang baru saja diklik.
+        */}
+        <Select.Positioner
+          alignItemWithTrigger={false}
+          side="bottom"
+          align="start"
+          sideOffset={4}
+          className="z-50 outline-none"
+        >
           <Select.Popup className={FIELD_POPUP}>
             {options.length === 0 ? (
               <EmptyState title={emptyMessage} isCompact />
