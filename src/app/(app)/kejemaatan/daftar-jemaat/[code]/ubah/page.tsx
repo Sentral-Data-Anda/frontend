@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 
-import { PageContainer } from "@/components/layout/page-container";
 import { JemaatFormScreen } from "@/features/kejemaatan/daftar-jemaat/form-screen";
 
 export const metadata: Metadata = {
@@ -18,9 +17,5 @@ export default async function Page({
 }) {
   const { code } = await params;
 
-  return (
-    <PageContainer>
-      <JemaatFormScreen code={code} />
-    </PageContainer>
-  );
+  return <JemaatFormScreen code={code} />;
 }

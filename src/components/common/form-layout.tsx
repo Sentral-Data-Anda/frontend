@@ -15,31 +15,44 @@ import { cn } from "@/lib/utils";
  */
 export function FormLayout({
   header,
+  actions,
   children,
   className,
   ...props
-}: FormHTMLAttributes<HTMLFormElement> & { header?: ReactNode }) {
+}: FormHTMLAttributes<HTMLFormElement> & {
+  header?: ReactNode;
+  /**
+   * Baris aksi (`FormActions`). Prop sendiri, bukan anak, karena ia TIDAK
+   * boleh ikut terkurung kolom 512px: di bawah `lg` ia selebar layar,
+   * sedangkan isinya tetap sejajar kolom. Ia tetap di dalam `<form>` supaya
+   * tombol `type="submit"` bekerja.
+   */
+  actions?: ReactNode;
+}) {
   return (
-    <div className="mx-auto w-full max-w-lg">
-      {header}
+    <div className="w-full">
+      <div className="mx-auto w-full max-w-lg">{header}</div>
 
       {/*
         `noValidate`: validasinya milik zod, dan gelembung bawaan peramban
         muncul di tempat lain, berbahasa lain, dan hanya untuk satu field.
-      */}
-      {/*
+
         `data-slot`: penanda yang dibaca `globals.css` untuk memasang
         `scroll-padding-bottom` di dokumen, supaya field terakhir dan baris
-        catatan tidak tersembunyi di balik baris aksi yang menempel. Satu
-        aturan untuk semua form, tanpa layar mengatur padding sendiri.
+        catatan tidak tersembunyi di balik baris aksi yang menempel.
+
+        Tanpa padding bawah: baris aksi adalah elemen terakhir halaman, dan
+        padding di sini dulu menyisakan jalur kanvas di bawahnya — bilah
+        putih terlihat mengambang, bukan menempel ke tepi layar.
       */}
       <form
         noValidate
         data-slot="form-layout"
-        className={cn("pb-6", className)}
+        className={cn("w-full", className)}
         {...props}
       >
-        {children}
+        <div className="mx-auto w-full max-w-lg">{children}</div>
+        {actions}
       </form>
     </div>
   );
@@ -124,22 +137,22 @@ export function FormSection({
  * Baris aksi: "Batal" (outline) lalu "Simpan" (utama) di paling kanan — urutan
  * yang sama dengan kepala dashboard.
  *
- * Di bawah `lg` ia menempel di bawah layar supaya tombol simpan tidak perlu
- * dicari di ujung halaman yang panjangnya ±20 field.
+ * Di bawah `lg`: menempel di bawah layar, SELEBAR LAYAR, bidang putih sampai
+ * tepi bawah termasuk area aman iPhone. Dulu ia selebar kolom form (512px) dan
+ * ada jalur kanvas di bawahnya, jadi di tablet ia terlihat seperti kotak
+ * mengambang. Isinya tetap dibatasi kolom yang sama dengan field, sehingga
+ * tombol kanan sejajar dengan tepi kanan field.
  *
- * `bottom-0`, BUKAN digeser setinggi bottom tab: sejak bottom tab tidak
- * dirender di rute isian (keputusan user 2026-09-23), geseran itu hanya
- * menyisakan 56px kosong di bawah baris aksi — ruang yang disediakan untuk
- * navigasi yang sudah tidak ada. Area aman iPhone tetap dihormati lewat
- * padding bawah, bukan lewat posisi.
- *
- * Di `lg` ke atas halamannya muat lebih banyak, jadi ia ikut mengalir —
- * baris melayang di desktop hanya memakan tinggi jendela.
+ * Di `lg` ke atas ia ikut mengalir di akhir form, selebar kolom, dengan garis
+ * atas sebagai tepinya — baris melayang di desktop hanya memakan tinggi
+ * jendela.
  */
 export function FormActions({ children }: { children: ReactNode }) {
   return (
-    <div className="border-border bg-card sticky bottom-0 z-30 flex justify-end gap-2 border-t px-gutter pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] lg:static lg:border-t-0 lg:bg-transparent lg:pb-3">
-      {children}
+    <div className="border-border bg-card sticky bottom-0 z-30 border-t pb-[env(safe-area-inset-bottom)] lg:static lg:border-t-0 lg:bg-transparent lg:pb-8">
+      <div className="lg:border-border mx-auto flex w-full max-w-lg justify-end gap-2 px-gutter py-3 lg:border-t lg:pt-5">
+        {children}
+      </div>
     </div>
   );
 }

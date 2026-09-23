@@ -208,6 +208,22 @@ export function JemaatFormScreen({ code }: { code?: string }) {
   return (
     <FormLayout
       onSubmit={onSave}
+      actions={
+        <FormActions>
+          <Button
+            type="button"
+            variant="outline"
+            disabled={isSubmitting}
+            onClick={onLeave}
+          >
+            Batal
+          </Button>
+
+          <Button type="submit" disabled={isSubmitting || detail.isLoading}>
+            {isSubmitting ? "Menyimpan…" : "Simpan"}
+          </Button>
+        </FormActions>
+      }
       header={
         <PageHeader
           title={isEdit ? "Ubah Jemaat" : "Tambah Jemaat"}
@@ -240,7 +256,7 @@ export function JemaatFormScreen({ code }: { code?: string }) {
         <RiwayatSection form={form} isDisabled={isSubmitting} isEdit={isEdit} />
       </div>
 
-      <div className="space-y-3 px-gutter pt-4">
+      <div className="space-y-3 px-gutter pb-4">
         <DuplicateWarning
           name={watched.name ?? ""}
           birthDate={watched.birthDate ?? ""}
@@ -285,21 +301,6 @@ export function JemaatFormScreen({ code }: { code?: string }) {
           </div>
         ) : null}
       </div>
-
-      <FormActions>
-        <Button
-          type="button"
-          variant="outline"
-          disabled={isSubmitting}
-          onClick={onLeave}
-        >
-          Batal
-        </Button>
-
-        <Button type="submit" disabled={isSubmitting || detail.isLoading}>
-          {isSubmitting ? "Menyimpan…" : "Simpan"}
-        </Button>
-      </FormActions>
 
       <ConfirmDialog
         isOpen={isConfirmOpen.value}
