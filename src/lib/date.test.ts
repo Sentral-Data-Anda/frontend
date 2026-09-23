@@ -1,0 +1,169 @@
+import { describe, expect, test } from "bun:test";
+
+import {
+  ageInYears,
+  DATE_ERROR,
+  parseDateInput,
+  toInputText,
+  toIsoDate,
+  todayJakarta,
+} from "./date";
+
+/** Test wajib `date-input.md §7.10` no. 1–5. */
+describe("parseDateInput — bentuk yang diterima (§7.2, wajib 1)", () => {
+  test.each([
+    ["12/05/1990"],
+    ["12-05-1990"],
+    ["12 05 1990"],
+    ["12.05.1990"],
+    ["12051990"],
+    ["12/5/1990"],
+    ["12/5/1990 "],
+  ])("%s → 1990-05-12", (input) => {
+    expect(parseDateInput(input)).toEqual({ iso: "1990-05-12" });
+  });
+
+  /**
+   * KOREKSI SPESIFIKASI (`date-input.md §7.2`): tabelnya menulis
+   * `1/5/1990` → 1990-05-12. Itu keliru — dalam `dd/mm/yyyy`, "1/5/1990"
+   * adalah 1 Mei, bukan 12 Mei. Yang dimaksud barisnya jelas "angka satuan
+   * tanpa nol di depan diterima", dan itu yang diuji di sini. Menerjemahkan
+   * "1/5" jadi tanggal 12 berarti mengarang angka yang tidak diketik siapa pun.
+   */
+  test("angka satuan tanpa nol di depan dibaca apa adanya", () => {
+    expect(parseDateInput("1/5/1990")).toEqual({ iso: "1990-05-01" });
+    expect(parseDateInput("01/5/1990")).toEqual({ iso: "1990-05-01" });
+    expect(parseDateInput("5/1/1990")).toEqual({ iso: "1990-01-05" });
+  });
+
+  test("spasi di ujung tidak menggagalkan", () => {
+    expect(parseDateInput("  12/05/1990  ")).toEqual({ iso: "1990-05-12" });
+  });
+
+  test("kosong bukan galat — field tanggal boleh dikosongkan", () => {
+    expect(parseDateInput("")).toEqual({ iso: "" });
+    expect(parseDateInput("   ")).toEqual({ iso: "" });
+  });
+});
+
+describe("parseDateInput — yang ditolak (wajib 1, 2, 3)", () => {
+  /**
+   * Pesannya HARUS berbeda. "12/05/90" bukan tanggal yang tidak ada — hari
+   * dan bulannya benar; yang kurang cuma tahunnya. Menyuruh user membetulkan
+   * bagian yang sudah benar adalah cara tercepat membuatnya mengira aplikasi
+   * ini rusak.
+   */
+  test("tahun dua digit ditolak dengan pesan TAHUN, bukan pesan tanggal", () => {
+    expect(parseDateInput("12/05/90")).toEqual({ error: DATE_ERROR.shortYear });
+    expect(parseDateInput("1/5/90")).toEqual({ error: DATE_ERROR.shortYear });
+  });
+
+  test("tanggal yang tidak ada ditolak", () => {
+    expect(parseDateInput("31/02/1990")).toEqual({ error: DATE_ERROR.invalid });
+    expect(parseDateInput("00/05/1990")).toEqual({ error: DATE_ERROR.invalid });
+    expect(parseDateInput("12/13/1990")).toEqual({ error: DATE_ERROR.invalid });
+    expect(parseDateInput("32/01/1990")).toEqual({ error: DATE_ERROR.invalid });
+  });
+
+  test("bentuk yang tidak dikenal ditolak", () => {
+    // Nama bulan bukan masukan yang didukung (§7.2): "12 Mei 1990" pecah
+    // jadi dua angka saja, jadi ia tanggal yang tidak lengkap.
+    expect(parseDateInput("12 Mei 1990")).toEqual({
+      error: DATE_ERROR.invalid,
+    });
+    expect(parseDateInput("besok")).toEqual({ error: DATE_ERROR.invalid });
+    expect(parseDateInput("12/05")).toEqual({ error: DATE_ERROR.invalid });
+    expect(parseDateInput("120519900")).toEqual({ error: DATE_ERROR.invalid });
+  });
+
+  test("kabisat: 29/02/2024 diterima, 29/02/2023 dan 29/02/1900 ditolak", () => {
+    expect(parseDateInput("29/02/2024")).toEqual({ iso: "2024-02-29" });
+    expect(parseDateInput("29/02/2023")).toEqual({ error: DATE_ERROR.invalid });
+    // 1900 habis dibagi 4 tapi BUKAN kabisat — aturan Gregorian penuh.
+    expect(parseDateInput("29/02/1900")).toEqual({ error: DATE_ERROR.invalid });
+    expect(parseDateInput("29/02/2000")).toEqual({ iso: "2000-02-29" });
+  });
+});
+
+describe("toIsoDate", () => {
+  test("menolak 31 Februari alih-alih menggesernya ke 3 Maret", () => {
+    // `new Date(1990, 1, 31)` DIAM-DIAM menghasilkan 3 Maret; pergeseran itu
+    // yang membuat tanggal tersimpan tidak pernah sama dengan yang diketik.
+    expect(toIsoDate(31, 2, 1990)).toBeNull();
+    expect(toIsoDate(28, 2, 1990)).toBe("1990-02-28");
+  });
+
+  test("nol di depan selalu dua digit", () => {
+    expect(toIsoDate(1, 1, 2026)).toBe("2026-01-01");
+    expect(toIsoDate(9, 9, 1999)).toBe("1999-09-09");
+  });
+
+  test("bilangan pecahan ditolak", () => {
+    expect(toIsoDate(1.5, 1, 2026)).toBeNull();
+    expect(toIsoDate(1, 1, Number.NaN)).toBeNull();
+  });
+});
+
+describe("toInputText (wajib 4: normalisasi saat blur)", () => {
+  test("ISO → dd/mm/yyyy dengan nol di depan", () => {
+    expect(toInputText("1990-05-12")).toBe("12/05/1990");
+    expect(toInputText("2026-01-01")).toBe("01/01/2026");
+  });
+
+  test("nilai kosong atau cacat menghasilkan string kosong, bukan 'Invalid'", () => {
+    expect(toInputText("")).toBe("");
+    expect(toInputText("1990-05")).toBe("");
+    expect(toInputText("bukan tanggal")).toBe("");
+  });
+
+  /** Inilah putaran yang dialami kotak isian: ketik bebas → simpan → tampil. */
+  test("ketik '1/5/1990' → nilai form 1990-05-01 → kotak jadi '01/05/1990'", () => {
+    const parsed = parseDateInput("1/5/1990");
+
+    expect(parsed.iso).toBe("1990-05-01");
+    expect(toInputText(parsed.iso ?? "")).toBe("01/05/1990");
+  });
+});
+
+describe("ageInYears (wajib 5)", () => {
+  test("bertambah TEPAT pada hari ulang tahun, bukan sehari sebelumnya", () => {
+    expect(ageInYears("1990-05-12", "2026-05-11")).toBe(35);
+    expect(ageInYears("1990-05-12", "2026-05-12")).toBe(36);
+    expect(ageInYears("1990-05-12", "2026-05-13")).toBe(36);
+  });
+
+  test("lahir 29 Februari: bertambah 1 Maret di tahun biasa", () => {
+    expect(ageInYears("2000-02-29", "2026-02-28")).toBe(25);
+    expect(ageInYears("2000-02-29", "2026-03-01")).toBe(26);
+  });
+
+  test("bayi yang lahir hari ini berumur 0, bukan null", () => {
+    expect(ageInYears("2026-09-23", "2026-09-23")).toBe(0);
+  });
+
+  test("tanggal di masa depan dan nilai cacat menghasilkan null", () => {
+    expect(ageInYears("2027-01-01", "2026-09-23")).toBeNull();
+    expect(ageInYears("", "2026-09-23")).toBeNull();
+    expect(ageInYears("1990-05-12", "bukan tanggal")).toBeNull();
+  });
+});
+
+describe("todayJakarta", () => {
+  /**
+   * Zona dipatok, bukan mengikuti perangkat: petugas yang laptopnya masih
+   * ber-zona lain tidak boleh melihat "hari ini" yang berbeda dari rekannya.
+   * 23 September 2026 pukul 20.00 UTC sudah 24 September di WIB.
+   */
+  test("memakai WIB, bukan zona perangkat", () => {
+    expect(todayJakarta(new Date("2026-09-23T20:00:00.000Z"))).toBe(
+      "2026-09-24",
+    );
+    expect(todayJakarta(new Date("2026-09-23T02:00:00.000Z"))).toBe(
+      "2026-09-23",
+    );
+  });
+
+  test("bentuknya YYYY-MM-DD, siap dibandingkan sebagai string", () => {
+    expect(todayJakarta()).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+  });
+});
