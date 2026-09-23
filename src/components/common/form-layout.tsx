@@ -3,15 +3,19 @@ import type { FormHTMLAttributes, ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 /**
+ * Kolom form: lebar konten yang sama dengan layar lain (penuh di HP, 672px di
+ * tablet), lalu di desktop mengisi kolom konten seperti dashboard — dengan
+ * batas 1152px supaya satu field di grid dua kolom tidak melar lewat ±420px.
+ * Judul, isian, dan baris aksi memakai kolom yang SAMA, jadi tepinya sejajar.
+ */
+const FORM_COLUMN = "mx-auto w-full md:max-w-2xl lg:max-w-6xl";
+
+/**
  * Kerangka layar isian, dipakai SEMUA form (form-pattern.md §3.3).
- *
- * Satu kolom `max-w-lg` (512px) di semua ukuran, bukan dua kolom di desktop:
- * dua kolom membuat urutan Tab tidak jelas, memecah kelompok field, dan satu
- * aturan untuk 61 layar lebih berharga daripada halaman yang lebih pendek.
  *
  * `header` masuk lewat prop, bukan dirender sendiri oleh layar di atas form,
  * supaya judul dan isian berbagi kolom yang sama — header selebar halaman di
- * atas form selebar 512px terbaca sebagai dua halaman yang bertumpuk.
+ * atas form yang lebih sempit terbaca sebagai dua halaman yang bertumpuk.
  */
 export function FormLayout({
   header,
@@ -23,7 +27,7 @@ export function FormLayout({
   header?: ReactNode;
   /**
    * Baris aksi (`FormActions`). Prop sendiri, bukan anak, karena ia TIDAK
-   * boleh ikut terkurung kolom 512px: di bawah `lg` ia selebar layar,
+   * boleh ikut terkurung kolom form: di bawah `lg` ia selebar layar,
    * sedangkan isinya tetap sejajar kolom. Ia tetap di dalam `<form>` supaya
    * tombol `type="submit"` bekerja.
    */
@@ -31,7 +35,7 @@ export function FormLayout({
 }) {
   return (
     <div className="w-full">
-      <div className="mx-auto w-full max-w-lg">{header}</div>
+      <div className={FORM_COLUMN}>{header}</div>
 
       {/*
         `noValidate`: validasinya milik zod, dan gelembung bawaan peramban
@@ -51,7 +55,7 @@ export function FormLayout({
         className={cn("w-full", className)}
         {...props}
       >
-        <div className="mx-auto w-full max-w-lg">{children}</div>
+        <div className={FORM_COLUMN}>{children}</div>
         {actions}
       </form>
     </div>
@@ -107,9 +111,14 @@ export function FormSection({
       atasnya, persis seperti elemen lain. Semantiknya tidak berubah —
       tetap `<legend>` pertama milik fieldset, jadi tetap nama grupnya.
     */
+    /*
+      Garis pemisah: di HP selebar layar (field ber-gutter di dalamnya); dari
+      tablet ke atas gutter-nya menjadi MARGIN, sehingga garis berhenti tepat
+      di tepi field, bukan 20px di luarnya.
+    */
     <fieldset
       disabled={disabled}
-      className="border-border border-b px-gutter py-5 last-of-type:border-b-0"
+      className="border-border border-b px-gutter py-5 last-of-type:border-b-0 md:mx-gutter md:px-0"
     >
       <legend className="float-left mb-3 w-full text-title font-semibold">
         {legend}
@@ -150,8 +159,14 @@ export function FormSection({
 export function FormActions({ children }: { children: ReactNode }) {
   return (
     <div className="border-border bg-card sticky bottom-0 z-30 border-t pb-[env(safe-area-inset-bottom)] lg:static lg:border-t-0 lg:bg-transparent lg:pb-8">
-      <div className="lg:border-border mx-auto flex w-full max-w-lg justify-end gap-2 px-gutter py-3 lg:border-t lg:pt-5">
-        {children}
+      {/*
+        Gutter di kolom (md+), bukan di baris tombol: garis atas desktop jadi
+        berhenti di tepi field, sejajar dengan garis pemisah kelompok.
+      */}
+      <div className={cn(FORM_COLUMN, "md:px-gutter")}>
+        <div className="lg:border-border flex justify-end gap-2 px-gutter py-3 md:px-0 lg:border-t lg:pt-5">
+          {children}
+        </div>
       </div>
     </div>
   );
