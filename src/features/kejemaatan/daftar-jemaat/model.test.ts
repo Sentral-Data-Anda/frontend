@@ -406,3 +406,49 @@ describe("findDuplicate (test wajib 9)", () => {
     ).toBeNull();
   });
 });
+
+/**
+ * Galat MENGGANTIKAN petunjuk di slotnya, jadi informasi penting petunjuk
+ * harus ikut dibawa galat. Kasus nyatanya: "kode induk juga jadi username"
+ * dulu lenyap persis saat server menolak kode induknya.
+ */
+describe("pesan galat berdiri sendiri", () => {
+  const messageOf = (values: JemaatFormValues, path: string) => {
+    const parsed = jemaatFormSchema.safeParse(values);
+
+    return parsed.success
+      ? undefined
+      : parsed.error.issues.find((issue) => issue.path.join(".") === path)
+          ?.message;
+  };
+
+  test("kode induk kosong untuk Anggota menyebut akibatnya (username)", () => {
+    expect(
+      messageOf({ ...SIMPATISAN, typeJemaat: "ANGGOTA" }, "codeInduk"),
+    ).toContain("username");
+  });
+
+  test("kode induk ditolak server juga menyebut username", () => {
+    expect(serverFieldError("Kode Induk Sudah Tersedia")?.message).toContain(
+      "username",
+    );
+  });
+
+  test("alamat kosong membawa contohnya", () => {
+    expect(messageOf({ ...SIMPATISAN, address: "" }, "address")).toContain(
+      "mis.",
+    );
+  });
+
+  test("telepon bukan angka membawa contohnya", () => {
+    expect(messageOf({ ...SIMPATISAN, phone: "0812-3" }, "phone")).toContain(
+      "mis.",
+    );
+  });
+
+  test("tingkat alamat yang terkunci menyebut apa yang harus dipilih dulu", () => {
+    expect(
+      messageOf({ ...SIMPATISAN, regenciesCode: "" }, "regenciesCode"),
+    ).toContain("provinsi");
+  });
+});

@@ -100,7 +100,7 @@ const baseSchema = z.object({
   phone: z
     .string()
     .trim()
-    .regex(/^[0-9]*$/, "Telepon hanya boleh berisi angka")
+    .regex(/^[0-9]*$/, "Telepon hanya angka, mis. 081234567890.")
     .max(12, "Telepon maksimal 12 angka"),
   // 150, selaras dengan kolomnya sejak be-sada menurunkan validatornya dari
   // 250: sebelumnya 151–250 lolos validasi lalu jatuh sebagai galat 500.
@@ -132,15 +132,23 @@ const baseSchema = z.object({
   additional: z.array(additionalSchema),
 });
 
-/** Field yang wajib untuk semua jemaat, beserta pesannya. */
+/**
+ * Field yang wajib untuk semua jemaat, beserta pesannya.
+ *
+ * Pesan galat MENGGANTIKAN petunjuk di slotnya (`FormField`), jadi pesan
+ * harus berdiri sendiri: contoh atau akibat yang tadinya dibawa petunjuk ikut
+ * disebut di sini. Kalau tidak, informasi itu hilang tepat saat user paling
+ * membutuhkannya — mis. "kode induk juga jadi username" lenyap persis ketika
+ * kode induknya ditolak. Satu baris di 390, supaya slotnya tidak memanjang.
+ */
 const ALWAYS_REQUIRED = [
   ["gender", "Jenis kelamin wajib dipilih"],
   ["provincesCode", "Provinsi wajib dipilih"],
-  ["regenciesCode", "Kabupaten/kota wajib dipilih"],
-  ["districtsCode", "Kecamatan wajib dipilih"],
-  ["villagesCode", "Kelurahan/desa wajib dipilih"],
-  ["address", "Alamat wajib diisi"],
-  ["typeJemaat", "Tipe jemaat wajib dipilih"],
+  ["regenciesCode", "Kabupaten/kota wajib dipilih, sesudah provinsi."],
+  ["districtsCode", "Kecamatan wajib dipilih, sesudah kabupaten/kota."],
+  ["villagesCode", "Kelurahan/desa wajib dipilih, sesudah kecamatan."],
+  ["address", "Alamat wajib diisi, mis. Jl. Merdeka 10, RT 01 RW 02."],
+  ["typeJemaat", "Pilih tipe jemaat; Anggota butuh kode induk dan wilayah."],
   ["statusJemaat", "Status jemaat wajib dipilih"],
 ] as const;
 
@@ -151,8 +159,8 @@ const ALWAYS_REQUIRED = [
  * bisa dijawab jujur akan diisi asal.
  */
 const MEMBER_REQUIRED = [
-  ["codeInduk", "Kode induk wajib diisi untuk Anggota"],
-  ["zoneChurchId", "Wilayah wajib dipilih untuk Anggota"],
+  ["codeInduk", "Kode induk wajib untuk Anggota; juga jadi username akun."],
+  ["zoneChurchId", "Wilayah wajib untuk Anggota; dasar pembagian pelayanan."],
   ["statusMarital", "Status pernikahan wajib dipilih untuk Anggota"],
   ["ethnicGroupId", "Suku wajib dipilih untuk Anggota"],
 ] as const;
@@ -368,8 +376,16 @@ const SERVER_FIELD_ERROR: ReadonlyArray<
   [RegExp, keyof JemaatFormValues, string?]
 > = [
   [/email sudah tersedia/i, "email"],
-  [/kode induk sudah tersedia/i, "codeInduk"],
-  [/keluarga asal tidak ditemukan/i, "keluargaAsalId"],
+  [
+    /kode induk sudah tersedia/i,
+    "codeInduk",
+    "Kode induk sudah dipakai jemaat lain; juga jadi username.",
+  ],
+  [
+    /keluarga asal tidak ditemukan/i,
+    "keluargaAsalId",
+    "Keluarga asal tidak ditemukan; pilih ulang dari daftar.",
+  ],
   [/keluarga tidak ditemukan/i, "keluargaId"],
   [
     /one_head|kepala keluarga/i,
