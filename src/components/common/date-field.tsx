@@ -84,30 +84,28 @@ export function DateField({
    */
   const upperBound = max ?? today;
 
-  const [text, setText] = useState(() => toInputText(value));
+  /**
+   * Teks kotak DITURUNKAN dari `value`, kecuali saat user sedang mengetik.
+   *
+   * `draft` bernilai `null` berarti "tidak sedang diketik" — kotaknya
+   * menampilkan bentuk normal dari nilai form. Begitu user mengetik, draft
+   * memegang apa adanya sampai blur.
+   *
+   * Sebelumnya ini disetel lewat state yang disesuaikan SAAT RENDER, dan itu
+   * punya bug yang terukur: klik pertama pada tombol kalender sesudah tanggal
+   * diketik tidak membuka apa pun — pembaruan state dari klik terbuang
+   * bersama render yang dibatalkan oleh penyesuaian itu, dan baru klik kedua
+   * yang bekerja. Menurunkan nilai alih-alih menyimpannya menghapus seluruh
+   * kelas bug itu, bukan menambal gejalanya.
+   */
+  const [draft, setDraft] = useState<string | null>(null);
   const [error, setError] = useState("");
-  const [lastValue, setLastValue] = useState(value);
   const isCalendarOpen = useBoolean();
   const isDesktop = useIsDesktop();
   const boxRef = useRef<HTMLInputElement>(null);
+  const cellRef = useRef<HTMLButtonElement>(null);
 
-  /**
-   * Menyesuaikan state saat prop berubah — dikerjakan SAAT RENDER, bukan di
-   * `useEffect`. Lewat efek, kotak sempat merender nilai lama satu kali lalu
-   * menimpanya, dan itu terlihat sebagai kedipan saat form ubah memuat detail.
-   *
-   * Dua penjaga: teks tidak ditimpa kalau ia sudah mengurai ke nilai yang
-   * sama (blur baru saja menormalkannya), dan tidak ditimpa selama ada galat
-   * — di situ `value` sengaja dikosongkan, sementara teks yang salah harus
-   * tetap terlihat supaya bisa dibetulkan.
-   */
-  if (value !== lastValue) {
-    setLastValue(value);
-
-    if (!error && parseDateInput(text).iso !== value) {
-      setText(toInputText(value));
-    }
-  }
+  const text = draft ?? toInputText(value);
 
   const onCheck = (raw: string): string => {
     const parsed = parseDateInput(raw);
@@ -125,7 +123,7 @@ export function DateField({
   };
 
   const onType = (raw: string) => {
-    setText(raw);
+    setDraft(raw);
 
     // Selama belum pernah salah, mengetik tidak memerahkan apa pun
     // (form-pattern.md §3.6). Begitu pernah salah, tiap ketikan diperiksa
@@ -143,9 +141,10 @@ export function DateField({
     const parsed = parseDateInput(text);
 
     setError(next);
-    // Teks dinormalkan ke `dd/mm/yyyy` hanya bila sah; kalau salah, biarkan
-    // apa adanya supaya user melihat yang ia ketik dan bisa membetulkannya.
-    if (!next) setText(toInputText(parsed.iso ?? ""));
+    // Sah → draft dilepas, kotak kembali menampilkan bentuk normal dari nilai
+    // form. Salah → draft DIPERTAHANKAN, supaya user melihat yang ia ketik
+    // dan bisa membetulkannya alih-alih menebak apa yang hilang.
+    if (!next) setDraft(null);
     onValueChange(next ? "" : (parsed.iso ?? ""));
     onBlur?.();
   };
@@ -155,7 +154,7 @@ export function DateField({
 
   /** Kalender memilih → kotak, nilai form, dan galat disetel sekaligus. */
   const onPick = (iso: string) => {
-    setText(toInputText(iso));
+    setDraft(null);
     setError("");
     onValueChange(iso);
     if (isDesktop) isCalendarOpen.onFalse();
@@ -178,6 +177,7 @@ export function DateField({
       startInYearGrid={variant === "lahir" && !confirmed}
       isClearable={isClearable}
       hasConfirm={isDesktop === false}
+      focusRef={cellRef}
     />
   );
 
@@ -215,11 +215,19 @@ export function DateField({
         Tombolnya SEBAGIAN kotak, bukan seluruh kotak: mengklik teks harus
         menaruh kursor untuk mengetik (§7.1). Kalender yang terbuka setiap kali
         kotak disentuh akan menghalangi jalan yang justru paling cepat.
+
+        Dibuka pada `pointerdown`, BUKAN `click`. Terukur: meninggalkan field
+        wajib di atasnya lalu menekan ikon ini tidak membuka apa pun pada
+        tekanan pertama — pesan galat yang menyisip di atas menggeser tombol
+        ±20px di antara `mousedown` dan `mouseup`, sehingga `click` tidak
+        pernah terbentuk. `pointerdown` sudah mendarat sebelum pergeseran itu,
+        dan ini pula perilaku pemicu `Select` di form yang sama.
       */}
         {isDesktop === false ? (
           <button
             type="button"
             disabled={disabled}
+            onPointerDown={isCalendarOpen.onTrue}
             onClick={isCalendarOpen.onTrue}
             aria-label="Buka kalender"
             aria-haspopup="dialog"
@@ -238,6 +246,7 @@ export function DateField({
           >
             <Popover.Trigger
               disabled={disabled}
+              onPointerDown={isCalendarOpen.onTrue}
               aria-label="Buka kalender"
               className={CALENDAR_BUTTON}
             >
@@ -263,6 +272,10 @@ export function DateField({
                 */}
                 <Popover.Popup
                   aria-label="Pilih tanggal"
+                  // Fokus masuk ke SEL yang sedang dituju, bukan berhenti di
+                  // pemicu (APG §7.8). Tanpa ini pengguna keyboard membuka
+                  // kalender lalu masih harus menekan Tab untuk masuk.
+                  initialFocus={cellRef}
                   className={cn(FIELD_POPUP, "max-h-(--available-height) w-72")}
                 >
                   {calendar}

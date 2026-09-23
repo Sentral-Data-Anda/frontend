@@ -53,6 +53,7 @@ export function Calendar({
   startInYearGrid = false,
   isClearable = false,
   hasConfirm = false,
+  focusRef,
 }: {
   value: string;
   onPick: (iso: string) => void;
@@ -63,6 +64,11 @@ export function Calendar({
   isClearable?: boolean;
   /** Panel HP menutup sendiri lewat tombol "Pilih". */
   hasConfirm?: boolean;
+  /**
+   * Sel yang sedang dituju, dibagikan ke pembungkus supaya popover bisa
+   * mengarahkan fokus awalnya ke sana (`Popover.Popup initialFocus`).
+   */
+  focusRef?: React.RefObject<HTMLButtonElement | null>;
 }) {
   const today = todayJakarta();
 
@@ -92,7 +98,14 @@ export function Calendar({
    * perbaikan: `PageUp` bekerja, `Shift+PageUp` sesudahnya tidak.
    */
   useEffect(() => {
-    cursorRef.current?.focus();
+    /*
+     * Setelah paint. Cangkang popover Base UI mengatur fokus awalnya sendiri
+     * pada frame yang sama saat popup dibuka; memanggil `focus()` langsung di
+     * sini kalah cepat dan fokus tertinggal di pemicu.
+     */
+    const frame = requestAnimationFrame(() => cursorRef.current?.focus());
+
+    return () => cancelAnimationFrame(frame);
   }, [cursor, isYearGrid]);
 
   const onMove = (next: string) => {
@@ -163,6 +176,7 @@ export function Calendar({
                 key={year}
                 type="button"
                 autoFocus={isCurrent}
+                data-autofocus={isCurrent ? "" : undefined}
                 onClick={() => {
                   setCursor(`${year}${cursor.slice(4)}`);
                   setIsYearGrid(false);
@@ -251,7 +265,13 @@ export function Calendar({
           return (
             <button
               key={day}
-              ref={isCursor ? cursorRef : undefined}
+              ref={(node) => {
+                if (!isCursor) return;
+
+                cursorRef.current = node;
+                if (focusRef) focusRef.current = node;
+              }}
+              data-autofocus={isCursor ? "" : undefined}
               type="button"
               role="gridcell"
               // Satu titik Tab: hanya sel yang sedang dituju yang bisa

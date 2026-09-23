@@ -1,29 +1,42 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
+import { useState } from "react";
 
 import { DateField } from "./date-field";
 import { FormField } from "./form-field";
 
 afterEach(cleanup);
 
-/** Merender DateField terkendali, dan mencatat nilai yang dikirimkannya. */
+/**
+ * Pembungkus TERKENDALI SUNGGUHAN.
+ *
+ * Bukan sekadar variabel yang dicatat: sejak teks kotak diturunkan dari
+ * `value`, harness yang tidak pernah merender ulang akan menguji komponen
+ * dalam keadaan yang tidak pernah terjadi di aplikasi — dan itu persis
+ * bagaimana enam test sempat lulus atas perilaku yang salah.
+ */
 const onRenderDate = (props: Partial<Parameters<typeof DateField>[0]> = {}) => {
   const sent: string[] = [];
-  let current = props.value ?? "";
 
-  const view = render(
-    <FormField label="Tanggal lahir" htmlFor="birthDate">
-      <DateField
-        value={current}
-        onValueChange={(next) => {
-          current = next;
-          sent.push(next);
-        }}
-        label="Tanggal lahir"
-        {...props}
-      />
-    </FormField>,
-  );
+  function Harness() {
+    const [value, setValue] = useState(props.value ?? "");
+
+    return (
+      <FormField label="Tanggal lahir" htmlFor="birthDate">
+        <DateField
+          {...props}
+          value={value}
+          label="Tanggal lahir"
+          onValueChange={(next) => {
+            sent.push(next);
+            setValue(next);
+          }}
+        />
+      </FormField>
+    );
+  }
+
+  const view = render(<Harness />);
 
   const box = screen.getByLabelText("Tanggal lahir") as HTMLInputElement;
 
