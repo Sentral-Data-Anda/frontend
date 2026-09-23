@@ -6,7 +6,7 @@ import { useFieldArray } from "react-hook-form";
 
 import { Button } from "@/components/common/button";
 import { DateField } from "@/components/common/date-field";
-import { FormSection } from "@/components/common/form-layout";
+import { FormSection, FormWide } from "@/components/common/form-layout";
 import { Input } from "@/components/common/input";
 import { SelectField } from "@/components/common/select-field";
 import { MENU, menuHref } from "@/config/menu";
@@ -54,7 +54,7 @@ export function RiwayatSection({
   if (isEdit) {
     return (
       <FormSection legend="Riwayat gerejawi" disabled={isDisabled}>
-        <div className="space-y-3">
+        <FormWide className="space-y-3">
           {rows.fields.length === 0 ? (
             <p className="text-muted-foreground text-caption">
               Belum ada riwayat baptis, sidi, atau atestasi.
@@ -98,7 +98,7 @@ export function RiwayatSection({
             , supaya satu data tidak punya dua pemilik. Menyimpan dari sini
             tidak mengubahnya.
           </p>
-        </div>
+        </FormWide>
       </FormSection>
     );
   }
@@ -123,7 +123,7 @@ export function RiwayatSection({
 
   return (
     <FormSection legend="Riwayat gerejawi" disabled={isDisabled}>
-      <div className="space-y-3">
+      <FormWide className="space-y-3">
         {/*
         Satu baris catatan, BUKAN `EmptyState`: kelompok ini kosong pada
         hampir setiap pendaftaran, dan blok kosong berikon memakan 114px untuk
@@ -228,7 +228,7 @@ export function RiwayatSection({
           <Plus aria-hidden />
           Tambah riwayat
         </Button>
-      </div>
+      </FormWide>
     </FormSection>
   );
 }

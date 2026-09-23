@@ -115,31 +115,64 @@ export function FormSection({
       Garis pemisah: di HP selebar layar (field ber-gutter di dalamnya); dari
       tablet ke atas gutter-nya menjadi MARGIN, sehingga garis berhenti tepat
       di tepi field, bukan 20px di luarnya.
+
+      Desktop (≥ lg): judul + catatan kelompok di kolom kiri 14rem, field di
+      kanan dalam grid dua kolom (pola halaman pengaturan). Urutan DOM tidak
+      berubah — legend, catatan, lalu field berurutan — jadi urutan baca dan
+      Tab tetap kiri ke kanan, baris demi baris. Baris kedua grid `1fr`:
+      tinggi field yang membentang dua baris diserap di sana, sehingga
+      catatan tetap menempel di bawah judul.
     */
     <fieldset
       disabled={disabled}
-      className="border-border border-b px-gutter py-5 last-of-type:border-b-0 md:mx-gutter md:px-0"
+      className="border-border border-b px-gutter py-5 last-of-type:border-b-0 md:mx-gutter md:px-0 lg:grid lg:grid-cols-[14rem_minmax(0,1fr)] lg:grid-rows-[auto_1fr] lg:gap-x-8"
     >
-      <legend className="float-left mb-3 w-full text-title font-semibold">
+      <legend className="float-left mb-3 w-full text-title font-semibold lg:col-start-1 lg:row-start-1 lg:mb-1">
         {legend}
       </legend>
 
-      <div className="clear-left">
-        {note ? (
-          <p className="text-muted-foreground mb-4 text-caption">{note}</p>
-        ) : null}
+      {note ? (
+        <p className="text-muted-foreground clear-left mb-4 text-caption lg:col-start-1 lg:row-start-2 lg:mb-0">
+          {note}
+        </p>
+      ) : null}
 
+      {/*
+        SATU sumber jarak antar-field: 16px dari elemen terakhir sebuah field
+        (kontrol, atau pesannya bila ada) ke label field berikutnya — sama
+        untuk field berpetunjuk, tanpa petunjuk, dan bergalat. `FormField`
+        sendiri tidak memberi jarak ke bawah, jadi tidak ada jarak ganda. Di
+        grid desktop jaraknya sama (16px) dari field yang lebih tinggi di
+        barisnya; dua field sebaris selalu sejajar atas.
+      */}
+      <div className="@container clear-left lg:col-start-2 lg:row-span-2 lg:row-start-1">
         {/*
-          SATU sumber jarak antar-field: 16px dari elemen terakhir sebuah
-          field (kontrol, atau pesannya bila ada) ke label field berikutnya —
-          sama untuk field berpetunjuk, tanpa petunjuk, dan bergalat.
-          `FormField` sendiri tidak memberi jarak ke bawah, jadi tidak ada
-          jarak ganda.
+          Dua kolom hanya bila kolom kanan ≥ 36rem (field ≥ 280px). Di 1024
+          dengan sidebar penuh kolom kanan 458px: dua field 221px memotong
+          petunjuk tanggal satu baris, jadi di sana field tetap satu kolom.
         */}
-        <div className="space-y-4">{children}</div>
+        <div className="space-y-4 lg:grid lg:gap-4 lg:space-y-0 @xl:grid-cols-2">
+          {children}
+        </div>
       </div>
     </fieldset>
   );
+}
+
+/**
+ * Field selebar SELURUH grid field desktop: isian panjang (alamat, catatan)
+ * dan daftar (riwayat). Di luar grid (di bawah lg) tidak berpengaruh — semua
+ * field sudah selebar kolom. Komponen, bukan kelas, supaya layar cukup
+ * menandai "field ini lebar" tanpa tahu jumlah kolomnya.
+ */
+export function FormWide({
+  className,
+  children,
+}: {
+  className?: string;
+  children: ReactNode;
+}) {
+  return <div className={cn("col-span-full", className)}>{children}</div>;
 }
 
 /**

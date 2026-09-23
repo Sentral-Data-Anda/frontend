@@ -4,7 +4,7 @@ import { useWatch, type UseFormReturn } from "react-hook-form";
 
 import { ComboboxField } from "@/components/common/combobox-field";
 import { DateField } from "@/components/common/date-field";
-import { FormSection } from "@/components/common/form-layout";
+import { FormSection, FormWide } from "@/components/common/form-layout";
 import { Input } from "@/components/common/input";
 import {
   SelectField,
@@ -554,16 +554,22 @@ export function AddressSection({
         )}
       </ControlField>
 
-      <ControlField
-        control={form.control}
-        name="address"
-        label="Alamat lengkap"
-        hint="Nama jalan, nomor, RT/RW, dan patokan bila ada."
-      >
-        {(field) => (
-          <Textarea {...field} maxLength={150} autoComplete="street-address" />
-        )}
-      </ControlField>
+      <FormWide>
+        <ControlField
+          control={form.control}
+          name="address"
+          label="Alamat lengkap"
+          hint="Nama jalan, nomor, RT/RW, dan patokan bila ada."
+        >
+          {(field) => (
+            <Textarea
+              {...field}
+              maxLength={150}
+              autoComplete="street-address"
+            />
+          )}
+        </ControlField>
+      </FormWide>
     </FormSection>
   );
 }
