@@ -116,9 +116,9 @@ export function DataTable<T>({
           <div
             role="row"
             className={cn(
-              "relative grid grid-cols-(--cols) items-center gap-4 py-2 pr-12",
               ROW_BLEED,
               ROW_LINE,
+              "relative grid grid-cols-(--cols) items-center gap-4 py-2 pr-12",
             )}
           >
             {columns.map((column) => (
@@ -147,9 +147,9 @@ export function DataTable<T>({
                 role="row"
                 data-row-id={getKey(item)}
                 className={cn(
-                  "group/row relative grid min-h-14 grid-cols-(--cols) items-center gap-4 rounded-control py-2 pr-12",
                   ROW_BLEED,
                   ROW_LINE,
+                  "group/row relative grid min-h-14 grid-cols-(--cols) items-center gap-4 rounded-control py-2 pr-12",
                   href && "hover:bg-card transition-colors",
                 )}
               >
@@ -252,9 +252,9 @@ export function LoadingTable<T>({
       <div aria-hidden className="-mx-2.5" style={template}>
         <div
           className={cn(
-            "relative grid grid-cols-(--cols) items-center gap-4 py-2 pr-12",
             ROW_BLEED,
             ROW_LINE,
+            "relative grid grid-cols-(--cols) items-center gap-4 py-2 pr-12",
           )}
         >
           {config.columns.map((column) => (
@@ -272,9 +272,9 @@ export function LoadingTable<T>({
           <div
             key={index}
             className={cn(
-              "relative grid min-h-14 grid-cols-(--cols) items-center gap-4 py-2 pr-12",
               ROW_BLEED,
               ROW_LINE,
+              "relative grid min-h-14 grid-cols-(--cols) items-center gap-4 py-2 pr-12",
             )}
           >
             {config.columns.map((column, columnIndex) => (
