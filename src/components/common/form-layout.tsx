@@ -1,6 +1,6 @@
 import type { FormHTMLAttributes, ReactNode } from "react";
 
-import { shellWidthForm } from "@/components/layout/shell-width";
+import { shellWidthWide } from "@/components/layout/shell-width";
 import { cn } from "@/lib/utils";
 
 /**
@@ -28,7 +28,7 @@ export function FormLayout({
 }) {
   return (
     <div className="w-full">
-      <div className={shellWidthForm}>{header}</div>
+      <div className={shellWidthWide}>{header}</div>
 
       {/*
         `noValidate`: validasinya milik zod, dan gelembung bawaan peramban
@@ -48,7 +48,7 @@ export function FormLayout({
         className={cn("w-full", className)}
         {...props}
       >
-        <div className={cn(shellWidthForm, "@container/form")}>{children}</div>
+        <div className={cn(shellWidthWide, "@container/form")}>{children}</div>
         {actions}
       </form>
     </div>
@@ -206,7 +206,7 @@ export function FormActions({
   return (
     <>
       {status ? (
-        <div className={cn(shellWidthForm, "lg:hidden")}>
+        <div className={cn(shellWidthWide, "lg:hidden")}>
           <p className="text-muted-foreground px-gutter pb-4 text-caption">
             {status}
           </p>
@@ -231,7 +231,7 @@ function FormActionsBar({
         Gutter di kolom (md+), bukan di baris tombol: garis atas desktop jadi
         berhenti di tepi field, sejajar dengan garis pemisah kelompok.
       */}
-      <div className={cn(shellWidthForm, "md:px-gutter")}>
+      <div className={cn(shellWidthWide, "md:px-gutter")}>
         <div className="lg:border-border flex items-center justify-end gap-2 px-gutter py-3 md:px-0 lg:border-t lg:pt-5">
           {status ? (
             <p className="text-muted-foreground hidden flex-1 pr-4 text-caption lg:block">
