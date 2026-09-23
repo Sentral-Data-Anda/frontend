@@ -39,6 +39,11 @@ export function FormField({
    * username ikut berubah"). Tetap `hint`, bukan `error`: isiannya sah dan
    * form tetap boleh disimpan — yang berubah hanya nada, supaya akibatnya
    * terbaca tanpa menghalangi. Tetap ikut `aria-describedby`.
+   *
+   * Nadanya WARNING, bukan destructive: merah adalah bahasa "ini salah, tidak
+   * bisa dilanjutkan", dan di sini tidak ada yang salah. Bentuknya disamakan
+   * dengan peringatan kembaran di layar yang sama — satu bahasa untuk
+   * "perhatikan ini", bukan dua.
    */
   isHintWarning?: boolean;
   children: ReactElement<FieldControlProps>;
@@ -64,7 +69,7 @@ export function FormField({
           id={hintId}
           className={
             isHintWarning
-              ? "text-destructive text-caption"
+              ? "border-warning bg-warning/10 rounded-control border px-2 py-1 text-caption"
               : "text-muted-foreground text-caption"
           }
         >

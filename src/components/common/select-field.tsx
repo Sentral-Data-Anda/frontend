@@ -16,9 +16,12 @@ export type SelectOption = { value: string; label: string };
  * visual ketiga untuk hal yang sama: daftar pilihan di atas permukaan.
  *
  * Yang ditambahkan hanya yang khas kontrol form: lebar mengikuti PEMICU
- * (`--anchor-width`) dan tinggi dibatasi ruang yang tersedia.
+ * (`--anchor-width`) dan tinggi dibatasi 18rem ATAU ruang yang tersedia, mana
+ * yang lebih kecil. Batas 18rem itu penting di 390: daftar 13 pilihan setinggi
+ * 468px memenuhi hampir seluruh layar dan menutup konteks di sekitarnya —
+ * delapan baris cukup untuk memilih, sisanya digulir.
  */
-export const FIELD_POPUP = `${MENU_POPUP} max-h-(--available-height) w-(--anchor-width) origin-(--transform-origin) overflow-y-auto overscroll-contain transition-[opacity,scale] duration-100 data-ending-style:scale-[0.98] data-ending-style:opacity-0 data-starting-style:scale-[0.98] data-starting-style:opacity-0`;
+export const FIELD_POPUP = `${MENU_POPUP} max-h-[min(18rem,var(--available-height))] w-(--anchor-width) origin-(--transform-origin) overflow-y-auto overscroll-contain transition-[opacity,scale] duration-100 data-ending-style:scale-[0.98] data-ending-style:opacity-0 data-starting-style:scale-[0.98] data-starting-style:opacity-0`;
 
 /**
  * Item pilihan — juga `MENU_ITEM`, jadi tinggi (36px), sorotan navy, dan

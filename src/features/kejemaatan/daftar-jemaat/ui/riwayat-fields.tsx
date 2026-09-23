@@ -6,7 +6,6 @@ import { useFieldArray } from "react-hook-form";
 
 import { Button } from "@/components/common/button";
 import { DateField } from "@/components/common/date-field";
-import { EmptyState } from "@/components/common/empty-state";
 import { FormSection } from "@/components/common/form-layout";
 import { Input } from "@/components/common/input";
 import { SelectField } from "@/components/common/select-field";
@@ -56,11 +55,9 @@ export function RiwayatSection({
     return (
       <FormSection legend="Riwayat gerejawi" disabled={isDisabled}>
         {rows.fields.length === 0 ? (
-          <EmptyState
-            title="Belum ada riwayat"
-            description="Baptis, sidi, dan atestasi dicatat di layar Riwayat Jemaat."
-            isCompact
-          />
+          <p className="text-muted-foreground text-caption">
+            Belum ada riwayat baptis, sidi, atau atestasi.
+          </p>
         ) : (
           <ul className="space-y-2">
             {rows.fields.map((row, index) => {
@@ -124,12 +121,17 @@ export function RiwayatSection({
 
   return (
     <FormSection legend="Riwayat gerejawi" disabled={isDisabled}>
+      {/*
+        Satu baris catatan, BUKAN `EmptyState`: kelompok ini kosong pada
+        hampir setiap pendaftaran, dan blok kosong berikon memakan 114px untuk
+        menyampaikan dua kalimat yang sama. `EmptyState` tetap benar di layar
+        daftar, tempat kosongnya adalah kabar; di sini kosong adalah keadaan
+        biasa.
+      */}
       {rows.fields.length === 0 ? (
-        <EmptyState
-          title="Belum ada riwayat"
-          description="Tambahkan baptis, sidi, atau atestasi bila suratnya dibawa sekarang."
-          isCompact
-        />
+        <p className="text-muted-foreground text-caption">
+          Tambahkan baptis, sidi, atau atestasi bila suratnya dibawa sekarang.
+        </p>
       ) : (
         <ul className="space-y-4">
           {rows.fields.map((row, index) => (
@@ -163,7 +165,7 @@ export function RiwayatSection({
                     onValueChange={field.onChange}
                     options={optionsFor(field.value)}
                     disabled={isDisabled}
-                    placeholder="Pilih jenis riwayat"
+                    placeholder="Pilih jenis"
                   />
                 )}
               </ControlField>

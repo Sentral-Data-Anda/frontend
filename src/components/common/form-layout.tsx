@@ -62,10 +62,20 @@ export function FormLayout({
  */
 export function FormSection({
   legend,
+  note,
   disabled = false,
   children,
 }: {
   legend: string;
+  /**
+   * Satu kalimat di kepala kelompok, menggantikan penanda per field.
+   *
+   * Dipakai saat MAYORITAS field di kelompok itu opsional: menuliskan
+   * "(opsional)" empat kali berturut-turut berhenti memberi informasi dan
+   * mulai jadi bising — mata melewatinya, dan yang satu-satunya wajib justru
+   * ikut terlewat. Satu kalimat menyampaikan hal yang sama sekali baca.
+   */
+  note?: string;
   disabled?: boolean;
   children: ReactNode;
 }) {
@@ -78,9 +88,14 @@ export function FormSection({
     */
     <fieldset
       disabled={disabled}
-      className="border-border border-b px-gutter pt-4 pb-5 last-of-type:border-b-0"
+      className="border-border border-b px-gutter py-4 last-of-type:border-b-0"
     >
       <legend className="text-title font-semibold">{legend}</legend>
+
+      {note ? (
+        <p className="text-muted-foreground mb-4 text-caption">{note}</p>
+      ) : null}
+
       <div className="space-y-4">{children}</div>
     </fieldset>
   );

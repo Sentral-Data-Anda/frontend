@@ -32,6 +32,18 @@ export type JemaatForm = UseFormReturn<JemaatFormValues>;
  * Peta label enum → pilihan. Diturunkan dari peta yang sama yang dipakai
  * layar daftar, supaya "Tidak aktif" tidak pernah punya dua ejaan.
  */
+/**
+ * Satu aturan placeholder untuk SELURUH kontrol pilihan: `Pilih <label huruf
+ * kecil>`, apa pun kontrolnya.
+ *
+ * Sebelumnya `Select` memakai "Pilih …" dan `Combobox` "Cari …", mengikuti
+ * cara kerjanya. Berdampingan dalam satu kelompok ("Pilih status pernikahan",
+ * "Cari pekerjaan", "Cari suku", "Pilih pendidikan") dua kata kerja itu
+ * terbaca sebagai ketidakrapian, bukan sebagai petunjuk — dan yang berbeda
+ * memang bukan tindakan user, melainkan bagaimana kontrolnya menyaring.
+ * Satu-satunya pengecualian: tingkat alamat yang masih terkunci, yang
+ * placeholder-nya menyebut apa yang harus dipilih lebih dulu.
+ */
 const optionsOf = (labels: Record<string, string>): SelectOption[] =>
   Object.entries(labels).map(([value, label]) => ({ value, label }));
 
@@ -178,7 +190,7 @@ export function MembershipSection({
             onValueChange={field.onChange}
             options={STATUS_OPTIONS}
             disabled={isDisabled}
-            placeholder="Pilih status"
+            placeholder="Pilih status jemaat"
           />
         )}
       </ControlField>
@@ -217,7 +229,7 @@ export function MembershipSection({
             isLoading={zoneChurch.isLoading}
             isClearable={!isAnggota}
             disabled={isDisabled}
-            placeholder="Cari wilayah"
+            placeholder="Pilih wilayah"
             emptyMessage="Belum ada data wilayah"
           />
         )}
@@ -244,20 +256,18 @@ export function ContactSection({
   isDisabled: boolean;
 }) {
   return (
-    <FormSection legend="Kontak" disabled={isDisabled}>
+    <FormSection
+      legend="Kontak"
+      note="Keduanya boleh dikosongkan. Satu nomor boleh dipakai beberapa anggota keluarga."
+      disabled={isDisabled}
+    >
       {/*
         Opsional, keputusan user (B1): bayi, anak, dan lansia tidak punya
         nomor, dan satu nomor rumah tangga dipakai bersama. Sebelumnya satu-
         satunya jalan adalah mengarang nomor — merusak persis data yang
         dipakai untuk menghubungi jemaat.
       */}
-      <ControlField
-        control={form.control}
-        name="phone"
-        label="Telepon"
-        isOptional
-        hint="Boleh dikosongkan, dan boleh sama dengan anggota keluarga lain."
-      >
+      <ControlField control={form.control} name="phone" label="Telepon">
         {(field) => (
           <Input
             {...field}
@@ -272,12 +282,7 @@ export function ContactSection({
         )}
       </ControlField>
 
-      <ControlField
-        control={form.control}
-        name="email"
-        label="Email"
-        isOptional
-      >
+      <ControlField control={form.control} name="email" label="Email">
         {(field) => (
           <Input
             {...field}
@@ -306,12 +311,19 @@ export function SocialSection({
   const ethnicGroup = useDdlOptions("ethnic-group");
 
   return (
-    <FormSection legend="Data sosial" disabled={isDisabled}>
+    <FormSection
+      legend="Data sosial"
+      note={
+        isAnggota
+          ? "Dipakai untuk laporan gereja. Selain status pernikahan dan suku, semuanya boleh dikosongkan."
+          : "Dipakai untuk laporan gereja. Semuanya boleh dikosongkan."
+      }
+      disabled={isDisabled}
+    >
       <ControlField
         control={form.control}
         name="statusMarital"
         label="Status pernikahan"
-        isOptional={!isAnggota}
       >
         {(field) => (
           <SelectField
@@ -328,7 +340,6 @@ export function SocialSection({
         control={form.control}
         name="professionId"
         label="Pekerjaan"
-        isOptional
       >
         {(field) => (
           <ComboboxField
@@ -338,18 +349,13 @@ export function SocialSection({
             isLoading={profession.isLoading}
             isClearable
             disabled={isDisabled}
-            placeholder="Cari pekerjaan"
+            placeholder="Pilih pekerjaan"
             emptyMessage="Belum ada data pekerjaan"
           />
         )}
       </ControlField>
 
-      <ControlField
-        control={form.control}
-        name="ethnicGroupId"
-        label="Suku"
-        isOptional={!isAnggota}
-      >
+      <ControlField control={form.control} name="ethnicGroupId" label="Suku">
         {(field) => (
           <ComboboxField
             value={field.value}
@@ -358,7 +364,7 @@ export function SocialSection({
             isLoading={ethnicGroup.isLoading}
             isClearable={!isAnggota}
             disabled={isDisabled}
-            placeholder="Cari suku"
+            placeholder="Pilih suku"
             emptyMessage="Belum ada data suku"
           />
         )}
@@ -368,8 +374,6 @@ export function SocialSection({
         control={form.control}
         name="lastEducation"
         label="Pendidikan terakhir"
-        isOptional
-        hint='Pilih "Tidak diketahui" bila memang belum diketahui.'
       >
         {(field) => (
           <SelectField
@@ -377,7 +381,7 @@ export function SocialSection({
             onValueChange={field.onChange}
             options={EDUCATION_OPTIONS}
             disabled={isDisabled}
-            placeholder="Pilih pendidikan"
+            placeholder="Pilih pendidikan terakhir"
           />
         )}
       </ControlField>
@@ -393,7 +397,6 @@ export function SocialSection({
         control={form.control}
         name="bloodType"
         label="Golongan darah"
-        isOptional
       >
         {(field) => (
           <SelectField
@@ -479,7 +482,7 @@ export function AddressSection({
             options={provinces.options}
             isLoading={provinces.isLoading}
             disabled={isDisabled}
-            placeholder="Cari provinsi"
+            placeholder="Pilih provinsi"
             emptyMessage="Belum ada data provinsi"
           />
         )}
@@ -498,7 +501,7 @@ export function AddressSection({
             options={regencies.options}
             isLoading={regencies.isLoading}
             disabled={isDisabled || !provincesCode}
-            placeholder="Cari kabupaten/kota"
+            placeholder="Pilih kabupaten/kota"
             emptyMessage="Belum ada data kabupaten/kota"
           />
         )}
@@ -517,7 +520,7 @@ export function AddressSection({
             options={districts.options}
             isLoading={districts.isLoading}
             disabled={isDisabled || !regenciesCode}
-            placeholder="Cari kecamatan"
+            placeholder="Pilih kecamatan"
             emptyMessage="Belum ada data kecamatan"
           />
         )}
@@ -536,7 +539,7 @@ export function AddressSection({
             options={villages.options}
             isLoading={villages.isLoading}
             disabled={isDisabled || !districtsCode}
-            placeholder="Cari kelurahan/desa"
+            placeholder="Pilih kelurahan/desa"
             emptyMessage="Belum ada data kelurahan/desa"
           />
         )}
@@ -572,13 +575,12 @@ export function FamilySection({
   const keluarga = useKeluargaOptions();
 
   return (
-    <FormSection legend="Keluarga" disabled={isDisabled}>
-      <ControlField
-        control={form.control}
-        name="keluargaId"
-        label="Keluarga"
-        isOptional
-      >
+    <FormSection
+      legend="Keluarga"
+      note="Boleh dilewati — banyak jemaat tinggal sendiri atau kos. Peran wajib diisi begitu keluarganya dipilih."
+      disabled={isDisabled}
+    >
+      <ControlField control={form.control} name="keluargaId" label="Keluarga">
         {(field) => (
           <ComboboxField
             value={field.value}
@@ -596,7 +598,7 @@ export function FamilySection({
             onSearch={keluarga.onSearch}
             isClearable
             disabled={isDisabled}
-            placeholder="Cari keluarga"
+            placeholder="Pilih keluarga"
             emptyMessage="Belum ada data keluarga"
           />
         )}
@@ -606,7 +608,6 @@ export function FamilySection({
         control={form.control}
         name="roleInFamily"
         label="Peran dalam keluarga"
-        isOptional={!keluargaId}
       >
         {(field) => (
           <SelectField
@@ -614,7 +615,9 @@ export function FamilySection({
             onValueChange={field.onChange}
             options={ROLE_OPTIONS}
             disabled={isDisabled || !keluargaId}
-            placeholder={keluargaId ? "Pilih peran" : "Pilih keluarga dulu"}
+            placeholder={
+              keluargaId ? "Pilih peran dalam keluarga" : "Pilih keluarga dulu"
+            }
           />
         )}
       </ControlField>
@@ -623,7 +626,6 @@ export function FamilySection({
         control={form.control}
         name="keluargaAsalId"
         label="Keluarga asal"
-        isOptional
         hint="Untuk menelusuri anak yang kini berkeluarga sendiri."
       >
         {(field) => (
@@ -635,7 +637,7 @@ export function FamilySection({
             onSearch={keluarga.onSearch}
             isClearable
             disabled={isDisabled}
-            placeholder="Cari keluarga asal"
+            placeholder="Pilih keluarga asal"
             emptyMessage="Belum ada data keluarga"
           />
         )}
