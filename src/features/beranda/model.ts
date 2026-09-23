@@ -1,4 +1,5 @@
 import { APP_TIMEZONE } from "@/config/site";
+import { todayJakarta } from "@/lib/date";
 
 /**
  * Tanggal dan jam "sekarang" menurut gereja, bukan menurut perangkat.
@@ -7,9 +8,6 @@ import { APP_TIMEZONE } from "@/config/site";
  * 00.00–07.00 WIB tanggal UTC masih kemarin — Beranda akan meminta jadwal
  * kemarin selama tujuh jam setiap hari.
  */
-const dateKeyFormat = new Intl.DateTimeFormat("en-CA", {
-  timeZone: APP_TIMEZONE,
-});
 
 const hourFormat = new Intl.DateTimeFormat("en-GB", {
   hour: "2-digit",
@@ -32,8 +30,15 @@ const longDateFormat = new Intl.DateTimeFormat("id-ID", {
   timeZone: APP_TIMEZONE,
 });
 
-/** "YYYY-MM-DD" — bentuk yang diterima `?date=` be-sada. */
-export const toDateKey = (now: Date): string => dateKeyFormat.format(now);
+/**
+ * "YYYY-MM-DD" — bentuk yang diterima `?date=` be-sada.
+ *
+ * Meneruskan ke `lib/date.ts`, bukan memformat sendiri: keputusan "tanggal
+ * menurut WIB, bukan menurut perangkat" hanya boleh ada di satu tempat.
+ * Dulu dua berkas memutuskannya masing-masing, dan dua tempat yang memutuskan
+ * hal yang sama pasti berbeda pendapat suatu saat.
+ */
+export const toDateKey = (now: Date): string => todayJakarta(now);
 
 /** "Minggu, 16 Agustus 2026". */
 export const formatLongDate = (now: Date): string => longDateFormat.format(now);
