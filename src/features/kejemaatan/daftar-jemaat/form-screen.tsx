@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import { useForm, useWatch } from "react-hook-form";
 
 import { Button } from "@/components/common/button";
+import { ConfirmDialog } from "@/components/common/confirm-dialog";
 import {
   FormActions,
   FormLayout,
@@ -13,6 +14,7 @@ import {
 } from "@/components/common/form-layout";
 import { useToast } from "@/components/common/toast";
 import { PageHeader } from "@/components/layout/page-header";
+import { useBoolean } from "@/hooks/use-boolean";
 import { applyServerError, firstErrorField } from "@/lib/form-error";
 
 import { useJemaatDetail, useSaveJemaat } from "./api";
@@ -79,7 +81,34 @@ export function JemaatFormScreen({ code }: { code?: string }) {
     if (detail.data) form.reset(toJemaatForm(detail.data));
   }, [detail.data, form]);
 
-  const { isSubmitting } = form.formState;
+  const { isDirty, isSubmitting } = form.formState;
+  const isConfirmOpen = useBoolean();
+
+  /**
+   * Menutup tab atau me-refresh dengan isian kotor meminta konfirmasi
+   * peramban. Ini satu-satunya jalan keluar yang bisa dicegat di luar
+   * aplikasi; tombol BACK peramban tidak bisa, karena App Router tidak punya
+   * cara resmi membatalkan navigasi yang sudah jalan. Batasan itu diterima —
+   * yang dijaga adalah jalan keluar yang kita sediakan sendiri.
+   *
+   * Tidak dipasang saat form bersih: dialog "yakin mau keluar?" pada halaman
+   * yang belum disentuh adalah gangguan, dan peramban modern mengabaikannya.
+   */
+  useEffect(() => {
+    if (!isDirty || isSubmitting) return;
+
+    const onBeforeUnload = (event: BeforeUnloadEvent) => event.preventDefault();
+
+    window.addEventListener("beforeunload", onBeforeUnload);
+
+    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+  }, [isDirty, isSubmitting]);
+
+  /** Keluar lewat Batal atau tombol kembali: tanya dulu bila ada yang hilang. */
+  const onLeave = () => {
+    if (isDirty) isConfirmOpen.onTrue();
+    else router.replace(JEMAAT_LIST_PATH);
+  };
   const rootError = form.formState.errors.root?.message;
   // `useWatch`, bukan `form.watch()`: yang kedua mengembalikan fungsi baru
   // tiap render, sehingga React Compiler melewatkan seluruh komponen ini.
@@ -120,6 +149,12 @@ export function JemaatFormScreen({ code }: { code?: string }) {
           title={isEdit ? "Ubah Jemaat" : "Tambah Jemaat"}
           subtitle={detail.data?.name ?? code}
           backHref={JEMAAT_LIST_PATH}
+          onBack={(event) => {
+            if (!isDirty) return;
+
+            event.preventDefault();
+            isConfirmOpen.onTrue();
+          }}
         />
       }
     >
@@ -166,7 +201,7 @@ export function JemaatFormScreen({ code }: { code?: string }) {
           type="button"
           variant="outline"
           disabled={isSubmitting}
-          onClick={() => router.replace(JEMAAT_LIST_PATH)}
+          onClick={onLeave}
         >
           Batal
         </Button>
@@ -175,6 +210,17 @@ export function JemaatFormScreen({ code }: { code?: string }) {
           {isSubmitting ? "Menyimpan…" : "Simpan"}
         </Button>
       </FormActions>
+
+      <ConfirmDialog
+        isOpen={isConfirmOpen.value}
+        onOpenChange={isConfirmOpen.setValue}
+        title="Buang perubahan?"
+        description="Isian yang belum disimpan akan hilang."
+        confirmLabel="Buang"
+        cancelLabel="Lanjut mengisi"
+        isDestructive
+        onConfirm={() => router.replace(JEMAAT_LIST_PATH)}
+      />
     </FormLayout>
   );
 }

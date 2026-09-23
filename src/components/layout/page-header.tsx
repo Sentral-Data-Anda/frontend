@@ -21,12 +21,22 @@ export function PageHeader({
   title,
   subtitle,
   backHref,
+  onBack,
   leading,
   action,
 }: {
   title?: string;
   subtitle?: string;
   backHref?: string;
+  /**
+   * Dipanggil sebelum tautan kembali dijalankan; memanggil `preventDefault()`
+   * di dalamnya MEMBATALKAN perpindahan. Dipakai layar isian untuk menanyakan
+   * "buang perubahan?" lebih dulu.
+   *
+   * Tetap sebuah `<a href>`, bukan tombol: klik-kanan "buka di tab baru",
+   * pratinjau tautan, dan status bar peramban tetap bekerja.
+   */
+  onBack?: (event: React.MouseEvent<HTMLAnchorElement>) => void;
   leading?: React.ReactNode;
   action?: React.ReactNode;
 }) {
@@ -44,6 +54,7 @@ export function PageHeader({
         {backHref ? (
           <Link
             href={backHref}
+            onClick={onBack}
             aria-label="Kembali"
             // Tampil 36px; `after:` memperluas area sentuh tak terlihat ke 48px
             // tanpa membesarkan layout.
