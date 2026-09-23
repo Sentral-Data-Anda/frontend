@@ -285,7 +285,7 @@ aksi menempel di bawah layar < lg (di atas bottom tab) dan ikut mengalir ≥ lg.
 | Bilah aksi form                                        | `FormLayout` menerima `actions` sebagai prop, bukan anak: di bawah `lg` bilahnya selebar LAYAR dan menempel ke tepi bawah termasuk area aman, sementara isinya tetap sejajar kolom field; di `lg` ke atas ia mengalir di akhir form, selebar kolom, dengan garis atas. Rute form tidak memakai `PageContainer` — kolom `FormLayout` sudah menentukan lebarnya sendiri, dan pembungkus tambahan itu yang membuat bilahnya dulu mengambang                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | Garis pemisah kelompok                                 | Simetris: isi terakhir → garis 20px, garis → judul kelompok berikutnya 20px, judul → isinya sendiri 12px. `<legend>` diapungkan (`float-left w-full`) karena bawaan peramban melukisnya DI garis atas fieldset, sehingga padding apa pun tidak pernah memberi ruang di atas judul                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | Garis pemisah di tablet ke atas                        | Gutter kelompok menjadi margin (`md:mx-gutter`), sehingga garis berhenti tepat di tepi field, bukan 20px di luarnya. Di HP garis tetap selebar layar                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| Tata letak desktop                                     | `FormSection` saat kolom form ≥ 44rem (container query `@container/form`, bukan breakpoint layar — ambangnya di antara kolom tablet 672px dan kolom desktop tersempit 754px): judul + `note` di kolom kiri 14rem, field di kanan. Field dua kolom hanya bila kolom kanan ≥ 36rem (container query, field ≥ 280px) — di 1024 dengan sidebar penuh kolom kanan 458px, jadi di sana field satu kolom. Lebar kolom form milik `shellWidthForm` di `components/layout/shell-width.ts` (`lg:max-w-6xl`, 1152px) supaya satu field paling lebar 420px. Field yang memang lebar (alamat lengkap, daftar riwayat) dibungkus `FormWide` — layar tidak menulis breakpoint. Urutan DOM tetap, jadi urutan baca dan Tab kiri ke kanan, baris demi baris; field yang saling bergantung ditulis berurutan (tipe jemaat sebelum kode induk/wilayah, provinsi → kelurahan) |
+| Tata letak desktop                                     | `FormSection` saat kolom form ≥ 44rem (container query `@container/form`, bukan breakpoint layar — ambangnya di antara kolom tablet 672px dan kolom desktop tersempit 754px): judul + `note` di kolom kiri 14rem, field di kanan. Field dua kolom hanya bila kolom kanan ≥ 36rem (container query, field ≥ 280px) — di 1024 dengan sidebar penuh kolom kanan 458px, jadi di sana field satu kolom. Lebar kolom form milik `shellWidthWide` di `components/layout/shell-width.ts` (`lg:max-w-6xl`, 1152px) supaya satu field paling lebar 420px. Field yang memang lebar (alamat lengkap, daftar riwayat) dibungkus `FormWide` — layar tidak menulis breakpoint. Urutan DOM tetap, jadi urutan baca dan Tab kiri ke kanan, baris demi baris; field yang saling bergantung ditulis berurutan (tipe jemaat sebelum kode induk/wilayah, provinsi → kelurahan) |
 | Status form                                            | `FormActions` prop `status` (mis. "Belum lengkap: …"): di bawah `lg` di atas bilah yang menempel, di `lg` ke atas di KIRI tombol. Jangan taruh status di bawah kelompok terakhir — di desktop ia terbaca sebagai catatan milik kelompok itu. Catatan kelompok selalu lewat `FormSection` `note`, bukan paragraf di antara field                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 
 Tujuh komponen bersama yang lahir dari layar ini — semuanya tipis di atas Base
@@ -322,6 +322,30 @@ fitur memanggil `useListQuery` (lihat `useJemaatList`) lalu meneruskan
   dari halaman 1.
 - **≥ lg (desktop)**: `useQuery` per halaman `?page=`, pager bernomor dengan
   elipsis di bawah daftar, tersembunyi bila hanya satu halaman.
+
+**Tabel desktop (keputusan user 2026-09-24, "tabel data penuh").** `DataList`
+menerima prop `table` (`DataTableConfig` dari `components/common/data-table.tsx`);
+ia dipakai HANYA saat paginasinya bernomor (≥ lg, diputuskan `useListQuery`) —
+HP/tablet tetap baris daftar, byte-identik. Keadaan (memuat → `LoadingTable`,
+kosong, galat, menyegarkan) dan sorotan baris kembali tetap milik `DataList`.
+
+- Kolom = field yang memang dikirim endpoint daftar; jangan mengarang kolom
+  (Daftar Jemaat: tidak ada wilayah di `GET /jemaat`).
+- Seluruh baris SATU tautan (isi kolom pertama diregangkan), `aria-label`
+  bernama aksinya ("Ubah Andreas"); ikon di ujung (`rowIcon`) hanya penanda —
+  tidak ada tautan kedua, jadi satu perhentian Tab per baris. Tanpa izin,
+  `getRowHref` tidak diberikan: tanpa tautan, hover, dan ikon.
+- Hover `bg-card` (putih): `muted` = kanvas di tema ini, jadi tidak terlihat.
+- Kepala 10px kapital (bahasa tabel dashboard), menempel di atas saat digulir.
+- Garis baris dari tepi konten ke tepi konten; bidang hover menjorok 10px.
+- Kaki: "1–10 dari 12", pager, dan jumlah baris per halaman (`?limit=`, 10/25/50,
+  `onPickLimit` di `useListParams`).
+- Lebar halaman `PageContainer size="wide"` = `shellWidthWide`, SAMA dengan form,
+  supaya daftar dan formnya satu keluarga. Baris alat: `ListToolbar` (cari +
+  filter satu baris bila isinya ≥ 36rem). Tombol tambah: `PageHeaderAdd`
+  (lingkaran < lg, "+ Tambah" ≥ lg).
+- `DashboardTable` tidak dipakai ulang: ia ukuran kartu, tanpa keadaan, tanpa
+  kepala menempel, tanpa `data-row-id`, tanpa kaki paginasi.
 
 Batasnya `useIsDesktop` (`(min-width: 64rem)`, dijaga test agar sama dengan
 `--breakpoint-lg` Tailwind). Selama hidrasi mode belum diketahui (`null`):
