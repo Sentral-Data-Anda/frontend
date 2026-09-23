@@ -65,6 +65,20 @@ export const STATUS_JEMAAT_CHIPS: FilterChip[] = [
 
 export type BloodType = "A" | "B" | "AB" | "O";
 export type StatusPernikahan = "SM" | "BM" | "CM" | "CH";
+export type LastEducation =
+  | "TIDAK_SEKOLAH"
+  | "SD"
+  | "SMP"
+  | "SMA"
+  | "SMK"
+  | "D1"
+  | "D2"
+  | "D3"
+  | "D4"
+  | "S1"
+  | "S2"
+  | "S3";
+
 export type SacramentType =
   "BAPTIS" | "SIDI" | "ATESTASI_MASUK" | "ATESTASI_KELUAR" | "MENINGGAL";
 
@@ -78,6 +92,27 @@ export const BLOOD_TYPE_LABEL: Record<BloodType, string> = {
   B: "B",
   AB: "AB",
   O: "O",
+};
+
+/**
+ * Pendidikan terakhir jadi enum di be-sada (2026-09-23), menggantikan teks
+ * bebas: "SMA", "S M A", dan "sma" dulu menjadi tiga baris di
+ * `/report/jemaat/last-education`. Nilai KOSONG berarti tidak diketahui —
+ * tidak ada anggota enum untuk itu.
+ */
+export const LAST_EDUCATION_LABEL: Record<LastEducation, string> = {
+  TIDAK_SEKOLAH: "Tidak sekolah",
+  SD: "SD",
+  SMP: "SMP",
+  SMA: "SMA",
+  SMK: "SMK",
+  D1: "D1",
+  D2: "D2",
+  D3: "D3",
+  D4: "D4",
+  S1: "S1",
+  S2: "S2",
+  S3: "S3",
 };
 
 export const STATUS_PERNIKAHAN_LABEL: Record<StatusPernikahan, string> = {
@@ -132,7 +167,7 @@ export type JemaatPayload = {
   email: string | null;
   phone: string | null;
   bloodType: BloodType | null;
-  lastEducation: string | null;
+  lastEducation: LastEducation | null;
   statusMarital: StatusPernikahan | null;
   professionId: number | null;
   ethnicGroupId: number | null;
@@ -148,13 +183,14 @@ export type JemaatPayload = {
   keluargaId: number | null;
   roleInFamily: RoleInFamily | null;
   keluargaAsalId: number | null;
-  additional: JemaatAdditional[];
+  /** Tanggal jemaat bergabung di gereja ini — bukan tanggal pencatatan. */
+  joinedAt: string | null;
   /**
-   * MENUNGGU BACKEND (B7 / `joinedAt`). Dikirim hanya bila petugas mengisinya,
-   * jadi backend yang belum punya kolomnya cukup mengabaikannya (zod object
-   * membuang kunci asing, bukan menolaknya).
+   * HANYA dikirim saat TAMBAH. Pada `PUT`, key yang tidak ada berarti "jangan
+   * disentuh", dan itulah yang melindungi riwayat baptis/sidi/atestasi dari
+   * layar yang tidak mengeditnya.
    */
-  joinedAt?: string;
+  additional?: JemaatAdditional[];
 };
 
 /**
@@ -162,10 +198,9 @@ export type JemaatPayload = {
  * suku, dan wilayah TIDAK ikut (B8), jadi form ubah menampilkan nilainya
  * setelah daftar pilihannya termuat.
  */
-export type JemaatDetail = Omit<JemaatPayload, "additional" | "joinedAt"> & {
+export type JemaatDetail = Omit<JemaatPayload, "additional"> & {
   code: string;
   additional: JemaatAdditional[] | null;
-  joinedAt?: string | null;
 };
 
 /** Satu baris `GET /ddl/*`. `villages` menambah `postalCode`. */

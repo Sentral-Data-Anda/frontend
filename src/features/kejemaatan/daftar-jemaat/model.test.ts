@@ -43,42 +43,41 @@ describe("jemaatFormSchema — wajib bersyarat (test wajib 1)", () => {
   });
 
   /**
-   * Keputusan user 2026-09-23: golongan darah TIDAK ikut dalam daftar ini
-   * (B6). Yang tersisa enam, dan keenamnya harus menghasilkan pesan di
+   * Sesudah penyesuaian be-sada 2026-09-23 yang tersisa EMPAT: golongan
+   * darah, pekerjaan, dan pendidikan dilepas karena ketiganya sering
+   * benar-benar tidak diketahui. Keempatnya harus menghasilkan pesan di
    * fieldnya masing-masing — bukan satu galat form tanpa alamat.
    */
-  test("Anggota tanpa keenam field bersyarat ditolak per field", () => {
+  test("Anggota tanpa keempat field bersyarat ditolak per field", () => {
     expect(issuesOf({ ...SIMPATISAN, typeJemaat: "ANGGOTA" }).sort()).toEqual([
       "codeInduk",
       "ethnicGroupId",
-      "lastEducation",
-      "professionId",
       "statusMarital",
       "zoneChurchId",
     ]);
   });
 
-  test("golongan darah kosong tidak menolak Anggota", () => {
+  test("golongan darah, pekerjaan, dan pendidikan kosong tidak menolak Anggota", () => {
     const anggota: JemaatFormValues = {
       ...SIMPATISAN,
       typeJemaat: "ANGGOTA",
       codeInduk: "A-0184",
       zoneChurchId: "3",
       statusMarital: "BM",
-      professionId: "7",
       ethnicGroupId: "2",
-      lastEducation: "SMA/SMK",
       bloodType: "",
+      professionId: "",
+      lastEducation: "",
     };
 
     expect(jemaatFormSchema.safeParse(anggota).success).toBe(true);
   });
 
-  test('tanggal lahir boleh kosong bila ditandai "tidak diketahui"', () => {
-    expect(issuesOf({ ...SIMPATISAN, birthDate: "" })).toEqual(["birthDate"]);
+  test("tanggal lahir boleh kosong — tidak diketahui disimpan kosong", () => {
+    expect(issuesOf({ ...SIMPATISAN, birthDate: "" })).toEqual([]);
     expect(
-      issuesOf({ ...SIMPATISAN, birthDate: "", isBirthDateUnknown: true }),
-    ).toEqual([]);
+      toJemaatPayload({ ...SIMPATISAN, birthDate: "" }).birthDate,
+    ).toBeNull();
   });
 });
 
@@ -145,7 +144,7 @@ describe("toJemaatPayload", () => {
     });
 
     expect(payload.birthDate).toBe("1990-05-12");
-    expect(payload.additional[0].date).toBe("2001-03-04");
+    expect(payload.additional?.[0].date).toBe("2001-03-04");
   });
 
   test("string kosong menjadi null, id menjadi angka", () => {
@@ -162,18 +161,8 @@ describe("toJemaatPayload", () => {
     expect(payload.keluargaId).toBeNull();
   });
 
-  test('"tidak diketahui" mengirim birthDate null, bukan tanggal karangan', () => {
-    const payload = toJemaatPayload({
-      ...SIMPATISAN,
-      birthDate: "1990-05-12",
-      isBirthDateUnknown: true,
-    });
-
-    expect(payload.birthDate).toBeNull();
-  });
-
-  test("joinedAt hanya ikut bila diisi (menunggu B7)", () => {
-    expect("joinedAt" in toJemaatPayload(SIMPATISAN)).toBe(false);
+  test("tanggal bergabung ikut sebagai tanggal atau null", () => {
+    expect(toJemaatPayload(SIMPATISAN).joinedAt).toBeNull();
     expect(
       toJemaatPayload({ ...SIMPATISAN, joinedAt: "2024-01-07" }).joinedAt,
     ).toBe("2024-01-07");
@@ -181,11 +170,12 @@ describe("toJemaatPayload", () => {
 });
 
 /**
- * Penjaga B2. Sampai be-sada berhenti menulis ulang `additional`, satu simpan
- * dari form ubah tanpa baris ini akan menghapus seluruh catatan baptis, sidi,
- * dan atestasi jemaat itu.
+ * Test wajib 5, DIBALIK setelah be-sada berubah 2026-09-23: `additional` yang
+ * tidak dikirim kini berarti "jangan disentuh". Jadi form ubah justru HARUS
+ * menghilangkan key-nya — mengirimnya dari layar yang tidak mengeditnya
+ * adalah satu-satunya cara riwayat baptis/sidi/atestasi bisa tertimpa.
  */
-describe("form ubah mengirim ulang seluruh additional (test wajib 5)", () => {
+describe("form ubah TIDAK mengirim additional (test wajib 5)", () => {
   const detail: JemaatDetail = {
     code: "JMT-0042",
     name: "Maria Sitompul",
@@ -195,7 +185,7 @@ describe("form ubah mengirim ulang seluruh additional (test wajib 5)", () => {
     email: "maria@example.org",
     phone: "08123456789",
     bloodType: "O",
-    lastEducation: "SMA/SMK",
+    lastEducation: "SMA",
     statusMarital: "BM",
     professionId: 7,
     ethnicGroupId: 2,
@@ -211,6 +201,7 @@ describe("form ubah mengirim ulang seluruh additional (test wajib 5)", () => {
     keluargaId: 12,
     roleInFamily: "ANAK",
     keluargaAsalId: null,
+    joinedAt: "2018-02-11T00:00:00.000Z",
     additional: [
       {
         type: "BAPTIS",
@@ -227,7 +218,13 @@ describe("form ubah mengirim ulang seluruh additional (test wajib 5)", () => {
     ],
   };
 
-  test("detail → form → payload mempertahankan kedua baris riwayat", () => {
+  test("mode ubah menghilangkan key additional sama sekali", () => {
+    const payload = toJemaatPayload(toJemaatForm(detail), true);
+
+    expect("additional" in payload).toBe(false);
+  });
+
+  test("mode tambah tetap mengirim riwayat yang diisi petugas", () => {
     const payload = toJemaatPayload(toJemaatForm(detail));
 
     expect(payload.additional).toEqual([
@@ -246,8 +243,13 @@ describe("form ubah mengirim ulang seluruh additional (test wajib 5)", () => {
     ]);
   });
 
+  /**
+   * Tiga field keluarga TETAP dikirim, juga saat kosong: `null` di sana
+   * berarti "lepaskan dari keluarga", dan itu memang yang diminta user saat
+   * ia mengosongkan kotaknya.
+   */
   test("seluruh field detail ikut terkirim, bukan hanya yang disentuh", () => {
-    const payload = toJemaatPayload(toJemaatForm(detail));
+    const payload = toJemaatPayload(toJemaatForm(detail), true);
 
     expect(payload).toMatchObject({
       name: "Maria Sitompul",
@@ -269,10 +271,14 @@ describe("form ubah mengirim ulang seluruh additional (test wajib 5)", () => {
 });
 
 describe("serverFieldError (test wajib 6)", () => {
-  test("No Handphone Sudah Tersedia mendarat di field telepon", () => {
-    expect(serverFieldError("No Handphone Sudah Tersedia")?.field).toBe(
-      "phone",
-    );
+  test("Email Sudah Tersedia mendarat di field email", () => {
+    expect(serverFieldError("Email Sudah Tersedia")?.field).toBe("email");
+  });
+
+  // Telepon tidak lagi unik di be-sada, jadi pesannya tidak pernah datang —
+  // dan pemetaan yang tertinggal akan menyorot field yang tidak bersalah.
+  test("No Handphone Sudah Tersedia sudah tidak dipetakan", () => {
+    expect(serverFieldError("No Handphone Sudah Tersedia")).toBeNull();
   });
 
   test("Keluarga Asal menang atas Keluarga biasa", () => {

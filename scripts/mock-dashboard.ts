@@ -953,6 +953,8 @@ export function jemaatTypeGender() {
 
 const UNKNOWN_ROW = { id: 0, code: "UNKNOWN", name: "Tidak diketahui" };
 
+// Tanpa baris "Tidak diketahui": sejak 2026-09-23 jawaban itu disimpan
+// sebagai KOSONG, dan dropdown-nya yang menawarkan pilihan bernilai kosong.
 const PROFESSIONS = [
   "Buruh",
   "Guru",
@@ -966,7 +968,6 @@ const PROFESSIONS = [
   "PNS/ASN",
   "TNI/Polri",
   "Wiraswasta",
-  "Tidak diketahui",
 ];
 
 const ETHNIC_GROUPS = [
@@ -978,7 +979,6 @@ const ETHNIC_GROUPS = [
   "Sunda",
   "Tionghoa",
   "Timor",
-  "Tidak diketahui",
 ];
 
 const ZONE_CHURCHES = ["Wilayah I", "Wilayah II", "Wilayah III", "Wilayah IV"];
@@ -1064,6 +1064,20 @@ export function ddlRows(
   name: string,
   params: URLSearchParams,
 ): unknown[] | undefined {
+  /**
+   * `?filter=` + `?limit=` — diterima `ddl/keluarga` dan `ddl/jemaat` sejak
+   * 2026-09-23, supaya combobox tidak mengunduh seluruh tabel.
+   */
+  const narrow = (rows: { name: string }[]) => {
+    const filter = (params.get("filter") ?? "").toLowerCase();
+    const limit = Number(params.get("limit")) || rows.length;
+    const matched = filter
+      ? rows.filter((row) => row.name.toLowerCase().includes(filter))
+      : rows;
+
+    return matched.slice(0, limit);
+  };
+
   // `MOCK_DDL_EMPTY=1`: semua daftar pilihan kosong, supaya keadaan "belum ada
   // data wilayah" di dalam popup bisa dinilai lewat render.
   if (process.env.MOCK_DDL_EMPTY) return [];
@@ -1076,7 +1090,7 @@ export function ddlRows(
     case "zone-church":
       return rowsOf(ZONE_CHURCHES, "ZON");
     case "keluarga":
-      return KELUARGA;
+      return narrow(KELUARGA);
     case "provinces":
       return PROVINCES;
     case "regencies":

@@ -17,10 +17,10 @@ import { cn } from "@/lib/utils";
  * atas: pekerjaan, suku, wilayah, provinsi, kabupaten, kecamatan, kelurahan,
  * keluarga.
  *
- * Penyaringannya masih di sisi klien, karena `ddl/*` belum menerima `?filter=`
- * (B9) dan mengirim seluruh tabel. Untuk `ddl/keluarga` yang akan tumbuh ke
- * ribuan baris itu tidak cukup; begitu `?filter=` ada, yang berubah hanya
- * sumber `options`, bukan bentuk komponen ini.
+ * Dua mode penyaringan, dan pemanggil memilihnya dengan ada-tidaknya
+ * `onSearch`: tanpa `onSearch` daftarnya utuh dan disaring di klien (daftar
+ * pendek dan tetap), dengan `onSearch` ketikan dikirim ke server sebagai
+ * `?filter=` (keluarga — ratusan baris hari ini, ribuan setelah migrasi).
  *
  * Tiga keadaan yang harus terlihat, dan karena itu komponen ini ada:
  * **memuat** (daftar belum datang), **kosong** (404 dari `ddl/*` = daftar
@@ -37,6 +37,7 @@ export function ComboboxField({
   isLoading = false,
   emptyMessage = "Belum ada pilihan",
   isClearable = false,
+  onSearch,
   className,
   ...aria
 }: {
@@ -50,6 +51,13 @@ export function ComboboxField({
   emptyMessage?: string;
   /** Field opsional boleh dikosongkan lagi setelah terisi. */
   isClearable?: boolean;
+  /**
+   * Ada = penyaringan dilakukan SERVER; ketikan diteruskan ke sini dan
+   * penyaringan sisi klien dimatikan. Tanpa mematikannya, daftar 20 baris
+   * yang baru datang dari server disaring lagi terhadap ketikan yang sudah
+   * berubah, dan popup berkedip kosong di antara dua permintaan.
+   */
+  onSearch?: (query: string) => void;
   className?: string;
   "aria-invalid"?: boolean;
   "aria-describedby"?: string;
@@ -59,6 +67,11 @@ export function ComboboxField({
   // mengirim nama relasi (B8), jadi tidak ada yang bisa ditampilkan lebih awal.
   const selected = options.find((option) => option.value === value) ?? null;
 
+  // Terkunci hanya saat BELUM ADA apa pun untuk dipilih. Saat penyaringan
+  // sisi server, tiap ketikan memulai permintaan baru — mengunci input di
+  // situ berarti huruf berikutnya hilang dan kursor melompat keluar.
+  const isBusy = isLoading && options.length === 0;
+
   return (
     <Combobox.Root
       items={options as SelectOption[]}
@@ -66,7 +79,9 @@ export function ComboboxField({
       onValueChange={(next) =>
         onValueChange((next as SelectOption | null)?.value ?? "")
       }
-      disabled={disabled || isLoading}
+      disabled={disabled || isBusy}
+      filter={onSearch ? null : undefined}
+      onInputValueChange={onSearch}
     >
       <Combobox.InputGroup
         className={cn(
@@ -78,7 +93,7 @@ export function ComboboxField({
         <Combobox.Input
           id={id}
           {...aria}
-          placeholder={isLoading ? "Memuat…" : placeholder}
+          placeholder={isBusy ? "Memuat…" : placeholder}
           className="h-full min-w-0 flex-1 cursor-pointer bg-transparent pl-2.5 text-body outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed"
         />
 

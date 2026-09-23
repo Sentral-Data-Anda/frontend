@@ -2,19 +2,20 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { useForm, useWatch, type FieldErrors } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 
 import { Button } from "@/components/common/button";
 import { FormActions, FormLayout } from "@/components/common/form-layout";
 import { PageHeader } from "@/components/layout/page-header";
 import { MENU, menuHref } from "@/config/menu";
-import { FetchError } from "@/lib/api/fetcher";
+import { applyServerError, firstErrorField } from "@/lib/form-error";
 
 import { useSaveJemaat } from "./api";
 import {
   EMPTY_JEMAAT_FORM,
   incompleteFields,
   jemaatFormSchema,
+  serverFieldError,
   toJemaatPayload,
   type JemaatFormValues,
 } from "./model";
@@ -62,20 +63,16 @@ export function JemaatFormScreen({ code }: { code?: string }) {
   const onSave = form.handleSubmit(
     async (values) => {
       try {
-        await saveJemaat.mutateAsync(toJemaatPayload(values));
+        await saveJemaat.mutateAsync(toJemaatPayload(values, Boolean(code)));
         router.replace(JEMAAT_LIST_PATH);
       } catch (error) {
         // Isian TIDAK PERNAH dibuang karena gagal simpan: yang hilang bukan
         // satu klik, melainkan dua puluh field yang baru diketik.
-        form.setError("root", {
-          message:
-            error instanceof FetchError
-              ? error.message
-              : "Tidak dapat menghubungi server. Periksa koneksi Anda.",
-        });
+        applyServerError(error, form.setError, serverFieldError);
+        onScrollTo(firstErrorField(error));
       }
     },
-    (errors) => onScrollToFirstError(errors),
+    (errors) => onScrollTo(Object.keys(errors).find((key) => key !== "root")),
   );
 
   return (
@@ -143,13 +140,14 @@ export function JemaatFormScreen({ code }: { code?: string }) {
  * Fokus ke field galat pertama sudah diurus RHF (`shouldFocusError`), tapi di
  * halaman ±20 field fokus saja bisa mendarat tepat di bawah baris aksi yang
  * menempel — terlihat seperti tidak terjadi apa-apa. Karena itu digulir juga.
+ *
+ * Dipakai untuk dua sumber galat: hasil validasi zod di sini, dan `issues[]`
+ * yang datang dari server sesudah submit.
  */
-function onScrollToFirstError(errors: FieldErrors<JemaatFormValues>) {
-  const first = Object.keys(errors).find((key) => key !== "root");
-
-  if (!first) return;
+function onScrollTo(field: string | null | undefined) {
+  if (!field) return;
 
   document
-    .getElementById(first)
+    .getElementById(field)
     ?.scrollIntoView({ block: "center", behavior: "smooth" });
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 
 import type { ListState } from "@/hooks/use-list-params";
 import { useListQuery } from "@/hooks/use-list-query";
@@ -111,4 +112,36 @@ export function useDdlOptions(
     // sempat menampilkan kabupaten provinsi sebelumnya sebagai pilihan.
     isLoading: query.isFetching,
   };
+}
+
+/**
+ * Daftar keluarga dengan pencarian DI SERVER (`?filter=&limit=20`).
+ *
+ * `ddl/keluarga` mengirim seluruh tabel — ratusan baris hari ini, ribuan
+ * setelah migrasi data, di jaringan ponsel petugas. Penyaringan sisi klien
+ * tetap mengunduh semuanya dulu, jadi yang dipakai adalah `?filter=` yang
+ * sekarang diterima be-sada.
+ *
+ * Jeda 300ms, sama dengan `SearchInput`: tanpa itu mengetik "Sitanggang"
+ * mengirim sepuluh permintaan. `limit=20` karena popup tidak pernah
+ * menampilkan lebih dari itu sekaligus; yang ke-21 dicari dengan mengetik
+ * lebih spesifik, bukan dengan menggulir.
+ */
+export function useKeluargaOptions() {
+  const [query, setQuery] = useState("");
+  const [debounced, setDebounced] = useState("");
+
+  useEffect(() => {
+    if (query === debounced) return;
+
+    const timer = setTimeout(() => setDebounced(query), 300);
+
+    return () => clearTimeout(timer);
+  }, [query, debounced]);
+
+  const ddl = useDdlOptions(
+    `keluarga?limit=20${debounced ? `&filter=${encodeURIComponent(debounced)}` : ""}`,
+  );
+
+  return { ...ddl, onSearch: setQuery };
 }

@@ -10,39 +10,73 @@ import type { ApiListResponse, ApiResponse } from "@/types/api";
  */
 const BASE_PATH = "/api/v1";
 
+/** Satu galat validasi per field, dari `issues[]` be-sada. */
+export type ApiIssue = { path: string; message: string };
+
 /** Kegagalan HTTP dari API, dengan pesan yang sudah layak ditampilkan. */
 export class FetchError extends Error {
   readonly status: number;
+  /**
+   * Galat validasi PER FIELD, bila server mengirimnya.
+   *
+   * `path` bertitik (`additional.0.date`), bentuk yang sama dengan nama field
+   * react-hook-form, jadi pemanggil bisa meneruskannya ke `setError` tanpa
+   * menerjemahkan apa pun. Kosong berarti galat ini tidak menunjuk field —
+   * dan galat semacam itu milik tingkat form, bukan ditebak-tebak.
+   */
+  readonly issues: ApiIssue[];
 
-  constructor(status: number, message: string) {
+  constructor(status: number, message: string, issues: ApiIssue[] = []) {
     super(message);
     this.name = "FetchError";
     this.status = status;
+    this.issues = issues;
   }
 }
+
+const readIssues = (body: Record<string, unknown>): ApiIssue[] =>
+  Array.isArray(body.issues)
+    ? body.issues.filter(
+        (issue): issue is ApiIssue =>
+          typeof issue === "object" &&
+          issue !== null &&
+          typeof (issue as ApiIssue).path === "string" &&
+          typeof (issue as ApiIssue).message === "string",
+      )
+    : [];
 
 /**
  * be-sada menamai pesan galat `error`, sedangkan pesan sukses `message`.
  * Keduanya dicoba supaya perubahan di satu modul be-sada tidak memunculkan
  * "Permintaan gagal (400)" yang tidak menolong siapa pun.
  */
-const readErrorMessage = async (response: Response): Promise<string> => {
+const readError = async (
+  response: Response,
+): Promise<{ message: string; issues: ApiIssue[] }> => {
   try {
     const body: unknown = await response.json();
 
     if (body && typeof body === "object") {
       const record = body as Record<string, unknown>;
+      const issues = readIssues(record);
 
-      if (typeof record.error === "string") return record.error;
-      if (typeof record.message === "string") return record.message;
+      if (typeof record.error === "string") {
+        return { message: record.error, issues };
+      }
+      if (typeof record.message === "string") {
+        return { message: record.message, issues };
+      }
     }
   } catch {
     // Badan bukan JSON — mis. halaman error dari reverse proxy. Jatuh ke
     // pesan default di bawah.
   }
 
-  return `Permintaan gagal (${response.status}).`;
+  return { message: `Permintaan gagal (${response.status}).`, issues: [] };
 };
+
+const readErrorMessage = async (response: Response): Promise<string> =>
+  (await readError(response)).message;
 
 const onRequest = (path: string, init?: RequestInit): Promise<Response> =>
   fetch(`${BASE_PATH}${path}`, {
@@ -69,7 +103,9 @@ export async function fetchOne<T>(
   const response = await onRequest(path, init);
 
   if (!response.ok) {
-    throw new FetchError(response.status, await readErrorMessage(response));
+    const failure = await readError(response);
+
+    throw new FetchError(response.status, failure.message, failure.issues);
   }
 
   return response.json() as Promise<ApiResponse<T>>;

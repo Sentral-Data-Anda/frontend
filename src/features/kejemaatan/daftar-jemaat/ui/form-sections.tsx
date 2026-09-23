@@ -12,15 +12,12 @@ import {
 } from "@/components/common/select-field";
 import { Textarea } from "@/components/common/textarea";
 
-import { useDdlOptions } from "../api";
-import {
-  LAST_EDUCATION_OPTIONS,
-  normalizePhone,
-  type JemaatFormValues,
-} from "../model";
+import { useDdlOptions, useKeluargaOptions } from "../api";
+import { normalizePhone, type JemaatFormValues } from "../model";
 import {
   BLOOD_TYPE_LABEL,
   GENDER_LABEL,
+  LAST_EDUCATION_LABEL,
   ROLE_IN_FAMILY_LABEL,
   STATUS_JEMAAT_LABEL,
   STATUS_PERNIKAHAN_LABEL,
@@ -44,9 +41,17 @@ const STATUS_OPTIONS = optionsOf(STATUS_JEMAAT_LABEL);
 const MARITAL_OPTIONS = optionsOf(STATUS_PERNIKAHAN_LABEL);
 const BLOOD_OPTIONS = optionsOf(BLOOD_TYPE_LABEL);
 const ROLE_OPTIONS = optionsOf(ROLE_IN_FAMILY_LABEL);
-const EDUCATION_OPTIONS: SelectOption[] = LAST_EDUCATION_OPTIONS.map(
-  (value) => ({ value, label: value }),
-);
+
+/**
+ * "Tidak diketahui" adalah nilai KOSONG, bukan anggota enum: be-sada
+ * menyimpannya sebagai `null`. Ia tetap muncul sebagai pilihan supaya petugas
+ * bisa menjawabnya dengan sengaja — melewati field begitu saja tidak bisa
+ * dibedakan dari lupa.
+ */
+const EDUCATION_OPTIONS: SelectOption[] = [
+  { value: "", label: "Tidak diketahui" },
+  ...optionsOf(LAST_EDUCATION_LABEL),
+];
 
 export function IdentitySection({
   form,
@@ -55,17 +60,12 @@ export function IdentitySection({
   form: JemaatForm;
   isDisabled: boolean;
 }) {
-  const isBirthDateUnknown = useWatch({
-    control: form.control,
-    name: "isBirthDateUnknown",
-  });
-
   return (
     <FormSection legend="Identitas" disabled={isDisabled}>
       <ControlField control={form.control} name="name" label="Nama lengkap">
         {(field) => (
-          // Tanpa auto-kapitalisasi: "de Fretes" dan "binti" berhak hidup apa
-          // adanya (form-pattern.md §1.6).
+          // Tanpa auto-kapitalisasi paksa: "de Fretes" dan "binti" berhak
+          // hidup apa adanya (form-pattern.md §1.6).
           <Input {...field} autoComplete="name" autoCapitalize="words" />
         )}
       </ControlField>
@@ -89,42 +89,28 @@ export function IdentitySection({
         {(field) => <Input {...field} maxLength={25} />}
       </ControlField>
 
+      {/*
+        Opsional, keputusan user: tanggal lahir yang tidak diketahui disimpan
+        KOSONG dan jemaatnya tetap tersimpan. Petugas yang mencatat data
+        migrasi lama sering memang tidak punya angkanya, dan menahan seluruh
+        orang karena satu tanggal berarti orangnya tidak tercatat sama sekali.
+      */}
       <ControlField
         control={form.control}
         name="birthDate"
         label="Tanggal lahir"
+        isOptional
+        hint="Kosongkan bila tidak diketahui; bisa dilengkapi nanti."
       >
         {(field) => (
           <DateField
             {...field}
-            disabled={isBirthDateUnknown}
             // Tanggal lahir tidak bisa di masa depan; batas atas dari
             // peramban lebih murah daripada satu aturan zod lagi.
             max={new Date().toISOString().slice(0, 10)}
           />
         )}
       </ControlField>
-
-      {/*
-        Keputusan user 2026-09-23: data yang tidak diketahui DISIMPAN sebagai
-        "tidak diketahui", bukan menahan seluruh jemaat sampai lengkap.
-        Petugas yang mencatat bayi hasil baptis atau data migrasi lama sering
-        memang tidak punya angkanya.
-      */}
-      <label className="flex w-fit cursor-pointer items-center gap-2 text-body">
-        <input
-          type="checkbox"
-          className="accent-primary focus-visible:ring-ring size-4 cursor-pointer rounded-control focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
-          checked={isBirthDateUnknown}
-          onChange={(event) =>
-            form.setValue("isBirthDateUnknown", event.target.checked, {
-              shouldDirty: true,
-              shouldValidate: true,
-            })
-          }
-        />
-        Tanggal lahir tidak diketahui
-      </label>
     </FormSection>
   );
 }
@@ -549,7 +535,7 @@ export function FamilySection({
   isEdit: boolean;
 }) {
   const keluargaId = useWatch({ control: form.control, name: "keluargaId" });
-  const keluarga = useDdlOptions("keluarga");
+  const keluarga = useKeluargaOptions();
 
   return (
     <FormSection legend="Keluarga" disabled={isDisabled}>
@@ -573,6 +559,7 @@ export function FamilySection({
             }}
             options={keluarga.options}
             isLoading={keluarga.isLoading}
+            onSearch={keluarga.onSearch}
             isClearable
             placeholder="Cari keluarga"
             emptyMessage="Belum ada data keluarga"
@@ -614,6 +601,7 @@ export function FamilySection({
             onValueChange={field.onChange}
             options={keluarga.options}
             isLoading={keluarga.isLoading}
+            onSearch={keluarga.onSearch}
             isClearable
             placeholder="Cari keluarga asal"
             emptyMessage="Belum ada data keluarga"

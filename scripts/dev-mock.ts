@@ -26,8 +26,9 @@
  *   MOCK_DELAY_MS=3000 bun run dev:mock → semua jawaban ditunda 3 detik (layar tunggu)
  *   MOCK_EMPTY=1 bun run dev:mock       → SEMUA daftar kosong (404 ala be-sada):
  *                                         keadaan kosong tiap layar dan tiap widget
- *   MOCK_SAVE_ERROR=phone|induk|email|kepala|validasi|500
+ *   MOCK_SAVE_ERROR=induk|email|kepala|validasi|500
  *                                       → simpan jemaat gagal dengan jawaban itu
+ *                                         (validasi = issues[] per field)
  *   MOCK_DDL_EMPTY=1                    → semua daftar pilihan form kosong (404)
  *   MOCK_DDL_MANY=1                     → daftar keluarga 400 baris (combobox panjang)
  *

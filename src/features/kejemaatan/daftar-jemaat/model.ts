@@ -8,18 +8,22 @@ import type {
 } from "./types";
 
 /**
- * Aturan form jemaat: cerminan `jemaatSchema` be-sada (form-pattern.md §1.2)
- * ditambah empat keputusan user 2026-09-23 yang MENDAHULUI kontrak hari ini,
- * karena backend sedang menyesuaikan diri ke arah yang sama:
+ * Aturan form jemaat, mengikuti kontrak be-sada SESUDAH penyesuaian
+ * 2026-09-23 — bukan tabel §1.2 `form-pattern.md`, yang ditulis sebelum
+ * backend berubah. Lima keputusan user yang mengubah bentuknya:
  *
- * 1. **Telepon boleh kosong dan boleh sama** (B1). Bayi, anak, dan lansia
- *    tidak punya nomor; satu nomor rumah tangga dipakai bersama.
- * 2. **Golongan darah opsional** untuk Anggota (B6).
- * 3. **Yang tidak diketahui disimpan sebagai "tidak diketahui"**, bukan
- *    ditahan sampai lengkap — jemaatnya tetap tersimpan dan `incompleteFields`
- *    menandai apa yang masih kosong.
- * 4. **Kode induk bebas formatnya**, diketik petugas. Tidak ada pola yang
- *    divalidasi di sini; keunikannya tetap dijaga be-sada.
+ * 1. **Telepon opsional dan boleh sama.** Bayi, anak, dan lansia tidak punya
+ *    nomor; satu nomor rumah tangga dipakai bersama. Pemeriksaan unik dicabut
+ *    di be-sada, jadi tidak ada lagi galat "No Handphone Sudah Tersedia".
+ * 2. **Golongan darah, pekerjaan, dan pendidikan tidak wajib** untuk Anggota.
+ *    Yang tersisa wajib: status pernikahan, suku, wilayah, kode induk.
+ * 3. **"Tidak diketahui" disimpan sebagai KOSONG (`null`)**, bukan sebagai
+ *    nilai teks tersendiri. Dropdown boleh menawarkan pilihan berlabel
+ *    "Tidak diketahui" — nilainya string kosong. Berlaku untuk tanggal lahir,
+ *    pendidikan, dan pekerjaan.
+ * 4. **Pendidikan terakhir jadi enum 12 nilai.** Teks bebas ditolak 400.
+ * 5. **Kode induk bebas formatnya**, diketik petugas. Keunikannya dijaga
+ *    be-sada.
  *
  * SELURUH nilai form berupa string, termasuk id relasi. `<input>`, `<select>`,
  * dan combobox memang memberi string, dan satu tipe nilai berarti tidak ada
@@ -41,25 +45,19 @@ export const SACRAMENT_TYPES = [
   "MENINGGAL",
 ] as const;
 
-/** Nilai eksplisit untuk keputusan user 3 — bukan field yang dibiarkan kosong. */
-export const UNKNOWN_EDUCATION = "Tidak diketahui";
-
-/**
- * MENUNGGU BACKEND (B12): `lastEducation` masih teks bebas `VarChar(50)`,
- * sehingga "SMA", "S M A", dan "sma" menjadi tiga kelompok di
- * `/report/jemaat/last-education`. Daftar tetap di FE dulu; penegakannya
- * menyusul di be-sada.
- */
-export const LAST_EDUCATION_OPTIONS = [
-  "Tidak sekolah",
+export const LAST_EDUCATION = [
+  "TIDAK_SEKOLAH",
   "SD",
   "SMP",
-  "SMA/SMK",
-  "D1-D3",
-  "D4/S1",
+  "SMA",
+  "SMK",
+  "D1",
+  "D2",
+  "D3",
+  "D4",
+  "S1",
   "S2",
   "S3",
-  UNKNOWN_EDUCATION,
 ] as const;
 
 const optionalEnum = <T extends string>(values: readonly [T, ...T[]]) =>
@@ -84,9 +82,8 @@ const baseSchema = z.object({
     .trim()
     .min(1, "Tempat lahir wajib diisi")
     .max(25, "Tempat lahir maksimal 25 karakter"),
+  /** Boleh kosong: tanggal lahir yang tidak diketahui disimpan sebagai null. */
   birthDate: z.string(),
-  /** Keputusan user 3: tanggal lahir yang tidak diketahui tetap bisa disimpan. */
-  isBirthDateUnknown: z.boolean(),
 
   typeJemaat: optionalEnum(TYPE_JEMAAT),
   statusJemaat: optionalEnum(STATUS_JEMAAT),
@@ -102,8 +99,8 @@ const baseSchema = z.object({
     .trim()
     .regex(/^[0-9]*$/, "Telepon hanya boleh berisi angka")
     .max(12, "Telepon maksimal 12 angka"),
-  // 150, bukan 250 (B4): validator be-sada menerima 250 sementara kolomnya
-  // `VarChar(150)`, jadi 151–250 lolos validasi lalu jatuh sebagai galat 500.
+  // 150, selaras dengan kolomnya sejak be-sada menurunkan validatornya dari
+  // 250: sebelumnya 151–250 lolos validasi lalu jatuh sebagai galat 500.
   email: z
     .string()
     .trim()
@@ -114,8 +111,9 @@ const baseSchema = z.object({
   regenciesCode: z.string(),
   districtsCode: z.string(),
   villagesCode: z.string(),
-  // 150, bukan 250 (B5): sama seperti email, yang menolak lebih dulu menang.
-  address: z.string().trim().max(150, "Alamat maksimal 150 karakter"),
+  // 250, selaras dengan kolomnya sejak be-sada menaikkan validatornya: alamat
+  // Indonesia dengan RT/RW, blok, dan patokan rutin melewati 150.
+  address: z.string().trim().max(250, "Alamat maksimal 250 karakter"),
 
   keluargaId: z.string(),
   roleInFamily: optionalEnum(ROLE_IN_FAMILY),
@@ -124,8 +122,8 @@ const baseSchema = z.object({
   statusMarital: optionalEnum(STATUS_PERNIKAHAN),
   professionId: z.string(),
   ethnicGroupId: z.string(),
-  lastEducation: z.string().trim().max(50, "Pendidikan maksimal 50 karakter"),
-  /** Keputusan user 2 (B6): opsional, juga untuk Anggota. */
+  /** Enum sejak be-sada menutup teks bebas; kosong = tidak diketahui. */
+  lastEducation: optionalEnum(LAST_EDUCATION),
   bloodType: optionalEnum(BLOOD_TYPES),
 
   additional: z.array(additionalSchema),
@@ -144,16 +142,16 @@ const ALWAYS_REQUIRED = [
 ] as const;
 
 /**
- * Enam field yang wajib HANYA untuk Anggota — `superRefine` be-sada, dikurangi
- * golongan darah yang dilepas user (B6).
+ * Empat field yang wajib HANYA untuk Anggota, cerminan `superRefine` be-sada
+ * sesudah 2026-09-23. Golongan darah, pekerjaan, dan pendidikan TIDAK ikut:
+ * ketiganya sering benar-benar tidak diketahui, dan field wajib yang tidak
+ * bisa dijawab jujur akan diisi asal.
  */
 const MEMBER_REQUIRED = [
   ["codeInduk", "Kode induk wajib diisi untuk Anggota"],
   ["zoneChurchId", "Wilayah wajib dipilih untuk Anggota"],
   ["statusMarital", "Status pernikahan wajib dipilih untuk Anggota"],
-  ["professionId", "Pekerjaan wajib dipilih untuk Anggota"],
   ["ethnicGroupId", "Suku wajib dipilih untuk Anggota"],
-  ["lastEducation", "Pendidikan terakhir wajib dipilih untuk Anggota"],
 ] as const;
 
 export const jemaatFormSchema = baseSchema.superRefine((values, ctx) => {
@@ -162,13 +160,6 @@ export const jemaatFormSchema = baseSchema.superRefine((values, ctx) => {
 
   for (const [field, message] of ALWAYS_REQUIRED) {
     if (!values[field]) onMissing(field, message);
-  }
-
-  if (!values.isBirthDateUnknown && !values.birthDate) {
-    onMissing(
-      "birthDate",
-      'Tanggal lahir wajib diisi, atau tandai "tidak diketahui"',
-    );
   }
 
   if (values.typeJemaat === "ANGGOTA") {
@@ -215,7 +206,6 @@ export const EMPTY_JEMAAT_FORM: JemaatFormValues = {
   gender: "",
   birthPlace: "",
   birthDate: "",
-  isBirthDateUnknown: false,
   typeJemaat: "",
   statusJemaat: "AKTIF",
   codeInduk: "",
@@ -266,20 +256,34 @@ export const normalizePhone = (value: string): string =>
     .replace(/\D/g, "")
     .slice(0, 12);
 
-/** Badan `POST`/`PUT`. Satu-satunya tempat nilai form menjadi tipe be-sada. */
-export function toJemaatPayload(values: JemaatFormValues): JemaatPayload {
+/**
+ * Badan `POST`/`PUT`. Satu-satunya tempat nilai form menjadi tipe be-sada.
+ *
+ * `isEdit` mengubah satu hal, dan hanya satu: **`additional` tidak ikut sama
+ * sekali**. Sejak be-sada memperlakukan `additional` yang tidak dikirim
+ * sebagai "jangan disentuh", mengirimnya dari layar yang tidak mengeditnya
+ * adalah satu-satunya cara catatan baptis/sidi/atestasi bisa hilang: dua
+ * orang membuka jemaat yang sama, satu menambah riwayat di layar Riwayat
+ * Jemaat, yang lain menekan Simpan di sini, dan riwayat tadi tertimpa.
+ *
+ * Tiga field keluarga tetap dikirim (nilai atau `null`) karena layar ini
+ * MEMANG memilikinya: `null` berarti "lepaskan dari keluarga", dan itu
+ * memang yang diminta user saat ia mengosongkan kotaknya.
+ */
+export function toJemaatPayload(
+  values: JemaatFormValues,
+  isEdit = false,
+): JemaatPayload {
   const payload: JemaatPayload = {
     name: values.name.trim(),
     gender: values.gender as "L" | "P",
     birthPlace: values.birthPlace.trim(),
-    // MENUNGGU BACKEND: validator be-sada masih mewajibkan `birthDate`,
-    // padahal kolomnya nullable. Sampai ia melonggar, menandai "tidak
-    // diketahui" menghasilkan 400 dari server — bukan isian yang hilang.
-    birthDate: values.isBirthDateUnknown ? null : values.birthDate || null,
+    // Kosong = tidak diketahui, disimpan `null`. Tidak ada tanggal karangan.
+    birthDate: emptyToNull(values.birthDate),
     email: emptyToNull(values.email),
     phone: emptyToNull(values.phone),
     bloodType: values.bloodType || null,
-    lastEducation: emptyToNull(values.lastEducation),
+    lastEducation: values.lastEducation || null,
     statusMarital: values.statusMarital || null,
     professionId: idToNumber(values.professionId),
     ethnicGroupId: idToNumber(values.ethnicGroupId),
@@ -295,18 +299,17 @@ export function toJemaatPayload(values: JemaatFormValues): JemaatPayload {
     keluargaId: idToNumber(values.keluargaId),
     roleInFamily: (values.roleInFamily || null) as RoleInFamily | null,
     keluargaAsalId: idToNumber(values.keluargaAsalId),
-    // Dikirim UTUH, termasuk baris yang datang dari detail dan tidak disentuh
-    // layar ini: `PUT` menulis ulang seluruh riwayat, jadi payload tanpa
-    // `additional` menghapus catatan baptis/sidi/atestasi (B2).
-    additional: values.additional.map((row) => ({
+    joinedAt: emptyToNull(values.joinedAt),
+  };
+
+  if (!isEdit) {
+    payload.additional = values.additional.map((row) => ({
       type: row.type as JemaatAdditional["type"],
       date: row.date,
       certificateNumber: emptyToNull(row.certificateNumber),
       place: emptyToNull(row.place),
-    })),
-  };
-
-  if (values.joinedAt) payload.joinedAt = values.joinedAt;
+    }));
+  }
 
   return payload;
 }
@@ -318,7 +321,6 @@ export function toJemaatForm(detail: JemaatDetail): JemaatFormValues {
     gender: detail.gender,
     birthPlace: detail.birthPlace,
     birthDate: toDateInput(detail.birthDate),
-    isBirthDateUnknown: !detail.birthDate,
     typeJemaat: detail.typeJemaat,
     statusJemaat: detail.statusJemaat,
     codeInduk: detail.codeInduk ?? "",
@@ -337,7 +339,8 @@ export function toJemaatForm(detail: JemaatDetail): JemaatFormValues {
     statusMarital: detail.statusMarital ?? "",
     professionId: detail.professionId?.toString() ?? "",
     ethnicGroupId: detail.ethnicGroupId?.toString() ?? "",
-    lastEducation: detail.lastEducation ?? "",
+    lastEducation: (detail.lastEducation ??
+      "") as JemaatFormValues["lastEducation"],
     bloodType: detail.bloodType ?? "",
     additional: (detail.additional ?? []).map((row) => ({
       type: row.type,
@@ -349,21 +352,19 @@ export function toJemaatForm(detail: JemaatDetail): JemaatFormValues {
 }
 
 /**
- * Pesan unik be-sada → field yang salah (form-pattern.md §1.5, §3.7).
+ * Pesan unik be-sada → field yang salah.
  *
- * Dicocokkan dengan teks karena galat 400 be-sada tidak membawa nama field
- * (B11). Yang tidak cocok bukan galat field, melainkan galat tingkat form —
- * menebak-nebak field di sini akan menyorot kotak yang tidak bersalah.
+ * Bukan pengganti `issues[]`: galat VALIDASI sudah membawa `path` sendiri
+ * sejak 2026-09-23 dan diurus `applyServerError`. Yang tersisa di sini adalah
+ * pemeriksaan yang dilakukan service SEBELUM menulis (keunikan, keberadaan
+ * relasi, kepala keluarga tunggal) — pesannya tidak pernah punya `path`.
+ *
+ * "No Handphone Sudah Tersedia" sudah TIDAK ADA: telepon tidak lagi unik.
  */
 const SERVER_FIELD_ERROR: ReadonlyArray<
   [RegExp, keyof JemaatFormValues, string?]
 > = [
   [/email sudah tersedia/i, "email"],
-  [
-    /no handphone sudah tersedia/i,
-    "phone",
-    "Nomor ini sudah dipakai jemaat lain. Satu nomor hanya boleh dipakai satu jemaat.",
-  ],
   [/kode induk sudah tersedia/i, "codeInduk"],
   [/keluarga asal tidak ditemukan/i, "keluargaAsalId"],
   [/keluarga tidak ditemukan/i, "keluargaId"],
@@ -405,9 +406,7 @@ export function incompleteFields(values: {
   if (values.isBirthDateUnknown || !values.birthDate) {
     missing.push("tanggal lahir");
   }
-  if (!values.lastEducation || values.lastEducation === UNKNOWN_EDUCATION) {
-    missing.push("pendidikan terakhir");
-  }
+  if (!values.lastEducation) missing.push("pendidikan terakhir");
   if (!values.professionId) missing.push("pekerjaan");
   if (!values.phone) missing.push("telepon");
   if (!values.bloodType) missing.push("golongan darah");
