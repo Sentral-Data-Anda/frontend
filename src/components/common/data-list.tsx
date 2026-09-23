@@ -16,7 +16,7 @@ import {
   LoadingRows,
 } from "@/components/common/loading-list";
 import { Button } from "@/components/ui/button";
-import { takeListFocus } from "@/lib/list-return";
+import { clearListFocus, readListFocus } from "@/lib/list-return";
 import { cn } from "@/lib/utils";
 
 /**
@@ -166,9 +166,13 @@ export function DataList<T>({
    *
    * Dikerjakan lewat DOM, bukan state: baris datang dari `children(item)`
    * milik layar, dan menyorotnya lewat state berarti setiap layar harus
-   * meneruskan prop "baris mana yang disorot" sampai ke bawah. Penandanya
-   * dibaca sekali lalu dibuang, jadi efek ini hanya menyala satu kali walau
-   * `items` berubah lagi karena penyegaran latar.
+   * meneruskan prop "baris mana yang disorot" sampai ke bawah.
+   *
+   * Penandanya dibuang HANYA setelah barisnya ketemu. Efek ini menyala juga
+   * saat `items` masih berisi cache lama — daftar yang baru ditinggalkan
+   * form belum memuat baris yang barusan disimpan — dan membuang penanda di
+   * render itu berarti sorotannya tidak pernah muncul sama sekali. Karena
+   * dibuang saat ketemu, efek ini tetap hanya menyorot satu kali.
    *
    * `scrollIntoView` hanya bila scroll masih 0: kalau browser sudah
    * memulihkan posisinya, menggeser lagi justru memindahkan daftar dari
@@ -179,7 +183,7 @@ export function DataList<T>({
 
     if (!list) return;
 
-    const id = takeListFocus(pathname);
+    const id = readListFocus(pathname);
     const row = id
       ? [...list.querySelectorAll<HTMLElement>("[data-row-id]")].find(
           (element) => element.dataset.rowId === id,
@@ -188,6 +192,7 @@ export function DataList<T>({
 
     if (!row) return;
 
+    clearListFocus(pathname);
     row.dataset.focus = "";
 
     if (window.scrollY === 0) row.scrollIntoView({ block: "nearest" });

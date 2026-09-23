@@ -68,11 +68,21 @@ export function readListReturn(listPath: string): string {
 export const saveListFocus = (listPath: string, id: string) =>
   write(focusKey(listPath), id);
 
-/** Baca penanda baris; dibaca sekali lalu dibuang (sorotan hanya sekali). */
-export function takeListFocus(listPath: string): string | null {
-  const id = read(focusKey(listPath));
+/**
+ * Baca penanda baris, TANPA membuangnya.
+ *
+ * Dulu keduanya satu fungsi (`takeListFocus`), dan itu salah karena balapan
+ * yang tidak terlihat sebagai galat: daftar ter-mount lebih dulu dengan isi
+ * dari cache yang belum memuat baris yang baru disimpan, jadi penandanya
+ * terbakar pada render pertama dan sorotannya tidak pernah muncul — juga saat
+ * barisnya tiba satu render kemudian. Terukur: 10 sampel setelah simpan,
+ * `[data-focus]` nol semua.
+ *
+ * Pemanggil karena itu membuang penandanya SENDIRI, hanya setelah barisnya
+ * benar-benar ketemu (`clearListFocus`).
+ */
+export const readListFocus = (listPath: string): string | null =>
+  read(focusKey(listPath));
 
-  if (id) remove(focusKey(listPath));
-
-  return id;
-}
+/** Buang penanda baris — dipanggil setelah barisnya benar-benar disorot. */
+export const clearListFocus = (listPath: string) => remove(focusKey(listPath));

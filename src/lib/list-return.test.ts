@@ -4,7 +4,8 @@ import {
   readListReturn,
   saveListFocus,
   saveListReturn,
-  takeListFocus,
+  clearListFocus,
+  readListFocus,
 } from "./list-return";
 
 const LIST = "/kejemaatan/daftar-jemaat";
@@ -44,7 +45,12 @@ describe("list-focus", () => {
   test("dibaca sekali lalu hilang", () => {
     saveListFocus(LIST, "JMT-0007");
 
-    expect(takeListFocus(LIST)).toBe("JMT-0007");
-    expect(takeListFocus(LIST)).toBeNull();
+    // Dibaca berkali-kali selama barisnya belum ketemu: daftar bisa ter-mount
+    // lebih dulu dengan cache yang belum memuat baris baru.
+    expect(readListFocus(LIST)).toBe("JMT-0007");
+    expect(readListFocus(LIST)).toBe("JMT-0007");
+
+    clearListFocus(LIST);
+    expect(readListFocus(LIST)).toBeNull();
   });
 });

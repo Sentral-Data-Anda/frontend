@@ -19,9 +19,9 @@ const rows: Row[] = [
   { id: "JMT-0002", name: "Bethari" },
 ];
 
-const onRenderList = () =>
+const onRenderList = (items: Row[] = rows) =>
   render(
-    <DataList<Row> items={rows} getKey={(row) => row.id} label="Daftar uji">
+    <DataList<Row> items={items} getKey={(row) => row.id} label="Daftar uji">
       {(row) => <DataListRow id={row.id} title={row.name} />}
     </DataList>,
   );
@@ -75,5 +75,42 @@ describe("sorotan baris terakhir", () => {
 
     expect(rowOf("Andreas").dataset.focus).toBeUndefined();
     expect(rowOf("Bethari").dataset.focus).toBeUndefined();
+  });
+});
+
+/**
+ * Balapan yang memakan sorotan setelah simpan (temuan Tech Lead atas
+ * `e1000f8`, terukur 10 sampel `[data-focus]` nol semua).
+ *
+ * Urutannya: form menulis `list-focus` lalu berpindah; daftar ter-mount
+ * dengan isi dari cache yang BELUM memuat baris baru; baris itu baru tiba
+ * satu render kemudian setelah invalidasi selesai. Penanda yang dibuang pada
+ * render pertama karena itu tidak pernah sempat dipakai — dan kegagalannya
+ * tidak terlihat sebagai galat, hanya sebagai sorotan yang tidak muncul.
+ */
+describe("sorotan bertahan sampai barisnya benar-benar ada", () => {
+  test("baris yang baru disimpan tetap tersorot walau tiba satu render kemudian", () => {
+    window.sessionStorage.setItem(`list-focus:${LIST}`, "JMT-9001");
+
+    const baru = { id: "JMT-9001", name: "Maria" };
+    const { rerender } = onRenderList(rows);
+
+    // Render pertama: barisnya belum ada, penanda TIDAK boleh dibuang.
+    expect(window.sessionStorage.getItem(`list-focus:${LIST}`)).toBe(
+      "JMT-9001",
+    );
+
+    rerender(
+      <DataList<Row>
+        items={[baru, ...rows]}
+        getKey={(row) => row.id}
+        label="Daftar uji"
+      >
+        {(row) => <DataListRow id={row.id} title={row.name} />}
+      </DataList>,
+    );
+
+    expect(rowOf("Maria").dataset.focus).toBe("");
+    expect(window.sessionStorage.getItem(`list-focus:${LIST}`)).toBeNull();
   });
 });
