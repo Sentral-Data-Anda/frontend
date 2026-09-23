@@ -302,7 +302,7 @@ export function SocialSection({
         control={form.control}
         name="professionId"
         label="Pekerjaan"
-        isOptional={!isAnggota}
+        isOptional
       >
         {(field) => (
           <ComboboxField
@@ -310,7 +310,7 @@ export function SocialSection({
             onValueChange={field.onChange}
             options={profession.options}
             isLoading={profession.isLoading}
-            isClearable={!isAnggota}
+            isClearable
             placeholder="Cari pekerjaan"
             emptyMessage="Belum ada data pekerjaan"
           />
@@ -340,7 +340,7 @@ export function SocialSection({
         control={form.control}
         name="lastEducation"
         label="Pendidikan terakhir"
-        isOptional={!isAnggota}
+        isOptional
         hint='Pilih "Tidak diketahui" bila memang belum diketahui.'
       >
         {(field) => (
@@ -353,8 +353,13 @@ export function SocialSection({
         )}
       </ControlField>
 
-      {/* Opsional untuk semua orang, keputusan user (B6): field wajib yang
-          tidak bisa dijawab jujur akan diisi asal. */}
+      {/*
+        Golongan darah, pekerjaan, dan pendidikan opsional untuk SEMUA ORANG,
+        juga Anggota: field wajib yang tidak bisa dijawab jujur akan diisi
+        asal, dan angka asal lebih merusak laporan daripada kolom kosong.
+        Yang tetap wajib untuk Anggota tinggal status pernikahan, suku,
+        wilayah, dan kode induk.
+      */}
       <ControlField
         control={form.control}
         name="bloodType"
