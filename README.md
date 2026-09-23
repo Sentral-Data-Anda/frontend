@@ -355,16 +355,16 @@ hapus `isDummy` widget itu.
 
 ## Struktur
 
-- `src/app` — routing, tipis. Metadata, manifest, ikon, halaman.
-- `src/features/<domain>` — komponen, hook, service, types per domain
-- `src/components` — komponen reusable lintas-fitur (`ui` shadcn, `layout`, `common`)
-- `src/lib/api` — satu pintu masuk ke API backend (`client.ts`)
-- `src/lib/env.ts` — validasi environment, server-only
-- `src/lib/observability` — logger terstruktur & redaksi data sensitif
-- `src/lib/security/csp.ts` — penyusun Content Security Policy
-- `src/proxy.ts` — CSP per-request (Next 16: dulu bernama `middleware`)
-- `src/config` — identitas aplikasi & navigasi
-- `public/sw.js` — service worker, ditulis tangan
+Konvensinya satu dokumen: **[docs/design/frontend-structure.md](../docs/design/frontend-structure.md)**
+— empat lapisan dan arah impornya, bentuk folder fitur (`api.ts`, `model.ts`,
+`screen.tsx`, `ui/`, `hooks/`), istilah yang dipakai (tidak ada "service" di
+frontend), dan aturan lint yang menegakkannya.
+
+Ringkasnya: `src/app` rute saja, `src/features/<domain>/<fitur>` satu fitur
+nyata, `src/components/{ui,common,layout}` UI bersama, dan `src/lib`,
+`src/config`, `src/hooks`, `src/types` fondasi. Yang bukan bagian dari
+konvensi itu: `src/proxy.ts` (CSP per-request; di Next 16 dulu bernama
+`middleware`) dan `public/sw.js` (service worker, ditulis tangan).
 
 ## Aturan yang tidak boleh dilanggar
 
