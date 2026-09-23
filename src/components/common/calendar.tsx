@@ -172,39 +172,84 @@ export function Calendar({
       { length: lastYear - firstYear + 1 },
       (_, index) => lastYear - index,
     );
+    const cursorYear = Number(cursor.slice(0, 4));
+
+    /** Pindah ke tahun lain dengan tanggal/bulan yang sama, dijepit ke batas. */
+    const onYear = (year: number) => {
+      if (year < firstYear || year > lastYear) return;
+
+      const next = `${year}${cursor.slice(4)}`;
+      setCursor(isWithin(next, min, max) ? next : (max ?? min ?? today));
+    };
+
+    /**
+     * Panah yang sama dengan kisi hari (APG `grid`). Kisi ini yang dibuka
+     * PERTAMA untuk tanggal lahir, dan tanpa panah mencapai 1990 dari 2026
+     * berarti 36 kali Tab melewati 127 tombol.
+     *
+     * Daftarnya urut MENURUN (tahun terbaru di kiri atas), jadi "kanan" dan
+     * "bawah" berarti tahun yang lebih lampau.
+     */
+    const onYearKey = (event: React.KeyboardEvent) => {
+      const step: Record<string, number> = {
+        ArrowLeft: 1,
+        ArrowRight: -1,
+        ArrowUp: YEARS_PER_ROW,
+        ArrowDown: -YEARS_PER_ROW,
+        PageUp: YEARS_PER_ROW * 3,
+        PageDown: -YEARS_PER_ROW * 3,
+      };
+
+      if (step[event.key] !== undefined) {
+        event.preventDefault();
+        onYear(cursorYear + step[event.key]);
+        return;
+      }
+
+      if (event.key === "Home" || event.key === "End") {
+        event.preventDefault();
+        const column = years.indexOf(cursorYear) % YEARS_PER_ROW;
+        onYear(
+          event.key === "Home"
+            ? cursorYear + column
+            : cursorYear - (YEARS_PER_ROW - 1 - column),
+        );
+      }
+    };
 
     return (
       <div className="p-2">
         <p className="mb-2 px-1 text-title font-semibold">Pilih tahun</p>
 
         <div
-          // Kisi tahun tergulir ke tahun terpilih lewat `autoFocus` pada
-          // tombolnya — tanpa itu daftar 127 tahun selalu mulai dari yang
-          // terbaru dan tahun lahir 1950-an butuh gulir panjang.
+          role="grid"
+          aria-label="Pilih tahun"
+          onKeyDown={onYearKey}
           className="grid max-h-64 grid-cols-4 gap-1 overflow-y-auto overscroll-contain"
           style={{ gridTemplateColumns: `repeat(${YEARS_PER_ROW}, 1fr)` }}
         >
           {years.map((year) => {
-            const isCurrent = cursor.slice(0, 4) === String(year);
+            const isCurrent = cursorYear === year;
 
             return (
               <button
                 key={year}
+                ref={(node) => {
+                  if (isCurrent) cursorRef.current = node;
+                }}
                 type="button"
-                autoFocus={isCurrent}
+                role="gridcell"
+                // Satu titik Tab, seperti kisi hari — panah memindahkannya.
+                tabIndex={isCurrent ? 0 : -1}
+                aria-selected={isCurrent}
                 data-autofocus={isCurrent ? "" : undefined}
                 onClick={() => {
-                  const next = `${year}${cursor.slice(4)}`;
-
-                  // Dijepit ke batas supaya tahun tepi (1900 atau tahun
-                  // berjalan) tidak mendarat di tanggal yang di luar rentang
-                  // — sel disabled menolak fokus, dan kisi jadi mati.
-                  setCursor(isWithin(next, min, max) ? next : (max ?? today));
+                  onYear(year);
                   setIsYearGrid(false);
                 }}
                 className={cn(
                   "h-control cursor-pointer rounded-control text-body tabular-nums",
-                  "hover:bg-accent focus-visible:ring-ring focus-visible:ring-2 focus-visible:outline-none",
+                  "hover:bg-accent focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:outline-none",
                   isCurrent && "bg-primary text-primary-foreground",
                 )}
               >

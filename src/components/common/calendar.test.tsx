@@ -29,7 +29,7 @@ const onRenderCalendar = (
     picked,
     cells,
     cursor,
-    grid: () => screen.queryByRole("grid"),
+    grid: () => document.querySelector('[role="grid"][aria-label="Kalender"]'),
     press: (key: string, init: Partial<KeyboardEventInit> = {}) =>
       fireEvent.keyDown(screen.getByRole("grid"), { key, ...init }),
   };
@@ -202,7 +202,7 @@ describe("Calendar — kisi tahun dan varian (§7.10 no. 6)", () => {
       value: "2026-09-23",
     });
 
-    fireEvent.click(screen.getByRole("button", { name: "1990" }));
+    fireEvent.click(screen.getByText("1990"));
 
     expect(cal.grid()).not.toBeNull();
     expect(screen.getByRole("button", { name: /September 1990/ })).toBeTruthy();
@@ -211,8 +211,8 @@ describe("Calendar — kisi tahun dan varian (§7.10 no. 6)", () => {
   test("kisi tahun dibatasi min dan max", () => {
     onRenderCalendar({ startInYearGrid: true, min: "2020-01-01" });
 
-    expect(screen.getByRole("button", { name: "2020" })).toBeTruthy();
-    expect(screen.queryByRole("button", { name: "2019" })).toBeNull();
+    expect(screen.getByText("2020")).toBeTruthy();
+    expect(screen.queryByText("2019")).toBeNull();
   });
 });
 
@@ -239,5 +239,89 @@ describe("Calendar — kaki (§7.10 no. 9)", () => {
 
     onRenderCalendar({ hasConfirm: true });
     expect(screen.getByRole("button", { name: "Pilih" })).toBeTruthy();
+  });
+});
+
+/**
+ * Kisi tahun dibuka PERTAMA untuk tanggal lahir; tanpa panah, mencapai 1990
+ * dari 2026 berarti 36 kali Tab melewati 127 tombol.
+ */
+describe("Calendar — panah di kisi tahun", () => {
+  const onRenderYears = () => {
+    const view = onRenderCalendar({
+      startInYearGrid: true,
+      value: "2026-09-10",
+      max: "2026-09-30",
+    });
+    const yearGrid = () =>
+      document.querySelector(
+        '[role="grid"][aria-label="Pilih tahun"]',
+      ) as HTMLElement;
+    const current = () =>
+      yearGrid().querySelector('[tabindex="0"]')?.textContent;
+    const press = (key: string) => fireEvent.keyDown(yearGrid(), { key });
+
+    return { ...view, current, press };
+  };
+
+  test("hanya SATU tahun yang bisa dijangkau Tab", () => {
+    onRenderYears();
+
+    expect(
+      document.querySelectorAll(
+        '[role="grid"][aria-label="Pilih tahun"] [tabindex="0"]',
+      ),
+    ).toHaveLength(1);
+  });
+
+  test("kanan/kiri satu tahun, bawah/atas satu baris (4 tahun)", () => {
+    const years = onRenderYears();
+
+    expect(years.current()).toBe("2026");
+    years.press("ArrowRight");
+    expect(years.current()).toBe("2025");
+    years.press("ArrowDown");
+    expect(years.current()).toBe("2021");
+    years.press("ArrowUp");
+    expect(years.current()).toBe("2025");
+    years.press("ArrowLeft");
+    expect(years.current()).toBe("2026");
+  });
+
+  test("tidak melewati tahun terbaru maupun tertua", () => {
+    const years = onRenderYears();
+
+    years.press("ArrowLeft");
+    years.press("ArrowUp");
+    expect(years.current()).toBe("2026");
+  });
+
+  test("PageDown melompat tiga baris", () => {
+    const years = onRenderYears();
+
+    years.press("PageDown");
+    expect(years.current()).toBe("2014");
+  });
+
+  test("Home/End ke ujung baris", () => {
+    const years = onRenderYears();
+
+    years.press("ArrowRight"); // 2025, kolom 2
+    years.press("End");
+    expect(years.current()).toBe("2023");
+    years.press("Home");
+    expect(years.current()).toBe("2026");
+  });
+
+  test("memilih tahun lewat klik kembali ke kisi hari di tahun itu", () => {
+    const years = onRenderYears();
+
+    years.press("PageDown");
+    fireEvent.click(screen.getByText("2014"));
+
+    expect(
+      document.querySelector('[role="grid"][aria-label="Kalender"]'),
+    ).not.toBeNull();
+    expect(screen.getByRole("button", { name: /September 2014/ })).toBeTruthy();
   });
 });
