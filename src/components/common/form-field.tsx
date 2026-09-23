@@ -22,6 +22,7 @@ export function FormField({
   htmlFor,
   error,
   hint,
+  isHintWarning = false,
   children,
 }: {
   /**
@@ -33,6 +34,13 @@ export function FormField({
   htmlFor: string;
   error?: string;
   hint?: string;
+  /**
+   * Petunjuk yang berubah menjadi PERINGATAN (mis. "kode induk diubah →
+   * username ikut berubah"). Tetap `hint`, bukan `error`: isiannya sah dan
+   * form tetap boleh disimpan — yang berubah hanya nada, supaya akibatnya
+   * terbaca tanpa menghalangi. Tetap ikut `aria-describedby`.
+   */
+  isHintWarning?: boolean;
   children: ReactElement<FieldControlProps>;
 }) {
   const hintId = hint ? `${htmlFor}-hint` : undefined;
@@ -52,7 +60,14 @@ export function FormField({
       })}
 
       {hint ? (
-        <p id={hintId} className="text-muted-foreground text-caption">
+        <p
+          id={hintId}
+          className={
+            isHintWarning
+              ? "text-destructive text-caption"
+              : "text-muted-foreground text-caption"
+          }
+        >
           {hint}
         </p>
       ) : null}

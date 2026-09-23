@@ -132,6 +132,22 @@ export function MembershipSection({
     useWatch({ control: form.control, name: "typeJemaat" }) === "ANGGOTA";
   const zoneChurch = useDdlOptions("zone-church");
 
+  /**
+   * Kode induk juga menjadi username akun jemaat, jadi mengubahnya mengganti
+   * nama akun. Peringatan inline (keputusan Tech Lead), bukan dialog
+   * konfirmasi: yang perlu dilakukan petugas bukan menjawab pertanyaan,
+   * melainkan tahu akibatnya sambil mengetik.
+   *
+   * MENUNGGU BACKEND (B14): detail belum menyertakan `hasAccount`/`username`,
+   * jadi FE tidak tahu jemaat ini punya akun atau tidak — kalimatnya karena
+   * itu bersyarat ("kalau"). Begitu B14 ada, peringatan ini hanya muncul
+   * untuk jemaat yang benar-benar punya akun, dan bisa menyebut username-nya.
+   */
+  const codeInduk = useWatch({ control: form.control, name: "codeInduk" });
+  const isCodeIndukChanged =
+    Boolean(form.formState.defaultValues?.codeInduk) &&
+    codeInduk !== form.formState.defaultValues?.codeInduk;
+
   return (
     <FormSection legend="Keanggotaan" disabled={isDisabled}>
       <ControlField
@@ -174,7 +190,12 @@ export function MembershipSection({
         isOptional={!isAnggota}
         // Keputusan user: formatnya bebas, diketik petugas. Yang perlu
         // diketahui bukan polanya, melainkan akibatnya.
-        hint="Nomor anggota gereja, bebas formatnya. Juga menjadi username akun jemaat ini."
+        isHintWarning={isCodeIndukChanged}
+        hint={
+          isCodeIndukChanged
+            ? "Kode induk diubah. Kalau jemaat ini punya akun, username-nya ikut berubah."
+            : "Nomor anggota gereja, bebas formatnya. Juga menjadi username akun jemaat ini."
+        }
       >
         {(field) => (
           <Input {...field} maxLength={50} autoCapitalize="characters" />

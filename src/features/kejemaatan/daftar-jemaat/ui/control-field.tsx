@@ -49,6 +49,7 @@ export function ControlField({
   name,
   label,
   hint,
+  isHintWarning = false,
   isOptional = false,
   children,
 }: {
@@ -57,6 +58,8 @@ export function ControlField({
   label: string;
   /** Hanya bila menjelaskan hal yang TIDAK terlihat dari kontrolnya. */
   hint?: string;
+  /** Petunjuk bernada peringatan; isiannya tetap sah. */
+  isHintWarning?: boolean;
   isOptional?: boolean;
   children: (field: StringField) => ReactElement<FieldControlProps>;
 }) {
@@ -69,6 +72,7 @@ export function ControlField({
           htmlFor={name}
           error={fieldState.error?.message}
           hint={hint}
+          isHintWarning={isHintWarning}
           label={
             <>
               {label}

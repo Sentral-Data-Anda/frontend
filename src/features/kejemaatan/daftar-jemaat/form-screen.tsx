@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { TriangleAlert } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 
 import { Button } from "@/components/common/button";
@@ -72,6 +72,16 @@ export function JemaatFormScreen({ code }: { code?: string }) {
    * baru saja disusun, dan itu terasa persis seperti kehilangan isian.
    */
   const listReturn = useListReturn(JEMAAT_LIST_PATH);
+
+  /**
+   * Field yang ditolak SERVER, ditunda sampai form terbuka kembali.
+   *
+   * Tidak bisa difokuskan langsung di `catch`: di titik itu `isSubmitting`
+   * masih benar, seluruh fieldset masih `disabled`, dan kontrol yang disabled
+   * MENOLAK fokus — terukur, fokusnya mendarat di `<body>`. Jadi field-nya
+   * dicatat dulu, lalu dibuka oleh efek di bawah begitu form hidup lagi.
+   */
+  const [rejectedField, setRejectedField] = useState<string | null>(null);
   const saveJemaat = useSaveJemaat(code);
   const detail = useJemaatDetail(code);
 
@@ -97,7 +107,7 @@ export function JemaatFormScreen({ code }: { code?: string }) {
     if (detail.data) form.reset(toJemaatForm(detail.data));
   }, [detail.data, form]);
 
-  const { isDirty, isSubmitting } = form.formState;
+  const { isDirty, isSubmitting, submitCount } = form.formState;
   const isConfirmOpen = useBoolean();
 
   /**
@@ -131,12 +141,25 @@ export function JemaatFormScreen({ code }: { code?: string }) {
   const watched = useWatch({ control: form.control });
   const missing = incompleteFields(watched);
 
+  /**
+   * `submitCount` ikut dependency, dan itu yang membuat percobaan KEDUA yang
+   * ditolak pada field yang sama tetap memindahkan fokus — tanpa itu nilainya
+   * tidak berubah dan efek ini diam. Penandanya dibersihkan di awal tiap
+   * submit (event handler), bukan di dalam efek ini.
+   */
+  useEffect(() => {
+    if (isSubmitting || !rejectedField) return;
+
+    onRevealField(rejectedField);
+  }, [isSubmitting, submitCount, rejectedField]);
+
   const onSave = form.handleSubmit(
     async (values) => {
       // Galat tingkat form dari percobaan SEBELUMNYA tidak dihapus resolver
       // (ia hanya mengurus field), jadi tanpa baris ini "Kesalahan server."
       // tetap terbaca di bawah tombol saat percobaan kedua berhasil.
       form.clearErrors("root");
+      setRejectedField(null);
 
       try {
         const saved = await saveJemaat.mutateAsync(
@@ -152,10 +175,15 @@ export function JemaatFormScreen({ code }: { code?: string }) {
         // Isian TIDAK PERNAH dibuang karena gagal simpan: yang hilang bukan
         // satu klik, melainkan dua puluh field yang baru diketik.
         applyServerError(error, form.setError, serverFieldError);
-        onScrollTo(firstErrorField(error));
+        setRejectedField(firstErrorField(error));
       }
     },
-    (errors) => onScrollTo(Object.keys(errors).find((key) => key !== "root")),
+    (errors) => {
+      // Galat dari klien: penanda galat server sebelumnya dibuang supaya
+      // fokus tidak melompat ke field yang bukan sedang dipersoalkan.
+      setRejectedField(null);
+      onRevealField(Object.keys(errors).find((key) => key !== "root"));
+    },
   );
 
   /**
@@ -281,19 +309,27 @@ export function JemaatFormScreen({ code }: { code?: string }) {
 }
 
 /**
- * Fokus ke field galat pertama sudah diurus RHF (`shouldFocusError`), tapi di
- * halaman ±20 field fokus saja bisa mendarat tepat di bawah baris aksi yang
- * menempel — terlihat seperti tidak terjadi apa-apa. Karena itu digulir juga.
+ * Bawa field galat pertama ke pandangan DAN ke fokus.
  *
- * Dipakai untuk dua sumber galat: hasil validasi zod di sini, dan `issues[]`
- * yang datang dari server sesudah submit.
+ * Dua sumber galat, dan keduanya butuh ini: validasi zod di klien (RHF sudah
+ * memindahkan fokus lewat `shouldFocusError`, tapi di halaman ±20 field fokus
+ * saja bisa mendarat tepat di bawah baris aksi yang menempel) dan `issues[]`
+ * dari server sesudah submit — di jalur kedua RHF tidak memindahkan apa pun,
+ * jadi tanpa `focus()` di sini halaman hanya bergeser diam-diam dan pengguna
+ * keyboard tetap tertinggal di tombol Simpan.
+ *
+ * `preventScroll`: fokus dulu tanpa lompatan kasar peramban, lalu digulir
+ * sendiri ke tengah dengan animasi.
  */
-function onScrollTo(field: string | null | undefined) {
+function onRevealField(field: string | null | undefined) {
   if (!field) return;
 
-  document
-    .getElementById(field)
-    ?.scrollIntoView({ block: "center", behavior: "smooth" });
+  const control = document.getElementById(field);
+
+  if (!control) return;
+
+  control.focus({ preventScroll: true });
+  control.scrollIntoView({ block: "center", behavior: "smooth" });
 }
 
 /** Layar "tidak tersedia" untuk peran yang tidak memegang aksinya. */
