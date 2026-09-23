@@ -4,8 +4,11 @@ import { Menu } from "@base-ui/react/menu";
 import { Check, ChevronDown } from "lucide-react";
 
 import { buttonVariants } from "@/components/common/button";
+import { MENU_ITEM, MENU_POPUP } from "@/components/common/menu";
+import { cn } from "@/lib/utils";
 
 import {
+  canPickView,
   VIEW_LABEL,
   type DashboardView,
   type KpiGroup,
@@ -34,7 +37,7 @@ export function ViewPicker({
   groups: readonly KpiGroup[];
   onPick: (view: DashboardView) => void;
 }) {
-  if (groups.length < 2) return null;
+  if (!canPickView(groups)) return null;
 
   const options: DashboardView[] = ["all", ...groups];
 
@@ -51,7 +54,7 @@ export function ViewPicker({
 
       <Menu.Portal>
         <Menu.Positioner align="end" sideOffset={6} className="z-50">
-          <Menu.Popup className="bg-popover text-popover-foreground ring-border min-w-40 rounded-control p-1 shadow-md ring-1 outline-none">
+          <Menu.Popup className={MENU_POPUP}>
             <Menu.RadioGroup
               value={value}
               onValueChange={(next) => onPick(next as DashboardView)}
@@ -60,7 +63,10 @@ export function ViewPicker({
                 <Menu.RadioItem
                   key={option}
                   value={option}
-                  className="data-highlighted:bg-primary data-highlighted:text-primary-foreground flex h-control items-center gap-2 rounded-control pr-3 pl-2 text-body font-medium outline-none select-none"
+                  // Tanpa ini menu tetap terbuka sesudah memilih: `aria-expanded`
+                  // masih true dan halaman berganti tinggi di balik popup.
+                  closeOnClick
+                  className={cn(MENU_ITEM, "pr-3")}
                 >
                   <span className="flex size-4 shrink-0 items-center justify-center">
                     <Menu.RadioItemIndicator>

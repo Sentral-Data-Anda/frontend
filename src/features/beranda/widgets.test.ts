@@ -143,19 +143,18 @@ describe("grup KPI", () => {
   test("widget ber-kind hanya di tampilan jenis itu", () => {
     const widgets: Widget[] = [
       kpi("f1", "finance"),
+      kpi("u1", "umum"),
       { id: "fm", slot: "main", gate: [], kind: "finance", Component: Noop },
       { id: "um", slot: "main", gate: [], kind: "umum", Component: Noop },
       { id: "both", slot: "main", gate: [], Component: Noop },
     ];
 
-    // "Semua" (bawaan) tidak menyaring `kind` — itu tugas pilihan tampilan.
-    expect(ids(selectWidgets([], widgets, true).main)).toEqual([
+    // Bawaan = grup dominan (seri → finance), bukan gabungan.
+    expect(ids(selectWidgets([], widgets, true).main)).toEqual(["fm", "both"]);
+    // Gabungan hanya kalau user memang memilihnya.
+    expect(ids(selectWidgets([], widgets, true, "all").main)).toEqual([
       "fm",
       "um",
-      "both",
-    ]);
-    expect(ids(selectWidgets([], widgets, true, "finance").main)).toEqual([
-      "fm",
       "both",
     ]);
   });
@@ -225,7 +224,6 @@ describe("persona dev:mock", () => {
     ]);
     expect(main).toEqual(["agenda-week", "zones"]);
     expect(side).toEqual([
-      "agenda",
       "birthdays",
       "announcements",
       "loan-rooms",
@@ -320,6 +318,13 @@ describe("selectWidgets: pilihan tampilan", () => {
     widget("pengumuman", "side"),
   ];
 
+  test("bawaan: grup dominan, bukan gabungan", () => {
+    const bawaan = selectWidgets(menu, widgets, true);
+
+    expect(bawaan.view).toBe("finance");
+    expect(ids(bawaan.main)).toEqual(["grafik"]);
+  });
+
   test("Semua: gabungan kedua grup, strip KPI tetap satu grup", () => {
     const all = selectWidgets(menu, widgets, true, "all");
 
@@ -352,11 +357,21 @@ describe("selectWidgets: pilihan tampilan", () => {
     expect(selectWidgets(menu, satuGrup, true).groups).toEqual(["finance"]);
   });
 
-  test("grup yang tidak dipegang (cookie lama) jatuh ke Semua", () => {
+  /**
+   * Syarat "dropdown muncul" dan syarat "pilihan diberlakukan" HARUS sama
+   * (`canPickView`). Kalau tidak, user satu grup bisa terjebak: cookie
+   * menyaring halamannya dan tidak ada dropdown untuk mengembalikannya.
+   */
+  test("user tanpa dropdown: cookie tidak menyaring apa pun", () => {
     const satuGrup = widgets.filter((w) => w.id !== "kpi-acara");
-    const hasil = selectWidgets(menu, satuGrup, true, "umum");
+    const bawaan = selectWidgets(menu, satuGrup, true);
 
-    expect(hasil.view).toBe("all");
-    expect(ids(hasil.main)).toEqual(["grafik", "agenda"]);
+    for (const view of ["all", "finance", "umum"] as const) {
+      const hasil = selectWidgets(menu, satuGrup, true, view);
+
+      expect(hasil.view).toBe(bawaan.view);
+      expect(ids(hasil.main)).toEqual(ids(bawaan.main));
+      expect(ids(hasil.kpi)).toEqual(ids(bawaan.kpi));
+    }
   });
 });

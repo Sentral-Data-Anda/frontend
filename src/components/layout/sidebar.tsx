@@ -25,6 +25,7 @@ import {
 import { flushSync } from "react-dom";
 
 import { Avatar } from "@/components/common/avatar";
+import { MENU_ITEM, MENU_POPUP } from "@/components/common/menu";
 import { MENU_ICON, domainHref, menuHref } from "@/config/menu";
 import { useSession } from "@/features/auth/session-provider";
 import type { MenuNode } from "@/features/auth/types";
@@ -255,7 +256,7 @@ const AccountMenu = memo(function AccountMenu({
           sideOffset={10}
           className="z-50"
         >
-          <Menu.Popup className="bg-popover text-popover-foreground ring-border min-w-48 rounded-control p-1 shadow-md ring-1 outline-none">
+          <Menu.Popup className={cn(MENU_POPUP, "min-w-48")}>
             <Menu.Group>
               <Menu.GroupLabel className="px-2 py-1.5">
                 <span
@@ -273,12 +274,8 @@ const AccountMenu = memo(function AccountMenu({
               </Menu.GroupLabel>
               <Menu.Separator className="bg-border -mx-1 my-1 h-px" />
               {/* Di dalam group, supaya label nama/role menamai item ini
-                  (bukan group kosong). Sorotan navy + teks putih (8.44:1):
-                  sorotan p50 di atas putih hanya 1.10:1. */}
-              <Menu.Item
-                onClick={() => void logout()}
-                className="data-highlighted:bg-primary data-highlighted:text-primary-foreground flex h-control items-center gap-2 rounded-control px-2 text-body font-medium outline-none select-none"
-              >
+                  (bukan group kosong). */}
+              <Menu.Item onClick={() => void logout()} className={MENU_ITEM}>
                 <LogOut className="size-4" aria-hidden />
                 Keluar
               </Menu.Item>

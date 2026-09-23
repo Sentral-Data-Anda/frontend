@@ -36,14 +36,17 @@ import { firstNameOf } from "@/lib/format";
  * `features/beranda/dummy.ts`.
  */
 export function HomeScreen({
-  defaultView = "all",
+  defaultView,
 }: {
-  /** Dibaca dari cookie di server, jadi render pertama sudah pilihan user. */
+  /**
+   * Dibaca dari cookie di server, jadi render pertama sudah pilihan user.
+   * `undefined` = belum pernah memilih → grup dominan (`selectWidgets`).
+   */
   defaultView?: DashboardView;
 }) {
   const session = useSession();
   const ibadahAccess = useMenuAccess(MENU.IBADAH);
-  const [view, setView] = useState<DashboardView>(defaultView);
+  const [view, setView] = useState<DashboardView | undefined>(defaultView);
   const widgets = selectWidgets(session.menu, undefined, undefined, view);
 
   // ponytail: dihitung sekali per render; halaman yang dibiarkan terbuka
@@ -89,6 +92,9 @@ export function HomeScreen({
 
       <div className="mt-5 px-gutter">
         <DashboardGrid
+          // "Semua" mencampur widget dua grup: kolom utama jadi jauh lebih
+          // pendek daripada kolom samping, jadi tampilan itu selalu menumpuk.
+          isStacked={widgets.view === "all"}
           kpi={
             widgets.kpi.length ? (
               <KpiStrip label="Ringkasan">

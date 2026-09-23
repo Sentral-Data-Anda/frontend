@@ -13,10 +13,17 @@ describe("readDashboardView", () => {
     expect(readDashboardView("umum")).toBe("umum");
   });
 
-  /** Cookie bisa diisi apa saja dari peramban; halaman tidak boleh kosong. */
-  test("nilai asing, kosong, atau 'all' jatuh ke Semua", () => {
-    for (const value of [undefined, "", "all", "keuangan", "__proto__"]) {
-      expect(readDashboardView(value)).toBe("all");
+  test("menerima Semua", () => {
+    expect(readDashboardView("all")).toBe("all");
+  });
+
+  /**
+   * Cookie bisa diisi apa saja dari peramban. Nilai asing = seperti belum
+   * pernah memilih (`undefined`), dan `selectWidgets` memakai grup dominan.
+   */
+  test("nilai asing atau kosong = belum memilih", () => {
+    for (const value of [undefined, "", "keuangan", "__proto__"]) {
+      expect(readDashboardView(value)).toBeUndefined();
     }
   });
 });

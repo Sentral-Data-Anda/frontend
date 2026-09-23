@@ -13,6 +13,7 @@ import {
 } from "./agenda-week";
 import { ApprovalsWidget, KpiWaitingApprovals } from "./approvals";
 import {
+  canPickView,
   KPI_GROUPS,
   type DashboardView,
   type KpiGroup,
@@ -318,14 +319,19 @@ export const hasGrant = (menu: MenuNode[], { slug, action }: WidgetGate) =>
  * `view` adalah pilihan TAMPILAN user (dropdown di kepala dashboard), bukan
  * izin:
  *
+ * - tanpa pilihan (belum pernah memilih) — **grup dominan**: grup dengan sel
+ *   KPI lolos-gate terbanyak (dihitung setelah `MAX_KPI`; seri → finance).
+ *   Itu halaman terpendek yang masuk akal, dan yang membuatnya bisa dibuka
+ *   sekarang adalah dropdown-nya sendiri.
  * - `"all"` — semua widget yang lolos gate. Strip KPI tetap tidak dicampur:
- *   isinya grup dengan sel lolos-gate terbanyak (dihitung setelah batas
- *   `MAX_KPI`; seri → finance).
+ *   isinya grup dominan.
  * - satu grup — strip KPI grup itu, dan hanya widget ber-`kind` grup itu
  *   ditambah widget tanpa `kind` (yang berlaku di tampilan mana pun).
  *
- * Grup yang tidak dipegang user (cookie lama, izin dicabut) jatuh kembali ke
- * `"all"`: halaman kosong karena salah pilih tampilan terbaca sebagai rusak.
+ * Pilihan hanya diberlakukan bila user memang punya dropdown-nya
+ * (`canPickView`) dan memegang grup yang dipilih. Kalau tidak, pilihan
+ * tersimpan diabaikan: user tanpa dropdown tidak boleh terjebak di tampilan
+ * yang tidak bisa ia ubah kembali.
  *
  * Main kosong → widget samping pertama naik ke main, supaya kolom utama
  * tidak pernah kosong di samping kolom samping.
@@ -334,7 +340,7 @@ export function selectWidgets(
   menu: MenuNode[],
   widgets: readonly Widget[] = WIDGETS,
   isDummyShown: boolean = SHOW_DUMMY,
-  view: DashboardView = "all",
+  view?: DashboardView,
 ) {
   const allowed = widgets.filter(
     (widget) =>
@@ -353,17 +359,18 @@ export function selectWidgets(
   // ber-`kind`: sekretariat memegang satu widget keuangan kecil (Agenda),
   // tapi "tampilan Keuangan" tanpa satu angka pun bukan tampilan.
   const groups = KPI_GROUPS.filter((group) => kpiOf(group).length > 0);
-  // Cookie bisa berisi grup yang tidak dipegang user (izin dicabut, cookie
-  // lama). Itu jatuh ke "Semua", bukan halaman kosong.
-  const picked: DashboardView =
-    view !== "all" && !groups.includes(view) ? "all" : view;
+  const dominant: KpiGroup =
+    finance.length > 0 && finance.length >= umum.length ? "finance" : "umum";
 
-  const kind: KpiGroup =
-    picked !== "all"
-      ? picked
-      : finance.length > 0 && finance.length >= umum.length
-        ? "finance"
-        : "umum";
+  // Pilihan hanya diberlakukan untuk user yang PUNYA dropdown (syarat yang
+  // sama, `canPickView`), dan grup yang tidak dipegangnya diabaikan. Tanpa
+  // pilihan tersimpan: grup dominan — tampilan terpendek yang masuk akal.
+  const picked: DashboardView =
+    canPickView(groups) && view && (view === "all" || groups.includes(view))
+      ? view
+      : dominant;
+
+  const kind: KpiGroup = picked === "all" ? dominant : picked;
 
   const of = (slot: WidgetSlot) =>
     allowed.filter(

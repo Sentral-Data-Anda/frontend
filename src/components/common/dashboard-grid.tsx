@@ -31,6 +31,8 @@ import { cn } from "@/lib/utils";
  * Konsekuensi yang diterima: di 1440 + sidebar penuh (kolom 1130px) susunannya
  * menumpuk; tampilan berdampingan seperti mockup muncul mulai 1440 + rail.
  *
+ * `isStacked` mematikan bentuk berdampingan sepenuhnya — lihat propnya.
+ *
  * Berdampingan, kolom samping dipecah dua hanya bila kartunya **lima atau
  * lebih**: dengan empat kartu (persona majelis) pecahannya justru membalik
  * ketimpangan — samping 557px vs utama 1089px.
@@ -47,14 +49,22 @@ export function DashboardGrid({
   between,
   main,
   side,
+  isStacked = false,
 }: {
   kpi?: ReactNode;
   /** Di antara KPI dan widget (Aksi cepat di HP/tablet). */
   between?: ReactNode;
   main: ReactNode[];
   side: ReactNode[];
+  /**
+   * Paksa bentuk menumpuk di lebar berapa pun. Dipakai tampilan "Semua":
+   * gabungan dua grup membuat kolom utama jauh lebih pendek daripada kolom
+   * samping (terukur: lubang 697–969px di 1920 + rail, sisa 272px saat
+   * menumpuk).
+   */
+  isStacked?: boolean;
 }) {
-  const isSplit = main.length > 0 && side.length > 0;
+  const isSplit = !isStacked && main.length > 0 && side.length > 0;
 
   return (
     <div className="@container">
