@@ -14,7 +14,7 @@
  * Blok try/catch mengikuti anjuran dokumen: kegagalan di kode instrumentasi
  * tidak boleh ikut menjatuhkan aplikasi yang seharusnya ia pantau.
  */
-import { installErrorListeners } from "@/features/observability/lib/install-listeners";
+import { installErrorListeners } from "@/features/observability/install-listeners";
 
 try {
   installErrorListeners();

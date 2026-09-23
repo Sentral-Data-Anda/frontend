@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, jest } from "bun:test";
 
-import { installErrorListeners } from "@/features/observability/lib/install-listeners";
-import { REPORT_ENDPOINT } from "@/features/observability/lib/report";
+import { installErrorListeners } from "@/features/observability/install-listeners";
+import { REPORT_ENDPOINT } from "@/features/observability/report";
 
 /**
  * Test ini menembak jalur penuh: listener global → toReport → sendReport →

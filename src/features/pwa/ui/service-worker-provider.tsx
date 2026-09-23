@@ -1,7 +1,7 @@
 "use client";
 
-import { UpdateToast } from "@/features/pwa/components/update-toast";
 import { useServiceWorker } from "@/features/pwa/hooks/use-service-worker";
+import { UpdateToast } from "@/features/pwa/ui/update-toast";
 
 /**
  * Titik pasang service worker. Dipasang sekali di root layout.

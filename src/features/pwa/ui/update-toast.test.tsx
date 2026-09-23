@@ -1,7 +1,7 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, jest } from "bun:test";
 
-import { UpdateToast } from "@/features/pwa/components/update-toast";
+import { UpdateToast } from "@/features/pwa/ui/update-toast";
 
 /**
  * Test komponen pertama di repo ini. Yang dijaga bukan susunan markup-nya,

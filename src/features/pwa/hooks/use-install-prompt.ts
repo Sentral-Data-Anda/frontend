@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 
-import { isIOS, isStandalone } from "@/features/pwa/lib/display-mode";
+import { isIOS, isStandalone } from "@/features/pwa/model";
 
 /**
  * Event `beforeinstallprompt` belum masuk lib DOM TypeScript karena statusnya

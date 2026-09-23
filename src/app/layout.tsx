@@ -4,7 +4,7 @@ import { Roboto } from "next/font/google";
 import { Providers } from "@/app/providers";
 import { brand } from "@/config/brand";
 import { siteConfig } from "@/config/site";
-import { ServiceWorkerProvider } from "@/features/pwa";
+import { ServiceWorkerProvider } from "@/features/pwa/ui/service-worker-provider";
 import { publicEnv } from "@/lib/env";
 
 import "./globals.css";

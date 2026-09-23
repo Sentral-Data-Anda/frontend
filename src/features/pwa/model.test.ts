@@ -1,6 +1,12 @@
 import { afterEach, describe, expect, test } from "bun:test";
 
-import { isIOS, isStandalone, needsManualInstallGuide } from "./display-mode";
+import {
+  isIOS,
+  isStandalone,
+  needsManualInstallGuide,
+  serviceWorkerUrl,
+  shouldRegisterServiceWorker,
+} from "./model";
 
 /**
  * Fungsi-fungsi ini membaca `window.navigator` dan `window.matchMedia`, yang
@@ -38,8 +44,15 @@ function setWindow(options: {
   (globalThis as { window?: unknown }).window = fake;
 }
 
+/**
+ * Window aslinya DIKEMBALIKAN, bukan dihapus: berkas test lain di proses yang
+ * sama (mis. `ui/update-toast.test.tsx`) merender React di atas window
+ * happy-dom, dan menghapusnya di sini membuat berkas berikutnya gagal.
+ */
+const REAL_WINDOW = (globalThis as { window?: unknown }).window;
+
 afterEach(() => {
-  delete (globalThis as { window?: unknown }).window;
+  (globalThis as { window?: unknown }).window = REAL_WINDOW;
 });
 
 const IPHONE = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X)";
@@ -103,5 +116,53 @@ describe("needsManualInstallGuide", () => {
   test("false di non-iOS — di sana beforeinstallprompt yang dipakai", () => {
     setWindow({ userAgent: WINDOWS });
     expect(needsManualInstallGuide()).toBe(false);
+  });
+});
+
+/**
+ * `NODE_ENV` dideklarasikan read-only oleh tipe environment, padahal test ini
+ * memang perlu menggantinya untuk menguji kedua cabang. Cast di sini
+ * mempersempit pelanggarannya ke satu tempat yang jelas.
+ */
+const mutableEnv = process.env as Record<string, string | undefined>;
+const ORIGINAL_NODE_ENV = process.env.NODE_ENV;
+
+afterEach(() => {
+  delete mutableEnv.NEXT_PUBLIC_BUILD_ID;
+  delete mutableEnv.NEXT_PUBLIC_ENABLE_SW;
+  mutableEnv.NODE_ENV = ORIGINAL_NODE_ENV;
+});
+
+describe("serviceWorkerUrl", () => {
+  test("menstempel build id sebagai query — inilah yang membuat browser melihat versi baru", () => {
+    mutableEnv.NEXT_PUBLIC_BUILD_ID = "abc123";
+    expect(serviceWorkerUrl()).toBe("/sw.js?v=abc123");
+  });
+
+  test("jatuh ke 'dev' bila build id kosong", () => {
+    expect(serviceWorkerUrl()).toBe("/sw.js?v=dev");
+  });
+
+  test("build id di-encode supaya karakter khusus tidak merusak URL", () => {
+    mutableEnv.NEXT_PUBLIC_BUILD_ID = "feat/pwa 2";
+    expect(serviceWorkerUrl()).toBe("/sw.js?v=feat%2Fpwa%202");
+  });
+});
+
+describe("shouldRegisterServiceWorker", () => {
+  test("aktif di production", () => {
+    mutableEnv.NODE_ENV = "production";
+    expect(shouldRegisterServiceWorker()).toBe(true);
+  });
+
+  test("mati di development supaya cache basi tidak mengganggu", () => {
+    mutableEnv.NODE_ENV = "development";
+    expect(shouldRegisterServiceWorker()).toBe(false);
+  });
+
+  test("bisa dibuka di development lewat flag eksplisit, supaya tetap bisa diuji", () => {
+    mutableEnv.NODE_ENV = "development";
+    mutableEnv.NEXT_PUBLIC_ENABLE_SW = "1";
+    expect(shouldRegisterServiceWorker()).toBe(true);
   });
 });

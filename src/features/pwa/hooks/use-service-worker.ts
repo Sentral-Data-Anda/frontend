@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef } from "react";
 import {
   serviceWorkerUrl,
   shouldRegisterServiceWorker,
-} from "@/features/pwa/lib/register";
+} from "@/features/pwa/model";
 import { useBoolean } from "@/hooks/use-boolean";
 
 type ServiceWorkerState = {

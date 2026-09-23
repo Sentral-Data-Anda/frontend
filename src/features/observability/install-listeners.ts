@@ -1,4 +1,4 @@
-import { sendReport, toReport } from "@/features/observability/lib/report";
+import { sendReport, toReport } from "@/features/observability/report";
 
 /**
  * Pemasang penangkap error global di browser.
