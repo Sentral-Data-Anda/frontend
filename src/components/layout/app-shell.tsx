@@ -28,9 +28,10 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
       {/*
         Di bawah lg, BottomTab sticky ke bawah viewport sebagai flex-sibling
         terakhir, dan seluruh halaman scroll di level dokumen (bukan di dalam
-        `main`). Padding bawah ini mencegah ekor konten tertutup nav; tingginya
-        dibaca dari token `--bottom-tab-height` yang juga dipakai `<nav>` di
-        BottomTab. Di lg bottom tab hilang, jadi padding-nya ikut hilang.
+        `main`). Karena sticky tetap memakai ruang di aliran, nav sudah punya
+        tempatnya sendiri di ujung dokumen — `main` TIDAK boleh menambah
+        padding setinggi nav lagi, itu menghitung ruang yang sama dua kali dan
+        menyisakan lubang setinggi satu tab bar di atas nav.
 
         Alternatif yang ditolak: `overflow-y-auto` pada `main` supaya nav
         jadi flex item biasa tanpa `sticky`. Itu memindahkan scroll ke
@@ -40,9 +41,7 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
       */}
       {/* lg:pl-3.5 = tonjolan tombol ciut di tepi sidebar (14px), supaya
           konten tidak menempel padanya saat kolom konten mengisi penuh. */}
-      <main className="min-w-0 flex-1 pb-[calc(var(--bottom-tab-height)+env(safe-area-inset-bottom))] lg:pb-0 lg:pl-3.5">
-        {children}
-      </main>
+      <main className="min-w-0 flex-1 lg:pl-3.5">{children}</main>
 
       <BottomTab />
     </div>
