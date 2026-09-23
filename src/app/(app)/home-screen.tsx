@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 import { DashboardGrid } from "@/components/common/dashboard-grid";
 import { DomainTileGrid } from "@/components/common/domain-tile";
 import { KpiStrip } from "@/components/common/kpi-strip";
@@ -12,9 +14,14 @@ import { BERANDA_SHORTCUTS, MENU } from "@/config/menu";
 import { useSession } from "@/features/auth/session-provider";
 import { useMenuAccess } from "@/features/auth/use-menu-access";
 import { useIbadahByDate } from "@/features/beranda/api";
+import {
+  saveDashboardView,
+  type DashboardView,
+} from "@/features/beranda/dashboard-view";
 import { SHOW_DUMMY } from "@/features/beranda/dummy";
 import { NotificationBell } from "@/features/beranda/notification-bell";
 import { formatLongDate, greetingOf, toDateKey } from "@/features/beranda/time";
+import { ViewPicker } from "@/features/beranda/view-picker";
 import { selectHeaderActions, selectWidgets } from "@/features/beranda/widgets";
 import { firstNameOf } from "@/lib/format";
 
@@ -28,10 +35,16 @@ import { firstNameOf } from "@/lib/format";
  * DUMMY dan hanya dirender di luar production — lihat
  * `features/beranda/dummy.ts`.
  */
-export function HomeScreen() {
+export function HomeScreen({
+  defaultView = "all",
+}: {
+  /** Dibaca dari cookie di server, jadi render pertama sudah pilihan user. */
+  defaultView?: DashboardView;
+}) {
   const session = useSession();
   const ibadahAccess = useMenuAccess(MENU.IBADAH);
-  const widgets = selectWidgets(session.menu);
+  const [view, setView] = useState<DashboardView>(defaultView);
+  const widgets = selectWidgets(session.menu, undefined, undefined, view);
 
   // ponytail: dihitung sekali per render; halaman yang dibiarkan terbuka
   // melewati tengah malam tetap menampilkan kemarin sampai dimuat ulang.
@@ -48,6 +61,11 @@ export function HomeScreen() {
 
   const bell = SHOW_DUMMY ? <NotificationBell /> : null;
 
+  const onPickView = (next: DashboardView) => {
+    saveDashboardView(next);
+    setView(next);
+  };
+
   return (
     <div className="pb-6">
       <PageHeader
@@ -59,6 +77,13 @@ export function HomeScreen() {
         title={`${greetingOf(now)}, ${firstName}`}
         subtitle={`${formatLongDate(now)}${serviceCount > 0 ? ` · ${serviceCount} kebaktian` : ""}`}
         actions={selectHeaderActions(session.menu)}
+        picker={
+          <ViewPicker
+            value={widgets.view}
+            groups={widgets.groups}
+            onPick={onPickView}
+          />
+        }
         trailing={bell}
       />
 

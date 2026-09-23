@@ -12,6 +12,11 @@ import {
   KpiServicesWeek,
 } from "./agenda-week";
 import { ApprovalsWidget, KpiWaitingApprovals } from "./approvals";
+import {
+  KPI_GROUPS,
+  type DashboardView,
+  type KpiGroup,
+} from "./dashboard-view";
 import { SHOW_DUMMY } from "./dummy";
 import {
   BudgetUseWidget,
@@ -44,8 +49,11 @@ export type WidgetSlot = "kpi" | "main" | "side";
 
 export type WidgetGate = { slug: MenuSlug; action: MenuAction };
 
-/** Grup KPI — satu strip tidak pernah mencampur keduanya (§10.1 #2). */
-export type KpiGroup = "finance" | "umum";
+/**
+ * Grup KPI — satu strip tidak pernah mencampur keduanya (§10.1 #2), dan grup
+ * yang sama menjadi pilihan dropdown tampilan (`dashboard-view.ts`).
+ */
+export type { KpiGroup };
 
 /**
  * Satu widget Beranda.
@@ -307,11 +315,17 @@ export const hasGrant = (menu: MenuNode[], { slug, action }: WidgetGate) =>
  * layar (bukan `return null` di dalam widget) karena grid harus tahu slot
  * mana yang kosong sebelum render.
  *
- * Strip KPI diisi SATU grup: yang punya sel lolos-gate terbanyak (dihitung
- * setelah batas `MAX_KPI` — strip yang lebih penuh; seri → finance). Grup
- * itu juga menentukan jenis dashboard (`kind`): bendahara (§10.3) atau umum
- * (§10.4); widget ber-`kind` lain tidak dipilih. Tanpa KPI sama sekali →
- * umum.
+ * `view` adalah pilihan TAMPILAN user (dropdown di kepala dashboard), bukan
+ * izin:
+ *
+ * - `"all"` — semua widget yang lolos gate. Strip KPI tetap tidak dicampur:
+ *   isinya grup dengan sel lolos-gate terbanyak (dihitung setelah batas
+ *   `MAX_KPI`; seri → finance).
+ * - satu grup — strip KPI grup itu, dan hanya widget ber-`kind` grup itu
+ *   ditambah widget tanpa `kind` (yang berlaku di tampilan mana pun).
+ *
+ * Grup yang tidak dipegang user (cookie lama, izin dicabut) jatuh kembali ke
+ * `"all"`: halaman kosong karena salah pilih tampilan terbaca sebagai rusak.
  *
  * Main kosong → widget samping pertama naik ke main, supaya kolom utama
  * tidak pernah kosong di samping kolom samping.
@@ -320,6 +334,7 @@ export function selectWidgets(
   menu: MenuNode[],
   widgets: readonly Widget[] = WIDGETS,
   isDummyShown: boolean = SHOW_DUMMY,
+  view: DashboardView = "all",
 ) {
   const allowed = widgets.filter(
     (widget) =>
@@ -333,16 +348,37 @@ export function selectWidgets(
       .slice(0, MAX_KPI);
   const finance = kpiOf("finance");
   const umum = kpiOf("umum");
+
+  // Grup dihitung dari sel KPI-nya, bukan dari widget mana pun yang kebetulan
+  // ber-`kind`: sekretariat memegang satu widget keuangan kecil (Agenda),
+  // tapi "tampilan Keuangan" tanpa satu angka pun bukan tampilan.
+  const groups = KPI_GROUPS.filter((group) => kpiOf(group).length > 0);
+  // Cookie bisa berisi grup yang tidak dipegang user (izin dicabut, cookie
+  // lama). Itu jatuh ke "Semua", bukan halaman kosong.
+  const picked: DashboardView =
+    view !== "all" && !groups.includes(view) ? "all" : view;
+
   const kind: KpiGroup =
-    finance.length > 0 && finance.length >= umum.length ? "finance" : "umum";
+    picked !== "all"
+      ? picked
+      : finance.length > 0 && finance.length >= umum.length
+        ? "finance"
+        : "umum";
 
   const of = (slot: WidgetSlot) =>
-    allowed.filter((w) => w.slot === slot && (!w.kind || w.kind === kind));
+    allowed.filter(
+      (w) =>
+        w.slot === slot && (picked === "all" || !w.kind || w.kind === picked),
+    );
   const main = of("main");
   const side = of("side");
 
   return {
     kind,
+    /** Tampilan yang benar-benar dipakai (bisa berbeda dari `view`). */
+    view: picked,
+    /** Grup yang dipegang user — pilihan dropdown dibangun dari ini. */
+    groups,
     kpi: kind === "finance" ? finance : umum,
     main: main.length ? main : side.slice(0, 1),
     side: main.length ? side : side.slice(1),

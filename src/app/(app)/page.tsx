@@ -1,13 +1,29 @@
+import { cookies } from "next/headers";
+
 import { PageContainer } from "@/components/layout/page-container";
+import {
+  DASHBOARD_VIEW_COOKIE,
+  readDashboardView,
+} from "@/features/beranda/dashboard-view";
 
 import { HomeScreen } from "./home-screen";
 
 export const metadata = { title: "Beranda" };
 
-export default function Page() {
+/**
+ * Pilihan tampilan dibaca di server (cookie), seperti `sidebar_collapsed`:
+ * render pertama sudah tampilan yang dipilih, tanpa kedipan.
+ */
+export default async function Page() {
+  const cookieStore = await cookies();
+
   return (
     <PageContainer size="dashboard">
-      <HomeScreen />
+      <HomeScreen
+        defaultView={readDashboardView(
+          cookieStore.get(DASHBOARD_VIEW_COOKIE)?.value,
+        )}
+      />
     </PageContainer>
   );
 }

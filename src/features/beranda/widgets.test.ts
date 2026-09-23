@@ -6,6 +6,7 @@ import type { MenuNode } from "@/features/auth/types";
 import { TREE } from "../../../scripts/menu-tree";
 import { actionsOf, PERSONAS } from "../../../scripts/mock-dashboard";
 
+import type { DashboardView } from "./dashboard-view";
 import {
   MAX_KPI,
   selectWidgets,
@@ -139,7 +140,7 @@ describe("grup KPI", () => {
     expect(selectWidgets([], widgets, true).kind).toBe("finance");
   });
 
-  test("widget ber-kind hanya di dashboard jenis itu", () => {
+  test("widget ber-kind hanya di tampilan jenis itu", () => {
     const widgets: Widget[] = [
       kpi("f1", "finance"),
       { id: "fm", slot: "main", gate: [], kind: "finance", Component: Noop },
@@ -147,7 +148,16 @@ describe("grup KPI", () => {
       { id: "both", slot: "main", gate: [], Component: Noop },
     ];
 
-    expect(ids(selectWidgets([], widgets, true).main)).toEqual(["fm", "both"]);
+    // "Semua" (bawaan) tidak menyaring `kind` — itu tugas pilihan tampilan.
+    expect(ids(selectWidgets([], widgets, true).main)).toEqual([
+      "fm",
+      "um",
+      "both",
+    ]);
+    expect(ids(selectWidgets([], widgets, true, "finance").main)).toEqual([
+      "fm",
+      "both",
+    ]);
   });
 
   test("gateAny: cukup salah satu izin", () => {
@@ -187,13 +197,18 @@ describe("persona dev:mock", () => {
       return children.length ? [{ ...leaf(slug, []), children }] : [];
     });
 
-  const picked = (key: string, isDummyShown = false) => {
-    const { kind, kpi, main, side } = selectWidgets(
+  const picked = (
+    key: string,
+    isDummyShown = false,
+    view: DashboardView = "all",
+  ) => {
+    const { kind, groups, kpi, main, side } = selectWidgets(
       menuOf(key),
       undefined,
       isDummyShown,
+      view,
     );
-    return { kind, kpi: ids(kpi), main: ids(main), side: ids(side) };
+    return { kind, groups, kpi: ids(kpi), main: ids(main), side: ids(side) };
   };
 
   test("sekretariat: dashboard umum, tanpa angka keuangan", () => {
@@ -210,6 +225,7 @@ describe("persona dev:mock", () => {
     ]);
     expect(main).toEqual(["agenda-week", "zones"]);
     expect(side).toEqual([
+      "agenda",
       "birthdays",
       "announcements",
       "loan-rooms",
@@ -229,16 +245,20 @@ describe("persona dev:mock", () => {
       "kpi-surplus-year",
       "kpi-payables",
     ]);
-    expect(main).toEqual(["income-expense-chart", "payables"]);
+    // "Semua" (bawaan) = gabungan; pilihan "Keuangan" yang menyaring.
+    expect(main).toEqual(["income-expense-chart", "payables", "agenda-week"]);
     expect(side.slice(0, 4)).toEqual([
       "cash-accounts",
       "income-by-type",
       "closing-readiness",
       "agenda",
     ]);
-    // Widget umum tidak ikut ke dashboard keuangan.
-    expect(main).not.toContain("approvals");
-    expect(side).not.toContain("zones");
+
+    const keuangan = picked("bendahara", true, "finance");
+
+    expect(keuangan.main).toEqual(["income-expense-chart", "payables"]);
+    expect(keuangan.main).not.toContain("agenda-week");
+    expect(keuangan.side).not.toContain("zones");
   });
 
   test("majelis berizin laporan keuangan tetap mendapat strip umum (§10.1 #2)", () => {
@@ -247,10 +267,25 @@ describe("persona dev:mock", () => {
     expect(kind).toBe("umum");
     expect(kpi[0]).toBe("kpi-jemaat-total");
     expect(kpi).toContain("kpi-waiting-approvals");
-    expect(main).toEqual(["agenda-week", "approvals", "zones"]);
-    // Angka keuangannya tidak hilang: grafik hanya ada di dashboard keuangan,
-    // jadi di sini tidak dirender.
-    expect(main).not.toContain("income-expense-chart");
+    // Strip tetap umum walau "Semua" ikut menampilkan widget keuangan.
+    expect(main).toContain("agenda-week");
+    expect(main).toContain("approvals");
+
+    const umum = picked("majelis", true, "umum");
+
+    expect(umum.main).toEqual(["agenda-week", "approvals", "zones"]);
+    expect(umum.main).not.toContain("income-expense-chart");
+  });
+
+  /**
+   * Dropdown tampilan hanya untuk persona yang memang punya dua tampilan.
+   * Sekretariat memegang satu widget keuangan kecil (Agenda) tapi tidak satu
+   * pun angka keuangan — "tampilan Keuangan" untuknya bukan tampilan.
+   */
+  test("hanya persona multi-grup yang mendapat pilihan tampilan", () => {
+    expect(picked("sekretariat", true).groups).toEqual(["umum"]);
+    expect(picked("admin", true).groups).toEqual(["finance", "umum"]);
+    expect(picked("bendahara", true).groups).toEqual(["finance", "umum"]);
   });
 
   test("production: tidak ada widget dummy untuk persona mana pun", () => {
@@ -262,5 +297,66 @@ describe("persona dev:mock", () => {
         [...kpi, ...main, ...side].filter((id) => dummies.has(id)),
       ).toEqual([]);
     }
+  });
+});
+
+/**
+ * Pilihan tampilan (dropdown di kepala dashboard). Ini keputusan TAMPILAN:
+ * yang berubah hanya widget mana yang dirender, tidak pernah gate-nya.
+ */
+describe("selectWidgets: pilihan tampilan", () => {
+  const menu = [
+    domain([
+      leaf(MENU.LAPORAN_KEUANGAN, ["VIEW"]),
+      leaf(MENU.KAS_KELUAR, ["VIEW"]),
+      leaf(MENU.IBADAH, ["VIEW"]),
+    ]),
+  ];
+  const widgets: Widget[] = [
+    { ...widget("kpi-uang", "kpi"), group: "finance" },
+    { ...widget("kpi-acara", "kpi"), group: "umum" },
+    { ...widget("grafik", "main"), kind: "finance" },
+    { ...widget("agenda", "main"), kind: "umum" },
+    widget("pengumuman", "side"),
+  ];
+
+  test("Semua: gabungan kedua grup, strip KPI tetap satu grup", () => {
+    const all = selectWidgets(menu, widgets, true, "all");
+
+    expect(ids(all.main)).toEqual(["grafik", "agenda"]);
+    expect(ids(all.kpi)).toEqual(["kpi-uang"]);
+    expect(all.view).toBe("all");
+  });
+
+  test("satu grup: widget dan KPI grup itu, plus widget tanpa kind", () => {
+    const uang = selectWidgets(menu, widgets, true, "finance");
+
+    expect(ids(uang.main)).toEqual(["grafik"]);
+    expect(ids(uang.kpi)).toEqual(["kpi-uang"]);
+    expect(ids(uang.side)).toEqual(["pengumuman"]);
+
+    const acara = selectWidgets(menu, widgets, true, "umum");
+
+    expect(ids(acara.main)).toEqual(["agenda"]);
+    expect(ids(acara.kpi)).toEqual(["kpi-acara"]);
+  });
+
+  test("grup diturunkan dari sel KPI yang dipegang, bukan daftar tetap", () => {
+    expect(selectWidgets(menu, widgets, true).groups).toEqual([
+      "finance",
+      "umum",
+    ]);
+
+    const satuGrup = widgets.filter((w) => w.id !== "kpi-acara");
+
+    expect(selectWidgets(menu, satuGrup, true).groups).toEqual(["finance"]);
+  });
+
+  test("grup yang tidak dipegang (cookie lama) jatuh ke Semua", () => {
+    const satuGrup = widgets.filter((w) => w.id !== "kpi-acara");
+    const hasil = selectWidgets(menu, satuGrup, true, "umum");
+
+    expect(hasil.view).toBe("all");
+    expect(ids(hasil.main)).toEqual(["grafik", "agenda"]);
   });
 });

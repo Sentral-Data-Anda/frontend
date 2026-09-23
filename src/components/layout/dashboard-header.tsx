@@ -9,6 +9,10 @@ export type HeaderAction = { label: string; href: string };
  * + lonceng. Di < lg aksi tidak ada (Aksi cepat yang menjawabnya) dan
  * lonceng tetap di baris identitas `PageHeader`.
  *
+ * `picker` (pemilih tampilan) tampil di SEMUA ukuran, tidak ikut `lg:flex`
+ * aksi: alasannya sama di HP — halaman yang terlalu panjang. Ia duduk di kiri
+ * aksi supaya tombol utama tetap paling kanan.
+ *
  * `suppressHydrationWarning` hanya pada teks bertanggal: sapaan dan tanggal
  * dihitung dari jam saat render, dan render server serta hidrasi bisa jatuh
  * di dua sisi pergantian jam/hari.
@@ -17,11 +21,14 @@ export function DashboardHeader({
   title,
   subtitle,
   actions,
+  picker,
   trailing,
 }: {
   title: string;
   subtitle: string;
   actions: HeaderAction[];
+  /** Pemilih tampilan dashboard; tampil di semua ukuran. */
+  picker?: React.ReactNode;
   trailing?: React.ReactNode;
 }) {
   return (
@@ -37,6 +44,8 @@ export function DashboardHeader({
           {subtitle}
         </p>
       </div>
+
+      {picker}
 
       {actions.length || trailing ? (
         <div className="hidden shrink-0 items-center gap-2 lg:flex">
