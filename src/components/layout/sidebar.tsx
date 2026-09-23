@@ -174,6 +174,7 @@ export function Sidebar({ defaultCollapsed }: { defaultCollapsed: boolean }) {
         <CollapsedContext value={isCollapsed.value}>
           <aside
             ref={ref}
+            data-slot="sidebar"
             data-collapsed={isCollapsed.value || undefined}
             className={cn(
               "group/sidebar bg-sidebar text-sidebar-foreground flex shrink-0 flex-col overflow-hidden transition-[width]",

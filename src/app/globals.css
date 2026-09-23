@@ -374,6 +374,42 @@
   }
 
   /*
+   * Scrollbar tipis berwarna brand, satu aturan untuk seluruh aplikasi.
+   * Standar (`scrollbar-color`/`-width`) untuk Firefox dan Chrome ≥ 121;
+   * `::-webkit-scrollbar` untuk Safari. Warnanya lewat variabel supaya
+   * permukaan gelap (sidebar navy) cukup menimpa dua variabel.
+   */
+  :root {
+    --scrollbar-thumb: var(--color-primary-300);
+    --scrollbar-thumb-hover: var(--color-primary-500);
+  }
+  [data-slot="sidebar"] {
+    --scrollbar-thumb: var(--color-primary-700);
+    --scrollbar-thumb-hover: var(--color-primary-500);
+  }
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) transparent;
+  }
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border: 2px solid transparent;
+    border-radius: 9999px;
+    background-clip: padding-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover);
+    background-clip: padding-box;
+  }
+
+  /*
    * Sorotan baris yang barusan dibuka, saat user kembali dari layar detail
    * (docs/design/list-state.md §2.4). Dipasang `DataList` lewat atribut, dan
    * padam sendiri dalam 2 detik: begitu mata menemukan barisnya, penandanya
