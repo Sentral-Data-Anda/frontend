@@ -11,11 +11,14 @@
 export const shellWidth = "mx-auto w-full md:max-w-2xl lg:max-w-3xl";
 
 /**
- * Dashboard (Beranda): di ≥ lg MENGISI kolom konten — sidebar penuh maupun
- * rail (permintaan user 2026-09-22: ruang kosong di kiri/kanan saat rail
- * "jelek bgt"). Batas atas 100rem (1600px) hanya terasa di layar ≥ ~1690px:
- * di 1920 + rail kolom tetap 1600px, supaya tabel dan grafik tidak melar
- * (baris tabel ~1000px di kolom utama). < lg sama dengan `shellWidth`
- * (tumpuk). Lihat `docs/design/dashboard-desktop.md` §10.5.
+ * Dashboard (Beranda): MENGISI lebar layar, tanpa batas atas (keputusan user
+ * 2026-09-23: "isi mengikuti lebar layar sampai habis, hanya disisakan jarak
+ * tepi"; menggantikan batas 100rem/1600px). Jarak tepinya tetap gutter
+ * halaman, sama seperti layar lain.
+ *
+ * Yang menjaga keterbacaan bukan lagi batas lebar melainkan jumlah kolom:
+ * `DashboardGrid` menambah kolom kartu saat kolom konten melebar (2 → 3 → 4),
+ * jadi kartu tetap ~360–520px berapa pun lebarnya. < lg sama dengan
+ * `shellWidth` (tumpuk). Lihat `docs/design/dashboard-desktop.md` §10.5.
  */
-export const shellWidthDashboard = "mx-auto w-full md:max-w-2xl lg:max-w-400";
+export const shellWidthDashboard = "mx-auto w-full md:max-w-2xl lg:max-w-none";
