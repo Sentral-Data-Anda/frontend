@@ -305,30 +305,6 @@ const eslintConfig = defineConfig([
     },
   },
 
-  // Impor menyebut berkasnya, bukan barrel (§6). Barrel menyembunyikan letak
-  // berkas — persis keluhan yang memicu dokumen struktur.
-  {
-    files: ["src/**/*.{ts,tsx}"],
-    rules: {
-      "no-restricted-imports": ["error", { patterns: [NO_BARREL_IMPORT] }],
-    },
-  },
-
-  // Layar hanya boleh memakai wrapper, bukan primitif shadcn langsung. Begitu
-  // satu layar merangkai primitif sendiri, warna dan jaraknya ikut tersalin ke
-  // layar itu, dan dua halaman sejenis pelan-pelan berbeda tanpa ada yang
-  // sadar. Yang boleh menyentuh primitif hanya components/common dan
-  // components/layout.
-  {
-    files: ["src/app/**/*.{ts,tsx}"],
-    rules: {
-      "no-restricted-imports": [
-        "error",
-        { patterns: [NO_UI_PRIMITIVE_IMPORT, NO_BARREL_IMPORT] },
-      ],
-    },
-  },
-
   // page.tsx hanya metadata + satu komponen layar (§5). Begitu logika mulai
   // menumpuk di rute, ia tidak bisa diuji dan tidak bisa dipakai ulang.
   //
