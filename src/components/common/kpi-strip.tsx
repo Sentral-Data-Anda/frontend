@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
  *
  * | Kolom          | Susunan                                  |
  * | -------------- | ---------------------------------------- |
- * | ≥ 55rem        | satu baris                               |
+ * | ≥ 55rem        | satu baris, sel maksimal 28rem            |
  * | 40–55rem       | 5 sel → 3 + 2; ≤ 4 sel tetap satu baris |
  * | < 40rem        | 2 kolom, sel terakhir ganjil melebar     |
  *
@@ -34,6 +34,10 @@ export function KpiStrip({
         aria-label={label}
         style={{ "--kpi-cols": count } as React.CSSProperties}
         className={cn(
+          // Sel maksimal 28rem. Kasus terburuk bukan strip 5 sel melainkan
+          // strip 2 sel: tanpa batas ini, satu angka 22px duduk sendirian di
+          // sel selebar 1.656px (persona majelis, tampilan Keuangan, 3440).
+          "max-w-[calc(var(--kpi-cols)*28rem)]",
           "border-hairline bg-hairline grid grid-cols-2 gap-px overflow-hidden rounded-lg border",
           isFive
             ? "@min-[40rem]:grid-cols-6"
