@@ -1,11 +1,13 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useForm, useWatch } from "react-hook-form";
 
 import { Button } from "@/components/common/button";
+import { buttonVariants } from "@/components/common/button";
 import { ConfirmDialog } from "@/components/common/confirm-dialog";
 import {
   FormActions,
@@ -14,6 +16,8 @@ import {
 } from "@/components/common/form-layout";
 import { useToast } from "@/components/common/toast";
 import { PageHeader } from "@/components/layout/page-header";
+import { MENU } from "@/config/menu";
+import { useMenuAccess } from "@/features/auth/use-menu-access";
 import { useBoolean } from "@/hooks/use-boolean";
 import { applyServerError, firstErrorField } from "@/lib/form-error";
 
@@ -57,6 +61,7 @@ export function JemaatFormScreen({ code }: { code?: string }) {
   const router = useRouter();
   const toast = useToast();
   const isEdit = Boolean(code);
+  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.DAFTAR_JEMAAT);
   const saveJemaat = useSaveJemaat(code);
   const detail = useJemaatDetail(code);
 
@@ -142,6 +147,19 @@ export function JemaatFormScreen({ code }: { code?: string }) {
     },
     (errors) => onScrollTo(Object.keys(errors).find((key) => key !== "root")),
   );
+
+  /**
+   * Gerbang rute, MENYALIN guard endpoint yang sama dengan tombol yang
+   * membukanya (`DAFTAR_JEMAAT` CREATE / UPDATE).
+   *
+   * Tombolnya memang sudah disembunyikan, tapi rutenya tetap bisa diketik
+   * atau datang dari tautan lama. be-sada tetap menolak saat simpan — jadi
+   * ini bukan pengaman, melainkan supaya penolakannya datang SEBELUM petugas
+   * mengisi dua puluh field, bukan sesudahnya.
+   */
+  if (!(isEdit ? isCanUpdate : isCanCreate)) {
+    return <NoFormAccess isEdit={isEdit} />;
+  }
 
   return (
     <FormLayout
@@ -247,4 +265,37 @@ function onScrollTo(field: string | null | undefined) {
   document
     .getElementById(field)
     ?.scrollIntoView({ block: "center", behavior: "smooth" });
+}
+
+/** Layar "tidak tersedia" untuk peran yang tidak memegang aksinya. */
+function NoFormAccess({ isEdit }: { isEdit: boolean }) {
+  return (
+    <div className="mx-auto w-full max-w-lg">
+      <PageHeader
+        title={
+          isEdit ? "Tidak bisa mengubah jemaat" : "Tidak bisa menambah jemaat"
+        }
+        backHref={JEMAAT_LIST_PATH}
+      />
+
+      <div className="flex flex-col items-start gap-3 px-gutter">
+        <p className="text-muted-foreground text-body">
+          Peran Anda hanya bisa melihat data jemaat.{" "}
+          {isEdit ? "Perubahan data" : "Penambahan jemaat baru"} biasanya
+          dikerjakan sekretariat.
+        </p>
+
+        <p className="text-muted-foreground text-body">
+          Hubungi administrator bila Anda memang seharusnya memegang akses ini.
+        </p>
+
+        <Link
+          href={JEMAAT_LIST_PATH}
+          className={buttonVariants({ variant: "outline" })}
+        >
+          Kembali ke Daftar Jemaat
+        </Link>
+      </div>
+    </div>
+  );
 }
