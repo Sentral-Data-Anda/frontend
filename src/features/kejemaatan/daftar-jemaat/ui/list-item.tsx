@@ -30,6 +30,10 @@ export function JemaatListItemRow({ jemaat }: { jemaat: JemaatListItem }) {
 
   return (
     <DataListRow
+      // `code`, bukan `publicId`: daftar be-sada tidak mengirim `publicId`,
+      // dan `code` sudah unik. Ini yang membuat baris yang baru disimpan
+      // tersorot saat form mengembalikan petugas ke sini.
+      id={jemaat.code}
       leading={<Avatar label={jemaat.name} />}
       title={jemaat.name}
       meta={meta}

@@ -1,5 +1,8 @@
 import { z } from "zod";
 
+import { MENU, menuHref } from "@/config/menu";
+import { readListReturn, saveListFocus } from "@/lib/list-return";
+
 import type {
   JemaatAdditional,
   JemaatDetail,
@@ -412,4 +415,25 @@ export function incompleteFields(values: {
   if (!values.bloodType) missing.push("golongan darah");
 
   return missing;
+}
+
+export const JEMAAT_LIST_PATH = menuHref(MENU.KEJEMAATAN, MENU.DAFTAR_JEMAAT);
+
+/**
+ * Tujuan sesudah simpan: daftar yang SAMA seperti yang ditinggalkan petugas —
+ * pencarian, filter status, dan halamannya — dengan baris yang baru disimpan
+ * disorot sekali (docs/design/list-state.md §2.2, §2.4).
+ *
+ * Kembali ke `/kejemaatan/daftar-jemaat` polos berarti petugas yang sedang
+ * menyisir "Tidak aktif" halaman 3 harus menyusun ulang filternya setiap kali
+ * ia menambah satu orang — dan itu pekerjaan yang dia ulang puluhan kali.
+ *
+ * `saveListFocus` dipanggil DI SINI, bukan di layar: satu fungsi yang
+ * memegang keduanya berarti tidak ada layar yang menyorot baris lalu lupa
+ * membawa filternya, atau sebaliknya.
+ */
+export function afterSavePath(code: string): string {
+  saveListFocus(JEMAAT_LIST_PATH, code);
+
+  return readListReturn(JEMAAT_LIST_PATH);
 }

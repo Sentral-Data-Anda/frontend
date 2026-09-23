@@ -92,7 +92,18 @@ const names = process.env.MOCK_MANY_JEMAAT
     )
   : NAMES;
 
-const rows = names.map((name, index) => ({
+type JemaatRow = {
+  code: string;
+  name: string;
+  gender: string;
+  birthDate: string | null;
+  type: string;
+  roleInFamily: string | null;
+  keluarga: { id: number; code: string; name: string } | null;
+  status: string;
+};
+
+const rows: JemaatRow[] = names.map((name, index) => ({
   code: `JMT-${String(index + 1).padStart(4, "0")}`,
   name,
   gender: index % 2 === 0 ? "L" : "P",
@@ -381,11 +392,29 @@ Bun.serve({
       const failure = saveFailure();
       if (failure) return failure;
 
+      const body = (await request.json()) as Record<string, string>;
+      const code = `JMT-${String(rows.length + 1).padStart(4, "0")}`;
+
+      // Barisnya benar-benar DITAMBAHKAN ke daftar (hanya di memori, hilang
+      // saat tiruan dimatikan): tanpa itu, kembali ke daftar setelah simpan
+      // tidak memperlihatkan baris baru maupun sorotannya, dan alur yang
+      // justru paling perlu dinilai user tidak bisa dilihat sama sekali.
+      rows.unshift({
+        code,
+        name: body.name,
+        gender: body.gender,
+        birthDate: body.birthDate ? `${body.birthDate}T00:00:00.000Z` : null,
+        type: body.typeJemaat,
+        roleInFamily: body.roleInFamily ?? null,
+        keluarga: null,
+        status: body.statusJemaat,
+      });
+
       return json(
         {
           status: 201,
           message: "Berhasil Membuat Data Jemaat",
-          data: { ...(await request.json()), code: "JMT-9001" },
+          data: { code },
         },
         201,
       );

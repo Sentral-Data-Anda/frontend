@@ -13,12 +13,13 @@ import {
 } from "@/components/common/form-layout";
 import { useToast } from "@/components/common/toast";
 import { PageHeader } from "@/components/layout/page-header";
-import { MENU, menuHref } from "@/config/menu";
 import { applyServerError, firstErrorField } from "@/lib/form-error";
 
 import { useJemaatDetail, useSaveJemaat } from "./api";
 import {
+  afterSavePath,
   EMPTY_JEMAAT_FORM,
+  JEMAAT_LIST_PATH,
   incompleteFields,
   jemaatFormSchema,
   serverFieldError,
@@ -35,8 +36,6 @@ import {
   SocialSection,
 } from "./ui/form-sections";
 import { RiwayatSection } from "./ui/riwayat-fields";
-
-export const JEMAAT_LIST_PATH = menuHref(MENU.KEJEMAATAN, MENU.DAFTAR_JEMAAT);
 
 /**
  * Satu layar untuk dua mode: tambah (`code` kosong) dan ubah.
@@ -102,7 +101,7 @@ export function JemaatFormScreen({ code }: { code?: string }) {
         // Jemaat"): satu kalimat, satu sumber, dan tidak ada dua versi yang
         // harus dijaga sejalan.
         toast.add({ title: saved.message });
-        router.replace(JEMAAT_LIST_PATH);
+        router.replace(afterSavePath(saved.data.code));
       } catch (error) {
         // Isian TIDAK PERNAH dibuang karena gagal simpan: yang hilang bukan
         // satu klik, melainkan dua puluh field yang baru diketik.
