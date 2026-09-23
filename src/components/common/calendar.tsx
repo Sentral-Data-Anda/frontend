@@ -249,8 +249,13 @@ export function Calendar({
                 }}
                 className={cn(
                   "h-control cursor-pointer rounded-control text-body tabular-nums",
-                  "hover:bg-accent focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:outline-none",
-                  isCurrent && "bg-primary text-primary-foreground",
+                  "focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:outline-none",
+                  // Hover hanya untuk sel yang BELUM terpilih: `hover:bg-accent`
+                  // menimpa `bg-primary` dan meninggalkan teks putih di atas
+                  // bidang pucat (tak terbaca).
+                  isCurrent
+                    ? "bg-primary text-primary-foreground"
+                    : "hover:bg-accent",
                 )}
               >
                 {year}
@@ -365,7 +370,8 @@ export function Calendar({
                 // tepi tombol: di kaki kalender ada tombol "Hari ini" yang
                 // memang bergaris, dan dua kotak bergaris berdampingan
                 // membuat seolah ada dua yang terfokus.
-                "cursor-pointer hover:bg-accent focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:outline-none",
+                "cursor-pointer focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:outline-none",
+                !isSelected && "hover:bg-accent",
                 "disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent",
                 isOutside && "text-muted-foreground",
                 // Titik, BUKAN cincin: cincin adalah bahasa fokus, dan
