@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { TriangleAlert } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -19,6 +20,7 @@ import { PageHeader } from "@/components/layout/page-header";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth/use-menu-access";
 import { useBoolean } from "@/hooks/use-boolean";
+import { useListReturn } from "@/hooks/use-list-return";
 import { applyServerError, firstErrorField } from "@/lib/form-error";
 
 import { useJemaatDetail, useSaveJemaat } from "./api";
@@ -62,6 +64,14 @@ export function JemaatFormScreen({ code }: { code?: string }) {
   const toast = useToast();
   const isEdit = Boolean(code);
   const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.DAFTAR_JEMAAT);
+
+  /**
+   * SEMUA jalan keluar dari form kembali ke daftar yang SAMA seperti yang
+   * ditinggalkan petugas — bukan hanya jalur simpan. Batal dan "Buang" yang
+   * memakai path polos membuang pencarian, filter status, dan halaman yang
+   * baru saja disusun, dan itu terasa persis seperti kehilangan isian.
+   */
+  const listReturn = useListReturn(JEMAAT_LIST_PATH);
   const saveJemaat = useSaveJemaat(code);
   const detail = useJemaatDetail(code);
 
@@ -113,7 +123,7 @@ export function JemaatFormScreen({ code }: { code?: string }) {
   /** Keluar lewat Batal atau tombol kembali: tanya dulu bila ada yang hilang. */
   const onLeave = () => {
     if (isDirty) isConfirmOpen.onTrue();
-    else router.replace(JEMAAT_LIST_PATH);
+    else router.replace(listReturn);
   };
   const rootError = form.formState.errors.root?.message;
   // `useWatch`, bukan `form.watch()`: yang kedua mengembalikan fungsi baru
@@ -168,7 +178,7 @@ export function JemaatFormScreen({ code }: { code?: string }) {
         <PageHeader
           title={isEdit ? "Ubah Jemaat" : "Tambah Jemaat"}
           subtitle={detail.data?.name ?? code}
-          backHref={JEMAAT_LIST_PATH}
+          backHref={listReturn}
           onBack={(event) => {
             if (!isDirty) return;
 
@@ -215,10 +225,29 @@ export function JemaatFormScreen({ code }: { code?: string }) {
           </p>
         ) : null}
 
+        {/*
+          Galat tingkat form mendapat BIDANG, bukan satu baris merah: ia
+          muncul setelah user menekan Simpan dan mengira pekerjaannya selesai,
+          jadi yang harus terbaca lebih dulu adalah "datanya belum tersimpan",
+          baru sebabnya. Bentuknya disamakan dengan galat daftar (`DataList`).
+        */}
         {rootError ? (
-          <p role="alert" className="text-destructive text-body">
-            {rootError}
-          </p>
+          <div
+            role="alert"
+            className="border-destructive bg-destructive/10 flex items-start gap-2 rounded-control border p-3"
+          >
+            <TriangleAlert
+              className="text-destructive mt-0.5 size-4 shrink-0"
+              aria-hidden
+            />
+
+            <div className="min-w-0">
+              <p className="text-destructive text-body font-medium">
+                Data belum tersimpan. Coba simpan lagi.
+              </p>
+              <p className="text-destructive text-body">{rootError}</p>
+            </div>
+          </div>
         ) : null}
       </div>
 
@@ -245,7 +274,7 @@ export function JemaatFormScreen({ code }: { code?: string }) {
         confirmLabel="Buang"
         cancelLabel="Lanjut mengisi"
         isDestructive
-        onConfirm={() => router.replace(JEMAAT_LIST_PATH)}
+        onConfirm={() => router.replace(listReturn)}
       />
     </FormLayout>
   );
