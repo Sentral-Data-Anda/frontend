@@ -51,12 +51,18 @@ export function FormSection({
   children: ReactNode;
 }) {
   return (
+    /*
+      Field dibungkus satu `div`, bukan menjadi anak langsung fieldset:
+      `<legend>` dirender DI GARIS ATAS fieldset dan `padding-block-start`
+      berlaku SESUDAHNYA, jadi `space-y` pada fieldset menambahkan jarak kedua
+      di bawah judul — 36px di bawah legend sementara antar-field 16px.
+    */
     <fieldset
       disabled={disabled}
-      className="border-border space-y-4 border-b px-gutter py-5 last-of-type:border-b-0"
+      className="border-border border-b px-gutter pt-4 pb-5 last-of-type:border-b-0"
     >
       <legend className="text-title font-semibold">{legend}</legend>
-      {children}
+      <div className="space-y-4">{children}</div>
     </fieldset>
   );
 }

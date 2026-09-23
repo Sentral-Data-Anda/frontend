@@ -392,7 +392,14 @@ export function serverFieldError(
  * Data yang belum lengkap (keputusan user 3). Bukan galat: jemaatnya tetap
  * boleh disimpan, tapi petugas melihat apa yang masih menunggu dilengkapi.
  */
-export function incompleteFields(values: JemaatFormValues): string[] {
+export function incompleteFields(values: {
+  birthDate?: string;
+  isBirthDateUnknown?: boolean;
+  lastEducation?: string;
+  professionId?: string;
+  phone?: string;
+  bloodType?: string;
+}): string[] {
   const missing: string[] = [];
 
   if (values.isBirthDateUnknown || !values.birthDate) {

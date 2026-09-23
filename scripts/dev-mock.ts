@@ -26,6 +26,8 @@
  *   MOCK_DELAY_MS=3000 bun run dev:mock → semua jawaban ditunda 3 detik (layar tunggu)
  *   MOCK_EMPTY=1 bun run dev:mock       → SEMUA daftar kosong (404 ala be-sada):
  *                                         keadaan kosong tiap layar dan tiap widget
+ *   MOCK_SAVE_ERROR=phone|induk|email|kepala|validasi|500
+ *                                       → simpan jemaat gagal dengan jawaban itu
  *
  * Port bisa digeser supaya berjalan di samping `dev:mock` lain:
  *   MOCK_API_PORT=3011 PORT=3010 bun run dev:mock
@@ -213,6 +215,35 @@ const list = (
   });
 };
 
+/**
+ * Jawaban galat untuk simpan, dipilih lewat `MOCK_SAVE_ERROR`:
+ *
+ *   phone   → 400 "No Handphone Sudah Tersedia" (harus mendarat di field telepon)
+ *   induk   → 400 "Kode Induk Sudah Tersedia"
+ *   kepala  → 500 kepala keluarga ganda (harus mendarat di field peran)
+ *   validasi→ 400 pesan validasi yang TIDAK dikenal (harus jadi galat form)
+ *   500     → 500 kesalahan server
+ */
+const SAVE_ERROR: Record<string, [number, string]> = {
+  phone: [400, "No Handphone Sudah Tersedia"],
+  induk: [400, "Kode Induk Sudah Tersedia"],
+  email: [400, "Email Sudah Tersedia"],
+  kepala: [
+    500,
+    'duplicate key value violates unique constraint "keluarga_member_one_head"',
+  ],
+  validasi: [400, "Nama Minimal 3 Karakter"],
+  "500": [500, "Kesalahan server."],
+};
+
+const saveFailure = () => {
+  const failure = SAVE_ERROR[process.env.MOCK_SAVE_ERROR ?? ""];
+
+  return failure
+    ? json({ status: failure[0], error: failure[1] }, failure[0])
+    : null;
+};
+
 /** `MOCK_DELAY_MS=3000` — menunda SEMUA jawaban, untuk menguji layar tunggu. */
 const DELAY_MS = Number(process.env.MOCK_DELAY_MS ?? 0);
 
@@ -247,6 +278,25 @@ Bun.serve({
     }
     if (path.startsWith("/auth/")) {
       return json({ status: 200, message: "Berhasil", data: session });
+    }
+
+    /**
+     * Simpan jemaat. Jawaban galatnya bisa dipilih lewat `MOCK_SAVE_ERROR`,
+     * karena tiga jalur galat di form (galat field, galat form, galat server)
+     * tidak bisa dinilai dengan mata tanpa cara memunculkannya.
+     */
+    if (path === "/jemaat" && request.method === "POST") {
+      const failure = saveFailure();
+      if (failure) return failure;
+
+      return json(
+        {
+          status: 201,
+          message: "Berhasil Membuat Data Jemaat",
+          data: { ...(await request.json()), code: "JMT-9001" },
+        },
+        201,
+      );
     }
 
     if (path === "/jemaat") {

@@ -1,6 +1,6 @@
-import { cloneElement, type ReactElement } from "react";
+import { cloneElement, type ReactElement, type ReactNode } from "react";
 
-type FieldControlProps = {
+export type FieldControlProps = {
   id?: string;
   "aria-invalid"?: boolean;
   "aria-describedby"?: string;
@@ -24,7 +24,12 @@ export function FormField({
   hint,
   children,
 }: {
-  label: string;
+  /**
+   * `ReactNode`, bukan `string`: form menandai yang OPSIONAL (bukan yang
+   * wajib) dengan akhiran " (opsional)" berwarna pudar, dan itu satu elemen
+   * di dalam label — bukan label kedua.
+   */
+  label: ReactNode;
   htmlFor: string;
   error?: string;
   hint?: string;

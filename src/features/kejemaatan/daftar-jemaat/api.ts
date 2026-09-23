@@ -1,10 +1,12 @@
 "use client";
 
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+
 import type { ListState } from "@/hooks/use-list-params";
 import { useListQuery } from "@/hooks/use-list-query";
-import { fetchList } from "@/lib/api/fetcher";
+import { fetchList, fetchOne } from "@/lib/api/fetcher";
 
-import type { JemaatListItem } from "./types";
+import type { JemaatListItem, JemaatPayload } from "./types";
 
 /**
  * Kunci query disusun di satu tempat, bukan ditulis inline di hook.
@@ -18,6 +20,7 @@ import type { JemaatListItem } from "./types";
 export const jemaatKeys = {
   all: ["jemaat"] as const,
   lists: () => [...jemaatKeys.all, "list"] as const,
+  detail: (code: string) => [...jemaatKeys.all, "detail", code] as const,
 };
 
 /**
@@ -33,5 +36,30 @@ export function useJemaatList(params: ListState) {
     queryKey: jemaatKeys.lists(),
     fetchPage: (apiQuery) => fetchList<JemaatListItem>(`/jemaat?${apiQuery}`),
     params,
+  });
+}
+
+/**
+ * Simpan jemaat: `POST` bila `code` kosong, `PUT` ke kode itu bila ada.
+ *
+ * Satu hook untuk dua mode karena payload dan penanganan galatnya identik;
+ * yang berbeda hanya alamat dan kata kerjanya. Layar form karena itu tidak
+ * punya percabangan "tambah atau ubah" di jalur simpannya.
+ *
+ * Invalidasi memakai AWALAN `lists()`, bukan satu kunci halaman: daftar
+ * berhalaman (desktop) dan daftar bertumpuk (mobile) punya kunci berbeda, dan
+ * menyegarkan satu saja berarti baris baru tidak muncul di separuh perangkat.
+ */
+export function useSaveJemaat(code?: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: JemaatPayload) =>
+      fetchOne<{ code: string }>(code ? `/jemaat/${code}` : "/jemaat", {
+        method: code ? "PUT" : "POST",
+        body: JSON.stringify(payload),
+      }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: jemaatKeys.lists() }),
   });
 }
