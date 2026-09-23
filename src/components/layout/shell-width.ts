@@ -22,3 +22,12 @@ export const shellWidth = "mx-auto w-full md:max-w-2xl lg:max-w-3xl";
  * `shellWidth` (tumpuk). Lihat `docs/design/dashboard-desktop.md` §10.5.
  */
 export const shellWidthDashboard = "mx-auto w-full md:max-w-2xl lg:max-w-none";
+
+/**
+ * Layar isian (`FormLayout`): lebar konten yang sama dengan layar lain (penuh
+ * di HP, 672px di tablet), lalu di desktop mengisi kolom konten seperti
+ * dashboard — dengan batas 1152px supaya satu field di grid dua kolom tidak
+ * melar lewat ±420px (form-pattern.md §12). Judul, isian, dan baris aksi
+ * memakai kolom yang SAMA, jadi tepinya sejajar.
+ */
+export const shellWidthForm = "mx-auto w-full md:max-w-2xl lg:max-w-6xl";

@@ -1,14 +1,7 @@
 import type { FormHTMLAttributes, ReactNode } from "react";
 
+import { shellWidthForm } from "@/components/layout/shell-width";
 import { cn } from "@/lib/utils";
-
-/**
- * Kolom form: lebar konten yang sama dengan layar lain (penuh di HP, 672px di
- * tablet), lalu di desktop mengisi kolom konten seperti dashboard — dengan
- * batas 1152px supaya satu field di grid dua kolom tidak melar lewat ±420px.
- * Judul, isian, dan baris aksi memakai kolom yang SAMA, jadi tepinya sejajar.
- */
-const FORM_COLUMN = "mx-auto w-full md:max-w-2xl lg:max-w-6xl";
 
 /**
  * Kerangka layar isian, dipakai SEMUA form (form-pattern.md §3.3).
@@ -35,7 +28,7 @@ export function FormLayout({
 }) {
   return (
     <div className="w-full">
-      <div className={FORM_COLUMN}>{header}</div>
+      <div className={shellWidthForm}>{header}</div>
 
       {/*
         `noValidate`: validasinya milik zod, dan gelembung bawaan peramban
@@ -55,7 +48,7 @@ export function FormLayout({
         className={cn("w-full", className)}
         {...props}
       >
-        <div className={FORM_COLUMN}>{children}</div>
+        <div className={shellWidthForm}>{children}</div>
         {actions}
       </form>
     </div>
@@ -196,7 +189,7 @@ export function FormActions({ children }: { children: ReactNode }) {
         Gutter di kolom (md+), bukan di baris tombol: garis atas desktop jadi
         berhenti di tepi field, sejajar dengan garis pemisah kelompok.
       */}
-      <div className={cn(FORM_COLUMN, "md:px-gutter")}>
+      <div className={cn(shellWidthForm, "md:px-gutter")}>
         <div className="lg:border-border flex justify-end gap-2 px-gutter py-3 md:px-0 lg:border-t lg:pt-5">
           {children}
         </div>
