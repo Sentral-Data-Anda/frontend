@@ -528,11 +528,9 @@ export function AddressSection({
 export function FamilySection({
   form,
   isDisabled,
-  isEdit,
 }: {
   form: JemaatForm;
   isDisabled: boolean;
-  isEdit: boolean;
 }) {
   const keluargaId = useWatch({ control: form.control, name: "keluargaId" });
   const keluarga = useKeluargaOptions();
@@ -589,11 +587,7 @@ export function FamilySection({
         name="keluargaAsalId"
         label="Keluarga asal"
         isOptional
-        hint={
-          isEdit
-            ? "MENUNGGU BACKEND: keluarga asal yang sudah terisi belum bisa diubah dari mana pun (B3)."
-            : "Untuk menelusuri anak yang kini berkeluarga sendiri."
-        }
+        hint="Untuk menelusuri anak yang kini berkeluarga sendiri."
       >
         {(field) => (
           <ComboboxField

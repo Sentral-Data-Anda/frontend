@@ -110,6 +110,64 @@ const rows = names.map((name, index) => ({
   status: index % 7 === 0 ? "TIDAK_AKTIF" : "AKTIF",
 }));
 
+/**
+ * Detail jemaat: baris daftar + field yang hanya ada di endpoint detail.
+ * Dibuat deterministik dari indeks kodenya, supaya membuka jemaat yang sama
+ * dua kali selalu menampilkan isi yang sama.
+ */
+const jemaatDetail = (row: (typeof rows)[number]) => {
+  const index = Number(row.code.slice(4));
+  const isAnggota = row.type === "ANGGOTA";
+
+  return {
+    code: row.code,
+    name: row.name,
+    gender: row.gender,
+    birthPlace: ["Bandung", "Medan", "Jakarta", "Ambon"][index % 4],
+    // Tiap jemaat kelima tidak punya tanggal lahir: "tidak diketahui"
+    // disimpan KOSONG, dan form ubah harus menampilkannya apa adanya.
+    birthDate: index % 5 === 0 ? null : row.birthDate,
+    email: index % 3 === 0 ? null : `jemaat${index}@example.org`,
+    phone: index % 4 === 0 ? null : `08123456${String(index).padStart(4, "0")}`,
+    bloodType: isAnggota ? ["A", "B", "AB", "O"][index % 4] : null,
+    lastEducation:
+      index % 5 === 0 ? null : ["SMA", "S1", "SMP", "D3"][index % 4],
+    statusMarital: isAnggota ? ["SM", "BM", "CM", "CH"][index % 4] : null,
+    professionId: index % 5 === 0 ? null : (index % 12) + 1,
+    ethnicGroupId: isAnggota ? (index % 8) + 1 : null,
+    zoneChurchId: isAnggota ? (index % 4) + 1 : null,
+    codeInduk: isAnggota ? `A-${String(index).padStart(4, "0")}` : null,
+    provincesCode: "32",
+    regenciesCode: "3273",
+    districtsCode: "327301",
+    villagesCode: "3273011001",
+    address: `Jl. Merdeka No. ${index}, RT 0${(index % 9) + 1} RW 02`,
+    typeJemaat: row.type,
+    statusJemaat: row.status,
+    keluargaId: row.keluarga?.id ?? null,
+    roleInFamily: row.keluarga ? row.roleInFamily : null,
+    keluargaAsalId: null,
+    joinedAt: `201${index % 10}-03-01T00:00:00.000Z`,
+    additional:
+      index % 3 === 0
+        ? []
+        : [
+            {
+              type: "BAPTIS",
+              date: `199${index % 10}-08-01T00:00:00.000Z`,
+              certificateNumber: `B/${index}/199${index % 10}`,
+              place: "GKI Graha Raya",
+            },
+            {
+              type: "SIDI",
+              date: `200${index % 10}-04-16T00:00:00.000Z`,
+              certificateNumber: null,
+              place: null,
+            },
+          ],
+  };
+};
+
 if (process.env.MOCK_SINGLE_LEAF) {
   TREE[MENU.PERIBADAHAN] = [MENU.IBADAH];
   delete TREE[MENU.PENGATURAN];
@@ -317,6 +375,35 @@ Bun.serve({
         },
         201,
       );
+    }
+
+    // Detail satu jemaat, untuk mengisi form ubah. Bentuknya = badan `PUT`
+    // plus `code`, `additional[]`, dan relasi — lihat `jemaat.service.ts`.
+    const detail = path.match(/^\/jemaat\/([^/]+)$/);
+    if (detail && request.method === "GET") {
+      const row = rows.find((item) => item.code === detail[1]);
+
+      if (!row)
+        return json({ status: 404, error: "Jemaat Tidak Ditemukan" }, 404);
+
+      return json({
+        status: 200,
+        message: "Berhasil Mendapatkan Jemaat",
+        data: jemaatDetail(row),
+      });
+    }
+
+    // Ubah jemaat. `additional` yang TIDAK dikirim berarti "jangan disentuh"
+    // (kontrak be-sada 2026-09-23), jadi tiruan ini pun tidak menyentuhnya.
+    if (detail && request.method === "PUT") {
+      const failure = saveFailure();
+      if (failure) return failure;
+
+      return json({
+        status: 200,
+        message: "Berhasil Mengubah Data Jemaat",
+        data: { ...(await request.json()), code: detail[1] },
+      });
     }
 
     if (path === "/jemaat") {

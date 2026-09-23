@@ -7,7 +7,12 @@ import type { ListState } from "@/hooks/use-list-params";
 import { useListQuery } from "@/hooks/use-list-query";
 import { fetchList, fetchOne } from "@/lib/api/fetcher";
 
-import type { DdlOption, JemaatListItem, JemaatPayload } from "./types";
+import type {
+  DdlOption,
+  JemaatDetail,
+  JemaatListItem,
+  JemaatPayload,
+} from "./types";
 
 /**
  * Kunci query disusun di satu tempat, bukan ditulis inline di hook.
@@ -37,6 +42,26 @@ export function useJemaatList(params: ListState) {
     queryKey: jemaatKeys.lists(),
     fetchPage: (apiQuery) => fetchList<JemaatListItem>(`/jemaat?${apiQuery}`),
     params,
+  });
+}
+
+/**
+ * Detail satu jemaat, untuk mengisi form ubah.
+ *
+ * Kuncinya `code` (`JMT-…`), bukan `publicId`: itu satu-satunya pengenal yang
+ * dikirim endpoint daftar, dan rute ubah dibuka dari sana.
+ *
+ * `staleTime: 0` — form ubah harus berangkat dari nilai yang benar-benar ada
+ * di server saat ini. Data 30 detik yang lalu berarti dua petugas bisa
+ * saling menimpa tanpa satu pun melihat perubahan yang lain.
+ */
+export function useJemaatDetail(code: string | undefined) {
+  return useQuery({
+    queryKey: jemaatKeys.detail(code ?? ""),
+    queryFn: () => fetchOne<JemaatDetail>(`/jemaat/${code}`),
+    enabled: Boolean(code),
+    staleTime: 0,
+    select: (response) => response.data,
   });
 }
 

@@ -86,3 +86,26 @@ export function FormActions({ children }: { children: ReactNode }) {
     </div>
   );
 }
+
+/**
+ * Kerangka form yang sedang memuat nilainya (mode ubah).
+ *
+ * Bentuknya label + kontrol 36px, bukan baris daftar: kerangka yang tidak
+ * seukuran isinya membuat halaman melompat saat data tiba, dan lompatan itu
+ * terbaca sebagai kedipan.
+ */
+export function LoadingForm({ fields = 6 }: { fields?: number }) {
+  return (
+    <div role="status" aria-busy="true" className="space-y-4 px-gutter py-5">
+      {/* key={index}: kerangka tidak punya identitas dari data. */}
+      {Array.from({ length: fields }, (_, index) => (
+        <div key={index} aria-hidden className="space-y-1.5">
+          <span className="bg-primary-200 block h-3 w-24 animate-pulse rounded" />
+          <span className="bg-primary-200 block h-control w-full animate-pulse rounded-control" />
+        </div>
+      ))}
+
+      <span className="sr-only">Memuat data jemaat…</span>
+    </div>
+  );
+}
