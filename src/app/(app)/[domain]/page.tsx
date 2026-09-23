@@ -12,9 +12,8 @@ import {
   menuHref,
   type MenuSlug,
 } from "@/config/menu";
+import { resolveDomain } from "@/config/resolve-domain";
 import { getSession } from "@/features/auth/get-session";
-
-import { resolveDomain } from "./resolve-domain";
 
 type Props = { params: Promise<{ domain: string }> };
 

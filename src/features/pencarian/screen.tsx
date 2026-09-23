@@ -8,61 +8,9 @@ import { EmptyState } from "@/components/common/empty-state";
 import { Input } from "@/components/common/input";
 import { MenuTile, MenuTileGrid } from "@/components/common/menu-tile";
 import { PageHeader } from "@/components/layout/page-header";
-import {
-  MENU_DESCRIPTION,
-  leafIcon,
-  menuHref,
-  type MenuSlug,
-} from "@/config/menu";
+import { leafIcon, menuHref } from "@/config/menu";
 import { useSession } from "@/features/auth/session-provider";
-import type { MenuNode } from "@/features/auth/types";
-
-export type ScreenHit = { domain: MenuNode; leaf: MenuNode };
-
-export type ModuleSearch =
-  | { kind: "domains"; domains: MenuNode[] }
-  | { kind: "screens"; hits: ScreenHit[] };
-
-const descriptionOf = (leaf: MenuNode) =>
-  MENU_DESCRIPTION[leaf.slug as MenuSlug];
-
-/**
- * Kata kunci kosong → grid domain apa adanya. Berisi → daftar LAYAR yang
- * cocok, supaya "keluarga" langsung memberi layarnya, bukan domain yang harus
- * ditebak lalu diketuk lagi. Layar cocok lewat namanya, penjelasannya, atau
- * nama domainnya ("keuangan" → semua layar Keuangan).
- *
- * Sumbernya `domains` (= `session.menu`), jadi layar yang tidak dipegang
- * peran tidak pernah muncul. Normalisasi kata kunci (huruf besar dari
- * autokapitalisasi ponsel, spasi berlebih) terjadi di sini, bukan di
- * pemanggil — syarat tak tertulis semacam itu akan dilewatkan pemanggil
- * berikutnya, dan hasilnya terlihat seperti "tidak ada yang cocok".
- */
-export function searchModules(
-  domains: MenuNode[],
-  keyword: string,
-): ModuleSearch {
-  const needle = keyword.trim().replace(/\s+/g, " ").toLowerCase();
-
-  if (!needle) return { kind: "domains", domains };
-
-  const matches = (text: string | undefined) =>
-    text?.toLowerCase().includes(needle) ?? false;
-
-  return {
-    kind: "screens",
-    hits: domains.flatMap((domain) =>
-      domain.children
-        .filter(
-          (leaf) =>
-            matches(domain.name) ||
-            matches(leaf.name) ||
-            matches(descriptionOf(leaf)),
-        )
-        .map((leaf) => ({ domain, leaf })),
-    ),
-  };
-}
+import { descriptionOf, searchModules } from "@/features/pencarian/model";
 
 /**
  * Layar "Pencarian" (revisi user 2026-09-22; dulu "Semua modul"). Kelak
@@ -71,7 +19,7 @@ export function searchModules(
  * placeholder-nya mengatakan itu apa adanya supaya nomor transaksi tidak
  * diketik lalu berakhir "tidak ada yang cocok".
  */
-export function ModuleGrid() {
+export function PencarianScreen() {
   const session = useSession();
 
   const [searchData, setSearchData] = useState("");

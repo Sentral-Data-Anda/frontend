@@ -3,7 +3,7 @@ import { describe, expect, test } from "bun:test";
 import { MENU } from "@/config/menu";
 import type { MenuNode } from "@/features/auth/types";
 
-import { searchModules } from "./module-grid";
+import { searchModules } from "./model";
 
 const leaf = (publicId: string, slug: string, name: string): MenuNode => ({
   publicId,
