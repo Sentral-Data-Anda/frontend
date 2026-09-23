@@ -49,11 +49,26 @@ describe("FormField", () => {
     expect(screen.queryByRole("alert")).toBeNull();
   });
 
-  test("petunjuk dan galat sama-sama ikut aria-describedby", () => {
+  /**
+   * Galat MENGGANTIKAN petunjuk, dan slotnya punya tinggi tetap. Dua `<p>`
+   * yang muncul-hilang menggeser seluruh isi di bawahnya, dan pergeseran itu
+   * menelan klik yang jatuh di antara `mousedown` dan `mouseup`.
+   */
+  test("galat menggantikan petunjuk, bukan menumpuk di bawahnya", () => {
     onRenderField({ hint: "Minimal 8 karakter.", error: "Terlalu pendek" });
 
     expect(
       screen.getByLabelText("Username").getAttribute("aria-describedby"),
-    ).toBe("username-hint username-error");
+    ).toBe("username-error");
+    expect(screen.queryByText("Minimal 8 karakter.")).toBeNull();
+    expect(screen.getByText("Terlalu pendek")).toBeTruthy();
+  });
+
+  test("slot pesan tetap memakai ruang walau kosong", () => {
+    const { container } = onRenderField({});
+    const slot = container.querySelector("p");
+
+    expect(slot).not.toBeNull();
+    expect(slot?.className).toContain("min-h-");
   });
 });

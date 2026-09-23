@@ -99,17 +99,33 @@ export function Calendar({
    */
   useEffect(() => {
     /*
-     * Setelah paint. Cangkang popover Base UI mengatur fokus awalnya sendiri
-     * pada frame yang sama saat popup dibuka; memanggil `focus()` langsung di
-     * sini kalah cepat dan fokus tertinggal di pemicu.
+     * DUA frame, bukan satu. Cangkang popover Base UI mengatur fokus sendiri
+     * dua kali: saat popup dibuka, dan lagi saat elemen yang sedang difokus
+     * hilang dari dalamnya — yang persis terjadi ketika kisi tahun ditukar
+     * dengan kisi hari. Satu frame menang atas yang pertama tapi kalah dari
+     * yang kedua, dan fokus tertinggal di pembungkus "Pilih tanggal".
      */
-    const frame = requestAnimationFrame(() => cursorRef.current?.focus());
+    let inner = 0;
+    const outer = requestAnimationFrame(() => {
+      inner = requestAnimationFrame(() => cursorRef.current?.focus());
+    });
 
-    return () => cancelAnimationFrame(frame);
+    return () => {
+      cancelAnimationFrame(outer);
+      cancelAnimationFrame(inner);
+    };
   }, [cursor, isYearGrid]);
 
+  /**
+   * Kursor TIDAK PERNAH keluar batas.
+   *
+   * Sebelumnya panah memindahkannya ke hari yang `disabled`, dan elemen
+   * disabled menolak fokus — jadi fokus hilang dan tekanan BERIKUTNYA
+   * tertelan. Terukur: dari 23 September (= `max`), `ArrowRight` benar
+   * ditolak, tapi `ArrowLeft` sesudahnya tidak menggerakkan apa pun.
+   */
   const onMove = (next: string) => {
-    if (!next) return;
+    if (!next || !isWithin(next, min, max)) return;
 
     setCursor(next);
   };
@@ -178,7 +194,12 @@ export function Calendar({
                 autoFocus={isCurrent}
                 data-autofocus={isCurrent ? "" : undefined}
                 onClick={() => {
-                  setCursor(`${year}${cursor.slice(4)}`);
+                  const next = `${year}${cursor.slice(4)}`;
+
+                  // Dijepit ke batas supaya tahun tepi (1900 atau tahun
+                  // berjalan) tidak mendarat di tanggal yang di luar rentang
+                  // — sel disabled menolak fokus, dan kisi jadi mati.
+                  setCursor(isWithin(next, min, max) ? next : (max ?? today));
                   setIsYearGrid(false);
                 }}
                 className={cn(
@@ -256,7 +277,14 @@ export function Calendar({
           </div>
         ))}
 
-        {days.map((day) => {
+        {/*
+          `key` POSISI, bukan tanggal. Dengan key tanggal, menyeberang bulan
+          membuang 42 node dan membuat 42 yang baru — sel yang sedang difokus
+          ikut hilang, fokus terlempar ke pembungkus popup, dan panah
+          sesudahnya tidak lagi menggerakkan apa pun. Dengan key posisi,
+          node-nya tetap sama dan hanya isinya yang berganti.
+        */}
+        {days.map((day, index) => {
           const isOutside = !isSameMonth(day, month);
           const isAllowed = isWithin(day, min, max);
           const isSelected = day === value;
@@ -264,7 +292,7 @@ export function Calendar({
 
           return (
             <button
-              key={day}
+              key={index}
               ref={(node) => {
                 if (!isCursor) return;
 
@@ -288,10 +316,19 @@ export function Calendar({
                 // (`date-input.md §7.4`), sementara di popover desktop
                 // kolomnya memang sempit dan hasilnya tetap 36px.
                 "flex h-9 w-full items-center justify-center rounded-control text-body tabular-nums transition-colors",
-                "cursor-pointer hover:bg-accent focus-visible:ring-ring focus-visible:ring-2 focus-visible:outline-none",
+                // Cincin fokus ber-OFFSET, supaya tidak terbaca sebagai garis
+                // tepi tombol: di kaki kalender ada tombol "Hari ini" yang
+                // memang bergaris, dan dua kotak bergaris berdampingan
+                // membuat seolah ada dua yang terfokus.
+                "cursor-pointer hover:bg-accent focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:outline-none",
                 "disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent",
                 isOutside && "text-muted-foreground",
-                day === today && !isSelected && "ring-border ring-1",
+                // Titik, BUKAN cincin: cincin adalah bahasa fokus, dan
+                // sel "hari ini" yang bercincin terbaca seolah ikut terfokus
+                // — apalagi bersebelahan dengan tombol "Hari ini" bergaris.
+                day === today &&
+                  !isSelected &&
+                  "relative font-semibold after:absolute after:bottom-1 after:size-1 after:rounded-full after:bg-primary",
                 isSelected && "bg-primary text-primary-foreground",
               )}
             >

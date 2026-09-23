@@ -216,18 +216,19 @@ export function DateField({
         menaruh kursor untuk mengetik (§7.1). Kalender yang terbuka setiap kali
         kotak disentuh akan menghalangi jalan yang justru paling cepat.
 
-        Dibuka pada `pointerdown`, BUKAN `click`. Terukur: meninggalkan field
-        wajib di atasnya lalu menekan ikon ini tidak membuka apa pun pada
-        tekanan pertama — pesan galat yang menyisip di atas menggeser tombol
-        ±20px di antara `mousedown` dan `mouseup`, sehingga `click` tidak
-        pernah terbentuk. `pointerdown` sudah mendarat sebelum pergeseran itu,
-        dan ini pula perilaku pemicu `Select` di form yang sama.
+        Dibuka pada `click` biasa. Sempat dipasang pembuka di `pointerdown`
+        untuk menyiasati klik yang tertelan oleh pergeseran tata letak — itu
+        SALAH dua kali: di atas `Popover.Trigger` Base UI yang sudah menoggle
+        sendiri, urutannya jadi tekan→buka, lepas→toggle→tutup, sehingga
+        kalender tidak pernah terbuka dengan tetikus; dan di layar sentuh,
+        gerakan menggulir yang dimulai di atas tombol ikut membukanya. Akar
+        masalahnya diperbaiki di `FormField`, yang kini menyediakan ruang
+        pesan galat sejak awal sehingga tidak ada yang bergeser.
       */}
         {isDesktop === false ? (
           <button
             type="button"
             disabled={disabled}
-            onPointerDown={isCalendarOpen.onTrue}
             onClick={isCalendarOpen.onTrue}
             aria-label="Buka kalender"
             aria-haspopup="dialog"
@@ -246,7 +247,6 @@ export function DateField({
           >
             <Popover.Trigger
               disabled={disabled}
-              onPointerDown={isCalendarOpen.onTrue}
               aria-label="Buka kalender"
               className={CALENDAR_BUTTON}
             >

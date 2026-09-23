@@ -1,5 +1,7 @@
 import { cloneElement, type ReactElement, type ReactNode } from "react";
 
+import { cn } from "@/lib/utils";
+
 export type FieldControlProps = {
   id?: string;
   "aria-invalid"?: boolean;
@@ -48,9 +50,26 @@ export function FormField({
   isHintWarning?: boolean;
   children: ReactElement<FieldControlProps>;
 }) {
-  const hintId = hint ? `${htmlFor}-hint` : undefined;
-  const errorId = error ? `${htmlFor}-error` : undefined;
-  const describedBy = [hintId, errorId].filter(Boolean).join(" ") || undefined;
+  /**
+   * SATU baris pesan, dan ruangnya disediakan sejak awal.
+   *
+   * Dulu petunjuk dan galat adalah dua `<p>` yang muncul-hilang, dan itu
+   * punya akibat yang tidak terlihat sebagai masalah tampilan: pesan galat
+   * yang menyisip MENGGESER seluruh isi di bawahnya. Kalau pergeseran itu
+   * terjadi tepat di antara `mousedown` dan `mouseup` — persis yang terjadi
+   * saat user meninggalkan field wajib lalu menekan kontrol di bawahnya —
+   * `click` tidak pernah terbentuk dan tekanan pertama tertelan. Terukur di
+   * ikon kalender, tapi ia akan memukul tautan, checkbox, dan tombol biasa
+   * yang tidak punya jalan keluar lain.
+   *
+   * Karena itu: galat MENGGANTIKAN petunjuk (bukan menumpuk di bawahnya), dan
+   * slotnya punya tinggi minimum satu baris walau kosong. Harganya satu baris
+   * per field; yang dibeli adalah klik yang selalu mendarat.
+   */
+  const message = error ?? hint;
+  const messageId = message
+    ? `${htmlFor}-${error ? "error" : "hint"}`
+    : undefined;
 
   return (
     <div className="space-y-1.5">
@@ -61,33 +80,30 @@ export function FormField({
       {cloneElement(children, {
         id: htmlFor,
         "aria-invalid": error ? true : undefined,
-        "aria-describedby": describedBy,
+        "aria-describedby": messageId,
       })}
 
-      {hint ? (
-        <p
-          id={hintId}
-          className={
-            isHintWarning
-              ? "border-warning bg-warning/10 rounded-control border px-2 py-1 text-caption"
-              : "text-muted-foreground text-caption"
-          }
-        >
-          {hint}
-        </p>
-      ) : null}
-
-      {error ? (
-        // Tanpa role="alert": beberapa field bisa invalid bersamaan (submit
-        // dengan semuanya kosong), dan alert ganda yang meletup serentak
-        // sebelum user sempat pindah fokus lebih berisik daripada menolong.
-        // aria-describedby sudah cukup — pembaca layar membaca pesan ini
-        // begitu fokus mendarat di kontrol yang aria-invalid. role="alert"
-        // hanya milik galat root form (mis. kredensial ditolak server).
-        <p id={errorId} className="text-destructive text-body">
-          {error}
-        </p>
-      ) : null}
+      {/*
+        Tanpa role="alert": beberapa field bisa invalid bersamaan (submit
+        dengan semuanya kosong), dan alert ganda yang meletup serentak sebelum
+        user sempat pindah fokus lebih berisik daripada menolong.
+        aria-describedby sudah cukup — pembaca layar membaca pesan ini begitu
+        fokus mendarat di kontrol yang aria-invalid. role="alert" hanya milik
+        galat tingkat form.
+      */}
+      <p
+        id={messageId}
+        className={cn(
+          "min-h-[1.125rem] text-caption",
+          error
+            ? "text-destructive text-body"
+            : isHintWarning
+              ? "border-warning bg-warning/10 rounded-control border px-2 py-1"
+              : "text-muted-foreground",
+        )}
+      >
+        {message}
+      </p>
     </div>
   );
 }
