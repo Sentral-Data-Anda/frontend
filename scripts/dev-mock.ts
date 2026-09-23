@@ -24,6 +24,8 @@
  *   MOCK_MAJELIS_NO_FINANCE=1           → majelis tanpa LAPORAN_KEUANGAN
  *   MOCK_NO_APPROVAL=1                  → antrean persetujuan kosong
  *   MOCK_DELAY_MS=3000 bun run dev:mock → semua jawaban ditunda 3 detik (layar tunggu)
+ *   MOCK_EMPTY=1 bun run dev:mock       → SEMUA daftar kosong (404 ala be-sada):
+ *                                         keadaan kosong tiap layar dan tiap widget
  *
  * Port bisa digeser supaya berjalan di samping `dev:mock` lain:
  *   MOCK_API_PORT=3011 PORT=3010 bun run dev:mock
@@ -196,7 +198,9 @@ const list = (
   emptyName: string,
   message = `Berhasil Mendapatkan Semua ${okName}`,
 ) => {
-  if (rows.length === 0) {
+  // `MOCK_EMPTY=1` mengosongkan SEMUA daftar sekaligus, supaya keadaan kosong
+  // bisa dibuktikan lewat render — bukan hanya lewat unit test.
+  if (rows.length === 0 || process.env.MOCK_EMPTY) {
     return json({ status: 404, error: `${emptyName} Tidak Ditemukan` }, 404);
   }
   const { page, limit } = paging(url);
@@ -268,7 +272,7 @@ Bun.serve({
       );
 
       // Kontrak be-sada: daftar kosong dijawab 404, bukan 200 dengan array kosong.
-      if (matched.length === 0) {
+      if (matched.length === 0 || process.env.MOCK_EMPTY) {
         return json({ status: 404, error: "Jemaat Tidak Ditemukan" }, 404);
       }
 
