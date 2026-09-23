@@ -60,8 +60,10 @@ export function LoginForm() {
     }
   };
 
+  // Tanpa space-y: slot pesan FormField (22px, selalu ada) sudah menjadi
+  // jarak antar-field dan jarak ke tombol.
   return (
-    <form onSubmit={handleSubmit(onLogin)} className="w-full space-y-5">
+    <form onSubmit={handleSubmit(onLogin)} className="w-full">
       <FormField
         label="Username / Kode induk"
         htmlFor="username"
@@ -87,7 +89,7 @@ export function LoginForm() {
       </FormField>
 
       {errors.root ? (
-        <p role="alert" className="text-destructive text-body">
+        <p role="alert" className="text-destructive text-body mb-4">
           {errors.root.message}
         </p>
       ) : null}
