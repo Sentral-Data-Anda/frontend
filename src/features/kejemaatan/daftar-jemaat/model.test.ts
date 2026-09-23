@@ -3,6 +3,7 @@ import { describe, expect, test } from "bun:test";
 import {
   afterSavePath,
   EMPTY_JEMAAT_FORM,
+  findDuplicate,
   JEMAAT_LIST_PATH,
   incompleteFields,
   jemaatFormSchema,
@@ -355,5 +356,53 @@ describe("kembali ke daftar setelah simpan (test wajib 8)", () => {
     window.sessionStorage.clear();
 
     expect(afterSavePath("JMT-9002")).toBe(JEMAAT_LIST_PATH);
+  });
+});
+
+/**
+ * Test wajib 9 versi unit. Peringatan, bukan penolakan: kembar identik dan
+ * nama umum itu nyata, dan menolak simpan berarti petugas yang benar tidak
+ * punya jalan keluar sama sekali.
+ */
+describe("findDuplicate (test wajib 9)", () => {
+  const rows = [
+    {
+      code: "JMT-0042",
+      name: "Maria  Sitompul",
+      birthDate: "1990-05-12T00:00:00.000Z",
+    },
+    { code: "JMT-0043", name: "Maria Sitompul", birthDate: null },
+  ];
+
+  test("nama mirip DAN tanggal lahir sama persis dianggap kembaran", () => {
+    expect(
+      findDuplicate(rows, { name: "maria sitompul", birthDate: "1990-05-12" })
+        ?.code,
+    ).toBe("JMT-0042");
+  });
+
+  test("nama sama tapi tanggal lahir berbeda bukan kembaran", () => {
+    expect(
+      findDuplicate(rows, { name: "Maria Sitompul", birthDate: "1991-05-12" }),
+    ).toBeNull();
+  });
+
+  test("tanpa salah satunya, tidak ada yang bisa disimpulkan", () => {
+    expect(
+      findDuplicate(rows, { name: "", birthDate: "1990-05-12" }),
+    ).toBeNull();
+    expect(
+      findDuplicate(rows, { name: "Maria Sitompul", birthDate: "" }),
+    ).toBeNull();
+  });
+
+  test("mode ubah: jemaat itu sendiri bukan kembarannya", () => {
+    expect(
+      findDuplicate(
+        rows,
+        { name: "Maria Sitompul", birthDate: "1990-05-12" },
+        "JMT-0042",
+      ),
+    ).toBeNull();
   });
 });

@@ -29,6 +29,7 @@ import {
   toJemaatPayload,
   type JemaatFormValues,
 } from "./model";
+import { DuplicateWarning } from "./ui/duplicate-warning";
 import {
   AddressSection,
   ContactSection,
@@ -112,7 +113,8 @@ export function JemaatFormScreen({ code }: { code?: string }) {
   const rootError = form.formState.errors.root?.message;
   // `useWatch`, bukan `form.watch()`: yang kedua mengembalikan fungsi baru
   // tiap render, sehingga React Compiler melewatkan seluruh komponen ini.
-  const missing = incompleteFields(useWatch({ control: form.control }));
+  const watched = useWatch({ control: form.control });
+  const missing = incompleteFields(watched);
 
   const onSave = form.handleSubmit(
     async (values) => {
@@ -176,6 +178,12 @@ export function JemaatFormScreen({ code }: { code?: string }) {
       </div>
 
       <div className="space-y-3 px-gutter pt-4">
+        <DuplicateWarning
+          name={watched.name ?? ""}
+          birthDate={watched.birthDate ?? ""}
+          ownCode={code}
+        />
+
         {/*
           Penanda data belum lengkap (keputusan user): peringatan, bukan
           penghalang. Jemaatnya tetap boleh disimpan dan dilengkapi nanti —

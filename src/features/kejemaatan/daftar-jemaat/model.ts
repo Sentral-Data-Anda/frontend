@@ -437,3 +437,36 @@ export function afterSavePath(code: string): string {
 
   return readListReturn(JEMAAT_LIST_PATH);
 }
+
+/**
+ * Kembaran yang mungkin: nama mirip DAN tanggal lahir sama persis.
+ *
+ * Nama saja tidak cukup — "Maria Sitompul" ada belasan di satu jemaat. Nama
+ * mirip dengan tanggal lahir yang sama itulah yang hampir selalu berarti
+ * orang yang sama dimasukkan dua kali (paling sering saat atestasi masuk,
+ * bertahun kemudian baru ketahuan).
+ *
+ * Dibandingkan tanpa peduli huruf besar dan spasi ganda: "maria  sitompul"
+ * dan "Maria Sitompul" adalah orang yang sama, dan yang mengetik ulang
+ * memang jarang mengetiknya persis sama.
+ */
+const normalizeName = (name: string) =>
+  name.trim().toLowerCase().replace(/\s+/g, " ");
+
+export function findDuplicate(
+  rows: readonly { code: string; name: string; birthDate: string | null }[],
+  values: { name: string; birthDate: string },
+  /** Mode ubah: jemaat ini sendiri bukan kembarannya. */
+  ownCode?: string,
+) {
+  if (!values.name.trim() || !values.birthDate) return null;
+
+  return (
+    rows.find(
+      (row) =>
+        row.code !== ownCode &&
+        normalizeName(row.name) === normalizeName(values.name) &&
+        toDateInput(row.birthDate) === values.birthDate,
+    ) ?? null
+  );
+}

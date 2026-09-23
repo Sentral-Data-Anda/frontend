@@ -46,6 +46,27 @@ export function useJemaatList(params: ListState) {
 }
 
 /**
+ * Kandidat kembaran, memakai endpoint daftar yang SUDAH ADA — tidak ada
+ * endpoint baru untuk ini, dan tidak perlu: `GET /jemaat` sudah mengembalikan
+ * `name` dan `birthDate` tiap baris.
+ *
+ * `enabled` menunggu nama DAN tanggal lahir terisi: mencari dengan salah
+ * satunya saja menarik daftar panjang yang tidak bisa menyimpulkan apa pun.
+ */
+export function useJemaatDuplicates(name: string, birthDate: string) {
+  return useQuery({
+    queryKey: [...jemaatKeys.lists(), "duplikat", name],
+    queryFn: () =>
+      fetchList<JemaatListItem>(
+        `/jemaat?filter=${encodeURIComponent(name.trim())}&limit=5`,
+      ),
+    enabled: Boolean(name.trim() && birthDate),
+    staleTime: 60_000,
+    select: (response) => response.data,
+  });
+}
+
+/**
  * Detail satu jemaat, untuk mengisi form ubah.
  *
  * Kuncinya `code` (`JMT-…`), bukan `publicId`: itu satu-satunya pengenal yang
