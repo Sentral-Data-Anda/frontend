@@ -6,7 +6,7 @@ import {
   STATUS_JEMAAT_LABEL,
   TYPE_JEMAAT_LABEL,
   type JemaatListItem,
-} from "./types";
+} from "../types";
 
 /**
  * Satu baris Daftar Jemaat.

@@ -10,8 +10,8 @@ import { PageHeader } from "@/components/layout/page-header";
 import { MENU, domainHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth/use-menu-access";
 import { useJemaatList } from "@/features/kejemaatan/daftar-jemaat/api";
-import { JemaatListItemRow } from "@/features/kejemaatan/daftar-jemaat/list-item";
 import { STATUS_JEMAAT_CHIPS } from "@/features/kejemaatan/daftar-jemaat/types";
+import { JemaatListItemRow } from "@/features/kejemaatan/daftar-jemaat/ui/list-item";
 import { useListParams } from "@/hooks/use-list-params";
 
 /**
