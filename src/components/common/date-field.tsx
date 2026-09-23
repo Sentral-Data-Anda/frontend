@@ -292,19 +292,29 @@ export function DateField({
         terbiasa mm/dd, "12 Mei 1990" tidak bisa. Ia dihasilkan komponen, bukan
         ditulis layar, dan digantikan pesan galat selama ada galat.
       */}
-      {error ? (
-        <p className="text-destructive text-caption">{error}</p>
-      ) : confirmed ? (
-        <p aria-live="polite" className="text-muted-foreground text-caption">
-          {[
-            formatDate(confirmed),
-            formatWeekday(confirmed),
-            age === null ? null : `${age} tahun`,
-          ]
-            .filter(Boolean)
-            .join(" · ")}
-        </p>
-      ) : null}
+      {/*
+        Satu slot bertinggi tetap, sama seperti `FormField`: baris ini
+        muncul-hilang mengikuti isian, dan kalau ia menggeser tata letak maka
+        kontrol di bawahnya ikut bergerak tepat saat user hendak menekannya.
+      */}
+      <p
+        aria-live="polite"
+        className={cn(
+          "min-h-[1.125rem] text-caption",
+          error ? "text-destructive" : "text-muted-foreground",
+        )}
+      >
+        {error ||
+          (confirmed
+            ? [
+                formatDate(confirmed),
+                formatWeekday(confirmed),
+                age === null ? null : `${age} tahun`,
+              ]
+                .filter(Boolean)
+                .join(" · ")
+            : null)}
+      </p>
 
       {/*
         Di HP panel penuh dari bawah, memakai `BottomSheet` yang sudah ada —
