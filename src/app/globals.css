@@ -379,13 +379,15 @@
    * `::-webkit-scrollbar` untuk Safari. Warnanya lewat variabel supaya
    * permukaan gelap (sidebar navy) cukup menimpa dua variabel.
    */
+  /* Kontras pegangan ≥ 3:1 (WCAG 1.4.11): p-500 di kanvas 3,3:1,
+     p-300 di navy sidebar 3,8:1. */
   :root {
-    --scrollbar-thumb: var(--color-primary-300);
-    --scrollbar-thumb-hover: var(--color-primary-500);
+    --scrollbar-thumb: var(--color-primary-500);
+    --scrollbar-thumb-hover: var(--color-primary-700);
   }
   [data-slot="sidebar"] {
-    --scrollbar-thumb: var(--color-primary-700);
-    --scrollbar-thumb-hover: var(--color-primary-500);
+    --scrollbar-thumb: var(--color-primary-300);
+    --scrollbar-thumb-hover: var(--color-primary-200);
   }
   * {
     scrollbar-width: thin;
