@@ -5,7 +5,7 @@ import {
   dashboardViewCookie,
   readDashboardView,
   saveDashboardView,
-} from "./dashboard-view";
+} from "./view";
 
 describe("readDashboardView", () => {
   test("menerima grup yang dikenal", () => {

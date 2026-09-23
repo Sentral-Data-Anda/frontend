@@ -12,7 +12,7 @@ import {
   VIEW_LABEL,
   type DashboardView,
   type KpiGroup,
-} from "./dashboard-view";
+} from "../view";
 
 /**
  * Pemilih tampilan Beranda (permintaan user 2026-09-23). Admin memegang semua

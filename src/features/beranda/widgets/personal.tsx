@@ -10,8 +10,8 @@ import { MENU, menuHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth/use-menu-access";
 import { formatRupiah, formatRupiahCompact } from "@/lib/format";
 
-import { amountOf, useMyOfferings, usePublicAnnouncements } from "./api";
-import { formatDayMonth, formatMonthYear, toDateKey } from "./time";
+import { amountOf, useMyOfferings, usePublicAnnouncements } from "../api";
+import { formatDayMonth, formatMonthYear, toDateKey } from "../model";
 
 /** `enum AnnouncementCategory` be-sada (`schema.prisma:3701-3707`). */
 const CATEGORY_LABEL: Record<string, string> = {

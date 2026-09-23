@@ -4,9 +4,9 @@ import { DashboardCard } from "@/components/common/dashboard-card";
 import { MENU, menuHref } from "@/config/menu";
 import { formatRupiah } from "@/lib/format";
 
-import { useMonthlyFlow } from "./api";
-import { toDateKey } from "./time";
-import { useNow } from "./use-now";
+import { useMonthlyFlow } from "../api";
+import { useNow } from "../hooks/use-now";
+import { toDateKey } from "../model";
 
 const MONTH_LABEL = [
   "Jan",

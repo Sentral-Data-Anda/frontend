@@ -12,8 +12,8 @@ import { Badge } from "@/components/ui/badge";
 import { MENU, menuHref } from "@/config/menu";
 import { formatRupiahCompact } from "@/lib/format";
 
-import { amountOf, useWaitingApprovals, type ApprovalItem } from "./api";
-import { daysSince } from "./time";
+import { amountOf, useWaitingApprovals, type ApprovalItem } from "../api";
+import { daysSince } from "../model";
 
 const QUEUE_HREF = menuHref(MENU.PERSETUJUAN, MENU.PERMINTAAN_PERSETUJUAN);
 

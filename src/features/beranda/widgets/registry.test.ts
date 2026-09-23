@@ -3,17 +3,17 @@ import { describe, expect, test } from "bun:test";
 import { MENU } from "@/config/menu";
 import type { MenuNode } from "@/features/auth/types";
 
-import { TREE } from "../../../scripts/menu-tree";
-import { actionsOf, PERSONAS } from "../../../scripts/mock-dashboard";
+import { TREE } from "../../../../scripts/menu-tree";
+import { actionsOf, PERSONAS } from "../../../../scripts/mock-dashboard";
+import type { DashboardView } from "../view";
 
-import type { DashboardView } from "./dashboard-view";
 import {
   MAX_KPI,
   selectWidgets,
   WIDGETS,
   type KpiGroup,
   type Widget,
-} from "./widgets";
+} from "./registry";
 
 const leaf = (slug: string, action: MenuNode["action"]): MenuNode => ({
   publicId: slug,

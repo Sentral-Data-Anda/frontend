@@ -11,7 +11,7 @@ import {
   monthOf,
   toDateKey,
   weekKeys,
-} from "./time";
+} from "./model";
 
 /** Jam WIB → instant UTC (WIB = UTC+7, tanpa DST). */
 const wib = (date: string, time: string) =>

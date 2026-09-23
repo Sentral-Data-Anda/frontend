@@ -10,7 +10,7 @@
  * untuk `isAdmin`) — dipakai untuk menilai sidebar 12 domain / 61 layar.
  */
 import { MENU, type MenuSlug } from "../src/config/menu";
-import { toDateKey } from "../src/features/beranda/time";
+import { toDateKey } from "../src/features/beranda/model";
 
 type Action = "VIEW" | "CREATE" | "UPDATE" | "DELETE" | "APPROVE" | "REJECT";
 

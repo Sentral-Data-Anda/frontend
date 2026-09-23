@@ -8,8 +8,8 @@ import {
 import { ProgressBar } from "@/components/common/progress-bar";
 import { formatRupiahCompact } from "@/lib/format";
 
-import { DUMMY_BUDGET_USE, DUMMY_NEW_MEMBERS, DUMMY_ZONES } from "./dummy";
-import { formatDayMonth } from "./time";
+import { DUMMY_BUDGET_USE, DUMMY_NEW_MEMBERS, DUMMY_ZONES } from "../fixtures";
+import { formatDayMonth } from "../model";
 
 /*
  * DUMMY — widget yang endpoint-nya belum ada di be-sada. Registry

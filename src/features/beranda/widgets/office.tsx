@@ -13,14 +13,14 @@ import {
   useBirthdaysInRange,
   useJemaatStats,
   usePendingLoanRooms,
-} from "./api";
+} from "../api";
 import {
   addDaysKey,
   formatDayMonth,
   formatWeekdayShort,
   toDateKey,
   weekKeys,
-} from "./time";
+} from "../model";
 
 const LOAN_ROOM_HREF = menuHref(MENU.FASILITAS, MENU.PEMINJAMAN_RUANG);
 const REPORT_JEMAAT_HREF = menuHref(MENU.KEJEMAATAN, MENU.REPORT_JEMAAT);

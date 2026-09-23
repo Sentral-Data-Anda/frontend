@@ -5,6 +5,14 @@ import { MENU, type MenuSlug, menuHref } from "@/config/menu";
 import { findMenuNode } from "@/features/auth/menu-tree";
 import type { MenuAction, MenuNode } from "@/features/auth/types";
 
+import { SHOW_DUMMY } from "../fixtures";
+import {
+  canPickView,
+  KPI_GROUPS,
+  type DashboardView,
+  type KpiGroup,
+} from "../view";
+
 import { AgendaWidget } from "./agenda";
 import {
   AgendaWeekWidget,
@@ -12,29 +20,18 @@ import {
   KpiServicesWeek,
 } from "./agenda-week";
 import { ApprovalsWidget, KpiWaitingApprovals } from "./approvals";
+import { BudgetUseWidget, NewMembersWidget, ZonesWidget } from "./dummy";
 import {
-  canPickView,
-  KPI_GROUPS,
-  type DashboardView,
-  type KpiGroup,
-} from "./dashboard-view";
-import { SHOW_DUMMY } from "./dummy";
-import {
-  BudgetUseWidget,
-  NewMembersWidget,
-  ZonesWidget,
-} from "./dummy-widgets";
+  CashAccountsWidget,
+  ClosingReadinessWidget,
+  IncomeByTypeWidget,
+} from "./finance";
 import {
   KpiCashBalance,
   KpiExpense,
   KpiIncome,
   KpiSurplusYear,
 } from "./finance-kpi";
-import {
-  CashAccountsWidget,
-  ClosingReadinessWidget,
-  IncomeByTypeWidget,
-} from "./finance-widgets";
 import { IncomeExpenseChart } from "./income-expense-chart";
 import {
   BirthdaysWidget,
@@ -42,9 +39,9 @@ import {
   KpiJemaatTotal,
   KpiPendingLoans,
   LoanRoomsWidget,
-} from "./office-widgets";
+} from "./office";
 import { KpiPayables, PayablesWidget } from "./payables";
-import { AnnouncementsWidget, MyOfferingsWidget } from "./personal-widgets";
+import { AnnouncementsWidget, MyOfferingsWidget } from "./personal";
 
 export type WidgetSlot = "kpi" | "main" | "side";
 

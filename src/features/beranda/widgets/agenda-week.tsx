@@ -20,14 +20,14 @@ import {
   useIbadahRange,
   type EventItem,
   type IbadahWeekItem,
-} from "./api";
+} from "../api";
 import {
   addDaysKey,
   formatDayMonth,
   formatWeekdayShort,
   toDateKey,
   weekKeys,
-} from "./time";
+} from "../model";
 
 const IBADAH_HREF = menuHref(MENU.PERIBADAHAN, MENU.IBADAH);
 const EVENT_HREF = menuHref(MENU.KEGIATAN, MENU.EVENT);

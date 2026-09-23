@@ -3,9 +3,9 @@
 import { KpiCell, type KpiDelta } from "@/components/common/kpi-strip";
 import { formatRupiahCompact } from "@/lib/format";
 
-import { useSurplusDefisit } from "./api";
-import { DUMMY_CASH_ACCOUNTS, DUMMY_CASH_RUNWAY_MONTHS } from "./dummy";
-import { monthOf, toDateKey } from "./time";
+import { useSurplusDefisit } from "../api";
+import { DUMMY_CASH_ACCOUNTS, DUMMY_CASH_RUNWAY_MONTHS } from "../fixtures";
+import { monthOf, toDateKey } from "../model";
 
 const MONTH_SHORT = [
   "Jan",

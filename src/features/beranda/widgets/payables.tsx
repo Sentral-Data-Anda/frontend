@@ -25,10 +25,11 @@ import {
   type PaymentItem,
   type PayrollItem,
   type SupplierInvoiceItem,
-} from "./api";
+} from "../api";
+import { DUMMY_UNPOSTED_OFFERINGS, SHOW_DUMMY } from "../fixtures";
+import { daysSince, formatDayMonth, toDateKey } from "../model";
+
 import { DOCUMENT_LABEL } from "./approvals";
-import { DUMMY_UNPOSTED_OFFERINGS, SHOW_DUMMY } from "./dummy";
-import { daysSince, formatDayMonth, toDateKey } from "./time";
 
 type Tone = "due" | "draft" | "wait" | "neutral";
 

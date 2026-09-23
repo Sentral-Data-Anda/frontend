@@ -1,7 +1,8 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
-import { DUMMY_NOTIFICATIONS } from "./dummy";
+import { DUMMY_NOTIFICATIONS } from "../fixtures";
+
 import {
   countUnread,
   markAllRead,

@@ -14,15 +14,19 @@ import { BERANDA_SHORTCUTS, MENU } from "@/config/menu";
 import { useSession } from "@/features/auth/session-provider";
 import { useMenuAccess } from "@/features/auth/use-menu-access";
 import { useIbadahByDate } from "@/features/beranda/api";
+import { SHOW_DUMMY } from "@/features/beranda/fixtures";
 import {
-  saveDashboardView,
-  type DashboardView,
-} from "@/features/beranda/dashboard-view";
-import { SHOW_DUMMY } from "@/features/beranda/dummy";
-import { NotificationBell } from "@/features/beranda/notification-bell";
-import { formatLongDate, greetingOf, toDateKey } from "@/features/beranda/time";
-import { ViewPicker } from "@/features/beranda/view-picker";
-import { selectHeaderActions, selectWidgets } from "@/features/beranda/widgets";
+  formatLongDate,
+  greetingOf,
+  toDateKey,
+} from "@/features/beranda/model";
+import { NotificationBell } from "@/features/beranda/ui/notification-bell";
+import { ViewPicker } from "@/features/beranda/ui/view-picker";
+import { saveDashboardView, type DashboardView } from "@/features/beranda/view";
+import {
+  selectHeaderActions,
+  selectWidgets,
+} from "@/features/beranda/widgets/registry";
 import { firstNameOf } from "@/lib/format";
 
 /**

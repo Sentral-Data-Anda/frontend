@@ -11,8 +11,8 @@ afterEach(() => {
  * `SHOW_DUMMY` dihitung saat modul dimuat, jadi tiap kasus memuat salinan
  * baru lewat query string — cache modul Bun berkunci pada specifier lengkap.
  */
-const load = (tag: string): Promise<typeof import("./dummy")> =>
-  import(`./dummy?${tag}`);
+const load = (tag: string): Promise<typeof import("./fixtures")> =>
+  import(`./fixtures?${tag}`);
 
 test("SHOW_DUMMY false di production", async () => {
   Object.assign(process.env, { NODE_ENV: "production" });

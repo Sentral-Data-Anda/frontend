@@ -10,9 +10,17 @@ import { useMenuAccess } from "@/features/auth/use-menu-access";
 import { formatRupiah, formatRupiahCompact } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
-import { useDraftJournalCount, useFiscalPeriods, useIncomeByType } from "./api";
-import { DUMMY_CASH_ACCOUNTS, DUMMY_CLOSING_CHECKS, SHOW_DUMMY } from "./dummy";
-import { monthOf, toDateKey } from "./time";
+import {
+  useDraftJournalCount,
+  useFiscalPeriods,
+  useIncomeByType,
+} from "../api";
+import {
+  DUMMY_CASH_ACCOUNTS,
+  DUMMY_CLOSING_CHECKS,
+  SHOW_DUMMY,
+} from "../fixtures";
+import { monthOf, toDateKey } from "../model";
 
 /**
  * Saldo per rekening kas/bank — DUMMY sampai `Account` punya penanda kas

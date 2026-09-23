@@ -6,7 +6,7 @@ import { MENU } from "@/config/menu";
 import { SessionProvider } from "@/features/auth/session-provider";
 import type { MenuNode, Session } from "@/features/auth/types";
 
-import { HomeScreen } from "./home-screen";
+import { HomeScreen } from "./screen";
 
 afterEach(cleanup);
 

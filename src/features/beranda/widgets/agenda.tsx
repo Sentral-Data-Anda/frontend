@@ -15,14 +15,14 @@ import { MENU, menuHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth/use-menu-access";
 import { cn } from "@/lib/utils";
 
-import { sortByStartTime, useEventRange, useIbadahRange } from "./api";
+import { sortByStartTime, useEventRange, useIbadahRange } from "../api";
 import {
   findNextService,
   formatDayMonth,
   formatWeekdayShort,
   toDateKey,
   weekKeys,
-} from "./time";
+} from "../model";
 
 const IBADAH_HREF = menuHref(MENU.PERIBADAHAN, MENU.IBADAH);
 const EVENT_HREF = menuHref(MENU.KEGIATAN, MENU.EVENT);

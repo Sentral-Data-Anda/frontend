@@ -8,7 +8,7 @@ import { Button } from "@/components/common/button";
 import { DataListRow } from "@/components/common/data-list";
 import { useBoolean } from "@/hooks/use-boolean";
 
-import { DUMMY_NOTIFICATIONS, type Notification } from "./dummy";
+import { DUMMY_NOTIFICATIONS, type Notification } from "../fixtures";
 
 export const markRead = (list: Notification[], id: string): Notification[] =>
   list.map((item) => (item.id === id ? { ...item, isRead: true } : item));

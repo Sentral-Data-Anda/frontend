@@ -1,12 +1,11 @@
 import { cookies } from "next/headers";
 
 import { PageContainer } from "@/components/layout/page-container";
+import { HomeScreen } from "@/features/beranda/screen";
 import {
   DASHBOARD_VIEW_COOKIE,
   readDashboardView,
-} from "@/features/beranda/dashboard-view";
-
-import { HomeScreen } from "./home-screen";
+} from "@/features/beranda/view";
 
 export const metadata = { title: "Beranda" };
 
