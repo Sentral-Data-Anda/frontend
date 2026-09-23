@@ -408,6 +408,51 @@ export const leafIcon = (
 export const menuHref = (groupSlug: string, leafSlug: string): string =>
   `/${toKebabCase(groupSlug)}/${toKebabCase(leafSlug)}`;
 
+/**
+ * Rute layar isian, diturunkan dari rute layarnya — bukan dari daftar rute
+ * form yang harus dijaga sejalan.
+ *
+ * Konvensinya sama dengan `menuHref`: `/<domain>/<layar>/baru` untuk tambah
+ * dan `/<domain>/<layar>/<kode>/ubah` untuk ubah. Karena diturunkan, 60 form
+ * berikutnya ikut aturan ini tanpa mendaftarkan apa pun.
+ */
+export const createHref = (groupSlug: string, leafSlug: string): string =>
+  `${menuHref(groupSlug, leafSlug)}/${FORM_SEGMENT.create}`;
+
+export const editHref = (
+  groupSlug: string,
+  leafSlug: string,
+  code: string,
+): string =>
+  `${menuHref(groupSlug, leafSlug)}/${encodeURIComponent(code)}/${FORM_SEGMENT.edit}`;
+
+/**
+ * Segmen terakhir yang menandai sebuah rute sebagai LAYAR ISIAN.
+ *
+ * Ini cara sebuah layar "menyatakan dirinya" form, dan sengaja berupa
+ * konvensi rute, bukan daftar atau prop: yang membacanya (`BottomTab`) hanya
+ * punya `usePathname()`, dan daftar rute form adalah tabel kedua yang pasti
+ * berbeda dari kenyataan pada form ke sekian.
+ */
+export const FORM_SEGMENT = { create: "baru", edit: "ubah" } as const;
+
+/**
+ * Apakah `pathname` sebuah layar isian.
+ *
+ * Syarat kedalaman ≥ 3 segmen bukan hiasan: layar produk hidup di
+ * `/<domain>/<layar>` (2 segmen), jadi tanpa itu sebuah layar be-sada yang
+ * kebetulan ber-slug `BARU` akan kehilangan navigasinya.
+ */
+export function isFormRoute(pathname: string): boolean {
+  const segments = pathname.split("/").filter(Boolean);
+  const last = segments.at(-1);
+
+  return (
+    segments.length >= 3 &&
+    (last === FORM_SEGMENT.create || last === FORM_SEGMENT.edit)
+  );
+}
+
 /** Halaman domain, `/<domain>`. */
 export const domainHref = (domainSlug: string): string =>
   `/${toKebabCase(domainSlug)}`;

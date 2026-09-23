@@ -207,6 +207,7 @@ export function JemaatFormScreen({ code }: { code?: string }) {
           title={isEdit ? "Ubah Jemaat" : "Tambah Jemaat"}
           subtitle={detail.data?.name ?? code}
           backHref={listReturn}
+          isBackPersistent
           onBack={(event) => {
             if (!isDirty) return;
 
@@ -341,6 +342,7 @@ function NoFormAccess({ isEdit }: { isEdit: boolean }) {
           isEdit ? "Tidak bisa mengubah jemaat" : "Tidak bisa menambah jemaat"
         }
         backHref={JEMAAT_LIST_PATH}
+        isBackPersistent
       />
 
       <div className="flex flex-col items-start gap-3 px-gutter">

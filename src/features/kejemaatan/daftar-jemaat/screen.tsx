@@ -8,10 +8,9 @@ import { DataList } from "@/components/common/data-list";
 import { FilterChips } from "@/components/common/filter-chips";
 import { SearchInput } from "@/components/common/search-input";
 import { PageHeader } from "@/components/layout/page-header";
-import { MENU, domainHref } from "@/config/menu";
+import { MENU, createHref, domainHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth/use-menu-access";
 import { useJemaatList } from "@/features/kejemaatan/daftar-jemaat/api";
-import { JEMAAT_LIST_PATH } from "@/features/kejemaatan/daftar-jemaat/model";
 import { STATUS_JEMAAT_CHIPS } from "@/features/kejemaatan/daftar-jemaat/types";
 import { JemaatListItemRow } from "@/features/kejemaatan/daftar-jemaat/ui/list-item";
 import { useListParams } from "@/hooks/use-list-params";
@@ -61,7 +60,7 @@ export function JemaatListScreen() {
             // Lingkaran, sama dengan tombol kembali di kiri header — kotak
             // 36px terlihat lebih besar daripada lingkaran 36px.
             <Link
-              href={`${JEMAAT_LIST_PATH}/baru`}
+              href={createHref(MENU.KEJEMAATAN, MENU.DAFTAR_JEMAAT)}
               aria-label="Tambah jemaat"
               className={cn(
                 buttonVariants({ size: "icon" }),

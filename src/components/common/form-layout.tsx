@@ -80,16 +80,20 @@ export function FormSection({
  * yang sama dengan kepala dashboard.
  *
  * Di bawah `lg` ia menempel di bawah layar supaya tombol simpan tidak perlu
- * dicari di ujung halaman yang panjangnya ±20 field. Jaraknya dihitung dari
- * tinggi bottom tab: keduanya `sticky bottom-0` di scroll dokumen yang sama,
- * jadi tanpa itu baris aksi tersembunyi persis di balik navigasi.
+ * dicari di ujung halaman yang panjangnya ±20 field.
  *
- * Di `lg` ke atas tidak ada bottom tab dan halamannya muat lebih banyak, jadi
- * ia ikut mengalir — baris melayang di desktop hanya memakan tinggi jendela.
+ * `bottom-0`, BUKAN digeser setinggi bottom tab: sejak bottom tab tidak
+ * dirender di rute isian (keputusan user 2026-09-23), geseran itu hanya
+ * menyisakan 56px kosong di bawah baris aksi — ruang yang disediakan untuk
+ * navigasi yang sudah tidak ada. Area aman iPhone tetap dihormati lewat
+ * padding bawah, bukan lewat posisi.
+ *
+ * Di `lg` ke atas halamannya muat lebih banyak, jadi ia ikut mengalir —
+ * baris melayang di desktop hanya memakan tinggi jendela.
  */
 export function FormActions({ children }: { children: ReactNode }) {
   return (
-    <div className="border-border bg-card sticky bottom-[calc(var(--bottom-tab-height)+env(safe-area-inset-bottom))] z-30 flex justify-end gap-2 border-t px-gutter py-3 lg:static lg:border-t-0 lg:bg-transparent">
+    <div className="border-border bg-card sticky bottom-0 z-30 flex justify-end gap-2 border-t px-gutter pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] lg:static lg:border-t-0 lg:bg-transparent lg:pb-3">
       {children}
     </div>
   );

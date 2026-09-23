@@ -22,6 +22,7 @@ export function PageHeader({
   subtitle,
   backHref,
   onBack,
+  isBackPersistent = false,
   leading,
   action,
 }: {
@@ -37,6 +38,16 @@ export function PageHeader({
    * pratinjau tautan, dan status bar peramban tetap bekerja.
    */
   onBack?: (event: React.MouseEvent<HTMLAnchorElement>) => void;
+  /**
+   * Tombol kembali tetap tampil di ≥ lg.
+   *
+   * Bawaannya disembunyikan karena sidebar sudah menjawab "di mana aku". Di
+   * LAYAR ISIAN itu tidak cukup: sidebar menunjuk layar daftarnya, dan sejak
+   * bottom tab tidak dirender di rute form, tombol ini adalah satu-satunya
+   * jalan keluar yang kita sediakan sendiri — jalan yang menanyakan "buang
+   * perubahan?" lebih dulu.
+   */
+  isBackPersistent?: boolean;
   leading?: React.ReactNode;
   action?: React.ReactNode;
 }) {
@@ -50,7 +61,7 @@ export function PageHeader({
         !title && !subtitle && "lg:hidden",
       )}
     >
-      <div className="contents lg:hidden">
+      <div className={isBackPersistent ? "contents" : "contents lg:hidden"}>
         {backHref ? (
           <Link
             href={backHref}

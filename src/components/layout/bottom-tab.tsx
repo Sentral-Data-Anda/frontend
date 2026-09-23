@@ -10,7 +10,7 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import { MENU, menuHref } from "@/config/menu";
+import { MENU, isFormRoute, menuHref } from "@/config/menu";
 import { useSession } from "@/features/auth/session-provider";
 import { findMenuNode } from "@/lib/menu-tree";
 import { cn } from "@/lib/utils";
@@ -70,6 +70,22 @@ export function isTabActive(href: string, pathname: string): boolean {
 export function BottomTab() {
   const session = useSession();
   const pathname = usePathname();
+
+  /**
+   * Layar isian tidak punya bottom tab (keputusan user 2026-09-23).
+   *
+   * Dua alasannya. Di 390 bilah aksi lengket + bottom tab memakan 117px dari
+   * halaman ±20 field. Dan bottom tab adalah jalan keluar SATU KETUKAN dari
+   * form setengah terisi, tanpa melewati konfirmasi "buang perubahan?" —
+   * navigasi yang tidak bisa dicegat App Router. Keluarnya lewat tombol
+   * kembali atau Batal, yang keduanya bertanya lebih dulu.
+   *
+   * Dikerjakan di sini, bukan dengan `pb-*` di layar: `nav` ini `sticky` dan
+   * MEMAKAI RUANGNYA SENDIRI di aliran dokumen (lihat `a40d7b7`), jadi tidak
+   * merendernya sudah sekaligus mengembalikan ruangnya. Padding pengganti di
+   * layar justru menghitung ruang yang sama dua kali.
+   */
+  if (isFormRoute(pathname)) return null;
 
   const tabs = getVisibleTabs(TABS, session.menu);
 

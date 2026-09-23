@@ -5,6 +5,7 @@ import { Avatar } from "@/components/common/avatar";
 import { buttonVariants } from "@/components/common/button";
 import { DataListRow } from "@/components/common/data-list";
 import { Badge } from "@/components/ui/badge";
+import { MENU, editHref } from "@/config/menu";
 import { saveListFocus } from "@/lib/list-return";
 import { cn } from "@/lib/utils";
 
@@ -67,7 +68,7 @@ export function JemaatListItemRow({
             // kembali, layar ini dirender ulang dari cache dan tidak lagi
             // tahu baris mana yang dibuka.
             <Link
-              href={`${JEMAAT_LIST_PATH}/${jemaat.code}/ubah`}
+              href={editHref(MENU.KEJEMAATAN, MENU.DAFTAR_JEMAAT, jemaat.code)}
               onClick={() => saveListFocus(JEMAAT_LIST_PATH, jemaat.code)}
               aria-label={`Ubah ${jemaat.name}`}
               className={cn(

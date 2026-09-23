@@ -11,6 +11,9 @@ import {
   domainEntryHref,
   domainHref,
   leafIcon,
+  createHref,
+  editHref,
+  isFormRoute,
 } from "./menu";
 
 const leaf = (slug: string): MenuNode => ({
@@ -79,5 +82,42 @@ describe("leafIcon", () => {
     expect(leafIcon("LAYAR_BARU", MENU.KEJEMAATAN)).toBe(
       MENU_ICON[MENU.KEJEMAATAN],
     );
+  });
+});
+
+/**
+ * Layar isian menyatakan dirinya lewat SEGMEN RUTE, bukan daftar rute form
+ * atau prop yang harus diteruskan. Yang membacanya (`BottomTab`) cuma punya
+ * `usePathname()`, dan daftar kedua pasti berbeda dari kenyataan pada form ke
+ * sekian.
+ */
+describe("rute layar isian", () => {
+  test("rute tambah dan ubah diturunkan dari rute layarnya", () => {
+    expect(createHref(MENU.KEJEMAATAN, MENU.DAFTAR_JEMAAT)).toBe(
+      "/kejemaatan/daftar-jemaat/baru",
+    );
+    expect(editHref(MENU.KEJEMAATAN, MENU.DAFTAR_JEMAAT, "JMT-0042")).toBe(
+      "/kejemaatan/daftar-jemaat/JMT-0042/ubah",
+    );
+  });
+
+  test("keduanya dikenali sebagai layar isian", () => {
+    expect(isFormRoute("/kejemaatan/daftar-jemaat/baru")).toBe(true);
+    expect(isFormRoute("/kejemaatan/daftar-jemaat/JMT-0042/ubah")).toBe(true);
+  });
+
+  test("layar daftar, halaman domain, dan Beranda bukan layar isian", () => {
+    expect(isFormRoute("/kejemaatan/daftar-jemaat")).toBe(false);
+    expect(isFormRoute("/kejemaatan")).toBe(false);
+    expect(isFormRoute("/")).toBe(false);
+  });
+
+  /**
+   * Penjaga kedalaman: layar produk hidup di `/<domain>/<layar>`, jadi slug
+   * be-sada yang kebetulan bernama "BARU" tidak boleh kehilangan navigasinya.
+   */
+  test("layar ber-slug baru/ubah TIDAK ikut kehilangan navigasi", () => {
+    expect(isFormRoute("/kegiatan/baru")).toBe(false);
+    expect(isFormRoute("/kegiatan/ubah")).toBe(false);
   });
 });
