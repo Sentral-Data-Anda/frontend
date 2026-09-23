@@ -110,7 +110,12 @@ export function useListParams(limitPerPage = DEFAULT_LIMIT) {
         // Nilai kosong dan halaman 1 dihapus, bukan ditulis. URL setelah
         // mengosongkan kotak cari harus kembali bersih seperti semula —
         // `?search=&page=1` terlihat seperti aplikasi yang bocor.
-        if (!value || (key === "page" && value === 1)) url.delete(key);
+        if (
+          !value ||
+          (key === "page" && value === 1) ||
+          (key === "limit" && value === limitPerPage)
+        )
+          url.delete(key);
         else url.set(key, text);
       }
 
@@ -120,7 +125,7 @@ export function useListParams(limitPerPage = DEFAULT_LIMIT) {
         scroll: false,
       });
     },
-    [pathname, router],
+    [limitPerPage, pathname, router],
   );
 
   /**
@@ -144,11 +149,18 @@ export function useListParams(limitPerPage = DEFAULT_LIMIT) {
     [onWrite],
   );
 
+  /** Jumlah baris per halaman (kaki tabel desktop). Kembali ke halaman 1. */
+  const onPickLimit = useCallback(
+    (limit: number) => onWrite({ limit, page: 1 }),
+    [onWrite],
+  );
+
   return {
     ...params,
     onSearch,
     onPickStatus,
     onPickPage,
+    onPickLimit,
   };
 }
 

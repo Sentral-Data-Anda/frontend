@@ -1,6 +1,7 @@
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Plus } from "lucide-react";
 import Link from "next/link";
 
+import { buttonVariants } from "@/components/common/button";
 import { cn } from "@/lib/utils";
 
 /**
@@ -96,5 +97,38 @@ export function PageHeader({
 
       {action}
     </header>
+  );
+}
+
+/**
+ * Aksi "tambah" di kanan header: lingkaran ikon 36px di HP/tablet (sama
+ * dengan tombol kembali di kiri — kotak 36px terlihat lebih besar daripada
+ * lingkaran 36px), tombol berlabel "Tambah" di desktop, tempat ruangnya ada
+ * dan ikon plus sendirian di ujung tabel lebar mudah terlewat.
+ *
+ * `<Link>` bergaya tombol, bukan `Button`: ini perpindahan halaman.
+ * `aria-label` memuat teks yang terlihat ("Tambah …"), jadi nama aksesibelnya
+ * tetap cocok dengan yang dibaca mata.
+ */
+export function PageHeaderAdd({
+  href,
+  label,
+}: {
+  href: string;
+  /** Nama lengkap aksi untuk pembaca layar, mis. "Tambah jemaat". */
+  label: string;
+}) {
+  return (
+    <Link
+      href={href}
+      aria-label={label}
+      className={cn(
+        buttonVariants({ size: "icon" }),
+        "cursor-pointer rounded-full lg:w-auto lg:gap-1.5 lg:rounded-control lg:px-3",
+      )}
+    >
+      <Plus aria-hidden />
+      <span className="hidden lg:inline">Tambah</span>
+    </Link>
   );
 }

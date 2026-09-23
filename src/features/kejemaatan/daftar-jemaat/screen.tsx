@@ -1,20 +1,19 @@
 "use client";
 
-import { Plus } from "lucide-react";
-import Link from "next/link";
-
-import { buttonVariants } from "@/components/common/button";
 import { DataList } from "@/components/common/data-list";
 import { FilterChips } from "@/components/common/filter-chips";
+import { ListToolbar } from "@/components/common/list-toolbar";
 import { SearchInput } from "@/components/common/search-input";
-import { PageHeader } from "@/components/layout/page-header";
+import { PageHeader, PageHeaderAdd } from "@/components/layout/page-header";
 import { MENU, createHref, domainHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth/use-menu-access";
 import { useJemaatList } from "@/features/kejemaatan/daftar-jemaat/api";
 import { STATUS_JEMAAT_CHIPS } from "@/features/kejemaatan/daftar-jemaat/types";
-import { JemaatListItemRow } from "@/features/kejemaatan/daftar-jemaat/ui/list-item";
+import {
+  JemaatListItemRow,
+  jemaatTable,
+} from "@/features/kejemaatan/daftar-jemaat/ui/list-item";
 import { useListParams } from "@/hooks/use-list-params";
-import { cn } from "@/lib/utils";
 
 /**
  * Layar cetakan: ini bentuk yang direplikasi ke puluhan layar daftar lain.
@@ -56,38 +55,32 @@ export function JemaatListScreen() {
           // Gate-nya MENYALIN guard endpoint (`DAFTAR_JEMAAT` CREATE); ia
           // bukan pengaman. Pengamannya tetap `Authorization` di be-sada.
           isCanCreate ? (
-            // `<Link>` bergaya tombol: lihat alasannya di `ui/list-item.tsx`.
-            // Lingkaran, sama dengan tombol kembali di kiri header — kotak
-            // 36px terlihat lebih besar daripada lingkaran 36px.
-            <Link
+            <PageHeaderAdd
               href={createHref(MENU.KEJEMAATAN, MENU.DAFTAR_JEMAAT)}
-              aria-label="Tambah jemaat"
-              className={cn(
-                buttonVariants({ size: "icon" }),
-                "cursor-pointer rounded-full",
-              )}
-            >
-              <Plus aria-hidden />
-            </Link>
+              label="Tambah jemaat"
+            />
           ) : null
         }
       />
 
-      <div className="space-y-3 px-gutter pb-4">
-        <SearchInput
-          value={listParams.search}
-          onSearch={listParams.onSearch}
-          label="Cari jemaat"
-          placeholder="Cari nama, kode, atau telepon"
-        />
-
-        <FilterChips
-          options={STATUS_JEMAAT_CHIPS}
-          value={listParams.status}
-          onPick={listParams.onPickStatus}
-          label="Filter status jemaat"
-        />
-      </div>
+      <ListToolbar
+        search={
+          <SearchInput
+            value={listParams.search}
+            onSearch={listParams.onSearch}
+            label="Cari jemaat"
+            placeholder="Cari nama, kode, atau telepon"
+          />
+        }
+        filters={
+          <FilterChips
+            options={STATUS_JEMAAT_CHIPS}
+            value={listParams.status}
+            onPick={listParams.onPickStatus}
+            label="Filter status jemaat"
+          />
+        }
+      />
 
       <DataList
         items={jemaatList.items}
@@ -104,6 +97,7 @@ export function JemaatListScreen() {
             : "Data jemaat akan muncul di sini setelah ditambahkan."
         }
         pagination={jemaatList.pagination}
+        table={jemaatTable(isCanUpdate)}
       >
         {(jemaat) => (
           <JemaatListItemRow jemaat={jemaat} isCanUpdate={isCanUpdate} />

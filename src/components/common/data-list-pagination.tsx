@@ -16,6 +16,11 @@ export type DataListPagination =
       page: number;
       totalPage: number;
       onPickPage: (page: number) => void;
+      /** Untuk keterangan "1–10 dari 12" di kaki tabel. */
+      totalData?: number;
+      limit?: number;
+      /** Pilihan jumlah baris per halaman; tanpa ini pilihannya tidak tampil. */
+      onPickLimit?: (limit: number) => void;
     }
   | {
       mode: "more";
@@ -57,13 +62,18 @@ export function DataListPager({
   page,
   totalPage,
   onPickPage,
+  className,
 }: {
   page: number;
   totalPage: number;
   onPickPage: (page: number) => void;
+  className?: string;
 }) {
   return (
-    <nav aria-label="Paginasi" className="mt-4 flex justify-center px-gutter">
+    <nav
+      aria-label="Paginasi"
+      className={cn("mt-4 flex justify-center px-gutter", className)}
+    >
       <div className="bg-card flex items-center gap-0.5 rounded-lg p-1 shadow-sm">
         <Button
           type="button"

@@ -1,0 +1,296 @@
+"use client";
+
+import Link from "next/link";
+import type { CSSProperties, ReactNode, Ref } from "react";
+
+import {
+  DataListPager,
+  type DataListPagination,
+} from "@/components/common/data-list-pagination";
+import { SelectField } from "@/components/common/select-field";
+import { cn } from "@/lib/utils";
+
+export type DataTableColumn<T> = {
+  key: string;
+  header: string;
+  /** Jalur grid, mis. `"minmax(0,2fr)"`. */
+  width: string;
+  cell: (item: T) => ReactNode;
+};
+
+/**
+ * Susunan tabel sebuah daftar. Kolom pertama adalah "judul" baris: saat baris
+ * bisa dibuka, isinya dibungkus tautan yang diregangkan menutupi seluruh
+ * baris, jadi satu baris = satu target klik = satu perhentian Tab.
+ */
+export type DataTableConfig<T> = {
+  columns: DataTableColumn<T>[];
+  /** Tujuan baris. `undefined` = baris tidak bisa dibuka (tanpa hover, ikon). */
+  getRowHref?: (item: T) => string | undefined;
+  /** Nama tautan baris, mis. "Ubah Andreas Sitanggang". */
+  getRowLabel?: (item: T) => string;
+  /** Dipanggil sebelum pindah — mis. menandai baris untuk sorotan kembali. */
+  onRowOpen?: (item: T) => void;
+  /**
+   * Ikon di ujung baris yang bisa dibuka (mis. pensil). Hanya penanda: klik
+   * di atasnya jatuh ke tautan baris, jadi tidak ada tautan kedua yang
+   * menambah perhentian Tab dan dibacakan dua kali.
+   */
+  rowIcon?: ReactNode;
+};
+
+/** Sisi kiri-kanan baris: bidang hover menjorok 10px keluar tepi konten. */
+const ROW_BLEED = "px-2.5";
+
+/**
+ * Garis bawah baris dari tepi konten ke tepi konten — TIDAK ikut menjorok
+ * bersama bidang hover, supaya garisnya sejajar dengan kotak cari dan judul.
+ */
+const ROW_LINE =
+  "after:border-border after:pointer-events-none after:absolute after:inset-x-2.5 after:bottom-0 after:border-b";
+
+/** "1–10 dari 12". Kosong bila belum ada data. */
+export function getRangeLabel(
+  page: number,
+  limit: number,
+  totalData: number,
+): string {
+  if (totalData <= 0) return "0 dari 0";
+
+  const from = Math.min((page - 1) * limit + 1, totalData);
+  const to = Math.min(page * limit, totalData);
+
+  return `${from}–${to} dari ${totalData}`;
+}
+
+const LIMIT_OPTIONS = [10, 25, 50].map((limit) => ({
+  value: String(limit),
+  label: `${limit} / halaman`,
+}));
+
+/**
+ * Tabel daftar desktop: dipakai `DataList` (prop `table`) saat paginasinya
+ * bernomor. `DataList` tetap pemilik keadaan (memuat, kosong, galat,
+ * menyegarkan) dan sorotan baris; komponen ini hanya bentuk isinya.
+ *
+ * Kenapa bukan `DashboardTable`: tabel itu berukuran kartu dashboard dan
+ * tidak punya keadaan, kepala yang menempel, baris yang bisa ditandai untuk
+ * sorotan kembali (`data-row-id`), maupun kaki paginasi. Bahasanya sama —
+ * kepala 10px kapital, baris dipisah garis, seluruh baris satu tautan yang
+ * diregangkan. Hover = bidang putih (`bg-card`): `muted` di tema ini sama dengan kanvas, jadi tidak terlihat.
+ *
+ * `role="table"` di atas grid CSS, bukan `<table>`: tautan yang diregangkan
+ * butuh `position: relative` pada baris, dan kepala yang menempel butuh
+ * `position: sticky` pada grup kepala — keduanya dukungan `<tr>`/`<thead>`
+ * yang tidak merata.
+ */
+export function DataTable<T>({
+  items,
+  getKey,
+  label,
+  config,
+  isRefreshing = false,
+  rowsRef,
+}: {
+  items: T[];
+  getKey: (item: T) => string;
+  label: string;
+  config: DataTableConfig<T>;
+  isRefreshing?: boolean;
+  rowsRef?: Ref<HTMLDivElement>;
+}) {
+  const { columns, getRowHref, getRowLabel, onRowOpen, rowIcon } = config;
+  const template = {
+    "--cols": columns.map((column) => column.width).join(" "),
+  } as CSSProperties;
+
+  return (
+    <div className="px-gutter">
+      <div role="table" aria-label={label} className="-mx-2.5" style={template}>
+        {/*
+          Kepala menempel di atas saat halaman digulir. Bidangnya kanvas,
+          selebar baris (termasuk yang menjorok), supaya baris yang lewat di
+          bawahnya tertutup rapi.
+        */}
+        <div role="rowgroup" className="bg-canvas sticky top-0 z-10">
+          <div
+            role="row"
+            className={cn(
+              "relative grid grid-cols-(--cols) items-center gap-4 py-2 pr-12",
+              ROW_BLEED,
+              ROW_LINE,
+            )}
+          >
+            {columns.map((column) => (
+              <span
+                key={column.key}
+                role="columnheader"
+                className="text-muted-foreground truncate text-caption font-medium tracking-wide uppercase"
+              >
+                {column.header}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <div
+          ref={rowsRef}
+          role="rowgroup"
+          className={cn("transition-opacity", isRefreshing && "opacity-60")}
+        >
+          {items.map((item) => {
+            const href = getRowHref?.(item);
+
+            return (
+              <div
+                key={getKey(item)}
+                role="row"
+                data-row-id={getKey(item)}
+                className={cn(
+                  "group/row relative grid min-h-14 grid-cols-(--cols) items-center gap-4 rounded-control py-2 pr-12",
+                  ROW_BLEED,
+                  ROW_LINE,
+                  href && "hover:bg-card transition-colors",
+                )}
+              >
+                {columns.map((column, index) => (
+                  <div
+                    key={column.key}
+                    role="cell"
+                    className="min-w-0 text-body"
+                  >
+                    {index === 0 && href ? (
+                      <Link
+                        href={href}
+                        onClick={() => onRowOpen?.(item)}
+                        aria-label={getRowLabel?.(item)}
+                        className="focus-visible:after:ring-ring block outline-none after:absolute after:inset-0 after:rounded-control focus-visible:after:ring-2"
+                      >
+                        {column.cell(item)}
+                      </Link>
+                    ) : (
+                      column.cell(item)
+                    )}
+                  </div>
+                ))}
+
+                {href && rowIcon ? (
+                  <span
+                    aria-hidden
+                    className="text-muted-foreground group-hover/row:bg-muted group-hover/row:text-foreground pointer-events-none absolute top-1/2 right-2.5 flex size-7 -translate-y-1/2 items-center justify-center rounded-control transition-colors [&_svg]:size-3.5"
+                  >
+                    {rowIcon}
+                  </span>
+                ) : null}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Kaki tabel: "1–10 dari 12" di kiri, pager dan jumlah baris per halaman di
+ * kanan. Pager hanya bila lebih dari satu halaman; keterangannya selalu.
+ */
+export function DataTableFooter({
+  pagination,
+}: {
+  pagination: Extract<DataListPagination, { mode: "pages" }>;
+}) {
+  const { page, totalPage, totalData, limit, onPickPage, onPickLimit } =
+    pagination;
+
+  return (
+    <div className="flex min-h-12 items-center gap-3 px-gutter pt-3">
+      {totalData !== undefined && limit !== undefined ? (
+        <p className="text-muted-foreground text-caption tabular-nums">
+          {getRangeLabel(page, limit, totalData)}
+        </p>
+      ) : null}
+
+      <div className="ml-auto flex items-center gap-3">
+        {totalPage > 1 ? (
+          <DataListPager
+            page={page}
+            totalPage={totalPage}
+            onPickPage={onPickPage}
+            className="mt-0 px-0"
+          />
+        ) : null}
+
+        {onPickLimit && limit !== undefined ? (
+          <SelectField
+            value={String(limit)}
+            onValueChange={(value) => onPickLimit(Number(value))}
+            options={LIMIT_OPTIONS}
+            aria-label="Jumlah baris per halaman"
+            className="w-36"
+          />
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+/** Kerangka tabel: kepala asli + baris 56px, supaya data tiba tanpa lompatan. */
+export function LoadingTable<T>({
+  config,
+  rows = 6,
+}: {
+  config: DataTableConfig<T>;
+  rows?: number;
+}) {
+  const template = {
+    "--cols": config.columns.map((column) => column.width).join(" "),
+  } as CSSProperties;
+
+  return (
+    <div role="status" aria-busy="true" className="px-gutter">
+      <div aria-hidden className="-mx-2.5" style={template}>
+        <div
+          className={cn(
+            "relative grid grid-cols-(--cols) items-center gap-4 py-2 pr-12",
+            ROW_BLEED,
+            ROW_LINE,
+          )}
+        >
+          {config.columns.map((column) => (
+            <span
+              key={column.key}
+              className="text-muted-foreground truncate text-caption font-medium tracking-wide uppercase"
+            >
+              {column.header}
+            </span>
+          ))}
+        </div>
+
+        {/* key={index}: kerangka tidak punya identitas dari data. */}
+        {Array.from({ length: rows }, (_, index) => (
+          <div
+            key={index}
+            className={cn(
+              "relative grid min-h-14 grid-cols-(--cols) items-center gap-4 py-2 pr-12",
+              ROW_BLEED,
+              ROW_LINE,
+            )}
+          >
+            {config.columns.map((column, columnIndex) => (
+              <span
+                key={column.key}
+                className={cn(
+                  "bg-primary-200 block h-3 animate-pulse rounded",
+                  columnIndex === 0 ? "w-3/5" : "w-2/5",
+                )}
+              />
+            ))}
+          </div>
+        ))}
+      </div>
+
+      <span className="sr-only">Memuat daftar…</span>
+    </div>
+  );
+}

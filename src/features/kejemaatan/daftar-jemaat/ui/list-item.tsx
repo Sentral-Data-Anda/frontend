@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Avatar } from "@/components/common/avatar";
 import { buttonVariants } from "@/components/common/button";
 import { DataListRow } from "@/components/common/data-list";
+import type { DataTableConfig } from "@/components/common/data-table";
 import { Badge } from "@/components/ui/badge";
 import { MENU, editHref } from "@/config/menu";
 import { saveListFocus } from "@/lib/list-return";
@@ -54,9 +55,7 @@ export function JemaatListItemRow({
       meta={meta}
       trailing={
         <>
-          <Badge variant={jemaat.status === "AKTIF" ? "success" : "neutral"}>
-            {STATUS_JEMAAT_LABEL[jemaat.status]}
-          </Badge>
+          <JemaatStatus status={jemaat.status} />
 
           {isCanUpdate ? (
             // `<Link>` bergaya tombol, BUKAN `Button` ber-`render`: aksi ini
@@ -83,4 +82,82 @@ export function JemaatListItemRow({
       }
     />
   );
+}
+
+function JemaatStatus({ status }: { status: JemaatListItem["status"] }) {
+  return (
+    <Badge variant={status === "AKTIF" ? "success" : "neutral"}>
+      {STATUS_JEMAAT_LABEL[status]}
+    </Badge>
+  );
+}
+
+/**
+ * Daftar Jemaat sebagai tabel (desktop). Kolom = field yang memang dikirim
+ * `GET /jemaat` (lihat `JemaatListItem`); wilayah TIDAK ada di respons daftar,
+ * jadi tidak ada kolom wilayah.
+ *
+ * Seluruh baris membuka form ubah, sama dengan pensil di baris HP; pensilnya
+ * tetap tampil sebagai penanda. Tanpa izin UPDATE baris tidak bisa dibuka.
+ */
+export function jemaatTable(
+  isCanUpdate: boolean,
+): DataTableConfig<JemaatListItem> {
+  return {
+    columns: [
+      {
+        key: "name",
+        header: "Nama",
+        width: "minmax(0,2.4fr)",
+        cell: (jemaat) => (
+          <span className="flex min-w-0 items-center gap-3">
+            <Avatar label={jemaat.name} />
+            <span className="truncate font-medium" title={jemaat.name}>
+              {jemaat.name}
+            </span>
+          </span>
+        ),
+      },
+      {
+        key: "code",
+        header: "Kode",
+        width: "minmax(0,1fr)",
+        cell: (jemaat) => <span className="tabular-nums">{jemaat.code}</span>,
+      },
+      {
+        key: "type",
+        header: "Tipe",
+        width: "minmax(0,1fr)",
+        cell: (jemaat) => TYPE_JEMAAT_LABEL[jemaat.type],
+      },
+      {
+        key: "keluarga",
+        header: "Keluarga",
+        width: "minmax(0,1.6fr)",
+        cell: (jemaat) =>
+          jemaat.keluarga ? (
+            <span className="block truncate" title={jemaat.keluarga.name}>
+              {jemaat.keluarga.name}
+            </span>
+          ) : (
+            <span className="text-muted-foreground">
+              <span aria-hidden>—</span>
+              <span className="sr-only">Tanpa keluarga</span>
+            </span>
+          ),
+      },
+      {
+        key: "status",
+        header: "Status",
+        width: "minmax(0,1fr)",
+        cell: (jemaat) => <JemaatStatus status={jemaat.status} />,
+      },
+    ],
+    getRowHref: isCanUpdate
+      ? (jemaat) => editHref(MENU.KEJEMAATAN, MENU.DAFTAR_JEMAAT, jemaat.code)
+      : undefined,
+    getRowLabel: (jemaat) => `Ubah ${jemaat.name}`,
+    onRowOpen: (jemaat) => saveListFocus(JEMAAT_LIST_PATH, jemaat.code),
+    rowIcon: <Pencil />,
+  };
 }

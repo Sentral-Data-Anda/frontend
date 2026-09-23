@@ -102,6 +102,9 @@ export function useListQuery<T>({
         page: params.page,
         totalPage: pages.data?.totalPage ?? 0,
         onPickPage: params.onPickPage,
+        totalData: pages.data?.totalData,
+        limit: params.limit,
+        onPickLimit: params.onPickLimit,
       } satisfies DataListPagination,
     };
   }

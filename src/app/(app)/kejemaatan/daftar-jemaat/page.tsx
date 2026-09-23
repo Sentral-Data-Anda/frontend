@@ -16,7 +16,7 @@ export const metadata: Metadata = {
  */
 export default function Page() {
   return (
-    <PageContainer>
+    <PageContainer size="wide">
       <Suspense fallback={<LoadingList />}>
         <JemaatListScreen />
       </Suspense>

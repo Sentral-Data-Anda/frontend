@@ -9,6 +9,12 @@ import {
   DataListPager,
   type DataListPagination,
 } from "@/components/common/data-list-pagination";
+import {
+  DataTable,
+  DataTableFooter,
+  LoadingTable,
+  type DataTableConfig,
+} from "@/components/common/data-table";
 import { EmptyState } from "@/components/common/empty-state";
 import {
   LIST_DIVIDER,
@@ -140,6 +146,7 @@ export function DataList<T>({
   emptyDescription,
   emptyAction,
   pagination,
+  table,
 }: {
   items: T[] | undefined;
   /** Kunci stabil dari data. Indeks array dilarang (§7 aturan 5). */
@@ -155,9 +162,17 @@ export function DataList<T>({
   emptyDescription?: string;
   emptyAction?: ReactNode;
   pagination?: DataListPagination;
+  /**
+   * Susunan tabel untuk desktop. Dipakai hanya saat paginasinya bernomor
+   * (`mode: "pages"`, ≥ lg — diputuskan `useListQuery`, bukan layar); di
+   * HP/tablet baris daftar biasa tetap dipakai. Keadaan memuat, kosong, dan
+   * galat tetap milik komponen ini di kedua bentuk.
+   */
+  table?: DataTableConfig<T>;
 }) {
   const pathname = usePathname();
-  const listRef = useRef<HTMLUListElement>(null);
+  const listRef = useRef<HTMLElement | null>(null);
+  const isTable = table !== undefined && pagination?.mode === "pages";
 
   /**
    * Kembali dari detail: baris yang tadi dibuka disorot sebentar
@@ -236,7 +251,7 @@ export function DataList<T>({
   }
 
   if (isLoading || !items) {
-    return <LoadingList />;
+    return isTable ? <LoadingTable config={table} /> : <LoadingList />;
   }
 
   if (items.length === 0) {
@@ -250,10 +265,31 @@ export function DataList<T>({
     );
   }
 
+  if (isTable) {
+    return (
+      <div aria-busy={isRefreshing || undefined}>
+        <DataTable
+          items={items}
+          getKey={getKey}
+          label={label}
+          config={table}
+          isRefreshing={isRefreshing}
+          rowsRef={(node) => {
+            listRef.current = node;
+          }}
+        />
+
+        <DataTableFooter pagination={pagination} />
+      </div>
+    );
+  }
+
   return (
     <div aria-busy={isRefreshing || undefined}>
       <ul
-        ref={listRef}
+        ref={(node) => {
+          listRef.current = node;
+        }}
         aria-label={label}
         className={cn(
           LIST_DIVIDER,

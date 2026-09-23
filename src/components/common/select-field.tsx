@@ -67,6 +67,8 @@ export function SelectField({
   className?: string;
   "aria-invalid"?: boolean;
   "aria-describedby"?: string;
+  /** Untuk pilihan tanpa label terlihat (mis. jumlah baris per halaman). */
+  "aria-label"?: string;
 }) {
   return (
     <Select.Root
