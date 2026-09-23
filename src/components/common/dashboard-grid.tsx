@@ -59,16 +59,24 @@ const SIDE_SPLIT =
   "@min-[66rem]:@max-[82rem]:grid-cols-3 @min-[66rem]:@max-[82rem]:[&>*:last-child:nth-child(3n+1)]:col-span-3 @min-[66rem]:@max-[82rem]:[&>*:last-child:nth-child(3n+2)]:col-span-2 @min-[82rem]:@max-[120rem]:grid-cols-1 @min-[82rem]:@max-[120rem]:[&>*:last-child:nth-child(odd)]:col-span-1 @min-[82rem]:@max-[120rem]:has-[>*:nth-child(5)]:grid-cols-2 @min-[82rem]:@max-[120rem]:has-[>*:nth-child(5)]:[&>*:last-child:nth-child(odd)]:col-span-2 @min-[120rem]:grid-cols-[repeat(auto-fill,minmax(24rem,1fr))]";
 
 /**
- * Widget utama (grafik, tabel, batang) saat kolomnya selebar halaman. Di atas
- * ambangnya ia ikut memecah diri: tanpa itu baris tabel di monitor 2560 melar
- * sampai 2.400px dan kolom ITEM serta STATUS berjauhan di dua ujung layar.
+ * Widget utama (grafik, tabel, batang) saat kolomnya selebar halaman.
+ *
+ * Dua kolom mulai 104rem, tiga mulai 150rem — tapi hanya kalau widgetnya
+ * memang sebanyak itu (`:has`), supaya dua widget tidak dipaksa menghuni tiga
+ * kolom. Tanpa pemecahan ini baris tabel di monitor 2560 melar sampai 2.404px
+ * dengan kolom ITEM dan STATUS di dua ujung layar.
+ *
+ * `max-w-[90rem]` menutup sisa kasusnya: persona yang cuma punya SATU widget
+ * utama (mis. bendahara pada tampilan Umum) tidak bisa dipecah, jadi kartunya
+ * dibatasi 1.440px alih-alih merentang 3.284px. Di susunan 2–3 kolom aturan
+ * ini tidak pernah terasa — kolomnya sendiri sudah lebih sempit dari itu.
  */
 const MAIN_STACKED =
-  "@min-[104rem]:grid-cols-2 @min-[104rem]:@max-[150rem]:[&>*:last-child:nth-child(odd)]:col-span-2 @min-[150rem]:grid-cols-3 @min-[150rem]:[&>*:last-child:nth-child(3n+1)]:col-span-3 @min-[150rem]:[&>*:last-child:nth-child(3n+2)]:col-span-2";
+  "@min-[104rem]:has-[>*:nth-child(2)]:grid-cols-2 @min-[150rem]:has-[>*:nth-child(3)]:grid-cols-3 @min-[104rem]:[&>*]:max-w-[90rem]";
 
 /** Sama, tapi baru setelah bentuk berdampingan selesai (≥ 120rem). */
 const MAIN_SPLIT =
-  "@min-[120rem]:grid-cols-2 @min-[120rem]:@max-[150rem]:[&>*:last-child:nth-child(odd)]:col-span-2 @min-[150rem]:grid-cols-3 @min-[150rem]:[&>*:last-child:nth-child(3n+1)]:col-span-3 @min-[150rem]:[&>*:last-child:nth-child(3n+2)]:col-span-2";
+  "@min-[120rem]:has-[>*:nth-child(2)]:grid-cols-2 @min-[150rem]:has-[>*:nth-child(3)]:grid-cols-3 @min-[120rem]:[&>*]:max-w-[90rem]";
 
 export function DashboardGrid({
   kpi,
