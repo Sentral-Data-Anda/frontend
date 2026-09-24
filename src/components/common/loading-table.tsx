@@ -4,6 +4,7 @@ import type { DataTableColumn } from "@/components/common/data-table";
 import {
   TABLE_HEAD,
   TABLE_ROW_LINE_ON_CANVAS,
+  TABLE_SECONDARY,
 } from "@/components/common/table-style";
 import { cn } from "@/lib/utils";
 
@@ -30,7 +31,6 @@ export const ROW_LINE = TABLE_ROW_LINE_ON_CANVAS;
 export const TABLE_CONTAINER = "@container px-gutter";
 export const TABLE_GRID =
   "grid grid-cols-(--cols-narrow) items-center gap-4 @min-[52rem]:grid-cols-(--cols)";
-export const TABLE_SECONDARY = "hidden @min-[52rem]:block";
 
 type SkeletonColumn = Pick<
   DataTableColumn<never>,

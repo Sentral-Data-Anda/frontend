@@ -220,7 +220,10 @@ export function MembershipSection({
         name="zoneChurchId"
         label="Wilayah"
         isOptional={!isAnggota}
-        hint="Dasar pembagian pelayanan dan statistik per wilayah."
+        // Daftar menampilkan wilayah EFEKTIF (be-sada B15): wilayah keluarga
+        // aktif menang atas isian ini. Tanpa kalimat ini, jemaat berkeluarga
+        // tampil dengan wilayah lain di daftar dan terbaca salah simpan.
+        hint="Bila ikut keluarga, wilayah mengikuti keluarganya."
       >
         {(field) => (
           <ComboboxField

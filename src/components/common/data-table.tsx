@@ -13,11 +13,14 @@ import {
   ROW_LINE,
   TABLE_CONTAINER,
   TABLE_GRID,
-  TABLE_SECONDARY,
   tableTemplate,
 } from "@/components/common/loading-table";
 import { SelectField } from "@/components/common/select-field";
-import { TABLE_HEAD, TABLE_ROW_LINK } from "@/components/common/table-style";
+import {
+  TABLE_HEAD,
+  TABLE_ROW_LINK,
+  TABLE_SECONDARY,
+} from "@/components/common/table-style";
 import { cn } from "@/lib/utils";
 
 export type DataTableColumn<T> = {

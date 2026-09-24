@@ -28,3 +28,9 @@ export const TABLE_HEAD_LINE_ON_CARD = "border-hairline border-b";
 export const TABLE_ROWS_ON_CARD = "divide-hairline divide-y";
 export const TABLE_ROW_LINE_ON_CANVAS =
   "after:border-border after:pointer-events-none after:absolute after:inset-x-2.5 after:bottom-0 after:border-b";
+
+/**
+ * Sel kolom pelengkap (`isSecondary`): hanya di tabel ≥ 52rem. Pasangannya
+ * `TABLE_GRID` (jalur `--cols-narrow` → `--cols`) di `loading-table.tsx`.
+ */
+export const TABLE_SECONDARY = "hidden @min-[52rem]:block";

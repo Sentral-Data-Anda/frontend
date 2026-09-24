@@ -348,8 +348,9 @@ milik `DataList`.
 - Filter tambahan lewat skema `useListParams({ filters: { wilayah: { api: "zone" } } })`
   (list-state.md §2.5): `?wilayah=` di URL aplikasi, `zone` ke be-sada, kembali ke
   halaman 1. Layar tidak menulis nama parameter be-sada.
-- `ListToolbar`: cari + `picker` (mis. wilayah) + chip. HP: cari + pilihan sebaris,
-  chip di bawah; ≥ 36rem satu baris. Chip tidak menjorok di baris lebar.
+- `ListToolbar`: cari + `picker` (mis. wilayah) + chip. HP: kotak cari selebar kolom
+  (tidak berubah — HP sudah disukai), pilihan jadi elemen pertama baris chip (8rem,
+  setinggi chip). ≥ 36rem satu baris. Chip tidak menjorok di atas pilihan.
 - Lebar halaman `PageContainer size="wide"` = `shellWidthWide`, SAMA dengan form.
   Tombol tambah: `PageHeaderAdd` (lingkaran < lg, "+ Tambah" ≥ lg).
 - `DashboardTable` tidak dipakai ulang untuk daftar: ia ukuran kartu, tanpa keadaan,
