@@ -10,6 +10,10 @@ import type { FilterChip } from "@/components/common/filter-chips";
  * berisi field yang ada di endpoint detail — tidak ada `codeInduk`, `phone`,
  * maupun alamat.
  *
+ * `zoneChurch` (be-sada B15, `8238471`) adalah wilayah EFEKTIF: wilayah
+ * keluarga aktif bila ada, lalu wilayah pribadi jemaat — BUKAN selalu field
+ * Wilayah di form (itu wilayah pribadi).
+ *
  * `code` adalah kode jemaat (`JMT-…`), satu-satunya pengenal stabil yang
  * dikirim endpoint ini; `publicId` dan `id` sengaja ditahan be-sada.
  */
@@ -23,6 +27,7 @@ export type JemaatListItem = {
   roleInFamily: RoleInFamily | null;
   keluarga: { id: number; code: string; name: string } | null;
   status: StatusJemaat;
+  zoneChurch: { id: number; name: string } | null;
 };
 
 export type Gender = "L" | "P";

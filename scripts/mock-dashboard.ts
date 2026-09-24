@@ -993,7 +993,12 @@ const ETHNIC_GROUPS = [
   "Timor",
 ];
 
-const ZONE_CHURCHES = ["Wilayah I", "Wilayah II", "Wilayah III", "Wilayah IV"];
+export const ZONE_CHURCHES = [
+  "Wilayah I",
+  "Wilayah II",
+  "Wilayah III",
+  "Wilayah IV",
+];
 
 const rowsOf = (names: string[], prefix: string) =>
   names.map((name, index) => ({

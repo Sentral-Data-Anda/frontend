@@ -84,6 +84,20 @@ export function JemaatListItemRow({
   );
 }
 
+/** Nama relasi, atau "—" dengan teks pembaca layar bila kosong. */
+function OptionalName({ name, empty }: { name?: string; empty: string }) {
+  return name ? (
+    <span className="block truncate" title={name}>
+      {name}
+    </span>
+  ) : (
+    <span className="text-muted-foreground">
+      <span aria-hidden>—</span>
+      <span className="sr-only">{empty}</span>
+    </span>
+  );
+}
+
 function JemaatStatus({ status }: { status: JemaatListItem["status"] }) {
   return (
     <Badge variant={status === "AKTIF" ? "success" : "neutral"}>
@@ -93,9 +107,10 @@ function JemaatStatus({ status }: { status: JemaatListItem["status"] }) {
 }
 
 /**
- * Daftar Jemaat sebagai tabel (desktop). Kolom = field yang memang dikirim
- * `GET /jemaat` (lihat `JemaatListItem`); wilayah TIDAK ada di respons daftar,
- * jadi tidak ada kolom wilayah.
+ * Daftar Jemaat sebagai tabel (tablet ke atas). Kolom = field yang memang
+ * dikirim `GET /jemaat` (lihat `JemaatListItem`). Tipe dan Keluarga kolom
+ * pelengkap: disembunyikan di tabel sempit (tablet, 1024 bersidebar penuh),
+ * supaya Nama, Kode, Wilayah, dan Status tidak terpotong.
  *
  * Seluruh baris membuka form ubah, sama dengan pensil di baris HP; pensilnya
  * tetap tampil sebagai penanda. Tanpa izin UPDATE baris tidak bisa dibuka.
@@ -128,23 +143,25 @@ export function jemaatTable(
         key: "type",
         header: "Tipe",
         width: "minmax(0,1fr)",
+        isSecondary: true,
         cell: (jemaat) => TYPE_JEMAAT_LABEL[jemaat.type],
       },
       {
         key: "keluarga",
         header: "Keluarga",
         width: "minmax(0,1.6fr)",
-        cell: (jemaat) =>
-          jemaat.keluarga ? (
-            <span className="block truncate" title={jemaat.keluarga.name}>
-              {jemaat.keluarga.name}
-            </span>
-          ) : (
-            <span className="text-muted-foreground">
-              <span aria-hidden>—</span>
-              <span className="sr-only">Tanpa keluarga</span>
-            </span>
-          ),
+        isSecondary: true,
+        cell: (jemaat) => (
+          <OptionalName name={jemaat.keluarga?.name} empty="Tanpa keluarga" />
+        ),
+      },
+      {
+        key: "zone",
+        header: "Wilayah",
+        width: "minmax(0,1.2fr)",
+        cell: (jemaat) => (
+          <OptionalName name={jemaat.zoneChurch?.name} empty="Tanpa wilayah" />
+        ),
       },
       {
         key: "status",

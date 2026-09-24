@@ -23,7 +23,21 @@ export type ListParams = {
   limit: number;
   search: string;
   status: string;
+  /** Nilai filter skema, berkunci nama parameter be-sada (mis. `zone`). */
+  apiFilters?: Record<string, string>;
 };
+
+/**
+ * Filter tambahan per layar (list-state.md §2.5): kunci = nama di URL
+ * aplikasi (`?wilayah=`), `api` = nama parameter be-sada (`zone`). Dibaca dan
+ * ditulis di sini saja; layar tidak pernah menulis nama parameter be-sada.
+ *
+ * ponytail: hanya teks bebas. `date()`/`enumOf()` di §2.5 ditambahkan saat
+ * layar pertama yang butuh rentang tanggal atau urutan datang.
+ */
+export type ListFilterSchema = Record<string, { api: string }>;
+
+const NO_FILTERS: ListFilterSchema = {};
 
 const onReadNumber = (value: string | null, fallback: number): number => {
   const parsed = Number(value);
@@ -41,6 +55,10 @@ export function toApiQuery(params: ListParams): string {
   if (params.search) query.set("filter", params.search);
   if (params.status) query.set("status", params.status);
 
+  for (const [api, value] of Object.entries(params.apiFilters ?? {})) {
+    if (value) query.set(api, value);
+  }
+
   return query.toString();
 }
 
@@ -54,20 +72,35 @@ export function toApiQuery(params: ListParams): string {
  * `router.replace`, bukan `push`: mengetik "budi" huruf demi huruf tidak boleh
  * menyisakan empat entri riwayat yang harus ditekan back empat kali.
  */
-export function useListParams(limitPerPage = DEFAULT_LIMIT) {
+export function useListParams({
+  limit: limitPerPage = DEFAULT_LIMIT,
+  filters: schema = NO_FILTERS,
+}: {
+  limit?: number;
+  /** Konstanta modul, bukan objek baru tiap render (dipakai `useMemo`). */
+  filters?: ListFilterSchema;
+} = {}) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const params: ListParams = useMemo(
-    () => ({
+  const params = useMemo(() => {
+    const filters = Object.fromEntries(
+      Object.keys(schema).map((key) => [key, searchParams.get(key) ?? ""]),
+    );
+
+    return {
       page: onReadNumber(searchParams.get("page"), 1),
       limit: onReadNumber(searchParams.get("limit"), limitPerPage),
       search: searchParams.get("search") ?? "",
       status: searchParams.get("status") ?? "",
-    }),
-    [limitPerPage, searchParams],
-  );
+      /** Nilai filter skema, berkunci nama di URL (mis. `wilayah`). */
+      filters,
+      apiFilters: Object.fromEntries(
+        Object.entries(schema).map(([key, { api }]) => [api, filters[key]]),
+      ),
+    } satisfies ListParams & { filters: Record<string, string> };
+  }, [limitPerPage, schema, searchParams]);
 
   /**
    * Jalan kembali dari layar detail (list-state.md §2.2, L-2): satu efek di
@@ -155,12 +188,19 @@ export function useListParams(limitPerPage = DEFAULT_LIMIT) {
     [onWrite],
   );
 
+  /** Filter skema mana pun; seperti cari dan status, kembali ke halaman 1. */
+  const onPickFilter = useCallback(
+    (key: string, value: string) => onWrite({ [key]: value, page: 1 }),
+    [onWrite],
+  );
+
   return {
     ...params,
     onSearch,
     onPickStatus,
     onPickPage,
     onPickLimit,
+    onPickFilter,
   };
 }
 

@@ -53,4 +53,18 @@ describe("toApiQuery", () => {
     expect(query).toContain("filter=budi+%26+ani");
     expect(new URLSearchParams(query).get("filter")).toBe("budi & ani");
   });
+
+  test("filter skema dikirim dengan nama be-sada, yang kosong dibuang", () => {
+    const query = toApiQuery({
+      page: 1,
+      limit: DEFAULT_LIMIT,
+      search: "",
+      status: "",
+      apiFilters: { zone: "2", other: "" },
+    });
+
+    expect(new URLSearchParams(query).get("zone")).toBe("2");
+    expect(new URLSearchParams(query).has("wilayah")).toBe(false);
+    expect(new URLSearchParams(query).has("other")).toBe(false);
+  });
 });

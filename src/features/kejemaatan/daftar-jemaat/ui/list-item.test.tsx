@@ -16,6 +16,7 @@ const JEMAAT: JemaatListItem = {
   roleInFamily: "ANAK",
   keluarga: { id: 12, code: "KEL-0012", name: "Keluarga Sitompul" },
   status: "AKTIF",
+  zoneChurch: { id: 2, name: "Wilayah II" },
 };
 
 const onRenderRow = (isCanUpdate: boolean) =>

@@ -4,16 +4,20 @@ import { DataList } from "@/components/common/data-list";
 import { FilterChips } from "@/components/common/filter-chips";
 import { ListToolbar } from "@/components/common/list-toolbar";
 import { SearchInput } from "@/components/common/search-input";
+import { SelectField } from "@/components/common/select-field";
 import { PageHeader, PageHeaderAdd } from "@/components/layout/page-header";
 import { MENU, createHref, domainHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth/use-menu-access";
-import { useJemaatList } from "@/features/kejemaatan/daftar-jemaat/api";
+import {
+  useJemaatList,
+  useZoneFilterOptions,
+} from "@/features/kejemaatan/daftar-jemaat/api";
 import { STATUS_JEMAAT_CHIPS } from "@/features/kejemaatan/daftar-jemaat/types";
 import {
   JemaatListItemRow,
   jemaatTable,
 } from "@/features/kejemaatan/daftar-jemaat/ui/list-item";
-import { useListParams } from "@/hooks/use-list-params";
+import { useListParams, type ListFilterSchema } from "@/hooks/use-list-params";
 
 /**
  * Layar cetakan: ini bentuk yang direplikasi ke puluhan layar daftar lain.
@@ -30,10 +34,14 @@ import { useListParams } from "@/hooks/use-list-params";
  * tidak ada flag `isLoading` yang diset tangan, tidak ada `useState` untuk
  * data — dan itu bukan kebetulan, melainkan D10 yang sedang bekerja.
  */
+/** `?wilayah=<id>` di URL aplikasi → `zone` di be-sada (B15). */
+const LIST_FILTERS = { wilayah: { api: "zone" } } satisfies ListFilterSchema;
+
 export function JemaatListScreen() {
   const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.DAFTAR_JEMAAT);
-  const listParams = useListParams();
+  const listParams = useListParams({ filters: LIST_FILTERS });
   const jemaatList = useJemaatList(listParams);
+  const zoneOptions = useZoneFilterOptions();
 
   return (
     <div className="pb-6">
@@ -72,6 +80,16 @@ export function JemaatListScreen() {
             placeholder="Cari nama, kode, atau telepon"
           />
         }
+        picker={
+          <SelectField
+            value={listParams.filters.wilayah ?? ""}
+            onValueChange={(value) => listParams.onPickFilter("wilayah", value)}
+            options={zoneOptions.options}
+            placeholder="Semua wilayah"
+            emptyMessage="Belum ada data wilayah"
+            aria-label="Filter wilayah"
+          />
+        }
         filters={
           <FilterChips
             options={STATUS_JEMAAT_CHIPS}
@@ -92,7 +110,7 @@ export function JemaatListScreen() {
         onRetry={jemaatList.onRetry}
         emptyTitle="Tidak ada jemaat"
         emptyDescription={
-          listParams.search || listParams.status
+          listParams.search || listParams.status || listParams.filters.wilayah
             ? "Tidak ada jemaat yang cocok dengan pencarian atau filter ini."
             : "Data jemaat akan muncul di sini setelah ditambahkan."
         }

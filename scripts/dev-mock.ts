@@ -47,6 +47,7 @@ import {
   PERSONAS,
   actionsOf,
   ddlRows,
+  ZONE_CHURCHES,
   guardSlugOf,
   listBirthdays,
   listCashExpense,
@@ -103,7 +104,21 @@ type JemaatRow = {
   roleInFamily: string | null;
   keluarga: { id: number; code: string; name: string } | null;
   status: string;
+  zoneChurch: { id: number; name: string } | null;
 };
+
+/**
+ * Wilayah pribadi jemaat — sama dengan `zoneChurchId` di detail (hanya
+ * Anggota), dan wilayah keluarganya. Daftar mengirim wilayah EFEKTIF
+ * (be-sada B15, `8238471`): `COALESCE(keluarga.zoneChurchId,
+ * jemaat.zoneChurchId)`, jadi jemaat berkeluarga bisa tampil dengan wilayah
+ * yang berbeda dari field Wilayah di formnya.
+ */
+const personalZoneOf = (index: number, type: string) =>
+  type === "ANGGOTA" ? (index % 4) + 1 : null;
+const keluargaZoneOf = (keluargaId: number) => ((keluargaId + 2) % 4) + 1;
+const zoneOf = (id: number | null) =>
+  id === null ? null : { id, name: ZONE_CHURCHES[id - 1] ?? `Wilayah ${id}` };
 
 const rows: JemaatRow[] = names.map((name, index) => ({
   code: `JMT-${String(index + 1).padStart(4, "0")}`,
@@ -121,6 +136,11 @@ const rows: JemaatRow[] = names.map((name, index) => ({
           name: `Keluarga ${name.split(" ")[1]}`,
         },
   status: index % 7 === 0 ? "TIDAK_AKTIF" : "AKTIF",
+  zoneChurch: zoneOf(
+    index % 4 === 0
+      ? personalZoneOf(index + 1, index % 5 === 0 ? "SIMPATISAN" : "ANGGOTA")
+      : keluargaZoneOf(index),
+  ),
 }));
 
 /**
@@ -148,7 +168,7 @@ const jemaatDetail = (row: (typeof rows)[number]) => {
     statusMarital: isAnggota ? ["SM", "BM", "CM", "CH"][index % 4] : null,
     professionId: index % 5 === 0 ? null : (index % 12) + 1,
     ethnicGroupId: isAnggota ? (index % 8) + 1 : null,
-    zoneChurchId: isAnggota ? (index % 4) + 1 : null,
+    zoneChurchId: personalZoneOf(index, row.type),
     codeInduk: isAnggota ? `A-${String(index).padStart(4, "0")}` : null,
     provincesCode: "32",
     regenciesCode: "3273",
@@ -410,6 +430,10 @@ Bun.serve({
         roleInFamily: body.roleInFamily ?? null,
         keluarga: null,
         status: body.statusJemaat,
+        // Tanpa keluarga, wilayah efektif = wilayah pribadi dari form.
+        zoneChurch: zoneOf(
+          body.zoneChurchId ? Number(body.zoneChurchId) : null,
+        ),
       });
 
       return json(
@@ -459,6 +483,35 @@ Bun.serve({
       const filter = (url.searchParams.get("filter") ?? "").toLowerCase();
       const status = url.searchParams.get("status") ?? "";
       const page = Number(url.searchParams.get("page") ?? 1);
+
+      // Kontrak B15: `zone=2`, `zone=1,2`, dan `zone=1&zone=2` (boleh
+      // dicampur); nilai bukan bilangan bulat positif → 400 per nilai.
+      const zoneValues = url.searchParams
+        .getAll("zone")
+        .flatMap((value) => value.split(","))
+        .map((value) => value.trim())
+        .filter(Boolean);
+      const badZone = zoneValues.findIndex(
+        (value) => !/^[1-9]\d*$/.test(value),
+      );
+
+      if (badZone !== -1) {
+        return json(
+          {
+            status: 400,
+            error: "Validasi gagal",
+            issues: [
+              {
+                path: `zone.${badZone}`,
+                message: "Wilayah harus berupa angka",
+              },
+            ],
+          },
+          400,
+        );
+      }
+
+      const zones = new Set(zoneValues.map(Number));
       const limit = Number(url.searchParams.get("limit") ?? 10);
 
       if (page === Number(process.env.MOCK_FAIL_PAGE)) {
@@ -470,7 +523,8 @@ Bun.serve({
           (!filter ||
             row.name.toLowerCase().includes(filter) ||
             row.code.toLowerCase().includes(filter)) &&
-          (!status || row.status === status),
+          (!status || row.status === status) &&
+          (zones.size === 0 || zones.has(row.zoneChurch?.id ?? -1)),
       );
 
       // Kontrak be-sada: daftar kosong dijawab 404, bukan 200 dengan array kosong.

@@ -161,6 +161,24 @@ export function useDdlOptions(
 }
 
 /**
+ * Pilihan filter wilayah daftar: "Semua wilayah" lalu nama wilayah urut
+ * abjad. `ddl/zone-church` mengirimnya urut `id`, bukan nama (B15).
+ */
+export function useZoneFilterOptions() {
+  const zones = useDdlOptions("zone-church");
+
+  return {
+    ...zones,
+    options: [
+      { value: "", label: "Semua wilayah" },
+      ...[...zones.options].sort((a, b) =>
+        a.label.localeCompare(b.label, "id"),
+      ),
+    ],
+  };
+}
+
+/**
  * Daftar keluarga dengan pencarian DI SERVER (`?filter=&limit=20`).
  *
  * `ddl/keluarga` mengirim seluruh tabel — ratusan baris hari ini, ribuan

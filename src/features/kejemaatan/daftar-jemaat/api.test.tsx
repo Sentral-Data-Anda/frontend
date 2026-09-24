@@ -34,6 +34,9 @@ const onParams = (next: Partial<ListState>): ListState => ({
   onPickStatus: () => {},
   onPickPage: () => {},
   onPickLimit: () => {},
+  onPickFilter: () => {},
+  filters: {},
+  apiFilters: {},
   ...next,
 });
 
