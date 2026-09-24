@@ -12,11 +12,11 @@ import {
   useJemaatList,
   useZoneFilterOptions,
 } from "@/features/kejemaatan/daftar-jemaat/api";
-import { STATUS_JEMAAT_CHIPS } from "@/features/kejemaatan/daftar-jemaat/types";
 import {
   JemaatListItemRow,
   jemaatTable,
-} from "@/features/kejemaatan/daftar-jemaat/ui/list-item";
+} from "@/features/kejemaatan/daftar-jemaat/list/list-item";
+import { STATUS_JEMAAT_CHIPS } from "@/features/kejemaatan/daftar-jemaat/types";
 import { useListParams, type ListFilterSchema } from "@/hooks/use-list-params";
 
 /**

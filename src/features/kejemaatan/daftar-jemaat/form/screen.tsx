@@ -23,7 +23,7 @@ import { useBoolean } from "@/hooks/use-boolean";
 import { useListReturn } from "@/hooks/use-list-return";
 import { applyServerError, firstErrorField } from "@/lib/form-error";
 
-import { useJemaatDetail, useSaveJemaat } from "./api";
+import { useJemaatDetail, useSaveJemaat } from "../api";
 import {
   afterSavePath,
   EMPTY_JEMAAT_FORM,
@@ -34,8 +34,9 @@ import {
   toJemaatForm,
   toJemaatPayload,
   type JemaatFormValues,
-} from "./model";
-import { DuplicateWarning } from "./ui/duplicate-warning";
+} from "../model";
+
+import { DuplicateWarning } from "./duplicate-warning";
 import {
   AddressSection,
   ContactSection,
@@ -43,8 +44,8 @@ import {
   IdentitySection,
   MembershipSection,
   SocialSection,
-} from "./ui/form-sections";
-import { RiwayatSection } from "./ui/riwayat-fields";
+} from "./form-sections";
+import { RiwayatSection } from "./riwayat-fields";
 
 /**
  * Satu layar untuk dua mode: tambah (`code` kosong) dan ubah.

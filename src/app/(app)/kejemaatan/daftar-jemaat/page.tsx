@@ -3,8 +3,8 @@ import { Suspense } from "react";
 
 import { LoadingDataList } from "@/components/common/list/loading-list";
 import { PageContainer } from "@/components/layout/page-container";
-import { JemaatListScreen } from "@/features/kejemaatan/daftar-jemaat/screen";
-import { jemaatTable } from "@/features/kejemaatan/daftar-jemaat/ui/list-item";
+import { jemaatTable } from "@/features/kejemaatan/daftar-jemaat/list/list-item";
+import { JemaatListScreen } from "@/features/kejemaatan/daftar-jemaat/list/screen";
 
 export const metadata: Metadata = {
   title: "Daftar Jemaat",

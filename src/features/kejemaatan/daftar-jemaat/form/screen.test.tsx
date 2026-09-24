@@ -23,7 +23,7 @@ mock.module("@/features/auth/use-menu-access", () => ({
   }),
 }));
 
-const { JemaatFormScreen } = await import("./form-screen");
+const { JemaatFormScreen } = await import("./screen");
 
 afterEach(cleanup);
 
