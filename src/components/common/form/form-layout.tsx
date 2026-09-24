@@ -143,18 +143,20 @@ export function FormSection({
         grid desktop jaraknya sama (16px) dari field yang lebih tinggi di
         barisnya; dua field sebaris selalu sejajar atas.
       */}
-      <div className="clear-left @min-[44rem]/form:col-start-2 @min-[44rem]/form:row-span-2 @min-[44rem]/form:row-start-1">
+      <div className="@container clear-left @min-[44rem]/form:col-start-2 @min-[44rem]/form:row-span-2 @min-[44rem]/form:row-start-1">
         {/*
-          Grid field `auto-fill`: sebanyak mungkin kolom ≥ 19rem (304px),
-          paling banyak 4 (jalur minimum = ¼ lebar bila itu lebih besar),
-          lalu tiap kolom merentang sama rata. Terukur di kolom kanan:
-          458px (1024 penuh) → 1 kolom — dua field 221px memotong petunjuk
-          tanggal; 642–874px (1024 rail–1440) → 2; 944–1263px (mis. 1624
-          rail) → 3; ≥ 1264px (1920, 2560) → 4. Field ±19–26rem di 1024–1920.
-          `auto-fill`, bukan `auto-fit`: kelompok berisi dua field tidak
-          merentangkannya selebar baris.
+          Grid field 1 / 2 / 4, TIDAK PERNAH 3 (container query pada kolom
+          kanan). Tiga kolom membuat kelompok empat field pecah 3 + 1 dan
+          alamat bertingkat meninggalkan kelurahan sendirian — terukur tepat
+          di lebar layar user (1624 rail). Ambang: 2 kolom mulai 39rem
+          (2 × 19rem + jarak; 19rem = field tersempit yang memuat petunjuk
+          tanggal satu baris), 4 kolom mulai 73rem. Terukur di kolom kanan:
+          458px (1024 penuh) → 1; 642–874px (1024 rail–1440) → 2; 1242px
+          (1624 rail) → 4 × 299; 1354 (1920) → 4 × 327; 1994 (2560) → 4 × 487.
+          Kedua varian WAJIB bergerbang `/form`: tanpanya `grid-cols-1`
+          bawaan menang di 1440 dan grid jatuh ke satu kolom.
         */}
-        <div className="space-y-4 @min-[44rem]/form:grid @min-[44rem]/form:grid-cols-[repeat(auto-fill,minmax(max(19rem,calc((100%_-_3rem)/4)),1fr))] @min-[44rem]/form:gap-4 @min-[44rem]/form:space-y-0">
+        <div className="space-y-4 @min-[44rem]/form:grid @min-[44rem]/form:gap-4 @min-[44rem]/form:space-y-0 @min-[44rem]/form:@min-[39rem]:grid-cols-2 @min-[44rem]/form:@min-[73rem]:grid-cols-4">
           {children}
         </div>
       </div>
@@ -176,27 +178,6 @@ export function FormWide({
   children: ReactNode;
 }) {
   return <div className={cn("col-span-full", className)}>{children}</div>;
-}
-
-/**
- * Field BERURUTAN yang tidak boleh terpecah ganjil — alamat bertingkat
- * (provinsi → kabupaten → kecamatan → kelurahan). Selebar grid, dan di
- * dalamnya 1, 2, atau 4 per baris, TIDAK PERNAH 3: pada tiga kolom, empat
- * tingkat menjadi 3 + 1 dan kelurahan tertinggal sendirian di baris
- * berikutnya. Ambangnya sama dengan grid field (`FormSection`): 2 kolom
- * mulai 39rem (2 × 19rem + jarak), 4 kolom mulai 79rem; di rentang tiga
- * kolom field genap diletakkan 2 + 2 di dua jalur pertama, jadi lebarnya
- * tetap sama dengan field lain di baris lain. Di bawah grid (HP, tablet)
- * tetap bertumpuk dengan jarak 16px yang sama.
- */
-export function FormSequence({ children }: { children: ReactNode }) {
-  return (
-    <div className="@container col-span-full">
-      <div className="grid gap-4 @min-[44rem]/form:@min-[39rem]:grid-cols-2 @min-[44rem]/form:@min-[59rem]:grid-cols-3 @min-[44rem]/form:@min-[59rem]:[&>:nth-child(odd)]:col-start-1 @min-[44rem]/form:@min-[79rem]:grid-cols-4 @min-[44rem]/form:@min-[79rem]:[&>:nth-child(odd)]:col-start-auto">
-        {children}
-      </div>
-    </div>
-  );
 }
 
 /**
