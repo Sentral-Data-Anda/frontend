@@ -402,6 +402,14 @@
 
   &::before {
     background-image: var(--canvas-aurora);
+    /* Ikut animasi lebar sidebar supaya gradasi tidak melompat saat ciut/buka.
+       Durasi & easing = SIDEBAR_MOTION (components/layout/sidebar-collapse.ts);
+       ubah keduanya bersamaan. */
+    transition: left 200ms cubic-bezier(0.2, 0, 0, 1);
+
+    @media (prefers-reduced-motion: reduce) {
+      transition: none;
+    }
   }
 
   /*

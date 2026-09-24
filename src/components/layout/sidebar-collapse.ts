@@ -19,5 +19,7 @@ export const sidebarCookie = (isCollapsed: boolean): string =>
  * sub-layar mengempis — supaya bergerak sebagai satu gerakan. Kurva
  * "emphasized decelerate": cepat di awal (terasa responsif), halus di akhir.
  */
+// Dipakai juga transisi `left` gradasi `bg-canvas-aurora` (globals.css);
+// ubah keduanya bersamaan.
 export const SIDEBAR_MOTION =
   "duration-200 ease-[cubic-bezier(0.2,0,0,1)] motion-reduce:transition-none";
