@@ -1,4 +1,4 @@
-import { DESKTOP_MEDIA_QUERY } from "@/hooks/use-is-desktop";
+import { DESKTOP_MEDIA_QUERY } from "@/hooks/use-media";
 
 /**
  * `matchMedia` tiruan untuk `useIsDesktop`. happy-dom punya `matchMedia`
