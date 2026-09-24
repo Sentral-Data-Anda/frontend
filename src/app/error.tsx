@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 
-import { Button } from "@/components/common/button";
+import { Button } from "@/components/common/control/button";
 import { shellWidth } from "@/components/layout/shell-width";
 import { cn } from "@/lib/utils";
 

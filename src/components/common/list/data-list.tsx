@@ -4,22 +4,22 @@ import { TriangleAlert } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { Fragment, useEffect, useRef, type ReactNode } from "react";
 
+import { EmptyState } from "@/components/common/feedback/empty-state";
 import {
   DataListMore,
   DataListPager,
   type DataListPagination,
-} from "@/components/common/data-list-pagination";
+} from "@/components/common/list/data-list-pagination";
 import {
   DataTable,
   DataTableFooter,
   type DataTableConfig,
-} from "@/components/common/data-table";
-import { EmptyState } from "@/components/common/empty-state";
+} from "@/components/common/list/data-table";
 import {
   LIST_DIVIDER,
   LoadingDataList,
   LoadingRows,
-} from "@/components/common/loading-list";
+} from "@/components/common/list/loading-list";
 import { Button } from "@/components/ui/button";
 import { useIsTableWidth } from "@/hooks/use-is-desktop";
 import { clearListFocus, readListFocus } from "@/lib/list-return";

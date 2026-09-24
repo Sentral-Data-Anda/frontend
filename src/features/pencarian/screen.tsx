@@ -3,10 +3,13 @@
 import { Search } from "lucide-react";
 import { useState } from "react";
 
-import { DomainTileGrid } from "@/components/common/domain-tile";
-import { EmptyState } from "@/components/common/empty-state";
-import { Input } from "@/components/common/input";
-import { MenuTile, MenuTileGrid } from "@/components/common/menu-tile";
+import { Input } from "@/components/common/control/input";
+import { EmptyState } from "@/components/common/feedback/empty-state";
+import { DomainTileGrid } from "@/components/common/navigation/domain-tile";
+import {
+  MenuTile,
+  MenuTileGrid,
+} from "@/components/common/navigation/menu-tile";
 import { PageHeader } from "@/components/layout/page-header";
 import { leafIcon, menuHref } from "@/config/menu";
 import { useSession } from "@/features/auth/session-provider";

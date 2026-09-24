@@ -7,15 +7,15 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 
-import { Button } from "@/components/common/button";
-import { buttonVariants } from "@/components/common/button";
-import { ConfirmDialog } from "@/components/common/confirm-dialog";
+import { Button } from "@/components/common/control/button";
+import { buttonVariants } from "@/components/common/control/button";
+import { useToast } from "@/components/common/feedback/toast";
 import {
   FormActions,
   FormLayout,
   LoadingForm,
-} from "@/components/common/form-layout";
-import { useToast } from "@/components/common/toast";
+} from "@/components/common/form/form-layout";
+import { ConfirmDialog } from "@/components/common/overlay/confirm-dialog";
 import { PageHeader } from "@/components/layout/page-header";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth/use-menu-access";

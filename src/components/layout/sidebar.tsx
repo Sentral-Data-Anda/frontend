@@ -24,8 +24,8 @@ import {
 } from "react";
 import { flushSync } from "react-dom";
 
-import { Avatar } from "@/components/common/avatar";
-import { MENU_ITEM, MENU_POPUP } from "@/components/common/menu";
+import { Avatar } from "@/components/common/display/avatar";
+import { MENU_ITEM, MENU_POPUP } from "@/components/common/overlay/popup-style";
 import { MENU_ICON, domainHref, menuHref } from "@/config/menu";
 import { useSession } from "@/features/auth/session-provider";
 import { useBoolean } from "@/hooks/use-boolean";

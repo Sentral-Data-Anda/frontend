@@ -3,9 +3,9 @@
 import { Bell } from "lucide-react";
 import { useState } from "react";
 
-import { BottomSheet } from "@/components/common/bottom-sheet";
-import { Button } from "@/components/common/button";
-import { DataListRow } from "@/components/common/data-list";
+import { Button } from "@/components/common/control/button";
+import { DataListRow } from "@/components/common/list/data-list";
+import { BottomSheet } from "@/components/common/overlay/bottom-sheet";
 import { useBoolean } from "@/hooks/use-boolean";
 
 import { DUMMY_NOTIFICATIONS, type Notification } from "../fixtures";

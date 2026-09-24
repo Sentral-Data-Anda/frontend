@@ -3,7 +3,7 @@
 import { Eye, EyeOff, Lock } from "lucide-react";
 import type { ComponentProps } from "react";
 
-import { Input } from "@/components/common/input";
+import { Input } from "@/components/common/control/input";
 import { Button } from "@/components/ui/button";
 import { useBoolean } from "@/hooks/use-boolean";
 import { cn } from "@/lib/utils";

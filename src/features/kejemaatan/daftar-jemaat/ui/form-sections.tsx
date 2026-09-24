@@ -2,15 +2,15 @@
 
 import { useWatch, type UseFormReturn } from "react-hook-form";
 
-import { ComboboxField } from "@/components/common/combobox-field";
-import { DateField } from "@/components/common/date-field";
-import { FormSection, FormWide } from "@/components/common/form-layout";
-import { Input } from "@/components/common/input";
+import { ComboboxField } from "@/components/common/control/combobox-field";
+import { DateField } from "@/components/common/control/date-field";
+import { Input } from "@/components/common/control/input";
 import {
   SelectField,
   type SelectOption,
-} from "@/components/common/select-field";
-import { Textarea } from "@/components/common/textarea";
+} from "@/components/common/control/select-field";
+import { Textarea } from "@/components/common/control/textarea";
+import { FormSection, FormWide } from "@/components/common/form/form-layout";
 
 import { useDdlOptions, useKeluargaOptions } from "../api";
 import { normalizePhone, type JemaatFormValues } from "../model";

@@ -7,10 +7,10 @@ import {
   DashboardCard,
   DashboardList,
   DashboardRow,
-} from "@/components/common/dashboard-card";
-import { EmptyState } from "@/components/common/empty-state";
-import { KpiCell } from "@/components/common/kpi-strip";
-import { TimeBadge } from "@/components/common/time-badge";
+} from "@/components/common/dashboard/dashboard-card";
+import { KpiCell } from "@/components/common/dashboard/kpi-strip";
+import { TimeBadge } from "@/components/common/display/time-badge";
+import { EmptyState } from "@/components/common/feedback/empty-state";
 import { MENU, menuHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth/use-menu-access";
 import { cn } from "@/lib/utils";

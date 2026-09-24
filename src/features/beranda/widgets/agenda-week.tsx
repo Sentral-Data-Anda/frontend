@@ -3,14 +3,14 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
 
-import { DashboardCard } from "@/components/common/dashboard-card";
+import { DashboardCard } from "@/components/common/dashboard/dashboard-card";
 import {
   DashboardTable,
   TableTitle,
   type TableRow,
-} from "@/components/common/dashboard-table";
-import { EmptyState } from "@/components/common/empty-state";
-import { KpiCell } from "@/components/common/kpi-strip";
+} from "@/components/common/dashboard/dashboard-table";
+import { KpiCell } from "@/components/common/dashboard/kpi-strip";
+import { EmptyState } from "@/components/common/feedback/empty-state";
 import { MENU, menuHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth/use-menu-access";
 

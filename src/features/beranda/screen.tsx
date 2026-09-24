@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 
-import { DashboardGrid } from "@/components/common/dashboard-grid";
-import { DomainTileGrid } from "@/components/common/domain-tile";
-import { KpiStrip } from "@/components/common/kpi-strip";
-import { SectionHeader } from "@/components/common/section-header";
+import { DashboardGrid } from "@/components/common/dashboard/dashboard-grid";
+import { KpiStrip } from "@/components/common/dashboard/kpi-strip";
+import { DomainTileGrid } from "@/components/common/navigation/domain-tile";
+import { SectionHeader } from "@/components/common/navigation/section-header";
 import { AppIdentity } from "@/components/layout/app-identity";
 import { DashboardHeader } from "@/components/layout/dashboard-header";
 import { MobileOnly } from "@/components/layout/mobile-only";

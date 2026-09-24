@@ -1,4 +1,4 @@
-import type { FilterChip } from "@/components/common/filter-chips";
+import type { FilterChip } from "@/components/common/list/filter-chips";
 
 /**
  * Bentuk satu baris `GET /api/v1/jemaat`.

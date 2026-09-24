@@ -3,10 +3,11 @@
 import Link from "next/link";
 import type { ReactNode, Ref } from "react";
 
+import { SelectField } from "@/components/common/control/select-field";
 import {
   DataListPager,
   type DataListPagination,
-} from "@/components/common/data-list-pagination";
+} from "@/components/common/list/data-list-pagination";
 import {
   LoadingTableRows,
   ROW_BLEED,
@@ -14,13 +15,12 @@ import {
   TABLE_CONTAINER,
   TABLE_GRID,
   tableTemplate,
-} from "@/components/common/loading-table";
-import { SelectField } from "@/components/common/select-field";
+} from "@/components/common/list/loading-table";
 import {
   TABLE_HEAD,
   TABLE_ROW_LINK,
   TABLE_SECONDARY,
-} from "@/components/common/table-style";
+} from "@/components/common/list/table-style";
 import { cn } from "@/lib/utils";
 
 export type DataTableColumn<T> = {

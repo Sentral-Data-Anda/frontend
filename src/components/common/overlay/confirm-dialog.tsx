@@ -2,7 +2,7 @@
 
 import { AlertDialog } from "@base-ui/react/alert-dialog";
 
-import { Button } from "@/components/common/button";
+import { Button } from "@/components/common/control/button";
 
 /**
  * Konfirmasi untuk aksi yang tidak bisa dibatalkan: membuang isian form, dan

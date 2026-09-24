@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { buttonVariants } from "@/components/common/button";
+import { buttonVariants } from "@/components/common/control/button";
 import { shellWidth } from "@/components/layout/shell-width";
 import { cn } from "@/lib/utils";
 

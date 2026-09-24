@@ -1,10 +1,10 @@
 "use client";
 
-import { DataList } from "@/components/common/data-list";
-import { FilterChips } from "@/components/common/filter-chips";
-import { ListToolbar } from "@/components/common/list-toolbar";
-import { SearchInput } from "@/components/common/search-input";
-import { SelectField } from "@/components/common/select-field";
+import { SearchInput } from "@/components/common/control/search-input";
+import { SelectField } from "@/components/common/control/select-field";
+import { DataList } from "@/components/common/list/data-list";
+import { FilterChips } from "@/components/common/list/filter-chips";
+import { ListToolbar } from "@/components/common/list/list-toolbar";
 import { PageHeader, PageHeaderAdd } from "@/components/layout/page-header";
 import { MENU, createHref, domainHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth/use-menu-access";

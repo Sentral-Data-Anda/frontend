@@ -1,13 +1,13 @@
 "use client";
 
-import { DashboardCard } from "@/components/common/dashboard-card";
+import { DashboardCard } from "@/components/common/dashboard/dashboard-card";
 import {
   DashboardTable,
   TableTitle,
   type TableRow,
-} from "@/components/common/dashboard-table";
-import { EmptyState } from "@/components/common/empty-state";
-import { KpiCell } from "@/components/common/kpi-strip";
+} from "@/components/common/dashboard/dashboard-table";
+import { KpiCell } from "@/components/common/dashboard/kpi-strip";
+import { EmptyState } from "@/components/common/feedback/empty-state";
 import { Badge } from "@/components/ui/badge";
 import { MENU, menuHref } from "@/config/menu";
 import { formatRupiahCompact } from "@/lib/format";

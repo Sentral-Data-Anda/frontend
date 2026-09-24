@@ -1,11 +1,11 @@
 "use client";
 
-import { DashboardCard } from "@/components/common/dashboard-card";
+import { DashboardCard } from "@/components/common/dashboard/dashboard-card";
 import {
   DashboardList,
   DashboardRow,
-} from "@/components/common/dashboard-card";
-import { ProgressBar } from "@/components/common/progress-bar";
+} from "@/components/common/dashboard/dashboard-card";
+import { ProgressBar } from "@/components/common/dashboard/progress-bar";
 import { formatRupiahCompact } from "@/lib/format";
 
 import { DUMMY_BUDGET_USE, DUMMY_NEW_MEMBERS, DUMMY_ZONES } from "../fixtures";

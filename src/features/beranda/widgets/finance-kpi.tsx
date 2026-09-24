@@ -1,6 +1,9 @@
 "use client";
 
-import { KpiCell, type KpiDelta } from "@/components/common/kpi-strip";
+import {
+  KpiCell,
+  type KpiDelta,
+} from "@/components/common/dashboard/kpi-strip";
 import { formatRupiahCompact } from "@/lib/format";
 
 import { useSurplusDefisit } from "../api";

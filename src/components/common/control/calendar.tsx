@@ -3,7 +3,7 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
-import { Button } from "@/components/common/button";
+import { Button } from "@/components/common/control/button";
 import {
   addDays,
   addMonths,

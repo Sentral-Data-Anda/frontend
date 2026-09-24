@@ -2,9 +2,9 @@
 
 import { Check } from "lucide-react";
 
-import { DashboardCard } from "@/components/common/dashboard-card";
-import { EmptyState } from "@/components/common/empty-state";
-import { ProgressBar } from "@/components/common/progress-bar";
+import { DashboardCard } from "@/components/common/dashboard/dashboard-card";
+import { ProgressBar } from "@/components/common/dashboard/progress-bar";
+import { EmptyState } from "@/components/common/feedback/empty-state";
 import { MENU, menuHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth/use-menu-access";
 import { formatRupiah, formatRupiahCompact } from "@/lib/format";

@@ -6,10 +6,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { Button } from "@/components/common/button";
-import { FormField } from "@/components/common/form-field";
-import { Input } from "@/components/common/input";
-import { PasswordInput } from "@/components/common/password-input";
+import { Button } from "@/components/common/control/button";
+import { Input } from "@/components/common/control/input";
+import { PasswordInput } from "@/components/common/control/password-input";
+import { FormField } from "@/components/common/form/form-field";
 import { FetchError, fetchOne } from "@/lib/api/fetcher";
 
 const loginSchema = z.object({

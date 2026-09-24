@@ -1,4 +1,4 @@
-import { LogoMark } from "@/components/common/logo";
+import { LogoMark } from "@/components/common/brand/logo";
 import { siteConfig } from "@/config/site";
 import { cn } from "@/lib/utils";
 

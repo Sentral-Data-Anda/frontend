@@ -1,4 +1,4 @@
-import { LoadingPage } from "@/components/common/loading-page";
+import { LoadingPage } from "@/components/common/feedback/loading-page";
 
 /**
  * Batas tunggu paling luar — tampil saat refresh penuh selagi layout

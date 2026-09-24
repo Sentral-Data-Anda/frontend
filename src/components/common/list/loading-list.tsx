@@ -1,6 +1,6 @@
 import type { ComponentProps } from "react";
 
-import { LoadingTable } from "@/components/common/loading-table";
+import { LoadingTable } from "@/components/common/list/loading-table";
 
 /**
  * Garis antar-baris daftar: `border-t` pada badan baris (`data-slot=

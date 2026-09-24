@@ -11,7 +11,7 @@ import {
 import {
   FormField,
   type FieldControlProps,
-} from "@/components/common/form-field";
+} from "@/components/common/form/form-field";
 
 import type { JemaatFormValues } from "../model";
 

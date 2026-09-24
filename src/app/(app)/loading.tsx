@@ -1,4 +1,4 @@
-import { LoadingGlobal } from "@/components/common/loading-global";
+import { LoadingGlobal } from "@/components/common/feedback/loading-global";
 
 /**
  * Cincin spinner, bukan animasi huruf. Perpindahan antar-layar berlangsung

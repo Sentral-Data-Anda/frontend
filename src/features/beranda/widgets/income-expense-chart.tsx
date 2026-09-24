@@ -1,6 +1,6 @@
 "use client";
 
-import { DashboardCard } from "@/components/common/dashboard-card";
+import { DashboardCard } from "@/components/common/dashboard/dashboard-card";
 import { MENU, menuHref } from "@/config/menu";
 import { formatRupiah } from "@/lib/format";
 

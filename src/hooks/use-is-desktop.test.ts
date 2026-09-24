@@ -37,7 +37,7 @@ describe("TABLE_MEDIA_QUERY", () => {
     const md = (override ?? fallback)?.[1]?.trim();
 
     expect(TABLE_MEDIA_QUERY).toBe(`(min-width: ${md})`);
-    expect(read("src/components/common/loading-list.tsx")).toContain(
+    expect(read("src/components/common/list/loading-list.tsx")).toContain(
       '"hidden md:block"',
     );
   });

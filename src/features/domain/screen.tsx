@@ -1,4 +1,7 @@
-import { MenuTile, MenuTileGrid } from "@/components/common/menu-tile";
+import {
+  MenuTile,
+  MenuTileGrid,
+} from "@/components/common/navigation/menu-tile";
 import { PageHeader } from "@/components/layout/page-header";
 import {
   MENU_DESCRIPTION,

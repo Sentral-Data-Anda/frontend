@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 
-import { LoadingDataList } from "@/components/common/loading-list";
+import { LoadingDataList } from "@/components/common/list/loading-list";
 import { PageContainer } from "@/components/layout/page-container";
 import { JemaatListScreen } from "@/features/kejemaatan/daftar-jemaat/screen";
 import { jemaatTable } from "@/features/kejemaatan/daftar-jemaat/ui/list-item";

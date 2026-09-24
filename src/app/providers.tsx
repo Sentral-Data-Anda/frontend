@@ -3,7 +3,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
 
-import { ToastHost } from "@/components/common/toast";
+import { ToastHost } from "@/components/common/feedback/toast";
 import { shouldRetryQuery } from "@/lib/api/retry";
 
 /**

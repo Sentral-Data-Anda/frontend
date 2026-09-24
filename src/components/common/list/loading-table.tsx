@@ -1,11 +1,11 @@
 import type { CSSProperties } from "react";
 
-import type { DataTableColumn } from "@/components/common/data-table";
+import type { DataTableColumn } from "@/components/common/list/data-table";
 import {
   TABLE_HEAD,
   TABLE_ROW_LINE_ON_CANVAS,
   TABLE_SECONDARY,
-} from "@/components/common/table-style";
+} from "@/components/common/list/table-style";
 import { cn } from "@/lib/utils";
 
 /**

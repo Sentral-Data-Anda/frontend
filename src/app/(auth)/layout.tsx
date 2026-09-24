@@ -1,5 +1,5 @@
-import { AuthWaves } from "@/components/common/auth-waves";
-import { LogoWordmark } from "@/components/common/logo";
+import { AuthWaves } from "@/components/common/brand/auth-waves";
+import { LogoWordmark } from "@/components/common/brand/logo";
 
 /**
  * Kerangka halaman sebelum masuk, tanpa navigasi.

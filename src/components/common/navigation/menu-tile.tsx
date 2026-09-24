@@ -1,7 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
 
-import { DomainIcon } from "@/components/common/domain-tile";
+import { DomainIcon } from "@/components/common/navigation/domain-tile";
 
 /**
  * Tile bento satu layar di halaman domain dan hasil cari `/modul`: ikon layar

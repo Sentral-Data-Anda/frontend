@@ -2,7 +2,7 @@
 
 import { LogOut } from "lucide-react";
 
-import { Button } from "@/components/common/button";
+import { Button } from "@/components/common/control/button";
 import { useBoolean } from "@/hooks/use-boolean";
 import { cn } from "@/lib/utils";
 
