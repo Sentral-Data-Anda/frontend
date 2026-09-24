@@ -7,8 +7,8 @@ import {
   type TableRow,
 } from "@/components/common/dashboard/dashboard-table";
 import { KpiCell } from "@/components/common/dashboard/kpi-strip";
+import { Badge } from "@/components/common/display/badge";
 import { EmptyState } from "@/components/common/feedback/empty-state";
-import { Badge } from "@/components/ui/badge";
 import { MENU, menuHref } from "@/config/menu";
 import { formatRupiahCompact } from "@/lib/format";
 

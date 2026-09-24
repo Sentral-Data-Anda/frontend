@@ -68,7 +68,17 @@ const NO_BARREL_IMPORT = {
 const NO_UI_PRIMITIVE_IMPORT = {
   group: ["@/components/ui/*"],
   message:
-    "Layar memakai wrapper di @/components/common, bukan primitif shadcn langsung.",
+    "Layar memakai pintu di @/components/common (mis. common/control/button, common/display/badge), bukan primitif shadcn di components/ui.",
+};
+
+// components/common dikelompokkan per kegunaan (control, form, list,
+// dashboard, feedback, overlay, navigation, brand, display —
+// frontend-structure.md §4). Berkas lepas di akar common tidak punya
+// kelompok, dan begitu satu lolos, akar itu kembali jadi tumpukan 40 berkas.
+const NO_COMMON_ROOT_IMPORT = {
+  regex: "^@/components/common/[^/]+$",
+  message:
+    "Komponen bersama ada di subfolder kegunaannya, mis. @/components/common/list/data-list. Berkas baru masuk ke salah satu kelompok di frontend-structure.md §4.",
 };
 
 const CLASS_SELECTORS = [
@@ -207,7 +217,10 @@ const eslintConfig = defineConfig([
   {
     files: ["src/**/*.{ts,tsx}"],
     rules: {
-      "no-restricted-imports": ["error", { patterns: [NO_BARREL_IMPORT] }],
+      "no-restricted-imports": [
+        "error",
+        { patterns: [NO_BARREL_IMPORT, NO_COMMON_ROOT_IMPORT] },
+      ],
     },
   },
 
@@ -215,13 +228,20 @@ const eslintConfig = defineConfig([
   // satu layar merangkai primitif sendiri, warna dan jaraknya ikut tersalin ke
   // layar itu, dan dua halaman sejenis pelan-pelan berbeda tanpa ada yang
   // sadar. Yang boleh menyentuh primitif hanya components/common dan
-  // components/layout.
+  // components/layout — `features/` juga layar, jadi ikut dilarang (dulu hanya
+  // `app/`, dan empat berkas fitur sempat mengimpor ui/button dan ui/badge).
   {
-    files: ["src/app/**/*.{ts,tsx}"],
+    files: ["src/{app,features,lib,hooks,config,types}/**/*.{ts,tsx}"],
     rules: {
       "no-restricted-imports": [
         "error",
-        { patterns: [NO_UI_PRIMITIVE_IMPORT, NO_BARREL_IMPORT] },
+        {
+          patterns: [
+            NO_UI_PRIMITIVE_IMPORT,
+            NO_BARREL_IMPORT,
+            NO_COMMON_ROOT_IMPORT,
+          ],
+        },
       ],
     },
   },
