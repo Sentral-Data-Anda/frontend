@@ -34,7 +34,7 @@ export const TABLE_GRID =
 
 type SkeletonColumn = Pick<
   DataTableColumn<never>,
-  "key" | "header" | "width" | "isSecondary"
+  "key" | "header" | "width" | "narrowWidth" | "isSecondary"
 >;
 
 export function tableTemplate(columns: SkeletonColumn[]): CSSProperties {
@@ -43,7 +43,10 @@ export function tableTemplate(columns: SkeletonColumn[]): CSSProperties {
 
   return {
     "--cols": tracks(columns),
-    "--cols-narrow": tracks(columns.filter((column) => !column.isSecondary)),
+    "--cols-narrow": columns
+      .filter((column) => !column.isSecondary)
+      .map((column) => column.narrowWidth ?? column.width)
+      .join(" "),
   } as CSSProperties;
 }
 

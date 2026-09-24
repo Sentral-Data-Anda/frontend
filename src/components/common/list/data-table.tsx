@@ -26,8 +26,16 @@ import { cn } from "@/lib/utils";
 export type DataTableColumn<T> = {
   key: string;
   header: string;
-  /** Jalur grid, mis. `"minmax(0,2fr)"`. */
+  /**
+   * Jalur grid tabel lebar (≥ 52rem), mis. `"minmax(0,6rem)"` untuk kolom
+   * pendek atau `"minmax(0,3fr)"` untuk kolom yang menyerap sisa ruang.
+   * Tabel daftar selebar layar (pedoman-slicing.md §1): kolom pendek WAJIB
+   * berbatas (`minmax(0,Nrem)`), kalau tidak isinya terpisah ratusan piksel
+   * dari kolom sebelahnya di 1920/2560.
+   */
   width: string;
+  /** Jalur grid di tabel sempit (< 52rem: tablet, 1024 bersidebar). Bawaan `width`. */
+  narrowWidth?: string;
   cell: (item: T) => ReactNode;
   /**
    * Kolom pelengkap: disembunyikan di tabel sempit (< 52rem — tablet, 1024

@@ -17,7 +17,7 @@ export const metadata: Metadata = {
  */
 export default function Page() {
   return (
-    <PageContainer size="wide">
+    <PageContainer size="full">
       <Suspense fallback={<LoadingDataList table={jemaatTable(false)} />}>
         <JemaatListScreen />
       </Suspense>

@@ -1,28 +1,19 @@
-import { shellWidth, shellWidthDashboard, shellWidthWide } from "./shell-width";
+import { shellWidth, shellWidthFull } from "./shell-width";
 
 /**
- * Kolom konten satu layar. Lebar milik layar, bukan `AppShell`: Beranda
- * (`dashboard`) mengisi kolom konten di desktop, layar lain tetap
- * `default` supaya baris daftar tidak direntangkan.
+ * Kolom konten satu layar. Lebar milik layar, bukan `AppShell`: Beranda dan
+ * layar daftar bertabel (`full`) mengisi kolom konten di desktop, layar lain
+ * tetap `default`.
  */
 export function PageContainer({
   size = "default",
   children,
 }: {
-  /** `wide`: daftar bertabel, selebar form (`shellWidthWide`). */
-  size?: "default" | "dashboard" | "wide";
+  size?: "default" | "full";
   children: React.ReactNode;
 }) {
   return (
-    <div
-      className={
-        size === "dashboard"
-          ? shellWidthDashboard
-          : size === "wide"
-            ? shellWidthWide
-            : shellWidth
-      }
-    >
+    <div className={size === "full" ? shellWidthFull : shellWidth}>
       {children}
     </div>
   );

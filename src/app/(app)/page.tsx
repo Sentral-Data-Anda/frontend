@@ -17,7 +17,7 @@ export default async function Page() {
   const cookieStore = await cookies();
 
   return (
-    <PageContainer size="dashboard">
+    <PageContainer size="full">
       <HomeScreen
         defaultView={readDashboardView(
           cookieStore.get(DASHBOARD_VIEW_COOKIE)?.value,

@@ -11,17 +11,20 @@
 export const shellWidth = "mx-auto w-full md:max-w-2xl lg:max-w-3xl";
 
 /**
- * Dashboard (Beranda): MENGISI lebar layar, tanpa batas atas (keputusan user
- * 2026-09-23: "isi mengikuti lebar layar sampai habis, hanya disisakan jarak
- * tepi"; menggantikan batas 100rem/1600px). Jarak tepinya tetap gutter
- * halaman, sama seperti layar lain.
+ * Lebar penuh: Beranda, layar daftar, dan (sejak 2026-09-24) form. MENGISI
+ * lebar layar di desktop, tanpa batas atas (keputusan user 2026-09-23 untuk
+ * Beranda: "isi mengikuti lebar layar sampai habis, hanya disisakan jarak
+ * tepi"; 2026-09-24 untuk daftar: "kenapa ga full maksudnya"). Jarak tepinya
+ * tetap gutter halaman, sama seperti layar lain.
  *
  * Yang menjaga keterbacaan bukan lagi batas lebar melainkan jumlah kolom:
  * `DashboardGrid` menambah kolom kartu saat kolom konten melebar (2 → 3 → 4),
- * jadi kartu tetap ~360–520px berapa pun lebarnya. < lg sama dengan
- * `shellWidth` (tumpuk). Lihat `docs/design/dashboard-desktop.md` §10.5.
+ * jadi kartu tetap ~360–520px berapa pun lebarnya. Di daftar yang menjaganya
+ * lebar kolom tabel: kolom pendek berlebar tetap, kolom nama menyerap sisa
+ * (pedoman-slicing.md §1). < lg sama dengan `shellWidth` (tumpuk). Lihat
+ * `docs/design/dashboard-desktop.md` §10.5.
  */
-export const shellWidthDashboard = "mx-auto w-full md:max-w-2xl lg:max-w-none";
+export const shellWidthFull = "mx-auto w-full md:max-w-2xl lg:max-w-none";
 
 /**
  * Layar kerja — isian (`FormLayout`) dan daftar bertabel (Daftar Jemaat):
