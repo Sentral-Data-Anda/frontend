@@ -22,7 +22,9 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
   );
 
   return (
-    <div className="bg-canvas flex min-h-dvh flex-col lg:flex-row">
+    // `bg-canvas-aurora` (globals.css): kanvas + gradasi brand + butiran, di
+    // lapisan fixed — satu tempat untuk seluruh layar `(app)`.
+    <div className="bg-canvas-aurora flex min-h-dvh flex-col lg:flex-row">
       <Sidebar defaultCollapsed={isCollapsed} />
 
       {/*
