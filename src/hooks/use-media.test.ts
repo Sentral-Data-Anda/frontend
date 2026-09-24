@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 
 import { describe, expect, test } from "bun:test";
 
-import { DESKTOP_MEDIA_QUERY, TABLE_MEDIA_QUERY } from "./use-is-desktop";
+import { DESKTOP_MEDIA_QUERY, TABLE_MEDIA_QUERY } from "./use-media";
 
 const read = (path: string) => readFileSync(path, "utf8");
 

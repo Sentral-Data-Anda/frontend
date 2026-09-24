@@ -9,7 +9,7 @@ import { FIELD_POPUP } from "@/components/common/control/select-field";
 import { BottomSheet } from "@/components/common/overlay/bottom-sheet";
 import { Input } from "@/components/ui/input";
 import { useBoolean } from "@/hooks/use-boolean";
-import { useIsDesktop } from "@/hooks/use-is-desktop";
+import { useIsDesktop } from "@/hooks/use-media";
 import {
   DATE_ERROR,
   ageInYears,

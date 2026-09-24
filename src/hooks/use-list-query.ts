@@ -8,8 +8,8 @@ import {
 } from "@tanstack/react-query";
 
 import type { DataListPagination } from "@/components/common/list/data-list-pagination";
-import { useIsDesktop } from "@/hooks/use-is-desktop";
 import { toApiQuery, type ListState } from "@/hooks/use-list-params";
+import { useIsDesktop } from "@/hooks/use-media";
 import type { ApiListResponse } from "@/types/api";
 
 /**

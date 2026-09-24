@@ -67,7 +67,7 @@ export function LoadingList({ rows = 6 }: { rows?: number }) {
  * `DashboardTable`).
  *
  * Ambangnya `md`, SAMA dengan kapan `DataList` memakai tabel
- * (`TABLE_MEDIA_QUERY`, dijaga `use-is-desktop.test.ts`).
+ * (`TABLE_MEDIA_QUERY`, dijaga `use-media.test.ts`).
  */
 export function LoadingDataList({
   table,

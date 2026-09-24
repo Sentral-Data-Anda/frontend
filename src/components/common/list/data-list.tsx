@@ -21,7 +21,7 @@ import {
   LoadingRows,
 } from "@/components/common/list/loading-list";
 import { Button } from "@/components/ui/button";
-import { useIsTableWidth } from "@/hooks/use-is-desktop";
+import { useIsTableWidth } from "@/hooks/use-media";
 import { clearListFocus, readListFocus } from "@/lib/list-return";
 import { cn } from "@/lib/utils";
 

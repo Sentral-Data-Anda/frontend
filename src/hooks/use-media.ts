@@ -6,7 +6,7 @@ import { useSyncExternalStore } from "react";
  * Batas desktop. SAMA dengan `--breakpoint-lg` Tailwind (64rem), yang dipakai
  * shell (`lg:hidden`, `hidden lg:flex`) dan token `--font-size-title` di
  * globals.css. JS tidak bisa membaca theme Tailwind, jadi kesamaannya dijaga
- * `use-is-desktop.test.ts` — bukan komentar ini.
+ * `use-media.test.ts` — bukan komentar ini.
  */
 export const DESKTOP_MEDIA_QUERY = "(min-width: 64rem)";
 
