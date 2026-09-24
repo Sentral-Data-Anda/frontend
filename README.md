@@ -252,7 +252,7 @@ di atas kanvas — nilainya sama (primary-50) dan tidak terlihat.
 ### Layar isian (form)
 
 Bentuknya satu dokumen: **[docs/design/form-pattern.md](../docs/design/form-pattern.md)**.
-Layar pertamanya `features/kejemaatan/daftar-jemaat/form-screen.tsx`, dipakai
+Layar pertamanya `features/kejemaatan/daftar-jemaat/form/screen.tsx`, dipakai
 dua rute: `/kejemaatan/daftar-jemaat/baru` dan `/kejemaatan/daftar-jemaat/[code]/ubah`
 (kunci `code`, bukan `publicId` — daftar be-sada tidak mengirim `publicId`).
 
@@ -260,7 +260,7 @@ Form adalah **halaman rute sendiri** di semua ukuran, tujuh kelompok
 `<fieldset>` urut cara bertanya. Lebarnya lebar konten biasa (penuh di HP, 672px
 di tablet); di desktop judul kelompok di kiri dan field di kanan dalam grid dua
 kolom, kolom form dibatasi 1152px. Kerangkanya `FormLayout` +
-`FormSection` + `FormActions` di `components/common/form-layout.tsx`; baris
+`FormSection` + `FormActions` di `components/common/form/form-layout.tsx`; baris
 aksi menempel di bawah layar < lg (di atas bottom tab) dan ikut mengalir ≥ lg.
 
 | Hal                                                    | Aturannya                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
@@ -324,7 +324,7 @@ fitur memanggil `useListQuery` (lihat `useJemaatList`) lalu meneruskan
   elipsis di bawah daftar, tersembunyi bila hanya satu halaman.
 
 **Tabel mulai tablet (keputusan user 2026-09-24).** `DataList` menerima prop
-`table` (`DataTableConfig` dari `components/common/data-table.tsx`) dan memakainya
+`table` (`DataTableConfig` dari `components/common/list/data-table.tsx`) dan memakainya
 begitu layar ≥ md (`useIsTableWidth`, `TABLE_MEDIA_QUERY` = `--breakpoint-md`, dijaga
 test). Paginasinya tetap milik `useListQuery`: tablet "muat lebih banyak" (baris
 kerangka disisipkan di ujung tabel), desktop pager + 10/25/50. HP tetap baris
@@ -343,7 +343,7 @@ milik `DataList`.
   `getRowHref` tidak diberikan: tanpa tautan, hover, dan ikon.
 - Hover `bg-card` (putih): `muted` = kanvas di tema ini, jadi tidak terlihat.
 - Bahasa tabel (kepala 10px kapital, garis baris, tautan diregangkan) satu sumber di
-  `components/common/table-style.ts`, dipakai `DataTable` dan `DashboardTable`.
+  `components/common/list/table-style.ts`, dipakai `DataTable` dan `DashboardTable`.
   Warna garis mengikuti permukaan: `hairline` di kartu putih, `border` di kanvas.
 - Filter tambahan lewat skema `useListParams({ filters: { wilayah: { api: "zone" } } })`
   (list-state.md §2.5): `?wilayah=` di URL aplikasi, `zone` ke be-sada, kembali ke
@@ -391,7 +391,7 @@ Dua hal yang perlu diketahui saat memeriksa dengan curl:
 
 ### Semua modul
 
-`/modul` memakai `DomainTileGrid` (`components/common/domain-tile.tsx`) — grid
+`/modul` memakai `DomainTileGrid` (`components/common/navigation/domain-tile.tsx`) — grid
 4 kolom yang sama dengan "Aksi cepat" Beranda. Saat kolom cari berisi,
 `searchModules` (`src/app/(app)/modul/module-grid.tsx`, diuji terpisah)
 mengembalikan layar yang cocok lewat nama, `MENU_DESCRIPTION`, atau nama
@@ -453,9 +453,34 @@ Konvensinya satu dokumen: **[docs/design/frontend-structure.md](../docs/design/f
 frontend), dan aturan lint yang menegakkannya.
 
 Ringkasnya: `src/app` rute saja, `src/features/<domain>/<fitur>` satu fitur
-nyata, `src/components/{ui,common,layout}` UI bersama, dan `src/lib`,
-`src/config`, `src/hooks`, `src/types` fondasi. Yang bukan bagian dari
-konvensi itu: `src/proxy.ts` (CSP per-request; di Next 16 dulu bernama
+nyata (fitur daftar + form: `list/` dan `form/`, dengan `api.ts`, `model.ts`,
+`types.ts` di akarnya), `src/components/{ui,common,layout}` UI bersama, dan
+`src/lib`, `src/config`, `src/hooks`, `src/types` fondasi.
+
+```
+src/components/
+  ui/          primitif shadcn apa adanya — hanya diimpor components/common & layout
+  common/      pintu aplikasi + komponen bersama, per kegunaan:
+    control/     button, input, password-input, textarea, select-field,
+                 combobox-field, date-field, calendar, search-input
+    form/        form-field, form-layout
+    list/        data-list, data-list-pagination, data-table, list-toolbar,
+                 filter-chips, loading-list, loading-table, table-style
+    dashboard/   dashboard-card, dashboard-grid, dashboard-table, kpi-strip, progress-bar
+    feedback/    empty-state, loading-page, loading-global, toast
+    overlay/     confirm-dialog, bottom-sheet, popup-style
+    navigation/  domain-tile, menu-tile, section-header
+    display/     avatar, badge, time-badge
+    brand/       logo, auth-waves
+  layout/      kerangka aplikasi (shell, sidebar, header, lebar halaman)
+```
+
+`components/ui/button.tsx` dan `components/common/control/button.tsx` sengaja
+bernama sama: yang pertama primitif, yang kedua pintu layar ke primitif itu (sama
+untuk `input` dan `badge`). Layar selalu memakai yang di `common/`; lint menolak
+`@/components/ui/*` di luar `components/` dan berkas lepas di akar `common/`.
+
+Yang bukan bagian dari konvensi itu: `src/proxy.ts` (CSP per-request; di Next 16 dulu bernama
 `middleware`) dan `public/sw.js` (service worker, ditulis tangan).
 
 ## Aturan yang tidak boleh dilanggar
