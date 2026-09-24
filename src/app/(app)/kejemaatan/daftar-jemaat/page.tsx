@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 
-import { LoadingList } from "@/components/common/loading-list";
+import { LoadingDataList } from "@/components/common/loading-list";
 import { PageContainer } from "@/components/layout/page-container";
 import { JemaatListScreen } from "@/features/kejemaatan/daftar-jemaat/screen";
+import { jemaatTable } from "@/features/kejemaatan/daftar-jemaat/ui/list-item";
 
 export const metadata: Metadata = {
   title: "Daftar Jemaat",
@@ -17,7 +18,7 @@ export const metadata: Metadata = {
 export default function Page() {
   return (
     <PageContainer size="wide">
-      <Suspense fallback={<LoadingList />}>
+      <Suspense fallback={<LoadingDataList table={jemaatTable(false)} />}>
         <JemaatListScreen />
       </Suspense>
     </PageContainer>

@@ -89,10 +89,16 @@ describe("DataList + table", () => {
     expect(screen.queryAllByRole("link")).toHaveLength(0);
   });
 
-  test("kerangka tabel saat memuat di mode bernomor", () => {
-    onRender({ pagination: pages, items: undefined, isLoading: true });
+  /**
+   * Kedua kerangka dirender dan CSS yang memilih — pilihan lewat JS baru
+   * datang sesudah hidrasi, dan kerangka daftar sempat berkedip jadi tabel.
+   */
+  test("kerangka memuat membawa bentuk daftar DAN tabel, dipilih CSS", () => {
+    const { container } = onRender({ items: undefined, isLoading: true });
 
-    expect(screen.getByRole("status")).toBeTruthy();
+    expect(screen.getAllByRole("status")).toHaveLength(2);
     expect(screen.getByText("Nama")).toBeTruthy();
+    expect(container.querySelector(".lg\\:hidden ul")).toBeTruthy();
+    expect(container.querySelector(".hidden.lg\\:block .grid")).toBeTruthy();
   });
 });

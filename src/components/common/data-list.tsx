@@ -12,13 +12,12 @@ import {
 import {
   DataTable,
   DataTableFooter,
-  LoadingTable,
   type DataTableConfig,
 } from "@/components/common/data-table";
 import { EmptyState } from "@/components/common/empty-state";
 import {
   LIST_DIVIDER,
-  LoadingList,
+  LoadingDataList,
   LoadingRows,
 } from "@/components/common/loading-list";
 import { Button } from "@/components/ui/button";
@@ -251,7 +250,7 @@ export function DataList<T>({
   }
 
   if (isLoading || !items) {
-    return isTable ? <LoadingTable config={table} /> : <LoadingList />;
+    return <LoadingDataList table={table} />;
   }
 
   if (items.length === 0) {

@@ -1,3 +1,7 @@
+import type { ComponentProps } from "react";
+
+import { LoadingTable } from "@/components/common/loading-table";
+
 /**
  * Garis antar-baris daftar: `border-t` pada badan baris (`data-slot=
  * "row-body"`) kedua dst. Badan baris mulai setelah `leading` dan berakhir di
@@ -50,5 +54,36 @@ export function LoadingList({ rows = 6 }: { rows?: number }) {
 
       <span className="sr-only">Memuat daftar…</span>
     </div>
+  );
+}
+
+/**
+ * Kerangka daftar yang tahu bentuk tabelnya: dipakai `DataList` saat memuat
+ * dan sebagai fallback `Suspense` rute. KEDUA bentuk dirender, CSS yang
+ * memilih — fallback server belum punya JS, jadi pilihan lewat `useIsDesktop`
+ * baru datang setelah hidrasi dan layar sempat menampilkan kerangka daftar
+ * lalu menukarnya dengan kerangka tabel (terukur di 1440). Yang tidak berlaku
+ * `display: none`, jadi keluar dari pohon aksesibilitas (sama dengan teknik
+ * `DashboardTable`).
+ *
+ * Ambangnya `lg`, SAMA dengan kapan `DataList` memakai tabel.
+ */
+export function LoadingDataList({
+  table,
+}: {
+  table?: { columns: ComponentProps<typeof LoadingTable>["columns"] };
+}) {
+  if (!table) return <LoadingList />;
+
+  return (
+    <>
+      <div className="lg:hidden">
+        <LoadingList />
+      </div>
+
+      <div className="hidden lg:block">
+        <LoadingTable columns={table.columns} />
+      </div>
+    </>
   );
 }
