@@ -66,7 +66,19 @@ describe("DataList + table", () => {
     expect(screen.getByText("1–10 dari 12")).toBeTruthy();
   });
 
-  test("paginasi 'more' (HP/tablet) → tetap baris daftar", () => {
+  /**
+   * Bentuk dipilih LEBAR LAYAR (≥ md), bukan mode paginasi: tablet memakai
+   * tabel DENGAN "muat lebih banyak". Di HP (< md) tetap baris daftar.
+   */
+  test("HP (< md) → tetap baris daftar walau `table` diberikan", () => {
+    const original = window.matchMedia;
+    window.matchMedia = ((query: string) => ({
+      matches: false,
+      media: query,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+    })) as unknown as typeof window.matchMedia;
+
     onRender({
       pagination: {
         mode: "more",
@@ -81,6 +93,27 @@ describe("DataList + table", () => {
 
     expect(screen.queryByRole("table")).toBeNull();
     expect(screen.getAllByRole("listitem")).toHaveLength(2);
+
+    window.matchMedia = original;
+  });
+
+  test("tablet ke atas + 'muat lebih banyak' → tabel dengan ujung muat-lagi", () => {
+    onRender({
+      pagination: {
+        mode: "more",
+        hasMore: true,
+        isLoadingMore: false,
+        isLoadMoreError: false,
+        isBusy: false,
+        totalData: 20,
+        onLoadMore: () => {},
+      },
+    });
+
+    expect(screen.getByRole("table", { name: "Daftar uji" })).toBeTruthy();
+    expect(
+      screen.getByRole("button", { name: "Muat lebih banyak" }),
+    ).toBeTruthy();
   });
 
   test("baris tanpa tujuan tidak punya tautan", () => {
@@ -98,7 +131,7 @@ describe("DataList + table", () => {
 
     expect(screen.getAllByRole("status")).toHaveLength(2);
     expect(screen.getByText("Nama")).toBeTruthy();
-    expect(container.querySelector(".lg\\:hidden ul")).toBeTruthy();
-    expect(container.querySelector(".hidden.lg\\:block .grid")).toBeTruthy();
+    expect(container.querySelector(".md\\:hidden ul")).toBeTruthy();
+    expect(container.querySelector(".hidden.md\\:block .grid")).toBeTruthy();
   });
 });

@@ -1,13 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import type { CSSProperties, ReactNode, Ref } from "react";
+import type { ReactNode, Ref } from "react";
 
 import {
   DataListPager,
   type DataListPagination,
 } from "@/components/common/data-list-pagination";
-import { ROW_BLEED, ROW_LINE } from "@/components/common/loading-table";
+import {
+  LoadingTableRows,
+  ROW_BLEED,
+  ROW_LINE,
+  TABLE_CONTAINER,
+  TABLE_GRID,
+  TABLE_SECONDARY,
+  tableTemplate,
+} from "@/components/common/loading-table";
 import { SelectField } from "@/components/common/select-field";
 import { cn } from "@/lib/utils";
 
@@ -17,6 +25,11 @@ export type DataTableColumn<T> = {
   /** Jalur grid, mis. `"minmax(0,2fr)"`. */
   width: string;
   cell: (item: T) => ReactNode;
+  /**
+   * Kolom pelengkap: disembunyikan di tabel sempit (< 52rem — tablet, 1024
+   * dengan sidebar penuh) supaya kolom utama tidak terpotong.
+   */
+  isSecondary?: boolean;
 };
 
 /**
@@ -81,6 +94,7 @@ export function DataTable<T>({
   label,
   config,
   isRefreshing = false,
+  pendingRows = 0,
   rowsRef,
 }: {
   items: T[];
@@ -88,16 +102,20 @@ export function DataTable<T>({
   label: string;
   config: DataTableConfig<T>;
   isRefreshing?: boolean;
+  /** Baris kerangka di ujung tabel saat halaman berikutnya dimuat (tablet). */
+  pendingRows?: number;
   rowsRef?: Ref<HTMLDivElement>;
 }) {
   const { columns, getRowHref, getRowLabel, onRowOpen, rowIcon } = config;
-  const template = {
-    "--cols": columns.map((column) => column.width).join(" "),
-  } as CSSProperties;
 
   return (
-    <div className="px-gutter">
-      <div role="table" aria-label={label} className="-mx-2.5" style={template}>
+    <div className={TABLE_CONTAINER}>
+      <div
+        role="table"
+        aria-label={label}
+        className="-mx-2.5"
+        style={tableTemplate(columns)}
+      >
         {/*
           Kepala menempel di atas saat halaman digulir. Bidangnya kanvas,
           selebar baris (termasuk yang menjorok), supaya baris yang lewat di
@@ -109,14 +127,18 @@ export function DataTable<T>({
             className={cn(
               ROW_BLEED,
               ROW_LINE,
-              "relative grid grid-cols-(--cols) items-center gap-4 py-2 pr-12",
+              TABLE_GRID,
+              "relative py-2 pr-12",
             )}
           >
             {columns.map((column) => (
               <span
                 key={column.key}
                 role="columnheader"
-                className="text-muted-foreground truncate text-caption font-medium tracking-wide uppercase"
+                className={cn(
+                  "text-muted-foreground truncate text-caption font-medium tracking-wide uppercase",
+                  column.isSecondary && TABLE_SECONDARY,
+                )}
               >
                 {column.header}
               </span>
@@ -140,7 +162,8 @@ export function DataTable<T>({
                 className={cn(
                   ROW_BLEED,
                   ROW_LINE,
-                  "group/row relative grid min-h-14 grid-cols-(--cols) items-center gap-4 rounded-control py-2 pr-12",
+                  TABLE_GRID,
+                  "group/row relative min-h-14 rounded-control py-2 pr-12",
                   href && "hover:bg-card transition-colors",
                 )}
               >
@@ -148,7 +171,10 @@ export function DataTable<T>({
                   <div
                     key={column.key}
                     role="cell"
-                    className="min-w-0 text-body"
+                    className={cn(
+                      "min-w-0 text-body",
+                      column.isSecondary && TABLE_SECONDARY,
+                    )}
                   >
                     {index === 0 && href ? (
                       <Link
@@ -176,6 +202,10 @@ export function DataTable<T>({
               </div>
             );
           })}
+
+          {pendingRows ? (
+            <LoadingTableRows columns={columns} rows={pendingRows} />
+          ) : null}
         </div>
       </div>
     </div>

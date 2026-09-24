@@ -19,7 +19,67 @@ export const ROW_BLEED = "px-2.5";
 export const ROW_LINE =
   "after:border-border after:pointer-events-none after:absolute after:inset-x-2.5 after:bottom-0 after:border-b";
 
-type SkeletonColumn = Pick<DataTableColumn<never>, "key" | "header" | "width">;
+/**
+ * Kolom tabel: di tabel sempit (< 52rem — tablet 632px, 1024 dengan sidebar
+ * penuh 714px) hanya kolom utama; kolom `isSecondary` ikut tampil begitu
+ * tabelnya ≥ 52rem. Container query pada `TABLE_CONTAINER`, jadi yang
+ * menentukan lebar tabel, bukan lebar layar. Jalur grid-nya ikut berganti
+ * (`--cols-narrow` → `--cols`), karena sel yang `display: none` tidak
+ * membuang jalurnya.
+ */
+export const TABLE_CONTAINER = "@container px-gutter";
+export const TABLE_GRID =
+  "grid grid-cols-(--cols-narrow) items-center gap-4 @min-[52rem]:grid-cols-(--cols)";
+export const TABLE_SECONDARY = "hidden @min-[52rem]:block";
+
+type SkeletonColumn = Pick<
+  DataTableColumn<never>,
+  "key" | "header" | "width" | "isSecondary"
+>;
+
+export function tableTemplate(columns: SkeletonColumn[]): CSSProperties {
+  const tracks = (list: SkeletonColumn[]) =>
+    list.map((column) => column.width).join(" ");
+
+  return {
+    "--cols": tracks(columns),
+    "--cols-narrow": tracks(columns.filter((column) => !column.isSecondary)),
+  } as CSSProperties;
+}
+
+/** Baris kerangka 56px, tanpa kepala — juga disisipkan saat memuat lagi. */
+export function LoadingTableRows({
+  columns,
+  rows,
+}: {
+  columns: SkeletonColumn[];
+  rows: number;
+}) {
+  // key={index}: kerangka tidak punya identitas dari data.
+  return Array.from({ length: rows }, (_, index) => (
+    <div
+      key={index}
+      aria-hidden
+      className={cn(
+        ROW_BLEED,
+        ROW_LINE,
+        TABLE_GRID,
+        "relative min-h-14 py-2 pr-12",
+      )}
+    >
+      {columns.map((column, columnIndex) => (
+        <span
+          key={column.key}
+          className={cn(
+            "bg-primary-200 block h-3 animate-pulse rounded",
+            columnIndex === 0 ? "w-3/5" : "w-2/5",
+            column.isSecondary && TABLE_SECONDARY,
+          )}
+        />
+      ))}
+    </div>
+  ));
+}
 
 /** Kerangka tabel: kepala asli + baris 56px, supaya data tiba tanpa lompatan. */
 export function LoadingTable({
@@ -29,51 +89,26 @@ export function LoadingTable({
   columns: SkeletonColumn[];
   rows?: number;
 }) {
-  const template = {
-    "--cols": columns.map((column) => column.width).join(" "),
-  } as CSSProperties;
-
   return (
-    <div role="status" aria-busy="true" className="px-gutter">
-      <div aria-hidden className="-mx-2.5" style={template}>
+    <div role="status" aria-busy="true" className={TABLE_CONTAINER}>
+      <div aria-hidden className="-mx-2.5" style={tableTemplate(columns)}>
         <div
-          className={cn(
-            ROW_BLEED,
-            ROW_LINE,
-            "relative grid grid-cols-(--cols) items-center gap-4 py-2 pr-12",
-          )}
+          className={cn(ROW_BLEED, ROW_LINE, TABLE_GRID, "relative py-2 pr-12")}
         >
           {columns.map((column) => (
             <span
               key={column.key}
-              className="text-muted-foreground truncate text-caption font-medium tracking-wide uppercase"
+              className={cn(
+                "text-muted-foreground truncate text-caption font-medium tracking-wide uppercase",
+                column.isSecondary && TABLE_SECONDARY,
+              )}
             >
               {column.header}
             </span>
           ))}
         </div>
 
-        {/* key={index}: kerangka tidak punya identitas dari data. */}
-        {Array.from({ length: rows }, (_, index) => (
-          <div
-            key={index}
-            className={cn(
-              ROW_BLEED,
-              ROW_LINE,
-              "relative grid min-h-14 grid-cols-(--cols) items-center gap-4 py-2 pr-12",
-            )}
-          >
-            {columns.map((column, columnIndex) => (
-              <span
-                key={column.key}
-                className={cn(
-                  "bg-primary-200 block h-3 animate-pulse rounded",
-                  columnIndex === 0 ? "w-3/5" : "w-2/5",
-                )}
-              />
-            ))}
-          </div>
-        ))}
+        <LoadingTableRows columns={columns} rows={rows} />
       </div>
 
       <span className="sr-only">Memuat daftar…</span>

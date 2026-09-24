@@ -10,15 +10,26 @@ import { useSyncExternalStore } from "react";
  */
 export const DESKTOP_MEDIA_QUERY = "(min-width: 64rem)";
 
-const subscribe = (onChange: () => void) => {
-  const media = window.matchMedia(DESKTOP_MEDIA_QUERY);
+/**
+ * Batas tabel daftar (`DataList` prop `table`): tablet ke atas. SAMA dengan
+ * `--breakpoint-md` Tailwind (48rem) yang dipakai kerangkanya
+ * (`LoadingDataList`: `md:hidden` / `hidden md:block`) — dijaga test yang sama.
+ */
+export const TABLE_MEDIA_QUERY = "(min-width: 48rem)";
+
+const subscribeTo = (query: string) => (onChange: () => void) => {
+  const media = window.matchMedia(query);
 
   media.addEventListener("change", onChange);
 
   return () => media.removeEventListener("change", onChange);
 };
 
-const getSnapshot = () => window.matchMedia(DESKTOP_MEDIA_QUERY).matches;
+const subscribeDesktop = subscribeTo(DESKTOP_MEDIA_QUERY);
+const getDesktopSnapshot = () => window.matchMedia(DESKTOP_MEDIA_QUERY).matches;
+
+const subscribeTable = subscribeTo(TABLE_MEDIA_QUERY);
+const getTableSnapshot = () => window.matchMedia(TABLE_MEDIA_QUERY).matches;
 
 /** Server tidak tahu lebar layar. */
 const getServerSnapshot = () => null;
@@ -39,5 +50,18 @@ const getServerSnapshot = () => null;
  * `components/layout`, yang tidak butuh JS dan tidak berkedip.
  */
 export function useIsDesktop(): boolean | null {
-  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  return useSyncExternalStore(
+    subscribeDesktop,
+    getDesktopSnapshot,
+    getServerSnapshot,
+  );
+}
+
+/** `true` tablet ke atas (tabel daftar), `null` belum diketahui. */
+export function useIsTableWidth(): boolean | null {
+  return useSyncExternalStore(
+    subscribeTable,
+    getTableSnapshot,
+    getServerSnapshot,
+  );
 }

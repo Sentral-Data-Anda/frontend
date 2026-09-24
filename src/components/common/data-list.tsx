@@ -21,6 +21,7 @@ import {
   LoadingRows,
 } from "@/components/common/loading-list";
 import { Button } from "@/components/ui/button";
+import { useIsTableWidth } from "@/hooks/use-is-desktop";
 import { clearListFocus, readListFocus } from "@/lib/list-return";
 import { cn } from "@/lib/utils";
 
@@ -162,16 +163,17 @@ export function DataList<T>({
   emptyAction?: ReactNode;
   pagination?: DataListPagination;
   /**
-   * Susunan tabel untuk desktop. Dipakai hanya saat paginasinya bernomor
-   * (`mode: "pages"`, ≥ lg — diputuskan `useListQuery`, bukan layar); di
-   * HP/tablet baris daftar biasa tetap dipakai. Keadaan memuat, kosong, dan
-   * galat tetap milik komponen ini di kedua bentuk.
+   * Susunan tabel untuk tablet ke atas (≥ md, `useIsTableWidth` — bukan
+   * layar). Paginasinya tetap milik `useListQuery`: tablet "muat lebih
+   * banyak", desktop pager bernomor. Di HP baris daftar biasa. Keadaan
+   * memuat, kosong, dan galat tetap milik komponen ini di kedua bentuk.
    */
   table?: DataTableConfig<T>;
 }) {
   const pathname = usePathname();
   const listRef = useRef<HTMLElement | null>(null);
-  const isTable = table !== undefined && pagination?.mode === "pages";
+  const isTableWidth = useIsTableWidth();
+  const isTable = table !== undefined && isTableWidth === true;
 
   /**
    * Kembali dari detail: baris yang tadi dibuka disorot sebentar
@@ -273,12 +275,21 @@ export function DataList<T>({
           label={label}
           config={table}
           isRefreshing={isRefreshing}
+          pendingRows={
+            pagination?.mode === "more" && pagination.isLoadingMore ? 3 : 0
+          }
           rowsRef={(node) => {
             listRef.current = node;
           }}
         />
 
-        <DataTableFooter pagination={pagination} />
+        {pagination?.mode === "pages" ? (
+          <DataTableFooter pagination={pagination} />
+        ) : null}
+
+        {pagination?.mode === "more" ? (
+          <DataListMore {...pagination} shown={items.length} />
+        ) : null}
       </div>
     );
   }

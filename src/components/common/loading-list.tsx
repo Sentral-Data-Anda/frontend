@@ -66,7 +66,8 @@ export function LoadingList({ rows = 6 }: { rows?: number }) {
  * `display: none`, jadi keluar dari pohon aksesibilitas (sama dengan teknik
  * `DashboardTable`).
  *
- * Ambangnya `lg`, SAMA dengan kapan `DataList` memakai tabel.
+ * Ambangnya `md`, SAMA dengan kapan `DataList` memakai tabel
+ * (`TABLE_MEDIA_QUERY`, dijaga `use-is-desktop.test.ts`).
  */
 export function LoadingDataList({
   table,
@@ -77,11 +78,11 @@ export function LoadingDataList({
 
   return (
     <>
-      <div className="lg:hidden">
+      <div className="md:hidden">
         <LoadingList />
       </div>
 
-      <div className="hidden lg:block">
+      <div className="hidden md:block">
         <LoadingTable columns={table.columns} />
       </div>
     </>
