@@ -27,11 +27,13 @@ export type DataTableColumn<T> = {
   key: string;
   header: string;
   /**
-   * Jalur grid tabel lebar (≥ 52rem), mis. `"minmax(0,6rem)"` untuk kolom
-   * pendek atau `"minmax(0,3fr)"` untuk kolom yang menyerap sisa ruang.
-   * Tabel daftar selebar layar (pedoman-slicing.md §1): kolom pendek WAJIB
-   * berbatas (`minmax(0,Nrem)`), kalau tidak isinya terpisah ratusan piksel
-   * dari kolom sebelahnya di 1920/2560.
+   * Jalur grid tabel lebar (≥ 52rem). Kolom DATA memakai `fr` dengan rasio
+   * sesuai panjang isi yang khas (mis. nama `minmax(0,2.5fr)`, kode
+   * `minmax(0,1fr)`), supaya sisa ruang di layar lebar terbagi ke SEMUA
+   * celah. Kolom pendek yang dikunci `rem` justru melempar seluruh sisa ke
+   * kolom `fr` dan membuat lubang ratusan piksel di tengah baris (terukur di
+   * 1624 rail: 438px Nama → Kode). `rem` hanya untuk isi berlebar tetap
+   * (ikon, aksi). Pedoman: pedoman-slicing.md §1.
    */
   width: string;
   /** Jalur grid di tabel sempit (< 52rem: tablet, 1024 bersidebar). Bawaan `width`. */

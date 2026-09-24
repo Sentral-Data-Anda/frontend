@@ -107,10 +107,12 @@ function JemaatStatus({ status }: { status: JemaatListItem["status"] }) {
 }
 
 /**
- * Daftar Jemaat sebagai tabel (tablet ke atas). Di tabel lebar Kode, Tipe,
- * Wilayah, dan Status berlebar tetap; Nama dan Keluarga menyerap sisa ruang
- * (3 : 2). Tabel sempit memakai `narrowWidth` — sama dengan sebelum lebar
- * penuh, jadi 820 dan 1024 bersidebar penuh tidak berubah. Kolom = field yang memang
+ * Daftar Jemaat sebagai tabel (tablet ke atas). Semua kolom proporsional
+ * (`fr`), rasionya mengikuti panjang isi yang khas: Nama 2.5, Keluarga 2,
+ * Wilayah 1.2, Kode/Tipe/Status 1 — jadi celah antar-kolom ikut rata saat
+ * tabel melebar, bukan menumpuk di satu tempat. Tabel sempit memakai
+ * `narrowWidth` — sama dengan sebelum lebar penuh, jadi 820 dan 1024
+ * bersidebar penuh tidak berubah. Kolom = field yang memang
  * dikirim `GET /jemaat` (lihat `JemaatListItem`). Tipe dan Keluarga kolom
  * pelengkap: disembunyikan di tabel sempit (tablet, 1024 bersidebar penuh),
  * supaya Nama, Kode, Wilayah, dan Status tidak terpotong.
@@ -126,7 +128,7 @@ export function jemaatTable(
       {
         key: "name",
         header: "Nama",
-        width: "minmax(0,3fr)",
+        width: "minmax(0,2.5fr)",
         narrowWidth: "minmax(0,2.4fr)",
         cell: (jemaat) => (
           <span className="flex min-w-0 items-center gap-3">
@@ -140,14 +142,14 @@ export function jemaatTable(
       {
         key: "code",
         header: "Kode",
-        width: "minmax(0,6rem)",
+        width: "minmax(0,1fr)",
         narrowWidth: "minmax(0,1fr)",
         cell: (jemaat) => <span className="tabular-nums">{jemaat.code}</span>,
       },
       {
         key: "type",
         header: "Tipe",
-        width: "minmax(0,6rem)",
+        width: "minmax(0,1fr)",
         isSecondary: true,
         cell: (jemaat) => TYPE_JEMAAT_LABEL[jemaat.type],
       },
@@ -163,7 +165,7 @@ export function jemaatTable(
       {
         key: "zone",
         header: "Wilayah",
-        width: "minmax(0,7rem)",
+        width: "minmax(0,1.2fr)",
         narrowWidth: "minmax(0,1.2fr)",
         cell: (jemaat) => (
           <OptionalName name={jemaat.zoneChurch?.name} empty="Tanpa wilayah" />
@@ -172,7 +174,7 @@ export function jemaatTable(
       {
         key: "status",
         header: "Status",
-        width: "minmax(0,6rem)",
+        width: "minmax(0,1fr)",
         narrowWidth: "minmax(0,1fr)",
         cell: (jemaat) => <JemaatStatus status={jemaat.status} />,
       },
