@@ -323,29 +323,37 @@ fitur memanggil `useListQuery` (lihat `useJemaatList`) lalu meneruskan
 - **≥ lg (desktop)**: `useQuery` per halaman `?page=`, pager bernomor dengan
   elipsis di bawah daftar, tersembunyi bila hanya satu halaman.
 
-**Tabel desktop (keputusan user 2026-09-24, "tabel data penuh").** `DataList`
-menerima prop `table` (`DataTableConfig` dari `components/common/data-table.tsx`);
-ia dipakai HANYA saat paginasinya bernomor (≥ lg, diputuskan `useListQuery`) —
-HP/tablet tetap baris daftar, byte-identik. Keadaan (memuat → `LoadingTable`,
-kosong, galat, menyegarkan) dan sorotan baris kembali tetap milik `DataList`.
+**Tabel mulai tablet (keputusan user 2026-09-24).** `DataList` menerima prop
+`table` (`DataTableConfig` dari `components/common/data-table.tsx`) dan memakainya
+begitu layar ≥ md (`useIsTableWidth`, `TABLE_MEDIA_QUERY` = `--breakpoint-md`, dijaga
+test). Paginasinya tetap milik `useListQuery`: tablet "muat lebih banyak" (baris
+kerangka disisipkan di ujung tabel), desktop pager + 10/25/50. HP tetap baris
+daftar. Keadaan (memuat, kosong, galat, menyegarkan) dan sorotan baris kembali tetap
+milik `DataList`.
 
-- Kolom = field yang memang dikirim endpoint daftar; jangan mengarang kolom
-  (Daftar Jemaat: tidak ada wilayah di `GET /jemaat`).
-- Seluruh baris SATU tautan (isi kolom pertama diregangkan), `aria-label`
-  bernama aksinya ("Ubah Andreas"); ikon di ujung (`rowIcon`) hanya penanda —
-  tidak ada tautan kedua, jadi satu perhentian Tab per baris. Tanpa izin,
+- Kerangka memuat = `LoadingDataList`: merender kerangka daftar DAN tabel, CSS
+  (`md:hidden` / `hidden md:block`) yang memilih — juga dipakai sebagai fallback
+  `Suspense` rute, yang dirender server tanpa JS. `loading-table.tsx` sengaja tanpa
+  `"use client"`.
+- Kolom = field yang memang dikirim endpoint daftar. Kolom `isSecondary` (Daftar
+  Jemaat: Tipe, Keluarga) disembunyikan di tabel < 52rem (tablet, 1024 bersidebar
+  penuh) lewat container query, jalur grid ikut berganti (`--cols-narrow`).
+- Seluruh baris SATU tautan (isi kolom pertama diregangkan), `aria-label` bernama
+  aksinya ("Ubah Andreas"); ikon di ujung (`rowIcon`) hanya penanda. Tanpa izin,
   `getRowHref` tidak diberikan: tanpa tautan, hover, dan ikon.
 - Hover `bg-card` (putih): `muted` = kanvas di tema ini, jadi tidak terlihat.
-- Kepala 10px kapital (bahasa tabel dashboard), menempel di atas saat digulir.
-- Garis baris dari tepi konten ke tepi konten; bidang hover menjorok 10px.
-- Kaki: "1–10 dari 12", pager, dan jumlah baris per halaman (`?limit=`, 10/25/50,
-  `onPickLimit` di `useListParams`).
-- Lebar halaman `PageContainer size="wide"` = `shellWidthWide`, SAMA dengan form,
-  supaya daftar dan formnya satu keluarga. Baris alat: `ListToolbar` (cari +
-  filter satu baris bila isinya ≥ 36rem). Tombol tambah: `PageHeaderAdd`
-  (lingkaran < lg, "+ Tambah" ≥ lg).
-- `DashboardTable` tidak dipakai ulang: ia ukuran kartu, tanpa keadaan, tanpa
-  kepala menempel, tanpa `data-row-id`, tanpa kaki paginasi.
+- Bahasa tabel (kepala 10px kapital, garis baris, tautan diregangkan) satu sumber di
+  `components/common/table-style.ts`, dipakai `DataTable` dan `DashboardTable`.
+  Warna garis mengikuti permukaan: `hairline` di kartu putih, `border` di kanvas.
+- Filter tambahan lewat skema `useListParams({ filters: { wilayah: { api: "zone" } } })`
+  (list-state.md §2.5): `?wilayah=` di URL aplikasi, `zone` ke be-sada, kembali ke
+  halaman 1. Layar tidak menulis nama parameter be-sada.
+- `ListToolbar`: cari + `picker` (mis. wilayah) + chip. HP: cari + pilihan sebaris,
+  chip di bawah; ≥ 36rem satu baris. Chip tidak menjorok di baris lebar.
+- Lebar halaman `PageContainer size="wide"` = `shellWidthWide`, SAMA dengan form.
+  Tombol tambah: `PageHeaderAdd` (lingkaran < lg, "+ Tambah" ≥ lg).
+- `DashboardTable` tidak dipakai ulang untuk daftar: ia ukuran kartu, tanpa keadaan,
+  tanpa kepala menempel, tanpa `data-row-id`, tanpa kaki paginasi.
 
 Batasnya `useIsDesktop` (`(min-width: 64rem)`, dijaga test agar sama dengan
 `--breakpoint-lg` Tailwind). Selama hidrasi mode belum diketahui (`null`):
