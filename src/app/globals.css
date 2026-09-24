@@ -390,6 +390,10 @@
 @utility bg-canvas-aurora {
   background-color: var(--canvas);
   isolation: isolate;
+  /* Garis kontrol naik ke p-600 HANYA di dalam shell: di atas titik gradasi
+     terburuk p-500 tinggal 2,73:1 (WCAG 1.4.11 mengukur garis terhadap latar
+     di LUAR kotak); p-600 = 3,10:1. Login/first-login (di luar shell) tetap p-500. */
+  --input: var(--color-primary-600);
 
   &::before,
   &::after {
