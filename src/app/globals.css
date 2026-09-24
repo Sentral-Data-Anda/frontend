@@ -404,6 +404,24 @@
     background-image: var(--canvas-aurora);
   }
 
+  /*
+   * Desktop: gradasi diposisikan relatif terhadap AREA KONTEN, seperti
+   * mockup, bukan viewport — kalau tidak, titik kiri-atas jatuh di balik
+   * sidebar navy. Lebar sidebar dibaca dari atributnya sendiri
+   * (`data-collapsed` pada `aside[data-slot="sidebar"]`, `w-64` / `w-18`),
+   * tanpa JS tambahan. Butiran tetap selebar layar (di balik sidebar tidak
+   * terlihat).
+   */
+  @media (width >= 64rem) {
+    &::before {
+      left: 16rem;
+    }
+
+    &:has([data-slot="sidebar"][data-collapsed])::before {
+      left: 4.5rem;
+    }
+  }
+
   &::after {
     background-image: var(--canvas-grain);
     background-size: 140px 140px;

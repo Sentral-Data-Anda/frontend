@@ -131,14 +131,14 @@ export function DataTable<T>({
         style={tableTemplate(columns)}
       >
         {/*
-          Kepala menempel di atas saat halaman digulir. Bidangnya kanvas 85%
-          + blur, selebar baris (termasuk yang menjorok): menutupi baris yang
+          Kepala menempel di atas saat halaman digulir. Bidangnya kanvas 40%
+          + blur 12px, selebar baris (termasuk yang menjorok): menutupi baris yang
           lewat di bawahnya, tapi gradasi aurora di belakangnya tetap tembus,
           jadi kepala tidak terbaca sebagai pita polos di atas latar.
         */}
         <div
           role="rowgroup"
-          className="bg-canvas/85 sticky top-0 z-10 backdrop-blur-sm"
+          className="bg-canvas/40 sticky top-0 z-10 backdrop-blur-md"
         >
           <div
             role="row"
