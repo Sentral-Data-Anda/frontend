@@ -25,13 +25,3 @@ export const shellWidth = "mx-auto w-full md:max-w-2xl lg:max-w-3xl";
  * `docs/design/dashboard-desktop.md` §10.5.
  */
 export const shellWidthFull = "mx-auto w-full md:max-w-2xl lg:max-w-none";
-
-/**
- * Layar kerja — isian (`FormLayout`) dan daftar bertabel (Daftar Jemaat):
- * lebar konten yang sama dengan layar lain (penuh di HP, 672px di tablet),
- * lalu di desktop mengisi kolom konten seperti dashboard — dengan batas
- * 1152px supaya satu field di grid dua kolom tidak melar lewat ±420px
- * (form-pattern.md §12). Daftar dan formnya memakai kolom yang SAMA, jadi
- * berpindah di antara keduanya tidak menggeser tepi halaman.
- */
-export const shellWidthWide = "mx-auto w-full md:max-w-2xl lg:max-w-6xl";

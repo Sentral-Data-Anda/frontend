@@ -10,7 +10,11 @@ import {
   type SelectOption,
 } from "@/components/common/control/select-field";
 import { Textarea } from "@/components/common/control/textarea";
-import { FormSection, FormWide } from "@/components/common/form/form-layout";
+import {
+  FormSection,
+  FormSequence,
+  FormWide,
+} from "@/components/common/form/form-layout";
 
 import { useDdlOptions, useKeluargaOptions } from "../api";
 import { normalizePhone, type JemaatFormValues } from "../model";
@@ -482,80 +486,83 @@ export function AddressSection({
 
   return (
     <FormSection legend="Alamat" disabled={isDisabled}>
-      <ControlField
-        control={form.control}
-        name="provincesCode"
-        label="Provinsi"
-      >
-        {(field) => (
-          <ComboboxField
-            value={field.value}
-            onValueChange={(value) => onPickLevel("provincesCode", value)}
-            options={provinces.options}
-            isLoading={provinces.isLoading}
-            disabled={isDisabled}
-            placeholder="Pilih provinsi"
-            emptyMessage="Belum ada data provinsi"
-          />
-        )}
-      </ControlField>
+      {/* Empat tingkat tidak pernah terpecah 3 + 1 di grid tiga kolom. */}
+      <FormSequence>
+        <ControlField
+          control={form.control}
+          name="provincesCode"
+          label="Provinsi"
+        >
+          {(field) => (
+            <ComboboxField
+              value={field.value}
+              onValueChange={(value) => onPickLevel("provincesCode", value)}
+              options={provinces.options}
+              isLoading={provinces.isLoading}
+              disabled={isDisabled}
+              placeholder="Pilih provinsi"
+              emptyMessage="Belum ada data provinsi"
+            />
+          )}
+        </ControlField>
 
-      <ControlField
-        control={form.control}
-        name="regenciesCode"
-        label="Kabupaten/kota"
-        hint={provincesCode ? undefined : "Pilih provinsi dulu."}
-      >
-        {(field) => (
-          <ComboboxField
-            value={field.value}
-            onValueChange={(value) => onPickLevel("regenciesCode", value)}
-            options={regencies.options}
-            isLoading={regencies.isLoading}
-            disabled={isDisabled || !provincesCode}
-            placeholder="Pilih kabupaten/kota"
-            emptyMessage="Belum ada data kabupaten/kota"
-          />
-        )}
-      </ControlField>
+        <ControlField
+          control={form.control}
+          name="regenciesCode"
+          label="Kabupaten/kota"
+          hint={provincesCode ? undefined : "Pilih provinsi dulu."}
+        >
+          {(field) => (
+            <ComboboxField
+              value={field.value}
+              onValueChange={(value) => onPickLevel("regenciesCode", value)}
+              options={regencies.options}
+              isLoading={regencies.isLoading}
+              disabled={isDisabled || !provincesCode}
+              placeholder="Pilih kabupaten/kota"
+              emptyMessage="Belum ada data kabupaten/kota"
+            />
+          )}
+        </ControlField>
 
-      <ControlField
-        control={form.control}
-        name="districtsCode"
-        label="Kecamatan"
-        hint={regenciesCode ? undefined : "Pilih kabupaten/kota dulu."}
-      >
-        {(field) => (
-          <ComboboxField
-            value={field.value}
-            onValueChange={(value) => onPickLevel("districtsCode", value)}
-            options={districts.options}
-            isLoading={districts.isLoading}
-            disabled={isDisabled || !regenciesCode}
-            placeholder="Pilih kecamatan"
-            emptyMessage="Belum ada data kecamatan"
-          />
-        )}
-      </ControlField>
+        <ControlField
+          control={form.control}
+          name="districtsCode"
+          label="Kecamatan"
+          hint={regenciesCode ? undefined : "Pilih kabupaten/kota dulu."}
+        >
+          {(field) => (
+            <ComboboxField
+              value={field.value}
+              onValueChange={(value) => onPickLevel("districtsCode", value)}
+              options={districts.options}
+              isLoading={districts.isLoading}
+              disabled={isDisabled || !regenciesCode}
+              placeholder="Pilih kecamatan"
+              emptyMessage="Belum ada data kecamatan"
+            />
+          )}
+        </ControlField>
 
-      <ControlField
-        control={form.control}
-        name="villagesCode"
-        label="Kelurahan/desa"
-        hint={districtsCode ? undefined : "Pilih kecamatan dulu."}
-      >
-        {(field) => (
-          <ComboboxField
-            value={field.value}
-            onValueChange={field.onChange}
-            options={villages.options}
-            isLoading={villages.isLoading}
-            disabled={isDisabled || !districtsCode}
-            placeholder="Pilih kelurahan/desa"
-            emptyMessage="Belum ada data kelurahan/desa"
-          />
-        )}
-      </ControlField>
+        <ControlField
+          control={form.control}
+          name="villagesCode"
+          label="Kelurahan/desa"
+          hint={districtsCode ? undefined : "Pilih kecamatan dulu."}
+        >
+          {(field) => (
+            <ComboboxField
+              value={field.value}
+              onValueChange={field.onChange}
+              options={villages.options}
+              isLoading={villages.isLoading}
+              disabled={isDisabled || !districtsCode}
+              placeholder="Pilih kelurahan/desa"
+              emptyMessage="Belum ada data kelurahan/desa"
+            />
+          )}
+        </ControlField>
+      </FormSequence>
 
       <FormWide>
         <ControlField
