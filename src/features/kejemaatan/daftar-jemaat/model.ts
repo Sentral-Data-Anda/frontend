@@ -160,7 +160,7 @@ const ALWAYS_REQUIRED = [
  */
 const MEMBER_REQUIRED = [
   ["codeInduk", "Kode induk wajib untuk Anggota; juga jadi username akun."],
-  ["zoneChurchId", "Wilayah wajib untuk Anggota; dasar pembagian pelayanan."],
+  ["zoneChurchId", "Wilayah wajib dipilih untuk Anggota."],
   ["statusMarital", "Status pernikahan wajib dipilih untuk Anggota"],
   ["ethnicGroupId", "Suku wajib dipilih untuk Anggota"],
 ] as const;
