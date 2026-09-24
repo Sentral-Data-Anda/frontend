@@ -17,6 +17,7 @@ import {
   tableTemplate,
 } from "@/components/common/loading-table";
 import { SelectField } from "@/components/common/select-field";
+import { TABLE_HEAD, TABLE_ROW_LINK } from "@/components/common/table-style";
 import { cn } from "@/lib/utils";
 
 export type DataTableColumn<T> = {
@@ -136,7 +137,7 @@ export function DataTable<T>({
                 key={column.key}
                 role="columnheader"
                 className={cn(
-                  "text-muted-foreground truncate text-caption font-medium tracking-wide uppercase",
+                  TABLE_HEAD,
                   column.isSecondary && TABLE_SECONDARY,
                 )}
               >
@@ -181,7 +182,7 @@ export function DataTable<T>({
                         href={href}
                         onClick={() => onRowOpen?.(item)}
                         aria-label={getRowLabel?.(item)}
-                        className="focus-visible:after:ring-ring block outline-none after:absolute after:inset-0 after:rounded-control focus-visible:after:ring-2"
+                        className={cn("block", TABLE_ROW_LINK)}
                       >
                         {column.cell(item)}
                       </Link>

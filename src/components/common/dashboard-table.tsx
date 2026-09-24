@@ -2,6 +2,12 @@ import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import {
+  TABLE_HEAD,
+  TABLE_HEAD_LINE_ON_CARD,
+  TABLE_ROW_LINK,
+  TABLE_ROWS_ON_CARD,
+} from "@/components/common/table-style";
 import { cn } from "@/lib/utils";
 
 export type TableColumn = {
@@ -21,9 +27,6 @@ export type TableRow = {
   /** Kolom < 40rem: baris dua tingkat. */
   compact: { title: ReactNode; meta?: ReactNode; trailing?: ReactNode };
 };
-
-const ROW_LINK =
-  "focus-visible:ring-ring outline-none after:absolute after:inset-0 after:rounded-control focus-visible:after:ring-2";
 
 /**
  * Tabel bahasa C (dashboard-desktop.md §10.9): kepala 10px kapital, baris
@@ -57,14 +60,17 @@ export function DashboardTable({
         <div role="rowgroup">
           <div
             role="row"
-            className="border-hairline grid grid-cols-(--cols) gap-3 border-b px-2.5 pr-7 pb-2"
+            className={cn(
+              TABLE_HEAD_LINE_ON_CARD,
+              "grid grid-cols-(--cols) gap-3 px-2.5 pr-7 pb-2",
+            )}
           >
             {columns.map((column) => (
               <span
                 key={column.label}
                 role="columnheader"
                 className={cn(
-                  "text-muted-foreground truncate text-caption font-medium tracking-wide uppercase",
+                  TABLE_HEAD,
                   column.align === "right" && "text-right",
                 )}
               >
@@ -73,7 +79,7 @@ export function DashboardTable({
             ))}
           </div>
         </div>
-        <div role="rowgroup" className="divide-hairline divide-y">
+        <div role="rowgroup" className={TABLE_ROWS_ON_CARD}>
           {rows.map((row) => (
             <div
               key={row.key}
@@ -97,7 +103,7 @@ export function DashboardTable({
                     <Link
                       href={row.href}
                       aria-label={row.label}
-                      className={cn("block", ROW_LINK)}
+                      className={cn("block", TABLE_ROW_LINK)}
                     >
                       {cell}
                     </Link>
@@ -119,7 +125,7 @@ export function DashboardTable({
 
       <ul
         aria-label={label}
-        className="divide-hairline divide-y @min-[40rem]:hidden"
+        className={cn(TABLE_ROWS_ON_CARD, "@min-[40rem]:hidden")}
       >
         {rows.map((row) => (
           <li
@@ -135,7 +141,7 @@ export function DashboardTable({
                   <Link
                     href={row.href}
                     aria-label={row.label}
-                    className={ROW_LINK}
+                    className={TABLE_ROW_LINK}
                   >
                     {row.compact.title}
                   </Link>

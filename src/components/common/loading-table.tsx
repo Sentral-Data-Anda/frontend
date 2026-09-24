@@ -1,6 +1,10 @@
 import type { CSSProperties } from "react";
 
 import type { DataTableColumn } from "@/components/common/data-table";
+import {
+  TABLE_HEAD,
+  TABLE_ROW_LINE_ON_CANVAS,
+} from "@/components/common/table-style";
 import { cn } from "@/lib/utils";
 
 /**
@@ -12,12 +16,8 @@ import { cn } from "@/lib/utils";
 /** Sisi kiri-kanan baris: bidang hover menjorok 10px keluar tepi konten. */
 export const ROW_BLEED = "px-2.5";
 
-/**
- * Garis bawah baris dari tepi konten ke tepi konten — TIDAK ikut menjorok
- * bersama bidang hover, supaya garisnya sejajar dengan kotak cari dan judul.
- */
-export const ROW_LINE =
-  "after:border-border after:pointer-events-none after:absolute after:inset-x-2.5 after:bottom-0 after:border-b";
+/** Garis baris di kanvas (lihat `table-style.ts`). */
+export const ROW_LINE = TABLE_ROW_LINE_ON_CANVAS;
 
 /**
  * Kolom tabel: di tabel sempit (< 52rem — tablet 632px, 1024 dengan sidebar
@@ -98,10 +98,7 @@ export function LoadingTable({
           {columns.map((column) => (
             <span
               key={column.key}
-              className={cn(
-                "text-muted-foreground truncate text-caption font-medium tracking-wide uppercase",
-                column.isSecondary && TABLE_SECONDARY,
-              )}
+              className={cn(TABLE_HEAD, column.isSecondary && TABLE_SECONDARY)}
             >
               {column.header}
             </span>
