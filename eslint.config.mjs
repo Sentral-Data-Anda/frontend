@@ -12,6 +12,12 @@ import boundaries from "eslint-plugin-boundaries";
 // banyak menulis state.
 const NAMING_SELECTORS = [
   {
+    selector:
+      "JSXAttribute > JSXExpressionContainer > :matches(ArrowFunctionExpression, FunctionExpression) > BlockStatement[body.length>2]",
+    message:
+      "Handler inline lebih dari 2 statement dipindah ke const onX = … sebelum return.",
+  },
+  {
     // ":not([typeArguments])" mencegah selector ini ikut menyala pada
     // useState<boolean>(true|false) — kasus itu sudah ditangani pesan
     // "bukan useState<boolean>" di bawah. Tanpa pengecualian ini,

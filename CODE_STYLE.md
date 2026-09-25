@@ -158,6 +158,11 @@ export const IdentitySection = (props: PropTypes) => {
   komponen (pengecualian WAJIB-11) karena satu berkas tidak bisa memuat dua
   `PropTypes`.
 
+**[WAJIB-13] Handler inline paling banyak 2 statement** (ditegakkan lint).
+Lebih dari itu, pindahkan ke `const onX = …` di blok fungsi (sebelum `useEffect`
+dan `return`), lalu teruskan namanya: `onBack={onBack}`. Callback ref yang bukan
+handler dinamai kata kerja biasa (`setCursorNode`).
+
 ## Yang dipertahankan
 
 - Test bersebelahan dengan berkas yang diuji (`x.test.ts`).

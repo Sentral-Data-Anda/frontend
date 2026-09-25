@@ -112,6 +112,11 @@ export const Calendar = (props: PropTypes) => {
     }
   };
 
+  const setCursorNode = (node: HTMLButtonElement | null) => {
+    cursorRef.current = node;
+    if (focusRef) focusRef.current = node;
+  };
+
   useEffect(() => {
     let inner = 0;
     // Dua frame: Base UI memindahkan fokus lagi setelah popup terbuka.
@@ -278,12 +283,7 @@ export const Calendar = (props: PropTypes) => {
             <button
               // Kunci posisi: kunci tanggal membuang sel yang sedang difokus.
               key={index}
-              ref={(node) => {
-                if (!isCursor) return;
-
-                cursorRef.current = node;
-                if (focusRef) focusRef.current = node;
-              }}
+              ref={isCursor ? setCursorNode : undefined}
               data-autofocus={isCursor ? "" : undefined}
               type="button"
               role="gridcell"
