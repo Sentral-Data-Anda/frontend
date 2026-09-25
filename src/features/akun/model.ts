@@ -1,32 +1,11 @@
-import { z } from "zod";
+import type { z } from "zod";
 
 import { formatDate } from "@/lib/format";
+import { changePasswordSchema } from "@/lib/password";
 
 import type { OfferingItem } from "./types";
 
-const PASSWORD_PATTERN = /^(?=(.*[A-Z]){1})(?=(.*\d){3})/;
-
-export const passwordFormSchema = z
-  .object({
-    oldPassword: z
-      .string()
-      .trim()
-      .min(1, "Password lama wajib diisi")
-      .max(25, "Password lama maksimal 25 karakter"),
-    newPassword: z
-      .string()
-      .min(1, "Password baru wajib diisi")
-      .max(25, "Password baru maksimal 25 karakter")
-      .regex(
-        PASSWORD_PATTERN,
-        "Password baru harus memuat satu huruf besar dan tiga angka.",
-      ),
-    confirmPassword: z.string().min(1, "Ulangi password baru"),
-  })
-  .refine((form) => form.confirmPassword === form.newPassword, {
-    path: ["confirmPassword"],
-    message: "Konfirmasi tidak sama dengan password baru",
-  });
+export const passwordFormSchema = changePasswordSchema;
 
 export type PasswordFormValues = z.infer<typeof passwordFormSchema>;
 

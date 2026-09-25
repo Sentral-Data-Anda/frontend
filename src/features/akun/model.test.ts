@@ -3,54 +3,17 @@ import { describe, expect, test } from "bun:test";
 import {
   offeringMeta,
   passwordFieldError,
-  passwordFormSchema,
   roleLabels,
   summarizeOfferings,
 } from "./model";
 
-const issuesOf = (values: Record<string, string>) => {
-  const parsed = passwordFormSchema.safeParse(values);
-
-  return parsed.success ? [] : parsed.error.issues.map((i) => i.path[0]);
-};
-
-describe("passwordFormSchema, cermin updatePasswordSchema be-sada", () => {
-  test("huruf besar dan tiga angka wajib", () => {
-    expect(
-      issuesOf({
-        oldPassword: "lama",
-        newPassword: "rahasia123",
-        confirmPassword: "rahasia123",
-      }),
-    ).toEqual(["newPassword"]);
-
-    expect(
-      issuesOf({
-        oldPassword: "lama",
-        newPassword: "Rahasia123",
-        confirmPassword: "Rahasia123",
-      }),
-    ).toEqual([]);
-  });
-
-  test("konfirmasi yang berbeda ditolak di fieldnya", () => {
-    expect(
-      issuesOf({
-        oldPassword: "lama",
-        newPassword: "Rahasia123",
-        confirmPassword: "Rahasia124",
-      }),
-    ).toEqual(["confirmPassword"]);
-  });
-
-  test("pesan password lama salah dari be-sada mendarat di oldPassword", () => {
-    expect(
-      passwordFieldError(
-        "Password Lama yang Anda masukkan tidak valid. Mohon periksa kembali",
-      )?.field,
-    ).toBe("oldPassword");
-    expect(passwordFieldError("Kesalahan server")).toBeNull();
-  });
+test("pesan password lama salah dari be-sada mendarat di oldPassword", () => {
+  expect(
+    passwordFieldError(
+      "Password Lama yang Anda masukkan tidak valid. Mohon periksa kembali",
+    )?.field,
+  ).toBe("oldPassword");
+  expect(passwordFieldError("Kesalahan server")).toBeNull();
 });
 
 describe("persembahan dan profil", () => {

@@ -33,6 +33,8 @@
  *                                         (validasi = issues[] per field)
  *   MOCK_OFFERINGS=empty|500            → /persembahan/saya kosong atau galat (halaman Akun)
  *   Ganti password (/akun): password lama "salah" → 400 dari be-sada.
+ *   MOCK_PENDING=1                      → akun PENDING: /authentication menampilkan form
+ *                                         login pertama (PUT /auth/update/:code)
  *   MOCK_DDL_EMPTY=1                    → semua daftar pilihan form kosong (404)
  *   MOCK_DDL_MANY=1                     → daftar keluarga 400 baris (combobox panjang)
  *
@@ -264,7 +266,7 @@ const ROLE_JEMAAT: Record<
 const session = {
   code: "U-0001",
   username: "A-0184",
-  status: "ACTIVE",
+  status: process.env.MOCK_PENDING ? "PENDING" : "ACTIVE",
   roleUser: { name: persona.roleName, isAdmin: persona.isAdmin },
   jemaat: {
     code: "JMT-0012",
@@ -400,12 +402,18 @@ Bun.serve({
         setCookies("mock", 60 * 60 * 24),
       );
     }
-    // auth.route.ts: change-password dijaga Authorization(MENU.USER, "UPDATE").
+    if (path.startsWith("/auth/update/")) {
+      return json(
+        {
+          status: 200,
+          message: "Berhasil Memperbarui Data User. Silakan Login Kembali",
+        },
+        200,
+        setCookies("", 0),
+      );
+    }
+    // Semua user login boleh mengganti password sendiri (be-sada fcddaf9).
     if (path.startsWith("/auth/change-password/")) {
-      if (!actionsOf(persona, "USER").includes("UPDATE")) {
-        return json({ status: 403, error: "Anda Tidak Memiliki Akses" }, 403);
-      }
-
       const body = (await request.json()) as { oldPassword?: string };
 
       if (body.oldPassword === "salah") {

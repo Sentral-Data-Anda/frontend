@@ -16,10 +16,11 @@ import {
 } from "@/components/common/form";
 import { ConfirmDialog } from "@/components/common/overlay";
 import { PageHeader, logout } from "@/components/layout";
-import { ACCOUNT_HREF, MENU } from "@/config/menu";
-import { useMenuAccess, useSession } from "@/features/auth";
+import { ACCOUNT_HREF } from "@/config/menu";
+import { useSession } from "@/features/auth";
 import { useBoolean } from "@/hooks/use-boolean";
 import { applyServerError, revealField } from "@/lib/form-error";
+import { PASSWORD_HINT } from "@/lib/password";
 
 import { useChangePassword } from "../api";
 import {
@@ -29,12 +30,9 @@ import {
   type PasswordFormValues,
 } from "../model";
 
-import { NoPasswordAccess } from "./no-password-access";
-
 export const PasswordFormScreen = () => {
   const router = useRouter();
   const session = useSession();
-  const { isCanUpdate } = useMenuAccess(MENU.USER);
   const changePassword = useChangePassword(session.code);
   const [rejectedField, setRejectedField] = useState<string | null>(null);
   const isConfirmOpen = useBoolean();
@@ -88,8 +86,6 @@ export const PasswordFormScreen = () => {
     else revealField(rejectedField);
   }, [isSubmitting, submitCount, rejectedField]);
 
-  if (!isCanUpdate) return <NoPasswordAccess />;
-
   return (
     <FormLayout
       onSubmit={onConfirm}
@@ -120,7 +116,7 @@ export const PasswordFormScreen = () => {
     >
       <FormSection
         legend="Password"
-        note="Password baru memuat satu huruf besar dan tiga angka, paling banyak 25 karakter. Setelah disimpan, semua perangkat keluar dan Anda masuk lagi."
+        note={`${PASSWORD_HINT} Setelah disimpan, semua perangkat keluar dan Anda masuk lagi.`}
         disabled={isSubmitting}
       >
         <FormWide className="max-w-sm">

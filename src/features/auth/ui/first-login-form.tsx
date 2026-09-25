@@ -3,23 +3,15 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+import type { z } from "zod";
 
 import { Button, PasswordInput } from "@/components/common/control";
 import { FormField } from "@/components/common/form";
-import { FetchError, fetchOne } from "@/lib/api/fetcher";
+import { fetchOne } from "@/lib/api/fetcher";
+import { applyServerError } from "@/lib/form-error";
+import { firstPasswordSchema, PASSWORD_HINT } from "@/lib/password";
 
-const firstLoginSchema = z
-  .object({
-    newPassword: z.string().min(8, "Password minimal 8 karakter"),
-    confirmPassword: z.string(),
-  })
-  .refine((form) => form.newPassword === form.confirmPassword, {
-    path: ["confirmPassword"],
-    message: "Konfirmasi password tidak sama",
-  });
-
-type FirstLoginForm = z.infer<typeof firstLoginSchema>;
+type FirstLoginForm = z.infer<typeof firstPasswordSchema>;
 
 interface PropTypes {
   code: string;
@@ -36,7 +28,7 @@ export const FirstLoginForm = (props: PropTypes) => {
     setError,
     formState: { errors, isSubmitting },
   } = useForm<FirstLoginForm>({
-    resolver: zodResolver(firstLoginSchema),
+    resolver: zodResolver(firstPasswordSchema),
     defaultValues: { newPassword: "", confirmPassword: "" },
   });
 
@@ -44,17 +36,12 @@ export const FirstLoginForm = (props: PropTypes) => {
     try {
       await fetchOne(`/auth/update/${code}`, {
         method: "PUT",
-        body: JSON.stringify({ newPassword: form.newPassword }),
+        body: JSON.stringify(form),
       });
 
       router.replace("/login");
     } catch (error) {
-      setError("root", {
-        message:
-          error instanceof FetchError
-            ? error.message
-            : "Tidak dapat menghubungi server. Periksa koneksi Anda.",
-      });
+      applyServerError(error, setError);
     }
   };
 
@@ -74,7 +61,7 @@ export const FirstLoginForm = (props: PropTypes) => {
       <FormField
         label="Password baru"
         htmlFor="newPassword"
-        hint="Minimal 8 karakter."
+        hint={PASSWORD_HINT}
         error={errors.newPassword?.message}
       >
         <PasswordInput
