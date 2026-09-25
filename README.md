@@ -12,6 +12,9 @@ notification.
 > **Status: kerangka arsitektur.** Repo ini sedang ditata dan belum berisi
 > fitur. Situs profil gereja adalah project terpisah, bukan repo ini.
 
+**Gaya kode: [CODE_STYLE.md](CODE_STYLE.md)** — komentar hampir nol, awalan
+`is`/`on`/`pick`, barrel `index.ts` per folder. Baca sebelum menulis kode.
+
 ## Stack
 
 - Next.js 16 (App Router, Turbopack) + React 19 + TypeScript
