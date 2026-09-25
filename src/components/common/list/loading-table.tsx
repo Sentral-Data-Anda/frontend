@@ -8,26 +8,10 @@ import {
 } from "@/components/common/list/table-style";
 import { cn } from "@/lib/utils";
 
-/**
- * Berkas TANPA `"use client"`: kerangka tabel juga dirender sebagai fallback
- * `Suspense` di server (`LoadingDataList`), dan komponen klien tidak boleh
- * menerima konfigurasi kolom yang berisi fungsi `cell` dari server.
- */
-
-/** Sisi kiri-kanan baris: bidang hover menjorok 10px keluar tepi konten. */
 export const ROW_BLEED = "px-2.5";
 
-/** Garis baris di kanvas (lihat `table-style.ts`). */
 export const ROW_LINE = TABLE_ROW_LINE_ON_CANVAS;
 
-/**
- * Kolom tabel: di tabel sempit (< 52rem — tablet 632px, 1024 dengan sidebar
- * penuh 714px) hanya kolom utama; kolom `isSecondary` ikut tampil begitu
- * tabelnya ≥ 52rem. Container query pada `TABLE_CONTAINER`, jadi yang
- * menentukan lebar tabel, bukan lebar layar. Jalur grid-nya ikut berganti
- * (`--cols-narrow` → `--cols`), karena sel yang `display: none` tidak
- * membuang jalurnya.
- */
 export const TABLE_CONTAINER = "@container px-gutter";
 export const TABLE_GRID =
   "grid grid-cols-(--cols-narrow) items-center gap-4 @min-[52rem]:grid-cols-(--cols)";
@@ -50,7 +34,6 @@ export function tableTemplate(columns: SkeletonColumn[]): CSSProperties {
   } as CSSProperties;
 }
 
-/** Baris kerangka 56px, tanpa kepala — juga disisipkan saat memuat lagi. */
 export function LoadingTableRows({
   columns,
   rows,
@@ -58,7 +41,6 @@ export function LoadingTableRows({
   columns: SkeletonColumn[];
   rows: number;
 }) {
-  // key={index}: kerangka tidak punya identitas dari data.
   return Array.from({ length: rows }, (_, index) => (
     <div
       key={index}
@@ -84,7 +66,6 @@ export function LoadingTableRows({
   ));
 }
 
-/** Kerangka tabel: kepala asli + baris 56px, supaya data tiba tanpa lompatan. */
 export function LoadingTable({
   columns,
   rows = 6,

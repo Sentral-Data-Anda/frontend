@@ -8,14 +8,6 @@ import { DateField } from "./date-field";
 
 afterEach(cleanup);
 
-/**
- * Pembungkus TERKENDALI SUNGGUHAN.
- *
- * Bukan sekadar variabel yang dicatat: sejak teks kotak diturunkan dari
- * `value`, harness yang tidak pernah merender ulang akan menguji komponen
- * dalam keadaan yang tidak pernah terjadi di aplikasi — dan itu persis
- * bagaimana enam test sempat lulus atas perilaku yang salah.
- */
 const onRenderDate = (props: Partial<Parameters<typeof DateField>[0]> = {}) => {
   const sent: string[] = [];
 
@@ -137,11 +129,6 @@ describe("DateField — galat (§7.7, §7.10 no. 3 & 10)", () => {
     ).toBeTruthy();
   });
 
-  /**
-   * Isi kotak TIDAK dinormalkan saat salah: user harus melihat yang ia ketik
-   * untuk bisa membetulkannya. Menormalkan yang salah berarti menghapus jejak
-   * kesalahannya.
-   */
   test("teks yang salah dibiarkan apa adanya", () => {
     const date = onRenderDate();
 

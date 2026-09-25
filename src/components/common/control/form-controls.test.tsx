@@ -21,13 +21,6 @@ const OPTIONS = [
   { value: "P", label: "Perempuan" },
 ];
 
-/**
- * Satu hal yang diperiksa untuk SETIAP kontrol baru: ia menerima `id`,
- * `aria-invalid`, dan `aria-describedby` dari `FormField` lewat `cloneElement`,
- * persis seperti `Input`. Tanpa itu, label dan pesan galatnya tidak pernah
- * sampai ke pembaca layar — dan kegagalannya tidak terlihat sama sekali di
- * layar yang dilihat mata.
- */
 describe("kontrol baru tersambung ke FormField", () => {
   test.each([
     [
@@ -143,9 +136,6 @@ describe("DateField", () => {
       </FormField>,
     );
 
-    // Sejak `date-input.md §7`, kalendernya milik kita: kotaknya teks biasa
-    // ber-`inputMode="numeric"`, bukan `type="date"` yang membawa pemilih
-    // bawaan peramban.
     const box = screen.getByLabelText("Tanggal lahir");
 
     expect(box.getAttribute("type")).not.toBe("date");
@@ -166,16 +156,10 @@ describe("FormLayout", () => {
       </FormLayout>,
     );
 
-    // `input.disabled` TIDAK ikut berubah — properti itu hanya mencerminkan
-    // atribut milik input sendiri. Yang dimatikan fieldset adalah keadaannya
-    // di CSS dan di interaksi, jadi yang diperiksa `:disabled`.
     const fieldset = screen
       .getByLabelText("Nama")
       .closest("fieldset") as HTMLFieldSetElement;
 
-    // happy-dom tidak menurunkan keadaan itu ke anaknya, jadi yang bisa
-    // diperiksa di sini hanya fieldset-nya. Efek ke kontrol di dalamnya
-    // diperiksa lewat render di peramban sungguhan.
     expect(fieldset.disabled).toBe(true);
   });
 

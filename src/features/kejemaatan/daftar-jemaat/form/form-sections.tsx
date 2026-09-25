@@ -28,22 +28,6 @@ import { ControlField } from "./control-field";
 
 export type JemaatForm = UseFormReturn<JemaatFormValues>;
 
-/**
- * Peta label enum → pilihan. Diturunkan dari peta yang sama yang dipakai
- * layar daftar, supaya "Tidak aktif" tidak pernah punya dua ejaan.
- */
-/**
- * Satu aturan placeholder untuk SELURUH kontrol pilihan: `Pilih <label huruf
- * kecil>`, apa pun kontrolnya.
- *
- * Sebelumnya `Select` memakai "Pilih …" dan `Combobox` "Cari …", mengikuti
- * cara kerjanya. Berdampingan dalam satu kelompok ("Pilih status pernikahan",
- * "Cari pekerjaan", "Cari suku", "Pilih pendidikan") dua kata kerja itu
- * terbaca sebagai ketidakrapian, bukan sebagai petunjuk — dan yang berbeda
- * memang bukan tindakan user, melainkan bagaimana kontrolnya menyaring.
- * Satu-satunya pengecualian: tingkat alamat yang masih terkunci, yang
- * placeholder-nya menyebut apa yang harus dipilih lebih dulu.
- */
 const optionsOf = (labels: Record<string, string>): SelectOption[] =>
   Object.entries(labels).map(([value, label]) => ({ value, label }));
 
@@ -54,12 +38,6 @@ const MARITAL_OPTIONS = optionsOf(STATUS_PERNIKAHAN_LABEL);
 const BLOOD_OPTIONS = optionsOf(BLOOD_TYPE_LABEL);
 const ROLE_OPTIONS = optionsOf(ROLE_IN_FAMILY_LABEL);
 
-/**
- * "Tidak diketahui" adalah nilai KOSONG, bukan anggota enum: be-sada
- * menyimpannya sebagai `null`. Ia tetap muncul sebagai pilihan supaya petugas
- * bisa menjawabnya dengan sengaja — melewati field begitu saja tidak bisa
- * dibedakan dari lupa.
- */
 const EDUCATION_OPTIONS: SelectOption[] = [
   { value: "", label: "Tidak diketahui" },
   ...optionsOf(LAST_EDUCATION_LABEL),
@@ -76,8 +54,6 @@ export function IdentitySection({
     <FormSection legend="Identitas" disabled={isDisabled}>
       <ControlField control={form.control} name="name" label="Nama lengkap">
         {(field) => (
-          // Tanpa auto-kapitalisasi paksa: "de Fretes" dan "binti" berhak
-          // hidup apa adanya (form-pattern.md §1.6).
           <Input {...field} autoComplete="name" autoCapitalize="words" />
         )}
       </ControlField>
@@ -102,12 +78,6 @@ export function IdentitySection({
         {(field) => <Input {...field} maxLength={25} />}
       </ControlField>
 
-      {/*
-        Opsional, keputusan user: tanggal lahir yang tidak diketahui disimpan
-        KOSONG dan jemaatnya tetap tersimpan. Petugas yang mencatat data
-        migrasi lama sering memang tidak punya angkanya, dan menahan seluruh
-        orang karena satu tanggal berarti orangnya tidak tercatat sama sekali.
-      */}
       <ControlField
         control={form.control}
         name="birthDate"
@@ -129,11 +99,6 @@ export function IdentitySection({
   );
 }
 
-/**
- * Tipe jemaat duduk di kelompok KEDUA, sebelum kelompok yang dipengaruhinya.
- * Ia menentukan enam field lain wajib atau tidak; menanyakannya di akhir
- * berarti menyalakan tanda wajib pada field yang sudah dilewati.
- */
 export function MembershipSection({
   form,
   isDisabled,
@@ -145,17 +110,6 @@ export function MembershipSection({
     useWatch({ control: form.control, name: "typeJemaat" }) === "ANGGOTA";
   const zoneChurch = useDdlOptions("zone-church");
 
-  /**
-   * Kode induk juga menjadi username akun jemaat, jadi mengubahnya mengganti
-   * nama akun. Peringatan inline (keputusan Tech Lead), bukan dialog
-   * konfirmasi: yang perlu dilakukan petugas bukan menjawab pertanyaan,
-   * melainkan tahu akibatnya sambil mengetik.
-   *
-   * MENUNGGU BACKEND (B14): detail belum menyertakan `hasAccount`/`username`,
-   * jadi FE tidak tahu jemaat ini punya akun atau tidak — kalimatnya karena
-   * itu bersyarat ("kalau"). Begitu B14 ada, peringatan ini hanya muncul
-   * untuk jemaat yang benar-benar punya akun, dan bisa menyebut username-nya.
-   */
   const codeInduk = useWatch({ control: form.control, name: "codeInduk" });
   const isCodeIndukChanged =
     Boolean(form.formState.defaultValues?.codeInduk) &&
@@ -201,8 +155,6 @@ export function MembershipSection({
         name="codeInduk"
         label="Kode induk"
         isOptional={!isAnggota}
-        // Keputusan user: formatnya bebas, diketik petugas. Yang perlu
-        // diketahui bukan polanya, melainkan akibatnya.
         isHintWarning={isCodeIndukChanged}
         hint={
           isCodeIndukChanged
@@ -220,9 +172,6 @@ export function MembershipSection({
         name="zoneChurchId"
         label="Wilayah"
         isOptional={!isAnggota}
-        // Daftar menampilkan wilayah EFEKTIF (be-sada B15): wilayah keluarga
-        // aktif menang atas isian ini. Tanpa kalimat ini, jemaat berkeluarga
-        // tampil dengan wilayah lain di daftar dan terbaca salah simpan.
         hint="Bila ikut keluarga, wilayah mengikuti keluarganya."
       >
         {(field) => (
@@ -273,12 +222,6 @@ export function ContactSection({
       note="Keduanya boleh dikosongkan. Satu nomor boleh dipakai beberapa anggota keluarga."
       disabled={isDisabled}
     >
-      {/*
-        Opsional, keputusan user (B1): bayi, anak, dan lansia tidak punya
-        nomor, dan satu nomor rumah tangga dipakai bersama. Sebelumnya satu-
-        satunya jalan adalah mengarang nomor — merusak persis data yang
-        dipakai untuk menghubungi jemaat.
-      */}
       <ControlField control={form.control} name="phone" label="Telepon">
         {(field) => (
           <Input
@@ -398,13 +341,6 @@ export function SocialSection({
         )}
       </ControlField>
 
-      {/*
-        Golongan darah, pekerjaan, dan pendidikan opsional untuk SEMUA ORANG,
-        juga Anggota: field wajib yang tidak bisa dijawab jujur akan diisi
-        asal, dan angka asal lebih merusak laporan daripada kolom kosong.
-        Yang tetap wajib untuk Anggota tinggal status pernikahan, suku,
-        wilayah, dan kode induk.
-      */}
       <ControlField
         control={form.control}
         name="bloodType"
@@ -424,18 +360,6 @@ export function SocialSection({
   );
 }
 
-/**
- * Alamat bertingkat: provinsi → kabupaten → kecamatan → kelurahan.
- *
- * Mengubah tingkat atas MENGOSONGKAN seluruh tingkat di bawahnya. Tanpa itu,
- * mengganti provinsi menyisakan kelurahan dari provinsi sebelumnya — kombinasi
- * yang lolos validasi FE, diterima server, dan baru ketahuan salah saat ada
- * yang berkunjung ke alamatnya.
- *
- * Tingkat bawah terkunci selama tingkat atasnya kosong, dengan kalimat yang
- * menyebut apa yang harus dipilih dulu — daftar kosong tanpa penjelasan
- * terbaca sebagai data yang belum ada.
- */
 export function AddressSection({
   form,
   isDisabled,
@@ -462,7 +386,6 @@ export function AddressSection({
     "code",
   );
 
-  /** Satu tingkat berganti → tingkat di bawahnya dikosongkan, berurutan. */
   const onPickLevel = (
     level: "provincesCode" | "regenciesCode" | "districtsCode",
     value: string,
@@ -577,11 +500,6 @@ export function AddressSection({
   );
 }
 
-/**
- * Keluarga itu opsional — banyak jemaat tinggal sendiri atau kos — tapi peran
- * WAJIB begitu keluarga dipilih: `KeluargaMember` di be-sada butuh keduanya,
- * dan salah satunya sendirian tidak tersimpan tanpa pesan apa pun.
- */
 export function FamilySection({
   form,
   isDisabled,
@@ -604,9 +522,6 @@ export function FamilySection({
             value={field.value}
             onValueChange={(value) => {
               field.onChange(value);
-              // Keluarga dikosongkan → peran ikut kosong. Peran tanpa keluarga
-              // ditolak skema, dan membiarkannya berarti galat yang muncul di
-              // field yang bukan baru saja disentuh user.
               if (!value) {
                 form.setValue("roleInFamily", "", { shouldDirty: true });
               }

@@ -12,21 +12,6 @@ import { EmptyState } from "@/components/common/feedback/empty-state";
 import { inputVariants } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
-/**
- * Kontrol pilihan yang bisa diketik untuk menyaring — untuk daftar 15 nilai ke
- * atas: pekerjaan, suku, wilayah, provinsi, kabupaten, kecamatan, kelurahan,
- * keluarga.
- *
- * Dua mode penyaringan, dan pemanggil memilihnya dengan ada-tidaknya
- * `onSearch`: tanpa `onSearch` daftarnya utuh dan disaring di klien (daftar
- * pendek dan tetap), dengan `onSearch` ketikan dikirim ke server sebagai
- * `?filter=` (keluarga — ratusan baris hari ini, ribuan setelah migrasi).
- *
- * Tiga keadaan yang harus terlihat, dan karena itu komponen ini ada:
- * **memuat** (daftar belum datang), **kosong** (404 dari `ddl/*` = daftar
- * kosong, bukan galat), dan **terkunci** (tingkat alamat di atasnya belum
- * dipilih) — masing-masing dengan kalimatnya sendiri, bukan popup kosong.
- */
 export function ComboboxField({
   id,
   value,
@@ -49,27 +34,14 @@ export function ComboboxField({
   disabled?: boolean;
   isLoading?: boolean;
   emptyMessage?: string;
-  /** Field opsional boleh dikosongkan lagi setelah terisi. */
   isClearable?: boolean;
-  /**
-   * Ada = penyaringan dilakukan SERVER; ketikan diteruskan ke sini dan
-   * penyaringan sisi klien dimatikan. Tanpa mematikannya, daftar 20 baris
-   * yang baru datang dari server disaring lagi terhadap ketikan yang sudah
-   * berubah, dan popup berkedip kosong di antara dua permintaan.
-   */
   onSearch?: (query: string) => void;
   className?: string;
   "aria-invalid"?: boolean;
   "aria-describedby"?: string;
 }) {
-  // Nilai tersimpan adalah kode/id; labelnya baru diketahui setelah daftarnya
-  // termuat. Sampai saat itu input memang kosong — detail be-sada tidak
-  // mengirim nama relasi (B8), jadi tidak ada yang bisa ditampilkan lebih awal.
   const selected = options.find((option) => option.value === value) ?? null;
 
-  // Terkunci hanya saat BELUM ADA apa pun untuk dipilih. Saat penyaringan
-  // sisi server, tiap ketikan memulai permintaan baru — mengunci input di
-  // situ berarti huruf berikutnya hilang dan kursor melompat keluar.
   const isBusy = isLoading && options.length === 0;
 
   return (

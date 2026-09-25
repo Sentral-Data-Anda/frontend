@@ -17,7 +17,6 @@ import { useJemaatList } from "./api";
 
 afterEach(cleanup);
 
-/** Mode berhalaman (desktop): satu permintaan per render, mudah dibaca. */
 let viewport: ReturnType<typeof onStubViewport>;
 
 beforeAll(() => {
@@ -40,16 +39,6 @@ const onParams = (next: Partial<ListState>): ListState => ({
   ...next,
 });
 
-/**
- * Yang diuji bukan cuma hook-nya melainkan bahwa rantainya benar-benar
- * tersambung: `useListQuery` → `fetchList` →
- * `/api/v1/...` → amplop be-sada.
- *
- * `QueryClient` dibuat per test dengan `retry: false`. Kebijakan retry
- * sebenarnya ada di `providers.tsx` dan sengaja TIDAK dipakai di sini: dengan
- * retry menyala, test jalur galat harus menunggu dua percobaan ulang beserta
- * backoff-nya sebelum `isError` menyala.
- */
 const onRenderQuery = (params: ListState) => {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
@@ -111,11 +100,6 @@ describe("useJemaatList", () => {
     onRestore();
   });
 
-  /**
-   * Verifikasi §13.3, diuji di lapis tempat penerjemahannya benar-benar
-   * terjadi: 404 dari endpoint daftar TIDAK BOLEH sampai ke layar sebagai
-   * galat.
-   */
   test("404 dari be-sada menjadi daftar kosong yang sukses", async () => {
     const onRestore = onStubFetch(() =>
       Response.json(

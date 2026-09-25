@@ -17,23 +17,11 @@ import {
   type JemaatListItem,
 } from "../types";
 
-/**
- * Satu baris Daftar Jemaat.
- *
- * Baris kedua menggabungkan kode dan tipe dengan pemisah titik tengah, bukan
- * dua kolom terpisah: pada 390px kolom kedua yang sejajar akan menyisakan
- * ruang untuk nama kurang dari setengah layar. Nama adalah yang dicari orang,
- * jadi nama yang mendapat sisa ruangnya.
- *
- * Keluarga ikut ditampilkan bila ada — dua jemaat bernama sama dibedakan oleh
- * keluarganya, dan itulah pertanyaan pertama yang muncul saat melihat daftar.
- */
 export function JemaatListItemRow({
   jemaat,
   isCanUpdate = false,
 }: {
   jemaat: JemaatListItem;
-  /** Menyalin guard endpoint `DAFTAR_JEMAAT` UPDATE — tampilan, bukan pengaman. */
   isCanUpdate?: boolean;
 }) {
   const meta = [
@@ -46,9 +34,6 @@ export function JemaatListItemRow({
 
   return (
     <DataListRow
-      // `code`, bukan `publicId`: daftar be-sada tidak mengirim `publicId`,
-      // dan `code` sudah unik. Ini yang membuat baris yang baru disimpan
-      // tersorot saat form mengembalikan petugas ke sini.
       id={jemaat.code}
       leading={<Avatar label={jemaat.name} />}
       title={jemaat.name}
@@ -58,14 +43,6 @@ export function JemaatListItemRow({
           <JemaatStatus status={jemaat.status} />
 
           {isCanUpdate ? (
-            // `<Link>` bergaya tombol, BUKAN `Button` ber-`render`: aksi ini
-            // adalah perpindahan halaman, dan Base UI memasang `role="button"`
-            // pada elemen yang dirender — yang menghapus semantik tautan
-            // beserta klik-tengah dan "buka di tab baru".
-            //
-            // Menandai baris SEBELUM pergi, bukan sesudah kembali: saat
-            // kembali, layar ini dirender ulang dari cache dan tidak lagi
-            // tahu baris mana yang dibuka.
             <Link
               href={editHref(MENU.KEJEMAATAN, MENU.DAFTAR_JEMAAT, jemaat.code)}
               onClick={() => saveListFocus(JEMAAT_LIST_PATH, jemaat.code)}
@@ -84,7 +61,6 @@ export function JemaatListItemRow({
   );
 }
 
-/** Nama relasi, atau "—" dengan teks pembaca layar bila kosong. */
 function OptionalName({ name, empty }: { name?: string; empty: string }) {
   return name ? (
     <span className="block truncate" title={name}>
@@ -106,20 +82,6 @@ function JemaatStatus({ status }: { status: JemaatListItem["status"] }) {
   );
 }
 
-/**
- * Daftar Jemaat sebagai tabel (tablet ke atas). Semua kolom proporsional
- * (`fr`), rasionya mengikuti panjang isi yang khas: Nama 2.5, Keluarga 2,
- * Wilayah 1.2, Kode/Tipe/Status 1 — jadi celah antar-kolom ikut rata saat
- * tabel melebar, bukan menumpuk di satu tempat. Tabel sempit memakai
- * `narrowWidth` — sama dengan sebelum lebar penuh, jadi 820 dan 1024
- * bersidebar penuh tidak berubah. Kolom = field yang memang
- * dikirim `GET /jemaat` (lihat `JemaatListItem`). Tipe dan Keluarga kolom
- * pelengkap: disembunyikan di tabel sempit (tablet, 1024 bersidebar penuh),
- * supaya Nama, Kode, Wilayah, dan Status tidak terpotong.
- *
- * Seluruh baris membuka form ubah, sama dengan pensil di baris HP; pensilnya
- * tetap tampil sebagai penanda. Tanpa izin UPDATE baris tidak bisa dibuka.
- */
 export function jemaatTable(
   isCanUpdate: boolean,
 ): DataTableConfig<JemaatListItem> {

@@ -8,13 +8,6 @@ import { Button } from "@/components/ui/button";
 import { useBoolean } from "@/hooks/use-boolean";
 import { cn } from "@/lib/utils";
 
-/**
- * Input password dengan tombol tampilkan/sembunyikan.
- *
- * Tombolnya `type="button"` — tanpa itu, menekannya men-submit form. Target
- * sentuhnya 30px (`size="icon"`) penuh setinggi input, bukan ikon 16px.
- * Ikon gembok di kiri selalu ada, sama seperti ikon field lain di form masuk.
- */
 export function PasswordInput({
   className,
   ...props

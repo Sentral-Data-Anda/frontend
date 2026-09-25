@@ -29,12 +29,6 @@ const onRenderList = (items: Row[] = rows) =>
 const rowOf = (name: string) =>
   screen.getByText(name).closest("li") as HTMLElement;
 
-/**
- * Sorotan baris yang dibuka terakhir (list-state.md §2.4). Yang diuji di sini
- * bukan warnanya, melainkan dua hal yang membuatnya salah tanpa terlihat
- * salah: sorotan yang menempel di baris lain, dan penanda yang tidak pernah
- * dibuang sehingga baris itu tersorot lagi setiap kali daftar dibuka.
- */
 describe("sorotan baris terakhir", () => {
   test("menyorot baris pada list-focus, dan hanya baris itu", () => {
     window.sessionStorage.setItem(`list-focus:${LIST}`, "JMT-0002");
@@ -78,16 +72,6 @@ describe("sorotan baris terakhir", () => {
   });
 });
 
-/**
- * Balapan yang memakan sorotan setelah simpan (temuan Tech Lead atas
- * `e1000f8`, terukur 10 sampel `[data-focus]` nol semua).
- *
- * Urutannya: form menulis `list-focus` lalu berpindah; daftar ter-mount
- * dengan isi dari cache yang BELUM memuat baris baru; baris itu baru tiba
- * satu render kemudian setelah invalidasi selesai. Penanda yang dibuang pada
- * render pertama karena itu tidak pernah sempat dipakai — dan kegagalannya
- * tidak terlihat sebagai galat, hanya sebagai sorotan yang tidak muncul.
- */
 describe("sorotan bertahan sampai barisnya benar-benar ada", () => {
   test("baris yang baru disimpan tetap tersorot walau tiba satu render kemudian", () => {
     window.sessionStorage.setItem(`list-focus:${LIST}`, "JMT-9001");
@@ -95,7 +79,6 @@ describe("sorotan bertahan sampai barisnya benar-benar ada", () => {
     const baru = { id: "JMT-9001", name: "Maria" };
     const { rerender } = onRenderList(rows);
 
-    // Render pertama: barisnya belum ada, penanda TIDAK boleh dibuang.
     expect(window.sessionStorage.getItem(`list-focus:${LIST}`)).toBe(
       "JMT-9001",
     );

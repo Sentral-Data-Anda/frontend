@@ -64,10 +64,6 @@ describe("Calendar — kisi (§7.5)", () => {
     );
   });
 
-  /**
-   * Satu titik Tab. Kisi 42 sel yang tiap selnya bisa di-Tab berarti 42 tekan
-   * Tab untuk melewati kalender — persis yang dilarang APG.
-   */
   test("hanya SATU sel yang bisa dijangkau Tab (roving tabindex)", () => {
     const cal = onRenderCalendar();
 
@@ -90,10 +86,6 @@ describe("Calendar — batas min/max (§7.10 no. 7)", () => {
     expect(cal.picked).toHaveLength(0);
   });
 
-  /**
-   * Kursor tidak pernah KELUAR batas, jadi keyboard tidak punya jalan memilih
-   * hari terlarang — dijamin oleh bentuknya, bukan oleh pemeriksaan tambahan.
-   */
   test("panah berhenti di batas, tidak melompat ke hari terlarang", () => {
     const cal = onRenderCalendar({ value: "2026-09-23", max: "2026-09-23" });
 
@@ -102,12 +94,6 @@ describe("Calendar — batas min/max (§7.10 no. 7)", () => {
     expect(cal.cursor()?.getAttribute("aria-label")).toBe("23 September 2026");
   });
 
-  /**
-   * Regresi yang terukur: dulu panah MEMINDAHKAN kursor ke sel disabled, sel
-   * disabled menolak fokus, dan tekanan BERIKUTNYA tertelan — dari 23
-   * September, `ArrowLeft` sesudah `ArrowRight` baru bekerja pada tekanan
-   * kedua.
-   */
   test("tekanan sesudah ditolak batas tidak tertelan", () => {
     const cal = onRenderCalendar({ value: "2026-09-23", max: "2026-09-23" });
 
@@ -140,7 +126,7 @@ describe("Calendar — keyboard (§7.8)", () => {
   });
 
   test("Home dan End ke ujung pekan", () => {
-    const cal = onRenderCalendar({ value: "2026-09-10" }); // Kamis
+    const cal = onRenderCalendar({ value: "2026-09-10" });
 
     cal.press("Home");
     expect(cal.cursor()?.getAttribute("aria-label")).toBe("7 September 2026");
@@ -242,10 +228,6 @@ describe("Calendar — kaki (§7.10 no. 9)", () => {
   });
 });
 
-/**
- * Kisi tahun dibuka PERTAMA untuk tanggal lahir; tanpa panah, mencapai 1990
- * dari 2026 berarti 36 kali Tab melewati 127 tombol.
- */
 describe("Calendar — panah di kisi tahun", () => {
   const onRenderYears = () => {
     const view = onRenderCalendar({
@@ -306,7 +288,7 @@ describe("Calendar — panah di kisi tahun", () => {
   test("Home/End ke ujung baris", () => {
     const years = onRenderYears();
 
-    years.press("ArrowRight"); // 2025, kolom 2
+    years.press("ArrowRight");
     years.press("End");
     expect(years.current()).toBe("2023");
     years.press("Home");

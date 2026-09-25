@@ -19,22 +19,6 @@ import {
 import { STATUS_JEMAAT_CHIPS } from "@/features/kejemaatan/daftar-jemaat/types";
 import { useListParams, type ListFilterSchema } from "@/hooks/use-list-params";
 
-/**
- * Layar cetakan: ini bentuk yang direplikasi ke puluhan layar daftar lain.
- *
- * Yang membuatnya tipis adalah pembagian kerja di bawah ini, dan pembagian itu
- * yang sebenarnya sedang dibakukan:
- *
- * - `useListParams` memegang filter dan halaman, dan menaruhnya di URL.
- * - `useJemaatList` memegang jaringan, cache, dan percobaan ulang.
- * - `DataList` memegang keempat keadaan (memuat, kosong, galat, isi).
- * - `JemaatListItemRow` memegang tampilan satu baris.
- *
- * Yang tersisa di berkas ini hanyalah merangkainya. Tidak ada `useEffect`,
- * tidak ada flag `isLoading` yang diset tangan, tidak ada `useState` untuk
- * data — dan itu bukan kebetulan, melainkan D10 yang sedang bekerja.
- */
-/** `?wilayah=<id>` di URL aplikasi → `zone` di be-sada (B15). */
 const LIST_FILTERS = { wilayah: { api: "zone" } } satisfies ListFilterSchema;
 
 export function JemaatListScreen() {
@@ -54,14 +38,6 @@ export function JemaatListScreen() {
         }
         backHref={domainHref(MENU.KEJEMAATAN)}
         action={
-          // Tombol ini ada ATAU TIDAK ADA SAMA SEKALI di DOM — bukan tampil
-          // dalam keadaan mati. Itu syarat verifikasi §13.4, dan sekaligus
-          // satu-satunya bentuk yang jujur: tombol yang terlihat tapi menolak
-          // ditekan membuat user mengira aplikasinya rusak, bukan mengira
-          // dirinya tidak berhak.
-          //
-          // Gate-nya MENYALIN guard endpoint (`DAFTAR_JEMAAT` CREATE); ia
-          // bukan pengaman. Pengamannya tetap `Authorization` di be-sada.
           isCanCreate ? (
             <PageHeaderAdd
               href={createHref(MENU.KEJEMAATAN, MENU.DAFTAR_JEMAAT)}

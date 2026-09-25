@@ -3,13 +3,6 @@ import type { FormHTMLAttributes, ReactNode } from "react";
 import { shellWidthFull } from "@/components/layout/shell-width";
 import { cn } from "@/lib/utils";
 
-/**
- * Kerangka layar isian, dipakai SEMUA form (form-pattern.md §3.3).
- *
- * `header` masuk lewat prop, bukan dirender sendiri oleh layar di atas form,
- * supaya judul dan isian berbagi kolom yang sama — header selebar halaman di
- * atas form yang lebih sempit terbaca sebagai dua halaman yang bertumpuk.
- */
 export function FormLayout({
   header,
   actions,
@@ -18,30 +11,12 @@ export function FormLayout({
   ...props
 }: FormHTMLAttributes<HTMLFormElement> & {
   header?: ReactNode;
-  /**
-   * Baris aksi (`FormActions`). Prop sendiri, bukan anak, karena ia TIDAK
-   * boleh ikut terkurung kolom form: di bawah `lg` ia selebar layar,
-   * sedangkan isinya tetap sejajar kolom. Ia tetap di dalam `<form>` supaya
-   * tombol `type="submit"` bekerja.
-   */
   actions?: ReactNode;
 }) {
   return (
     <div className="w-full">
       <div className={shellWidthFull}>{header}</div>
 
-      {/*
-        `noValidate`: validasinya milik zod, dan gelembung bawaan peramban
-        muncul di tempat lain, berbahasa lain, dan hanya untuk satu field.
-
-        `data-slot`: penanda yang dibaca `globals.css` untuk memasang
-        `scroll-padding-bottom` di dokumen, supaya field terakhir dan baris
-        catatan tidak tersembunyi di balik baris aksi yang menempel.
-
-        Tanpa padding bawah: baris aksi adalah elemen terakhir halaman, dan
-        padding di sini dulu menyisakan jalur kanvas di bawahnya — bilah
-        putih terlihat mengambang, bukan menempel ke tepi layar.
-      */}
       <form
         noValidate
         data-slot="form-layout"
@@ -55,21 +30,6 @@ export function FormLayout({
   );
 }
 
-/**
- * Satu kelompok field: `<fieldset>` + `<legend>`.
- *
- * `fieldset` bukan kosmetik — `disabled` padanya mematikan SELURUH kontrol
- * native di dalamnya dalam satu atribut, dan itulah yang dipakai saat form
- * sedang menyimpan supaya tidak ada perubahan yang masuk setelah payload
- * dikirim.
- *
- * TIDAK CUKUP SENDIRIAN, dan ini terukur: kontrol Base UI (`Select`,
- * `Combobox`) memasang pemicunya lewat handler sendiri dan popup-nya di
- * portal, DI LUAR fieldset — selagi menyimpan, popup pilihan masih bisa
- * terbuka dan nilainya berubah setelah payload dikirim. Karena itu layar
- * TETAP meneruskan `disabled` ke tiap kontrol pilihan; fieldset menjaga yang
- * native, prop menjaga sisanya.
- */
 export function FormSection({
   legend,
   note,
@@ -77,54 +37,16 @@ export function FormSection({
   children,
 }: {
   legend: string;
-  /**
-   * Satu kalimat di kepala kelompok, menggantikan penanda per field.
-   *
-   * Dipakai saat MAYORITAS field di kelompok itu opsional: menuliskan
-   * "(opsional)" empat kali berturut-turut berhenti memberi informasi dan
-   * mulai jadi bising — mata melewatinya, dan yang satu-satunya wajib justru
-   * ikut terlewat. Satu kalimat menyampaikan hal yang sama sekali baca.
-   */
   note?: string;
   disabled?: boolean;
   children: ReactNode;
 }) {
   return (
-    /*
-      Jarak di sekitar garis pemisah SIMETRIS: isi terakhir → garis 20px, dan
-      garis → judul kelompok berikutnya 20px. Judul → isinya sendiri lebih
-      rapat (12px), supaya judul terbaca milik isi di bawahnya, bukan milik
-      garis di atasnya.
-
-      Kenapa `<legend>` diapungkan: bawaan peramban melukis legend DI GARIS
-      ATAS fieldset, dan `padding-top` baru berlaku sesudahnya — jadi padding
-      apa pun tidak pernah memberi ruang di ATAS judul, dan judulnya menempel
-      pada garis kelompok sebelumnya (terukur 0px). Legend yang diapungkan
-      selebar penuh kembali ke aliran biasa: padding atas fieldset jatuh di
-      atasnya, persis seperti elemen lain. Semantiknya tidak berubah —
-      tetap `<legend>` pertama milik fieldset, jadi tetap nama grupnya.
-    */
-    /*
-      Garis pemisah: di HP selebar layar (field ber-gutter di dalamnya); dari
-      tablet ke atas gutter-nya menjadi MARGIN, sehingga garis berhenti tepat
-      di tepi field, bukan 20px di luarnya.
-
-      Kolom form ≥ 44rem (704px): judul + catatan kelompok di kolom kiri
-      14rem, field di kanan (pola halaman pengaturan). Container query, bukan
-      breakpoint layar: yang menentukan adalah lebar FORM. Ambang 44rem jatuh
-      di antara kolom tablet (672px) dan kolom desktop tersempit (754px di
-      1024 dengan sidebar penuh, ±737px bila peramban memakai scrollbar
-      klasik), jadi pembagiannya sama dengan `lg` di semua lebar yang
-      diukur. Urutan DOM tidak
-      berubah — legend, catatan, lalu field berurutan — jadi urutan baca dan
-      Tab tetap kiri ke kanan, baris demi baris. Baris kedua grid `1fr`:
-      tinggi field yang membentang dua baris diserap di sana, sehingga
-      catatan tetap menempel di bawah judul.
-    */
     <fieldset
       disabled={disabled}
       className="border-border border-b px-gutter py-5 last-of-type:border-b-0 md:mx-gutter md:px-0 @min-[44rem]/form:grid @min-[44rem]/form:grid-cols-[14rem_minmax(0,1fr)] @min-[44rem]/form:grid-rows-[auto_1fr] @min-[44rem]/form:gap-x-8"
     >
+      {/* Diapungkan: peramban melukis legend di garis atas fieldset. */}
       <legend className="float-left mb-3 w-full text-title font-semibold @min-[44rem]/form:col-start-1 @min-[44rem]/form:row-start-1 @min-[44rem]/form:mb-1">
         {legend}
       </legend>
@@ -135,27 +57,7 @@ export function FormSection({
         </p>
       ) : null}
 
-      {/*
-        SATU sumber jarak antar-field: 16px dari elemen terakhir sebuah field
-        (kontrol, atau pesannya bila ada) ke label field berikutnya — sama
-        untuk field berpetunjuk, tanpa petunjuk, dan bergalat. `FormField`
-        sendiri tidak memberi jarak ke bawah, jadi tidak ada jarak ganda. Di
-        grid desktop jaraknya sama (16px) dari field yang lebih tinggi di
-        barisnya; dua field sebaris selalu sejajar atas.
-      */}
       <div className="@container clear-left @min-[44rem]/form:col-start-2 @min-[44rem]/form:row-span-2 @min-[44rem]/form:row-start-1">
-        {/*
-          Grid field 1 / 2 / 4, TIDAK PERNAH 3 (container query pada kolom
-          kanan). Tiga kolom membuat kelompok empat field pecah 3 + 1 dan
-          alamat bertingkat meninggalkan kelurahan sendirian — terukur tepat
-          di lebar layar user (1624 rail). Ambang: 2 kolom mulai 39rem
-          (2 × 19rem + jarak; 19rem = field tersempit yang memuat petunjuk
-          tanggal satu baris), 4 kolom mulai 73rem. Terukur di kolom kanan:
-          458px (1024 penuh) → 1; 642–874px (1024 rail–1440) → 2; 1242px
-          (1624 rail) → 4 × 299; 1354 (1920) → 4 × 327; 1994 (2560) → 4 × 487.
-          Kedua varian WAJIB bergerbang `/form`: tanpanya `grid-cols-1`
-          bawaan menang di 1440 dan grid jatuh ke satu kolom.
-        */}
         <div className="space-y-4 @min-[44rem]/form:grid @min-[44rem]/form:gap-4 @min-[44rem]/form:space-y-0 @min-[44rem]/form:@min-[39rem]:grid-cols-2 @min-[44rem]/form:@min-[73rem]:grid-cols-4">
           {children}
         </div>
@@ -164,12 +66,6 @@ export function FormSection({
   );
 }
 
-/**
- * Field selebar SELURUH grid field desktop: isian panjang (alamat, catatan)
- * dan daftar (riwayat). Di luar grid (di bawah lg) tidak berpengaruh — semua
- * field sudah selebar kolom. Komponen, bukan kelas, supaya layar cukup
- * menandai "field ini lebar" tanpa tahu jumlah kolomnya.
- */
 export function FormWide({
   className,
   children,
@@ -180,33 +76,10 @@ export function FormWide({
   return <div className={cn("col-span-full", className)}>{children}</div>;
 }
 
-/**
- * Baris aksi: "Batal" (outline) lalu "Simpan" (utama) di paling kanan — urutan
- * yang sama dengan kepala dashboard.
- *
- * Di bawah `lg`: menempel di bawah layar, SELEBAR LAYAR, bidang putih sampai
- * tepi bawah termasuk area aman iPhone. Dulu ia selebar kolom form (512px) dan
- * ada jalur kanvas di bawahnya, jadi di tablet ia terlihat seperti kotak
- * mengambang. Isinya tetap dibatasi kolom yang sama dengan field, sehingga
- * tombol kanan sejajar dengan tepi kanan field.
- *
- * Di `lg` ke atas ia ikut mengalir di akhir form, selebar kolom, dengan garis
- * atas sebagai tepinya — baris melayang di desktop hanya memakan tinggi
- * jendela.
- */
 export function FormActions({
   status,
   children,
 }: {
-  /**
-   * Satu kalimat status form (mis. "Belum lengkap: …"). Di bawah `lg` ia
-   * duduk di atas bilah yang menempel, di aliran halaman; di `lg` ke atas ia
-   * pindah ke KIRI tombol — status di kiri, aksi di kanan. Di bawah kelompok
-   * terakhir ia terbaca seperti catatan milik kelompok itu.
-   *
-   * Dirender dua kali, dan hanya satu yang tampil (`display: none` pada yang
-   * lain), jadi pembaca layar juga hanya menemukan satu.
-   */
   status?: ReactNode;
   children: ReactNode;
 }) {
@@ -234,10 +107,6 @@ function FormActionsBar({
 }) {
   return (
     <div className="border-border bg-card sticky bottom-0 z-30 border-t pb-[env(safe-area-inset-bottom)] lg:static lg:border-t-0 lg:bg-transparent lg:pb-8">
-      {/*
-        Gutter di kolom (md+), bukan di baris tombol: garis atas desktop jadi
-        berhenti di tepi field, sejajar dengan garis pemisah kelompok.
-      */}
       <div className={cn(shellWidthFull, "md:px-gutter")}>
         <div className="lg:border-border flex items-center justify-end gap-2 px-gutter py-3 md:px-0 lg:border-t lg:pt-5">
           {status ? (
@@ -253,17 +122,9 @@ function FormActionsBar({
   );
 }
 
-/**
- * Kerangka form yang sedang memuat nilainya (mode ubah).
- *
- * Bentuknya label + kontrol 36px, bukan baris daftar: kerangka yang tidak
- * seukuran isinya membuat halaman melompat saat data tiba, dan lompatan itu
- * terbaca sebagai kedipan.
- */
 export function LoadingForm({ fields = 6 }: { fields?: number }) {
   return (
     <div role="status" aria-busy="true" className="space-y-4 px-gutter py-5">
-      {/* key={index}: kerangka tidak punya identitas dari data. */}
       {Array.from({ length: fields }, (_, index) => (
         <div key={index} aria-hidden className="space-y-1.5">
           <span className="bg-primary-200 block h-3 w-24 animate-pulse rounded" />

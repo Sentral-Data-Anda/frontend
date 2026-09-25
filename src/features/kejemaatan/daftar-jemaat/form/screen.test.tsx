@@ -7,8 +7,6 @@ import type { MenuAction } from "@/types/menu";
 
 const actions: { current: MenuAction[] } = { current: [] };
 
-// `usePathname`/`useSearchParams` ikut ditiru: `next/navigation` diganti
-// seluruhnya, jadi apa pun yang dipakai pohon komponen ini harus ada.
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: () => {} }),
   usePathname: () => "/kejemaatan/daftar-jemaat/baru",
@@ -31,9 +29,6 @@ const onRenderForm = (granted: MenuAction[], code?: string) => {
   actions.current = granted;
 
   return render(
-    // `Toast.Provider` ikut dipasang karena di aplikasi ia hidup di
-    // `providers.tsx`, di atas seluruh rute — pesan sukses harus selamat
-    // melewati perpindahan ke daftar.
     <QueryClientProvider
       client={
         new QueryClient({ defaultOptions: { queries: { retry: false } } })
@@ -46,13 +41,6 @@ const onRenderForm = (granted: MenuAction[], code?: string) => {
   );
 };
 
-/**
- * Gerbang rute, bukan hanya gerbang tombol (temuan Tech Lead atas `e1000f8`).
- *
- * Tombolnya memang sudah disembunyikan, tapi rutenya tetap bisa diketik.
- * be-sada tetap menolak saat simpan, jadi ini soal kapan penolakannya
- * datang — sebelum dua puluh field diisi, bukan sesudahnya.
- */
 describe("gerbang izin rute form", () => {
   test("tanpa CREATE: rute /baru tidak merender form", () => {
     onRenderForm(["VIEW"]);

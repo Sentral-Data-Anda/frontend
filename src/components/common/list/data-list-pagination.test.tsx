@@ -135,11 +135,6 @@ describe("DataList — muat lebih banyak (mobile/tablet)", () => {
     ).toBeTruthy();
   });
 
-  /**
-   * Pengguna keyboard menekan tombol di halaman terakhir: tombolnya hilang.
-   * Tanpa penyerahan fokus, fokus jatuh ke `<body>` dan Tab berikutnya mulai
-   * dari atas halaman.
-   */
   test("fokus pindah ke teks penutup saat tombol yang difokus hilang", () => {
     const { onUpdate } = onRenderList(more());
 
@@ -151,14 +146,8 @@ describe("DataList — muat lebih banyak (mobile/tablet)", () => {
     );
   });
 
-  /**
-   * Refetch latar (mis. invalidasi setelah menyimpan) membuat `onLoadMore`
-   * diabaikan. Sentinel yang terlihat selama itu harus tetap memicu halaman
-   * berikutnya begitu refetch selesai, tanpa menunggu pengguna menggulir.
-   */
   test("sentinel terlihat selama refetch: halaman berikutnya diminta sesudahnya", () => {
     const original = globalThis.IntersectionObserver;
-    // Seperti browser: pengamat baru melapor keadaan awalnya — di sini terlihat.
     globalThis.IntersectionObserver = class {
       constructor(private onReport: IntersectionObserverCallback) {}
       observe(target: Element) {

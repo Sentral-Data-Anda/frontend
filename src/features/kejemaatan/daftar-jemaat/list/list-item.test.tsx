@@ -26,12 +26,6 @@ const onRenderRow = (isCanUpdate: boolean) =>
     </ul>,
   );
 
-/**
- * Setengah dari test wajib 10 (bagian "+" ada di `screen`-nya). Aksi yang
- * tidak dipegang peran TIDAK ADA di DOM, bukan tampil dalam keadaan mati:
- * tombol yang terlihat tapi menolak ditekan membuat user mengira aplikasinya
- * rusak, bukan mengira dirinya tidak berhak.
- */
 describe("gate aksi Ubah per baris", () => {
   test("dengan UPDATE: tautan ubah menunjuk rute kode jemaat", () => {
     onRenderRow(true);

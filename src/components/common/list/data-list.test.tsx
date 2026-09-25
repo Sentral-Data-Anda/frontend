@@ -3,7 +3,6 @@ import { afterEach, describe, expect, test } from "bun:test";
 
 import { DataList, DataListRow } from "./data-list";
 
-/** Auto-cleanup Testing Library tidak terpasang di `bun test`. Lihat README. */
 afterEach(cleanup);
 
 type Row = { code: string; name: string };
@@ -33,12 +32,6 @@ describe("DataList", () => {
     expect(screen.getAllByRole("listitem")).toHaveLength(2);
   });
 
-  /**
-   * Pembedaan yang paling mudah hilang saat berkas ini disentuh lagi. `items`
-   * yang masih ada BERSAMA `isRefreshing` berarti pindah halaman atau mengetik
-   * di kotak cari — daftar lamanya harus bertahan. Begitu ia berganti skeleton,
-   * layarnya berkedip di setiap huruf yang diketik.
-   */
   test("mempertahankan daftar lama saat menyegarkan, bukan menggantinya skeleton", () => {
     onRenderList({ isRefreshing: true });
 
@@ -52,12 +45,6 @@ describe("DataList", () => {
     expect(screen.getByRole("status")).toBeTruthy();
   });
 
-  /**
-   * be-sada menjawab 404 untuk daftar kosong dan `fetchList` sudah
-   * menerjemahkannya jadi array kosong. Yang diuji di sini adalah ujung
-   * rantainya: array kosong TIDAK BOLEH menempuh cabang galat (verifikasi
-   * §13.3).
-   */
   test("daftar kosong adalah keadaan kosong, bukan galat", () => {
     onRenderList({ items: [], emptyTitle: "Tidak ada jemaat" });
 
@@ -148,10 +135,6 @@ describe("DataList", () => {
     expect(screen.getByText("Halaman 1 dari 3")).toBeTruthy();
   });
 
-  /**
-   * Garis pemisah digambar di badan baris, bukan `<li>` — kalau `DataListRow`
-   * kehilangan `data-slot`, garisnya hilang diam-diam tanpa ada yang gagal.
-   */
   test("setiap baris membawa badan tempat garis pemisah digambar", () => {
     const { container } = onRenderList({});
 

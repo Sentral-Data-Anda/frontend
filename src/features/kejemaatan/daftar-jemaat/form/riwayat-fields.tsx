@@ -27,19 +27,6 @@ const SACRAMENT_OPTIONS = Object.entries(SACRAMENT_TYPE_LABEL).map(
   ([value, label]) => ({ value, label }),
 );
 
-/**
- * Riwayat gerejawi (`additional[]`): baptis, sidi, atestasi, kedukaan.
- *
- * Dua bentuk, dan perbedaannya bukan selera:
- *
- * - **Tambah** — bisa diisi, karena sakramen memang dicatat saat pendaftaran
- *   (atestasi masuk membawa tanggal, gereja asal, dan nomor surat).
- * - **Ubah** — HANYA BACA, dengan tautan ke layar Riwayat Jemaat. Sejak
- *   be-sada memperlakukan `additional` yang tidak dikirim sebagai "jangan
- *   disentuh", layar ini tidak mengirimnya sama sekali; menampilkannya
- *   sebagai kotak yang bisa diketik berarti menjanjikan perubahan yang tidak
- *   akan pernah tersimpan.
- */
 export function RiwayatSection({
   form,
   isDisabled,
@@ -103,12 +90,6 @@ export function RiwayatSection({
     );
   }
 
-  /**
-   * Baptis, sidi, dan meninggal hanya boleh SEKALI per jemaat (indeks SQL
-   * `riwayat_jemaat_once_per_type`). Jenis yang sudah dipakai disembunyikan
-   * dari baris berikutnya — penolakannya di server datang sebagai galat 500
-   * setelah semua field lain terisi, dan itu terbaca sebagai aplikasi rusak.
-   */
   const used = new Set(
     form.getValues("additional").map((row) => row.type as SacramentType),
   );
@@ -122,14 +103,6 @@ export function RiwayatSection({
     );
 
   return (
-    /*
-      Satu baris catatan, BUKAN `EmptyState`: kelompok ini kosong pada hampir
-      setiap pendaftaran, dan blok kosong berikon memakan 114px untuk
-      menyampaikan dua kalimat yang sama. `EmptyState` tetap benar di layar
-      daftar, tempat kosongnya adalah kabar; di sini kosong adalah keadaan
-      biasa. Ia catatan KELOMPOK (`note`), jadi di desktop duduk di kolom
-      kiri di bawah judul, sama seperti catatan Kontak dan Keluarga.
-    */
     <FormSection
       legend="Riwayat gerejawi"
       note={

@@ -26,48 +26,20 @@ import { cn } from "@/lib/utils";
 export type DataTableColumn<T> = {
   key: string;
   header: string;
-  /**
-   * Jalur grid tabel lebar (≥ 52rem). Kolom DATA memakai `fr` dengan rasio
-   * sesuai panjang isi yang khas (mis. nama `minmax(0,2.5fr)`, kode
-   * `minmax(0,1fr)`), supaya sisa ruang di layar lebar terbagi ke SEMUA
-   * celah. Kolom pendek yang dikunci `rem` justru melempar seluruh sisa ke
-   * kolom `fr` dan membuat lubang ratusan piksel di tengah baris (terukur di
-   * 1624 rail: 438px Nama → Kode). `rem` hanya untuk isi berlebar tetap
-   * (ikon, aksi). Pedoman: pedoman-slicing.md §1.
-   */
   width: string;
-  /** Jalur grid di tabel sempit (< 52rem: tablet, 1024 bersidebar). Bawaan `width`. */
   narrowWidth?: string;
   cell: (item: T) => ReactNode;
-  /**
-   * Kolom pelengkap: disembunyikan di tabel sempit (< 52rem — tablet, 1024
-   * dengan sidebar penuh) supaya kolom utama tidak terpotong.
-   */
   isSecondary?: boolean;
 };
 
-/**
- * Susunan tabel sebuah daftar. Kolom pertama adalah "judul" baris: saat baris
- * bisa dibuka, isinya dibungkus tautan yang diregangkan menutupi seluruh
- * baris, jadi satu baris = satu target klik = satu perhentian Tab.
- */
 export type DataTableConfig<T> = {
   columns: DataTableColumn<T>[];
-  /** Tujuan baris. `undefined` = baris tidak bisa dibuka (tanpa hover, ikon). */
   getRowHref?: (item: T) => string | undefined;
-  /** Nama tautan baris, mis. "Ubah Andreas Sitanggang". */
   getRowLabel?: (item: T) => string;
-  /** Dipanggil sebelum pindah — mis. menandai baris untuk sorotan kembali. */
   onRowOpen?: (item: T) => void;
-  /**
-   * Ikon di ujung baris yang bisa dibuka (mis. pensil). Hanya penanda: klik
-   * di atasnya jatuh ke tautan baris, jadi tidak ada tautan kedua yang
-   * menambah perhentian Tab dan dibacakan dua kali.
-   */
   rowIcon?: ReactNode;
 };
 
-/** "1–10 dari 12". Kosong bila belum ada data. */
 export function getRangeLabel(
   page: number,
   limit: number,
@@ -86,22 +58,6 @@ const LIMIT_OPTIONS = [10, 25, 50].map((limit) => ({
   label: `${limit} / halaman`,
 }));
 
-/**
- * Tabel daftar desktop: dipakai `DataList` (prop `table`) saat paginasinya
- * bernomor. `DataList` tetap pemilik keadaan (memuat, kosong, galat,
- * menyegarkan) dan sorotan baris; komponen ini hanya bentuk isinya.
- *
- * Kenapa bukan `DashboardTable`: tabel itu berukuran kartu dashboard dan
- * tidak punya keadaan, kepala yang menempel, baris yang bisa ditandai untuk
- * sorotan kembali (`data-row-id`), maupun kaki paginasi. Bahasanya sama —
- * kepala 10px kapital, baris dipisah garis, seluruh baris satu tautan yang
- * diregangkan. Hover = bidang putih (`bg-card`): `muted` di tema ini sama dengan kanvas, jadi tidak terlihat.
- *
- * `role="table"` di atas grid CSS, bukan `<table>`: tautan yang diregangkan
- * butuh `position: relative` pada baris, dan kepala yang menempel butuh
- * `position: sticky` pada grup kepala — keduanya dukungan `<tr>`/`<thead>`
- * yang tidak merata.
- */
 export function DataTable<T>({
   items,
   getKey,
@@ -116,7 +72,6 @@ export function DataTable<T>({
   label: string;
   config: DataTableConfig<T>;
   isRefreshing?: boolean;
-  /** Baris kerangka di ujung tabel saat halaman berikutnya dimuat (tablet). */
   pendingRows?: number;
   rowsRef?: Ref<HTMLDivElement>;
 }) {
@@ -130,12 +85,6 @@ export function DataTable<T>({
         className="-mx-2.5"
         style={tableTemplate(columns)}
       >
-        {/*
-          Kepala menempel di atas saat halaman digulir. Bidangnya kanvas 40%
-          + blur 12px, selebar baris (termasuk yang menjorok): menutupi baris yang
-          lewat di bawahnya, tapi gradasi aurora di belakangnya tetap tembus,
-          jadi kepala tidak terbaca sebagai pita polos di atas latar.
-        */}
         <div
           role="rowgroup"
           className="bg-canvas/40 sticky top-0 z-10 backdrop-blur-md"
@@ -230,10 +179,6 @@ export function DataTable<T>({
   );
 }
 
-/**
- * Kaki tabel: "1–10 dari 12" di kiri, pager dan jumlah baris per halaman di
- * kanan. Pager hanya bila lebih dari satu halaman; keterangannya selalu.
- */
 export function DataTableFooter({
   pagination,
 }: {

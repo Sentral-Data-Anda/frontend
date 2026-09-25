@@ -10,30 +10,6 @@ import type {
   RoleInFamily,
 } from "./types";
 
-/**
- * Aturan form jemaat, mengikuti kontrak be-sada SESUDAH penyesuaian
- * 2026-09-23 — bukan tabel §1.2 `form-pattern.md`, yang ditulis sebelum
- * backend berubah. Lima keputusan user yang mengubah bentuknya:
- *
- * 1. **Telepon opsional dan boleh sama.** Bayi, anak, dan lansia tidak punya
- *    nomor; satu nomor rumah tangga dipakai bersama. Pemeriksaan unik dicabut
- *    di be-sada, jadi tidak ada lagi galat "No Handphone Sudah Tersedia".
- * 2. **Golongan darah, pekerjaan, dan pendidikan tidak wajib** untuk Anggota.
- *    Yang tersisa wajib: status pernikahan, suku, wilayah, kode induk.
- * 3. **"Tidak diketahui" disimpan sebagai KOSONG (`null`)**, bukan sebagai
- *    nilai teks tersendiri. Dropdown boleh menawarkan pilihan berlabel
- *    "Tidak diketahui" — nilainya string kosong. Berlaku untuk tanggal lahir,
- *    pendidikan, dan pekerjaan.
- * 4. **Pendidikan terakhir jadi enum 12 nilai.** Teks bebas ditolak 400.
- * 5. **Kode induk bebas formatnya**, diketik petugas. Keunikannya dijaga
- *    be-sada.
- *
- * SELURUH nilai form berupa string, termasuk id relasi. `<input>`, `<select>`,
- * dan combobox memang memberi string, dan satu tipe nilai berarti tidak ada
- * `undefined`/`NaN` yang menyelinap di antara "belum dipilih" dan "0".
- * Penerjemahannya ke tipe be-sada terjadi sekali, di `toJemaatPayload`.
- */
-
 export const GENDERS = ["L", "P"] as const;
 export const BLOOD_TYPES = ["A", "B", "AB", "O"] as const;
 export const STATUS_PERNIKAHAN = ["SM", "BM", "CM", "CH"] as const;
@@ -85,25 +61,19 @@ const baseSchema = z.object({
     .trim()
     .min(1, "Tempat lahir wajib diisi")
     .max(25, "Tempat lahir maksimal 25 karakter"),
-  /** Boleh kosong: tanggal lahir yang tidak diketahui disimpan sebagai null. */
   birthDate: z.string(),
 
   typeJemaat: optionalEnum(TYPE_JEMAAT),
   statusJemaat: optionalEnum(STATUS_JEMAAT),
   codeInduk: z.string().trim().max(50, "Kode induk maksimal 50 karakter"),
   zoneChurchId: z.string(),
-  /** MENUNGGU BACKEND (B7): dikirim hanya bila diisi. */
   joinedAt: z.string(),
 
-  // 12 angka, bukan 15: kolomnya `VarChar(15)` tapi validatornya 12, dan yang
-  // menolak lebih dulu yang menentukan.
   phone: z
     .string()
     .trim()
     .regex(/^[0-9]*$/, "Telepon hanya angka, mis. 081234567890.")
     .max(12, "Telepon maksimal 12 angka"),
-  // 150, selaras dengan kolomnya sejak be-sada menurunkan validatornya dari
-  // 250: sebelumnya 151–250 lolos validasi lalu jatuh sebagai galat 500.
   email: z
     .string()
     .trim()
@@ -114,8 +84,6 @@ const baseSchema = z.object({
   regenciesCode: z.string(),
   districtsCode: z.string(),
   villagesCode: z.string(),
-  // 250, selaras dengan kolomnya sejak be-sada menaikkan validatornya: alamat
-  // Indonesia dengan RT/RW, blok, dan patokan rutin melewati 150.
   address: z.string().trim().max(250, "Alamat maksimal 250 karakter"),
 
   keluargaId: z.string(),
@@ -125,22 +93,12 @@ const baseSchema = z.object({
   statusMarital: optionalEnum(STATUS_PERNIKAHAN),
   professionId: z.string(),
   ethnicGroupId: z.string(),
-  /** Enum sejak be-sada menutup teks bebas; kosong = tidak diketahui. */
   lastEducation: optionalEnum(LAST_EDUCATION),
   bloodType: optionalEnum(BLOOD_TYPES),
 
   additional: z.array(additionalSchema),
 });
 
-/**
- * Field yang wajib untuk semua jemaat, beserta pesannya.
- *
- * Pesan galat MENGGANTIKAN petunjuk di slotnya (`FormField`), jadi pesan
- * harus berdiri sendiri: contoh atau akibat yang tadinya dibawa petunjuk ikut
- * disebut di sini. Kalau tidak, informasi itu hilang tepat saat user paling
- * membutuhkannya — mis. "kode induk juga jadi username" lenyap persis ketika
- * kode induknya ditolak. Satu baris di 390, supaya slotnya tidak memanjang.
- */
 const ALWAYS_REQUIRED = [
   ["gender", "Jenis kelamin wajib dipilih"],
   ["provincesCode", "Provinsi wajib dipilih"],
@@ -152,12 +110,6 @@ const ALWAYS_REQUIRED = [
   ["statusJemaat", "Status jemaat wajib dipilih"],
 ] as const;
 
-/**
- * Empat field yang wajib HANYA untuk Anggota, cerminan `superRefine` be-sada
- * sesudah 2026-09-23. Golongan darah, pekerjaan, dan pendidikan TIDAK ikut:
- * ketiganya sering benar-benar tidak diketahui, dan field wajib yang tidak
- * bisa dijawab jujur akan diisi asal.
- */
 const MEMBER_REQUIRED = [
   ["codeInduk", "Kode induk wajib untuk Anggota; juga jadi username akun."],
   ["zoneChurchId", "Wilayah wajib dipilih untuk Anggota."],
@@ -183,8 +135,6 @@ export const jemaatFormSchema = baseSchema.superRefine((values, ctx) => {
     onMissing("email", "Email harus memuat @");
   }
 
-  // Peran dan keluarga hanya bermakna berpasangan: `KeluargaMember` di be-sada
-  // butuh keduanya, dan salah satunya sendirian diam-diam tidak tersimpan.
   if (values.keluargaId && !values.roleInFamily) {
     onMissing("roleInFamily", "Peran dalam keluarga wajib dipilih");
   }
@@ -245,42 +195,15 @@ const emptyToNull = (value: string): string | null => value.trim() || null;
 const idToNumber = (value: string): number | null =>
   value.trim() ? Number(value) : null;
 
-/**
- * `YYYY-MM-DD` untuk `<input type="date">` dan untuk be-sada.
- *
- * Respons detail mengirim ISO lengkap ("1990-05-12T00:00:00.000Z"); dipotong
- * di sini, BUKAN lewat `new Date(...)`, supaya zona waktu tidak pernah ikut
- * menggeser tanggal kalender satu hari ke belakang (lib/format.ts menjelaskan
- * jebakan yang sama untuk sisi tampilan).
- */
 export const toDateInput = (value: string | null | undefined): string =>
   value ? value.slice(0, 10) : "";
 
-/**
- * Telepon: angka saja. Spasi, tanda hubung, tanda kurung, dan awalan `+62`
- * dibuang saat diketik supaya nomor yang disalin dari WhatsApp tidak ditolak
- * karena bentuknya.
- */
 export const normalizePhone = (value: string): string =>
   value
     .replace(/^\+?62/, "0")
     .replace(/\D/g, "")
     .slice(0, 12);
 
-/**
- * Badan `POST`/`PUT`. Satu-satunya tempat nilai form menjadi tipe be-sada.
- *
- * `isEdit` mengubah satu hal, dan hanya satu: **`additional` tidak ikut sama
- * sekali**. Sejak be-sada memperlakukan `additional` yang tidak dikirim
- * sebagai "jangan disentuh", mengirimnya dari layar yang tidak mengeditnya
- * adalah satu-satunya cara catatan baptis/sidi/atestasi bisa hilang: dua
- * orang membuka jemaat yang sama, satu menambah riwayat di layar Riwayat
- * Jemaat, yang lain menekan Simpan di sini, dan riwayat tadi tertimpa.
- *
- * Tiga field keluarga tetap dikirim (nilai atau `null`) karena layar ini
- * MEMANG memilikinya: `null` berarti "lepaskan dari keluarga", dan itu
- * memang yang diminta user saat ia mengosongkan kotaknya.
- */
 export function toJemaatPayload(
   values: JemaatFormValues,
   isEdit = false,
@@ -289,7 +212,6 @@ export function toJemaatPayload(
     name: values.name.trim(),
     gender: values.gender as "L" | "P",
     birthPlace: values.birthPlace.trim(),
-    // Kosong = tidak diketahui, disimpan `null`. Tidak ada tanggal karangan.
     birthDate: emptyToNull(values.birthDate),
     email: emptyToNull(values.email),
     phone: emptyToNull(values.phone),
@@ -325,7 +247,6 @@ export function toJemaatPayload(
   return payload;
 }
 
-/** Detail be-sada → nilai form. Field yang null menjadi string kosong. */
 export function toJemaatForm(detail: JemaatDetail): JemaatFormValues {
   return {
     name: detail.name,
@@ -362,16 +283,6 @@ export function toJemaatForm(detail: JemaatDetail): JemaatFormValues {
   };
 }
 
-/**
- * Pesan unik be-sada → field yang salah.
- *
- * Bukan pengganti `issues[]`: galat VALIDASI sudah membawa `path` sendiri
- * sejak 2026-09-23 dan diurus `applyServerError`. Yang tersisa di sini adalah
- * pemeriksaan yang dilakukan service SEBELUM menulis (keunikan, keberadaan
- * relasi, kepala keluarga tunggal) — pesannya tidak pernah punya `path`.
- *
- * "No Handphone Sudah Tersedia" sudah TIDAK ADA: telepon tidak lagi unik.
- */
 const SERVER_FIELD_ERROR: ReadonlyArray<
   [RegExp, keyof JemaatFormValues, string?]
 > = [
@@ -398,8 +309,6 @@ export function serverFieldError(
   message: string,
 ): { field: keyof JemaatFormValues; message: string } | null {
   for (const [pattern, field, override] of SERVER_FIELD_ERROR) {
-    // "Keluarga Asal Tidak Ditemukan" juga cocok dengan pola keluarga biasa,
-    // jadi urutan daftar di atas yang menentukan — asal lebih dulu.
     if (pattern.test(message)) {
       return { field, message: override ?? message };
     }
@@ -408,10 +317,6 @@ export function serverFieldError(
   return null;
 }
 
-/**
- * Data yang belum lengkap (keputusan user 3). Bukan galat: jemaatnya tetap
- * boleh disimpan, tapi petugas melihat apa yang masih menunggu dilengkapi.
- */
 export function incompleteFields(values: {
   birthDate?: string;
   isBirthDateUnknown?: boolean;
@@ -435,44 +340,18 @@ export function incompleteFields(values: {
 
 export const JEMAAT_LIST_PATH = menuHref(MENU.KEJEMAATAN, MENU.DAFTAR_JEMAAT);
 
-/**
- * Tujuan sesudah simpan: daftar yang SAMA seperti yang ditinggalkan petugas —
- * pencarian, filter status, dan halamannya — dengan baris yang baru disimpan
- * disorot sekali (docs/design/list-state.md §2.2, §2.4).
- *
- * Kembali ke `/kejemaatan/daftar-jemaat` polos berarti petugas yang sedang
- * menyisir "Tidak aktif" halaman 3 harus menyusun ulang filternya setiap kali
- * ia menambah satu orang — dan itu pekerjaan yang dia ulang puluhan kali.
- *
- * `saveListFocus` dipanggil DI SINI, bukan di layar: satu fungsi yang
- * memegang keduanya berarti tidak ada layar yang menyorot baris lalu lupa
- * membawa filternya, atau sebaliknya.
- */
 export function afterSavePath(code: string): string {
   saveListFocus(JEMAAT_LIST_PATH, code);
 
   return readListReturn(JEMAAT_LIST_PATH);
 }
 
-/**
- * Kembaran yang mungkin: nama mirip DAN tanggal lahir sama persis.
- *
- * Nama saja tidak cukup — "Maria Sitompul" ada belasan di satu jemaat. Nama
- * mirip dengan tanggal lahir yang sama itulah yang hampir selalu berarti
- * orang yang sama dimasukkan dua kali (paling sering saat atestasi masuk,
- * bertahun kemudian baru ketahuan).
- *
- * Dibandingkan tanpa peduli huruf besar dan spasi ganda: "maria  sitompul"
- * dan "Maria Sitompul" adalah orang yang sama, dan yang mengetik ulang
- * memang jarang mengetiknya persis sama.
- */
 const normalizeName = (name: string) =>
   name.trim().toLowerCase().replace(/\s+/g, " ");
 
 export function findDuplicate(
   rows: readonly { code: string; name: string; birthDate: string | null }[],
   values: { name: string; birthDate: string },
-  /** Mode ubah: jemaat ini sendiri bukan kembarannya. */
   ownCode?: string,
 ) {
   if (!values.name.trim() || !values.birthDate) return null;

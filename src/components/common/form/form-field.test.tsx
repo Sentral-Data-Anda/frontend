@@ -39,21 +39,12 @@ describe("FormField", () => {
     expect(message?.textContent).toBe("Username wajib diisi");
   });
 
-  /**
-   * Alert per-field sengaja tidak ada: submit dengan semua field kosong akan
-   * meletupkan beberapa alert serentak. role="alert" milik galat root saja.
-   */
   test("galat per-field TIDAK memakai role=alert", () => {
     onRenderField({ error: "Username wajib diisi" });
 
     expect(screen.queryByRole("alert")).toBeNull();
   });
 
-  /**
-   * Galat MENGGANTIKAN petunjuk, dan slotnya punya tinggi tetap. Dua `<p>`
-   * yang muncul-hilang menggeser seluruh isi di bawahnya, dan pergeseran itu
-   * menelan klik yang jatuh di antara `mousedown` dan `mouseup`.
-   */
   test("galat menggantikan petunjuk, bukan menumpuk di bawahnya", () => {
     onRenderField({ hint: "Minimal 8 karakter.", error: "Terlalu pendek" });
 
@@ -64,11 +55,6 @@ describe("FormField", () => {
     expect(screen.getByText("Terlalu pendek")).toBeTruthy();
   });
 
-  /**
-   * Pesan hanya memakan ruang bila ada. Slot kosong bertinggi tetap sempat
-   * dipakai, tapi membuat jarak antar-field tidak rata; pergeseran dicegah
-   * di sumbernya — form memvalidasi saat submit, bukan saat blur.
-   */
   test("tanpa petunjuk dan galat, tidak ada elemen pesan sama sekali", () => {
     const { container } = onRenderField({});
 

@@ -66,10 +66,6 @@ describe("DataList + table", () => {
     expect(screen.getByText("1–10 dari 12")).toBeTruthy();
   });
 
-  /**
-   * Bentuk dipilih LEBAR LAYAR (≥ md), bukan mode paginasi: tablet memakai
-   * tabel DENGAN "muat lebih banyak". Di HP (< md) tetap baris daftar.
-   */
   test("HP (< md) → tetap baris daftar walau `table` diberikan", () => {
     const original = window.matchMedia;
     window.matchMedia = ((query: string) => ({
@@ -122,10 +118,6 @@ describe("DataList + table", () => {
     expect(screen.queryAllByRole("link")).toHaveLength(0);
   });
 
-  /**
-   * Kedua kerangka dirender dan CSS yang memilih — pilihan lewat JS baru
-   * datang sesudah hidrasi, dan kerangka daftar sempat berkedip jadi tabel.
-   */
   test("kerangka memuat membawa bentuk daftar DAN tabel, dipilih CSS", () => {
     const { container } = onRender({ items: undefined, isLoading: true });
 

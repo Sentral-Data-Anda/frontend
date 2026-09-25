@@ -6,20 +6,14 @@ import { useEffect, useEffectEvent, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-/**
- * Dua bentuk paginasi, dipilih `useListQuery` per lebar layar — BUKAN oleh
- * layar. `DataList` hanya merender bentuk yang ia terima.
- */
 export type DataListPagination =
   | {
       mode: "pages";
       page: number;
       totalPage: number;
       onPickPage: (page: number) => void;
-      /** Untuk keterangan "1–10 dari 12" di kaki tabel. */
       totalData?: number;
       limit?: number;
-      /** Pilihan jumlah baris per halaman; tanpa ini pilihannya tidak tampil. */
       onPickLimit?: (limit: number) => void;
     }
   | {
@@ -27,10 +21,6 @@ export type DataListPagination =
       hasMore: boolean;
       isLoadingMore: boolean;
       isLoadMoreError: boolean;
-      /**
-       * Query sedang mengambil apa pun, termasuk refetch latar semua halaman
-       * setelah invalidasi. `onLoadMore` diabaikan selama itu.
-       */
       isBusy: boolean;
       totalData: number;
       onLoadMore: () => void;
@@ -38,13 +28,6 @@ export type DataListPagination =
 
 type PageItem = number | "gap-start" | "gap-end";
 
-/**
- * Nomor yang tampil di pager desktop. Selalu tepat 7 slot begitu `totalPage`
- * > 7, jadi lebar grup tidak berubah saat berpindah halaman dan tombol ‹ ›
- * tidak bergeser di bawah kursor.
- *
- *   1 2 3 4 5 … 12   ·   1 … 5 6 7 … 12   ·   1 … 8 9 10 11 12
- */
 export function getPageItems(page: number, totalPage: number): PageItem[] {
   const range = (from: number, to: number) =>
     Array.from({ length: to - from + 1 }, (_, index) => from + index);
@@ -57,7 +40,6 @@ export function getPageItems(page: number, totalPage: number): PageItem[] {
   return [1, "gap-start", page - 1, page, page + 1, "gap-end", totalPage];
 }
 
-/** Pager bernomor desktop: satu grup ringkas di bawah daftar. */
 export function DataListPager({
   page,
   totalPage,
@@ -123,8 +105,6 @@ export function DataListPager({
         </Button>
       </div>
 
-      {/* Pembaca layar tidak melihat daftar berganti; nomor halamanlah yang
-          mengabarkannya. */}
       <p aria-live="polite" className="sr-only">
         Halaman {page} dari {totalPage}
       </p>
@@ -132,19 +112,6 @@ export function DataListPager({
   );
 }
 
-/**
- * Ujung daftar mobile/tablet, rata tengah tanpa garis. Tombolnya sekaligus sentinel:
- * `IntersectionObserver` memanggil `onLoadMore` saat tombol mendekati layar
- * (400px sebelum terlihat), dan tombol yang sama bisa difokus/ditekan bila
- * pengamatnya tidak terpicu atau pengguna memakai keyboard/pembaca layar.
- *
- * Tombol TIDAK diganti elemen lain selama masih ada data: memuat dan galat
- * hanya mengubah labelnya, jadi fokus keyboard tetap di tempatnya
- * (`focusableWhenDisabled` menjaga fokus saat ia nonaktif sementara). Saat
- * data habis tombolnya diganti teks penutup (juga bila semua muat di satu
- * halaman); bila tombol sedang difokus, fokus dipindah ke teks itu alih-alih
- * jatuh ke `<body>`.
- */
 export function DataListMore({
   shown,
   totalData,
@@ -159,13 +126,6 @@ export function DataListMore({
   const isAutoLoad = hasMore && !isBusy && !isLoadMoreError;
   const onIntersect = useEffectEvent(onLoadMore);
 
-  // Pengamat dibuat ulang setiap kali query selesai mengambil — halaman
-  // berikutnya maupun refetch latar (`isAutoLoad` kembali true). Panggilan
-  // selama query sibuk diabaikan `onLoadMore`, jadi pengamat lama yang sempat
-  // melapor saat itu tidak akan melapor lagi. Pengamat baru selalu melapor
-  // keadaan awalnya, jadi bila tombol masih dekat layar — daftar pendek,
-  // layar tinggi, atau sentinel terlihat selama refetch — halaman berikutnya
-  // langsung diminta tanpa menunggu gulir lagi.
   useEffect(() => {
     const button = buttonRef.current;
 
@@ -200,8 +160,6 @@ export function DataListMore({
             ref={(node: HTMLButtonElement | null) => {
               buttonRef.current = node;
 
-              // Dijalankan SEBELUM tombol dilepas dari DOM, jadi
-              // `activeElement` masih menunjuk ke tombol bila ia difokus.
               return () => {
                 isButtonFocusedRef.current = document.activeElement === node;
                 buttonRef.current = null;

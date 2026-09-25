@@ -16,7 +16,6 @@ import {
 } from "./model";
 import type { JemaatDetail } from "./types";
 
-/** Isian minimum yang sah untuk SIMPATISAN — dasar semua kasus di bawah. */
 const SIMPATISAN: JemaatFormValues = {
   ...EMPTY_JEMAAT_FORM,
   name: "Maria Sitompul",
@@ -45,12 +44,6 @@ describe("jemaatFormSchema — wajib bersyarat (test wajib 1)", () => {
     expect(jemaatFormSchema.safeParse(SIMPATISAN).success).toBe(true);
   });
 
-  /**
-   * Sesudah penyesuaian be-sada 2026-09-23 yang tersisa EMPAT: golongan
-   * darah, pekerjaan, dan pendidikan dilepas karena ketiganya sering
-   * benar-benar tidak diketahui. Keempatnya harus menghasilkan pesan di
-   * fieldnya masing-masing — bukan satu galat form tanpa alamat.
-   */
   test("Anggota tanpa keempat field bersyarat ditolak per field", () => {
     expect(issuesOf({ ...SIMPATISAN, typeJemaat: "ANGGOTA" }).sort()).toEqual([
       "codeInduk",
@@ -172,12 +165,6 @@ describe("toJemaatPayload", () => {
   });
 });
 
-/**
- * Test wajib 5, DIBALIK setelah be-sada berubah 2026-09-23: `additional` yang
- * tidak dikirim kini berarti "jangan disentuh". Jadi form ubah justru HARUS
- * menghilangkan key-nya — mengirimnya dari layar yang tidak mengeditnya
- * adalah satu-satunya cara riwayat baptis/sidi/atestasi bisa tertimpa.
- */
 describe("form ubah TIDAK mengirim additional (test wajib 5)", () => {
   const detail: JemaatDetail = {
     code: "JMT-0042",
@@ -246,11 +233,6 @@ describe("form ubah TIDAK mengirim additional (test wajib 5)", () => {
     ]);
   });
 
-  /**
-   * Tiga field keluarga TETAP dikirim, juga saat kosong: `null` di sana
-   * berarti "lepaskan dari keluarga", dan itu memang yang diminta user saat
-   * ia mengosongkan kotaknya.
-   */
   test("seluruh field detail ikut terkirim, bukan hanya yang disentuh", () => {
     const payload = toJemaatPayload(toJemaatForm(detail), true);
 
@@ -278,8 +260,6 @@ describe("serverFieldError (test wajib 6)", () => {
     expect(serverFieldError("Email Sudah Tersedia")?.field).toBe("email");
   });
 
-  // Telepon tidak lagi unik di be-sada, jadi pesannya tidak pernah datang —
-  // dan pemetaan yang tertinggal akan menyorot field yang tidak bersalah.
   test("No Handphone Sudah Tersedia sudah tidak dipetakan", () => {
     expect(serverFieldError("No Handphone Sudah Tersedia")).toBeNull();
   });
@@ -336,11 +316,6 @@ describe("pembantu", () => {
   });
 });
 
-/**
- * Test wajib 8. Dua kegagalan yang dijaga di sini sama-sama tidak terlihat
- * sebagai galat: kembali ke daftar polos (filter petugas hilang) dan baris
- * baru yang tidak tersorot (petugas tidak tahu simpanannya masuk yang mana).
- */
 describe("kembali ke daftar setelah simpan (test wajib 8)", () => {
   test("membawa filter terakhir dan menandai baris yang baru disimpan", () => {
     const url = `${JEMAAT_LIST_PATH}?status=TIDAK_AKTIF&page=3`;
@@ -359,11 +334,6 @@ describe("kembali ke daftar setelah simpan (test wajib 8)", () => {
   });
 });
 
-/**
- * Test wajib 9 versi unit. Peringatan, bukan penolakan: kembar identik dan
- * nama umum itu nyata, dan menolak simpan berarti petugas yang benar tidak
- * punya jalan keluar sama sekali.
- */
 describe("findDuplicate (test wajib 9)", () => {
   const rows = [
     {
@@ -407,11 +377,6 @@ describe("findDuplicate (test wajib 9)", () => {
   });
 });
 
-/**
- * Galat MENGGANTIKAN petunjuk di slotnya, jadi informasi penting petunjuk
- * harus ikut dibawa galat. Kasus nyatanya: "kode induk juga jadi username"
- * dulu lenyap persis saat server menolak kode induknya.
- */
 describe("pesan galat berdiri sendiri", () => {
   const messageOf = (values: JemaatFormValues, path: string) => {
     const parsed = jemaatFormSchema.safeParse(values);
