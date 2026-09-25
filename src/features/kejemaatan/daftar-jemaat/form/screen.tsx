@@ -1,7 +1,6 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { TriangleAlert } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
   useEffect,
@@ -14,14 +13,19 @@ import { useForm, useWatch, type FieldErrors } from "react-hook-form";
 
 import { Button } from "@/components/common/control";
 import { useToast } from "@/components/common/feedback";
-import { FormActions, FormLayout, LoadingForm } from "@/components/common/form";
+import {
+  FormActions,
+  FormAlert,
+  FormLayout,
+  LoadingForm,
+} from "@/components/common/form";
 import { ConfirmDialog } from "@/components/common/overlay";
 import { PageHeader } from "@/components/layout";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { useBoolean } from "@/hooks/use-boolean";
 import { useListReturn } from "@/hooks/use-list-return";
-import { applyServerError } from "@/lib/form-error";
+import { applyServerError, revealField } from "@/lib/form-error";
 import { saveListFocus } from "@/lib/list-return";
 
 import { useJemaatDetail, useSaveJemaat } from "../api";
@@ -245,22 +249,10 @@ export const JemaatFormScreen = (props: PropTypes) => {
         />
 
         {rootError ? (
-          <div
-            role="alert"
-            className="border-destructive bg-destructive/10 flex items-start gap-2 rounded-control border p-3"
-          >
-            <TriangleAlert
-              className="text-destructive mt-0.5 size-4 shrink-0"
-              aria-hidden
-            />
-
-            <div className="min-w-0">
-              <p className="text-destructive text-body font-medium">
-                Data belum tersimpan. Coba simpan lagi.
-              </p>
-              <p className="text-destructive text-body">{rootError}</p>
-            </div>
-          </div>
+          <FormAlert
+            title="Data belum tersimpan. Coba simpan lagi."
+            message={rootError}
+          />
         ) : null}
       </div>
 
@@ -273,14 +265,3 @@ export const JemaatFormScreen = (props: PropTypes) => {
     </FormLayout>
   );
 };
-
-function revealField(field: string | null | undefined) {
-  if (!field) return;
-
-  const control = document.getElementById(field);
-
-  if (!control) return;
-
-  control.focus({ preventScroll: true });
-  control.scrollIntoView({ block: "center", behavior: "smooth" });
-}

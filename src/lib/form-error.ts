@@ -28,3 +28,14 @@ export function applyServerError<T extends FieldValues>(
 
   return field;
 }
+
+export function revealField(field: string | null | undefined): void {
+  if (!field) return;
+
+  const control = document.getElementById(field);
+
+  if (!control) return;
+
+  control.focus({ preventScroll: true });
+  control.scrollIntoView({ block: "center", behavior: "smooth" });
+}
