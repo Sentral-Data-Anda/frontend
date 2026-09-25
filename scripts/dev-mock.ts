@@ -31,6 +31,8 @@
  *   MOCK_SAVE_ERROR=induk|email|kepala|validasi|500
  *                                       → simpan jemaat gagal dengan jawaban itu
  *                                         (validasi = issues[] per field)
+ *   MOCK_OFFERINGS=empty|500            → /persembahan/saya kosong atau galat (halaman Akun)
+ *   Ganti password (/akun): password lama "salah" → 400 dari be-sada.
  *   MOCK_DDL_EMPTY=1                    → semua daftar pilihan form kosong (404)
  *   MOCK_DDL_MANY=1                     → daftar keluarga 400 baris (combobox panjang)
  *
@@ -250,12 +252,25 @@ const menu = Object.entries(TREE).flatMap(([domain, leaves], domainIndex) => {
     : [];
 });
 
+const ROLE_JEMAAT: Record<
+  string,
+  { name: string; bapel: { name: string } | null }[]
+> = {
+  majelis: [{ name: "Ketua", bapel: { name: "Majelis Jemaat" } }],
+  sekretariat: [{ name: "Sekretaris", bapel: { name: "Komisi Pemuda" } }],
+  bendahara: [{ name: "Bendahara", bapel: { name: "Majelis Jemaat" } }],
+};
+
 const session = {
   code: "U-0001",
   username: "A-0184",
   status: "ACTIVE",
   roleUser: { name: persona.roleName, isAdmin: persona.isAdmin },
-  jemaat: { name: persona.jemaatName },
+  jemaat: {
+    code: "JMT-0012",
+    name: persona.jemaatName,
+    roleJemaat: ROLE_JEMAAT[PERSONA_KEY] ?? [],
+  },
   menu,
 };
 
@@ -384,6 +399,30 @@ Bun.serve({
         200,
         setCookies("mock", 60 * 60 * 24),
       );
+    }
+    // auth.route.ts: change-password dijaga Authorization(MENU.USER, "UPDATE").
+    if (path.startsWith("/auth/change-password/")) {
+      if (!actionsOf(persona, "USER").includes("UPDATE")) {
+        return json({ status: 403, error: "Anda Tidak Memiliki Akses" }, 403);
+      }
+
+      const body = (await request.json()) as { oldPassword?: string };
+
+      if (body.oldPassword === "salah") {
+        return json(
+          {
+            status: 400,
+            error:
+              "Password Lama yang Anda masukkan tidak valid. Mohon periksa kembali",
+          },
+          400,
+        );
+      }
+
+      return json({
+        status: 200,
+        message: "Berhasil Memperbarui Password User. Silakan Login Kembali",
+      });
     }
     if (path.startsWith("/auth/")) {
       return json({ status: 200, message: "Berhasil", data: session });
@@ -652,7 +691,14 @@ Bun.serve({
 
     // 200 `[]` bila kosong — tidak ada 404 di endpoint "saya".
     if (path === "/persembahan/saya") {
-      const all = listMyOfferings(url.searchParams, persona.jemaatName);
+      if (process.env.MOCK_OFFERINGS === "500") {
+        return json({ status: 500, error: "Kesalahan Server" }, 500);
+      }
+
+      const all =
+        process.env.MOCK_OFFERINGS === "empty"
+          ? []
+          : listMyOfferings(url.searchParams, persona.jemaatName);
       const { page, limit } = paging(url);
       return json({
         status: 200,

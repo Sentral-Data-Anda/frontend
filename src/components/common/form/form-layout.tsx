@@ -34,22 +34,28 @@ export function FormSection({
   legend,
   note,
   disabled = false,
+  isReadOnly = false,
   children,
 }: {
   legend: string;
   note?: string;
   disabled?: boolean;
+  isReadOnly?: boolean;
   children: ReactNode;
 }) {
+  const Root = isReadOnly ? "section" : "fieldset";
+  const Title = isReadOnly ? "h2" : "legend";
+
   return (
-    <fieldset
-      disabled={disabled}
+    <Root
+      aria-label={isReadOnly ? legend : undefined}
+      disabled={isReadOnly ? undefined : disabled}
       className="border-border border-b px-gutter py-5 last-of-type:border-b-0 md:mx-gutter md:px-0 @min-[44rem]/form:grid @min-[44rem]/form:grid-cols-[14rem_minmax(0,1fr)] @min-[44rem]/form:grid-rows-[auto_1fr] @min-[44rem]/form:gap-x-8"
     >
       {/* Diapungkan: peramban melukis legend di garis atas fieldset. */}
-      <legend className="float-left mb-3 w-full text-title font-semibold @min-[44rem]/form:col-start-1 @min-[44rem]/form:row-start-1 @min-[44rem]/form:mb-1">
+      <Title className="float-left mb-3 w-full text-title font-semibold @min-[44rem]/form:col-start-1 @min-[44rem]/form:row-start-1 @min-[44rem]/form:mb-1">
         {legend}
-      </legend>
+      </Title>
 
       {note ? (
         <p className="text-muted-foreground clear-left mb-4 text-caption @min-[44rem]/form:col-start-1 @min-[44rem]/form:row-start-2 @min-[44rem]/form:mb-0">
@@ -62,7 +68,7 @@ export function FormSection({
           {children}
         </div>
       </div>
-    </fieldset>
+    </Root>
   );
 }
 

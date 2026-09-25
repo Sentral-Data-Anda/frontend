@@ -291,7 +291,12 @@ describe("menu akun", () => {
     expect(trigger.getAttribute("aria-haspopup")).toBe("menu");
     expect(menu.textContent).toContain("sekretaris");
     expect(menu.textContent).toContain("Sekretaris");
-    expect(screen.getAllByRole("menuitem")).toHaveLength(1);
+    expect(
+      screen.getAllByRole("menuitem").map((item) => item.textContent),
+    ).toEqual(["Akun saya", "Keluar"]);
+    expect(
+      screen.getByRole("menuitem", { name: "Akun saya" }).getAttribute("href"),
+    ).toBe("/akun");
   });
 
   test("Keluar memanggil logout: DELETE BFF lalu ganti ke /login", async () => {

@@ -5,6 +5,7 @@ import { useState } from "react";
 import { DashboardGrid, KpiStrip } from "@/components/common/dashboard";
 import { DomainTileGrid, SectionHeader } from "@/components/common/navigation";
 import {
+  AccountLink,
   AppIdentity,
   DashboardHeader,
   MobileOnly,
@@ -58,7 +59,12 @@ export const HomeScreen = (props: PropTypes) => {
     <div className="pb-6">
       <PageHeader
         leading={<AppIdentity role={session.roleUser.name} />}
-        action={bell}
+        action={
+          <div className="flex items-center gap-2">
+            {bell}
+            <AccountLink />
+          </div>
+        }
       />
 
       <DashboardHeader

@@ -14,7 +14,21 @@ export const sessionSchema = z.object({
     name: z.string(),
     isAdmin: z.boolean(),
   }),
-  jemaat: z.object({ name: z.string() }).nullable().default(null),
+  jemaat: z
+    .object({
+      name: z.string(),
+      code: z.string().optional(),
+      roleJemaat: z
+        .array(
+          z.object({
+            name: z.string(),
+            bapel: z.object({ name: z.string() }).nullable(),
+          }),
+        )
+        .optional(),
+    })
+    .nullable()
+    .default(null),
   menu: z.array(menuNodeSchema),
 });
 

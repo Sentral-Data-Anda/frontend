@@ -9,6 +9,7 @@ import {
   House,
   LayoutGrid,
   LogOut,
+  UserRound,
   Search,
   type LucideIcon,
 } from "lucide-react";
@@ -19,7 +20,7 @@ import { flushSync } from "react-dom";
 
 import { Avatar } from "@/components/common/display";
 import { MENU_ITEM, MENU_POPUP } from "@/components/common/overlay";
-import { MENU_ICON, domainHref, menuHref } from "@/config/menu";
+import { ACCOUNT_HREF, MENU_ICON, domainHref, menuHref } from "@/config/menu";
 import { useSession } from "@/features/auth";
 import { useBoolean } from "@/hooks/use-boolean";
 import { cn } from "@/lib/utils";
@@ -130,20 +131,32 @@ export function Sidebar({ defaultCollapsed }: { defaultCollapsed: boolean }) {
 
           <div className="border-sidebar-border flex items-center gap-3 border-t px-4.5 py-3">
             <AccountMenu name={name} role={role} />
-            <div className="group-data-collapsed/sidebar:hidden">
-              <Avatar label={name} />
-            </div>
-            <div className={cn("min-w-0 flex-1", HIDE_IN_RAIL)}>
-              <p className="truncate text-body font-medium" title={name}>
-                {name}
-              </p>
-              <p
-                className="text-sidebar-muted-foreground truncate text-caption"
-                title={role}
-              >
-                {role}
-              </p>
-            </div>
+            <Link
+              href={ACCOUNT_HREF}
+              aria-label={`Akun saya: ${name}`}
+              aria-current={pathname === ACCOUNT_HREF ? "page" : undefined}
+              className={cn(
+                "-m-1.5 flex min-w-0 flex-1 items-center gap-3 rounded-control p-1.5",
+                IDLE,
+                FOCUS,
+                HIDE_IN_RAIL,
+              )}
+            >
+              <div className="group-data-collapsed/sidebar:hidden">
+                <Avatar label={name} />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-body font-medium" title={name}>
+                  {name}
+                </p>
+                <p
+                  className="text-sidebar-muted-foreground truncate text-caption"
+                  title={role}
+                >
+                  {role}
+                </p>
+              </div>
+            </Link>
             <LogoutButton className={cn(IDLE, FOCUS, HIDE_IN_RAIL)} />
           </div>
         </aside>
@@ -190,6 +203,13 @@ function AccountMenu({ name, role }: { name: string; role: string }) {
                 </span>
               </Menu.GroupLabel>
               <Menu.Separator className="bg-border -mx-1 my-1 h-px" />
+              <Menu.LinkItem
+                render={<Link href={ACCOUNT_HREF} />}
+                className={MENU_ITEM}
+              >
+                <UserRound className="size-4" aria-hidden />
+                Akun saya
+              </Menu.LinkItem>
               <Menu.Item onClick={() => void logout()} className={MENU_ITEM}>
                 <LogOut className="size-4" aria-hidden />
                 Keluar

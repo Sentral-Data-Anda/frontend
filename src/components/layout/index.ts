@@ -1,4 +1,5 @@
 // app-shell tidak diekspor: server-only (next/headers).
+export * from "./account-link";
 export * from "./app-identity";
 export * from "./bottom-tab";
 export * from "./dashboard-header";
