@@ -25,7 +25,7 @@ export function isIOS(): boolean {
   return /iPad|iPhone|iPod/.test(ua) || isIPadOS;
 }
 
-export function needsManualInstallGuide(): boolean {
+export function isManualInstallGuideNeeded(): boolean {
   return isIOS() && !isStandalone();
 }
 
@@ -34,7 +34,7 @@ export function serviceWorkerUrl(): string {
   return `/sw.js?v=${encodeURIComponent(buildId)}`;
 }
 
-export function shouldRegisterServiceWorker(): boolean {
+export function isServiceWorkerEnabled(): boolean {
   return (
     process.env.NODE_ENV === "production" ||
     process.env.NEXT_PUBLIC_ENABLE_SW === "1"

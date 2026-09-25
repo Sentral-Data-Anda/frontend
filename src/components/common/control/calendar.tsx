@@ -39,7 +39,7 @@ export function Calendar({
   max,
   startInYearGrid = false,
   isClearable = false,
-  hasConfirm = false,
+  isConfirmVisible = false,
   focusRef,
 }: {
   value: string;
@@ -49,7 +49,7 @@ export function Calendar({
   max?: string;
   startInYearGrid?: boolean;
   isClearable?: boolean;
-  hasConfirm?: boolean;
+  isConfirmVisible?: boolean;
   focusRef?: React.RefObject<HTMLButtonElement | null>;
 }) {
   const today = todayJakarta();
@@ -78,7 +78,7 @@ export function Calendar({
     };
   }, [cursor, isYearGrid]);
 
-  const onMove = (next: string) => {
+  const moveCursor = (next: string) => {
     if (!next || !isWithin(next, min, max)) return;
 
     setCursor(next);
@@ -94,21 +94,23 @@ export function Calendar({
 
     if (step[event.key] !== undefined) {
       event.preventDefault();
-      onMove(addDays(cursor, step[event.key]));
+      moveCursor(addDays(cursor, step[event.key]));
       return;
     }
 
     if (event.key === "Home" || event.key === "End") {
       event.preventDefault();
       const offset = weekdayIndex(cursor);
-      onMove(addDays(cursor, event.key === "Home" ? -offset : 6 - offset));
+      moveCursor(addDays(cursor, event.key === "Home" ? -offset : 6 - offset));
       return;
     }
 
     if (event.key === "PageUp" || event.key === "PageDown") {
       event.preventDefault();
       const direction = event.key === "PageUp" ? -1 : 1;
-      onMove(addMonths(cursor, event.shiftKey ? direction * 12 : direction));
+      moveCursor(
+        addMonths(cursor, event.shiftKey ? direction * 12 : direction),
+      );
       return;
     }
 
@@ -216,7 +218,7 @@ export function Calendar({
           size="icon-sm"
           aria-label="Bulan sebelumnya"
           className="cursor-pointer"
-          onClick={() => onMove(addMonths(cursor, -1))}
+          onClick={() => moveCursor(addMonths(cursor, -1))}
         >
           <ChevronLeft aria-hidden />
         </Button>
@@ -238,7 +240,7 @@ export function Calendar({
           size="icon-sm"
           aria-label="Bulan berikutnya"
           className="cursor-pointer"
-          onClick={() => onMove(addMonths(cursor, 1))}
+          onClick={() => moveCursor(addMonths(cursor, 1))}
         >
           <ChevronRight aria-hidden />
         </Button>
@@ -328,7 +330,7 @@ export function Calendar({
           </Button>
         ) : null}
 
-        {hasConfirm ? (
+        {isConfirmVisible ? (
           <Button
             type="button"
             size="sm"

@@ -66,7 +66,7 @@ export function DateField({
 
   const text = draft ?? toInputText(value);
 
-  const onCheck = (raw: string): string => {
+  const checkInput = (raw: string): string => {
     const parsed = parseDateInput(raw);
 
     if (parsed.error) return parsed.error;
@@ -86,14 +86,14 @@ export function DateField({
 
     if (!error) return;
 
-    const next = onCheck(raw);
+    const next = checkInput(raw);
 
     setError(next);
     if (!next) onValueChange(parseDateInput(raw).iso ?? "");
   };
 
   const onLeave = () => {
-    const next = onCheck(text);
+    const next = checkInput(text);
     const parsed = parseDateInput(text);
 
     setError(next);
@@ -126,7 +126,7 @@ export function DateField({
       max={upperBound}
       startInYearGrid={variant === "lahir" && !confirmed}
       isClearable={isClearable}
-      hasConfirm={isDesktop === false}
+      isConfirmVisible={isDesktop === false}
       focusRef={cellRef}
     />
   );

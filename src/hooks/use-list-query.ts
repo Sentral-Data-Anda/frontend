@@ -84,7 +84,7 @@ export function useListQuery<T>({
     onRetry: () => void more.refetch(),
     pagination: {
       mode: "more",
-      hasMore: more.hasNextPage,
+      isMoreAvailable: more.hasNextPage,
       isLoadingMore: more.isFetchingNextPage,
       isLoadMoreError: more.isFetchNextPageError,
       isBusy: more.isFetching,

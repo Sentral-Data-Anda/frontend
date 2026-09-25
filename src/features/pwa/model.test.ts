@@ -3,9 +3,9 @@ import { afterEach, describe, expect, test } from "bun:test";
 import {
   isIOS,
   isStandalone,
-  needsManualInstallGuide,
+  isManualInstallGuideNeeded,
   serviceWorkerUrl,
-  shouldRegisterServiceWorker,
+  isServiceWorkerEnabled,
 } from "./model";
 
 type FakeWindow = {
@@ -89,20 +89,20 @@ describe("isStandalone", () => {
   });
 });
 
-describe("needsManualInstallGuide", () => {
+describe("isManualInstallGuideNeeded", () => {
   test("true di iOS yang belum terpasang — tidak ada prompt otomatis di sana", () => {
     setWindow({ userAgent: IPHONE, standalone: false });
-    expect(needsManualInstallGuide()).toBe(true);
+    expect(isManualInstallGuideNeeded()).toBe(true);
   });
 
   test("false di iOS yang sudah terpasang", () => {
     setWindow({ userAgent: IPHONE, standalone: true });
-    expect(needsManualInstallGuide()).toBe(false);
+    expect(isManualInstallGuideNeeded()).toBe(false);
   });
 
   test("false di non-iOS — di sana beforeinstallprompt yang dipakai", () => {
     setWindow({ userAgent: WINDOWS });
-    expect(needsManualInstallGuide()).toBe(false);
+    expect(isManualInstallGuideNeeded()).toBe(false);
   });
 });
 
@@ -131,20 +131,20 @@ describe("serviceWorkerUrl", () => {
   });
 });
 
-describe("shouldRegisterServiceWorker", () => {
+describe("isServiceWorkerEnabled", () => {
   test("aktif di production", () => {
     mutableEnv.NODE_ENV = "production";
-    expect(shouldRegisterServiceWorker()).toBe(true);
+    expect(isServiceWorkerEnabled()).toBe(true);
   });
 
   test("mati di development supaya cache basi tidak mengganggu", () => {
     mutableEnv.NODE_ENV = "development";
-    expect(shouldRegisterServiceWorker()).toBe(false);
+    expect(isServiceWorkerEnabled()).toBe(false);
   });
 
   test("bisa dibuka di development lewat flag eksplisit, supaya tetap bisa diuji", () => {
     mutableEnv.NODE_ENV = "development";
     mutableEnv.NEXT_PUBLIC_ENABLE_SW = "1";
-    expect(shouldRegisterServiceWorker()).toBe(true);
+    expect(isServiceWorkerEnabled()).toBe(true);
   });
 });

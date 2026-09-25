@@ -118,28 +118,28 @@ const MEMBER_REQUIRED = [
 ] as const;
 
 export const jemaatFormSchema = baseSchema.superRefine((values, ctx) => {
-  const onMissing = (path: string, message: string) =>
+  const reportMissing = (path: string, message: string) =>
     ctx.addIssue({ code: "custom", path: [path], message });
 
   for (const [field, message] of ALWAYS_REQUIRED) {
-    if (!values[field]) onMissing(field, message);
+    if (!values[field]) reportMissing(field, message);
   }
 
   if (values.typeJemaat === "ANGGOTA") {
     for (const [field, message] of MEMBER_REQUIRED) {
-      if (!values[field]) onMissing(field, message);
+      if (!values[field]) reportMissing(field, message);
     }
   }
 
   if (values.email && !values.email.includes("@")) {
-    onMissing("email", "Email harus memuat @");
+    reportMissing("email", "Email harus memuat @");
   }
 
   if (values.keluargaId && !values.roleInFamily) {
-    onMissing("roleInFamily", "Peran dalam keluarga wajib dipilih");
+    reportMissing("roleInFamily", "Peran dalam keluarga wajib dipilih");
   }
   if (!values.keluargaId && values.roleInFamily) {
-    onMissing("keluargaId", "Pilih keluarganya dulu, atau kosongkan peran");
+    reportMissing("keluargaId", "Pilih keluarganya dulu, atau kosongkan peran");
   }
 
   values.additional.forEach((row, index) => {

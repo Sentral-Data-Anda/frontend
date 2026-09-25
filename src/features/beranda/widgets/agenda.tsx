@@ -41,15 +41,16 @@ const dayOf = (iso: string) => iso.slice(0, 10);
 
 export function AgendaWidget() {
   const { now, days, ibadah, events, isEventShown } = useWeekAgenda();
-  const [day, setDay] = useState(days[0]);
+  const [pickDay, setPickDay] = useState(days[0]);
 
   const ibadahOfDay = sortByStartTime(
-    (ibadah.data ?? []).filter((item) => dayOf(item.date) === day),
+    (ibadah.data ?? []).filter((item) => dayOf(item.date) === pickDay),
   );
   const next =
-    day === toDateKey(now) ? findNextService(ibadahOfDay, now) : undefined;
+    pickDay === toDateKey(now) ? findNextService(ibadahOfDay, now) : undefined;
   const eventsOfDay = (events.data ?? []).filter(
-    (item) => dayOf(item.startDate) <= day && day <= dayOf(item.endDate),
+    (item) =>
+      dayOf(item.startDate) <= pickDay && pickDay <= dayOf(item.endDate),
   );
 
   const tabs = [
@@ -61,7 +62,7 @@ export function AgendaWidget() {
     ibadahOfDay.length === 0 ? (
       <EmptyState isCompact title="Tidak ada ibadah" />
     ) : (
-      <DashboardList label={`Ibadah ${formatDayMonth(day)}`}>
+      <DashboardList label={`Ibadah ${formatDayMonth(pickDay)}`}>
         {ibadahOfDay.map((item) => (
           <DashboardRow
             key={item.code}
@@ -101,13 +102,13 @@ export function AgendaWidget() {
           <button
             key={key}
             type="button"
-            aria-pressed={key === day}
+            aria-pressed={key === pickDay}
             aria-label={formatDayMonth(key)}
-            onClick={() => setDay(key)}
+            onClick={() => setPickDay(key)}
             className={cn(
               "flex h-12 flex-col items-center justify-center rounded-control text-caption transition-colors",
               "focus-visible:ring-ring outline-none focus-visible:ring-2",
-              key === day
+              key === pickDay
                 ? "bg-primary text-primary-foreground"
                 : "hover:bg-muted",
             )}
@@ -139,7 +140,7 @@ export function AgendaWidget() {
             {eventsOfDay.length === 0 ? (
               <EmptyState isCompact title="Tidak ada kegiatan" />
             ) : (
-              <DashboardList label={`Kegiatan ${formatDayMonth(day)}`}>
+              <DashboardList label={`Kegiatan ${formatDayMonth(pickDay)}`}>
                 {eventsOfDay.map((item) => (
                   <DashboardRow
                     key={item.code}

@@ -31,7 +31,7 @@ const FORWARDED_REQUEST_HEADERS = [
 
 const METHODS_WITH_BODY = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 
-const onBuildForwardHeaders = (request: NextRequest): Headers => {
+const buildForwardHeaders = (request: NextRequest): Headers => {
   const headers = new Headers();
 
   for (const name of FORWARDED_REQUEST_HEADERS) {
@@ -83,7 +83,7 @@ const onHandle = async (
   try {
     upstream = await fetch(target, {
       method: request.method,
-      headers: onBuildForwardHeaders(request),
+      headers: buildForwardHeaders(request),
       body: isBodyAllowed ? request.body : undefined,
       ...(isBodyAllowed ? { duplex: "half" } : {}),
       redirect: "manual",

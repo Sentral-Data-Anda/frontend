@@ -50,12 +50,12 @@ export async function apiClient<T>(
       ? AbortSignal.any([callerSignal, timeoutSignal])
       : (callerSignal ?? timeoutSignal);
 
-  const hasExplicitCaching =
+  const isExplicitCaching =
     cache !== undefined ||
     next?.revalidate !== undefined ||
     (next?.tags?.length ?? 0) > 0;
 
-  if (hasExplicitCaching && cache !== "no-store") {
+  if (isExplicitCaching && cache !== "no-store") {
     const headerNames = new Set(
       Object.keys(
         headers instanceof Headers
@@ -98,7 +98,7 @@ export async function apiClient<T>(
         ...headers,
       },
       next,
-      cache: hasExplicitCaching ? cache : "no-store",
+      cache: isExplicitCaching ? cache : "no-store",
       signal,
     });
   } catch (error) {

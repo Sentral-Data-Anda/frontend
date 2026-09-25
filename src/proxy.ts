@@ -22,7 +22,7 @@ export async function proxy(request: NextRequest) {
 
   if (!accessToken && !refreshToken) {
     if (isApiRequest || PUBLIC_PATHS.has(pathname)) {
-      return onContinue(request, { isApiRequest });
+      return forwardRequest(request, { isApiRequest });
     }
 
     const target = `${pathname}${request.nextUrl.search}`;
@@ -74,10 +74,10 @@ export async function proxy(request: NextRequest) {
     return response;
   }
 
-  return onContinue(request, { isApiRequest, cookieHeader, setCookie });
+  return forwardRequest(request, { isApiRequest, cookieHeader, setCookie });
 }
 
-const onContinue = (
+const forwardRequest = (
   request: NextRequest,
   options: {
     isApiRequest: boolean;

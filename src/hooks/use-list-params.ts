@@ -20,7 +20,7 @@ export type ListFilterSchema = Record<string, { api: string }>;
 
 const NO_FILTERS: ListFilterSchema = {};
 
-const onReadNumber = (value: string | null, fallback: number): number => {
+const readNumber = (value: string | null, fallback: number): number => {
   const parsed = Number(value);
 
   return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
@@ -59,8 +59,8 @@ export function useListParams({
     );
 
     return {
-      page: onReadNumber(searchParams.get("page"), 1),
-      limit: onReadNumber(searchParams.get("limit"), limitPerPage),
+      page: readNumber(searchParams.get("page"), 1),
+      limit: readNumber(searchParams.get("limit"), limitPerPage),
       search: searchParams.get("search") ?? "",
       status: searchParams.get("status") ?? "",
       filters,
@@ -76,7 +76,7 @@ export function useListParams({
     saveListReturn(pathname, query ? `${pathname}?${query}` : pathname);
   }, [pathname, query]);
 
-  const onWrite = useCallback(
+  const writeParams = useCallback(
     (next: Partial<ListParams>) => {
       // `searchParams` tertinggal satu render sesudah router.replace.
       const url = new URLSearchParams(window.location.search);
@@ -103,28 +103,28 @@ export function useListParams({
   );
 
   const onSearch = useCallback(
-    (search: string) => onWrite({ search, page: 1 }),
-    [onWrite],
+    (search: string) => writeParams({ search, page: 1 }),
+    [writeParams],
   );
 
   const onPickStatus = useCallback(
-    (status: string) => onWrite({ status, page: 1 }),
-    [onWrite],
+    (status: string) => writeParams({ status, page: 1 }),
+    [writeParams],
   );
 
   const onPickPage = useCallback(
-    (page: number) => onWrite({ page }),
-    [onWrite],
+    (page: number) => writeParams({ page }),
+    [writeParams],
   );
 
   const onPickLimit = useCallback(
-    (limit: number) => onWrite({ limit, page: 1 }),
-    [onWrite],
+    (limit: number) => writeParams({ limit, page: 1 }),
+    [writeParams],
   );
 
   const onPickFilter = useCallback(
-    (key: string, value: string) => onWrite({ [key]: value, page: 1 }),
-    [onWrite],
+    (key: string, value: string) => writeParams({ [key]: value, page: 1 }),
+    [writeParams],
   );
 
   return {

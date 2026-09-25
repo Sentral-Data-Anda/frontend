@@ -7,7 +7,7 @@ import type { MenuAction, MenuNode } from "@/types/menu";
 
 import { SHOW_DUMMY } from "../fixtures";
 import {
-  canPickView,
+  isViewPickable,
   KPI_GROUPS,
   type DashboardView,
   type KpiGroup,
@@ -269,7 +269,7 @@ export const WIDGETS: readonly Widget[] = [
 
 export const MAX_KPI = 5;
 
-export const hasGrant = (menu: MenuNode[], { slug, action }: WidgetGate) =>
+export const isGranted = (menu: MenuNode[], { slug, action }: WidgetGate) =>
   findMenuNode(menu, slug)?.action.includes(action) ?? false;
 
 export function selectWidgets(
@@ -281,8 +281,8 @@ export function selectWidgets(
   const allowed = widgets.filter(
     (widget) =>
       (isDummyShown || !widget.isDummy) &&
-      widget.gate.every((gate) => hasGrant(menu, gate)) &&
-      (!widget.gateAny || widget.gateAny.some((gate) => hasGrant(menu, gate))),
+      widget.gate.every((gate) => isGranted(menu, gate)) &&
+      (!widget.gateAny || widget.gateAny.some((gate) => isGranted(menu, gate))),
   );
   const kpiOf = (group: KpiGroup) =>
     allowed
@@ -296,7 +296,7 @@ export function selectWidgets(
     finance.length > 0 && finance.length >= umum.length ? "finance" : "umum";
 
   const picked: DashboardView =
-    canPickView(groups) && view && (view === "all" || groups.includes(view))
+    isViewPickable(groups) && view && (view === "all" || groups.includes(view))
       ? view
       : dominant;
 
@@ -359,6 +359,6 @@ const HEADER_ACTIONS: readonly (HeaderAction & { gate: WidgetGate })[] = [
 ];
 
 export const selectHeaderActions = (menu: MenuNode[]): HeaderAction[] =>
-  HEADER_ACTIONS.filter(({ gate }) => hasGrant(menu, gate))
+  HEADER_ACTIONS.filter(({ gate }) => isGranted(menu, gate))
     .slice(0, 2)
     .map(({ label, href }) => ({ label, href }));

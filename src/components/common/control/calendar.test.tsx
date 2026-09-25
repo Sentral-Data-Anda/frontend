@@ -218,12 +218,12 @@ describe("Calendar — kaki (§7.10 no. 9)", () => {
   });
 
   test('"Pilih" hanya di panel HP', () => {
-    onRenderCalendar({ hasConfirm: false });
+    onRenderCalendar({ isConfirmVisible: false });
     expect(screen.queryByRole("button", { name: "Pilih" })).toBeNull();
 
     cleanup();
 
-    onRenderCalendar({ hasConfirm: true });
+    onRenderCalendar({ isConfirmVisible: true });
     expect(screen.getByRole("button", { name: "Pilih" })).toBeTruthy();
   });
 });

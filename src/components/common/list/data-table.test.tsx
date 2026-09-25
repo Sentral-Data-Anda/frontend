@@ -78,7 +78,7 @@ describe("DataList + table", () => {
     onRender({
       pagination: {
         mode: "more",
-        hasMore: false,
+        isMoreAvailable: false,
         isLoadingMore: false,
         isLoadMoreError: false,
         isBusy: false,
@@ -97,7 +97,7 @@ describe("DataList + table", () => {
     onRender({
       pagination: {
         mode: "more",
-        hasMore: true,
+        isMoreAvailable: true,
         isLoadingMore: false,
         isLoadMoreError: false,
         isBusy: false,

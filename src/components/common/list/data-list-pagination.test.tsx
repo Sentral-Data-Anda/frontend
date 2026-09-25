@@ -50,7 +50,7 @@ const more = (
   next: Partial<Extract<DataListPagination, { mode: "more" }>> = {},
 ): DataListPagination => ({
   mode: "more",
-  hasMore: true,
+  isMoreAvailable: true,
   isLoadingMore: false,
   isLoadMoreError: false,
   isBusy: false,
@@ -139,7 +139,7 @@ describe("DataList — muat lebih banyak (mobile/tablet)", () => {
     const { onUpdate } = onRenderList(more());
 
     screen.getByRole("button", { name: "Muat lebih banyak" }).focus();
-    onUpdate(more({ hasMore: false }));
+    onUpdate(more({ isMoreAvailable: false }));
 
     expect(document.activeElement?.textContent).toBe(
       "Semua data sudah ditampilkan",
@@ -174,7 +174,7 @@ describe("DataList — muat lebih banyak (mobile/tablet)", () => {
   });
 
   test("teks penutup juga saat semua muat di satu halaman", () => {
-    onRenderList(more({ hasMore: false, totalData: 2 }));
+    onRenderList(more({ isMoreAvailable: false, totalData: 2 }));
 
     expect(screen.getByText("Semua data sudah ditampilkan")).toBeTruthy();
     expect(

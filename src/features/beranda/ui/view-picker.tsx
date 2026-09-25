@@ -8,7 +8,7 @@ import { MENU_ITEM, MENU_POPUP } from "@/components/common/overlay";
 import { cn } from "@/lib/utils";
 
 import {
-  canPickView,
+  isViewPickable,
   VIEW_LABEL,
   type DashboardView,
   type KpiGroup,
@@ -23,7 +23,7 @@ export function ViewPicker({
   groups: readonly KpiGroup[];
   onPick: (view: DashboardView) => void;
 }) {
-  if (!canPickView(groups)) return null;
+  if (!isViewPickable(groups)) return null;
 
   const options: DashboardView[] = ["all", ...groups];
 

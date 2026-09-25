@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef } from "react";
 
 import { useBoolean } from "@/hooks/use-boolean";
 
-import { serviceWorkerUrl, shouldRegisterServiceWorker } from "../model";
+import { serviceWorkerUrl, isServiceWorkerEnabled } from "../model";
 
 type ServiceWorkerState = {
   updateReady: boolean;
@@ -22,7 +22,7 @@ export function useServiceWorker(): ServiceWorkerState {
     if (
       typeof window === "undefined" ||
       !("serviceWorker" in navigator) ||
-      !shouldRegisterServiceWorker()
+      !isServiceWorkerEnabled()
     ) {
       return;
     }

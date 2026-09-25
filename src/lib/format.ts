@@ -8,20 +8,20 @@ const instantFormat = new Intl.DateTimeFormat("id-ID", {
   timeStyle: "short",
 });
 
-const onParse = (value: string | Date): Date | null => {
+const toDate = (value: string | Date): Date | null => {
   const date = typeof value === "string" ? new Date(value) : value;
 
   return Number.isNaN(date.getTime()) ? null : date;
 };
 
 export function formatDate(value: string | Date) {
-  const date = onParse(value);
+  const date = toDate(value);
 
   return date ? calendarFormat.format(date) : "-";
 }
 
 export function formatDateTime(value: string | Date) {
-  const date = onParse(value);
+  const date = toDate(value);
 
   return date ? instantFormat.format(date) : "-";
 }
@@ -32,7 +32,7 @@ const weekdayFormat = new Intl.DateTimeFormat("id-ID", {
 });
 
 export function formatWeekday(value: string | Date) {
-  const date = onParse(value);
+  const date = toDate(value);
 
   return date ? weekdayFormat.format(date) : "-";
 }

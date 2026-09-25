@@ -4,7 +4,7 @@ export type KpiGroup = (typeof KPI_GROUPS)[number];
 
 export type DashboardView = "all" | KpiGroup;
 
-export const canPickView = (groups: readonly KpiGroup[]): boolean =>
+export const isViewPickable = (groups: readonly KpiGroup[]): boolean =>
   groups.length > 1;
 
 export const DASHBOARD_VIEW_COOKIE = "dashboard_view";

@@ -89,7 +89,7 @@ export function JemaatFormScreen({ code }: { code?: string }) {
   useEffect(() => {
     if (isSubmitting || !rejectedField) return;
 
-    onRevealField(rejectedField);
+    revealField(rejectedField);
   }, [isSubmitting, submitCount, rejectedField]);
 
   const onSave = form.handleSubmit(
@@ -111,7 +111,7 @@ export function JemaatFormScreen({ code }: { code?: string }) {
     },
     (errors) => {
       setRejectedField(null);
-      onRevealField(Object.keys(errors).find((key) => key !== "root"));
+      revealField(Object.keys(errors).find((key) => key !== "root"));
     },
   );
 
@@ -215,7 +215,7 @@ export function JemaatFormScreen({ code }: { code?: string }) {
   );
 }
 
-function onRevealField(field: string | null | undefined) {
+function revealField(field: string | null | undefined) {
   if (!field) return;
 
   const control = document.getElementById(field);

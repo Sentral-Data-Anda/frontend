@@ -18,7 +18,7 @@ export type DataListPagination =
     }
   | {
       mode: "more";
-      hasMore: boolean;
+      isMoreAvailable: boolean;
       isLoadingMore: boolean;
       isLoadMoreError: boolean;
       isBusy: boolean;
@@ -115,7 +115,7 @@ export function DataListPager({
 export function DataListMore({
   shown,
   totalData,
-  hasMore,
+  isMoreAvailable,
   isLoadingMore,
   isLoadMoreError,
   isBusy,
@@ -123,7 +123,7 @@ export function DataListMore({
 }: Extract<DataListPagination, { mode: "more" }> & { shown: number }) {
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const isButtonFocusedRef = useRef(false);
-  const isAutoLoad = hasMore && !isBusy && !isLoadMoreError;
+  const isAutoLoad = isMoreAvailable && !isBusy && !isLoadMoreError;
   const onIntersect = useEffectEvent(onLoadMore);
 
   useEffect(() => {
@@ -150,7 +150,7 @@ export function DataListMore({
         {isLoadMoreError ? " Gagal memuat data berikutnya." : null}
       </p>
 
-      {hasMore ? (
+      {isMoreAvailable ? (
         <div className="flex min-h-12 items-center justify-center gap-1 px-gutter py-2">
           {isLoadMoreError ? (
             <p className="text-destructive text-body">Gagal memuat —</p>

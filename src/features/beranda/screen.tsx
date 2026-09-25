@@ -25,8 +25,10 @@ import { selectHeaderActions, selectWidgets } from "./widgets/registry";
 export function HomeScreen({ defaultView }: { defaultView?: DashboardView }) {
   const session = useSession();
   const ibadahAccess = useMenuAccess(MENU.IBADAH);
-  const [view, setView] = useState<DashboardView | undefined>(defaultView);
-  const widgets = selectWidgets(session.menu, undefined, undefined, view);
+  const [pickView, setPickView] = useState<DashboardView | undefined>(
+    defaultView,
+  );
+  const widgets = selectWidgets(session.menu, undefined, undefined, pickView);
 
   const now = new Date();
   const ibadah = useIbadahByDate(toDateKey(now), ibadahAccess.isCanView);
@@ -43,7 +45,7 @@ export function HomeScreen({ defaultView }: { defaultView?: DashboardView }) {
 
   const onPickView = (next: DashboardView) => {
     saveDashboardView(next);
-    setView(next);
+    setPickView(next);
   };
 
   return (

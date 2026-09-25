@@ -44,7 +44,7 @@ function useMonthFlow() {
   const thisYear = useSurplusDefisit(ranges.monthStart, ranges.today);
   const lastYear = useSurplusDefisit(ranges.lastYearFrom, ranges.lastYearTo);
   const previous = lastYear.data;
-  const hasComparison =
+  const isComparable =
     previous !== undefined && previous.income + previous.expense > 0;
 
   const deltaOf = (
@@ -52,7 +52,7 @@ function useMonthFlow() {
     before: number,
     isUpGood: boolean,
   ): KpiDelta | null => {
-    if (!hasComparison || now === undefined || before <= 0) return null;
+    if (!isComparable || now === undefined || before <= 0) return null;
     const percent = ((now - before) / before) * 100;
 
     return Math.round(Math.abs(percent)) === 0

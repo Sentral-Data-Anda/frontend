@@ -4,7 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
 
 import { ToastHost } from "@/components/common/feedback";
-import { shouldRetryQuery } from "@/lib/api/retry";
+import { isQueryRetryable } from "@/lib/api/retry";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   // Di state, bukan module scope: module scope dibagi antar-request di server.
@@ -15,7 +15,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
           queries: {
             staleTime: 30_000,
 
-            retry: shouldRetryQuery,
+            retry: isQueryRetryable,
 
             refetchOnWindowFocus: false,
           },

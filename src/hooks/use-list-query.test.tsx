@@ -141,7 +141,7 @@ describe("useListQuery — mobile/tablet (infinite)", () => {
     ]);
     expect(result.current.pagination).toMatchObject({
       mode: "more",
-      hasMore: false,
+      isMoreAvailable: false,
       totalData: 5,
     });
 

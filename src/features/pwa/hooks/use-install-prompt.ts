@@ -10,8 +10,8 @@ type BeforeInstallPromptEvent = Event & {
 };
 
 type InstallPromptState = {
-  canPrompt: boolean;
-  needsManualGuide: boolean;
+  isPromptAvailable: boolean;
+  isManualGuideNeeded: boolean;
   installed: boolean;
   promptInstall: () => Promise<void>;
 };
@@ -75,8 +75,8 @@ export function useInstallPrompt(): InstallPromptState {
   }, [deferred]);
 
   return {
-    canPrompt: deferred !== null && !installed,
-    needsManualGuide: ios && !installed,
+    isPromptAvailable: deferred !== null && !installed,
+    isManualGuideNeeded: ios && !installed,
     installed,
     promptInstall,
   };

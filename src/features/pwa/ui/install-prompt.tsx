@@ -5,9 +5,10 @@ import { Button } from "@/components/common/control";
 import { useInstallPrompt } from "../hooks/use-install-prompt";
 
 export function InstallPrompt() {
-  const { canPrompt, needsManualGuide, promptInstall } = useInstallPrompt();
+  const { isPromptAvailable, isManualGuideNeeded, promptInstall } =
+    useInstallPrompt();
 
-  if (canPrompt) {
+  if (isPromptAvailable) {
     return (
       <div className="flex flex-col gap-2 rounded-lg border p-3.5">
         <p className="text-body font-medium">Pasang SADA di perangkat ini</p>
@@ -21,7 +22,7 @@ export function InstallPrompt() {
     );
   }
 
-  if (needsManualGuide) {
+  if (isManualGuideNeeded) {
     return (
       <div className="flex flex-col gap-2 rounded-lg border p-3.5">
         <p className="text-body font-medium">Pasang SADA di perangkat ini</p>
