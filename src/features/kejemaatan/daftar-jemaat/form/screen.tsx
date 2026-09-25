@@ -55,7 +55,7 @@ const SAVE_CONFIRM = {
   confirmLabel: "Ya",
   cancelLabel: "Tidak",
   isDestructive: false,
-  finalFocus: false,
+  isFocusReturnedOnConfirm: false,
 } as const;
 
 const CONFIRM = {
