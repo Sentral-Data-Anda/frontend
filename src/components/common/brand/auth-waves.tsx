@@ -1,11 +1,5 @@
 import { cn } from "@/lib/utils";
 
-/**
- * Ornamen gelombang untuk layar sebelum masuk. Murni dekorasi: `aria-hidden`,
- * tidak menangkap klik, dan warnanya `currentColor` — atur lewat kelas teks
- * (`text-primary/10`, `text-primary-foreground/15`) supaya ikut token.
- * Posisi dan ukuran sepenuhnya milik pemanggil lewat `className`.
- */
 export function AuthWaves({ className }: { className?: string }) {
   return (
     <svg

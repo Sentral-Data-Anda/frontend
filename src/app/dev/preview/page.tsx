@@ -4,26 +4,12 @@ import { isSafeRedirectPath } from "@/lib/redirect";
 
 export const metadata = { title: "Pratinjau responsif" };
 
-/**
- * Tiga ukuran acuan review, urut seperti user me-review: mobile → tablet →
- * desktop. Desktop diperkecil dengan `transform` supaya muat di layar yang
- * sama; iframe-nya tetap 1440px sehingga breakpoint `lg` benar-benar menyala.
- */
 const FRAMES = [
   { label: "Mobile", width: 390, height: 844, scale: 1 },
   { label: "Tablet", width: 820, height: 1180, scale: 1 },
   { label: "Desktop", width: 1440, height: 900, scale: 0.5 },
 ] as const;
 
-/**
- * Alat review development-only: `/dev/preview?path=/kejemaatan/daftar-jemaat`.
- *
- * Halaman ini sendiri terbuka tanpa sesi di development (lihat PUBLIC_PATHS
- * di proxy.ts) supaya `?path=/login` bisa dipratinjau saat belum masuk; tiap
- * iframe tetap lewat gerbang auth. Iframe same-origin hanya diizinkan di
- * development (`frame-ancestors 'self'` di csp.ts, `X-Frame-Options:
- * SAMEORIGIN` di next.config.ts); di production keduanya tetap menolak.
- */
 export default async function Page({
   searchParams,
 }: {
@@ -32,8 +18,6 @@ export default async function Page({
   if (process.env.NODE_ENV === "production") notFound();
 
   const { path } = await searchParams;
-  // Hanya path di origin ini: `?path=https://situs-lain` tidak boleh menjadi
-  // iframe di halaman kita.
   const src = isSafeRedirectPath(path) ? path : "/";
 
   return (

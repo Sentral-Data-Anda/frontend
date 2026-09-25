@@ -71,19 +71,7 @@ import {
 
 import type { MenuNode } from "@/types/menu";
 
-/**
- * Slug menu, disalin dari `be-sada/src/common/constants/menu.ts`.
- *
- * Ada di sini supaya kode FE menyebut menu lewat konstanta, bukan literal
- * string: `useMenuAccess(MENU.DAFTAR_JEMAAT)` gagal saat compile bila salah
- * ketik, sedangkan `useMenuAccess("DAFTAR_JEMAT")` gagal diam-diam dengan
- * menyembunyikan tombol yang seharusnya ada.
- *
- * Yang TIDAK ada di sini: struktur pohonnya. Pohon dan labelnya datang dari
- * API, sehingga menu yang ditambahkan be-sada muncul tanpa rilis FE.
- */
 export const MENU = {
-  // Domain
   KEJEMAATAN: "KEJEMAATAN",
   PELAYANAN: "PELAYANAN",
   PERIBADAHAN: "PERIBADAHAN",
@@ -97,7 +85,6 @@ export const MENU = {
   PERSETUJUAN: "PERSETUJUAN",
   PENGATURAN: "PENGATURAN",
 
-  // Kejemaatan
   DAFTAR_JEMAAT: "DAFTAR_JEMAAT",
   KELUARGA: "KELUARGA",
   PERNIKAHAN: "PERNIKAHAN",
@@ -106,28 +93,23 @@ export const MENU = {
   BAPEL: "BAPEL",
   REPORT_JEMAAT: "REPORT_JEMAAT",
 
-  // Pelayanan
   JADWAL_PELAYAN: "JADWAL_PELAYAN",
   TEMPLATE_JADWAL: "TEMPLATE_JADWAL",
   DAFTAR_PELAYAN: "DAFTAR_PELAYAN",
   ROLE_PELAYAN: "ROLE_PELAYAN",
   SKILL_MUSIK: "SKILL_MUSIK",
 
-  // Peribadahan
   IBADAH: "IBADAH",
   TIPE_IBADAH: "TIPE_IBADAH",
 
-  // Kegiatan
   EVENT: "EVENT",
   PENDAFTARAN_EVENT: "PENDAFTARAN_EVENT",
   GALERI: "GALERI",
   PENGUMUMAN: "PENGUMUMAN",
 
-  // Fasilitas
   PEMINJAMAN_RUANG: "PEMINJAMAN_RUANG",
   RUANG: "RUANG",
 
-  // Inventaris
   BARANG: "BARANG",
   TIPE_BARANG: "TIPE_BARANG",
   SATUAN: "SATUAN",
@@ -137,7 +119,6 @@ export const MENU = {
   SIKLUS_ASET: "SIKLUS_ASET",
   PENYUSUTAN: "PENYUSUTAN",
 
-  // Pengadaan
   SUPPLIER: "SUPPLIER",
   PERMINTAAN_PEMBELIAN: "PERMINTAAN_PEMBELIAN",
   PESANAN_PEMBELIAN: "PESANAN_PEMBELIAN",
@@ -145,7 +126,6 @@ export const MENU = {
   RETUR_PEMBELIAN: "RETUR_PEMBELIAN",
   FAKTUR_SUPPLIER: "FAKTUR_SUPPLIER",
 
-  // Keuangan
   PERSEMBAHAN: "PERSEMBAHAN",
   TIPE_PERSEMBAHAN: "TIPE_PERSEMBAHAN",
   AKUN: "AKUN",
@@ -158,12 +138,10 @@ export const MENU = {
   MATA_UANG: "MATA_UANG",
   SETELAN_AKUNTANSI: "SETELAN_AKUNTANSI",
 
-  // Anggaran
   PROGRAM: "PROGRAM",
   LAPORAN_BUDGET: "LAPORAN_BUDGET",
   PAGU_ANGGARAN: "PAGU_ANGGARAN",
 
-  // SDM
   KARYAWAN: "KARYAWAN",
   CUTI: "CUTI",
   TIPE_CUTI: "TIPE_CUTI",
@@ -173,11 +151,9 @@ export const MENU = {
   KOMPONEN_PAYROLL: "KOMPONEN_PAYROLL",
   PAJAK_PPH21: "PAJAK_PPH21",
 
-  // Persetujuan
   PERMINTAAN_PERSETUJUAN: "PERMINTAAN_PERSETUJUAN",
   SETELAN_PERSETUJUAN: "SETELAN_PERSETUJUAN",
 
-  // Pengaturan
   USER: "USER",
   ROLE_USER: "ROLE_USER",
   ACTIVITY_LOG: "ACTIVITY_LOG",
@@ -185,11 +161,6 @@ export const MENU = {
 
 export type MenuSlug = (typeof MENU)[keyof typeof MENU];
 
-/**
- * Daftar eksplisit 12 domain, sumber `generateStaticParams` halaman
- * `/[domain]`. Bukan `Object.keys(MENU_ICON)`: tabel ikon adalah urusan
- * tampilan, sedangkan daftar ini menentukan rute mana yang ada.
- */
 export const DOMAIN_SLUGS = [
   MENU.KEJEMAATAN,
   MENU.PELAYANAN,
@@ -205,12 +176,6 @@ export const DOMAIN_SLUGS = [
   MENU.PENGATURAN,
 ] as const;
 
-/**
- * Delapan domain "Aksi cepat" Beranda, urutan sesuai mockup
- * (`docs/design/beranda-reference.png`). Beranda memfilternya terhadap
- * `session.menu`, jadi domain yang tidak dipegang peran tetap tersembunyi;
- * sisanya lewat "Tampilkan semua".
- */
 export const BERANDA_SHORTCUTS: readonly MenuSlug[] = [
   MENU.KEJEMAATAN,
   MENU.PELAYANAN,
@@ -222,11 +187,6 @@ export const BERANDA_SHORTCUTS: readonly MenuSlug[] = [
   MENU.SDM,
 ];
 
-/**
- * Penjelasan satu baris di bawah nama layar pada halaman domain. Teks dari
- * `docs/design/menu-descriptions.md` (Business Analyst), disalin apa adanya.
- * Opsional per slug: layar tanpa entri hanya menampilkan judul.
- */
 export const MENU_DESCRIPTION: Partial<Record<MenuSlug, string>> = {
   [MENU.DAFTAR_JEMAAT]: "Catat dan cari data anggota jemaat",
   [MENU.KELUARGA]: "Kelola kartu keluarga dan anggotanya",
@@ -291,7 +251,6 @@ export const MENU_DESCRIPTION: Partial<Record<MenuSlug, string>> = {
   [MENU.ACTIVITY_LOG]: "Riwayat perubahan data oleh pengguna",
 };
 
-/** Ikon per domain: tile Beranda, `/modul`, sidebar, fallback ikon layar. */
 export const MENU_ICON: Record<string, LucideIcon> = {
   [MENU.KEJEMAATAN]: Users,
   [MENU.PELAYANAN]: HandHeart,
@@ -307,11 +266,6 @@ export const MENU_ICON: Record<string, LucideIcon> = {
   [MENU.PENGATURAN]: Settings,
 };
 
-/**
- * Ikon per layar untuk tile di halaman domain. Dalam satu domain tidak ada dua
- * layar berikon sama (dijaga `menu.test.ts`); antar domain boleh sama bila
- * maknanya sama — semua layar "Tipe …" memakai `Shapes`.
- */
 export const MENU_LEAF_ICON: Partial<Record<MenuSlug, LucideIcon>> = {
   [MENU.DAFTAR_JEMAAT]: Users,
   [MENU.KELUARGA]: House,
@@ -387,35 +341,15 @@ export const MENU_LEAF_ICON: Partial<Record<MenuSlug, LucideIcon>> = {
   [MENU.ACTIVITY_LOG]: Activity,
 };
 
-/**
- * Ikon satu layar; slug yang belum dipetakan (menu baru dari be-sada) memakai
- * ikon domainnya, bukan kotak kosong.
- */
 export const leafIcon = (
   leafSlug: string,
   domainSlug: string,
 ): LucideIcon | undefined =>
   MENU_LEAF_ICON[leafSlug as MenuSlug] ?? MENU_ICON[domainSlug];
 
-/**
- * Rute satu layar diturunkan dari slugnya, bukan dari tabel 61 baris.
- *
- * Tabel semacam itu harus dijaga sejalan dengan be-sada setiap kali ada menu
- * baru, dan yang terlupakan akan menghasilkan tautan ke 404. Turunan ini
- * selalu benar selama konvensi rutenya dipatuhi: `/<domain>/<layar>`, keduanya
- * kebab-case dari slug.
- */
 export const menuHref = (groupSlug: string, leafSlug: string): string =>
   `/${toKebabCase(groupSlug)}/${toKebabCase(leafSlug)}`;
 
-/**
- * Rute layar isian, diturunkan dari rute layarnya — bukan dari daftar rute
- * form yang harus dijaga sejalan.
- *
- * Konvensinya sama dengan `menuHref`: `/<domain>/<layar>/baru` untuk tambah
- * dan `/<domain>/<layar>/<kode>/ubah` untuk ubah. Karena diturunkan, 60 form
- * berikutnya ikut aturan ini tanpa mendaftarkan apa pun.
- */
 export const createHref = (groupSlug: string, leafSlug: string): string =>
   `${menuHref(groupSlug, leafSlug)}/${FORM_SEGMENT.create}`;
 
@@ -426,23 +360,8 @@ export const editHref = (
 ): string =>
   `${menuHref(groupSlug, leafSlug)}/${encodeURIComponent(code)}/${FORM_SEGMENT.edit}`;
 
-/**
- * Segmen terakhir yang menandai sebuah rute sebagai LAYAR ISIAN.
- *
- * Ini cara sebuah layar "menyatakan dirinya" form, dan sengaja berupa
- * konvensi rute, bukan daftar atau prop: yang membacanya (`BottomTab`) hanya
- * punya `usePathname()`, dan daftar rute form adalah tabel kedua yang pasti
- * berbeda dari kenyataan pada form ke sekian.
- */
 export const FORM_SEGMENT = { create: "baru", edit: "ubah" } as const;
 
-/**
- * Apakah `pathname` sebuah layar isian.
- *
- * Syarat kedalaman ≥ 3 segmen bukan hiasan: layar produk hidup di
- * `/<domain>/<layar>` (2 segmen), jadi tanpa itu sebuah layar be-sada yang
- * kebetulan ber-slug `BARU` akan kehilangan navigasinya.
- */
 export function isFormRoute(pathname: string): boolean {
   const segments = pathname.split("/").filter(Boolean);
   const last = segments.at(-1);
@@ -453,15 +372,9 @@ export function isFormRoute(pathname: string): boolean {
   );
 }
 
-/** Halaman domain, `/<domain>`. */
 export const domainHref = (domainSlug: string): string =>
   `/${toKebabCase(domainSlug)}`;
 
-/**
- * Tujuan tile domain di Beranda dan `/modul`. Domain yang hanya memberi satu
- * layar langsung ke layar itu — halaman berisi satu kartu cuma menambah satu
- * ketukan.
- */
 export const domainEntryHref = (domain: MenuNode): string =>
   domain.children.length === 1
     ? menuHref(domain.slug, domain.children[0].slug)

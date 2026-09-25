@@ -3,12 +3,6 @@ import Link from "next/link";
 
 import { DomainIcon } from "@/components/common/navigation/domain-tile";
 
-/**
- * Tile bento satu layar di halaman domain dan hasil cari `/modul`: ikon layar
- * ber-tint domain, judul, penjelasan maks. dua baris. `domainLabel` (hasil
- * cari) menaruh nama domain di samping ikon sebagai konteks. Seluruh tile satu `Link`; garis tipis
- * `ring-foreground/10` sama dengan kartu kas di Beranda.
- */
 export function MenuTile({
   href,
   domainSlug,
@@ -18,7 +12,6 @@ export function MenuTile({
   description,
 }: {
   href: string;
-  /** Slug domain, untuk tint (dan ikon cadangan bila `icon` kosong). */
   domainSlug: string;
   domainLabel?: string;
   icon?: LucideIcon;
@@ -58,16 +51,10 @@ export function MenuTile({
   );
 }
 
-/**
- * Wadah `MenuTile`: dua kolom di ponsel, tiga kolom begitu kontennya ≥ 36rem
- * (tablet). Container query, bukan breakpoint viewport — layar tidak menulis
- * `md:`. `auto-rows-fr` menyamakan tinggi tile satu baris.
- */
 export function MenuTileGrid({
   label,
   children,
 }: {
-  /** Nama daftar untuk pembaca layar, mis. "Layar Kejemaatan". */
   label: string;
   children: React.ReactNode;
 }) {

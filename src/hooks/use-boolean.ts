@@ -2,10 +2,6 @@
 
 import { useCallback, useState } from "react";
 
-/**
- * Hook standar untuk state boolean (buka/tutup, toggle).
- * Mengikuti konvensi penamaan: nilai boolean `is*`, aksi `on*`.
- */
 export function useBoolean(initial = false) {
   const [value, setValue] = useState(initial);
 

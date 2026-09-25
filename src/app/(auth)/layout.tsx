@@ -1,23 +1,6 @@
 import { AuthWaves } from "@/components/common/brand/auth-waves";
 import { LogoWordmark } from "@/components/common/brand/logo";
 
-/**
- * Kerangka halaman sebelum masuk, tanpa navigasi.
- *
- * Terpisah dari `(app)` karena app shell (bottom tab, header) tidak boleh
- * muncul di layar yang belum punya sesi — bukan cuma karena jelek, tapi
- * karena tab-tabnya menuju rute yang akan menendang balik ke sini.
- *
- * SELURUH keputusan responsif layar login dan `/authentication` hidup di
- * berkas ini (dikecualikan dari lint breakpoint untuk alasan itu). Halaman di
- * bawahnya bebas breakpoint dan cukup mengisi kartu yang diberikan.
- *
- * Keputusan user: satu susunan untuk semua ukuran — latar `bg-primary`,
- * logo-nama di tengah atas, lalu form di kartu putih. Logo selalu di atas
- * navy karena logo-nama user berwarna terang (dirancang untuk latar gelap).
- * Tinggi kartu mengikuti isinya; padding sama di keempat sisi. Yang berubah
- * per ukuran hanya lebar kartu (`max-w-sm` mulai md) dan padding-nya. Split-screen desktop sudah tidak dipakai.
- */
 export default function AuthLayout({
   children,
 }: {

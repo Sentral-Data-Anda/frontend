@@ -1,27 +1,3 @@
-/**
- * Lebar kolom konten. Milik shell, bukan milik layar: penuh di HP, lalu
- * dibatasi supaya baris daftar setinggi 56px tidak direntangkan ke 1440px
- * dan menyisakan lautan kosong antara nama dan badge statusnya.
- *
- * Berkas sendiri, bukan ekspor dari `app-shell.tsx`: halaman error adalah
- * Client Component, dan mengimpor app-shell dari sana ikut menyeret sidebar
- * dan bottom tab ke bundelnya. Dipakai `AppShell` dan halaman di luar `(app)`
- * (error, 404, offline) supaya lebar kolomnya satu sumber.
- */
 export const shellWidth = "mx-auto w-full md:max-w-2xl lg:max-w-3xl";
 
-/**
- * Lebar penuh: Beranda, layar daftar, dan (sejak 2026-09-24) form. MENGISI
- * lebar layar di desktop, tanpa batas atas (keputusan user 2026-09-23 untuk
- * Beranda: "isi mengikuti lebar layar sampai habis, hanya disisakan jarak
- * tepi"; 2026-09-24 untuk daftar: "kenapa ga full maksudnya"). Jarak tepinya
- * tetap gutter halaman, sama seperti layar lain.
- *
- * Yang menjaga keterbacaan bukan lagi batas lebar melainkan jumlah kolom:
- * `DashboardGrid` menambah kolom kartu saat kolom konten melebar (2 → 3 → 4),
- * jadi kartu tetap ~360–520px berapa pun lebarnya. Di daftar yang menjaganya
- * lebar kolom tabel: kolom pendek berlebar tetap, kolom nama menyerap sisa
- * (pedoman-slicing.md §1). < lg sama dengan `shellWidth` (tumpuk). Lihat
- * `docs/design/dashboard-desktop.md` §10.5.
- */
 export const shellWidthFull = "mx-auto w-full md:max-w-2xl lg:max-w-none";

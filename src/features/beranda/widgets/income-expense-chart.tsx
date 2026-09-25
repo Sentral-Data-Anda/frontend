@@ -23,7 +23,6 @@ const MONTH_LABEL = [
   "Des",
 ];
 
-/** Batas atas sumbu: kelipatan "rapi" (1/2/5 × 10ⁿ) di atas nilai terbesar. */
 export const niceCeiling = (value: number): number => {
   if (value <= 0) return 1;
   const power = 10 ** Math.floor(Math.log10(value));
@@ -46,17 +45,7 @@ function Legend() {
   );
 }
 
-/**
- * Masuk vs keluar per bulan, tahun berjalan (Jan–Des). Batang HTML (dua per
- * bulan, sudut atas membulat — bahasa C §10.9); tanpa library dan tanpa SVG
- * karena tinggi batang = persentase, tidak butuh sistem koordinat.
- *
- * Alternatif teks: tabel `sr-only` bulan × masuk × keluar; batangnya sendiri
- * `aria-hidden` dan membawa nominal di `title` untuk pengguna mouse.
- */
 export function IncomeExpenseChart() {
-  // Kunci query boleh dari jam render (query tidak jalan di server); teks
-  // tahun di judul ikut SSR, jadi dari `useNow`.
   const today = toDateKey(new Date());
   const now = useNow();
   const year = now ? toDateKey(now).slice(0, 4) : "";

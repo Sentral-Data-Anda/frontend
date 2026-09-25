@@ -68,9 +68,6 @@ beforeAll(async () => {
 
   process.env.API_BASE_URL = `http://127.0.0.1:${server.port}/api`;
 
-  // Mock `@/lib/env` sudah dipusatkan di tests/setup.ts (dimuat lewat
-  // [test].preload di bunfig.toml) — lihat komentar di sana untuk alasannya.
-  // Tidak perlu diulang di sini.
   ({ getSession } = await import("./get-session"));
 });
 

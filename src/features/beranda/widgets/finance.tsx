@@ -22,10 +22,6 @@ import {
 } from "../fixtures";
 import { monthOf, toDateKey } from "../model";
 
-/**
- * Saldo per rekening kas/bank — DUMMY sampai `Account` punya penanda kas
- * (§10.1 #6). Titik + nama + nominal, lalu total.
- */
 export function CashAccountsWidget() {
   const total = DUMMY_CASH_ACCOUNTS.reduce((sum, row) => sum + row.amount, 0);
 
@@ -66,13 +62,7 @@ export function CashAccountsWidget() {
   );
 }
 
-/**
- * Pemasukan per jenis, bulan berjalan: anak simpul pendapatan di
- * `/surplus-defisit`. Benar sebagai "per jenis persembahan" hanya bila satu
- * jenis = satu akun pendapatan (U2).
- */
 export function IncomeByTypeWidget() {
-  // ponytail: dihitung sekali per render (WIB).
   const today = toDateKey(new Date());
   const query = useIncomeByType(`${today.slice(0, 7)}-01`, today);
   const data = query.data;
@@ -103,13 +93,7 @@ export function IncomeByTypeWidget() {
   );
 }
 
-/**
- * Kesiapan tutup buku: periode bulan ini & bulan lalu dari `/periode-fiskal`,
- * jurnal draf dari `/jurnal?status=DRAFT` (bila `JURNAL` dipegang), plus dua
- * cek yang belum punya sumber data (dummy).
- */
 export function ClosingReadinessWidget() {
-  // ponytail: dihitung sekali per render (WIB).
   const now = new Date();
   const month = monthOf(now);
   const year = Number(toDateKey(now).slice(0, 4));

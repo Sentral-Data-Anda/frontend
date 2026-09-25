@@ -3,16 +3,6 @@
 import { Toast } from "@base-ui/react/toast";
 import { X } from "lucide-react";
 
-/**
- * Pesan singkat setelah sebuah aksi selesai — hari ini: `message` dari server
- * setelah menyimpan jemaat.
- *
- * Toast, bukan halaman sukses: petugas yang baru menambah satu jemaat ingin
- * menambah orang berikutnya, bukan membaca konfirmasi. Dan karena `ToastHost`
- * hidup di `providers.tsx` (di atas seluruh rute), pesannya selamat melewati
- * `router.replace` ke layar daftar — kalau ia dipasang di layar form, ia ikut
- * di-unmount tepat pada detik pesannya harus muncul.
- */
 export const useToast = Toast.useToastManager;
 
 export function ToastHost({ children }: { children: React.ReactNode }) {
@@ -21,11 +11,6 @@ export function ToastHost({ children }: { children: React.ReactNode }) {
       {children}
 
       <Toast.Portal>
-        {/*
-          Di bawah lg toast duduk DI ATAS bottom tab: menutupi navigasi dengan
-          pesan yang menghilang sendiri berarti ketukan berikutnya mendarat di
-          tempat yang salah.
-        */}
         <Toast.Viewport className="fixed inset-x-0 bottom-[calc(var(--bottom-tab-height)+env(safe-area-inset-bottom)+0.75rem)] z-50 flex flex-col gap-2 px-gutter lg:right-6 lg:bottom-6 lg:left-auto lg:w-96 lg:px-0">
           <ToastList />
         </Toast.Viewport>

@@ -25,9 +25,7 @@ const MONTH_SHORT = [
   "Des",
 ];
 
-/** Rentang bulan berjalan dan rentang yang sama tahun lalu (WIB). */
 const useRanges = () => {
-  // ponytail: dihitung sekali per render.
   const today = toDateKey(new Date());
   const [year, month, day] = today.split("-");
   const lastYear = String(Number(year) - 1);
@@ -44,11 +42,6 @@ const useRanges = () => {
   };
 };
 
-/**
- * Masuk/keluar bulan berjalan + pembanding rentang yang sama tahun lalu.
- * Delta disembunyikan di tahun pertama (tahun lalu tidak punya angka sama
- * sekali) — dashboard-desktop.md §10.3.
- */
 function useMonthFlow() {
   const ranges = useRanges();
   const thisYear = useSurplusDefisit(ranges.monthStart, ranges.today);
@@ -65,8 +58,6 @@ function useMonthFlow() {
     if (!hasComparison || now === undefined || before <= 0) return null;
     const percent = ((now - before) / before) * 100;
 
-    // Selisih yang membulat ke 0% bukan kabar apa-apa — panah dan warnanya
-    // justru menyesatkan.
     return Math.round(Math.abs(percent)) === 0
       ? null
       : { percent, label: `vs ${ranges.monthLabel}`, isUpGood };
@@ -103,7 +94,6 @@ export function KpiExpense() {
   );
 }
 
-/** Surplus/defisit tahun berjalan, dengan tanda + / − eksplisit. */
 export function KpiSurplusYear() {
   const ranges = useRanges();
   const query = useSurplusDefisit(ranges.yearStart, ranges.today);
@@ -124,10 +114,6 @@ export function KpiSurplusYear() {
   );
 }
 
-/**
- * Saldo kas & bank — DUMMY: `Account` be-sada belum punya penanda kas/bank,
- * dan akun mana yang dihitung "kas" belum diputuskan (§10.1 #6, U1).
- */
 export function KpiCashBalance() {
   const total = DUMMY_CASH_ACCOUNTS.reduce((sum, row) => sum + row.amount, 0);
 

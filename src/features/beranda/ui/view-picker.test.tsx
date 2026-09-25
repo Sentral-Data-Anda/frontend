@@ -27,7 +27,6 @@ describe("ViewPicker", () => {
       name: "Tampilan dashboard: Keuangan",
     });
 
-    // Nama aksesibel memuat teks yang terlihat (WCAG 2.5.3).
     expect(trigger.textContent).toContain("Keuangan");
   });
 

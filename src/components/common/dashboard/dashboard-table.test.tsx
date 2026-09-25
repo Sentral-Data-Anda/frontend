@@ -49,7 +49,6 @@ test("tabel lebar: kepala kolom + satu baris per data; baris bertautan satu targ
       .getByRole("link", { name: "KK-12 · Konsumsi retret" })
       .getAttribute("href"),
   ).toBe("/keuangan/kas-keluar");
-  // Baris tanpa tujuan bukan tautan.
   expect(within(table).getAllByRole("link")).toHaveLength(1);
 });
 

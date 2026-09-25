@@ -7,22 +7,11 @@ import { cn } from "@/lib/utils";
 
 type QueryState = {
   isPending: boolean;
-  /** Sedang memuat ulang (mis. setelah "Coba lagi") — tombolnya menunggu. */
   isFetching?: boolean;
   error: Error | null;
   refetch: () => unknown;
 };
 
-/**
- * Panel satu widget dashboard, bahasa C (dashboard-desktop.md §10.9): putih,
- * garis hairline, radius 12, tanpa bayangan; padding 24 di ≥ lg (16 di HP);
- * judul 12/600 kapital, aksi kanan 12px.
- *
- * `query`: selama memuat tampil kerangka setinggi `minHeight` (tinggi isi
- * sebenarnya, supaya panel di bawahnya tidak melompat); galat = satu baris +
- * "Coba lagi" di panel ini saja — tombolnya nonaktif "Memuat…" selama
- * memuat ulang, lalu isi berganti. `isDummy` → tanda "contoh data".
- */
 export function DashboardCard({
   title,
   actionLabel,
@@ -36,11 +25,9 @@ export function DashboardCard({
   title: string;
   actionLabel?: string;
   actionHref?: string;
-  /** Isi kanan kepala panel selain tautan (legenda, hitungan, navigasi). */
   trailing?: ReactNode;
   query?: QueryState;
   isDummy?: boolean;
-  /** Kelas `min-h-*` untuk kerangka memuat. */
   minHeight?: string;
   children: ReactNode;
 }) {
@@ -81,9 +68,6 @@ export function DashboardCard({
           <span className="bg-muted block h-3 w-2/3 animate-pulse rounded-control" />
         </div>
       ) : query?.error ? (
-        // Tinggi galat = tinggi kerangka, bukan satu baris teks. Kartu yang
-        // menciut jadi 40px membuat kolomnya terlihat pecah, dan tata letak
-        // melompat lagi begitu "Coba lagi" berhasil.
         <p
           role="alert"
           className={cn(
@@ -108,7 +92,6 @@ export function DashboardCard({
   );
 }
 
-/** Daftar baris di dalam panel, dipisah hairline. */
 export function DashboardList({
   label,
   children,
@@ -123,11 +106,6 @@ export function DashboardList({
   );
 }
 
-/**
- * Satu baris. `href` → seluruh baris bisa diklik (tautan judul diregangkan):
- * hover bidang tipis + chevron muncul, cincin fokus di seluruh baris
- * (§10.7). Judul/meta string mendapat `title` (teks lengkap saat terpotong).
- */
 export function DashboardRow({
   title,
   meta,

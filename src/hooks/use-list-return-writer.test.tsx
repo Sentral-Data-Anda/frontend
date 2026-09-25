@@ -20,11 +20,6 @@ afterEach(() => {
 
 const saved = () => window.sessionStorage.getItem(`list-return:${LIST}`);
 
-/**
- * L-2: yang menyimpan jalan kembali adalah `useListParams`, satu efek untuk 61
- * layar. Kalau penyimpanan ini pindah ke layar, layar yang lupa memanggilnya
- * tidak akan terlihat rusak — tombol kembalinya cuma membuang filter user.
- */
 describe("useListParams menyimpan return URL", () => {
   test("menyimpan pathname + search setiap parameter berubah", () => {
     search = "status=AKTIF&page=3";

@@ -14,9 +14,6 @@ beforeAll(async () => {
     async fetch() {
       hitCount += 1;
 
-      // Ditahan sebentar supaya beberapa pemanggil benar-benar tumpang tindih;
-      // tanpa ini yang pertama sudah selesai sebelum yang kedua masuk dan
-      // test single-flight lolos tanpa menguji apa pun.
       await Bun.sleep(20);
 
       if (nextStatus !== 200) {
@@ -76,7 +73,6 @@ describe("refreshSession", () => {
 
     expect(result?.cookieHeader).toContain("accessToken=baru");
     expect(result?.cookieHeader).toContain("refreshToken=rotasi");
-    // Cookie non-auth tidak boleh ikut hilang.
     expect(result?.cookieHeader).toContain("theme=dark");
   });
 

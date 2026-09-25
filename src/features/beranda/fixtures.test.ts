@@ -3,14 +3,9 @@ import { afterEach, expect, test } from "bun:test";
 const original = process.env.NODE_ENV;
 
 afterEach(() => {
-  // `NODE_ENV` bertipe readonly di @types/node; di runtime tetap bisa ditulis.
   Object.assign(process.env, { NODE_ENV: original });
 });
 
-/**
- * `SHOW_DUMMY` dihitung saat modul dimuat, jadi tiap kasus memuat salinan
- * baru lewat query string — cache modul Bun berkunci pada specifier lengkap.
- */
 const load = (tag: string): Promise<typeof import("./fixtures")> =>
   import(`./fixtures?${tag}`);
 

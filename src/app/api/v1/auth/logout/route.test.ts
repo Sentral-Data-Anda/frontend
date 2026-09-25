@@ -71,7 +71,6 @@ describe("DELETE /api/v1/auth/logout", () => {
   });
 
   test("be-sada tidak terjangkau: cookie tetap dihapus", async () => {
-    // Port 9 (discard) tidak pernah melayani HTTP di mesin pengembang/CI.
     process.env.API_BASE_URL = "http://127.0.0.1:9/api";
 
     expectCookiesCleared(await logout());

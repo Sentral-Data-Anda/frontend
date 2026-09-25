@@ -45,8 +45,6 @@ describe("list-focus", () => {
   test("dibaca sekali lalu hilang", () => {
     saveListFocus(LIST, "JMT-0007");
 
-    // Dibaca berkali-kali selama barisnya belum ketemu: daftar bisa ter-mount
-    // lebih dulu dengan cache yang belum memuat baris baru.
     expect(readListFocus(LIST)).toBe("JMT-0007");
     expect(readListFocus(LIST)).toBe("JMT-0007");
 

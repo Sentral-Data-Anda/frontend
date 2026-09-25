@@ -8,7 +8,6 @@ function policy(isDev = false) {
   return buildContentSecurityPolicy({ nonce: NONCE, isDev });
 }
 
-/** Ambil satu direktif dari string kebijakan. */
 function directive(name: string, isDev = false) {
   return policy(isDev)
     .split("; ")
@@ -25,10 +24,6 @@ describe("buildContentSecurityPolicy", () => {
   });
 
   test("style-src TIDAK memakai nonce — nonce tidak berlaku untuk atribut style", () => {
-    // Nonce hanya berlaku untuk elemen <style>, tidak pernah untuk atribut
-    // `style="..."` yang dirender next/image. Menuliskannya di sini justru
-    // membuat browser mengabaikan 'unsafe-inline' di bawah, dan gambar
-    // kehilangan gayanya tanpa error apa pun di server.
     expect(directive("style-src")).not.toContain("nonce-");
     expect(directive("style-src")).toContain("'unsafe-inline'");
   });
@@ -38,9 +33,6 @@ describe("buildContentSecurityPolicy", () => {
   });
 
   test("script-src TIDAK PERNAH memakai unsafe-inline — itu membuat CSP sia-sia terhadap XSS", () => {
-    // Pelemahan `'unsafe-inline'` hanya boleh ada di `style-src`, dan alasannya
-    // ditulis panjang di csp.ts. Begitu ia bocor ke `script-src`, seluruh
-    // perlindungan terhadap injeksi skrip hilang.
     expect(directive("script-src", false)).not.toContain("'unsafe-inline'");
     expect(directive("script-src", true)).not.toContain("'unsafe-inline'");
   });
@@ -84,7 +76,6 @@ describe("generateNonce", () => {
   });
 
   test("panjangnya minimal 128 bit acak", () => {
-    // 16 byte -> 24 karakter base64 dengan padding.
     expect(generateNonce().length).toBeGreaterThanOrEqual(24);
   });
 

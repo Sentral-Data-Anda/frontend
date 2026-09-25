@@ -7,22 +7,9 @@ export type ModuleSearch =
   | { kind: "domains"; domains: MenuNode[] }
   | { kind: "screens"; hits: ScreenHit[] };
 
-/** Penjelasan satu layar untuk hasil pencarian dan tile domain. */
 export const descriptionOf = (leaf: MenuNode) =>
   MENU_DESCRIPTION[leaf.slug as MenuSlug];
 
-/**
- * Kata kunci kosong → grid domain apa adanya. Berisi → daftar LAYAR yang
- * cocok, supaya "keluarga" langsung memberi layarnya, bukan domain yang harus
- * ditebak lalu diketuk lagi. Layar cocok lewat namanya, penjelasannya, atau
- * nama domainnya ("keuangan" → semua layar Keuangan).
- *
- * Sumbernya `domains` (= `session.menu`), jadi layar yang tidak dipegang
- * peran tidak pernah muncul. Normalisasi kata kunci (huruf besar dari
- * autokapitalisasi ponsel, spasi berlebih) terjadi di sini, bukan di
- * pemanggil — syarat tak tertulis semacam itu akan dilewatkan pemanggil
- * berikutnya, dan hasilnya terlihat seperti "tidak ada yang cocok".
- */
 export function searchModules(
   domains: MenuNode[],
   keyword: string,

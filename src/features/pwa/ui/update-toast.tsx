@@ -6,15 +6,6 @@ type UpdateToastProps = {
   onApply: () => void;
 };
 
-/**
- * Pemberitahuan "versi baru tersedia".
- *
- * Sengaja meminta tindakan user alih-alih memuat ulang sendiri: user bisa
- * sedang mengisi form panjang, dan memuat ulang tanpa permisi akan membuang
- * isiannya. Tidak ada tombol tutup — pemberitahuan ini menghilang sendiri
- * begitu update diterapkan, dan menyembunyikannya hanya akan meninggalkan user
- * pada versi lama tanpa jalan kembali.
- */
 export function UpdateToast({ onApply }: UpdateToastProps) {
   return (
     <div

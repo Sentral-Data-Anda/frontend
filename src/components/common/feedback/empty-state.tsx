@@ -2,17 +2,6 @@ import { Inbox } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
-/**
- * Keadaan kosong, TANPA bingkai.
- *
- * Bentuk sebelumnya (`rounded-lg border border-dashed py-16`) adalah kotak
- * melayang di tengah halaman. Itu benar untuk kartu, tapi salah di sini:
- * tempat komponen ini muncul adalah di dalam bingkai daftar,
- * dan kotak bergaris putus-putus di sana terbaca sebagai potongan dari bahasa
- * desain yang lain — seolah ada komponen yang gagal dimuat. Daftar yang kosong
- * harus terlihat seperti daftar yang kosong, bukan seperti kesalahan. Di layar
- * daftar ia rata di kanvas, sama seperti barisnya.
- */
 export function EmptyState({
   title = "Belum ada data",
   description,
@@ -22,9 +11,7 @@ export function EmptyState({
 }: {
   title?: string;
   description?: string;
-  /** Mis. tombol "Tambah" — hanya kalau perannya memang boleh menambah. */
   action?: React.ReactNode;
-  /** Di dalam panel/widget: jarak dan ikon lebih kecil. */
   isCompact?: boolean;
   className?: string;
 }) {

@@ -34,20 +34,16 @@ const EVENT_HREF = menuHref(MENU.KEGIATAN, MENU.EVENT);
 
 const dayOf = (iso: string) => iso.slice(0, 10);
 
-/** Satu acara di tabel Agenda: ibadah atau kegiatan. */
 type AgendaItem = {
   key: string;
   day: string;
-  /** "HH:mm" atau null (kegiatan be-sada hanya bertanggal). */
   time: string | null;
   name: string;
   room: string;
   href: string;
-  /** Kegiatan berhari-hari: tanggal terakhirnya. */
   until?: string;
 };
 
-/** Ibadah + kegiatan pada satu rentang, urut hari lalu jam. */
 export function buildAgenda(
   ibadah: IbadahWeekItem[],
   events: EventItem[],
@@ -62,8 +58,6 @@ export function buildAgenda(
       room: item.room?.name ?? "—",
       href: IBADAH_HREF,
     })),
-    // Satu baris per kegiatan (hari pertamanya di dalam rentang), bukan satu
-    // baris per hari: kegiatan berhari-hari tidak mengulang dirinya.
     ...events.flatMap((item) => {
       const first = days.find(
         (day) => dayOf(item.startDate) <= day && day <= dayOf(item.endDate),
@@ -99,14 +93,8 @@ const COLUMNS = [
   { label: "Ruang", width: "1.2fr", align: "right" as const },
 ];
 
-/**
- * Agenda minggu ini (§10.4): tabel ibadah + kegiatan tujuh hari, dengan
- * navigasi minggu. Kolom PETUGAS di mockup belum dibangun — definisi "slot
- * pelayan kosong" di be-sada belum ada (lihat README "badge 1 kosong").
- */
 export function AgendaWeekWidget() {
   const [offset, setOffset] = useState(0);
-  // ponytail: dihitung sekali per render (WIB).
   const today = toDateKey(new Date());
   const start = addDaysKey(today, offset * 7);
   const days = weekKeys(new Date(`${start}T00:00:00Z`));
@@ -200,9 +188,7 @@ export function AgendaWeekWidget() {
   );
 }
 
-/** KPI "Ibadah · minggu ini". Keterangan petugas kosong: lihat catatan di atas. */
 export function KpiServicesWeek() {
-  // ponytail: dihitung sekali per render (WIB).
   const days = weekKeys(new Date());
   const ibadah = useIbadahRange(days[0], days[6]);
 
@@ -216,9 +202,7 @@ export function KpiServicesWeek() {
   );
 }
 
-/** KPI "Kegiatan · 14 hari" (§10.4). */
 export function KpiEventsFortnight() {
-  // ponytail: dihitung sekali per render (WIB).
   const today = toDateKey(new Date());
   const events = useEventRange(today, addDaysKey(today, 13), true);
   const todayCount = (events.data ?? []).filter(

@@ -1,15 +1,3 @@
-/**
- * Overlay saat sebuah mutation berjalan — simpan, hapus, approve.
- *
- * Semi-transparan dengan sengaja: yang di bawahnya adalah layar yang isinya
- * sudah benar dan cuma menunggu jawaban, jadi membiarkannya terlihat samar
- * justru membantu user tahu ia masih berada di tempat yang sama. Bandingkan
- * dengan `LoadingPage`, yang menutup penuh karena yang di bawahnya memang
- * belum layak dilihat.
- *
- * Spinner cincin, bukan animasi huruf: mutation umumnya selesai dalam ratusan
- * milidetik, dan animasi 2 detik hanya sempat terlihat setengah jalan.
- */
 export function LoadingGlobal() {
   return (
     <div

@@ -2,7 +2,6 @@ import { describe, expect, test } from "bun:test";
 
 import { buildPayables, dueLabel } from "./payables";
 
-// 22 September 2026, 10.00 WIB.
 const now = new Date("2026-09-22T03:00:00Z");
 
 const invoice = (code: string, dueDate: string, total = "2100000") => ({
@@ -96,7 +95,6 @@ describe("buildPayables", () => {
     expect(row.kind).toBe("Kas keluar");
     expect(row.meta).toContain("Komisi Pemuda");
     expect(row.meta).toContain("2 hari");
-    // Persetujuan bukan kewajiban bayar — tidak dihitung ke KPI.
     expect(row.isPayable).toBe(false);
   });
 

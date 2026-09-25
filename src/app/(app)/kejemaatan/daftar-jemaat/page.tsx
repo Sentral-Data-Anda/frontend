@@ -10,11 +10,6 @@ export const metadata: Metadata = {
   title: "Daftar Jemaat",
 };
 
-/**
- * Rute statis ini menang atas `(app)/[domain]/[screen]` yang memanggil
- * `notFound()`. `Suspense` wajib: layarnya memakai `useSearchParams`, dan
- * tanpa boundary `next build` menolak halaman ini.
- */
 export default function Page() {
   return (
     <PageContainer size="full">

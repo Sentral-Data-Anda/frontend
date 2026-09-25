@@ -50,10 +50,6 @@ describe("applyServerError", () => {
     ]);
   });
 
-  /**
-   * Menebak field untuk pesan yang tidak dikenal akan menyorot kotak yang
-   * tidak bersalah, dan user memperbaiki sesuatu yang memang sudah benar.
-   */
   test("galat 500 jadi galat tingkat form, bukan galat field (test wajib 7)", () => {
     const { calls, setError } = onCollect();
 

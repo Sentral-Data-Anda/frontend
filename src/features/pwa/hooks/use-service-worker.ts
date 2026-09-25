@@ -9,47 +9,15 @@ import {
 import { useBoolean } from "@/hooks/use-boolean";
 
 type ServiceWorkerState = {
-  /** Ada versi baru yang sudah terpasang dan menunggu persetujuan user. */
   updateReady: boolean;
-  /** Setujui update: service worker baru mengambil alih, lalu halaman dimuat ulang. */
   applyUpdate: () => void;
 };
 
-/**
- * Mendaftarkan service worker dan mendeteksi kapan versi baru siap.
- *
- * Alur update sengaja meminta persetujuan user, bukan otomatis:
- *
- *   1. Service worker baru selesai `install` dan berhenti di `waiting`
- *   2. Hook ini mendeteksinya dan menyalakan `updateReady`
- *   3. User mengklik toast, `applyUpdate()` mengirim pesan `SKIP_WAITING`
- *   4. Service worker memanggil `skipWaiting()` dan mengambil alih
- *   5. Event `controllerchange` memicu satu kali `location.reload()`
- *
- * Syarat pada langkah 2 — `navigator.serviceWorker.controller` harus sudah
- * ada — yang membedakan "ada update" dari "instalasi pertama". Pada instalasi
- * pertama belum ada controller, dan menampilkan toast "versi baru tersedia"
- * di situ akan membingungkan: tidak ada versi lama yang digantikan.
- *
- * Instalasi pertama juga memicu `controllerchange`: `clients.claim()` di
- * `activate` (public/sw.js) mengambil alih halaman yang tadinya tanpa
- * controller. Langkah 5 karena itu hanya me-reload bila halaman ini dibuka
- * di bawah controller lama, atau bila update sudah terdeteksi di sesi ini
- * (`waitingRef`) — tanpa syarat itu setiap kunjungan pertama memuat ulang
- * dokumen, mengulang semua request API, dan menghapus isian form login.
- */
 export function useServiceWorker(): ServiceWorkerState {
   const isUpdateReady = useBoolean(false);
-  // `onTrue`/`onFalse` ditarik keluar (bukan dipakai lewat `isUpdateReady.onTrue`
-  // langsung) supaya bisa dicantumkan di dependency array useEffect/useCallback
-  // di bawah tanpa memicu warning react-hooks/exhaustive-deps. Keduanya stabil
-  // antar-render (dibungkus useCallback di useBoolean), jadi mencantumkannya
-  // tidak membuat efek berjalan ulang.
   const { onTrue: markUpdateReady, onFalse: clearUpdateReady } = isUpdateReady;
   const waitingRef = useRef<ServiceWorker | null>(null);
 
-  // Penjaga loop reload. Tanpa ini, `controllerchange` yang menyala lebih dari
-  // sekali (mis. dua tab sekaligus) bisa membuat halaman memuat ulang terus.
   const reloadingRef = useRef(false);
 
   useEffect(() => {
@@ -69,8 +37,6 @@ export function useServiceWorker(): ServiceWorkerState {
         return;
       }
 
-      // Hanya update kalau sudah ada controller — kalau belum, ini instalasi
-      // pertama, bukan pergantian versi.
       if (!navigator.serviceWorker.controller) {
         return;
       }
@@ -95,9 +61,6 @@ export function useServiceWorker(): ServiceWorkerState {
     navigator.serviceWorker
       .register(serviceWorkerUrl(), {
         scope: "/",
-        // Jangan pernah menyajikan skrip service worker dari HTTP cache.
-        // Digandeng dengan header `Cache-Control: no-store` pada /sw.js di
-        // next.config.ts — keduanya mencegah service worker basi nyangkut.
         updateViaCache: "none",
       })
       .then((registration) => {
@@ -105,7 +68,6 @@ export function useServiceWorker(): ServiceWorkerState {
           return;
         }
 
-        // Versi baru sudah menunggu sejak sebelum halaman ini dibuka.
         markWaiting(registration.waiting);
 
         registration.addEventListener("updatefound", () => {
@@ -121,11 +83,7 @@ export function useServiceWorker(): ServiceWorkerState {
           });
         });
       })
-      .catch(() => {
-        // Registrasi gagal (mis. /sw.js dialihkan ke /login karena proxy auth
-        // belum mengecualikannya). Aplikasi tetap berfungsi penuh tanpa
-        // service worker, jadi kegagalan ini tidak boleh merusak halaman.
-      });
+      .catch(() => {});
 
     return () => {
       cancelled = true;

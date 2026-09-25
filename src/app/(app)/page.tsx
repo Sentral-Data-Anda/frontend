@@ -9,10 +9,6 @@ import {
 
 export const metadata = { title: "Beranda" };
 
-/**
- * Pilihan tampilan dibaca di server (cookie), seperti `sidebar_collapsed`:
- * render pertama sudah tampilan yang dipilih, tanpa kedipan.
- */
 export default async function Page() {
   const cookieStore = await cookies();
 

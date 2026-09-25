@@ -48,9 +48,6 @@ export function LoginForm() {
           : "/authentication",
       );
     } catch (error) {
-      // Galat login tampil di dalam form, bukan sebagai toast: satu-satunya
-      // hal yang bisa dilakukan user adalah membetulkan field di depannya, dan
-      // toast justru menjauhkan pesannya dari tempat itu.
       setError("root", {
         message:
           error instanceof FetchError

@@ -3,12 +3,6 @@ import { afterEach, beforeEach, describe, expect, jest, test } from "bun:test";
 
 import { useServiceWorker } from "./use-service-worker";
 
-/**
- * `navigator.serviceWorker` tiruan: `onClaim` memicu `controllerchange`
- * seperti `clients.claim()` di sw.js, baik pada instalasi pertama maupun
- * setelah `SKIP_WAITING`. `onInstalled` meniru versi baru yang selesai
- * `install` dan berhenti di `waiting`.
- */
 const onStubServiceWorker = (controller: ServiceWorker | null) => {
   const listeners = new Set<() => void>();
   let onUpdateFound = () => {};

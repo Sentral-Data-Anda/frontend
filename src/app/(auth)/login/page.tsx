@@ -14,11 +14,6 @@ export default function Page() {
         </p>
       </div>
 
-      {/*
-        `useSearchParams` di dalam LoginForm memaksa segmen ini keluar dari
-        prerender statis kalau tidak dibungkus Suspense — Next menolak build
-        dengan "useSearchParams() should be wrapped in a suspense boundary".
-      */}
       <Suspense fallback={null}>
         <LoginForm />
       </Suspense>

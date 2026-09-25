@@ -4,14 +4,7 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/**
- * Skala brand SADA dari user (docs/design/brand-foundation.png). Dipakai
- * LEWAT token semantik di :root, bukan langsung di layar — lint melarang
- * `bg-primary-50` dan sejenisnya di src/app dan src/features. Aturan user:
- * primary 900 · 600, secondary, success, warning, failed; tint 50/100 untuk
- * bidang. `static` supaya seluruh variabel terbit walau belum ada kelas yang
- * memakainya — token semantik membacanya lewat var().
- */
+/* `static`: variabel skala tetap terbit walau belum dipakai kelas mana pun. */
 @theme static {
   --color-primary-50: #f1f5f8;
   --color-primary-100: #e3e6ea;
@@ -114,31 +107,9 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  /*
-   * Grid dari lembar brand: gutter halaman 20px. Satu token untuk semua yang
-   * menyentuh tepi kiri-kanan layar (header, baris daftar, pager, chip) —
-   * `px-gutter`, bukan `px-4`/`px-5` per komponen.
-   */
   --spacing-gutter: 1.25rem;
-  /*
-   * Tinggi kontrol (input & tombol) 36px di semua ukuran — keputusan user.
-   * Di bawah pedoman sentuh iOS 44px, di atas minimum WCAG 2.2 AA 24px.
-   * `h-control`, `size-control`, `pr-control`, `rounded-control`. Baris
-   * daftar (56px) dan item navigasi tidak ikut.
-   */
   --spacing-control: 2.25rem;
   --radius-control: 0.5rem;
-  /*
-   * Skala teks — keputusan user: terbesar 12px di mobile/tablet, 14px hanya di
-   * desktop (≥ lg), terkecil 10px. Hierarki lewat bobot (400–600) dan warna,
-   * bukan ukuran. Satu-satunya tempat skala ditentukan: layar menulis
-   * `text-title`/`text-body`/`text-caption`, dan lint menolak `text-sm`,
-   * `text-lg`, `text-[18px]`, dst. di seluruh src/. `--font-size-title` naik
-   * di breakpoint (lihat :root di bawah), sehingga layar tidak butuh `lg:`.
-   *
-   * Pengecualian (revisi user): `text-lead` 14px di SEMUA ukuran, untuk judul
-   * header halaman dan sapaan Beranda — satu-satunya teks 14px di mobile.
-   */
   --text-lead: 0.875rem;
   --text-lead--line-height: 1.4;
   --text-title: var(--font-size-title);
@@ -147,11 +118,6 @@
   --text-body--line-height: 1.5;
   --text-caption: 0.625rem;
   --text-caption--line-height: 1.4;
-  /*
-   * Angka KPI dashboard: 14px < lg, 22px ≥ lg — pengecualian satu-satunya di
-   * atas 14px (dikonfirmasi user, dashboard-desktop.md §10). Hanya untuk lima
-   * angka strip KPI, bukan teks lain.
-   */
   --text-kpi: var(--font-size-kpi);
   --text-kpi--line-height: 1.25;
   --radius-sm: calc(var(--radius) * 0.6);
@@ -164,49 +130,8 @@
 }
 
 :root {
-  /**
-   * Token semantik → langkah skala brand. Netral diturunkan dari skala
-   * primary (slate kebiruan), bukan abu murni.
-   *
-   * Kontras dihitung dengan rumus luminans relatif WCAG dari hex skala,
-   * bukan ditaksir mata:
-   *
-   * | Pasangan                                  | Rasio  | Syarat |
-   * | ----------------------------------------- | ------ | ------ |
-   * | foreground (p-900) / background           | 8.44:1 | 4.5:1  |
-   * | muted-foreground (p-800) / background     | 6.20:1 | 4.5:1  |
-   * | muted-foreground (p-800) / input-fill p50 | 5.66:1 | 4.5:1  |
-   * | foreground (p-900) / canvas p50           | 7.72:1 | 4.5:1  |
-   * | muted-foreground (p-800) / fill aktif p100| 4.96:1 | 4.5:1  |
-   * | input (p-500) / background                | 3.61:1 | 3:1    |
-   * | input (p-500) / input-fill p50            | 3.29:1 | 3:1    |
-   * | primary-foreground (putih) / primary p900 | 8.44:1 | 4.5:1  |
-   * | destructive (failed-700) / background     | 5.46:1 | 4.5:1  |
-   * | success (s-900) / background & putih/s900 | 5.26:1 | 4.5:1  |
-   * | warning-foreground (p-900) / warning w400 | 5.76:1 | 4.5:1  |
-   * | secondary-foreground (sec-900) / sec-100  | 5.02:1 | 4.5:1  |
-   *
-   * Yang TIDAK lolos dan karena itu tidak dipakai sebagai teks: primary-700
-   * di atas p-100 (4.14), primary-600 di atas putih (4.02 — dipakai hanya
-   * untuk ring/ikon, syaratnya 3:1), failed-500 (4.17), success-800 (4.07),
-   * dan SELURUH skala warning (maks 3.43) — warning hanya bidang, teks di
-   * atasnya selalu gelap. `--border` (p-200) dekoratif, bukan batas kontrol.
-   */
   --background: #ffffff;
-  /*
-   * Kanvas abu-kebiruan di balik SELURUH aplikasi (keputusan user), dipasang
-   * sekali di `app-shell.tsx`. Permukaan yang harus tetap putih — kartu,
-   * baris daftar, sidebar, bottom tab, sheet — menulis `bg-card` atau
-   * `bg-background` sendiri; jangan mengandalkan latar induk.
-   */
   --canvas: var(--color-primary-50);
-  /*
-   * Latar aurora (keputusan user 2026-09-24, arah A "Soft Mesh", mockup
-   * docs/design/latar/a.html): tint brand primary-500 / secondary-500 /
-   * secondary-300 / primary-300 pada alpha 13–16% di atas `--canvas`, plus
-   * butiran turbulence 3,5%. Statis. Dipasang lewat `bg-canvas-aurora` di
-   * `app-shell.tsx`; matikan dengan mengosongkan dua token ini (`none`).
-   */
   --canvas-aurora:
     radial-gradient(
       circle at 10% 15%,
@@ -245,17 +170,7 @@
   --warning: var(--color-warning-400);
   --warning-foreground: var(--color-primary-900);
   --border: var(--color-primary-200);
-  /*
-   * Garis dashboard bahasa C (#e5e9ee): lebih halus dari `--border` (p-200),
-   * pemisah kartu/sel/baris dashboard. Dekoratif, bukan batas kontrol.
-   */
   --hairline: #e5e9ee;
-  /*
-   * Batang grafik masuk/keluar. Mockup memakai success-500 / primary-300
-   * (2.4:1 / 2.3:1 terhadap putih); objek grafik butuh 3:1 (WCAG 1.4.11),
-   * jadi naik satu-dua langkah dengan rona yang sama: success-700 (3.2:1),
-   * primary-500 (3.6:1).
-   */
   --chart-income: var(--color-success-700);
   --chart-expense: var(--color-primary-500);
   --input: var(--color-primary-500);
@@ -267,25 +182,6 @@
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
   --radius: 0.75rem;
-  /*
-   * Sidebar desktop: permukaan navy (primary-900), hanya dipakai
-   * `components/layout/sidebar.tsx`. Kontras (rumus WCAG, dari hex skala):
-   *
-   * | Pasangan                                        | Rasio  | Syarat |
-   * | ----------------------------------------------- | ------ | ------ |
-   * | sidebar-foreground (putih) / sidebar p900       | 8.44:1 | 4.5:1  |
-   * | sidebar-muted-foreground (p200) / sidebar p900  | 5.20:1 | 4.5:1  |
-   * | accent-foreground (putih) / accent p800 (hover) | 6.20:1 | 4.5:1  |
-   * | primary-foreground (p900) / primary p100 (aktif)| 6.74:1 | 4.5:1  |
-   * | chip aktif p100 / sidebar p900                  | 6.74:1 | 3:1    |
-   * | ring (p200) / sidebar p900                      | 5.20:1 | 3:1    |
-   *
-   * Hover WAJIB memutihkan teks: p200 di atas accent p800 hanya 3.82:1.
-   * primary-300 (3.78:1) gagal untuk teks dan tidak dipakai. `--sidebar-border`
-   * (p700, 1.63:1) dekoratif. Ring terang karena `--ring` (p600) nyaris hilang
-   * di navy; ring digambar dengan offset supaya selalu berbatasan dengan navy,
-   * termasuk di sekitar chip aktif (p200 di atas p100 hanya 1.30:1).
-   */
   --sidebar: var(--color-primary-900);
   --sidebar-foreground: #ffffff;
   --sidebar-muted-foreground: var(--color-primary-200);
@@ -296,18 +192,9 @@
   --sidebar-border: var(--color-primary-700);
   --sidebar-ring: var(--color-primary-200);
 
-  /**
-   * Tinggi bottom tab, satu token untuk dua pemakai: `h-(--bottom-tab-height)`
-   * di `components/layout/bottom-tab.tsx` dan padding bawah `<main>` di
-   * `components/layout/app-shell.tsx`. Sebelumnya `3.5rem` ditulis dua kali di
-   * dua berkas, dan yang kedua hanya punya komentar sebagai pengingat untuk
-   * ikut berubah — pengingat yang tidak pernah gagal build saat dilanggar.
-   */
   --bottom-tab-height: 3.5rem;
 
-  /* Judul: 12px < lg, 14px ≥ lg. Dibaca `text-title` di @theme. */
   --font-size-title: 0.75rem;
-  /* Angka KPI: 14px < lg, 22px ≥ lg. Dibaca `text-kpi` di @theme. */
   --font-size-kpi: 0.875rem;
 }
 
@@ -318,22 +205,9 @@
   }
 }
 
-/**
- * BELUM AKTIF. Tidak ada satu pun kode yang memasang `class="dark"` pada
- * `<html>`, jadi seluruh token di blok ini tidak pernah menang atas `:root`.
- *
- * Sengaja tidak dihapus: keputusan apakah SADA punya dark mode belum diambil,
- * dan menyusun ulang token ini nanti lebih mahal daripada membiarkannya.
- * Yang dihentikan adalah tampilan setengah jadi — `viewport.themeColor` di
- * `src/app/layout.tsx` dulu ikut media query `prefers-color-scheme`, sehingga
- * di iPhone bermode gelap status bar menjadi gelap di atas halaman yang tetap
- * putih. Saat dark mode benar-benar dinyalakan, pasang kelas `.dark` DAN
- * kembalikan pasangan `themeColor` itu bersamaan.
- */
 .dark {
   --background: oklch(0.145 0 0);
   --canvas: oklch(0.145 0 0);
-  /* Tint aurora dihitung untuk kanvas terang; di tema gelap dimatikan. */
   --canvas-aurora: none;
   --canvas-grain: none;
   --foreground: oklch(0.985 0 0);
@@ -373,28 +247,13 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
-/*
- * Kanvas aurora di balik kerangka aplikasi. Dua lapisan `position: fixed`
- * (pseudo-elemen, `pointer-events: none`, `z-index: -1` di dalam konteks
- * tumpuk milik elemen ini lewat `isolation`), BUKAN `background-attachment:
- * fixed`: iOS Safari mengabaikan `fixed` pada background dan yang berhasil
- * pun memaksa lukis ulang tiap gulir. Lapisan fixed dilukis sekali lalu
- * hanya dikomposit; gradasi dan ubin butiran 140px tidak dilukis ulang saat
- * menggulir, jadi ringan di HP. Tanpa animasi, jadi `prefers-reduced-motion`
- * tidak perlu cabang sendiri.
- *
- * Konten transparan (baris daftar, header, toolbar) memperlihatkannya.
- * Permukaan yang harus polos tetap menulis latarnya sendiri (`bg-card`,
- * sidebar navy, popup) — tidak ada yang berubah untuk mereka.
- */
 @utility bg-canvas-aurora {
   background-color: var(--canvas);
   isolation: isolate;
-  /* Garis kontrol naik ke p-600 HANYA di dalam shell: di atas titik gradasi
-     terburuk p-500 tinggal 2,73:1 (WCAG 1.4.11 mengukur garis terhadap latar
-     di LUAR kotak); p-600 = 3,10:1. Login/first-login (di luar shell) tetap p-500. */
+  /* p-500 hanya 2,7:1 di titik gradasi terburuk. */
   --input: var(--color-primary-600);
 
+  /* Lapisan fixed, bukan background-attachment: fixed yang diabaikan iOS Safari. */
   &::before,
   &::after {
     content: "";
@@ -406,9 +265,6 @@
 
   &::before {
     background-image: var(--canvas-aurora);
-    /* Ikut animasi lebar sidebar supaya gradasi tidak melompat saat ciut/buka.
-       Durasi & easing = SIDEBAR_MOTION (components/layout/sidebar-collapse.ts);
-       ubah keduanya bersamaan. */
     transition: left 200ms cubic-bezier(0.2, 0, 0, 1);
 
     @media (prefers-reduced-motion: reduce) {
@@ -416,14 +272,6 @@
     }
   }
 
-  /*
-   * Desktop: gradasi diposisikan relatif terhadap AREA KONTEN, seperti
-   * mockup, bukan viewport — kalau tidak, titik kiri-atas jatuh di balik
-   * sidebar navy. Lebar sidebar dibaca dari atributnya sendiri
-   * (`data-collapsed` pada `aside[data-slot="sidebar"]`, `w-64` / `w-18`),
-   * tanpa JS tambahan. Butiran tetap selebar layar (di balik sidebar tidak
-   * terlihat).
-   */
   @media (width >= 64rem) {
     &::before {
       left: 16rem;
@@ -445,17 +293,12 @@
   * {
     @apply border-border outline-ring/50;
   }
-  /*
-   * Teks isi 12px di semua ukuran, termasuk input. Auto-zoom iOS pada input
-   * <16px dicegah `maximumScale: 1` di viewport (src/app/layout.tsx).
-   */
   body {
     @apply bg-background text-foreground text-body;
   }
   html {
     @apply font-sans;
   }
-  /* Preflight Tailwind v4 mengembalikan kursor tombol ke `default`. */
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]),
   [role="tab"]:not([aria-disabled="true"]),
@@ -470,14 +313,6 @@
     cursor: not-allowed;
   }
 
-  /*
-   * Scrollbar tipis berwarna brand, satu aturan untuk seluruh aplikasi.
-   * Standar (`scrollbar-color`/`-width`) untuk Firefox dan Chrome ≥ 121;
-   * `::-webkit-scrollbar` untuk Safari. Warnanya lewat variabel supaya
-   * permukaan gelap (sidebar navy) cukup menimpa dua variabel.
-   */
-  /* Kontras pegangan ≥ 3:1 (WCAG 1.4.11): p-500 di kanvas 3,3:1,
-     p-300 di navy sidebar 3,8:1. */
   :root {
     --scrollbar-thumb: var(--color-primary-500);
     --scrollbar-thumb-hover: var(--color-primary-700);
@@ -508,36 +343,10 @@
     background-clip: padding-box;
   }
 
-  /*
-   * Sorotan baris yang barusan dibuka, saat user kembali dari layar detail
-   * (docs/design/list-state.md §2.4). Dipasang `DataList` lewat atribut, dan
-   * padam sendiri dalam 2 detik: begitu mata menemukan barisnya, penandanya
-   * tidak punya urusan lagi di layar.
-   *
-   * Cincin DI DALAM (`inset`), bukan `outline`: baris daftar menempel di
-   * gutter halaman, dan garis di luar akan terpotong tepi layar.
-   */
   [data-focus] {
     animation: row-focus 2s ease-out both;
   }
 
-  /*
-   * Layar isian: sisakan ruang di bawah saat SESUATU digulir ke pandangan.
-   *
-   * Baris aksi form menempel di bawah layar (`FormActions`), jadi tanpa ini
-   * dua hal tersembunyi persis di baliknya: field terakhir saat user menekan
-   * Tab (terukur di 390 — `#zoneChurchId` mendarat di y=810 sementara bilah
-   * mulai di y≈783), dan baris "Belum lengkap: …" di ujung halaman.
-   *
-   * `scroll-padding` harus duduk di WADAH GULIR, dan wadahnya di sini adalah
-   * dokumen — halaman digulir di level dokumen, bukan di dalam `main`. Karena
-   * itu aturannya di `:root`, dan `:has()` yang membatasinya HANYA ke layar
-   * yang memang punya kerangka form: nilainya tidak boleh bocor ke layar
-   * daftar, tempat `scrollIntoView({ block: "nearest" })` milik sorotan baris
-   * justru akan menyisakan ruang kosong yang tidak diminta siapa pun.
-   *
-   * 7rem = tinggi bilah aksi (36px tombol + padding) ditambah satu napas.
-   */
   :root:has(form[data-slot="form-layout"]) {
     scroll-padding-bottom: 7rem;
   }
@@ -554,9 +363,6 @@
     }
   }
 
-  /*
-   * Gerakan dimatikan, penandanya tidak: warnanya tetap menyala lalu padam.
-   */
   @media (prefers-reduced-motion: reduce) {
     [data-focus] {
       animation-duration: 1ms;

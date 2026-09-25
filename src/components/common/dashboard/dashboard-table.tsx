@@ -12,7 +12,6 @@ import { cn } from "@/lib/utils";
 
 export type TableColumn = {
   label: string;
-  /** Lebar kolom sebagai `fr`, mis. "2.3fr". */
   width: string;
   align?: "right";
 };
@@ -20,24 +19,11 @@ export type TableColumn = {
 export type TableRow = {
   key: string;
   href?: string;
-  /** Satu isi per kolom. Kolom pertama = judul (+ meta). */
   cells: ReactNode[];
-  /** Nama baris untuk tautan (judul kolom pertama sebagai teks). */
   label: string;
-  /** Kolom < 40rem: baris dua tingkat. */
   compact: { title: ReactNode; meta?: ReactNode; trailing?: ReactNode };
 };
 
-/**
- * Tabel bahasa C (dashboard-desktop.md §10.9): kepala 10px kapital, baris
- * ≥ 40px dipisah hairline, kolom angka rata kanan `tabular-nums`, baris yang
- * bisa dibuka = seluruh baris satu target (tautan judul diregangkan) dengan
- * hover bidang tipis + chevron dan cincin fokus.
- *
- * Container query: di kolom < 40rem tabel menjadi baris dua tingkat (judul +
- * nilai; meta di baris kedua), tanpa kolom (§10.5). Dua bentuk dirender;
- * yang tidak berlaku `display:none`, jadi keluar dari pohon a11y.
- */
 export function DashboardTable({
   label,
   columns,
@@ -173,7 +159,6 @@ export function DashboardTable({
   );
 }
 
-/** Isi kolom pertama: judul 12/500 + meta 10px, keduanya terpotong + `title`. */
 export function TableTitle({ title, meta }: { title: string; meta?: string }) {
   return (
     <span className="block min-w-0">

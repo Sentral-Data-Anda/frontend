@@ -13,7 +13,6 @@ import { formatRupiah, formatRupiahCompact } from "@/lib/format";
 import { amountOf, useMyOfferings, usePublicAnnouncements } from "../api";
 import { formatDayMonth, formatMonthYear, toDateKey } from "../model";
 
-/** `enum AnnouncementCategory` be-sada (`schema.prisma:3701-3707`). */
 const CATEGORY_LABEL: Record<string, string> = {
   WARTA: "Warta",
   PENGUMUMAN: "Pengumuman",
@@ -22,11 +21,6 @@ const CATEGORY_LABEL: Record<string, string> = {
   KEGIATAN: "Kegiatan",
 };
 
-/**
- * Pengumuman terbaru dari `/public/announcement` (tanpa sesi — aman untuk
- * semua peran; disematkan dulu). Belum ada layar detail pengumuman, jadi
- * baris bukan tautan; "Semua" hanya untuk pemegang PENGUMUMAN VIEW.
- */
 export function AnnouncementsWidget() {
   const query = usePublicAnnouncements(4);
   const access = useMenuAccess(MENU.PENGUMUMAN);
@@ -65,13 +59,7 @@ export function AnnouncementsWidget() {
   );
 }
 
-/**
- * Persembahan saya tahun ini — hanya milik user sendiri (`/persembahan/saya`,
- * tanpa izin menu). Dashboard tidak pernah menampilkan persembahan per nama
- * orang lain (dashboard-desktop.md §6, BA #4).
- */
 export function MyOfferingsWidget() {
-  // ponytail: tahun dihitung sekali per render (WIB).
   const year = toDateKey(new Date()).slice(0, 4);
   const query = useMyOfferings(year);
   const data = query.data;

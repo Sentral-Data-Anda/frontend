@@ -3,30 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, jest } from "bun:test";
 
 import GlobalError from "./global-error";
 
-/**
- * Jaring terakhir ini hanya berguna kalau tiga hal benar sekaligus, dan
- * ketiganya mudah rusak tanpa ada yang menyadarinya:
- *
- * 1. Digest ditampilkan. Di production Next menyamarkan pesan error asli, jadi
- *    digest adalah SATU-SATUNYA hal yang bisa dibawa user ke pengurus untuk
- *    dicocokkan dengan baris log server.
- * 2. Error dilaporkan lewat `reportError`. Itu yang memicu event `error`
- *    global yang didengarkan src/instrumentation-client.ts.
- * 3. Tombol pemulihan memanggil `unstable_retry`, bukan sekadar menghias.
- *
- * Catatan: komponen ini merender `<html>` dan `<body>`-nya sendiri karena
- * MENGGANTIKAN root layout. Di dalam test ia tetap dirender ke dalam container
- * biasa, sehingga React memperingatkan "<html> cannot be a child of <div>".
- * Peringatan itu memang muncul dan bukan tanda ada yang rusak — yang diperiksa
- * di sini isinya, bukan posisinya di dokumen.
- */
 describe("GlobalError", () => {
-  /**
-   * `reportError` dimatikan di SEMUA test, bukan hanya di test yang
-   * memeriksanya. Di runtime test, primitif itu benar-benar melaporkan error
-   * ke handler global dan bun menganggapnya kegagalan — jadi setiap render
-   * komponen ini akan memerahkan test-nya sendiri tanpa ada yang salah.
-   */
   let reported: jest.Mock<(error: unknown) => void>;
 
   beforeEach(() => {

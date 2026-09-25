@@ -8,13 +8,6 @@ import { SessionProvider } from "./session-provider";
 import type { Session } from "./types";
 import { useMenuAccess } from "./use-menu-access";
 
-/**
- * `cleanup()` dipanggil manual: auto-cleanup Testing Library bergantung pada
- * hook global milik Jest/Vitest yang tidak terpasang di bun test. Tanpa ini,
- * `onRenderProbe` yang dipanggil berkali-kali menumpuk beberapa
- * `data-testid="hasil"` di document.body yang sama, dan `getByTestId`
- * meledak dengan "Found multiple elements".
- */
 afterEach(cleanup);
 
 const session: Session = {

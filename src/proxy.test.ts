@@ -23,8 +23,6 @@ afterAll(() => {
   server.stop(true);
 });
 
-// Refresh token berbeda per kasus: `refreshSession` menyatukan panggilan
-// bersamaan per nilai token.
 const request = (path: string, refreshToken: string) =>
   new NextRequest(`http://localhost:3000${path}`, {
     method: "DELETE",

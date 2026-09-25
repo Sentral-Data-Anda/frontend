@@ -20,7 +20,6 @@ export type Tab = {
   label: string;
   href: string;
   icon: LucideIcon;
-  /** Slug yang harus dipegang peran agar tab ini tampil. Null = selalu tampil. */
   slug: string | null;
 };
 
@@ -46,23 +45,12 @@ const TABS: Tab[] = [
   },
 ];
 
-/**
- * Tab menuju layar yang tidak dipegang peran ini akan berujung 403 dari
- * be-sada. Menyaringnya di sini bukan keamanan — itu tetap milik be-sada —
- * melainkan menghindari jalan buntu yang terlihat seperti kerusakan.
- *
- * `tab.slug === null` diperiksa LEBIH DULU: tab seperti "Dashboard" harus
- * selalu tampil dan tidak pernah dicari di pohon menu. Membalik urutan
- * operan `||` di sini akan tetap benar secara logika, tapi ekstraksi ini ada
- * justru supaya urutannya bisa diuji, bukan cuma dibaca.
- */
 export function getVisibleTabs(tabs: Tab[], menu: MenuNode[]): Tab[] {
   return tabs.filter(
     (tab) => tab.slug === null || findMenuNode(menu, tab.slug),
   );
 }
 
-/** `/` dicocokkan persis; rute lain dicocokkan lewat `startsWith`. */
 export function isTabActive(href: string, pathname: string): boolean {
   return href === "/" ? pathname === "/" : pathname.startsWith(href);
 }
@@ -71,20 +59,6 @@ export function BottomTab() {
   const session = useSession();
   const pathname = usePathname();
 
-  /**
-   * Layar isian tidak punya bottom tab (keputusan user 2026-09-23).
-   *
-   * Dua alasannya. Di 390 bilah aksi lengket + bottom tab memakan 117px dari
-   * halaman ±20 field. Dan bottom tab adalah jalan keluar SATU KETUKAN dari
-   * form setengah terisi, tanpa melewati konfirmasi "buang perubahan?" —
-   * navigasi yang tidak bisa dicegat App Router. Keluarnya lewat tombol
-   * kembali atau Batal, yang keduanya bertanya lebih dulu.
-   *
-   * Dikerjakan di sini, bukan dengan `pb-*` di layar: `nav` ini `sticky` dan
-   * MEMAKAI RUANGNYA SENDIRI di aliran dokumen (lihat `a40d7b7`), jadi tidak
-   * merendernya sudah sekaligus mengembalikan ruangnya. Padding pengganti di
-   * layar justru menghitung ruang yang sama dua kali.
-   */
   if (isFormRoute(pathname)) return null;
 
   const tabs = getVisibleTabs(TABS, session.menu);

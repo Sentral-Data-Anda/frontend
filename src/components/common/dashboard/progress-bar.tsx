@@ -2,11 +2,6 @@ import { TriangleAlert } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
-/**
- * Batang progres horizontal bahasa C: 6px membulat, isi `primary`. Nama +
- * keterangan di atas batang; > `alertAbove` ditandai IKON (bukan warna —
- * skala warning < 3:1 sebagai teks/objek di atas putih).
- */
 export function ProgressBar({
   label,
   value,
@@ -15,10 +10,8 @@ export function ProgressBar({
   alertAbove,
 }: {
   label: string;
-  /** Persen 0–100. */
   value: number;
   meta?: string;
-  /** Teks lengkap saat terpotong. */
   title?: string;
   alertAbove?: number;
 }) {

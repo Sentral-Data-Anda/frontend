@@ -15,13 +15,6 @@ import { leafIcon, menuHref } from "@/config/menu";
 import { useSession } from "@/features/auth/session-provider";
 import { descriptionOf, searchModules } from "@/features/pencarian/model";
 
-/**
- * Layar "Pencarian" (revisi user 2026-09-22; dulu "Semua modul"). Kelak
- * mencari data dan transaksi juga, tapi be-sada belum punya pencarian
- * global — sampai kontraknya ada, yang dicari tetap modul dan layar, dan
- * placeholder-nya mengatakan itu apa adanya supaya nomor transaksi tidak
- * diketik lalu berakhir "tidak ada yang cocok".
- */
 export function PencarianScreen() {
   const session = useSession();
 

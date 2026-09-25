@@ -77,14 +77,11 @@ const domainOf = (name: string) =>
     (d) => d.querySelector("summary")?.textContent === name,
   ) as HTMLDetailsElement;
 
-// Tombol rail domain = saudara `<details>` domain itu.
 const railButtonOf = (name: string) =>
   domainOf(name).parentElement?.querySelector(
     ":scope > button",
   ) as HTMLButtonElement;
 
-// happy-dom tidak menerapkan Tailwind: "tampil per mode" diuji lewat kelas
-// yang dipilih `data-collapsed` pada aside.
 const RAIL_ONLY = ["invisible", "group-data-collapsed/sidebar:visible"];
 const FULL_ONLY = "group-data-collapsed/sidebar:invisible";
 
@@ -157,12 +154,10 @@ describe("SidebarNav satu DOM untuk kedua mode", () => {
       expect(details.getAttribute("name")).toBe("sidebar-domain");
       expect(details.className).toContain(FULL_ONLY);
       for (const cls of RAIL_ONLY) expect(rail.classList).toContain(cls);
-      // Nama dari label tersembunyi, tanpa aria-label ganda.
       expect(rail.hasAttribute("aria-label")).toBe(false);
       expect(rail.textContent).toBe(name);
     }
 
-    // Bukan navigasi: di desktop halaman domain hanya lewat URL.
     expect(screen.queryByRole("link", { name: "Kejemaatan" })).toBeNull();
     expect(railButtonOf("Kejemaatan").getAttribute("type")).toBe("button");
   });
@@ -176,7 +171,6 @@ describe("SidebarNav satu DOM untuk kedua mode", () => {
     for (const el of [cari, leaf]) {
       expect(el.closest(`[class~="${FULL_ONLY}"]`)).toBeTruthy();
     }
-    // Beranda tampil di kedua mode.
     expect(
       screen
         .getByRole("link", { name: "Beranda" })
@@ -272,7 +266,6 @@ describe("cookie sidebar", () => {
 });
 
 describe("menu akun", () => {
-  // Navigasi keras sungguhan akan membuang DOM test.
   const replace = spyOn(window.location, "replace").mockImplementation(
     () => {},
   );
@@ -299,7 +292,6 @@ describe("menu akun", () => {
     expect(trigger.getAttribute("aria-haspopup")).toBe("menu");
     expect(menu.textContent).toContain("sekretaris");
     expect(menu.textContent).toContain("Sekretaris");
-    // Nama + peran = label grup, bukan item yang bisa difokus.
     expect(screen.getAllByRole("menuitem")).toHaveLength(1);
   });
 

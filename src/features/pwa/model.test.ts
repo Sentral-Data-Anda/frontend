@@ -8,11 +8,6 @@ import {
   shouldRegisterServiceWorker,
 } from "./model";
 
-/**
- * Fungsi-fungsi ini membaca `window.navigator` dan `window.matchMedia`, yang
- * tidak ada di runtime Bun. Test memasang window tiruan seminimal mungkin —
- * yang diuji adalah logika percabangannya, bukan browser.
- */
 type FakeWindow = {
   navigator: {
     userAgent: string;
@@ -44,11 +39,6 @@ function setWindow(options: {
   (globalThis as { window?: unknown }).window = fake;
 }
 
-/**
- * Window aslinya DIKEMBALIKAN, bukan dihapus: berkas test lain di proses yang
- * sama (mis. `ui/update-toast.test.tsx`) merender React di atas window
- * happy-dom, dan menghapusnya di sini membuat berkas berikutnya gagal.
- */
 const REAL_WINDOW = (globalThis as { window?: unknown }).window;
 
 afterEach(() => {
@@ -72,7 +62,6 @@ describe("isIOS", () => {
   });
 
   test("Mac sungguhan tidak dianggap iOS", () => {
-    // Pembeda satu-satunya dari kasus di atas: Mac melaporkan maxTouchPoints 0.
     setWindow({ userAgent: MAC, maxTouchPoints: 0 });
     expect(isIOS()).toBe(false);
   });
@@ -90,8 +79,6 @@ describe("isStandalone", () => {
   });
 
   test("true di Safari iOS lewat navigator.standalone", () => {
-    // Safari iOS versi lama tidak mencocoki media query itu; satu-satunya
-    // penanda adalah properti non-standar navigator.standalone.
     setWindow({ userAgent: IPHONE, standalone: true });
     expect(isStandalone()).toBe(true);
   });
@@ -119,11 +106,6 @@ describe("needsManualInstallGuide", () => {
   });
 });
 
-/**
- * `NODE_ENV` dideklarasikan read-only oleh tipe environment, padahal test ini
- * memang perlu menggantinya untuk menguji kedua cabang. Cast di sini
- * mempersempit pelanggarannya ke satu tempat yang jelas.
- */
 const mutableEnv = process.env as Record<string, string | undefined>;
 const ORIGINAL_NODE_ENV = process.env.NODE_ENV;
 

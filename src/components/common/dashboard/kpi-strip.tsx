@@ -4,19 +4,6 @@ import { Children, type ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
-/**
- * Toolbar KPI bahasa C (dashboard-desktop.md §10.5): satu kartu putih,
- * sel dipisah garis hairline (`gap-px` di atas `bg-hairline`). Maks 5 sel.
- *
- * | Kolom          | Susunan                                  |
- * | -------------- | ---------------------------------------- |
- * | ≥ 55rem        | satu baris, sel maksimal 28rem            |
- * | 40–55rem       | 5 sel → 3 + 2; ≤ 4 sel tetap satu baris |
- * | < 40rem        | 2 kolom, sel terakhir ganjil melebar     |
- *
- * Tidak pernah ada lubang. Tidak digeser (carousel): sel di luar layar tidak
- * ditemukan.
- */
 export function KpiStrip({
   label,
   children,
@@ -34,9 +21,6 @@ export function KpiStrip({
         aria-label={label}
         style={{ "--kpi-cols": count } as React.CSSProperties}
         className={cn(
-          // Sel maksimal 28rem. Kasus terburuk bukan strip 5 sel melainkan
-          // strip 2 sel: tanpa batas ini, satu angka 22px duduk sendirian di
-          // sel selebar 1.656px (persona majelis, tampilan Keuangan, 3440).
           "max-w-[calc(var(--kpi-cols)*28rem)]",
           "border-hairline bg-hairline grid grid-cols-2 gap-px overflow-hidden rounded-lg border",
           isFive
@@ -68,11 +52,8 @@ export function KpiStrip({
 }
 
 export type KpiDelta = {
-  /** Persen perubahan, mis. 12.3 atau -4. */
   percent: number;
-  /** "vs Sep 2025". */
   label: string;
-  /** Naik itu baik (masuk) atau buruk (keluar)? Menentukan warna. */
   isUpGood: boolean;
 };
 
@@ -80,10 +61,6 @@ const percentFormat = new Intl.NumberFormat("id-ID", {
   maximumFractionDigits: 0,
 });
 
-/**
- * Satu angka. Urutan baca = "label, nilai, keterangan". Angka `text-kpi`
- * (14px < lg, 22px ≥ lg). Delta: panah DAN warna (bukan warna saja).
- */
 export function KpiCell({
   label,
   value,
@@ -99,7 +76,6 @@ export function KpiCell({
   delta?: KpiDelta | null;
   isDummy?: boolean;
   isLoading?: boolean;
-  /** Angkanya gagal dimuat — sel tetap ada, tapi tidak berpura-pura nol. */
   isError?: boolean;
 }) {
   const isUp = (delta?.percent ?? 0) >= 0;
@@ -114,8 +90,6 @@ export function KpiCell({
       {isLoading ? (
         <span className="bg-muted mt-2 block h-5 w-24 animate-pulse rounded-control lg:h-7" />
       ) : isError ? (
-        // Setinggi baris angkanya (dan kerangkanya), supaya sel yang galat
-        // tidak memendekkan barisnya sendiri di toolbar.
         <p className="text-muted-foreground mt-1.5 flex min-h-5 items-center gap-1.5 truncate text-body lg:min-h-7">
           <TriangleAlert className="size-3.5 shrink-0" aria-hidden />
           Gagal dimuat

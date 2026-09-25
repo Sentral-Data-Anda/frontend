@@ -25,17 +25,11 @@ import {
 const LOAN_ROOM_HREF = menuHref(MENU.FASILITAS, MENU.PEMINJAMAN_RUANG);
 const REPORT_JEMAAT_HREF = menuHref(MENU.KEJEMAATAN, MENU.REPORT_JEMAAT);
 
-/** Ulang tahun tujuh hari ke depan (1–2 panggilan `/birth/:month`). */
 const useWeekBirthdays = () => {
-  // ponytail: dihitung sekali per render (WIB).
   const days = weekKeys(new Date());
   return { days, query: useBirthdaysInRange(days) };
 };
 
-/**
- * Ulang tahun minggu ini (`REPORT_JEMAAT` VIEW). Nama + hari saja — tanpa
- * usia maupun tahun lahir (keputusan BA/TL, privasi).
- */
 export function BirthdaysWidget() {
   const { days, query } = useWeekBirthdays();
   const items = query.data;
@@ -91,7 +85,6 @@ export function KpiBirthdays() {
   );
 }
 
-/** KPI "Jumlah jemaat" — hanya dari `/report/*` (bukan daftar jemaat). */
 export function KpiJemaatTotal() {
   const query = useJemaatStats();
 
@@ -110,14 +103,11 @@ export function KpiJemaatTotal() {
   );
 }
 
-/** 30 hari ke depan (WIB). */
 const usePendingLoans = () => {
-  // ponytail: dihitung sekali per render (WIB).
   const today = toDateKey(new Date());
   return usePendingLoanRooms(today, addDaysKey(today, 30));
 };
 
-/** Peminjaman ruang menunggu persetujuan (`PEMINJAMAN_RUANG` VIEW). */
 export function LoanRoomsWidget() {
   const query = usePendingLoans();
   const items = query.data ?? [];

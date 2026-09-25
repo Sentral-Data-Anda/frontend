@@ -17,7 +17,6 @@ import { daysSince } from "../model";
 
 const QUEUE_HREF = menuHref(MENU.PERSETUJUAN, MENU.PERMINTAAN_PERSETUJUAN);
 
-/** `enum DocumentType` be-sada (`schema.prisma:1725-1745`). */
 export const DOCUMENT_LABEL: Record<string, string> = {
   PURCHASE_REQUEST: "Permintaan pembelian",
   PROGRAM: "Program",
@@ -30,7 +29,6 @@ export const DOCUMENT_LABEL: Record<string, string> = {
   LOAN_ROOM: "Peminjaman ruang",
 };
 
-/** Komisi dari langkah yang sedang menunggu (satu-satunya bapel di data). */
 const bapelOf = (item: ApprovalItem) =>
   item.steps.find((step) => step.order === item.currentOrder)?.approverBapel
     ?.name;
@@ -38,18 +36,9 @@ const bapelOf = (item: ApprovalItem) =>
 const ageOf = (days: number) =>
   days === 0 ? "hari ini" : `${days} hari menunggu`;
 
-/**
- * Menunggu tindakan saya — inbox persetujuan (`?menunggu=saya`). Pemegang
- * menu tanpa jabatan aktif mendapat daftar kosong: widget tetap tampil dengan
- * satu baris, tidak disembunyikan (dashboard-desktop.md §1.1).
- *
- * be-sada tidak mengirim nama pengaju maupun nomor dokumen asal — yang ada
- * jenis dokumen, nominal, komisi langkah aktif, dan tanggal diajukan.
- */
 export function ApprovalsWidget() {
   const query = useWaitingApprovals();
   const items = query.data?.data ?? [];
-  // ponytail: dihitung sekali per render.
   const now = new Date();
 
   const rows: TableRow[] = items.slice(0, 5).map((item) => {
@@ -116,7 +105,6 @@ export function ApprovalsWidget() {
 export function KpiWaitingApprovals() {
   const query = useWaitingApprovals();
   const items = query.data?.data ?? [];
-  // Daftar sudah urut paling lama dulu (`submittedAt asc`).
   const oldest = items[0];
 
   return (

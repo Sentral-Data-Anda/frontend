@@ -4,18 +4,6 @@ import Link from "next/link";
 import { MENU, MENU_ICON, domainEntryHref } from "@/config/menu";
 import type { MenuNode } from "@/types/menu";
 
-/**
- * Tint per domain, mengikuti warna tile di `docs/design/beranda-reference.png`.
- *
- * Hidup di sini, bukan di layar: lint melarang langkah skala (`bg-primary-50`)
- * di `src/app` dan `src/features`. Ikon memakai langkah 900 dari skala yang
- * sama — kontras non-teks (WCAG 1.4.11, syarat 3:1) di atas bidangnya:
- * primary 6.74, secondary 5.02, warning 3.11, success 4.46. Semua bidang langkah
- * 100: langkah 50 (secondary/success) hilang di atas kanvas primary-50.
- * Label tidak pernah berwarna.
- *
- * Empat domain yang tidak ada di mockup dipasangkan menurut kedekatan isi.
- */
 const TINT = {
   primary: { bg: "bg-primary-100", fg: "text-primary-900" },
   secondary: { bg: "bg-secondary-100", fg: "text-secondary-900" },
@@ -45,17 +33,12 @@ const ICON_SIZE = {
   md: { box: "size-12 rounded-lg", icon: "size-5" },
 } as const;
 
-/**
- * Kotak ber-tint domain berisi ikon. Diekspor supaya tile lain (mis.
- * `MenuTile`) memakai tint yang sama tanpa menyalin tabelnya.
- */
 export function DomainIcon({
   slug,
   icon,
   size = "md",
   className,
 }: {
-  /** Slug domain: menentukan tint, dan ikon bila `icon` kosong. */
   slug: string;
   icon?: LucideIcon;
   size?: keyof typeof ICON_SIZE;
@@ -72,7 +55,6 @@ export function DomainIcon({
   );
 }
 
-/** Ikon domain ber-tint dengan label di bawahnya. */
 function DomainTile({ slug, label }: { slug: string; label: string }) {
   return (
     <span className="flex flex-col items-center gap-1.5 text-center">
@@ -88,11 +70,6 @@ function DomainTile({ slug, label }: { slug: string; label: string }) {
   );
 }
 
-/**
- * Grid tile domain, empat kolom. Satu komponen untuk "Aksi cepat" di Beranda
- * dan `/modul` — yang kedua adalah "Tampilkan semua" dari yang pertama, jadi
- * ukuran tile-nya tidak boleh berbeda.
- */
 export function DomainTileGrid({ domains }: { domains: MenuNode[] }) {
   return (
     <ul className="grid grid-cols-4 gap-3">

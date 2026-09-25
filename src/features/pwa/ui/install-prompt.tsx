@@ -3,16 +3,6 @@
 import { Button } from "@/components/common/control/button";
 import { useInstallPrompt } from "@/features/pwa/hooks/use-install-prompt";
 
-/**
- * Ajakan memasang aplikasi, sadar-platform.
- *
- * Komponen ini TIDAK dipasang di root layout. Ia disediakan untuk ditempatkan
- * pada titik di mana user sudah melihat nilai aplikasi — misalnya halaman
- * Pengaturan, atau setelah user pertama kali membuka jadwalnya. Menawarkan
- * instalasi saat halaman baru dibuka menghasilkan penolakan tinggi, dan pada
- * Chrome rasio penolakan tinggi menurunkan situs ke prompt yang lebih senyap
- * secara permanen.
- */
 export function InstallPrompt() {
   const { canPrompt, needsManualGuide, promptInstall } = useInstallPrompt();
 
@@ -30,9 +20,6 @@ export function InstallPrompt() {
     );
   }
 
-  // Safari iOS tidak punya prompt otomatis dan tidak mendukung
-  // `beforeinstallprompt`, jadi tombol "Pasang" di sini hanya akan diam saat
-  // diklik. Yang bisa diberikan cuma panduan.
   if (needsManualGuide) {
     return (
       <div className="flex flex-col gap-2 rounded-lg border p-3.5">

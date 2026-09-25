@@ -85,12 +85,6 @@ describe("leafIcon", () => {
   });
 });
 
-/**
- * Layar isian menyatakan dirinya lewat SEGMEN RUTE, bukan daftar rute form
- * atau prop yang harus diteruskan. Yang membacanya (`BottomTab`) cuma punya
- * `usePathname()`, dan daftar kedua pasti berbeda dari kenyataan pada form ke
- * sekian.
- */
 describe("rute layar isian", () => {
   test("rute tambah dan ubah diturunkan dari rute layarnya", () => {
     expect(createHref(MENU.KEJEMAATAN, MENU.DAFTAR_JEMAAT)).toBe(
@@ -112,10 +106,6 @@ describe("rute layar isian", () => {
     expect(isFormRoute("/")).toBe(false);
   });
 
-  /**
-   * Penjaga kedalaman: layar produk hidup di `/<domain>/<layar>`, jadi slug
-   * be-sada yang kebetulan bernama "BARU" tidak boleh kehilangan navigasinya.
-   */
   test("layar ber-slug baru/ubah TIDAK ikut kehilangan navigasi", () => {
     expect(isFormRoute("/kegiatan/baru")).toBe(false);
     expect(isFormRoute("/kegiatan/ubah")).toBe(false);

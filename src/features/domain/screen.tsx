@@ -11,10 +11,6 @@ import {
 } from "@/config/menu";
 import type { MenuNode } from "@/types/menu";
 
-/**
- * Halaman domain: daftar layar yang boleh dibuka peran ini. Sumbernya anak
- * simpul domain di `session.menu` — sama dengan sidebar dan Pencarian.
- */
 export function DomainScreen({ domain }: { domain: MenuNode }) {
   return (
     <div className="pb-6">

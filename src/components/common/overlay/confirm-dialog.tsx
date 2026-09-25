@@ -4,16 +4,6 @@ import { AlertDialog } from "@base-ui/react/alert-dialog";
 
 import { Button } from "@/components/common/control/button";
 
-/**
- * Konfirmasi untuk aksi yang tidak bisa dibatalkan: membuang isian form, dan
- * kelak menghapus data.
- *
- * `AlertDialog`, bukan `Dialog`: ia tidak bisa ditutup dengan mengetuk di luar
- * panel. Keluar dari form berisi karena salah ketuk adalah persis kehilangan
- * yang mau dicegah dialog ini.
- *
- * Aksi utama di KANAN, sama dengan baris aksi form dan kepala dashboard.
- */
 export function ConfirmDialog({
   isOpen,
   onOpenChange,

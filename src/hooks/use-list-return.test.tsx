@@ -10,11 +10,6 @@ afterEach(() => {
   window.sessionStorage.clear();
 });
 
-/**
- * `backHref` layar detail. Yang gagal diam-diam di sini bukan galat, melainkan
- * tombol kembali yang membuang filter user — atau, kalau nilainya tidak
- * divalidasi, tombol kembali yang mengantar ke luar aplikasi.
- */
 describe("useListReturn", () => {
   test("memakai URL daftar yang tersimpan", () => {
     window.sessionStorage.setItem(

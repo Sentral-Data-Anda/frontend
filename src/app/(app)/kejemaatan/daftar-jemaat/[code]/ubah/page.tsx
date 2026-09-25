@@ -6,10 +6,6 @@ export const metadata: Metadata = {
   title: "Ubah Jemaat",
 };
 
-/**
- * `[code]` adalah kode jemaat (`JMT-…`), bukan `publicId`: itu satu-satunya
- * pengenal yang dikirim endpoint daftar, dan rute ini dibuka dari sana.
- */
 export default async function Page({
   params,
 }: {

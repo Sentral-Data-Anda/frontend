@@ -11,16 +11,6 @@ import { formatRupiahCompact } from "@/lib/format";
 import { DUMMY_BUDGET_USE, DUMMY_NEW_MEMBERS, DUMMY_ZONES } from "../fixtures";
 import { formatDayMonth } from "../model";
 
-/*
- * DUMMY — widget yang endpoint-nya belum ada di be-sada. Registry
- * (`widgets.tsx`) menandai semuanya `isDummy`, jadi tidak pernah dirender di
- * production, dan panelnya membawa tanda "contoh data". Lihat `dummy.ts`.
- */
-
-/**
- * Realisasi vs pagu per komisi — batang progres, bukan gauge (§10.2):
- * perbandingan antar-komisi terbaca dari panjang batang. > 80% ditandai ikon.
- */
 export function BudgetUseWidget() {
   return (
     <DashboardCard title="Realisasi vs pagu · komisi" isDummy>
@@ -43,7 +33,6 @@ export function BudgetUseWidget() {
   );
 }
 
-/** Jemaat per wilayah — butuh route `jemaatByZone` di be-sada (§10.4). */
 export function ZonesWidget() {
   const total = DUMMY_ZONES.reduce((sum, zone) => sum + zone.count, 0);
 
@@ -72,7 +61,6 @@ export function ZonesWidget() {
   );
 }
 
-/** Jemaat baru bulan ini — butuh endpoint sendiri (bukan `Jemaat.createdAt`). */
 export function NewMembersWidget() {
   return (
     <DashboardCard title="Jemaat baru · bulan ini" isDummy>

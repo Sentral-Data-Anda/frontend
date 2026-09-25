@@ -19,11 +19,6 @@ export const markAllRead = (list: Notification[]): Notification[] =>
 export const countUnread = (list: Notification[]): number =>
   list.filter((item) => !item.isRead).length;
 
-/**
- * Lonceng + daftar notifikasi. DUMMY — lihat `dummy.ts`; pemanggil wajib
- * memeriksa `SHOW_DUMMY`. State hanya di client, jadi "terbaca" hilang saat
- * halaman dimuat ulang.
- */
 export function NotificationBell() {
   const isSheetOpen = useBoolean();
 
@@ -87,8 +82,6 @@ export function NotificationBell() {
                 />
               }
               title={
-                // Tombol direntangkan ke seluruh baris lewat `after:`, supaya
-                // seluruh 56px bisa diketuk tanpa membungkus `<li>`.
                 <button
                   type="button"
                   onClick={() =>

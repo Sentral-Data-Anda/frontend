@@ -27,9 +27,6 @@ beforeAll(async () => {
         body: request.method === "GET" ? "" : await request.text(),
       };
 
-      // Respons ber-gzip sungguhan: `fetch` mendekompresi badannya tapi
-      // mempertahankan `content-encoding` di headernya, dan itu yang harus
-      // dibuang route handler sebelum sampai ke browser.
       if (url.pathname === "/api/v1/terkompresi") {
         return new Response(
           Bun.gzipSync(
@@ -75,9 +72,6 @@ beforeAll(async () => {
 
   process.env.API_BASE_URL = `http://127.0.0.1:${server.port}/api`;
 
-  // Mock `@/lib/env` sudah dipusatkan di tests/setup.ts (dimuat lewat
-  // [test].preload di bunfig.toml) — lihat komentar di sana untuk alasannya.
-  // Tidak perlu diulang di sini.
   route = await import("./route");
 });
 
@@ -179,26 +173,15 @@ describe("BFF", () => {
   });
 
   test("menolak segmen hasil decode Next yang menembus direktori", async () => {
-    // Next men-split lalu men-decode tiap segmen catch-all SEBELUM sampai ke
-    // handler. Jadi permintaan nyata ke `/api/v1/..%2f..%2fadmin` tiba di
-    // sini sebagai satu elemen array "../../admin" — bukan dua elemen "..".
-    // Test di atas ("menolak segmen path...") tidak pernah melewati bentuk
-    // yang benar-benar menembus; test ini memakai bentuk hasil decode itu.
     const { request, context } = onCall("GET", ["v1", "../../admin"]);
 
     const requestBeforeCall = lastRequest;
     const response = await route.GET(request as never, context as never);
 
     expect(response.status).toBe(400);
-    // Bukan cuma statusnya 400 — buktikan permintaannya memang tidak pernah
-    // sampai ke upstream sama sekali (lastRequest tidak berubah).
     expect(lastRequest).toBe(requestBeforeCall);
   });
 
-  // be-sada memasang `trust proxy: 1` dan `authIpLimiter` menyusun kuncinya
-  // dari `req.ip`. Kalau header di bawah ikut diteruskan apa adanya dari
-  // browser, penyerang cukup merotasi satu nilai tiap permintaan dan
-  // pertahanan password-spraying itu hilang.
   test("tidak meneruskan header proxy yang dikendalikan klien", async () => {
     const { request, context } = onCall("GET", ["v1", "jemaat"], {
       headers: {
@@ -245,8 +228,6 @@ describe("BFF", () => {
     expect(lastRequest?.headers["user-agent"]).toBe("SADA-Test/1.0");
   });
 
-  // `fetch` sudah mendekompresi badannya; merelai klaim gzip di atas JSON
-  // polos membuat browser gagal dengan ERR_CONTENT_DECODING_FAILED.
   test("tidak merelai content-encoding dan header penempatan backend", async () => {
     const { request, context } = onCall("GET", ["v1", "terkompresi"]);
 
@@ -262,8 +243,6 @@ describe("BFF", () => {
   test("membalas 502 berbadan saat be-sada tidak terjangkau", async () => {
     const reachable = process.env.API_BASE_URL;
 
-    // Port 1 tidak pernah dilayani apa pun; `fetch` melempar di sini persis
-    // seperti saat be-sada mati.
     process.env.API_BASE_URL = "http://127.0.0.1:1/api";
 
     try {

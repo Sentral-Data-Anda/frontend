@@ -3,13 +3,6 @@
 import { X } from "lucide-react";
 import { useEffect, useRef } from "react";
 
-/**
- * Sheet yang muncul dari bawah.
- *
- * Dibangun di atas `<dialog>` supaya lapisan atas, `::backdrop`, penutupan
- * dengan Escape, dan pengurungan fokus datang dari browser, bukan dari kode
- * yang harus dijaga sendiri.
- */
 export function BottomSheet({
   isOpen,
   title,
@@ -25,9 +18,6 @@ export function BottomSheet({
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
 
-  // Ketukan di luar panel. `<dialog>` menganggap seluruh area termasuk
-  // backdrop sebagai dirinya sendiri, jadi yang dibandingkan adalah target
-  // ketukan dengan elemen dialog itu sendiri.
   const onBackdropClick = (event: React.MouseEvent<HTMLDialogElement>) => {
     if (event.target === dialogRef.current) onClose();
   };
@@ -37,24 +27,9 @@ export function BottomSheet({
 
     if (!dialog) return;
 
-    // `showModal` melempar bila dipanggil pada dialog yang sudah terbuka, dan
-    // `close` pada yang sudah tertutup memicu event `close` lagi — keduanya
-    // dijaga dengan memeriksa `open` lebih dulu.
     if (isOpen && !dialog.open) {
       dialog.showModal();
 
-      /*
-       * `showModal()` menaruh fokus di elemen pertama yang bisa difokus, dan
-       * itu MENIMPA fokus yang sudah diatur isi sheet-nya (efek anak berjalan
-       * sebelum efek induk di React). Untuk kalender, fokus seharusnya
-       * mendarat di sel tanggal yang sedang dituju — bukan di tombol tutup.
-       * Isi sheet menandai targetnya dengan `data-autofocus`; tanpa penanda
-       * itu perilaku bawaan `<dialog>` tetap berlaku.
-       */
-      /*
-       * Setelah paint: `showModal()` memindahkan fokus sendiri pada frame
-       * yang sama, jadi memanggil `focus()` langsung di sini kalah cepat.
-       */
       requestAnimationFrame(() =>
         dialog.querySelector<HTMLElement>("[data-autofocus]")?.focus(),
       );
@@ -65,8 +40,6 @@ export function BottomSheet({
   return (
     <dialog
       ref={dialogRef}
-      // Escape dan tombol tutup bawaan sama-sama memicu `close`; satu handler
-      // di sini membuat state pemanggil ikut menyusul apa pun jalannya.
       onClose={onClose}
       onClick={onBackdropClick}
       className="bg-card text-foreground fixed inset-x-0 bottom-0 top-auto m-0 w-full max-w-none rounded-t-2xl p-0 backdrop:bg-black/40"

@@ -1,16 +1,5 @@
 import { cn } from "@/lib/utils";
 
-/**
- * Jam mulai dalam blok dua baris ("08" / ".00"), untuk slot `leading`
- * `DataListRow`. `time` berbentuk "HH:mm" — kolom jam dinding be-sada
- * (`startTime`), bukan instant, jadi tidak ada zona yang diterapkan di sini.
- *
- * Tampilan dua baris disembunyikan dari pembaca layar; yang dibacakan adalah
- * "08.00" utuh.
- *
- * `highlighted` memberi latar — di Beranda hanya untuk ibadah berikutnya;
- * sisanya polos supaya satu yang ditandai langsung terbaca.
- */
 export function TimeBadge({
   time,
   highlighted = false,

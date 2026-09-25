@@ -149,9 +149,7 @@ describe("grup KPI", () => {
       { id: "both", slot: "main", gate: [], Component: Noop },
     ];
 
-    // Bawaan = grup dominan (seri → finance), bukan gabungan.
     expect(ids(selectWidgets([], widgets, true).main)).toEqual(["fm", "both"]);
-    // Gabungan hanya kalau user memang memilihnya.
     expect(ids(selectWidgets([], widgets, true, "all").main)).toEqual([
       "fm",
       "um",
@@ -184,9 +182,6 @@ describe("grup KPI", () => {
 });
 
 describe("persona dev:mock", () => {
-  // Pohon menu seperti `menuService.findTree` untuk persona di
-  // scripts/mock-dashboard.ts — hasilnya harus sama dengan rancangan
-  // dashboard-desktop.md §3b/3c/3e.
   const menuOf = (key: string): MenuNode[] =>
     Object.entries(TREE).flatMap(([slug, leaves]) => {
       const children = leaves.flatMap((child) => {
@@ -213,8 +208,6 @@ describe("persona dev:mock", () => {
   test("sekretariat: dashboard umum, tanpa angka keuangan", () => {
     const { kpi, main, side } = picked("sekretariat", true);
 
-    // §10.4: jemaat → ibadah → kegiatan → ulang tahun → TTD → peminjaman,
-    // maks 5; sekretariat tanpa PERMINTAAN_PERSETUJUAN.
     expect(kpi).toEqual([
       "kpi-jemaat-total",
       "kpi-services-week",
@@ -243,7 +236,6 @@ describe("persona dev:mock", () => {
       "kpi-surplus-year",
       "kpi-payables",
     ]);
-    // "Semua" (bawaan) = gabungan; pilihan "Keuangan" yang menyaring.
     expect(main).toEqual(["income-expense-chart", "payables", "agenda-week"]);
     expect(side.slice(0, 4)).toEqual([
       "cash-accounts",
@@ -265,7 +257,6 @@ describe("persona dev:mock", () => {
     expect(kind).toBe("umum");
     expect(kpi[0]).toBe("kpi-jemaat-total");
     expect(kpi).toContain("kpi-waiting-approvals");
-    // Strip tetap umum walau "Semua" ikut menampilkan widget keuangan.
     expect(main).toContain("agenda-week");
     expect(main).toContain("approvals");
 
@@ -275,11 +266,6 @@ describe("persona dev:mock", () => {
     expect(umum.main).not.toContain("income-expense-chart");
   });
 
-  /**
-   * Dropdown tampilan hanya untuk persona yang memang punya dua tampilan.
-   * Sekretariat memegang satu widget keuangan kecil (Agenda) tapi tidak satu
-   * pun angka keuangan — "tampilan Keuangan" untuknya bukan tampilan.
-   */
   test("hanya persona multi-grup yang mendapat pilihan tampilan", () => {
     expect(picked("sekretariat", true).groups).toEqual(["umum"]);
     expect(picked("admin", true).groups).toEqual(["finance", "umum"]);
@@ -298,10 +284,6 @@ describe("persona dev:mock", () => {
   });
 });
 
-/**
- * Pilihan tampilan (dropdown di kepala dashboard). Ini keputusan TAMPILAN:
- * yang berubah hanya widget mana yang dirender, tidak pernah gate-nya.
- */
 describe("selectWidgets: pilihan tampilan", () => {
   const menu = [
     domain([
@@ -357,11 +339,6 @@ describe("selectWidgets: pilihan tampilan", () => {
     expect(selectWidgets(menu, satuGrup, true).groups).toEqual(["finance"]);
   });
 
-  /**
-   * Syarat "dropdown muncul" dan syarat "pilihan diberlakukan" HARUS sama
-   * (`canPickView`). Kalau tidak, user satu grup bisa terjebak: cookie
-   * menyaring halamannya dan tidak ada dropdown untuk mengembalikannya.
-   */
   test("user tanpa dropdown: cookie tidak menyaring apa pun", () => {
     const satuGrup = widgets.filter((w) => w.id !== "kpi-acara");
     const bawaan = selectWidgets(menu, satuGrup, true);

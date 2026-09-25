@@ -2,16 +2,6 @@ import { describe, expect, test } from "bun:test";
 
 import { DEFAULT_LIMIT, toApiQuery } from "./use-list-params";
 
-/**
- * Diuji sebagai fungsi murni, bukan lewat merender hook-nya.
- *
- * Yang bisa rusak diam-diam di sini cuma satu: pemetaan `search` → `filter`.
- * be-sada TIDAK MENGENAL `search` — ia membaca `filter`
- * (`jemaat.service.ts:findAllWithPagination`), dan parameter yang tidak
- * dikenalnya diabaikan tanpa galat. Artinya salah nama di sini menghasilkan
- * daftar LENGKAP yang tampak wajar, bukan pesan error; cuma pencariannya yang
- * tidak pernah mempersempit apa pun.
- */
 describe("toApiQuery", () => {
   test("menerjemahkan search menjadi filter", () => {
     const query = toApiQuery({

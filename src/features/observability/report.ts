@@ -1,9 +1,3 @@
-/**
- * Pengirim laporan error dari browser ke `/api/observability`.
- *
- * Dipisah dari komponennya supaya bisa diuji sebagai fungsi murni.
- */
-
 export type ClientErrorReport = {
   kind: "error" | "unhandledrejection";
   name: string;
@@ -14,18 +8,8 @@ export type ClientErrorReport = {
 
 export const REPORT_ENDPOINT = "/api/observability";
 
-/** Batas panjang pesan di sisi client, sebelum jaringan dipakai sia-sia. */
 const MAX_MESSAGE_LENGTH = 1_000;
 
-/**
- * Ubah apa pun yang dilempar menjadi laporan yang aman dikirim.
- *
- * `stack` SENGAJA tidak ikut: di browser ia memuat URL lengkap setiap frame,
- * termasuk query string halaman — yang bisa berisi id jemaat atau token.
- *
- * `path` diambil dari `location.pathname` saja, tanpa `search` dan `hash`,
- * dengan alasan yang sama.
- */
 export function toReport(
   kind: ClientErrorReport["kind"],
   value: unknown,
@@ -51,17 +35,6 @@ export function toReport(
   };
 }
 
-/**
- * Kirim laporan tanpa menahan apa pun.
- *
- * `navigator.sendBeacon` dipakai lebih dulu karena ia tetap terkirim meski
- * halaman sedang ditutup — dan error fatal kerap diikuti user menutup tab.
- * `fetch` dengan `keepalive` menjadi cadangan.
- *
- * Kegagalan pengiriman ditelan sepenuhnya: pelapor error yang ikut melempar
- * error akan menciptakan loop, dan itu jauh lebih merusak daripada satu
- * laporan yang hilang.
- */
 export function sendReport(report: ClientErrorReport): void {
   const body = JSON.stringify(report);
 
@@ -80,6 +53,6 @@ export function sendReport(report: ClientErrorReport): void {
       keepalive: true,
     }).catch(() => {});
   } catch {
-    // Sengaja dibiarkan senyap. Lihat alasan di atas.
+    // Pelaporan galat tidak boleh melempar galat baru.
   }
 }

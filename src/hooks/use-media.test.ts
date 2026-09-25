@@ -6,12 +6,6 @@ import { DESKTOP_MEDIA_QUERY, TABLE_MEDIA_QUERY } from "./use-media";
 
 const read = (path: string) => readFileSync(path, "utf8");
 
-/**
- * Shell menukar navigasi lewat `lg:` Tailwind, `useIsDesktop` memilih mode
- * data lewat `matchMedia`. Kalau keduanya berselisih, ada rentang lebar di mana
- * sidebar desktop tampil bersama infinite scroll (atau bottom tab bersama
- * pager bernomor). Test ini gagal begitu salah satunya digeser sendirian.
- */
 describe("DESKTOP_MEDIA_QUERY", () => {
   test("sama dengan --breakpoint-lg Tailwind yang dipakai shell", () => {
     const override = read("src/app/globals.css").match(

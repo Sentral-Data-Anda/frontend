@@ -33,11 +33,6 @@ const onParams = (next: Partial<ListState> = {}): ListState => ({
   ...next,
 });
 
-/**
- * be-sada tiruan di level `fetchPage`: `total` baris bernama `<filter>-<n>`,
- * halaman di luar jangkauan dijawab seperti `fetchList` menerjemahkan 404.
- * `failPage` membuat halaman itu melempar, seperti 500.
- */
 const onServer = (total: number, failPage?: number) => {
   const requests: string[] = [];
 
@@ -79,8 +74,6 @@ const onRender = (
   const viewport = onStubViewport(isDesktop);
   onRestoreViewport = viewport.onRestore;
 
-  // `staleTime` menyamai `providers.tsx`: tanpanya, kembali ke mode semula
-  // selalu mengambil ulang dan test resize tidak menguji apa yang dialami user.
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false, staleTime: 30_000 } },
   });
@@ -107,7 +100,6 @@ const onRender = (
 
 const codes = (items: Row[] | undefined) => items?.map((row) => row.code);
 
-/** Memuat halaman berikutnya lewat jalur yang sama dengan sentinel/tombol. */
 const onLoadMore = async (
   result: ReturnType<typeof onRender>["result"],
   expected: number,
@@ -153,7 +145,6 @@ describe("useListQuery — mobile/tablet (infinite)", () => {
       totalData: 5,
     });
 
-    // Sudah habis: memanggil lagi tidak menembak apa pun.
     act(() => {
       const { pagination } = result.current;
       if (pagination.mode === "more") pagination.onLoadMore();
@@ -239,7 +230,6 @@ describe("useListQuery — desktop (berhalaman)", () => {
 
     expect(codes(result.current.items)).toEqual(["row-3", "row-4"]);
     expect(result.current.pagination.mode).toBe("pages");
-    // Kembali ke desktop dilayani cache selama belum basi.
     expect(server.requests).toEqual(["page=2&limit=2", "page=1&limit=2"]);
   });
 });

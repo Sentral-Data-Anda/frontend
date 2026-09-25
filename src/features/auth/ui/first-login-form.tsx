@@ -22,14 +22,6 @@ const firstLoginSchema = z
 
 type FirstLoginForm = z.infer<typeof firstLoginSchema>;
 
-/**
- * Akun berstatus PENDING belum pernah punya password.
- *
- * be-sada membatasi akun seperti itu hanya pada dua endpoint (lihat
- * `PENDING_ALLOWED` di `authentication.ts`), jadi tidak ada layar lain yang
- * bisa dibukanya. Setelah password terpasang, be-sada mencabut seluruh sesi
- * akun itu — makanya di akhir kita kirim ke `/login`, bukan ke beranda.
- */
 export function FirstLoginForm({ code }: { code: string }) {
   const router = useRouter();
 

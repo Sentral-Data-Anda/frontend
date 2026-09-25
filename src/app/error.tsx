@@ -6,31 +6,6 @@ import { Button } from "@/components/common/control/button";
 import { shellWidth } from "@/components/layout/shell-width";
 import { cn } from "@/lib/utils";
 
-/**
- * Error boundary tingkat root (lihat
- * node_modules/next/dist/docs/01-app/03-api-reference/03-file-conventions/error.md).
- * Next.js meneruskan dua prop: `error` (berisi `digest` di production) dan
- * `reset`.
- *
- * Di production Next menyamarkan `error.message` asli dari Server Component
- * (mencegah kebocoran detail sensitif — relevan di sini karena isi aplikasi
- * SADA adalah data jemaat) dan hanya menyisakan `error.digest`: hash yang
- * berkorelasi dengan baris log di server. Tanpa mencatat/menampilkan digest,
- * laporan user ("halaman errornya") tidak bisa dilacak balik ke log mana pun.
- *
- * Tombol pemulihan memakai `unstable_retry`, bukan `reset`. Dokumen di atas:
- * "In most cases, you should use unstable_retry() instead. However, if you
- * have a specific reason to clear the error state and re-render the error
- * boundary's children WITHOUT RE-FETCHING the contents, you can use the
- * reset() function." Kelas error yang paling mungkin terjadi di SADA adalah
- * kegagalan `apiClient` di Server Component; `reset` hanya membersihkan state
- * error dan render ulang tanpa mengambil data lagi, jadi setelah backend
- * pulih pun user tetap melihat halaman error. `unstable_retry` (ditambahkan
- * di v16.2.0; versi repo ini 16.2.9) melakukan re-fetch + re-render segmen.
- *
- * Prefiks "unstable_" berarti namanya masih bisa berubah — itu biaya yang
- * jauh lebih kecil daripada tombol pemulihan yang tidak memulihkan apa pun.
- */
 export default function Error({
   error,
   unstable_retry,
@@ -39,12 +14,6 @@ export default function Error({
   unstable_retry: () => void;
 }) {
   useEffect(() => {
-    // Aturan lint proyek ini melarang seluruh console.* ("no-console":
-    // "error"), jadi console.error(error) tidak bisa dipakai di sini.
-    // reportError() adalah primitif platform (bukan console) untuk
-    // melaporkan error tak tertangani: ia memicu event `error` global yang
-    // bisa didengarkan oleh layanan pemantauan (mis. Sentry) begitu
-    // terpasang nanti, tanpa perlu menyentuh berkas ini lagi.
     reportError(error);
   }, [error]);
 

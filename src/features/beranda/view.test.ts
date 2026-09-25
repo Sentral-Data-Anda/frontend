@@ -17,10 +17,6 @@ describe("readDashboardView", () => {
     expect(readDashboardView("all")).toBe("all");
   });
 
-  /**
-   * Cookie bisa diisi apa saja dari peramban. Nilai asing = seperti belum
-   * pernah memilih (`undefined`), dan `selectWidgets` memakai grup dominan.
-   */
   test("nilai asing atau kosong = belum memilih", () => {
     for (const value of [undefined, "", "keuangan", "__proto__"]) {
       expect(readDashboardView(value)).toBeUndefined();

@@ -14,19 +14,12 @@ describe("isSafeRedirectPath", () => {
     );
   });
 
-  // Bentuk yang benar-benar dikirim `proxy.ts` sejak query ikut disertakan:
-  // beberapa parameter sekaligus, termasuk yang berisi karakter yang harus
-  // di-encode saat dirakit ke `?redirect=`.
   test("menerima path dengan beberapa parameter query", () => {
     expect(
       isSafeRedirectPath("/kejemaatan/daftar-jemaat?page=3&search=budi"),
     ).toBe(true);
   });
 
-  // Query bukan celah baru: yang menentukan origin hanyalah bagian sebelum
-  // "?", jadi URL absolut yang diselipkan sebagai NILAI parameter tetap
-  // menjadi path lokal — dan sebaliknya, URL absolut di depan tetap ditolak
-  // walau ekornya menyerupai query yang wajar.
   test("URL absolut di dalam nilai query tetap dianggap path lokal", () => {
     expect(isSafeRedirectPath("/masuk?next=https://phishing.test/login")).toBe(
       true,
@@ -81,11 +74,6 @@ describe("isSafeRedirectPath", () => {
   });
 
   test("menerima ..\\ karena tetap resolve same-origin, bukan lintas-origin", () => {
-    // Backslash diperlakukan URL parser seperti garis miring untuk skema
-    // "special" (http/https), dan ".." dinormalisasi di dalam origin yang
-    // sama — hasilnya path lokal biasa, bukan navigasi keluar origin.
-    // Dicatat di sini secara sengaja: perilaku ini sudah diperiksa dan
-    // dianggap aman, bukan celah yang terlewat.
     expect(isSafeRedirectPath("/..\\evil.test")).toBe(true);
   });
 });

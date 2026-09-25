@@ -5,8 +5,6 @@ import type { MenuNode } from "@/types/menu";
 
 import { getVisibleTabs, isTabActive, type Tab } from "./bottom-tab";
 
-// Ikon aslinya tidak relevan untuk logika yang diuji di sini; satu ikon
-// dipakai ulang supaya fixture cocok dengan tipe `LucideIcon` tanpa palsu.
 const TABS: Tab[] = [
   { label: "Dashboard", href: "/", icon: House, slug: null },
   { label: "Ibadah", href: "/peribadahan/ibadah", icon: House, slug: "IBADAH" },

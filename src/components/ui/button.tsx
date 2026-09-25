@@ -19,9 +19,6 @@ const buttonVariants = cva(
           "bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
         link: "text-primary underline-offset-4 hover:underline",
       },
-      // Tangga tinggi relatif ke kontrol 30px (keputusan user, menggantikan
-      // 44px): xs 24 · sm 28 · default 30 · lg 36. Terkecil tetap ≥ 24px
-      // (WCAG 2.2 AA 2.5.8).
       size: {
         default:
           "h-control gap-1.5 px-3 has-data-[icon=inline-end]:pr-2.5 has-data-[icon=inline-start]:pl-2.5",

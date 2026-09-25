@@ -1,25 +1,7 @@
 import { afterAll, beforeAll, describe, expect, mock, test } from "bun:test";
 import { z } from "zod";
 
-/**
- * `src/lib/env.ts` mengimpor "server-only". Paket itu punya conditional
- * export: di bawah kondisi "react-server" ia jadi modul kosong, di luar itu
- * ia sengaja melempar. Bundler Next menyetel kondisi tersebut; `bun test`
- * tidak, jadi impor transitifnya meledak sebelum satu test pun jalan.
- *
- * Mock ini menggantikannya dengan modul kosong — sama persis dengan yang
- * dilihat Next saat merender di server. Guard-nya sendiri tetap nyata dan
- * tetap berlaku di build; yang dinetralkan hanya efek sampingnya di test.
- */
 mock.module("server-only", () => ({}));
-
-/**
- * `env.ts` divalidasi (dan API_BASE_URL dibaca) saat modul pertama kali
- * diimpor. Karena itu server tiruan dijalankan lebih dulu di `beforeAll`,
- * baru `./client` diimpor secara dinamis setelah `process.env.API_BASE_URL`
- * diarahkan ke server itu — impor statis biasa akan membaca env terlalu
- * cepat, sebelum port server tiruan diketahui.
- */
 
 let server: ReturnType<typeof Bun.serve>;
 let apiClient: typeof import("./client").apiClient;
@@ -41,9 +23,6 @@ beforeAll(async () => {
           return Response.json({ id: 1, name: "Jemaat Uji" });
         }
         case "/slow-body": {
-          // Header terkirim segera, badan respons digantung. Ini yang
-          // memisahkan kegagalan saat `fetch` dari kegagalan saat
-          // `response.json()` — keduanya harus diklasifikasi berbeda.
           const stream = new ReadableStream({
             async pull(controller) {
               controller.enqueue(new TextEncoder().encode('{"id":1,'));
@@ -74,8 +53,6 @@ beforeAll(async () => {
   });
 
   process.env.API_BASE_URL = `http://127.0.0.1:${server.port}`;
-  // src/lib/env.ts mewajibkan NEXT_PUBLIC_SITE_URL tanpa default — isi
-  // supaya modul env lolos parse saat diimpor transitif lewat "./client".
   process.env.NEXT_PUBLIC_SITE_URL ??= "http://localhost:3000";
 
   ({ apiClient, ApiError } = await import("./client"));
@@ -99,8 +76,6 @@ describe("apiClient", () => {
       kind: "timeout",
     });
 
-    // Request tidak boleh menunggu sampai server merespons (200ms).
-    // Toleransi longgar supaya tidak flaky di CI yang lambat.
     expect(Date.now() - start).toBeLessThan(150);
   });
 
@@ -170,14 +145,8 @@ describe("apiClient", () => {
 
     queueMicrotask(() => controller.abort());
 
-    // Assertion positif, bukan pola sentinel `throw` di dalam `try`.
-    // Dengan pola sentinel, implementasi yang mengabaikan signal pemanggil
-    // sepenuhnya (resolve sukses) tetap lolos, karena Error sentinel-nya
-    // tertangkap catch-nya sendiri lalu memenuhi `not.toBeInstanceOf`.
-    // Bentuk di bawah GAGAL kalau promise-nya resolve.
     await expect(promise).rejects.toMatchObject({ name: "AbortError" });
 
-    // Request benar-benar terputus, bukan menunggu server selesai (200ms).
     expect(Date.now() - start).toBeLessThan(150);
   });
 
@@ -195,8 +164,6 @@ describe("apiClient", () => {
     const controller = new AbortController();
     const promise = apiClient("/slow-body", { signal: controller.signal });
 
-    // Beri jeda supaya header sempat diterima dan kegagalan terjadi saat
-    // badan respons sedang dibaca, bukan saat fetch masih berjalan.
     setTimeout(() => controller.abort(), 30);
 
     await expect(promise).rejects.toMatchObject({ name: "AbortError" });
@@ -213,7 +180,6 @@ describe("apiClient", () => {
       expect(error).toBeInstanceOf(ApiError);
       const apiError = error as InstanceType<typeof ApiError>;
       expect(apiError.kind).toBe("validation");
-      // Nama header dinormalisasi ke huruf kecil oleh penjaganya.
       expect(apiError.message).toContain("authorization");
     }
   });

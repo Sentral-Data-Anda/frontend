@@ -33,21 +33,16 @@ import { DOCUMENT_LABEL } from "./approvals";
 
 type Tone = "due" | "draft" | "wait" | "neutral";
 
-/** Satu kewajiban di tabel "Perlu diselesaikan". */
 export type Payable = {
   key: string;
   title: string;
   meta: string;
-  /** Kolom JENIS — jenis dokumen, bukan sumbernya. */
   kind: string;
   amount: number | null;
   status: { tone: Tone; label: string };
   href: string;
-  /** Lewat jatuh tempo → paling atas. */
   isOverdue: boolean;
-  /** "YYYY-MM-DD" — makin lama, makin atas. */
   since: string;
-  /** Dihitung ke KPI "Perlu dibayar". */
   isPayable: boolean;
   isDummy?: boolean;
 };
@@ -71,7 +66,6 @@ const dayKey = (iso: string) => iso.slice(0, 10);
 
 const hrefOf = (group: MenuSlug, leaf: MenuSlug) => menuHref(group, leaf);
 
-/** Label jatuh tempo relatif untuk yang dekat (§10.7 Tanggal). */
 export function dueLabel(dueDate: string, today: string): Payable["status"] {
   const due = dayKey(dueDate);
   if (due < today) return { tone: "due", label: "Lewat" };
@@ -84,10 +78,6 @@ export function dueLabel(dueDate: string, today: string): Payable["status"] {
   return { tone: "wait", label: formatDayMonth(due) };
 }
 
-/**
- * Semua sumber → baris, urut: lewat jatuh tempo (jatuh tempo terlama dulu),
- * lalu yang paling lama menunggu. Murni, diuji terpisah.
- */
 export function buildPayables(
   sources: {
     cashExpenses?: CashExpenseItem[];
@@ -209,11 +199,6 @@ export function buildPayables(
   );
 }
 
-/**
- * Semua sumber "Perlu diselesaikan", masing-masing hanya bila gate-nya
- * dipegang (query sumber lain tidak pernah jalan). Satu sumber untuk tabel
- * dan KPI "Perlu dibayar" — TanStack Query men-dedupe.
- */
 function usePayables() {
   const cash = useMenuAccess(MENU.KAS_KELUAR).isCanView;
   const invoice = useMenuAccess(MENU.FAKTUR_SUPPLIER).isCanView;
@@ -228,8 +213,6 @@ function usePayables() {
   const paymentQ = useFailedPayments(payment);
   const payrollQ = useOpenPayrolls(payroll);
 
-  // Query yang dimatikan tetap `isPending` — hanya sumber yang diizinkan
-  // yang ditunggu.
   const active = [
     [cash, cashQ],
     [invoice, invoiceQ],
@@ -239,7 +222,6 @@ function usePayables() {
   ] as const;
   const live = active.filter(([isOn]) => isOn).map(([, query]) => query);
 
-  // ponytail: dihitung sekali per render (WIB).
   const rows = buildPayables(
     {
       cashExpenses: cash ? cashQ.data?.data : undefined,
@@ -270,12 +252,6 @@ const COLUMNS = [
   { label: "Status", width: "1fr", align: "right" as const },
 ];
 
-/**
- * Perlu diselesaikan (dashboard-desktop.md §10.1 #3, §10.3): satu tabel,
- * baris per gate — kas keluar draf, faktur belum lunas, persetujuan menunggu,
- * pembayaran online gagal, penggajian belum dibayar, (dummy) persembahan
- * belum diposting.
- */
 export function PayablesWidget() {
   const state = usePayables();
   const rows = state.rows.slice(0, MAX_ROWS);
@@ -350,7 +326,6 @@ export function PayablesWidget() {
   );
 }
 
-/** KPI "Perlu dibayar": kas keluar draf + faktur belum lunas + gaji belum dibayar. */
 export function KpiPayables() {
   const state = usePayables();
   const payable = state.rows.filter((row) => row.isPayable);

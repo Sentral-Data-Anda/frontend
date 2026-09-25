@@ -6,9 +6,6 @@ import { SIDEBAR_MOTION } from "./sidebar-collapse";
 
 const TONE = {
   canvas: { mark: "", eyebrow: "text-muted-foreground", role: "" },
-  // Bidang logo = primary-900 = latar sidebar, jadi di sidebar bidangnya
-  // menyatu dan yang terlihat hanya logonya (6.13:1) — tanpa garis tepi, yang
-  // terlihat seperti kotak di dalam kotak.
   sidebar: {
     mark: "",
     eyebrow: "text-sidebar-muted-foreground",
@@ -16,12 +13,6 @@ const TONE = {
   },
 } as const;
 
-/**
- * Identitas aplikasi: logo + "SADA · SENTRAL DATA ANDA" + nama peran. Satu
- * markup untuk header Beranda (< lg) dan puncak sidebar (≥ lg).
- *
- * Bukan heading: nama peran bukan judul halaman. `h1` Beranda adalah sapaan.
- */
 export function AppIdentity({
   role,
   tone = "canvas",
@@ -29,10 +20,6 @@ export function AppIdentity({
 }: {
   role: string;
   tone?: keyof typeof TONE;
-  /**
-   * Logo saja — sidebar ringkas. Teks memudar dan terpotong (tidak dilepas
-   * dari DOM), jadi logo tidak bergeser selama lebar sidebar beranimasi.
-   */
   isCompact?: boolean;
 }) {
   return (

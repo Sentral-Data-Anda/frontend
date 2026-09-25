@@ -1,9 +1,3 @@
-/*
- * Jendela tampil, dijalankan CSS supaya markupnya tetap ikut terkirim di HTML
- * fallback (lihat `loading-page.tsx`): tak terlihat selama 150ms pertama
- * (`both` = fill backwards), lalu muncul dengan 150ms fade supaya
- * kemunculannya tidak "menjentik".
- */
 .page {
   animation: appear 150ms ease-out 150ms both;
 }
@@ -18,12 +12,6 @@
   overflow: hidden;
 }
 
-/*
- * Bukan <img>. Alpha PNG dipakai sebagai masker dan warnanya diambil dari
- * `currentColor`, sehingga huruf mengikuti tema gelap — yang tidak mungkin
- * kalau pikselnya sendiri yang berwarna. Prefix -webkit- masih diperlukan
- * untuk Safari di bawah 15.4.
- */
 .letter {
   position: absolute;
   width: 200px;
@@ -37,14 +25,6 @@
   mask-size: contain;
 }
 
-/*
- * SATU gerakan 800ms yang BERHENTI di tempat (`forwards`, opacity tetap 1),
- * bukan siklus 2 detik yang berakhir di `opacity: 0`. Alasannya: layar tunggu
- * dicabut kapan saja begitu halamannya siap — siklus yang berakhir memudar
- * selalu terpotong di tengah, sedangkan gerakan yang berakhir diam terbaca
- * utuh berapa pun ia sempat tampil. Denyut halus sesudahnya (setelah 800ms)
- * yang memberi tahu bahwa sesuatu masih berjalan.
- */
 .letterS {
   -webkit-mask-image: url("/loading/sada-s.png");
   mask-image: url("/loading/sada-s.png");
@@ -160,11 +140,6 @@
   }
 }
 
-/*
- * Animasi yang berulang tanpa henti adalah salah satu pemicu yang paling
- * sering disebut orang dengan gangguan vestibular. Yang tersisa tetap
- * memberi tahu bahwa sesuatu sedang berjalan, tanpa gerakan.
- */
 @media (prefers-reduced-motion: reduce) {
   .stage,
   .letterS,
@@ -173,7 +148,6 @@
     animation: none;
   }
 
-  /* Jeda tampil tetap; yang hilang cuma fade-nya. */
   .page {
     animation: appear 1ms linear 150ms both;
   }

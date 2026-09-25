@@ -13,13 +13,11 @@ import {
   weekKeys,
 } from "./model";
 
-/** Jam WIB → instant UTC (WIB = UTC+7, tanpa DST). */
 const wib = (date: string, time: string) =>
   new Date(`${date}T${time}:00+07:00`);
 
 describe("toDateKey", () => {
   test("memakai tanggal WIB saat UTC masih kemarin", () => {
-    // 2026-08-15 18:30 UTC = 2026-08-16 01:30 WIB.
     const now = new Date("2026-08-15T18:30:00Z");
 
     expect(now.toISOString().slice(0, 10)).toBe("2026-08-15");
@@ -55,7 +53,6 @@ describe("greetingOf", () => {
   });
 
   test("membaca jam WIB, bukan jam UTC", () => {
-    // 01:00 UTC = 08:00 WIB.
     expect(greetingOf(new Date("2026-08-16T01:00:00Z"))).toBe("Selamat pagi");
   });
 });
@@ -88,11 +85,9 @@ describe("findNextService", () => {
   });
 
   test("memakai jam WIB, bukan UTC, lintas tengah malam", () => {
-    // 2026-08-15 17:30 UTC = 2026-08-16 00:30 WIB: pagi, belum ada yang lewat.
     expect(findNextService(services, new Date("2026-08-15T17:30:00Z"))).toBe(
       services[0],
     );
-    // 2026-08-16 16:30 UTC = 23:30 WIB: semua sudah lewat.
     expect(
       findNextService(services, new Date("2026-08-16T16:30:00Z")),
     ).toBeUndefined();
@@ -100,7 +95,6 @@ describe("findNextService", () => {
 });
 
 describe("tanggal dashboard", () => {
-  // 23.30 WIB Selasa 22 Sep = 16.30 UTC.
   const lateTuesday = new Date("2026-09-22T16:30:00Z");
 
   test("tujuh hari mulai hari ini (WIB), melewati akhir bulan", () => {

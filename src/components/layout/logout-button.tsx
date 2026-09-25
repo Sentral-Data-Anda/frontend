@@ -6,20 +6,10 @@ import { Button } from "@/components/common/control/button";
 import { useBoolean } from "@/hooks/use-boolean";
 import { cn } from "@/lib/utils";
 
-/**
- * Satu-satunya jalur keluar — tombol mode penuh dan item menu akun rail
- * sama-sama memanggil ini. Tanpa konfirmasi. Apa pun hasil `DELETE`, halaman
- * diganti lewat navigasi keras, bukan `router.push`: hanya itu yang membuang
- * cache TanStack Query dan sesi di memori — penting di PC bersama
- * sekretariat. Cookie sudah dihapus oleh route BFF, jadi `/login` tidak lagi
- * mengalihkan balik.
- */
 export async function logout(): Promise<void> {
   try {
     await fetch("/api/v1/auth/logout", { method: "DELETE" });
   } catch {
-    // BFF tak terjangkau (offline): tetap pindah — tidak ada yang lebih
-    // berguna yang bisa dilakukan tanpa jaringan.
   } finally {
     window.location.replace("/login");
   }

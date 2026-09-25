@@ -27,14 +27,7 @@ import {
 const IBADAH_HREF = menuHref(MENU.PERIBADAHAN, MENU.IBADAH);
 const EVENT_HREF = menuHref(MENU.KEGIATAN, MENU.EVENT);
 
-/**
- * Tujuh hari mulai hari ini + data Ibadah (dan Kegiatan bila EVENT VIEW).
- * Satu sumber untuk widget Agenda dan KPI "Agenda minggu ini" — TanStack
- * Query men-dedupe, jadi satu permintaan per endpoint.
- */
 function useWeekAgenda() {
-  // ponytail: dihitung sekali per render; halaman yang dibiarkan terbuka
-  // melewati tengah malam tetap menampilkan minggu kemarin sampai dimuat ulang.
   const now = new Date();
   const days = weekKeys(now);
   const eventAccess = useMenuAccess(MENU.EVENT);
@@ -46,12 +39,6 @@ function useWeekAgenda() {
 
 const dayOf = (iso: string) => iso.slice(0, 10);
 
-/**
- * Agenda ringkas (dashboard bendahara, §10.3 "Agenda bila IBADAH"): strip 7
- * hari + tab Ibadah / Kegiatan — tab Kegiatan hanya bila EVENT VIEW; gate
- * widget = IBADAH VIEW di registry. Hari pertama = hari ini; ibadah berikutnya hari ini
- * diberi kotak jam berlatar, seperti "Hari ini" sebelumnya.
- */
 export function AgendaWidget() {
   const { now, days, ibadah, events, isEventShown } = useWeekAgenda();
   const [day, setDay] = useState(days[0]);
@@ -94,8 +81,6 @@ export function AgendaWidget() {
       title="Agenda"
       actionLabel="Kalender"
       actionHref={IBADAH_HREF}
-      // Satu kerangka untuk seluruh panel sampai ibadah DAN kegiatan tiba —
-      // bukan teks "Memuat…" di dalam tab.
       query={{
         isPending: ibadah.isPending || (isEventShown && events.isPending),
         isFetching: ibadah.isFetching || events.isFetching,
@@ -181,7 +166,6 @@ export function AgendaWidget() {
   );
 }
 
-/** KPI "Agenda minggu ini": ibadah + kegiatan (bila diizinkan), 7 hari. */
 export function KpiAgendaWeek() {
   const { ibadah, events, isEventShown } = useWeekAgenda();
   const isLoading = ibadah.isPending || (isEventShown && events.isPending);

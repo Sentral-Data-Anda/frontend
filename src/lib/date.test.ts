@@ -15,7 +15,6 @@ import {
   weekdayIndex,
 } from "./date";
 
-/** Test wajib `date-input.md §7.10` no. 1–5. */
 describe("parseDateInput — bentuk yang diterima (§7.2, wajib 1)", () => {
   test.each([
     ["12/05/1990"],
@@ -29,13 +28,6 @@ describe("parseDateInput — bentuk yang diterima (§7.2, wajib 1)", () => {
     expect(parseDateInput(input)).toEqual({ iso: "1990-05-12" });
   });
 
-  /**
-   * KOREKSI SPESIFIKASI (`date-input.md §7.2`): tabelnya menulis
-   * `1/5/1990` → 1990-05-12. Itu keliru — dalam `dd/mm/yyyy`, "1/5/1990"
-   * adalah 1 Mei, bukan 12 Mei. Yang dimaksud barisnya jelas "angka satuan
-   * tanpa nol di depan diterima", dan itu yang diuji di sini. Menerjemahkan
-   * "1/5" jadi tanggal 12 berarti mengarang angka yang tidak diketik siapa pun.
-   */
   test("angka satuan tanpa nol di depan dibaca apa adanya", () => {
     expect(parseDateInput("1/5/1990")).toEqual({ iso: "1990-05-01" });
     expect(parseDateInput("01/5/1990")).toEqual({ iso: "1990-05-01" });
@@ -53,12 +45,6 @@ describe("parseDateInput — bentuk yang diterima (§7.2, wajib 1)", () => {
 });
 
 describe("parseDateInput — yang ditolak (wajib 1, 2, 3)", () => {
-  /**
-   * Pesannya HARUS berbeda. "12/05/90" bukan tanggal yang tidak ada — hari
-   * dan bulannya benar; yang kurang cuma tahunnya. Menyuruh user membetulkan
-   * bagian yang sudah benar adalah cara tercepat membuatnya mengira aplikasi
-   * ini rusak.
-   */
   test("tahun dua digit ditolak dengan pesan TAHUN, bukan pesan tanggal", () => {
     expect(parseDateInput("12/05/90")).toEqual({ error: DATE_ERROR.shortYear });
     expect(parseDateInput("1/5/90")).toEqual({ error: DATE_ERROR.shortYear });
@@ -72,8 +58,6 @@ describe("parseDateInput — yang ditolak (wajib 1, 2, 3)", () => {
   });
 
   test("bentuk yang tidak dikenal ditolak", () => {
-    // Nama bulan bukan masukan yang didukung (§7.2): "12 Mei 1990" pecah
-    // jadi dua angka saja, jadi ia tanggal yang tidak lengkap.
     expect(parseDateInput("12 Mei 1990")).toEqual({
       error: DATE_ERROR.invalid,
     });
@@ -85,7 +69,6 @@ describe("parseDateInput — yang ditolak (wajib 1, 2, 3)", () => {
   test("kabisat: 29/02/2024 diterima, 29/02/2023 dan 29/02/1900 ditolak", () => {
     expect(parseDateInput("29/02/2024")).toEqual({ iso: "2024-02-29" });
     expect(parseDateInput("29/02/2023")).toEqual({ error: DATE_ERROR.invalid });
-    // 1900 habis dibagi 4 tapi BUKAN kabisat — aturan Gregorian penuh.
     expect(parseDateInput("29/02/1900")).toEqual({ error: DATE_ERROR.invalid });
     expect(parseDateInput("29/02/2000")).toEqual({ iso: "2000-02-29" });
   });
@@ -93,8 +76,6 @@ describe("parseDateInput — yang ditolak (wajib 1, 2, 3)", () => {
 
 describe("toIsoDate", () => {
   test("menolak 31 Februari alih-alih menggesernya ke 3 Maret", () => {
-    // `new Date(1990, 1, 31)` DIAM-DIAM menghasilkan 3 Maret; pergeseran itu
-    // yang membuat tanggal tersimpan tidak pernah sama dengan yang diketik.
     expect(toIsoDate(31, 2, 1990)).toBeNull();
     expect(toIsoDate(28, 2, 1990)).toBe("1990-02-28");
   });
@@ -122,7 +103,6 @@ describe("toInputText (wajib 4: normalisasi saat blur)", () => {
     expect(toInputText("bukan tanggal")).toBe("");
   });
 
-  /** Inilah putaran yang dialami kotak isian: ketik bebas → simpan → tampil. */
   test("ketik '1/5/1990' → nilai form 1990-05-01 → kotak jadi '01/05/1990'", () => {
     const parsed = parseDateInput("1/5/1990");
 
@@ -155,11 +135,6 @@ describe("ageInYears (wajib 5)", () => {
 });
 
 describe("todayJakarta", () => {
-  /**
-   * Zona dipatok, bukan mengikuti perangkat: petugas yang laptopnya masih
-   * ber-zona lain tidak boleh melihat "hari ini" yang berbeda dari rekannya.
-   * 23 September 2026 pukul 20.00 UTC sudah 24 September di WIB.
-   */
   test("memakai WIB, bukan zona perangkat", () => {
     expect(todayJakarta(new Date("2026-09-23T20:00:00.000Z"))).toBe(
       "2026-09-24",
@@ -182,10 +157,6 @@ describe("aritmetika kalender (kisi §7.5)", () => {
     expect(addDays("2024-02-28", 1)).toBe("2024-02-29");
   });
 
-  /**
-   * Penjepitan ini yang membuat panah bulan tidak pernah MELEWATI satu bulan:
-   * `setUTCMonth` bawaan mengubah 31 Januari + 1 bulan jadi 3 Maret.
-   */
   test("addMonths menjepit ke akhir bulan tujuan, bukan melimpah", () => {
     expect(addMonths("1990-01-31", 1)).toBe("1990-02-28");
     expect(addMonths("2024-01-31", 1)).toBe("2024-02-29");
@@ -194,9 +165,9 @@ describe("aritmetika kalender (kisi §7.5)", () => {
   });
 
   test("weekdayIndex: Senin 0 … Minggu 6", () => {
-    expect(weekdayIndex("2026-09-21")).toBe(0); // Senin
-    expect(weekdayIndex("2026-09-23")).toBe(2); // Rabu
-    expect(weekdayIndex("2026-09-27")).toBe(6); // Minggu
+    expect(weekdayIndex("2026-09-21")).toBe(0);
+    expect(weekdayIndex("2026-09-23")).toBe(2);
+    expect(weekdayIndex("2026-09-27")).toBe(6);
   });
 
   test("monthGrid selalu 42 sel, mulai Senin, memuat seluruh bulan", () => {
@@ -206,7 +177,6 @@ describe("aritmetika kalender (kisi §7.5)", () => {
     expect(weekdayIndex(grid[0])).toBe(0);
     expect(grid).toContain("2026-09-01");
     expect(grid).toContain("2026-09-30");
-    // Tinggi kisi tidak berubah antar bulan — tombol di bawahnya tidak bergeser.
     expect(monthGrid("2026-02-01")).toHaveLength(42);
   });
 

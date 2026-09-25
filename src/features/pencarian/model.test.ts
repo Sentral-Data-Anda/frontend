@@ -56,7 +56,6 @@ describe("searchModules", () => {
   });
 
   test("cocok lewat penjelasan layar", () => {
-    // Hanya penjelasan DAFTAR_JEMAAT ("Catat dan cari data ...") yang memuatnya.
     expect(searchModules(domains, "cari data")).toEqual({
       kind: "screens",
       hits: [{ domain: kejemaatan, leaf: daftarJemaat }],
@@ -80,7 +79,6 @@ describe("searchModules", () => {
     });
   });
 
-  // Huruf besar dari autokapitalisasi keyboard ponsel, spasi dari tap ganda.
   test("tidak peka huruf besar dan spasi berlebih", () => {
     expect(searchModules(domains, "  Kas   KELUAR ")).toEqual({
       kind: "screens",
