@@ -45,6 +45,9 @@ const buildForwardHeaders = (request: NextRequest): Headers => {
   return headers;
 };
 
+// Jawaban be-sada berisi data pribadi; be-sada tidak memasang Cache-Control.
+const NO_STORE = { "cache-control": "private, no-store" };
+
 const forwardToBackend = async (
   request: NextRequest,
   context: { params: Promise<{ path: string[] }> },
@@ -59,7 +62,7 @@ const forwardToBackend = async (
   ) {
     return Response.json(
       { status: 400, error: "Path tidak valid" },
-      { status: 400 },
+      { status: 400, headers: NO_STORE },
     );
   }
 
@@ -71,7 +74,7 @@ const forwardToBackend = async (
   if (!target.href.startsWith(base.href)) {
     return Response.json(
       { status: 400, error: "Path tidak valid" },
-      { status: 400 },
+      { status: 400, headers: NO_STORE },
     );
   }
 
@@ -96,7 +99,7 @@ const forwardToBackend = async (
         status: 502,
         error: "Layanan sedang tidak dapat dihubungi. Coba lagi sebentar lagi.",
       },
-      { status: 502 },
+      { status: 502, headers: NO_STORE },
     );
   }
 
@@ -119,6 +122,9 @@ const forwardToBackend = async (
   for (const cookie of upstream.headers.getSetCookie()) {
     headers.append("set-cookie", stripCookieDomain(cookie));
   }
+
+  headers.set("cache-control", NO_STORE["cache-control"]);
+  headers.delete("etag");
 
   return new Response(upstream.body, { status: upstream.status, headers });
 };

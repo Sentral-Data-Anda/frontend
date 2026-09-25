@@ -164,6 +164,22 @@ describe("BFF", () => {
     ).toBe(true);
   });
 
+  test("setiap jawaban private, no-store dan tanpa ETag", async () => {
+    const { request, context } = onCall("GET", ["v1", "persembahan", "saya"]);
+
+    const response = await route.GET(request as never, context as never);
+
+    expect(response.headers.get("cache-control")).toBe("private, no-store");
+    expect(response.headers.get("etag")).toBeNull();
+
+    const rejected = await route.GET(
+      onCall("GET", ["v1", "..", "admin"]).request as never,
+      onCall("GET", ["v1", "..", "admin"]).context as never,
+    );
+
+    expect(rejected.headers.get("cache-control")).toBe("private, no-store");
+  });
+
   test("menolak segmen path yang menembus direktori", async () => {
     const { request, context } = onCall("GET", ["v1", "..", "admin"]);
 
