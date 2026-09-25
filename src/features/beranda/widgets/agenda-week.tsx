@@ -3,8 +3,9 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
 
-import { DashboardCard, KpiCell } from "@/components/common/dashboard";
 import {
+  DashboardCard,
+  KpiCell,
   DashboardTable,
   TableTitle,
   type TableRow,

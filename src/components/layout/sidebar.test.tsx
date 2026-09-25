@@ -17,8 +17,7 @@ import {
   test,
 } from "bun:test";
 
-import { SessionProvider } from "@/features/auth";
-import type { Session } from "@/features/auth";
+import { SessionProvider, type Session } from "@/features/auth";
 import type { MenuNode } from "@/types/menu";
 
 mock.module("next/navigation", () => ({

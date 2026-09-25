@@ -142,6 +142,7 @@ const eslintConfig = defineConfig([
       "@typescript-eslint/no-explicit-any": "warn",
       "react-hooks/rules-of-hooks": "error",
       "react-hooks/exhaustive-deps": "warn",
+      "import/no-duplicates": ["error", { "prefer-inline": true }],
       "import/order": [
         "error",
         {

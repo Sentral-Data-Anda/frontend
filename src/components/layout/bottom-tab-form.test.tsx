@@ -1,8 +1,7 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, mock, test } from "bun:test";
 
-import { SessionProvider } from "@/features/auth";
-import type { Session } from "@/features/auth";
+import { SessionProvider, type Session } from "@/features/auth";
 
 const pathname = { current: "/kejemaatan/daftar-jemaat" };
 

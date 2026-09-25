@@ -3,8 +3,7 @@ import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
 import { MENU } from "@/config/menu";
-import { SessionProvider } from "@/features/auth";
-import type { Session } from "@/features/auth";
+import { SessionProvider, type Session } from "@/features/auth";
 import type { MenuNode } from "@/types/menu";
 
 import { HomeScreen } from "./screen";
