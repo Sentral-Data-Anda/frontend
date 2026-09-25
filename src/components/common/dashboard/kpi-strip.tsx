@@ -21,16 +21,16 @@ export function KpiStrip({
   const isFive = count === 5;
 
   return (
-    <div className="@container">
+    <div className="@container/strip">
       <section
         aria-label={label}
         style={{ "--kpi-cols": count } as React.CSSProperties}
         className={cn(
           "grid grid-cols-2 gap-4",
           isFive
-            ? "@min-[36rem]:grid-cols-6"
-            : "@min-[36rem]:grid-cols-[repeat(var(--kpi-cols),minmax(0,1fr))]",
-          "@min-[55rem]:grid-cols-[repeat(var(--kpi-cols),minmax(0,28rem))]",
+            ? "@min-[36rem]/strip:grid-cols-6"
+            : "@min-[36rem]/strip:grid-cols-[repeat(var(--kpi-cols),minmax(0,1fr))]",
+          "@min-[55rem]/strip:grid-cols-[repeat(var(--kpi-cols),minmax(0,28rem))]",
         )}
       >
         {cells.map((cell, index) => (
@@ -41,10 +41,12 @@ export function KpiStrip({
               index === count - 1 && count % 2 === 1 && "col-span-2",
               isFive
                 ? index < 3
-                  ? "@min-[36rem]:col-span-2"
-                  : "@min-[36rem]:col-span-3"
-                : "@min-[36rem]:col-span-1",
-              "@min-[55rem]:col-span-1",
+                  ? "@min-[36rem]/strip:col-span-2"
+                  : index === 3
+                    ? "@min-[36rem]/strip:col-[2/span_2]"
+                    : "@min-[36rem]/strip:col-span-2"
+                : "@min-[36rem]/strip:col-span-1",
+              "@min-[55rem]/strip:col-span-1",
             )}
           >
             {cell}
@@ -99,8 +101,9 @@ export function KpiCell({
   const isGood = delta ? isUp === delta.isUpGood : false;
   const Arrow = isUp ? ArrowUp : ArrowDown;
 
+  // lg: mengikuti skala tipografi (text-kpi, text-title) yang berganti di 64rem.
   return (
-    <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-2.5 p-3.5 [grid-template-areas:'icon_label_label'_'value_value_value'_'hint_hint_badge'] lg:px-5 lg:py-4 @min-[13rem]/kpi:[grid-template-areas:'icon_label_badge'_'value_value_value'_'hint_hint_hint']">
+    <div className="relative grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-2.5 p-3.5 [grid-template-areas:'icon_label_label'_'value_value_value'_'hint_hint_hint'] lg:px-5 lg:py-4 @max-[36rem]/strip:@min-[19rem]/kpi:[grid-template-areas:'icon_label_value'_'icon_hint_value']">
       <span
         className={cn(
           "flex size-8 items-center justify-center rounded-control [grid-area:icon] lg:size-9",
@@ -110,6 +113,12 @@ export function KpiCell({
         <Icon className="size-4 lg:size-[1.125rem]" aria-hidden />
       </span>
 
+      {isDummy ? (
+        <Badge variant="sample" className="bg-card absolute -top-2.5 right-3">
+          contoh data
+        </Badge>
+      ) : null}
+
       <p
         className="text-muted-foreground line-clamp-2 text-body leading-tight font-medium [grid-area:label]"
         title={label}
@@ -117,16 +126,7 @@ export function KpiCell({
         {label}
       </p>
 
-      {isDummy ? (
-        <Badge
-          variant="sample"
-          className="mt-1 justify-self-end [grid-area:badge] @min-[13rem]/kpi:mt-0"
-        >
-          contoh data
-        </Badge>
-      ) : null}
-
-      <div className="mt-2 flex min-h-5 items-center [grid-area:value] lg:mt-3 lg:min-h-7">
+      <div className="mt-2 flex min-h-5 min-w-0 items-center [grid-area:value] lg:mt-3 lg:min-h-7 @max-[36rem]/strip:@min-[19rem]/kpi:mt-0 @max-[36rem]/strip:@min-[19rem]/kpi:justify-self-end">
         {isLoading ? (
           <span className="bg-muted block h-5 w-20 animate-pulse rounded-control lg:h-7" />
         ) : isError ? (
@@ -141,7 +141,7 @@ export function KpiCell({
         )}
       </div>
 
-      <div className="mt-1 flex min-h-4 items-center [grid-area:hint]">
+      <div className="mt-1 flex min-h-4 min-w-0 items-center [grid-area:hint] @max-[36rem]/strip:@min-[19rem]/kpi:mt-0.5">
         {isLoading ? (
           <span className="bg-muted block h-3 w-16 animate-pulse rounded-control" />
         ) : delta && !isError ? (
