@@ -480,7 +480,7 @@ src/components/
 ```
 
 Setiap folder komponen dan fitur punya barrel `index.ts`; dari luar folder impor
-lewat barrel (`@/components/common/list`, `@/features/kejemaatan/daftar-jemaat`), di
+lewat barrel (`@/components/common/list`, `@/features/kejemaatan/daftar-jemaat/list`), di
 dalam fitur impor relatif ke berkasnya. Aturan dan pengecualiannya di
 [CODE_STYLE.md](CODE_STYLE.md) WAJIB-8. Alasan tingkat kode yang dulu ditulis sebagai
 komentar ada di `../docs/decisions/fe-kode/`.

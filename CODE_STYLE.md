@@ -82,8 +82,13 @@ dari luar folder memakai barrel:
 
 ```ts
 import { DataList, ListToolbar } from "@/components/common/list";
-import { useJemaatList } from "@/features/kejemaatan/daftar-jemaat";
+import { JemaatListScreen } from "@/features/kejemaatan/daftar-jemaat/list";
 ```
+
+Barrel akar fitur hanya mengekspor yang dipakai di luar fitur. Fitur yang layarnya
+ada di `list/` dan `form/` tidak punya barrel akar; rute mengimpor sub-barrel
+layarnya, supaya rute Daftar tidak ikut memuat form. `package.json` memuat
+`"sideEffects": ["*.css"]` agar ekspor barrel yang tak terpakai dibuang dari bundel.
 
 Di dalam fitur yang sama dan di dalam satu kelompok `components/common`, impor
 relatif ke berkasnya (`../api`, `./data-table`) — mengimpor barrel folder sendiri

@@ -6,7 +6,7 @@ import { PageContainer } from "@/components/layout";
 import {
   jemaatTable,
   JemaatListScreen,
-} from "@/features/kejemaatan/daftar-jemaat";
+} from "@/features/kejemaatan/daftar-jemaat/list";
 
 export const metadata: Metadata = {
   title: "Daftar Jemaat",

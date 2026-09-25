@@ -65,9 +65,9 @@ const NO_UI_PRIMITIVE_IMPORT = {
 // Dari luar folder, impor lewat barrel index.ts (CODE_STYLE.md WAJIB-8).
 const DEEP_IMPORT = {
   regex:
-    "^@/components/(common/[^/]+/|ui/|layout/(?!app-shell$)).+|^@/features/(kejemaatan/[^/]+/|(?!kejemaatan/)[^/]+/(?!ui$|get-session$|refresh$)).+",
+    "^@/components/(common/[^/]+/|ui/|layout/(?!app-shell$)).+|^@/features/((auth|beranda|domain|observability|pencarian|pwa)/(?!ui$|get-session$|refresh$).+|(?!(auth|beranda|domain|observability|pencarian|pwa)/)[^/]+/[^/]+/(?!(list|form)$).+)",
   message:
-    "Impor lewat barrel folder-nya, mis. @/components/common/list atau @/features/kejemaatan/daftar-jemaat.",
+    "Impor lewat barrel folder-nya, mis. @/components/common/list; rute memakai sub-barrel layarnya, mis. @/features/kejemaatan/daftar-jemaat/list.",
 };
 
 const NO_COMMON_ROOT_IMPORT = {
