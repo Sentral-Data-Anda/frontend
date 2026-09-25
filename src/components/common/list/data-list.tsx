@@ -16,7 +16,12 @@ import {
   type DataListPagination,
 } from "./data-list-pagination";
 import { DataTable, DataTableFooter, type DataTableConfig } from "./data-table";
-import { LIST_DIVIDER, LoadingDataList, LoadingRows } from "./loading-list";
+import {
+  LIST_DIVIDER,
+  LoadingDataList,
+  LoadingRows,
+  type LoadingShape,
+} from "./loading-list";
 
 const textOf = (node: ReactNode) =>
   typeof node === "string" ? node : undefined;
@@ -84,6 +89,7 @@ export function DataList<T>({
   emptyAction,
   pagination,
   table,
+  loadingShape,
 }: {
   items: T[] | undefined;
   getKey: (item: T) => string;
@@ -98,6 +104,7 @@ export function DataList<T>({
   emptyAction?: ReactNode;
   pagination?: DataListPagination;
   table?: DataTableConfig<T>;
+  loadingShape?: LoadingShape;
 }) {
   const pathname = usePathname();
   const listRef = useRef<HTMLElement | null>(null);
@@ -165,7 +172,7 @@ export function DataList<T>({
   }
 
   if (isLoading || !items) {
-    return <LoadingDataList table={table} />;
+    return <LoadingDataList table={table} shape={loadingShape} />;
   }
 
   if (items.length === 0) {

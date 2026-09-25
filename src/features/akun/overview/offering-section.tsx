@@ -1,8 +1,8 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
-import { Eye, EyeOff } from "lucide-react";
-import { useEffect } from "react";
+import { EyeOff, Lock, LockOpen } from "lucide-react";
+import { useEffect, useRef } from "react";
 
 import { Button } from "@/components/common/control";
 import { FormSection, FormWide } from "@/components/common/form";
@@ -24,15 +24,20 @@ export const OfferingSection = () => {
   const isShown = useBoolean();
   const offerings = useMyOfferings(year, isShown.value);
   const summary = offerings.data;
+  const showRef = useRef<HTMLButtonElement>(null);
+  const hideRef = useRef<HTMLButtonElement>(null);
+  const isToggledRef = useRef(false);
+  const LockIcon = isShown.value ? LockOpen : Lock;
 
-  const onHide = () => {
-    isShown.onFalse();
-    queryClient.removeQueries({ queryKey: offeringKeys.mine(year) });
+  const onShow = () => {
+    isToggledRef.current = true;
+    isShown.onTrue();
   };
 
-  const onToggle = () => {
-    if (isShown.value) onHide();
-    else isShown.onTrue();
+  const onHide = () => {
+    isToggledRef.current = true;
+    isShown.onFalse();
+    queryClient.removeQueries({ queryKey: offeringKeys.mine(year) });
   };
 
   useEffect(() => {
@@ -51,6 +56,14 @@ export const OfferingSection = () => {
       document.removeEventListener("visibilitychange", onVisibilityChange);
   }, [isShown, queryClient, year]);
 
+  // Tombolnya berpindah tempat; fokus ikut agar keyboard tidak jatuh ke body.
+  useEffect(() => {
+    if (!isToggledRef.current) return;
+
+    isToggledRef.current = false;
+    (isShown.value ? hideRef : showRef).current?.focus();
+  }, [isShown.value]);
+
   return (
     <FormSection
       isReadOnly
@@ -60,17 +73,15 @@ export const OfferingSection = () => {
       <FormWide>
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-muted-foreground text-body">
+            <p className="text-muted-foreground flex items-center gap-1.5 text-body">
+              <LockIcon className="size-3.5 shrink-0" aria-hidden />
               Total tahun {year}
             </p>
 
             {!isShown.value ? (
-              <p className="text-kpi font-semibold">
-                <span
-                  aria-hidden
-                  className="tracking-widest blur-[3px] select-none"
-                >
-                  Rp •••••
+              <p className="text-foreground text-kpi font-semibold">
+                <span aria-hidden>
+                  Rp <span className="tracking-widest">•••••</span>
                 </span>
                 <span className="sr-only">Nominal disembunyikan</span>
               </p>
@@ -93,20 +104,19 @@ export const OfferingSection = () => {
             </p>
           </div>
 
-          <Button
-            type="button"
-            variant="outline"
-            aria-expanded={isShown.value}
-            aria-controls={HISTORY_ID}
-            onClick={onToggle}
-          >
-            {isShown.value ? (
+          {isShown.value ? (
+            <Button
+              ref={hideRef}
+              type="button"
+              variant="outline"
+              aria-expanded
+              aria-controls={HISTORY_ID}
+              onClick={onHide}
+            >
               <EyeOff className="size-4" aria-hidden />
-            ) : (
-              <Eye className="size-4" aria-hidden />
-            )}
-            {isShown.value ? "Sembunyikan" : "Tampilkan"}
-          </Button>
+              Sembunyikan
+            </Button>
+          ) : null}
         </div>
 
         <div id={HISTORY_ID} className="mt-4">
@@ -121,6 +131,7 @@ export const OfferingSection = () => {
                 onRetry={() => void offerings.refetch()}
                 emptyTitle={`Belum ada persembahan tercatat tahun ${year}`}
                 emptyDescription="Persembahan yang dicatat bendahara muncul di sini."
+                loadingShape="trailing"
               >
                 {(item) => (
                   <DataListRow
@@ -137,7 +148,11 @@ export const OfferingSection = () => {
               </DataList>
             </div>
           ) : (
-            <OfferingVeil />
+            <OfferingVeil
+              controlsId={HISTORY_ID}
+              showRef={showRef}
+              onShow={onShow}
+            />
           )}
         </div>
       </FormWide>
