@@ -6,7 +6,7 @@ import { FormSection } from "@/components/common/form";
 import { normalizePhone } from "../model";
 
 import { ControlField } from "./control-field";
-import { type JemaatForm } from "./section";
+import { type JemaatForm } from "./form-options";
 
 interface PropTypes {
   form: JemaatForm;

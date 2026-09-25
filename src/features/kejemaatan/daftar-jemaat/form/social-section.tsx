@@ -17,7 +17,7 @@ import {
 } from "../types";
 
 import { ControlField } from "./control-field";
-import { type JemaatForm, optionsOf } from "./section";
+import { type JemaatForm, optionsOf } from "./form-options";
 
 const MARITAL_OPTIONS = optionsOf(STATUS_PERNIKAHAN_LABEL);
 

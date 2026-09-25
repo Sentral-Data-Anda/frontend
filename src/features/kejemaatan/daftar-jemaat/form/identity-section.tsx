@@ -6,7 +6,7 @@ import { FormSection } from "@/components/common/form";
 import { GENDER_LABEL } from "../types";
 
 import { ControlField } from "./control-field";
-import { type JemaatForm, optionsOf } from "./section";
+import { type JemaatForm, optionsOf } from "./form-options";
 
 const GENDER_OPTIONS = optionsOf(GENDER_LABEL);
 

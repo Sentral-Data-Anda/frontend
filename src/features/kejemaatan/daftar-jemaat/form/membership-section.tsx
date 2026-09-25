@@ -14,7 +14,7 @@ import { useDdlOptions } from "../api";
 import { STATUS_JEMAAT_LABEL, TYPE_JEMAAT_LABEL } from "../types";
 
 import { ControlField } from "./control-field";
-import { type JemaatForm, optionsOf } from "./section";
+import { type JemaatForm, optionsOf } from "./form-options";
 
 const TYPE_OPTIONS = optionsOf(TYPE_JEMAAT_LABEL);
 

@@ -128,7 +128,7 @@ Nama berkas kebab-case dari nama komponennya (`IdentitySection` →
 `identity-section.tsx`). Komponen yang sekelompok jadi satu folder dengan barrel
 (`beranda/widgets/office/`); hook, konstanta, dan helper yang dipakai lebih dari
 satu komponen di folder itu tinggal di satu berkas non-komponen (`data.ts`,
-`section.ts`). Konfigurasi yang merender JSX tapi bukan komponen (`jemaatTable`)
+`form-options.ts`). Konfigurasi yang merender JSX tapi bukan komponen (`jemaatTable`)
 boleh menumpang di berkas komponen yang memakainya.
 
 Pengecualian di `components/**`: kerangka bersama yang komponennya saling terkait
@@ -163,6 +163,9 @@ export const IdentitySection = (props: PropTypes) => {
   ditimpa lagi saat `shadcn add`), dan berkas `components/**` yang berisi beberapa
   komponen (pengecualian WAJIB-11) karena satu berkas tidak bisa memuat dua
   `PropTypes`.
+- Komponen generik tetap `function`, mis. `function DataList<T>(…)`: generik pada
+  arrow di `.tsx` harus ditulis `<T,>` supaya tidak terbaca sebagai tag JSX, dan
+  bentuk itu lebih sulit dibaca daripada `function`.
 
 **[WAJIB-13] Handler inline paling banyak 2 statement** (ditegakkan lint).
 Lebih dari itu, pindahkan ke `const onX = …` di blok fungsi (sebelum `useEffect`

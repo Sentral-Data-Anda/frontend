@@ -9,7 +9,7 @@ import { useKeluargaOptions } from "../api";
 import { ROLE_IN_FAMILY_LABEL } from "../types";
 
 import { ControlField } from "./control-field";
-import { type JemaatForm, optionsOf } from "./section";
+import { type JemaatForm, optionsOf } from "./form-options";
 
 const ROLE_OPTIONS = optionsOf(ROLE_IN_FAMILY_LABEL);
 
