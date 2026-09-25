@@ -3,7 +3,13 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { TriangleAlert } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, type FormEvent, type MouseEvent } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type FormEvent,
+  type MouseEvent,
+} from "react";
 import { useForm, useWatch, type FieldErrors } from "react-hook-form";
 
 import { Button } from "@/components/common/control";
@@ -15,7 +21,7 @@ import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { useBoolean } from "@/hooks/use-boolean";
 import { useListReturn } from "@/hooks/use-list-return";
-import { applyServerError, firstErrorField } from "@/lib/form-error";
+import { applyServerError } from "@/lib/form-error";
 import { saveListFocus } from "@/lib/list-return";
 
 import { useJemaatDetail, useSaveJemaat } from "../api";
@@ -51,6 +57,7 @@ const CONFIRM = {
     confirmLabel: "Ya",
     cancelLabel: "Tidak",
     isDestructive: false,
+    finalFocus: false,
   },
   leave: {
     title: "Buang perubahan?",
@@ -73,6 +80,7 @@ export const JemaatFormScreen = (props: PropTypes) => {
   const saveJemaat = useSaveJemaat(code);
   const detail = useJemaatDetail(code);
   const isConfirmOpen = useBoolean();
+  const saveRef = useRef<HTMLButtonElement>(null);
   const [pickConfirm, setPickConfirm] = useState<keyof typeof CONFIRM>("save");
 
   const form = useForm<JemaatFormValues>({
@@ -134,8 +142,9 @@ export const JemaatFormScreen = (props: PropTypes) => {
       saveListFocus(JEMAAT_LIST_PATH, saved.data.code);
       router.replace(listReturn);
     } catch (error) {
-      applyServerError(error, form.setError, serverFieldError);
-      setRejectedField(firstErrorField(error));
+      setRejectedField(
+        applyServerError(error, form.setError, serverFieldError),
+      );
     }
   }, onInvalid);
 
@@ -157,7 +166,8 @@ export const JemaatFormScreen = (props: PropTypes) => {
   useEffect(() => {
     if (isSubmitting || !rejectedField) return;
 
-    revealField(rejectedField);
+    if (rejectedField === "root") saveRef.current?.focus();
+    else revealField(rejectedField);
   }, [isSubmitting, submitCount, rejectedField]);
 
   if (!(isEdit ? isCanUpdate : isCanCreate)) {
@@ -187,7 +197,11 @@ export const JemaatFormScreen = (props: PropTypes) => {
             Batal
           </Button>
 
-          <Button type="submit" disabled={isSubmitting || detail.isLoading}>
+          <Button
+            ref={saveRef}
+            type="submit"
+            disabled={isSubmitting || detail.isLoading}
+          >
             {isSubmitting ? "Menyimpan…" : "Simpan"}
           </Button>
         </FormActions>

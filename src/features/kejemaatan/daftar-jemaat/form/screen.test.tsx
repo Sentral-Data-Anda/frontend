@@ -115,7 +115,7 @@ const DETAIL: JemaatDetail = {
   additional: [],
 };
 
-const onMockApi = () => {
+const onMockApi = (saveFailure?: { status: number; error: string }) => {
   const saves: string[] = [];
 
   globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -123,6 +123,10 @@ const onMockApi = () => {
 
     if (url === "/api/v1/jemaat/JMT-0042" && init?.method === "PUT") {
       saves.push(url);
+
+      if (saveFailure) {
+        return Response.json(saveFailure, { status: saveFailure.status });
+      }
 
       return Response.json({
         status: 200,
@@ -184,6 +188,30 @@ describe("konfirmasi sebelum simpan", () => {
 
     await waitFor(() => expect(document.activeElement?.id).toBe("name"));
     expect(screen.queryByText("Apakah Anda Ingin Simpan ?")).toBeNull();
+  });
+});
+
+describe("fokus sesudah simpan ditolak server", () => {
+  test("pesan yang dikenal: fokus ke field-nya", async () => {
+    onMockApi({ status: 400, error: "Email Sudah Tersedia" });
+    await onRenderLoadedEdit();
+
+    fireEvent.click(screen.getByRole("button", { name: "Simpan" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Ya" }));
+
+    await waitFor(() => expect(document.activeElement?.id).toBe("email"));
+  });
+
+  test("galat tanpa field: fokus ke Simpan, bukan body", async () => {
+    onMockApi({ status: 500, error: "Kesalahan server." });
+    await onRenderLoadedEdit();
+
+    fireEvent.click(screen.getByRole("button", { name: "Simpan" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Ya" }));
+
+    await waitFor(() =>
+      expect(document.activeElement?.textContent).toBe("Simpan"),
+    );
   });
 });
 
