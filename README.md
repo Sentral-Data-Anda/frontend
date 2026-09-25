@@ -479,6 +479,12 @@ src/components/
   layout/      kerangka aplikasi (shell, sidebar, header, lebar halaman)
 ```
 
+Setiap folder komponen dan fitur punya barrel `index.ts`; dari luar folder impor
+lewat barrel (`@/components/common/list`, `@/features/kejemaatan/daftar-jemaat`), di
+dalam fitur impor relatif ke berkasnya. Aturan dan pengecualiannya di
+[CODE_STYLE.md](CODE_STYLE.md) WAJIB-8. Alasan tingkat kode yang dulu ditulis sebagai
+komentar ada di `../docs/decisions/fe-kode/`.
+
 `components/ui/button.tsx` dan `components/common/control/button.tsx` sengaja
 bernama sama: yang pertama primitif, yang kedua pintu layar ke primitif itu (sama
 untuk `input` dan `badge`). Layar selalu memakai yang di `common/`; lint menolak

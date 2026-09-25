@@ -6,7 +6,7 @@ Pelanggaran aturan WAJIB berarti belum layak merge.
 
 Keputusan desain (kenapa sebuah layar tampak begitu, angka kontras, ukuran
 piksel) tidak ditulis di kode. Tempatnya `../docs/design/` dan
-`../docs/decisions/`.
+`../docs/decisions/fe-kode/`.
 
 ## WAJIB
 
@@ -85,11 +85,13 @@ import { DataList, ListToolbar } from "@/components/common/list";
 import { useJemaatList } from "@/features/kejemaatan/daftar-jemaat";
 ```
 
-Di dalam folder yang sama, impor langsung ke berkasnya (`./list-item`), supaya
-tidak terjadi impor melingkar. Pengecualian yang tercatat di `index.ts`-nya
-masing-masing: folder yang mencampur berkas `"use client"` dan berkas server
-(mis. `components/layout`) mengekspor keduanya, tapi rute server mengimpor
-berkas server-nya langsung.
+Di dalam fitur yang sama dan di dalam satu kelompok `components/common`, impor
+relatif ke berkasnya (`../api`, `./data-table`) — mengimpor barrel folder sendiri
+menimbulkan impor melingkar. Impor dalam ke folder lain ditolak lint.
+
+Tidak ikut barrel, diimpor langsung, karena server-only: `components/layout/app-shell`,
+`features/auth/get-session`, `features/auth/refresh`. Barrel ikut masuk bundel klien
+begitu ada komponen klien yang mengimpornya.
 
 **[WAJIB-9] Bahasa.**
 Nama di kode (variabel, fungsi, tipe, berkas) berbahasa Inggris, kecuali istilah
@@ -109,4 +111,4 @@ domain yang sudah menjadi nama di be-sada (`jemaat`, `keluarga`, `wilayah`,
 - Batas lapisan impor (`eslint-plugin-boundaries`): `app → features → shared`,
   fitur tidak mengimpor fitur lain kecuali sesi di `features/auth`.
 - `lib/security`, `lib/api`, `proxy.ts`, dan `features/observability` tetap di
-  tempatnya; alasan keamanannya dicatat di `../docs/decisions/`.
+  tempatnya; alasan keamanannya dicatat di `../docs/decisions/fe-kode/`.
