@@ -1,5 +1,7 @@
 "use client";
 
+import { CalendarHeart } from "lucide-react";
+
 import { KpiCell } from "@/components/common/dashboard";
 
 import { useEventRange } from "../../api";
@@ -16,9 +18,15 @@ export const KpiEventsFortnight = () => {
 
   return (
     <KpiCell
-      label="Kegiatan · 14 hari"
+      label="Kegiatan"
+      icon={CalendarHeart}
+      tone="success"
       value={`${events.data?.length ?? 0}`}
-      hint={todayCount > 0 ? `${todayCount} hari ini` : undefined}
+      hint={
+        todayCount > 0
+          ? `14 hari ke depan, ${todayCount} hari ini`
+          : "14 hari ke depan"
+      }
       isLoading={events.isPending}
       isError={events.isError}
     />

@@ -1,5 +1,7 @@
 "use client";
 
+import { Inbox } from "lucide-react";
+
 import { KpiCell } from "@/components/common/dashboard";
 
 import { useWaitingApprovals } from "../../api";
@@ -13,11 +15,13 @@ export const KpiWaitingApprovals = () => {
   return (
     <KpiCell
       label="Menunggu TTD"
+      icon={Inbox}
+      tone="warning"
       value={`${query.data?.totalData ?? 0}`}
       hint={
         oldest
           ? `tertua ${daysSince(oldest.submittedAt, new Date())} hari`
-          : undefined
+          : "tidak ada antrean"
       }
       isLoading={query.isPending}
       isError={query.isError}

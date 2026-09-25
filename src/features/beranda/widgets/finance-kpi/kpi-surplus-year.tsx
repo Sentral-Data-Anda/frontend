@@ -1,5 +1,7 @@
 "use client";
 
+import { FileChartColumn } from "lucide-react";
+
 import { KpiCell } from "@/components/common/dashboard";
 import { formatRupiahCompact } from "@/lib/format";
 
@@ -14,7 +16,9 @@ export const KpiSurplusYear = () => {
 
   return (
     <KpiCell
-      label="Surplus · tahun berjalan"
+      label="Surplus tahun ini"
+      icon={FileChartColumn}
+      tone="secondary"
       value={
         surplus === undefined
           ? undefined

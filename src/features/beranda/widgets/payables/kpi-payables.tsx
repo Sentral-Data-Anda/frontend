@@ -1,5 +1,7 @@
 "use client";
 
+import { CreditCard } from "lucide-react";
+
 import { KpiCell } from "@/components/common/dashboard";
 import { formatRupiahCompact } from "@/lib/format";
 
@@ -13,8 +15,10 @@ export const KpiPayables = () => {
   return (
     <KpiCell
       label="Perlu dibayar"
+      icon={CreditCard}
+      tone="warning"
       value={`${payable.length} dok.`}
-      hint={payable.length ? formatRupiahCompact(total) : "Semua lunas"}
+      hint={payable.length ? formatRupiahCompact(total) : "semua lunas"}
       isLoading={state.isPending}
       isError={state.error !== null}
     />

@@ -1,5 +1,7 @@
 "use client";
 
+import { Church } from "lucide-react";
+
 import { KpiCell } from "@/components/common/dashboard";
 
 import { useIbadahRange } from "../../api";
@@ -11,8 +13,11 @@ export const KpiServicesWeek = () => {
 
   return (
     <KpiCell
-      label="Ibadah · minggu ini"
+      label="Ibadah"
+      icon={Church}
+      tone="secondary"
       value={`${ibadah.data?.length ?? 0}`}
+      hint="minggu ini"
       isLoading={ibadah.isPending}
       isError={ibadah.isError}
     />

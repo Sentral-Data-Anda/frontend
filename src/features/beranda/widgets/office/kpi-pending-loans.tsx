@@ -1,5 +1,7 @@
 "use client";
 
+import { CalendarClock } from "lucide-react";
+
 import { KpiCell } from "@/components/common/dashboard";
 
 import { usePendingLoans } from "./data";
@@ -10,6 +12,8 @@ export const KpiPendingLoans = () => {
   return (
     <KpiCell
       label="Peminjaman menunggu"
+      icon={CalendarClock}
+      tone="secondary"
       value={`${query.data?.length ?? 0}`}
       hint="30 hari ke depan"
       isLoading={query.isPending}

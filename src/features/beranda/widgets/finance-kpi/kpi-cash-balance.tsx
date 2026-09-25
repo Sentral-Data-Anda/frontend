@@ -1,5 +1,7 @@
 "use client";
 
+import { Wallet } from "lucide-react";
+
 import { KpiCell } from "@/components/common/dashboard";
 import { formatRupiahCompact } from "@/lib/format";
 
@@ -11,6 +13,7 @@ export const KpiCashBalance = () => {
   return (
     <KpiCell
       label="Saldo kas & bank"
+      icon={Wallet}
       value={formatRupiahCompact(total)}
       hint={`≈ ${DUMMY_CASH_RUNWAY_MONTHS.toLocaleString("id-ID")} bln pengeluaran`}
       isDummy
