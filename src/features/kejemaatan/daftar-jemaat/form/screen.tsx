@@ -50,14 +50,22 @@ interface PropTypes {
   code?: string;
 }
 
+const SAVE_CONFIRM = {
+  title: "Konfirmasi Tindakan",
+  confirmLabel: "Ya",
+  cancelLabel: "Tidak",
+  isDestructive: false,
+  finalFocus: false,
+} as const;
+
 const CONFIRM = {
-  save: {
-    title: "Konfirmasi Tindakan",
-    description: "Apakah Anda Ingin Simpan ?",
-    confirmLabel: "Ya",
-    cancelLabel: "Tidak",
-    isDestructive: false,
-    finalFocus: false,
+  create: {
+    ...SAVE_CONFIRM,
+    description: "Apakah Anda ingin menyimpan data jemaat ini?",
+  },
+  edit: {
+    ...SAVE_CONFIRM,
+    description: "Apakah Anda ingin menyimpan perubahan data jemaat ini?",
   },
   leave: {
     title: "Buang perubahan?",
@@ -81,7 +89,8 @@ export const JemaatFormScreen = (props: PropTypes) => {
   const detail = useJemaatDetail(code);
   const isConfirmOpen = useBoolean();
   const saveRef = useRef<HTMLButtonElement>(null);
-  const [pickConfirm, setPickConfirm] = useState<keyof typeof CONFIRM>("save");
+  const [pickConfirm, setPickConfirm] =
+    useState<keyof typeof CONFIRM>("create");
 
   const form = useForm<JemaatFormValues>({
     resolver: zodResolver(jemaatFormSchema),
@@ -121,7 +130,7 @@ export const JemaatFormScreen = (props: PropTypes) => {
 
   const onOpenSaveConfirm = () => {
     setRejectedField(null);
-    onOpenConfirm("save");
+    onOpenConfirm(isEdit ? "edit" : "create");
   };
 
   const onConfirm = (event: FormEvent<HTMLFormElement>) => {
@@ -259,7 +268,7 @@ export const JemaatFormScreen = (props: PropTypes) => {
         isOpen={isConfirmOpen.value}
         onOpenChange={isConfirmOpen.setValue}
         {...CONFIRM[pickConfirm]}
-        onConfirm={pickConfirm === "save" ? () => onSave() : onDiscard}
+        onConfirm={pickConfirm === "leave" ? onDiscard : () => onSave()}
       />
     </FormLayout>
   );

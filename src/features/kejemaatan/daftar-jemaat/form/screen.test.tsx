@@ -168,14 +168,22 @@ describe("konfirmasi sebelum simpan", () => {
     fireEvent.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() =>
-      expect(screen.getByText("Apakah Anda Ingin Simpan ?")).toBeTruthy(),
+      expect(
+        screen.getByText(
+          "Apakah Anda ingin menyimpan perubahan data jemaat ini?",
+        ),
+      ).toBeTruthy(),
     );
     expect(screen.getByText("Konfirmasi Tindakan")).toBeTruthy();
 
     fireEvent.click(screen.getByRole("button", { name: "Tidak" }));
 
     await new Promise((resolve) => setTimeout(resolve, 300));
-    expect(screen.queryByText("Apakah Anda Ingin Simpan ?")).toBeNull();
+    expect(
+      screen.queryByText(
+        "Apakah Anda ingin menyimpan perubahan data jemaat ini?",
+      ),
+    ).toBeNull();
     expect(saves).toEqual([]);
     expect(replaced).toEqual([]);
   });
@@ -187,7 +195,7 @@ describe("konfirmasi sebelum simpan", () => {
     fireEvent.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(document.activeElement?.id).toBe("name"));
-    expect(screen.queryByText("Apakah Anda Ingin Simpan ?")).toBeNull();
+    expect(screen.queryByText(/Apakah Anda ingin menyimpan/)).toBeNull();
   });
 });
 
