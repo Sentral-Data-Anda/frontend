@@ -86,77 +86,119 @@ describe("gerbang izin rute form", () => {
   });
 });
 
-describe("kembali ke daftar setelah simpan (test wajib 8)", () => {
-  const detail: JemaatDetail = {
-    code: "JMT-0042",
-    name: "Maria Sitompul",
-    gender: "P",
-    birthPlace: "Bandung",
-    birthDate: "1990-05-12T00:00:00.000Z",
-    email: null,
-    phone: null,
-    bloodType: null,
-    lastEducation: null,
-    statusMarital: null,
-    professionId: null,
-    ethnicGroupId: null,
-    zoneChurchId: null,
-    codeInduk: null,
-    provincesCode: "32",
-    regenciesCode: "3273",
-    districtsCode: "327301",
-    villagesCode: "3273011001",
-    address: "Jl. Merdeka 10",
-    typeJemaat: "SIMPATISAN",
-    statusJemaat: "AKTIF",
-    keluargaId: null,
-    roleInFamily: null,
-    keluargaAsalId: null,
-    joinedAt: null,
-    additional: [],
-  };
+const DETAIL: JemaatDetail = {
+  code: "JMT-0042",
+  name: "Maria Sitompul",
+  gender: "P",
+  birthPlace: "Bandung",
+  birthDate: "1990-05-12T00:00:00.000Z",
+  email: null,
+  phone: null,
+  bloodType: null,
+  lastEducation: null,
+  statusMarital: null,
+  professionId: null,
+  ethnicGroupId: null,
+  zoneChurchId: null,
+  codeInduk: null,
+  provincesCode: "32",
+  regenciesCode: "3273",
+  districtsCode: "327301",
+  villagesCode: "3273011001",
+  address: "Jl. Merdeka 10",
+  typeJemaat: "SIMPATISAN",
+  statusJemaat: "AKTIF",
+  keluargaId: null,
+  roleInFamily: null,
+  keluargaAsalId: null,
+  joinedAt: null,
+  additional: [],
+};
 
-  test("membawa filter terakhir dan menandai baris yang baru disimpan", async () => {
-    const listUrl = `${JEMAAT_LIST_PATH}?status=TIDAK_AKTIF&page=3`;
-    window.sessionStorage.setItem(`list-return:${JEMAAT_LIST_PATH}`, listUrl);
+const onMockApi = () => {
+  const saves: string[] = [];
 
-    globalThis.fetch = (async (
-      input: RequestInfo | URL,
-      init?: RequestInit,
-    ) => {
-      const url = String(input);
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = String(input);
 
-      if (url === "/api/v1/jemaat/JMT-0042" && init?.method === "PUT") {
-        return Response.json({
-          status: 200,
-          message: "Tersimpan",
-          data: { code: "JMT-0042" },
-        });
-      }
-      if (url === "/api/v1/jemaat/JMT-0042") {
-        return Response.json({ status: 200, message: "OK", data: detail });
-      }
+    if (url === "/api/v1/jemaat/JMT-0042" && init?.method === "PUT") {
+      saves.push(url);
 
       return Response.json({
         status: 200,
-        message: "OK",
-        data: [],
-        totalData: 0,
-        totalPage: 0,
+        message: "Tersimpan",
+        data: { code: "JMT-0042" },
       });
-    }) as typeof fetch;
+    }
+    if (url === "/api/v1/jemaat/JMT-0042") {
+      return Response.json({ status: 200, message: "OK", data: DETAIL });
+    }
 
-    onRenderForm(["VIEW", "UPDATE"], "JMT-0042");
+    return Response.json({
+      status: 200,
+      message: "OK",
+      data: [],
+      totalData: 0,
+      totalPage: 0,
+    });
+  }) as typeof fetch;
 
-    await waitFor(() =>
-      expect(
-        (screen.getByLabelText("Nama lengkap") as HTMLInputElement).value,
-      ).toBe("Maria Sitompul"),
-    );
+  return saves;
+};
+
+const onRenderLoadedEdit = async () => {
+  onRenderForm(["VIEW", "UPDATE"], "JMT-0042");
+
+  await waitFor(() =>
+    expect(
+      (screen.getByLabelText("Nama lengkap") as HTMLInputElement).value,
+    ).toBe("Maria Sitompul"),
+  );
+};
+
+describe("konfirmasi sebelum simpan", () => {
+  test("Simpan membuka konfirmasi; Tidak menutupnya tanpa memanggil API", async () => {
+    const saves = onMockApi();
+    await onRenderLoadedEdit();
 
     fireEvent.click(screen.getByRole("button", { name: "Simpan" }));
 
+    await waitFor(() =>
+      expect(screen.getByText("Apakah Anda Ingin Simpan ?")).toBeTruthy(),
+    );
+    expect(screen.getByText("Konfirmasi Tindakan")).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: "Tidak" }));
+
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    expect(screen.queryByText("Apakah Anda Ingin Simpan ?")).toBeNull();
+    expect(saves).toEqual([]);
+    expect(replaced).toEqual([]);
+  });
+
+  test("form tidak valid: konfirmasi tidak muncul, fokus ke field galat pertama", async () => {
+    onMockApi();
+    onRenderForm(["VIEW", "CREATE"]);
+
+    fireEvent.click(screen.getByRole("button", { name: "Simpan" }));
+
+    await waitFor(() => expect(document.activeElement?.id).toBe("name"));
+    expect(screen.queryByText("Apakah Anda Ingin Simpan ?")).toBeNull();
+  });
+});
+
+describe("kembali ke daftar setelah simpan (test wajib 8)", () => {
+  test("membawa filter terakhir dan menandai baris yang baru disimpan", async () => {
+    const listUrl = `${JEMAAT_LIST_PATH}?status=TIDAK_AKTIF&page=3`;
+    window.sessionStorage.setItem(`list-return:${JEMAAT_LIST_PATH}`, listUrl);
+    const saves = onMockApi();
+    await onRenderLoadedEdit();
+
+    fireEvent.click(screen.getByRole("button", { name: "Simpan" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Ya" }));
+
     await waitFor(() => expect(replaced).toEqual([listUrl]));
+    expect(saves).toHaveLength(1);
     expect(
       window.sessionStorage.getItem(`list-focus:${JEMAAT_LIST_PATH}`),
     ).toBe("JMT-0042");

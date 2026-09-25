@@ -3,8 +3,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { TriangleAlert } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, type MouseEvent } from "react";
-import { useForm, useWatch } from "react-hook-form";
+import { useEffect, useState, type FormEvent, type MouseEvent } from "react";
+import { useForm, useWatch, type FieldErrors } from "react-hook-form";
 
 import { Button } from "@/components/common/control";
 import { useToast } from "@/components/common/feedback";
@@ -44,6 +44,23 @@ interface PropTypes {
   code?: string;
 }
 
+const CONFIRM = {
+  save: {
+    title: "Konfirmasi Tindakan",
+    description: "Apakah Anda Ingin Simpan ?",
+    confirmLabel: "Ya",
+    cancelLabel: "Tidak",
+    isDestructive: false,
+  },
+  leave: {
+    title: "Buang perubahan?",
+    description: "Isian yang belum disimpan akan hilang.",
+    confirmLabel: "Buang",
+    cancelLabel: "Lanjut mengisi",
+    isDestructive: true,
+  },
+} as const;
+
 export const JemaatFormScreen = (props: PropTypes) => {
   const { code } = props;
 
@@ -56,6 +73,7 @@ export const JemaatFormScreen = (props: PropTypes) => {
   const saveJemaat = useSaveJemaat(code);
   const detail = useJemaatDetail(code);
   const isConfirmOpen = useBoolean();
+  const [pickConfirm, setPickConfirm] = useState<keyof typeof CONFIRM>("save");
 
   const form = useForm<JemaatFormValues>({
     resolver: zodResolver(jemaatFormSchema),
@@ -69,8 +87,13 @@ export const JemaatFormScreen = (props: PropTypes) => {
   const watched = useWatch({ control: form.control });
   const missing = incompleteFields(watched);
 
+  const onOpenConfirm = (kind: keyof typeof CONFIRM) => {
+    setPickConfirm(kind);
+    isConfirmOpen.onTrue();
+  };
+
   const onLeave = () => {
-    if (isDirty) isConfirmOpen.onTrue();
+    if (isDirty) onOpenConfirm("leave");
     else router.replace(listReturn);
   };
 
@@ -78,32 +101,43 @@ export const JemaatFormScreen = (props: PropTypes) => {
     if (!isDirty) return;
 
     event.preventDefault();
-    isConfirmOpen.onTrue();
+    onOpenConfirm("leave");
   };
 
-  const onSave = form.handleSubmit(
-    async (values) => {
-      form.clearErrors("root");
-      setRejectedField(null);
+  const onDiscard = () => router.replace(listReturn);
 
-      try {
-        const saved = await saveJemaat.mutateAsync(
-          toJemaatPayload(values, isEdit),
-        );
+  const onInvalid = (errors: FieldErrors<JemaatFormValues>) => {
+    setRejectedField(null);
+    revealField(Object.keys(errors).find((key) => key !== "root"));
+  };
 
-        toast.add({ title: saved.message });
-        saveListFocus(JEMAAT_LIST_PATH, saved.data.code);
-        router.replace(listReturn);
-      } catch (error) {
-        applyServerError(error, form.setError, serverFieldError);
-        setRejectedField(firstErrorField(error));
-      }
-    },
-    (errors) => {
-      setRejectedField(null);
-      revealField(Object.keys(errors).find((key) => key !== "root"));
-    },
-  );
+  const onOpenSaveConfirm = () => {
+    setRejectedField(null);
+    onOpenConfirm("save");
+  };
+
+  const onConfirm = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    void form.handleSubmit(onOpenSaveConfirm, onInvalid)();
+  };
+
+  const onSave = form.handleSubmit(async (values) => {
+    form.clearErrors("root");
+    setRejectedField(null);
+
+    try {
+      const saved = await saveJemaat.mutateAsync(
+        toJemaatPayload(values, isEdit),
+      );
+
+      toast.add({ title: saved.message });
+      saveListFocus(JEMAAT_LIST_PATH, saved.data.code);
+      router.replace(listReturn);
+    } catch (error) {
+      applyServerError(error, form.setError, serverFieldError);
+      setRejectedField(firstErrorField(error));
+    }
+  }, onInvalid);
 
   useEffect(() => {
     if (detail.data) form.reset(toJemaatForm(detail.data));
@@ -132,7 +166,7 @@ export const JemaatFormScreen = (props: PropTypes) => {
 
   return (
     <FormLayout
-      onSubmit={onSave}
+      onSubmit={onConfirm}
       actions={
         <FormActions
           status={
@@ -210,12 +244,8 @@ export const JemaatFormScreen = (props: PropTypes) => {
       <ConfirmDialog
         isOpen={isConfirmOpen.value}
         onOpenChange={isConfirmOpen.setValue}
-        title="Buang perubahan?"
-        description="Isian yang belum disimpan akan hilang."
-        confirmLabel="Buang"
-        cancelLabel="Lanjut mengisi"
-        isDestructive
-        onConfirm={() => router.replace(listReturn)}
+        {...CONFIRM[pickConfirm]}
+        onConfirm={pickConfirm === "save" ? () => onSave() : onDiscard}
       />
     </FormLayout>
   );

@@ -78,7 +78,11 @@ atau `const [isX] = useState(…)` (keduanya ditegakkan lint).
 
 **[WAJIB-6] `onConfirm` hanya membuka dialog.**
 Ia tidak `async` dan tidak memanggil service. Yang menyimpan adalah `onSave` /
-`onDelete`, dipanggil dari tombol dialog.
+`onDelete`, dipanggil dari tombol dialog. Setiap form simpan lewat konfirmasi
+(contohnya form jemaat): `onConfirm` memanggil `event.preventDefault()`, menjalankan
+validasi RHF, dan hanya membuka `ConfirmDialog` bila valid. Teksnya pesan baku
+monorepo-apower-fe: judul "Konfirmasi Tindakan", isi "Apakah Anda Ingin Simpan ?",
+tombol "Ya" / "Tidak".
 
 **[WAJIB-7] Tanpa state turunan.**
 Nilai yang bisa dihitung dari props, state, atau data query dihitung saat render,
