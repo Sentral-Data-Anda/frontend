@@ -5,7 +5,7 @@ import { formatRupiahCompact } from "@/lib/format";
 
 import { usePayables } from "./data";
 
-export function KpiPayables() {
+export const KpiPayables = () => {
   const state = usePayables();
   const payable = state.rows.filter((row) => row.isPayable);
   const total = payable.reduce((sum, row) => sum + (row.amount ?? 0), 0);
@@ -19,4 +19,4 @@ export function KpiPayables() {
       isError={state.error !== null}
     />
   );
-}
+};

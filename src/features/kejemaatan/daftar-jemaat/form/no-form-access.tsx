@@ -7,7 +7,13 @@ import { PageHeader } from "@/components/layout";
 
 import { JEMAAT_LIST_PATH } from "../model";
 
-export function NoFormAccess({ isEdit }: { isEdit: boolean }) {
+interface PropTypes {
+  isEdit: boolean;
+}
+
+export const NoFormAccess = (props: PropTypes) => {
+  const { isEdit } = props;
+
   return (
     <div className="mx-auto w-full max-w-lg">
       <PageHeader
@@ -38,4 +44,4 @@ export function NoFormAccess({ isEdit }: { isEdit: boolean }) {
       </div>
     </div>
   );
-}
+};

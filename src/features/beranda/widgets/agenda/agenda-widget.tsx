@@ -29,7 +29,7 @@ const EVENT_HREF = menuHref(MENU.KEGIATAN, MENU.EVENT);
 
 const dayOf = (iso: string) => iso.slice(0, 10);
 
-export function AgendaWidget() {
+export const AgendaWidget = () => {
   const { now, days, ibadah, events, isEventShown } = useWeekAgenda();
   const [pickDay, setPickDay] = useState(days[0]);
 
@@ -155,4 +155,4 @@ export function AgendaWidget() {
       )}
     </DashboardCard>
   );
-}
+};

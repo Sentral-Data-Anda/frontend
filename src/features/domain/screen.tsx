@@ -8,7 +8,13 @@ import {
 } from "@/config/menu";
 import type { MenuNode } from "@/types/menu";
 
-export function DomainScreen({ domain }: { domain: MenuNode }) {
+interface PropTypes {
+  domain: MenuNode;
+}
+
+export const DomainScreen = (props: PropTypes) => {
+  const { domain } = props;
+
   return (
     <div className="pb-6">
       <PageHeader title={domain.name} backHref="/" />
@@ -29,4 +35,4 @@ export function DomainScreen({ domain }: { domain: MenuNode }) {
       </div>
     </div>
   );
-}
+};

@@ -14,7 +14,7 @@ import { JemaatListItemRow, jemaatTable } from "./list-item";
 
 const LIST_FILTERS = { wilayah: { api: "zone" } } satisfies ListFilterSchema;
 
-export function JemaatListScreen() {
+export const JemaatListScreen = () => {
   const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.DAFTAR_JEMAAT);
   const listParams = useListParams({ filters: LIST_FILTERS });
   const jemaatList = useJemaatList(listParams);
@@ -92,4 +92,4 @@ export function JemaatListScreen() {
       </DataList>
     </div>
   );
-}
+};

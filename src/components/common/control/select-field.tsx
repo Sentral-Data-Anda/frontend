@@ -14,17 +14,7 @@ export const FIELD_POPUP = `${MENU_POPUP} max-h-[min(18rem,var(--available-heigh
 
 export const FIELD_ITEM = `${MENU_ITEM} grid cursor-pointer grid-cols-[1rem_1fr]`;
 
-export function SelectField({
-  id,
-  value,
-  onValueChange,
-  options,
-  placeholder = "Pilih",
-  disabled = false,
-  emptyMessage = "Belum ada pilihan",
-  className,
-  ...aria
-}: {
+interface PropTypes {
   id?: string;
   value: string;
   onValueChange: (value: string) => void;
@@ -36,7 +26,21 @@ export function SelectField({
   "aria-invalid"?: boolean;
   "aria-describedby"?: string;
   "aria-label"?: string;
-}) {
+}
+
+export const SelectField = (props: PropTypes) => {
+  const {
+    id,
+    value,
+    onValueChange,
+    options,
+    placeholder = "Pilih",
+    disabled = false,
+    emptyMessage = "Belum ada pilihan",
+    className,
+    ...aria
+  } = props;
+
   return (
     <Select.Root
       items={options}
@@ -97,4 +101,4 @@ export function SelectField({
       </Select.Portal>
     </Select.Root>
   );
-}
+};

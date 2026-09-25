@@ -8,21 +8,25 @@ export type FieldControlProps = {
   "aria-describedby"?: string;
 };
 
-export function FormField({
-  label,
-  htmlFor,
-  error,
-  hint,
-  isHintWarning = false,
-  children,
-}: {
+interface PropTypes {
   label: ReactNode;
   htmlFor: string;
   error?: string;
   hint?: string;
   isHintWarning?: boolean;
   children: ReactElement<FieldControlProps>;
-}) {
+}
+
+export const FormField = (props: PropTypes) => {
+  const {
+    label,
+    htmlFor,
+    error,
+    hint,
+    isHintWarning = false,
+    children,
+  } = props;
+
   const message = error ?? hint;
   const messageId = message
     ? `${htmlFor}-${error ? "error" : "hint"}`
@@ -57,4 +61,4 @@ export function FormField({
       ) : null}
     </div>
   );
-}
+};

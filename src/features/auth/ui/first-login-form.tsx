@@ -21,7 +21,13 @@ const firstLoginSchema = z
 
 type FirstLoginForm = z.infer<typeof firstLoginSchema>;
 
-export function FirstLoginForm({ code }: { code: string }) {
+interface PropTypes {
+  code: string;
+}
+
+export const FirstLoginForm = (props: PropTypes) => {
+  const { code } = props;
+
   const router = useRouter();
 
   const {
@@ -99,4 +105,4 @@ export function FirstLoginForm({ code }: { code: string }) {
       </Button>
     </form>
   );
-}
+};

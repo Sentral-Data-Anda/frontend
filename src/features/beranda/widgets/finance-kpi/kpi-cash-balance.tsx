@@ -5,7 +5,7 @@ import { formatRupiahCompact } from "@/lib/format";
 
 import { DUMMY_CASH_ACCOUNTS, DUMMY_CASH_RUNWAY_MONTHS } from "../../fixtures";
 
-export function KpiCashBalance() {
+export const KpiCashBalance = () => {
   const total = DUMMY_CASH_ACCOUNTS.reduce((sum, row) => sum + row.amount, 0);
 
   return (
@@ -16,4 +16,4 @@ export function KpiCashBalance() {
       isDummy
     />
   );
-}
+};

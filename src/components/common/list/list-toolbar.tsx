@@ -1,14 +1,14 @@
 import type { ReactNode } from "react";
 
-export function ListToolbar({
-  search,
-  picker,
-  filters,
-}: {
+interface PropTypes {
   search: ReactNode;
   picker?: ReactNode;
   filters?: ReactNode;
-}) {
+}
+
+export const ListToolbar = (props: PropTypes) => {
+  const { search, picker, filters } = props;
+
   if (!picker) {
     return (
       <div className="@container px-gutter pb-4">
@@ -36,4 +36,4 @@ export function ListToolbar({
       </div>
     </div>
   );
-}
+};

@@ -26,7 +26,7 @@ const MONTH_LABEL = [
   "Des",
 ];
 
-export function IncomeExpenseChart() {
+export const IncomeExpenseChart = () => {
   const today = toDateKey(new Date());
   const now = useNow();
   const year = now ? toDateKey(now).slice(0, 4) : "";
@@ -93,4 +93,4 @@ export function IncomeExpenseChart() {
       </table>
     </DashboardCard>
   );
-}
+};

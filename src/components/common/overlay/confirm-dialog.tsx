@@ -4,16 +4,7 @@ import { AlertDialog } from "@base-ui/react/alert-dialog";
 
 import { Button } from "@/components/ui";
 
-export function ConfirmDialog({
-  isOpen,
-  onOpenChange,
-  title,
-  description,
-  confirmLabel,
-  cancelLabel = "Batal",
-  isDestructive = false,
-  onConfirm,
-}: {
+interface PropTypes {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
   title: string;
@@ -22,7 +13,20 @@ export function ConfirmDialog({
   cancelLabel?: string;
   isDestructive?: boolean;
   onConfirm: () => void;
-}) {
+}
+
+export const ConfirmDialog = (props: PropTypes) => {
+  const {
+    isOpen,
+    onOpenChange,
+    title,
+    description,
+    confirmLabel,
+    cancelLabel = "Batal",
+    isDestructive = false,
+    onConfirm,
+  } = props;
+
   return (
     <AlertDialog.Root open={isOpen} onOpenChange={onOpenChange}>
       <AlertDialog.Portal>
@@ -61,4 +65,4 @@ export function ConfirmDialog({
       </AlertDialog.Portal>
     </AlertDialog.Root>
   );
-}
+};

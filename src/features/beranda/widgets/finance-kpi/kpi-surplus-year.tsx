@@ -7,7 +7,7 @@ import { useSurplusDefisit } from "../../api";
 
 import { useRanges } from "./data";
 
-export function KpiSurplusYear() {
+export const KpiSurplusYear = () => {
   const ranges = useRanges();
   const query = useSurplusDefisit(ranges.yearStart, ranges.today);
   const surplus = query.data?.surplus;
@@ -25,4 +25,4 @@ export function KpiSurplusYear() {
       isError={query.isError}
     />
   );
-}
+};

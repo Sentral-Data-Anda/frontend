@@ -14,7 +14,7 @@ import { useWeekBirthdays } from "./data";
 
 const REPORT_JEMAAT_HREF = menuHref(MENU.KEJEMAATAN, MENU.REPORT_JEMAAT);
 
-export function BirthdaysWidget() {
+export const BirthdaysWidget = () => {
   const { days, query } = useWeekBirthdays();
   const items = query.data;
 
@@ -53,4 +53,4 @@ export function BirthdaysWidget() {
       )}
     </DashboardCard>
   );
-}
+};

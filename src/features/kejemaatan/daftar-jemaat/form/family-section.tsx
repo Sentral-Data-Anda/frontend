@@ -13,13 +13,14 @@ import { type JemaatForm, optionsOf } from "./section";
 
 const ROLE_OPTIONS = optionsOf(ROLE_IN_FAMILY_LABEL);
 
-export function FamilySection({
-  form,
-  isDisabled,
-}: {
+interface PropTypes {
   form: JemaatForm;
   isDisabled: boolean;
-}) {
+}
+
+export const FamilySection = (props: PropTypes) => {
+  const { form, isDisabled } = props;
+
   const keluargaId = useWatch({ control: form.control, name: "keluargaId" });
   const keluarga = useKeluargaOptions();
 
@@ -90,4 +91,4 @@ export function FamilySection({
       </ControlField>
     </FormSection>
   );
-}
+};

@@ -4,7 +4,7 @@ import { KpiCell } from "@/components/common/dashboard";
 
 import { useWeekBirthdays } from "./data";
 
-export function KpiBirthdays() {
+export const KpiBirthdays = () => {
   const { query } = useWeekBirthdays();
 
   return (
@@ -16,4 +16,4 @@ export function KpiBirthdays() {
       isError={query.error !== null}
     />
   );
-}
+};

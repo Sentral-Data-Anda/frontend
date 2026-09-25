@@ -11,7 +11,7 @@ import { formatRupiah, formatRupiahCompact } from "@/lib/format";
 import { amountOf, useMyOfferings } from "../../api";
 import { formatDayMonth, formatMonthYear, toDateKey } from "../../model";
 
-export function MyOfferingsWidget() {
+export const MyOfferingsWidget = () => {
   const year = toDateKey(new Date()).slice(0, 4);
   const query = useMyOfferings(year);
   const data = query.data;
@@ -51,4 +51,4 @@ export function MyOfferingsWidget() {
       )}
     </DashboardCard>
   );
-}
+};

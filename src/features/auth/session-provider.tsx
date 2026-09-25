@@ -6,15 +6,16 @@ import type { Session } from "./types";
 
 const SessionContext = createContext<Session | null>(null);
 
-export function SessionProvider({
-  session,
-  children,
-}: {
+interface PropTypes {
   session: Session;
   children: React.ReactNode;
-}) {
-  return <SessionContext value={session}>{children}</SessionContext>;
 }
+
+export const SessionProvider = (props: PropTypes) => {
+  const { session, children } = props;
+
+  return <SessionContext value={session}>{children}</SessionContext>;
+};
 
 export function useSession(): Session {
   const session = useContext(SessionContext);

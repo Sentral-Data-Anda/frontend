@@ -19,7 +19,7 @@ export const markAllRead = (list: Notification[]): Notification[] =>
 export const countUnread = (list: Notification[]): number =>
   list.filter((item) => !item.isRead).length;
 
-export function NotificationBell() {
+export const NotificationBell = () => {
   const isSheetOpen = useBoolean();
 
   const [notifications, setNotifications] = useState(DUMMY_NOTIFICATIONS);
@@ -102,4 +102,4 @@ export function NotificationBell() {
       </BottomSheet>
     </>
   );
-}
+};

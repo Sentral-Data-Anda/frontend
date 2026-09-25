@@ -28,13 +28,14 @@ const EDUCATION_OPTIONS: SelectOption[] = [
   ...optionsOf(LAST_EDUCATION_LABEL),
 ];
 
-export function SocialSection({
-  form,
-  isDisabled,
-}: {
+interface PropTypes {
   form: JemaatForm;
   isDisabled: boolean;
-}) {
+}
+
+export const SocialSection = (props: PropTypes) => {
+  const { form, isDisabled } = props;
+
   const isAnggota =
     useWatch({ control: form.control, name: "typeJemaat" }) === "ANGGOTA";
   const profession = useDdlOptions("profession");
@@ -133,4 +134,4 @@ export function SocialSection({
       </ControlField>
     </FormSection>
   );
-}
+};

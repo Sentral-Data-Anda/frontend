@@ -5,7 +5,7 @@ import { formatRupiah, formatRupiahCompact } from "@/lib/format";
 
 import { DUMMY_CASH_ACCOUNTS } from "../../fixtures";
 
-export function CashAccountsWidget() {
+export const CashAccountsWidget = () => {
   const total = DUMMY_CASH_ACCOUNTS.reduce((sum, row) => sum + row.amount, 0);
 
   return (
@@ -43,4 +43,4 @@ export function CashAccountsWidget() {
       </div>
     </DashboardCard>
   );
-}
+};

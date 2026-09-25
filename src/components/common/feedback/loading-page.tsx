@@ -1,6 +1,6 @@
 import styles from "./loading-page.module.css";
 
-export function LoadingPage() {
+export const LoadingPage = () => {
   return (
     <div
       role="status"
@@ -16,4 +16,4 @@ export function LoadingPage() {
       <span className="sr-only">Memuat…</span>
     </div>
   );
-}
+};

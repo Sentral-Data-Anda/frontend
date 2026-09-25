@@ -23,15 +23,7 @@ export type StringField = {
   disabled?: boolean;
 };
 
-export function ControlField({
-  control,
-  name,
-  label,
-  hint,
-  isHintWarning = false,
-  isOptional = false,
-  children,
-}: {
+interface PropTypes {
   control: Control<JemaatFormValues>;
   name: FieldName;
   label: string;
@@ -39,7 +31,19 @@ export function ControlField({
   isHintWarning?: boolean;
   isOptional?: boolean;
   children: (field: StringField) => ReactElement<FieldControlProps>;
-}) {
+}
+
+export const ControlField = (props: PropTypes) => {
+  const {
+    control,
+    name,
+    label,
+    hint,
+    isHintWarning = false,
+    isOptional = false,
+    children,
+  } = props;
+
   return (
     <Controller
       control={control}
@@ -67,4 +71,4 @@ export function ControlField({
       )}
     />
   );
-}
+};

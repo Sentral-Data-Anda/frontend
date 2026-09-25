@@ -3,19 +3,17 @@
 import { X } from "lucide-react";
 import { useEffect, useRef } from "react";
 
-export function BottomSheet({
-  isOpen,
-  title,
-  subtitle,
-  onClose,
-  children,
-}: {
+interface PropTypes {
   isOpen: boolean;
   title: string;
   subtitle?: string;
   onClose: () => void;
   children: React.ReactNode;
-}) {
+}
+
+export const BottomSheet = (props: PropTypes) => {
+  const { isOpen, title, subtitle, onClose, children } = props;
+
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   const onBackdropClick = (event: React.MouseEvent<HTMLDialogElement>) => {
@@ -74,4 +72,4 @@ export function BottomSheet({
       </div>
     </dialog>
   );
-}
+};

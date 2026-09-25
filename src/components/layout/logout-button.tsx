@@ -15,7 +15,13 @@ export async function logout(): Promise<void> {
   }
 }
 
-export function LogoutButton({ className }: { className?: string }) {
+interface PropTypes {
+  className?: string;
+}
+
+export const LogoutButton = (props: PropTypes) => {
+  const { className } = props;
+
   const isPending = useBoolean();
 
   const onLogout = () => {
@@ -38,4 +44,4 @@ export function LogoutButton({ className }: { className?: string }) {
       <LogOut className="size-4" aria-hidden />
     </Button>
   );
-}
+};

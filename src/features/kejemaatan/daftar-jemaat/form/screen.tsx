@@ -40,7 +40,13 @@ import { NoFormAccess } from "./no-form-access";
 import { RiwayatSection } from "./riwayat-fields";
 import { SocialSection } from "./social-section";
 
-export function JemaatFormScreen({ code }: { code?: string }) {
+interface PropTypes {
+  code?: string;
+}
+
+export const JemaatFormScreen = (props: PropTypes) => {
+  const { code } = props;
+
   const router = useRouter();
   const toast = useToast();
   const isEdit = Boolean(code);
@@ -213,7 +219,7 @@ export function JemaatFormScreen({ code }: { code?: string }) {
       />
     </FormLayout>
   );
-}
+};
 
 function revealField(field: string | null | undefined) {
   if (!field) return;

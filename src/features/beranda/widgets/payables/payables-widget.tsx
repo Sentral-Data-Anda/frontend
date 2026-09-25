@@ -22,7 +22,7 @@ const COLUMNS = [
   { label: "Status", width: "1fr", align: "right" as const },
 ];
 
-export function PayablesWidget() {
+export const PayablesWidget = () => {
   const state = usePayables();
   const rows = state.rows.slice(0, MAX_ROWS);
 
@@ -94,4 +94,4 @@ export function PayablesWidget() {
       )}
     </DashboardCard>
   );
-}
+};

@@ -1,4 +1,4 @@
-export function LoadingGlobal() {
+export const LoadingGlobal = () => {
   return (
     <div
       role="status"
@@ -9,4 +9,4 @@ export function LoadingGlobal() {
       <span className="sr-only">Memuat…</span>
     </div>
   );
-}
+};

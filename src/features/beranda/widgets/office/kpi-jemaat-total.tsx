@@ -4,7 +4,7 @@ import { KpiCell } from "@/components/common/dashboard";
 
 import { useJemaatStats } from "../../api";
 
-export function KpiJemaatTotal() {
+export const KpiJemaatTotal = () => {
   const query = useJemaatStats();
 
   return (
@@ -20,4 +20,4 @@ export function KpiJemaatTotal() {
       isError={query.isError}
     />
   );
-}
+};

@@ -31,7 +31,7 @@ const COLUMNS = [
   { label: "Ruang", width: "1.2fr", align: "right" as const },
 ];
 
-export function AgendaWeekWidget() {
+export const AgendaWeekWidget = () => {
   const [offset, setOffset] = useState(0);
   const today = toDateKey(new Date());
   const start = addDaysKey(today, offset * 7);
@@ -124,4 +124,4 @@ export function AgendaWeekWidget() {
       )}
     </DashboardCard>
   );
-}
+};

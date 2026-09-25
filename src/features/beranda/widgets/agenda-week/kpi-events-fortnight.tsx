@@ -7,7 +7,7 @@ import { addDaysKey, toDateKey } from "../../model";
 
 import { dayOf } from "./data";
 
-export function KpiEventsFortnight() {
+export const KpiEventsFortnight = () => {
   const today = toDateKey(new Date());
   const events = useEventRange(today, addDaysKey(today, 13), true);
   const todayCount = (events.data ?? []).filter(
@@ -23,4 +23,4 @@ export function KpiEventsFortnight() {
       isError={events.isError}
     />
   );
-}
+};

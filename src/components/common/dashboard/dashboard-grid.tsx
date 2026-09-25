@@ -17,19 +17,17 @@ const MAIN_STACKED =
 const MAIN_SPLIT =
   "@min-[120rem]:has-[>*:nth-child(2)]:grid-cols-2 @min-[150rem]:has-[>*:nth-child(3)]:grid-cols-3 @min-[120rem]:[&>*]:mx-auto @min-[120rem]:[&>*]:w-full @min-[120rem]:[&>*]:max-w-[90rem]";
 
-export function DashboardGrid({
-  kpi,
-  between,
-  main,
-  side,
-  isStacked = false,
-}: {
+interface PropTypes {
   kpi?: ReactNode;
   between?: ReactNode;
   main: ReactNode[];
   side: ReactNode[];
   isStacked?: boolean;
-}) {
+}
+
+export const DashboardGrid = (props: PropTypes) => {
+  const { kpi, between, main, side, isStacked = false } = props;
+
   const isSplit = !isStacked && main.length > 0 && side.length > 0;
 
   return (
@@ -66,4 +64,4 @@ export function DashboardGrid({
       </div>
     </div>
   );
-}
+};

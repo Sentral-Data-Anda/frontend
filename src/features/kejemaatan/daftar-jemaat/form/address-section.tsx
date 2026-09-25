@@ -10,13 +10,14 @@ import { useDdlOptions } from "../api";
 import { ControlField } from "./control-field";
 import { type JemaatForm } from "./section";
 
-export function AddressSection({
-  form,
-  isDisabled,
-}: {
+interface PropTypes {
   form: JemaatForm;
   isDisabled: boolean;
-}) {
+}
+
+export const AddressSection = (props: PropTypes) => {
+  const { form, isDisabled } = props;
+
   const [provincesCode, regenciesCode, districtsCode] = useWatch({
     control: form.control,
     name: ["provincesCode", "regenciesCode", "districtsCode"],
@@ -148,4 +149,4 @@ export function AddressSection({
       </FormWide>
     </FormSection>
   );
-}
+};

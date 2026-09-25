@@ -16,7 +16,7 @@ import { useSession } from "@/features/auth";
 
 import { descriptionOf, searchModules } from "./model";
 
-export function PencarianScreen() {
+export const PencarianScreen = () => {
   const session = useSession();
 
   const [searchData, setSearchData] = useState("");
@@ -75,4 +75,4 @@ export function PencarianScreen() {
       </div>
     </div>
   );
-}
+};

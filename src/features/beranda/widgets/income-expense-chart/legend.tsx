@@ -1,6 +1,6 @@
 "use client";
 
-export function Legend() {
+export const Legend = () => {
   return (
     <span className="text-muted-foreground flex items-center gap-3 text-caption">
       <span className="flex items-center gap-1.5">
@@ -13,4 +13,4 @@ export function Legend() {
       </span>
     </span>
   );
-}
+};

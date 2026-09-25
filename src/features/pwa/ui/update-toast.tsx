@@ -2,11 +2,13 @@
 
 import { Button } from "@/components/common/control";
 
-type UpdateToastProps = {
+interface PropTypes {
   onApply: () => void;
-};
+}
 
-export function UpdateToast({ onApply }: UpdateToastProps) {
+export const UpdateToast = (props: PropTypes) => {
+  const { onApply } = props;
+
   return (
     <div
       role="status"
@@ -24,4 +26,4 @@ export function UpdateToast({ onApply }: UpdateToastProps) {
       </Button>
     </div>
   );
-}
+};

@@ -9,10 +9,11 @@ import { cn } from "@/lib/utils";
 
 import { Input } from "./input";
 
-export function PasswordInput({
-  className,
-  ...props
-}: Omit<ComponentProps<typeof Input>, "type">) {
+interface PropTypes extends Omit<ComponentProps<typeof Input>, "type"> {}
+
+export const PasswordInput = (props: PropTypes) => {
+  const { className, ...rest } = props;
+
   const isVisible = useBoolean();
 
   return (
@@ -21,7 +22,7 @@ export function PasswordInput({
         icon={<Lock />}
         type={isVisible.value ? "text" : "password"}
         className={cn("pr-control", className)}
-        {...props}
+        {...rest}
       />
       <Button
         type="button"
@@ -38,4 +39,4 @@ export function PasswordInput({
       </Button>
     </div>
   );
-}
+};

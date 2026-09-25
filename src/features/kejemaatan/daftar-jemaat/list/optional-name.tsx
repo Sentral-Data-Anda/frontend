@@ -1,10 +1,11 @@
-export function OptionalName({
-  name,
-  empty,
-}: {
+interface PropTypes {
   name?: string;
   empty: string;
-}) {
+}
+
+export const OptionalName = (props: PropTypes) => {
+  const { name, empty } = props;
+
   return name ? (
     <span className="block truncate" title={name}>
       {name}
@@ -15,4 +16,4 @@ export function OptionalName({
       <span className="sr-only">{empty}</span>
     </span>
   );
-}
+};

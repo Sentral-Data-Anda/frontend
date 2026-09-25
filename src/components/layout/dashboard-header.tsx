@@ -4,19 +4,17 @@ import { buttonVariants } from "@/components/common/control";
 
 export type HeaderAction = { label: string; href: string };
 
-export function DashboardHeader({
-  title,
-  subtitle,
-  actions,
-  picker,
-  trailing,
-}: {
+interface PropTypes {
   title: string;
   subtitle: string;
   actions: HeaderAction[];
   picker?: React.ReactNode;
   trailing?: React.ReactNode;
-}) {
+}
+
+export const DashboardHeader = (props: PropTypes) => {
+  const { title, subtitle, actions, picker, trailing } = props;
+
   return (
     <header className="flex items-center gap-3 px-gutter lg:pt-4">
       <div className="min-w-0 flex-1">
@@ -55,4 +53,4 @@ export function DashboardHeader({
       ) : null}
     </header>
   );
-}
+};

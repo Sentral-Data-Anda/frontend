@@ -13,15 +13,15 @@ const TONE = {
   },
 } as const;
 
-export function AppIdentity({
-  role,
-  tone = "canvas",
-  isCompact = false,
-}: {
+interface PropTypes {
   role: string;
   tone?: keyof typeof TONE;
   isCompact?: boolean;
-}) {
+}
+
+export const AppIdentity = (props: PropTypes) => {
+  const { role, tone = "canvas", isCompact = false } = props;
+
   return (
     <div className="flex min-w-0 items-center gap-3">
       <LogoMark className={TONE[tone].mark} />
@@ -50,4 +50,4 @@ export function AppIdentity({
       </div>
     </div>
   );
-}
+};

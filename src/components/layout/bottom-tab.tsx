@@ -55,7 +55,7 @@ export function isTabActive(href: string, pathname: string): boolean {
   return href === "/" ? pathname === "/" : pathname.startsWith(href);
 }
 
-export function BottomTab() {
+export const BottomTab = () => {
   const session = useSession();
   const pathname = usePathname();
 
@@ -93,4 +93,4 @@ export function BottomTab() {
       </ul>
     </nav>
   );
-}
+};

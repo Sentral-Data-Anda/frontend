@@ -1,6 +1,12 @@
 import { cn } from "@/lib/utils";
 
-export function AuthWaves({ className }: { className?: string }) {
+interface PropTypes {
+  className?: string;
+}
+
+export const AuthWaves = (props: PropTypes) => {
+  const { className } = props;
+
   return (
     <svg
       viewBox="0 0 400 160"
@@ -21,4 +27,4 @@ export function AuthWaves({ className }: { className?: string }) {
       <path d="M0 0h400v14c-50 16-100 20-150 6S150-2 100 12 30 50 0 60Z" />
     </svg>
   );
-}
+};

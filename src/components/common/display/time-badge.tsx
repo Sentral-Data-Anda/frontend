@@ -1,12 +1,13 @@
 import { cn } from "@/lib/utils";
 
-export function TimeBadge({
-  time,
-  highlighted = false,
-}: {
+interface PropTypes {
   time: string;
   highlighted?: boolean;
-}) {
+}
+
+export const TimeBadge = (props: PropTypes) => {
+  const { time, highlighted = false } = props;
+
   const [hour, minute = "00"] = time.split(":");
 
   return (
@@ -23,4 +24,4 @@ export function TimeBadge({
       </span>
     </span>
   );
-}
+};

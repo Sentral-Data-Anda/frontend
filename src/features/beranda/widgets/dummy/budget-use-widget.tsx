@@ -5,7 +5,7 @@ import { formatRupiahCompact } from "@/lib/format";
 
 import { DUMMY_BUDGET_USE } from "../../fixtures";
 
-export function BudgetUseWidget() {
+export const BudgetUseWidget = () => {
   return (
     <DashboardCard title="Realisasi vs pagu · komisi" isDummy>
       <ul aria-label="Realisasi vs pagu per komisi" className="space-y-3.5">
@@ -25,4 +25,4 @@ export function BudgetUseWidget() {
       </ul>
     </DashboardCard>
   );
-}
+};

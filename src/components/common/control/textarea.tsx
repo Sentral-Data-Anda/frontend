@@ -3,11 +3,11 @@ import type { ComponentProps } from "react";
 import { inputVariants } from "@/components/ui";
 import { cn } from "@/lib/utils";
 
-export function Textarea({
-  className,
-  rows = 3,
-  ...props
-}: ComponentProps<"textarea">) {
+interface PropTypes extends ComponentProps<"textarea"> {}
+
+export const Textarea = (props: PropTypes) => {
+  const { className, rows = 3, ...rest } = props;
+
   return (
     <textarea
       data-slot="textarea"
@@ -17,7 +17,7 @@ export function Textarea({
         "field-sizing-content h-auto min-h-16 resize-y py-1.5",
         className,
       )}
-      {...props}
+      {...rest}
     />
   );
-}
+};

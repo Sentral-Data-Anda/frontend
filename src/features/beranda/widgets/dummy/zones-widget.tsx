@@ -4,7 +4,7 @@ import { DashboardCard, ProgressBar } from "@/components/common/dashboard";
 
 import { DUMMY_ZONES } from "../../fixtures";
 
-export function ZonesWidget() {
+export const ZonesWidget = () => {
   const total = DUMMY_ZONES.reduce((sum, zone) => sum + zone.count, 0);
 
   return (
@@ -30,4 +30,4 @@ export function ZonesWidget() {
       </ul>
     </DashboardCard>
   );
-}
+};

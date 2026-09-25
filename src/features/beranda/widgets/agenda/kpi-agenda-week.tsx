@@ -4,7 +4,7 @@ import { KpiCell } from "@/components/common/dashboard";
 
 import { useWeekAgenda } from "./data";
 
-export function KpiAgendaWeek() {
+export const KpiAgendaWeek = () => {
   const { ibadah, events, isEventShown } = useWeekAgenda();
   const isLoading = ibadah.isPending || (isEventShown && events.isPending);
   const count = (ibadah.data?.length ?? 0) + (events.data?.length ?? 0);
@@ -17,4 +17,4 @@ export function KpiAgendaWeek() {
       isLoading={isLoading}
     />
   );
-}
+};

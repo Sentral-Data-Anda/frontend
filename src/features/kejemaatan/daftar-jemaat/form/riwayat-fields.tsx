@@ -29,15 +29,15 @@ const SACRAMENT_OPTIONS = Object.entries(SACRAMENT_TYPE_LABEL).map(
   ([value, label]) => ({ value, label }),
 );
 
-export function RiwayatSection({
-  form,
-  isDisabled,
-  isEdit,
-}: {
+interface PropTypes {
   form: JemaatForm;
   isDisabled: boolean;
   isEdit: boolean;
-}) {
+}
+
+export const RiwayatSection = (props: PropTypes) => {
+  const { form, isDisabled, isEdit } = props;
+
   const rows = useFieldArray({ control: form.control, name: "additional" });
 
   if (isEdit) {
@@ -211,4 +211,4 @@ export function RiwayatSection({
       </FormWide>
     </FormSection>
   );
-}
+};

@@ -2,19 +2,23 @@ import { Inbox } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
-export function EmptyState({
-  title = "Belum ada data",
-  description,
-  action,
-  isCompact = false,
-  className,
-}: {
+interface PropTypes {
   title?: string;
   description?: string;
   action?: React.ReactNode;
   isCompact?: boolean;
   className?: string;
-}) {
+}
+
+export const EmptyState = (props: PropTypes) => {
+  const {
+    title = "Belum ada data",
+    description,
+    action,
+    isCompact = false,
+    className,
+  } = props;
+
   return (
     <div
       className={cn(
@@ -50,4 +54,4 @@ export function EmptyState({
       {action ? <div className="mt-4">{action}</div> : null}
     </div>
   );
-}
+};

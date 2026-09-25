@@ -3,12 +3,14 @@ import type { ComponentProps, ReactNode } from "react";
 import { Input as InputPrimitive } from "@/components/ui";
 import { cn } from "@/lib/utils";
 
-export function Input({
-  icon,
-  className,
-  ...props
-}: ComponentProps<typeof InputPrimitive> & { icon?: ReactNode }) {
-  if (!icon) return <InputPrimitive className={className} {...props} />;
+interface PropTypes extends ComponentProps<typeof InputPrimitive> {
+  icon?: ReactNode;
+}
+
+export const Input = (props: PropTypes) => {
+  const { icon, className, ...rest } = props;
+
+  if (!icon) return <InputPrimitive className={className} {...rest} />;
 
   return (
     <div className="relative">
@@ -18,7 +20,7 @@ export function Input({
       >
         {icon}
       </span>
-      <InputPrimitive className={cn("pl-8", className)} {...props} />
+      <InputPrimitive className={cn("pl-8", className)} {...rest} />
     </div>
   );
-}
+};

@@ -8,13 +8,14 @@ import { normalizePhone } from "../model";
 import { ControlField } from "./control-field";
 import { type JemaatForm } from "./section";
 
-export function ContactSection({
-  form,
-  isDisabled,
-}: {
+interface PropTypes {
   form: JemaatForm;
   isDisabled: boolean;
-}) {
+}
+
+export const ContactSection = (props: PropTypes) => {
+  const { form, isDisabled } = props;
+
   return (
     <FormSection
       legend="Kontak"
@@ -50,4 +51,4 @@ export function ContactSection({
       </ControlField>
     </FormSection>
   );
-}
+};

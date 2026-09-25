@@ -5,7 +5,7 @@ import { formatRupiahCompact } from "@/lib/format";
 
 import { useMonthFlow } from "./data";
 
-export function KpiIncome() {
+export const KpiIncome = () => {
   const { query, previous, deltaOf } = useMonthFlow();
 
   return (
@@ -17,4 +17,4 @@ export function KpiIncome() {
       isError={query.isError}
     />
   );
-}
+};

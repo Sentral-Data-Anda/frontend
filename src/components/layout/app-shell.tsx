@@ -4,7 +4,13 @@ import { BottomTab } from "./bottom-tab";
 import { Sidebar } from "./sidebar";
 import { SIDEBAR_COOKIE, isSidebarCollapsed } from "./sidebar-collapse";
 
-export async function AppShell({ children }: { children: React.ReactNode }) {
+interface PropTypes {
+  children: React.ReactNode;
+}
+
+export const AppShell = async (props: PropTypes) => {
+  const { children } = props;
+
   const cookieStore = await cookies();
   const isCollapsed = isSidebarCollapsed(
     cookieStore.get(SIDEBAR_COOKIE)?.value,
@@ -19,4 +25,4 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
       <BottomTab />
     </div>
   );
-}
+};

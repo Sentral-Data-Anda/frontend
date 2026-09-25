@@ -20,13 +20,14 @@ const TYPE_OPTIONS = optionsOf(TYPE_JEMAAT_LABEL);
 
 const STATUS_OPTIONS = optionsOf(STATUS_JEMAAT_LABEL);
 
-export function MembershipSection({
-  form,
-  isDisabled,
-}: {
+interface PropTypes {
   form: JemaatForm;
   isDisabled: boolean;
-}) {
+}
+
+export const MembershipSection = (props: PropTypes) => {
+  const { form, isDisabled } = props;
+
   const isAnggota =
     useWatch({ control: form.control, name: "typeJemaat" }) === "ANGGOTA";
   const zoneChurch = useDdlOptions("zone-church");
@@ -128,4 +129,4 @@ export function MembershipSection({
       </ControlField>
     </FormSection>
   );
-}
+};

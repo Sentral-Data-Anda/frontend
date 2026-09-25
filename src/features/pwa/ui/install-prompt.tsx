@@ -4,7 +4,7 @@ import { Button } from "@/components/common/control";
 
 import { useInstallPrompt } from "../hooks/use-install-prompt";
 
-export function InstallPrompt() {
+export const InstallPrompt = () => {
   const { isPromptAvailable, isManualGuideNeeded, promptInstall } =
     useInstallPrompt();
 
@@ -39,4 +39,4 @@ export function InstallPrompt() {
   }
 
   return null;
-}
+};

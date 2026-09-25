@@ -14,7 +14,7 @@ import { usePendingLoans } from "./data";
 
 const LOAN_ROOM_HREF = menuHref(MENU.FASILITAS, MENU.PEMINJAMAN_RUANG);
 
-export function LoanRoomsWidget() {
+export const LoanRoomsWidget = () => {
   const query = usePendingLoans();
   const items = query.data ?? [];
 
@@ -46,4 +46,4 @@ export function LoanRoomsWidget() {
       )}
     </DashboardCard>
   );
-}
+};

@@ -20,7 +20,7 @@ const CATEGORY_LABEL: Record<string, string> = {
   KEGIATAN: "Kegiatan",
 };
 
-export function AnnouncementsWidget() {
+export const AnnouncementsWidget = () => {
   const query = usePublicAnnouncements(4);
   const access = useMenuAccess(MENU.PENGUMUMAN);
   const items = query.data ?? [];
@@ -56,4 +56,4 @@ export function AnnouncementsWidget() {
       )}
     </DashboardCard>
   );
-}
+};

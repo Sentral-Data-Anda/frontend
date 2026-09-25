@@ -25,20 +25,7 @@ export type DateVariant = "dekat" | "lahir";
 
 const MIN_DEFAULT = "1900-01-01";
 
-export function DateField({
-  id,
-  value,
-  onValueChange,
-  variant = "dekat",
-  label = "Tanggal",
-  min = MIN_DEFAULT,
-  max,
-  hint = "Ketik dd/mm/yyyy, mis. 12/05/1990.",
-  isClearable = true,
-  disabled = false,
-  onBlur,
-  ...aria
-}: {
+interface PropTypes {
   id?: string;
   value: string;
   onValueChange: (value: string) => void;
@@ -52,7 +39,24 @@ export function DateField({
   onBlur?: () => void;
   "aria-invalid"?: boolean;
   "aria-describedby"?: string;
-}) {
+}
+
+export const DateField = (props: PropTypes) => {
+  const {
+    id,
+    value,
+    onValueChange,
+    variant = "dekat",
+    label = "Tanggal",
+    min = MIN_DEFAULT,
+    max,
+    hint = "Ketik dd/mm/yyyy, mis. 12/05/1990.",
+    isClearable = true,
+    disabled = false,
+    onBlur,
+    ...aria
+  } = props;
+
   const today = todayJakarta();
 
   const upperBound = max ?? today;
@@ -235,7 +239,7 @@ export function DateField({
       ) : null}
     </div>
   );
-}
+};
 
 const CALENDAR_BUTTON =
   "text-muted-foreground hover:text-foreground focus-visible:ring-ring absolute inset-y-0 right-0 flex size-control cursor-pointer items-center justify-center rounded-control transition-colors outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50";

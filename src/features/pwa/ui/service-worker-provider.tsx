@@ -4,7 +4,7 @@ import { useServiceWorker } from "../hooks/use-service-worker";
 
 import { UpdateToast } from "./update-toast";
 
-export function ServiceWorkerProvider() {
+export const ServiceWorkerProvider = () => {
   const { updateReady, applyUpdate } = useServiceWorker();
 
   if (!updateReady) {
@@ -12,4 +12,4 @@ export function ServiceWorkerProvider() {
   }
 
   return <UpdateToast onApply={applyUpdate} />;
-}
+};

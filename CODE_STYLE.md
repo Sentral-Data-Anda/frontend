@@ -130,6 +130,34 @@ dan selalu dipakai bersama boleh tetap satu berkas, mis. `form-layout.tsx`
 (`FormLayout`, `FormSection`, `FormActions`), `data-list.tsx`, dan primitif
 `components/ui` bawaan shadcn.
 
+**[WAJIB-12] Bentuk komponen: arrow function + `interface PropTypes`.**
+Mengikuti monorepo-apower-fe. Props dibongkar di baris pertama badan, bukan di
+parameter:
+
+```tsx
+interface PropTypes {
+  form: JemaatForm;
+  isDisabled: boolean;
+}
+
+export const IdentitySection = (props: PropTypes) => {
+  const { form, isDisabled } = props;
+  …
+};
+```
+
+- Satu `PropTypes` per berkas (WAJIB-11 menjamin satu komponen per berkas).
+  Props turunan elemen memakai `extends`:
+  `interface PropTypes extends ComponentProps<"textarea"> {}`; sisa props diberi
+  nama `rest`, karena `props` sudah dipakai.
+- Ekspor bernama (`export const`), bukan `export default`: barrel memakai
+  `export *`, yang tidak membawa ekspor default.
+- Hook dan helper tetap boleh `function` biasa; aturan ini untuk komponen.
+- Di luar aturan ini, dengan alasannya: `components/ui/*` (bentuk bawaan shadcn,
+  ditimpa lagi saat `shadcn add`), dan berkas `components/**` yang berisi beberapa
+  komponen (pengecualian WAJIB-11) karena satu berkas tidak bisa memuat dua
+  `PropTypes`.
+
 ## Yang dipertahankan
 
 - Test bersebelahan dengan berkas yang diuji (`x.test.ts`).

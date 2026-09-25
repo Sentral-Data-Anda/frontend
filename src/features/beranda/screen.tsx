@@ -22,7 +22,13 @@ import { ViewPicker } from "./ui/view-picker";
 import { saveDashboardView, type DashboardView } from "./view";
 import { selectHeaderActions, selectWidgets } from "./widgets/registry";
 
-export function HomeScreen({ defaultView }: { defaultView?: DashboardView }) {
+interface PropTypes {
+  defaultView?: DashboardView;
+}
+
+export const HomeScreen = (props: PropTypes) => {
+  const { defaultView } = props;
+
   const session = useSession();
   const ibadahAccess = useMenuAccess(MENU.IBADAH);
   const [pickView, setPickView] = useState<DashboardView | undefined>(
@@ -105,4 +111,4 @@ export function HomeScreen({ defaultView }: { defaultView?: DashboardView }) {
       </div>
     </div>
   );
-}
+};

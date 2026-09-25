@@ -8,19 +8,17 @@ export type FilterChip = {
   value: string;
 };
 
-export function FilterChips({
-  options,
-  value,
-  onPick,
-  label,
-  className,
-}: {
+interface PropTypes {
   options: FilterChip[];
   value: string;
   onPick: (value: string) => void;
   label: string;
   className?: string;
-}) {
+}
+
+export const FilterChips = (props: PropTypes) => {
+  const { options, value, onPick, label, className } = props;
+
   return (
     <div
       role="group"
@@ -49,4 +47,4 @@ export function FilterChips({
       })}
     </div>
   );
-}
+};

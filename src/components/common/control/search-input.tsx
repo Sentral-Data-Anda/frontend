@@ -6,19 +6,17 @@ import { useEffect, useState } from "react";
 import { Input } from "@/components/ui";
 import { cn } from "@/lib/utils";
 
-export function SearchInput({
-  value,
-  onSearch,
-  label,
-  placeholder = "Cari",
-  className,
-}: {
+interface PropTypes {
   value: string;
   onSearch: (value: string) => void;
   label: string;
   placeholder?: string;
   className?: string;
-}) {
+}
+
+export const SearchInput = (props: PropTypes) => {
+  const { value, onSearch, label, placeholder = "Cari", className } = props;
+
   const [draftSearch, setDraftSearch] = useState(value);
 
   useEffect(() => {
@@ -48,4 +46,4 @@ export function SearchInput({
       />
     </div>
   );
-}
+};

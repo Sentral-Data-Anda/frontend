@@ -7,7 +7,7 @@ import { formatRupiah, formatRupiahCompact } from "@/lib/format";
 import { useIncomeByType } from "../../api";
 import { toDateKey } from "../../model";
 
-export function IncomeByTypeWidget() {
+export const IncomeByTypeWidget = () => {
   const today = toDateKey(new Date());
   const query = useIncomeByType(`${today.slice(0, 7)}-01`, today);
   const data = query.data;
@@ -36,4 +36,4 @@ export function IncomeByTypeWidget() {
       )}
     </DashboardCard>
   );
-}
+};

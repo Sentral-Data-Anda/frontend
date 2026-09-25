@@ -9,7 +9,7 @@ import {
 import { DUMMY_NEW_MEMBERS } from "../../fixtures";
 import { formatDayMonth } from "../../model";
 
-export function NewMembersWidget() {
+export const NewMembersWidget = () => {
   return (
     <DashboardCard title="Jemaat baru · bulan ini" isDummy>
       <DashboardList label="Jemaat baru bulan ini">
@@ -24,4 +24,4 @@ export function NewMembersWidget() {
       </DashboardList>
     </DashboardCard>
   );
-}
+};

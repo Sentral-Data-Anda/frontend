@@ -5,7 +5,7 @@ import { KpiCell } from "@/components/common/dashboard";
 import { useWaitingApprovals } from "../../api";
 import { daysSince } from "../../model";
 
-export function KpiWaitingApprovals() {
+export const KpiWaitingApprovals = () => {
   const query = useWaitingApprovals();
   const items = query.data?.data ?? [];
   const oldest = items[0];
@@ -23,4 +23,4 @@ export function KpiWaitingApprovals() {
       isError={query.isError}
     />
   );
-}
+};

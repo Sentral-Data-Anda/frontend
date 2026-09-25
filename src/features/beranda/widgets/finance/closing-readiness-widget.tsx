@@ -11,7 +11,7 @@ import { useDraftJournalCount, useFiscalPeriods } from "../../api";
 import { DUMMY_CLOSING_CHECKS, SHOW_DUMMY } from "../../fixtures";
 import { monthOf, toDateKey } from "../../model";
 
-export function ClosingReadinessWidget() {
+export const ClosingReadinessWidget = () => {
   const now = new Date();
   const month = monthOf(now);
   const year = Number(toDateKey(now).slice(0, 4));
@@ -109,4 +109,4 @@ export function ClosingReadinessWidget() {
       </ul>
     </DashboardCard>
   );
-}
+};

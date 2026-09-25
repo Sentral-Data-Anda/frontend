@@ -1,6 +1,12 @@
 import { cn } from "@/lib/utils";
 
-export function Avatar({ label }: { label: string }) {
+interface PropTypes {
+  label: string;
+}
+
+export const Avatar = (props: PropTypes) => {
+  const { label } = props;
+
   return (
     <span
       aria-hidden
@@ -12,4 +18,4 @@ export function Avatar({ label }: { label: string }) {
       {label.trim().charAt(0).toUpperCase() || "?"}
     </span>
   );
-}
+};

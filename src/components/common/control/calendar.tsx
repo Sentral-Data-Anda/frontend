@@ -32,17 +32,7 @@ const monthTitle = (iso: string): string =>
 
 const YEARS_PER_ROW = 4;
 
-export function Calendar({
-  value,
-  onPick,
-  onClose,
-  min,
-  max,
-  startInYearGrid = false,
-  isClearable = false,
-  isConfirmVisible = false,
-  focusRef,
-}: {
+interface PropTypes {
   value: string;
   onPick: (iso: string) => void;
   onClose: () => void;
@@ -52,7 +42,21 @@ export function Calendar({
   isClearable?: boolean;
   isConfirmVisible?: boolean;
   focusRef?: React.RefObject<HTMLButtonElement | null>;
-}) {
+}
+
+export const Calendar = (props: PropTypes) => {
+  const {
+    value,
+    onPick,
+    onClose,
+    min,
+    max,
+    startInYearGrid = false,
+    isClearable = false,
+    isConfirmVisible = false,
+    focusRef,
+  } = props;
+
   const today = todayJakarta();
 
   const [cursor, setCursor] = useState(() => {
@@ -344,4 +348,4 @@ export function Calendar({
       </div>
     </div>
   );
-}
+};

@@ -8,15 +8,15 @@ import { formatDate } from "@/lib/format";
 import { useJemaatDuplicates } from "../api";
 import { findDuplicate, JEMAAT_LIST_PATH } from "../model";
 
-export function DuplicateWarning({
-  name,
-  birthDate,
-  ownCode,
-}: {
+interface PropTypes {
   name: string;
   birthDate: string;
   ownCode?: string;
-}) {
+}
+
+export const DuplicateWarning = (props: PropTypes) => {
+  const { name, birthDate, ownCode } = props;
+
   const candidates = useJemaatDuplicates(name, birthDate);
   const twin = findDuplicate(
     candidates.data ?? [],
@@ -50,4 +50,4 @@ export function DuplicateWarning({
       </span>
     </p>
   );
-}
+};

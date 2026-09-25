@@ -14,15 +14,15 @@ import {
   type KpiGroup,
 } from "../view";
 
-export function ViewPicker({
-  value,
-  groups,
-  onPick,
-}: {
+interface PropTypes {
   value: DashboardView;
   groups: readonly KpiGroup[];
   onPick: (view: DashboardView) => void;
-}) {
+}
+
+export const ViewPicker = (props: PropTypes) => {
+  const { value, groups, onPick } = props;
+
   if (!isViewPickable(groups)) return null;
 
   const options: DashboardView[] = ["all", ...groups];
@@ -65,4 +65,4 @@ export function ViewPicker({
       </Menu.Portal>
     </Menu.Root>
   );
-}
+};

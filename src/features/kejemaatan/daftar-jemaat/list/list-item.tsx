@@ -14,13 +14,14 @@ import { TYPE_JEMAAT_LABEL, type JemaatListItem } from "../types";
 import { JemaatStatus } from "./jemaat-status";
 import { OptionalName } from "./optional-name";
 
-export function JemaatListItemRow({
-  jemaat,
-  isCanUpdate = false,
-}: {
+interface PropTypes {
   jemaat: JemaatListItem;
   isCanUpdate?: boolean;
-}) {
+}
+
+export const JemaatListItemRow = (props: PropTypes) => {
+  const { jemaat, isCanUpdate = false } = props;
+
   const meta = [
     jemaat.code,
     TYPE_JEMAAT_LABEL[jemaat.type],
@@ -56,7 +57,7 @@ export function JemaatListItemRow({
       }
     />
   );
-}
+};
 
 export function jemaatTable(
   isCanUpdate: boolean,

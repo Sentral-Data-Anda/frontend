@@ -2,19 +2,17 @@ import { TriangleAlert } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
-export function ProgressBar({
-  label,
-  value,
-  meta,
-  title,
-  alertAbove,
-}: {
+interface PropTypes {
   label: string;
   value: number;
   meta?: string;
   title?: string;
   alertAbove?: number;
-}) {
+}
+
+export const ProgressBar = (props: PropTypes) => {
+  const { label, value, meta, title, alertAbove } = props;
+
   const percent = Math.max(0, Math.min(100, Math.round(value)));
   const isAlert = alertAbove !== undefined && value > alertAbove;
 
@@ -54,4 +52,4 @@ export function ProgressBar({
       </div>
     </div>
   );
-}
+};

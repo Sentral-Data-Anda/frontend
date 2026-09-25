@@ -9,20 +9,7 @@ import { cn } from "@/lib/utils";
 
 import { FIELD_ITEM, FIELD_POPUP, type SelectOption } from "./select-field";
 
-export function ComboboxField({
-  id,
-  value,
-  onValueChange,
-  options,
-  placeholder = "Ketik untuk mencari",
-  disabled = false,
-  isLoading = false,
-  emptyMessage = "Belum ada pilihan",
-  isClearable = false,
-  onSearch,
-  className,
-  ...aria
-}: {
+interface PropTypes {
   id?: string;
   value: string;
   onValueChange: (value: string) => void;
@@ -36,7 +23,24 @@ export function ComboboxField({
   className?: string;
   "aria-invalid"?: boolean;
   "aria-describedby"?: string;
-}) {
+}
+
+export const ComboboxField = (props: PropTypes) => {
+  const {
+    id,
+    value,
+    onValueChange,
+    options,
+    placeholder = "Ketik untuk mencari",
+    disabled = false,
+    isLoading = false,
+    emptyMessage = "Belum ada pilihan",
+    isClearable = false,
+    onSearch,
+    className,
+    ...aria
+  } = props;
+
   const selected = options.find((option) => option.value === value) ?? null;
 
   const isBusy = isLoading && options.length === 0;
@@ -124,4 +128,4 @@ export function ComboboxField({
       </Combobox.Portal>
     </Combobox.Root>
   );
-}
+};

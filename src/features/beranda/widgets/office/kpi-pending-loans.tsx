@@ -4,7 +4,7 @@ import { KpiCell } from "@/components/common/dashboard";
 
 import { usePendingLoans } from "./data";
 
-export function KpiPendingLoans() {
+export const KpiPendingLoans = () => {
   const query = usePendingLoans();
 
   return (
@@ -16,4 +16,4 @@ export function KpiPendingLoans() {
       isError={query.isError}
     />
   );
-}
+};

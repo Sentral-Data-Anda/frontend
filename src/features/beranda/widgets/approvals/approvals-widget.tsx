@@ -25,7 +25,7 @@ const bapelOf = (item: ApprovalItem) =>
 const ageOf = (days: number) =>
   days === 0 ? "hari ini" : `${days} hari menunggu`;
 
-export function ApprovalsWidget() {
+export const ApprovalsWidget = () => {
   const query = useWaitingApprovals();
   const items = query.data?.data ?? [];
   const now = new Date();
@@ -89,4 +89,4 @@ export function ApprovalsWidget() {
       )}
     </DashboardCard>
   );
-}
+};

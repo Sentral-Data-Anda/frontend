@@ -10,13 +10,14 @@ import { type JemaatForm, optionsOf } from "./section";
 
 const GENDER_OPTIONS = optionsOf(GENDER_LABEL);
 
-export function IdentitySection({
-  form,
-  isDisabled,
-}: {
+interface PropTypes {
   form: JemaatForm;
   isDisabled: boolean;
-}) {
+}
+
+export const IdentitySection = (props: PropTypes) => {
+  const { form, isDisabled } = props;
+
   return (
     <FormSection legend="Identitas" disabled={isDisabled}>
       <ControlField control={form.control} name="name" label="Nama lengkap">
@@ -65,4 +66,4 @@ export function IdentitySection({
       </ControlField>
     </FormSection>
   );
-}
+};
