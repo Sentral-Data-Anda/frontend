@@ -2,11 +2,9 @@
 
 import { useCallback, useEffect, useRef } from "react";
 
-import {
-  serviceWorkerUrl,
-  shouldRegisterServiceWorker,
-} from "@/features/pwa/model";
 import { useBoolean } from "@/hooks/use-boolean";
+
+import { serviceWorkerUrl, shouldRegisterServiceWorker } from "../model";
 
 type ServiceWorkerState = {
   updateReady: boolean;

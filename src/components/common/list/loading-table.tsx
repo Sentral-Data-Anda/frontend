@@ -1,12 +1,13 @@
 import type { CSSProperties } from "react";
 
-import type { DataTableColumn } from "@/components/common/list/data-table";
+import { cn } from "@/lib/utils";
+
+import type { DataTableColumn } from "./data-table";
 import {
   TABLE_HEAD,
   TABLE_ROW_LINE_ON_CANVAS,
   TABLE_SECONDARY,
-} from "@/components/common/list/table-style";
-import { cn } from "@/lib/utils";
+} from "./table-style";
 
 export const ROW_BLEED = "px-2.5";
 

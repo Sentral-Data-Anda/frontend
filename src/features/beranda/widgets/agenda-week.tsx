@@ -3,16 +3,15 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
 
-import { DashboardCard } from "@/components/common/dashboard/dashboard-card";
+import { DashboardCard, KpiCell } from "@/components/common/dashboard";
 import {
   DashboardTable,
   TableTitle,
   type TableRow,
-} from "@/components/common/dashboard/dashboard-table";
-import { KpiCell } from "@/components/common/dashboard/kpi-strip";
-import { EmptyState } from "@/components/common/feedback/empty-state";
+} from "@/components/common/dashboard";
+import { EmptyState } from "@/components/common/feedback";
 import { MENU, menuHref } from "@/config/menu";
-import { useMenuAccess } from "@/features/auth/use-menu-access";
+import { useMenuAccess } from "@/features/auth";
 
 import {
   sortByStartTime,

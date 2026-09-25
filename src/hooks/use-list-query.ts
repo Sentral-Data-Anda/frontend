@@ -7,7 +7,7 @@ import {
   type QueryKey,
 } from "@tanstack/react-query";
 
-import type { DataListPagination } from "@/components/common/list/data-list-pagination";
+import type { DataListPagination } from "@/components/common/list";
 import { toApiQuery, type ListState } from "@/hooks/use-list-params";
 import { useIsDesktop } from "@/hooks/use-media";
 import type { ApiListResponse } from "@/types/api";

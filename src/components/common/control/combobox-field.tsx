@@ -3,14 +3,11 @@
 import { Combobox } from "@base-ui/react/combobox";
 import { Check, ChevronDown, X } from "lucide-react";
 
-import {
-  FIELD_ITEM,
-  FIELD_POPUP,
-  type SelectOption,
-} from "@/components/common/control/select-field";
-import { EmptyState } from "@/components/common/feedback/empty-state";
-import { inputVariants } from "@/components/ui/input";
+import { EmptyState } from "@/components/common/feedback";
+import { inputVariants } from "@/components/ui";
 import { cn } from "@/lib/utils";
+
+import { FIELD_ITEM, FIELD_POPUP, type SelectOption } from "./select-field";
 
 export function ComboboxField({
   id,

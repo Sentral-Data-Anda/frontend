@@ -3,17 +3,18 @@
 import { Search } from "lucide-react";
 import { useState } from "react";
 
-import { Input } from "@/components/common/control/input";
-import { EmptyState } from "@/components/common/feedback/empty-state";
-import { DomainTileGrid } from "@/components/common/navigation/domain-tile";
+import { Input } from "@/components/common/control";
+import { EmptyState } from "@/components/common/feedback";
 import {
+  DomainTileGrid,
   MenuTile,
   MenuTileGrid,
-} from "@/components/common/navigation/menu-tile";
-import { PageHeader } from "@/components/layout/page-header";
+} from "@/components/common/navigation";
+import { PageHeader } from "@/components/layout";
 import { leafIcon, menuHref } from "@/config/menu";
-import { useSession } from "@/features/auth/session-provider";
-import { descriptionOf, searchModules } from "@/features/pencarian/model";
+import { useSession } from "@/features/auth";
+
+import { descriptionOf, searchModules } from "./model";
 
 export function PencarianScreen() {
   const session = useSession();

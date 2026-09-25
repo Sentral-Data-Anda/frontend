@@ -1,7 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
 
-import { DomainIcon } from "@/components/common/navigation/domain-tile";
+import { DomainIcon } from "./domain-tile";
 
 export function MenuTile({
   href,

@@ -2,8 +2,8 @@
 
 import { useEffect } from "react";
 
-import { Button } from "@/components/common/control/button";
-import { shellWidth } from "@/components/layout/shell-width";
+import { Button } from "@/components/common/control";
+import { shellWidth } from "@/components/layout";
 import { cn } from "@/lib/utils";
 
 export default function Error({

@@ -4,9 +4,9 @@ import {
   DashboardCard,
   DashboardList,
   DashboardRow,
-} from "@/components/common/dashboard/dashboard-card";
-import { KpiCell } from "@/components/common/dashboard/kpi-strip";
-import { EmptyState } from "@/components/common/feedback/empty-state";
+  KpiCell,
+} from "@/components/common/dashboard";
+import { EmptyState } from "@/components/common/feedback";
 import { MENU, menuHref } from "@/config/menu";
 
 import {

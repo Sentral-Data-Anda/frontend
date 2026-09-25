@@ -1,7 +1,7 @@
 import { ArrowLeft, Plus } from "lucide-react";
 import Link from "next/link";
 
-import { buttonVariants } from "@/components/common/control/button";
+import { buttonVariants } from "@/components/common/control";
 import { cn } from "@/lib/utils";
 
 export function PageHeader({

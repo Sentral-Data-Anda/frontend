@@ -1,6 +1,6 @@
 import type { FormHTMLAttributes, ReactNode } from "react";
 
-import { shellWidthFull } from "@/components/layout/shell-width";
+import { shellWidthFull } from "@/components/layout";
 import { cn } from "@/lib/utils";
 
 export function FormLayout({

@@ -24,10 +24,10 @@ import {
 } from "react";
 import { flushSync } from "react-dom";
 
-import { Avatar } from "@/components/common/display/avatar";
-import { MENU_ITEM, MENU_POPUP } from "@/components/common/overlay/popup-style";
+import { Avatar } from "@/components/common/display";
+import { MENU_ITEM, MENU_POPUP } from "@/components/common/overlay";
 import { MENU_ICON, domainHref, menuHref } from "@/config/menu";
-import { useSession } from "@/features/auth/session-provider";
+import { useSession } from "@/features/auth";
 import { useBoolean } from "@/hooks/use-boolean";
 import { cn } from "@/lib/utils";
 import type { MenuNode } from "@/types/menu";

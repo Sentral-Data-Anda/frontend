@@ -4,11 +4,13 @@ import { Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useFieldArray } from "react-hook-form";
 
-import { Button } from "@/components/common/control/button";
-import { DateField } from "@/components/common/control/date-field";
-import { Input } from "@/components/common/control/input";
-import { SelectField } from "@/components/common/control/select-field";
-import { FormSection, FormWide } from "@/components/common/form/form-layout";
+import {
+  Button,
+  DateField,
+  Input,
+  SelectField,
+} from "@/components/common/control";
+import { FormSection, FormWide } from "@/components/common/form";
 import { MENU, menuHref } from "@/config/menu";
 import { formatDate } from "@/lib/format";
 

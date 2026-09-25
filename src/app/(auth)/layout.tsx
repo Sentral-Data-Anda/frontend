@@ -1,5 +1,4 @@
-import { AuthWaves } from "@/components/common/brand/auth-waves";
-import { LogoWordmark } from "@/components/common/brand/logo";
+import { AuthWaves, LogoWordmark } from "@/components/common/brand";
 
 export default function AuthLayout({
   children,

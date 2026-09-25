@@ -7,18 +7,13 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 
-import { Button } from "@/components/common/control/button";
-import { buttonVariants } from "@/components/common/control/button";
-import { useToast } from "@/components/common/feedback/toast";
-import {
-  FormActions,
-  FormLayout,
-  LoadingForm,
-} from "@/components/common/form/form-layout";
-import { ConfirmDialog } from "@/components/common/overlay/confirm-dialog";
-import { PageHeader } from "@/components/layout/page-header";
+import { Button, buttonVariants } from "@/components/common/control";
+import { useToast } from "@/components/common/feedback";
+import { FormActions, FormLayout, LoadingForm } from "@/components/common/form";
+import { ConfirmDialog } from "@/components/common/overlay";
+import { PageHeader } from "@/components/layout";
 import { MENU } from "@/config/menu";
-import { useMenuAccess } from "@/features/auth/use-menu-access";
+import { useMenuAccess } from "@/features/auth";
 import { useBoolean } from "@/hooks/use-boolean";
 import { useListReturn } from "@/hooks/use-list-return";
 import { applyServerError, firstErrorField } from "@/lib/form-error";

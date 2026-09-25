@@ -1,7 +1,8 @@
 "use client";
 
-import { Button } from "@/components/common/control/button";
-import { useInstallPrompt } from "@/features/pwa/hooks/use-install-prompt";
+import { Button } from "@/components/common/control";
+
+import { useInstallPrompt } from "../hooks/use-install-prompt";
 
 export function InstallPrompt() {
   const { canPrompt, needsManualGuide, promptInstall } = useInstallPrompt();

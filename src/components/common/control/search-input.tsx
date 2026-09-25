@@ -3,7 +3,7 @@
 import { Search } from "lucide-react";
 import { useEffect, useState } from "react";
 
-import { Input } from "@/components/ui/input";
+import { Input } from "@/components/ui";
 import { cn } from "@/lib/utils";
 
 export function SearchInput({

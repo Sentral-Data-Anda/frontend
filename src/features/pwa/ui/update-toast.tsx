@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/common/control/button";
+import { Button } from "@/components/common/control";
 
 type UpdateToastProps = {
   onApply: () => void;

@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 
-import { PageContainer } from "@/components/layout/page-container";
+import { PageContainer } from "@/components/layout";
 import { DOMAIN_SLUGS, domainHref } from "@/config/menu";
-import { loadDomain } from "@/features/domain/api";
-import { DomainScreen } from "@/features/domain/screen";
+import { loadDomain, DomainScreen } from "@/features/domain";
 
 type Props = { params: Promise<{ domain: string }> };
 

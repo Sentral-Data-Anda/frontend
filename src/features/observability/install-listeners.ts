@@ -1,4 +1,4 @@
-import { sendReport, toReport } from "@/features/observability/report";
+import { sendReport, toReport } from "./report";
 
 export function installErrorListeners(target: Window = window): () => void {
   const onError = (event: ErrorEvent) => {

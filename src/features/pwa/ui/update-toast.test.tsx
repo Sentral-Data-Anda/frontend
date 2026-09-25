@@ -1,7 +1,7 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, jest } from "bun:test";
 
-import { UpdateToast } from "@/features/pwa/ui/update-toast";
+import { UpdateToast } from "./update-toast";
 
 describe("UpdateToast", () => {
   afterEach(cleanup);

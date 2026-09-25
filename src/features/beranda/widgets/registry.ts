@@ -1,6 +1,6 @@
 import type { ComponentType } from "react";
 
-import type { HeaderAction } from "@/components/layout/dashboard-header";
+import type { HeaderAction } from "@/components/layout";
 import { MENU, type MenuSlug, menuHref } from "@/config/menu";
 import { findMenuNode } from "@/lib/menu-tree";
 import type { MenuAction, MenuNode } from "@/types/menu";

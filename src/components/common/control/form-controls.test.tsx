@@ -1,13 +1,13 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
-import { FormField } from "@/components/common/form/form-field";
 import {
+  FormField,
   FormActions,
   FormLayout,
   FormSection,
-} from "@/components/common/form/form-layout";
-import { ConfirmDialog } from "@/components/common/overlay/confirm-dialog";
+} from "@/components/common/form";
+import { ConfirmDialog } from "@/components/common/overlay";
 
 import { ComboboxField } from "./combobox-field";
 import { DateField } from "./date-field";

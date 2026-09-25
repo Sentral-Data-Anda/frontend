@@ -1,6 +1,6 @@
 import type { ComponentProps, ReactNode } from "react";
 
-import { Input as InputPrimitive } from "@/components/ui/input";
+import { Input as InputPrimitive } from "@/components/ui";
 import { cn } from "@/lib/utils";
 
 export function Input({

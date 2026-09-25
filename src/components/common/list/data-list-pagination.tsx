@@ -3,7 +3,7 @@
 import { ChevronLeft, ChevronRight, LoaderCircle } from "lucide-react";
 import { useEffect, useEffectEvent, useRef } from "react";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui";
 import { cn } from "@/lib/utils";
 
 export type DataListPagination =

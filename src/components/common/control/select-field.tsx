@@ -3,9 +3,9 @@
 import { Select } from "@base-ui/react/select";
 import { Check, ChevronDown } from "lucide-react";
 
-import { EmptyState } from "@/components/common/feedback/empty-state";
-import { MENU_ITEM, MENU_POPUP } from "@/components/common/overlay/popup-style";
-import { inputVariants } from "@/components/ui/input";
+import { EmptyState } from "@/components/common/feedback";
+import { MENU_ITEM, MENU_POPUP } from "@/components/common/overlay";
+import { inputVariants } from "@/components/ui";
 import { cn } from "@/lib/utils";
 
 export type SelectOption = { value: string; label: string };

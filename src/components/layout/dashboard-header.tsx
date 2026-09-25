@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { buttonVariants } from "@/components/common/control/button";
+import { buttonVariants } from "@/components/common/control";
 
 export type HeaderAction = { label: string; href: string };
 

@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 
-import { LoadingDataList } from "@/components/common/list/loading-list";
-import { PageContainer } from "@/components/layout/page-container";
-import { jemaatTable } from "@/features/kejemaatan/daftar-jemaat/list/list-item";
-import { JemaatListScreen } from "@/features/kejemaatan/daftar-jemaat/list/screen";
+import { LoadingDataList } from "@/components/common/list";
+import { PageContainer } from "@/components/layout";
+import {
+  jemaatTable,
+  JemaatListScreen,
+} from "@/features/kejemaatan/daftar-jemaat";
 
 export const metadata: Metadata = {
   title: "Daftar Jemaat",

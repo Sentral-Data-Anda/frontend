@@ -5,9 +5,8 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { Button } from "@/components/common/control/button";
-import { PasswordInput } from "@/components/common/control/password-input";
-import { FormField } from "@/components/common/form/form-field";
+import { Button, PasswordInput } from "@/components/common/control";
+import { FormField } from "@/components/common/form";
 import { FetchError, fetchOne } from "@/lib/api/fetcher";
 
 const firstLoginSchema = z

@@ -1,5 +1,5 @@
-import { PageContainer } from "@/components/layout/page-container";
-import { PencarianScreen } from "@/features/pencarian/screen";
+import { PageContainer } from "@/components/layout";
+import { PencarianScreen } from "@/features/pencarian";
 
 export const metadata = { title: "Pencarian" };
 

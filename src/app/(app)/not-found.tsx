@@ -1,8 +1,7 @@
 import Link from "next/link";
 
-import { buttonVariants } from "@/components/common/control/button";
-import { PageContainer } from "@/components/layout/page-container";
-import { PageHeader } from "@/components/layout/page-header";
+import { buttonVariants } from "@/components/common/control";
+import { PageContainer, PageHeader } from "@/components/layout";
 
 export default function NotFound() {
   return (

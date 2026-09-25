@@ -4,10 +4,8 @@ import { Popover } from "@base-ui/react/popover";
 import { CalendarDays } from "lucide-react";
 import { useRef, useState } from "react";
 
-import { Calendar } from "@/components/common/control/calendar";
-import { FIELD_POPUP } from "@/components/common/control/select-field";
-import { BottomSheet } from "@/components/common/overlay/bottom-sheet";
-import { Input } from "@/components/ui/input";
+import { BottomSheet } from "@/components/common/overlay";
+import { Input } from "@/components/ui";
 import { useBoolean } from "@/hooks/use-boolean";
 import { useIsDesktop } from "@/hooks/use-media";
 import {
@@ -19,6 +17,9 @@ import {
 } from "@/lib/date";
 import { formatDate, formatWeekday } from "@/lib/format";
 import { cn } from "@/lib/utils";
+
+import { Calendar } from "./calendar";
+import { FIELD_POPUP } from "./select-field";
 
 export type DateVariant = "dekat" | "lahir";
 

@@ -1,8 +1,5 @@
-import {
-  MenuTile,
-  MenuTileGrid,
-} from "@/components/common/navigation/menu-tile";
-import { PageHeader } from "@/components/layout/page-header";
+import { MenuTile, MenuTileGrid } from "@/components/common/navigation";
+import { PageHeader } from "@/components/layout";
 import {
   MENU_DESCRIPTION,
   leafIcon,

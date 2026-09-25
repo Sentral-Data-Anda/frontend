@@ -1,4 +1,4 @@
-import type { FilterChip } from "@/components/common/list/filter-chips";
+import type { FilterChip } from "@/components/common/list";
 
 export type JemaatListItem = {
   code: string;

@@ -1,4 +1,4 @@
-import { installErrorListeners } from "@/features/observability/install-listeners";
+import { installErrorListeners } from "@/features/observability";
 
 try {
   installErrorListeners();

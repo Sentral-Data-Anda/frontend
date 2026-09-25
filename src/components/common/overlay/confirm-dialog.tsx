@@ -2,7 +2,7 @@
 
 import { AlertDialog } from "@base-ui/react/alert-dialog";
 
-import { Button } from "@/components/common/control/button";
+import { Button } from "@/components/ui";
 
 export function ConfirmDialog({
   isOpen,

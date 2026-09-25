@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { connection } from "next/server";
 
-import { shellWidth } from "@/components/layout/shell-width";
+import { shellWidth } from "@/components/layout";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {

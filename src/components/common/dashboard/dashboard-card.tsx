@@ -2,7 +2,7 @@ import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@/components/ui";
 import { cn } from "@/lib/utils";
 
 type QueryState = {

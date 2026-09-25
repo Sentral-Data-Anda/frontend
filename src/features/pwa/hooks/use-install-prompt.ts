@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 
-import { isIOS, isStandalone } from "@/features/pwa/model";
+import { isIOS, isStandalone } from "../model";
 
 type BeforeInstallPromptEvent = Event & {
   prompt: () => Promise<void>;

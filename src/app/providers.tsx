@@ -3,7 +3,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
 
-import { ToastHost } from "@/components/common/feedback/toast";
+import { ToastHost } from "@/components/common/feedback";
 import { shouldRetryQuery } from "@/lib/api/retry";
 
 export function Providers({ children }: { children: React.ReactNode }) {

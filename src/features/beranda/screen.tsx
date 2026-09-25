@@ -2,32 +2,25 @@
 
 import { useState } from "react";
 
-import { DashboardGrid } from "@/components/common/dashboard/dashboard-grid";
-import { KpiStrip } from "@/components/common/dashboard/kpi-strip";
-import { DomainTileGrid } from "@/components/common/navigation/domain-tile";
-import { SectionHeader } from "@/components/common/navigation/section-header";
-import { AppIdentity } from "@/components/layout/app-identity";
-import { DashboardHeader } from "@/components/layout/dashboard-header";
-import { MobileOnly } from "@/components/layout/mobile-only";
-import { PageHeader } from "@/components/layout/page-header";
+import { DashboardGrid, KpiStrip } from "@/components/common/dashboard";
+import { DomainTileGrid, SectionHeader } from "@/components/common/navigation";
+import {
+  AppIdentity,
+  DashboardHeader,
+  MobileOnly,
+  PageHeader,
+} from "@/components/layout";
 import { BERANDA_SHORTCUTS, MENU } from "@/config/menu";
-import { useSession } from "@/features/auth/session-provider";
-import { useMenuAccess } from "@/features/auth/use-menu-access";
-import { useIbadahByDate } from "@/features/beranda/api";
-import { SHOW_DUMMY } from "@/features/beranda/fixtures";
-import {
-  formatLongDate,
-  greetingOf,
-  toDateKey,
-} from "@/features/beranda/model";
-import { NotificationBell } from "@/features/beranda/ui/notification-bell";
-import { ViewPicker } from "@/features/beranda/ui/view-picker";
-import { saveDashboardView, type DashboardView } from "@/features/beranda/view";
-import {
-  selectHeaderActions,
-  selectWidgets,
-} from "@/features/beranda/widgets/registry";
+import { useSession, useMenuAccess } from "@/features/auth";
 import { firstNameOf } from "@/lib/format";
+
+import { useIbadahByDate } from "./api";
+import { SHOW_DUMMY } from "./fixtures";
+import { formatLongDate, greetingOf, toDateKey } from "./model";
+import { NotificationBell } from "./ui/notification-bell";
+import { ViewPicker } from "./ui/view-picker";
+import { saveDashboardView, type DashboardView } from "./view";
+import { selectHeaderActions, selectWidgets } from "./widgets/registry";
 
 export function HomeScreen({ defaultView }: { defaultView?: DashboardView }) {
   const session = useSession();

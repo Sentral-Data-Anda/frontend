@@ -4,26 +4,19 @@ import { TriangleAlert } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { Fragment, useEffect, useRef, type ReactNode } from "react";
 
-import { EmptyState } from "@/components/common/feedback/empty-state";
+import { EmptyState } from "@/components/common/feedback";
+import { Button } from "@/components/ui";
+import { useIsTableWidth } from "@/hooks/use-media";
+import { clearListFocus, readListFocus } from "@/lib/list-return";
+import { cn } from "@/lib/utils";
+
 import {
   DataListMore,
   DataListPager,
   type DataListPagination,
-} from "@/components/common/list/data-list-pagination";
-import {
-  DataTable,
-  DataTableFooter,
-  type DataTableConfig,
-} from "@/components/common/list/data-table";
-import {
-  LIST_DIVIDER,
-  LoadingDataList,
-  LoadingRows,
-} from "@/components/common/list/loading-list";
-import { Button } from "@/components/ui/button";
-import { useIsTableWidth } from "@/hooks/use-media";
-import { clearListFocus, readListFocus } from "@/lib/list-return";
-import { cn } from "@/lib/utils";
+} from "./data-list-pagination";
+import { DataTable, DataTableFooter, type DataTableConfig } from "./data-table";
+import { LIST_DIVIDER, LoadingDataList, LoadingRows } from "./loading-list";
 
 const textOf = (node: ReactNode) =>
   typeof node === "string" ? node : undefined;

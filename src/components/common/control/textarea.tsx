@@ -1,6 +1,6 @@
 import type { ComponentProps } from "react";
 
-import { inputVariants } from "@/components/ui/input";
+import { inputVariants } from "@/components/ui";
 import { cn } from "@/lib/utils";
 
 export function Textarea({

@@ -8,10 +8,7 @@ import {
   type RefCallBack,
 } from "react-hook-form";
 
-import {
-  FormField,
-  type FieldControlProps,
-} from "@/components/common/form/form-field";
+import { FormField, type FieldControlProps } from "@/components/common/form";
 
 import type { JemaatFormValues } from "../model";
 

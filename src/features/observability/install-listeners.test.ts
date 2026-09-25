@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, jest } from "bun:test";
 
-import { installErrorListeners } from "@/features/observability/install-listeners";
-import { REPORT_ENDPOINT } from "@/features/observability/report";
+import { installErrorListeners } from "./install-listeners";
+import { REPORT_ENDPOINT } from "./report";
 
 describe("installErrorListeners", () => {
   let sent: { url: string; body: Blob }[] = [];

@@ -1,7 +1,7 @@
 import { ArrowDown, ArrowUp, TriangleAlert } from "lucide-react";
 import { Children, type ReactNode } from "react";
 
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@/components/ui";
 import { cn } from "@/lib/utils";
 
 export function KpiStrip({

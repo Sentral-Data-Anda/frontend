@@ -7,7 +7,7 @@ import {
   TABLE_HEAD_LINE_ON_CARD,
   TABLE_ROW_LINK,
   TABLE_ROWS_ON_CARD,
-} from "@/components/common/list/table-style";
+} from "@/components/common/list";
 import { cn } from "@/lib/utils";
 
 export type TableColumn = {

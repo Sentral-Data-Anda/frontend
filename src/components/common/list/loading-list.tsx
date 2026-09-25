@@ -1,6 +1,6 @@
 import type { ComponentProps } from "react";
 
-import { LoadingTable } from "@/components/common/list/loading-table";
+import { LoadingTable } from "./loading-table";
 
 export const LIST_DIVIDER = "[&>li+li>[data-slot=row-body]]:border-t";
 

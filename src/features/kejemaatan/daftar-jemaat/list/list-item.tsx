@@ -1,11 +1,10 @@
 import { Pencil } from "lucide-react";
 import Link from "next/link";
 
-import { buttonVariants } from "@/components/common/control/button";
-import { Avatar } from "@/components/common/display/avatar";
-import { Badge } from "@/components/common/display/badge";
-import { DataListRow } from "@/components/common/list/data-list";
-import type { DataTableConfig } from "@/components/common/list/data-table";
+import { buttonVariants } from "@/components/common/control";
+import { Avatar, Badge } from "@/components/common/display";
+import { DataListRow } from "@/components/common/list";
+import type { DataTableConfig } from "@/components/common/list";
 import { MENU, editHref } from "@/config/menu";
 import { saveListFocus } from "@/lib/list-return";
 import { cn } from "@/lib/utils";

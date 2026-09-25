@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { JemaatFormScreen } from "@/features/kejemaatan/daftar-jemaat/form/screen";
+import { JemaatFormScreen } from "@/features/kejemaatan/daftar-jemaat";
 
 export const metadata: Metadata = {
   title: "Tambah Jemaat",

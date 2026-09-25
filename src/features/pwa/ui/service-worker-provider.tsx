@@ -1,7 +1,8 @@
 "use client";
 
-import { useServiceWorker } from "@/features/pwa/hooks/use-service-worker";
-import { UpdateToast } from "@/features/pwa/ui/update-toast";
+import { useServiceWorker } from "../hooks/use-service-worker";
+
+import { UpdateToast } from "./update-toast";
 
 export function ServiceWorkerProvider() {
   const { updateReady, applyUpdate } = useServiceWorker();

@@ -56,29 +56,25 @@ const TEXT_SIZE_SELECTORS = [
   },
 ];
 
-// Barrel menyembunyikan letak berkas (§6). Regex, bukan glob: pola glob
-// "@/features/*" di no-restricted-imports juga cocok dengan sub-jalur, jadi
-// ia akan melarang semua impor fitur, bukan hanya impor foldernya.
-const NO_BARREL_IMPORT = {
-  regex: "^@/features/[^/]+(/index)?$",
-  message:
-    "Tanpa barrel: sebut berkasnya, mis. @/features/beranda/widgets/registry.",
-};
-
 const NO_UI_PRIMITIVE_IMPORT = {
-  group: ["@/components/ui/*"],
+  regex: "^@/components/ui(/.*)?$",
   message:
-    "Layar memakai pintu di @/components/common (mis. common/control/button, common/display/badge), bukan primitif shadcn di components/ui.",
+    "Layar memakai pintu di @/components/common (mis. common/control, common/display), bukan primitif shadcn di components/ui.",
 };
 
-// components/common dikelompokkan per kegunaan (control, form, list,
-// dashboard, feedback, overlay, navigation, brand, display —
-// frontend-structure.md §4). Berkas lepas di akar common tidak punya
-// kelompok, dan begitu satu lolos, akar itu kembali jadi tumpukan 40 berkas.
-const NO_COMMON_ROOT_IMPORT = {
-  regex: "^@/components/common/[^/]+$",
+// Dari luar folder, impor lewat barrel index.ts (CODE_STYLE.md WAJIB-8).
+const DEEP_IMPORT = {
+  regex:
+    "^@/components/(common/[^/]+/|ui/|layout/(?!app-shell$)).+|^@/features/(kejemaatan/[^/]+/|(?!kejemaatan/)[^/]+/(?!ui$|get-session$|refresh$)).+",
   message:
-    "Komponen bersama ada di subfolder kegunaannya, mis. @/components/common/list/data-list. Berkas baru masuk ke salah satu kelompok di frontend-structure.md §4.",
+    "Impor lewat barrel folder-nya, mis. @/components/common/list atau @/features/kejemaatan/daftar-jemaat.",
+};
+
+const NO_COMMON_ROOT_IMPORT = {
+  regex:
+    "^@/components/common/(?!(brand|control|dashboard|display|feedback|form|list|navigation|overlay)$)[^/]+$",
+  message:
+    "Komponen bersama masuk ke salah satu kelompok di components/common (frontend-structure.md §4.1).",
 };
 
 const CLASS_SELECTORS = [
@@ -219,7 +215,7 @@ const eslintConfig = defineConfig([
     rules: {
       "no-restricted-imports": [
         "error",
-        { patterns: [NO_BARREL_IMPORT, NO_COMMON_ROOT_IMPORT] },
+        { patterns: [DEEP_IMPORT, NO_COMMON_ROOT_IMPORT] },
       ],
     },
   },
@@ -238,7 +234,7 @@ const eslintConfig = defineConfig([
         {
           patterns: [
             NO_UI_PRIMITIVE_IMPORT,
-            NO_BARREL_IMPORT,
+            DEEP_IMPORT,
             NO_COMMON_ROOT_IMPORT,
           ],
         },
@@ -274,7 +270,7 @@ const eslintConfig = defineConfig([
         {
           category: "auth-session",
           pattern:
-            "src/features/auth/{use-menu-access,session-provider,get-session,types}.{ts,tsx}",
+            "src/features/auth/{index,use-menu-access,session-provider,get-session,types}.{ts,tsx}",
         },
       ],
       "boundaries/elements": [

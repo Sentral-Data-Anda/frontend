@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
 
 import { AppShell } from "@/components/layout/app-shell";
+import { SessionProvider } from "@/features/auth";
 import { getSession } from "@/features/auth/get-session";
-import { SessionProvider } from "@/features/auth/session-provider";
 
 export default async function AppLayout({
   children,

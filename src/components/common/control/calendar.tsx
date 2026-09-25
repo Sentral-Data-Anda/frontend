@@ -3,7 +3,6 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
-import { Button } from "@/components/common/control/button";
 import {
   addDays,
   addMonths,
@@ -16,6 +15,8 @@ import {
 } from "@/lib/date";
 import { formatDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
+
+import { Button } from "./button";
 
 const WEEKDAY_LABELS = ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"];
 

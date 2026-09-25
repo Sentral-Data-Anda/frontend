@@ -1,23 +1,16 @@
 "use client";
 
-import { SearchInput } from "@/components/common/control/search-input";
-import { SelectField } from "@/components/common/control/select-field";
-import { DataList } from "@/components/common/list/data-list";
-import { FilterChips } from "@/components/common/list/filter-chips";
-import { ListToolbar } from "@/components/common/list/list-toolbar";
-import { PageHeader, PageHeaderAdd } from "@/components/layout/page-header";
+import { SearchInput, SelectField } from "@/components/common/control";
+import { DataList, FilterChips, ListToolbar } from "@/components/common/list";
+import { PageHeader, PageHeaderAdd } from "@/components/layout";
 import { MENU, createHref, domainHref } from "@/config/menu";
-import { useMenuAccess } from "@/features/auth/use-menu-access";
-import {
-  useJemaatList,
-  useZoneFilterOptions,
-} from "@/features/kejemaatan/daftar-jemaat/api";
-import {
-  JemaatListItemRow,
-  jemaatTable,
-} from "@/features/kejemaatan/daftar-jemaat/list/list-item";
-import { STATUS_JEMAAT_CHIPS } from "@/features/kejemaatan/daftar-jemaat/types";
+import { useMenuAccess } from "@/features/auth";
 import { useListParams, type ListFilterSchema } from "@/hooks/use-list-params";
+
+import { useJemaatList, useZoneFilterOptions } from "../api";
+import { STATUS_JEMAAT_CHIPS } from "../types";
+
+import { JemaatListItemRow, jemaatTable } from "./list-item";
 
 const LIST_FILTERS = { wilayah: { api: "zone" } } satisfies ListFilterSchema;
 

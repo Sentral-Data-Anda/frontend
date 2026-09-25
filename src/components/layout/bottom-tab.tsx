@@ -11,7 +11,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { MENU, isFormRoute, menuHref } from "@/config/menu";
-import { useSession } from "@/features/auth/session-provider";
+import { useSession } from "@/features/auth";
 import { findMenuNode } from "@/lib/menu-tree";
 import { cn } from "@/lib/utils";
 import type { MenuNode } from "@/types/menu";
