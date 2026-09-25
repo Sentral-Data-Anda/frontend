@@ -83,9 +83,13 @@ export const OfferingSection = () => {
             )}
 
             <p className="text-muted-foreground text-caption tabular-nums">
-              {isShown.value && summary
-                ? `${summary.count} kali tercatat`
-                : "Jumlah tercatat disembunyikan"}
+              {!isShown.value
+                ? "Jumlah tercatat disembunyikan"
+                : summary
+                  ? `${summary.count} kali tercatat`
+                  : offerings.isError
+                    ? "Ringkasan tidak tersedia"
+                    : "Memuat…"}
             </p>
           </div>
 
