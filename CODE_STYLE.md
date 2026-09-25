@@ -105,7 +105,9 @@ begitu ada komponen klien yang mengimpornya.
 **[WAJIB-9] Bahasa.**
 Nama di kode (variabel, fungsi, tipe, berkas) berbahasa Inggris, kecuali istilah
 domain yang sudah menjadi nama di be-sada (`jemaat`, `keluarga`, `wilayah`,
-`typeJemaat`). Teks yang dibaca user berbahasa Indonesia baku.
+`typeJemaat`). Teks yang dibaca user berbahasa Indonesia baku. Pesan validasi satu
+klausa tanpa titik (`Nama wajib diisi`); pesan yang memuat lebih dari satu klausa
+diakhiri titik (`Kecamatan wajib dipilih, sesudah kabupaten/kota.`).
 
 **[WAJIB-10] Layar tidak menulis breakpoint, warna mentah, atau `components/ui/*`**
 (ditegakkan lint). Tata letak responsif milik `components/layout` dan

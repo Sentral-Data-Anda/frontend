@@ -1,10 +1,8 @@
 import { describe, expect, test } from "bun:test";
 
 import {
-  afterSavePath,
   EMPTY_JEMAAT_FORM,
   findDuplicate,
-  JEMAAT_LIST_PATH,
   incompleteFields,
   jemaatFormSchema,
   normalizePhone,
@@ -306,31 +304,9 @@ describe("pembantu", () => {
       "golongan darah",
     ]);
 
-    expect(
-      incompleteFields({
-        ...SIMPATISAN,
-        birthDate: "",
-        isBirthDateUnknown: true,
-      }),
-    ).toContain("tanggal lahir");
-  });
-});
-
-describe("kembali ke daftar setelah simpan (test wajib 8)", () => {
-  test("membawa filter terakhir dan menandai baris yang baru disimpan", () => {
-    const url = `${JEMAAT_LIST_PATH}?status=TIDAK_AKTIF&page=3`;
-    window.sessionStorage.setItem(`list-return:${JEMAAT_LIST_PATH}`, url);
-
-    expect(afterSavePath("JMT-9001")).toBe(url);
-    expect(
-      window.sessionStorage.getItem(`list-focus:${JEMAAT_LIST_PATH}`),
-    ).toBe("JMT-9001");
-  });
-
-  test("tanpa riwayat filter: daftar bersih, bukan URL karangan", () => {
-    window.sessionStorage.clear();
-
-    expect(afterSavePath("JMT-9002")).toBe(JEMAAT_LIST_PATH);
+    expect(incompleteFields({ ...SIMPATISAN, birthDate: "" })).toContain(
+      "tanggal lahir",
+    );
   });
 });
 

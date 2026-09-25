@@ -1,7 +1,6 @@
 import { z } from "zod";
 
 import { MENU, menuHref } from "@/config/menu";
-import { readListReturn, saveListFocus } from "@/lib/list-return";
 
 import type {
   JemaatAdditional,
@@ -112,34 +111,34 @@ const ALWAYS_REQUIRED = [
 
 const MEMBER_REQUIRED = [
   ["codeInduk", "Kode induk wajib untuk Anggota; juga jadi username akun."],
-  ["zoneChurchId", "Wilayah wajib dipilih untuk Anggota."],
+  ["zoneChurchId", "Wilayah wajib dipilih untuk Anggota"],
   ["statusMarital", "Status pernikahan wajib dipilih untuk Anggota"],
   ["ethnicGroupId", "Suku wajib dipilih untuk Anggota"],
 ] as const;
 
 export const jemaatFormSchema = baseSchema.superRefine((values, ctx) => {
-  const reportMissing = (path: string, message: string) =>
+  const addIssue = (path: string, message: string) =>
     ctx.addIssue({ code: "custom", path: [path], message });
 
   for (const [field, message] of ALWAYS_REQUIRED) {
-    if (!values[field]) reportMissing(field, message);
+    if (!values[field]) addIssue(field, message);
   }
 
   if (values.typeJemaat === "ANGGOTA") {
     for (const [field, message] of MEMBER_REQUIRED) {
-      if (!values[field]) reportMissing(field, message);
+      if (!values[field]) addIssue(field, message);
     }
   }
 
   if (values.email && !values.email.includes("@")) {
-    reportMissing("email", "Email harus memuat @");
+    addIssue("email", "Email harus memuat @");
   }
 
   if (values.keluargaId && !values.roleInFamily) {
-    reportMissing("roleInFamily", "Peran dalam keluarga wajib dipilih");
+    addIssue("roleInFamily", "Peran dalam keluarga wajib dipilih");
   }
   if (!values.keluargaId && values.roleInFamily) {
-    reportMissing("keluargaId", "Pilih keluarganya dulu, atau kosongkan peran");
+    addIssue("keluargaId", "Pilih keluarganya dulu, atau kosongkan peran.");
   }
 
   values.additional.forEach((row, index) => {
@@ -319,7 +318,6 @@ export function serverFieldError(
 
 export function incompleteFields(values: {
   birthDate?: string;
-  isBirthDateUnknown?: boolean;
   lastEducation?: string;
   professionId?: string;
   phone?: string;
@@ -327,9 +325,7 @@ export function incompleteFields(values: {
 }): string[] {
   const missing: string[] = [];
 
-  if (values.isBirthDateUnknown || !values.birthDate) {
-    missing.push("tanggal lahir");
-  }
+  if (!values.birthDate) missing.push("tanggal lahir");
   if (!values.lastEducation) missing.push("pendidikan terakhir");
   if (!values.professionId) missing.push("pekerjaan");
   if (!values.phone) missing.push("telepon");
@@ -339,12 +335,6 @@ export function incompleteFields(values: {
 }
 
 export const JEMAAT_LIST_PATH = menuHref(MENU.KEJEMAATAN, MENU.DAFTAR_JEMAAT);
-
-export function afterSavePath(code: string): string {
-  saveListFocus(JEMAAT_LIST_PATH, code);
-
-  return readListReturn(JEMAAT_LIST_PATH);
-}
 
 const normalizeName = (name: string) =>
   name.trim().toLowerCase().replace(/\s+/g, " ");

@@ -43,8 +43,8 @@ export function toApiQuery(params: ListParams): string {
 }
 
 export function useListParams({
-  limit: limitPerPage = DEFAULT_LIMIT,
-  filters: schema = NO_FILTERS,
+  limit = DEFAULT_LIMIT,
+  filters = NO_FILTERS,
 }: {
   limit?: number;
   filters?: ListFilterSchema;
@@ -54,39 +54,37 @@ export function useListParams({
   const searchParams = useSearchParams();
 
   const params = useMemo(() => {
-    const filters = Object.fromEntries(
-      Object.keys(schema).map((key) => [key, searchParams.get(key) ?? ""]),
+    const values = Object.fromEntries(
+      Object.keys(filters).map((key) => [key, searchParams.get(key) ?? ""]),
     );
 
     return {
       page: readNumber(searchParams.get("page"), 1),
-      limit: readNumber(searchParams.get("limit"), limitPerPage),
+      limit: readNumber(searchParams.get("limit"), limit),
       search: searchParams.get("search") ?? "",
       status: searchParams.get("status") ?? "",
-      filters,
+      filters: values,
       apiFilters: Object.fromEntries(
-        Object.entries(schema).map(([key, { api }]) => [api, filters[key]]),
+        Object.entries(filters).map(([key, { api }]) => [api, values[key]]),
       ),
     } satisfies ListParams & { filters: Record<string, string> };
-  }, [limitPerPage, schema, searchParams]);
+  }, [limit, filters, searchParams]);
 
   const query = searchParams.toString();
 
   const writeParams = useCallback(
-    (next: Partial<ListParams>) => {
+    (next: Record<string, string | number>) => {
       // `searchParams` tertinggal satu render sesudah router.replace.
       const url = new URLSearchParams(window.location.search);
 
       for (const [key, value] of Object.entries(next)) {
-        const text = String(value);
-
-        if (
+        const isDefault =
           !value ||
           (key === "page" && value === 1) ||
-          (key === "limit" && value === limitPerPage)
-        )
-          url.delete(key);
-        else url.set(key, text);
+          (key === "limit" && value === limit);
+
+        if (isDefault) url.delete(key);
+        else url.set(key, String(value));
       }
 
       const query = url.toString();
@@ -95,7 +93,7 @@ export function useListParams({
         scroll: false,
       });
     },
-    [limitPerPage, pathname, router],
+    [limit, pathname, router],
   );
 
   const onSearch = useCallback(
@@ -114,7 +112,7 @@ export function useListParams({
   );
 
   const onPickLimit = useCallback(
-    (limit: number) => writeParams({ limit, page: 1 }),
+    (value: number) => writeParams({ limit: value, page: 1 }),
     [writeParams],
   );
 

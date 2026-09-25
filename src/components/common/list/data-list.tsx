@@ -104,6 +104,10 @@ export function DataList<T>({
   const isTableWidth = useIsTableWidth();
   const isTable = table !== undefined && isTableWidth === true;
 
+  const setListNode = (node: HTMLElement | null) => {
+    listRef.current = node;
+  };
+
   useEffect(() => {
     const list = listRef.current;
 
@@ -187,9 +191,7 @@ export function DataList<T>({
           pendingRows={
             pagination?.mode === "more" && pagination.isLoadingMore ? 3 : 0
           }
-          rowsRef={(node) => {
-            listRef.current = node;
-          }}
+          rowsRef={setListNode}
         />
 
         {pagination?.mode === "pages" ? (
@@ -206,9 +208,7 @@ export function DataList<T>({
   return (
     <div aria-busy={isRefreshing || undefined}>
       <ul
-        ref={(node) => {
-          listRef.current = node;
-        }}
+        ref={setListNode}
         aria-label={label}
         className={cn(
           LIST_DIVIDER,

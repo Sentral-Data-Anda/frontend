@@ -17,10 +17,10 @@ import { useMenuAccess } from "@/features/auth";
 import { useBoolean } from "@/hooks/use-boolean";
 import { useListReturn } from "@/hooks/use-list-return";
 import { applyServerError, firstErrorField } from "@/lib/form-error";
+import { saveListFocus } from "@/lib/list-return";
 
 import { useJemaatDetail, useSaveJemaat } from "../api";
 import {
-  afterSavePath,
   EMPTY_JEMAAT_FORM,
   JEMAAT_LIST_PATH,
   incompleteFields,
@@ -88,7 +88,8 @@ export function JemaatFormScreen({ code }: { code?: string }) {
         );
 
         toast.add({ title: saved.message });
-        router.replace(afterSavePath(saved.data.code));
+        saveListFocus(JEMAAT_LIST_PATH, saved.data.code);
+        router.replace(listReturn);
       } catch (error) {
         applyServerError(error, form.setError, serverFieldError);
         setRejectedField(firstErrorField(error));

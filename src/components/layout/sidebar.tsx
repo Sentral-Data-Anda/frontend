@@ -14,14 +14,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  createContext,
-  memo,
-  use,
-  useCallback,
-  useEffect,
-  useRef,
-} from "react";
+import { useEffect, useRef } from "react";
 import { flushSync } from "react-dom";
 
 import { Avatar } from "@/components/common/display";
@@ -64,8 +57,6 @@ const LABEL = cn(
   SIDEBAR_MOTION,
 );
 
-const CollapsedContext = createContext(false);
-
 export function Sidebar({ defaultCollapsed }: { defaultCollapsed: boolean }) {
   const session = useSession();
   const pathname = usePathname();
@@ -83,11 +74,10 @@ export function Sidebar({ defaultCollapsed }: { defaultCollapsed: boolean }) {
     isCollapsed.setValue(next);
   };
 
-  const { onFalse: expand } = isCollapsed;
-  const onExpand = useCallback(() => {
+  const onExpand = () => {
     document.cookie = sidebarCookie(false);
-    expand();
-  }, [expand]);
+    isCollapsed.onFalse();
+  };
 
   useEffect(() => {
     ref.current
@@ -113,63 +103,56 @@ export function Sidebar({ defaultCollapsed }: { defaultCollapsed: boolean }) {
           </button>
         </RailTip>
 
-        <CollapsedContext value={isCollapsed.value}>
-          <aside
-            ref={ref}
-            data-slot="sidebar"
-            data-collapsed={isCollapsed.value || undefined}
-            className={cn(
-              "group/sidebar bg-sidebar text-sidebar-foreground flex shrink-0 flex-col overflow-hidden transition-[width]",
-              SIDEBAR_MOTION,
-              isCollapsed.value ? "w-18" : "w-64",
-            )}
-          >
-            <div className="border-sidebar-border flex border-b px-4.5 py-4">
-              <AppIdentity
-                role={role}
-                tone="sidebar"
-                isCompact={isCollapsed.value}
-              />
-            </div>
-
-            <SidebarNav
-              menu={session.menu}
-              pathname={pathname}
-              onExpand={onExpand}
+        <aside
+          ref={ref}
+          data-slot="sidebar"
+          data-collapsed={isCollapsed.value || undefined}
+          className={cn(
+            "group/sidebar bg-sidebar text-sidebar-foreground flex shrink-0 flex-col overflow-hidden transition-[width]",
+            SIDEBAR_MOTION,
+            isCollapsed.value ? "w-18" : "w-64",
+          )}
+        >
+          <div className="border-sidebar-border flex border-b px-4.5 py-4">
+            <AppIdentity
+              role={role}
+              tone="sidebar"
+              isCompact={isCollapsed.value}
             />
+          </div>
 
-            <div className="border-sidebar-border flex items-center gap-3 border-t px-4.5 py-3">
-              <AccountMenu name={name} role={role} />
-              <div className="group-data-collapsed/sidebar:hidden">
-                <Avatar label={name} />
-              </div>
-              <div className={cn("min-w-0 flex-1", HIDE_IN_RAIL)}>
-                <p className="truncate text-body font-medium" title={name}>
-                  {name}
-                </p>
-                <p
-                  className="text-sidebar-muted-foreground truncate text-caption"
-                  title={role}
-                >
-                  {role}
-                </p>
-              </div>
-              <LogoutButton className={cn(IDLE, FOCUS, HIDE_IN_RAIL)} />
+          <SidebarNav
+            menu={session.menu}
+            pathname={pathname}
+            isCollapsed={isCollapsed.value}
+            onExpand={onExpand}
+          />
+
+          <div className="border-sidebar-border flex items-center gap-3 border-t px-4.5 py-3">
+            <AccountMenu name={name} role={role} />
+            <div className="group-data-collapsed/sidebar:hidden">
+              <Avatar label={name} />
             </div>
-          </aside>
-        </CollapsedContext>
+            <div className={cn("min-w-0 flex-1", HIDE_IN_RAIL)}>
+              <p className="truncate text-body font-medium" title={name}>
+                {name}
+              </p>
+              <p
+                className="text-sidebar-muted-foreground truncate text-caption"
+                title={role}
+              >
+                {role}
+              </p>
+            </div>
+            <LogoutButton className={cn(IDLE, FOCUS, HIDE_IN_RAIL)} />
+          </div>
+        </aside>
       </div>
     </Tooltip.Provider>
   );
 }
 
-const AccountMenu = memo(function AccountMenu({
-  name,
-  role,
-}: {
-  name: string;
-  role: string;
-}) {
+function AccountMenu({ name, role }: { name: string; role: string }) {
   return (
     <Menu.Root>
       <RailTip label={name}>
@@ -217,19 +200,17 @@ const AccountMenu = memo(function AccountMenu({
       </Menu.Portal>
     </Menu.Root>
   );
-});
+}
 
 function RailTip({
   label,
-  isRailOnly = false,
+  isDisabled = false,
   children,
 }: {
   label: string;
-  isRailOnly?: boolean;
+  isDisabled?: boolean;
   children: React.ReactElement;
 }) {
-  const isDisabled = isRailOnly && !use(CollapsedContext);
-
   return (
     <Tooltip.Root disabled={isDisabled}>
       <Tooltip.Trigger render={children} />
@@ -263,16 +244,18 @@ function NavLink({
   label,
   icon: Icon,
   pathname,
+  isCollapsed,
 }: {
   href: string;
   label: string;
   icon: LucideIcon;
   pathname: string;
+  isCollapsed: boolean;
 }) {
   const isActive = isTabActive(href, pathname);
 
   return (
-    <RailTip label={label} isRailOnly>
+    <RailTip label={label} isDisabled={!isCollapsed}>
       <Link
         href={href}
         aria-current={isActive ? "page" : undefined}
@@ -317,13 +300,15 @@ function openFromRail(details: HTMLDetailsElement, onExpand: () => void) {
   requestAnimationFrame(follow);
 }
 
-export const SidebarNav = memo(function SidebarNav({
+export function SidebarNav({
   menu,
   pathname,
+  isCollapsed = false,
   onExpand = () => {},
 }: {
   menu: MenuNode[];
   pathname: string;
+  isCollapsed?: boolean;
   onExpand?: () => void;
 }) {
   return (
@@ -333,7 +318,13 @@ export const SidebarNav = memo(function SidebarNav({
     >
       <ul>
         <li>
-          <NavLink href="/" label="Beranda" icon={House} pathname={pathname} />
+          <NavLink
+            href="/"
+            label="Beranda"
+            icon={House}
+            pathname={pathname}
+            isCollapsed={isCollapsed}
+          />
         </li>
         <li
           className={cn(
@@ -348,6 +339,7 @@ export const SidebarNav = memo(function SidebarNav({
                 label="Pencarian"
                 icon={Search}
                 pathname={pathname}
+                isCollapsed={isCollapsed}
               />
             </div>
           </Fold>
@@ -456,4 +448,4 @@ export const SidebarNav = memo(function SidebarNav({
       </ul>
     </nav>
   );
-});
+}
