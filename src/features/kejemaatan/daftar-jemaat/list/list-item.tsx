@@ -2,18 +2,17 @@ import { Pencil } from "lucide-react";
 import Link from "next/link";
 
 import { buttonVariants } from "@/components/common/control";
-import { Avatar, Badge } from "@/components/common/display";
+import { Avatar } from "@/components/common/display";
 import { DataListRow, type DataTableConfig } from "@/components/common/list";
 import { MENU, editHref } from "@/config/menu";
 import { saveListFocus } from "@/lib/list-return";
 import { cn } from "@/lib/utils";
 
 import { JEMAAT_LIST_PATH } from "../model";
-import {
-  STATUS_JEMAAT_LABEL,
-  TYPE_JEMAAT_LABEL,
-  type JemaatListItem,
-} from "../types";
+import { TYPE_JEMAAT_LABEL, type JemaatListItem } from "../types";
+
+import { JemaatStatus } from "./jemaat-status";
+import { OptionalName } from "./optional-name";
 
 export function JemaatListItemRow({
   jemaat,
@@ -56,27 +55,6 @@ export function JemaatListItemRow({
         </>
       }
     />
-  );
-}
-
-function OptionalName({ name, empty }: { name?: string; empty: string }) {
-  return name ? (
-    <span className="block truncate" title={name}>
-      {name}
-    </span>
-  ) : (
-    <span className="text-muted-foreground">
-      <span aria-hidden>—</span>
-      <span className="sr-only">{empty}</span>
-    </span>
-  );
-}
-
-function JemaatStatus({ status }: { status: JemaatListItem["status"] }) {
-  return (
-    <Badge variant={status === "AKTIF" ? "success" : "neutral"}>
-      {STATUS_JEMAAT_LABEL[status]}
-    </Badge>
   );
 }
 

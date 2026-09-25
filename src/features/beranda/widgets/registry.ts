@@ -13,35 +13,32 @@ import {
   type KpiGroup,
 } from "../view";
 
-import { AgendaWidget } from "./agenda";
-import {
-  AgendaWeekWidget,
-  KpiEventsFortnight,
-  KpiServicesWeek,
-} from "./agenda-week";
-import { ApprovalsWidget, KpiWaitingApprovals } from "./approvals";
-import { BudgetUseWidget, NewMembersWidget, ZonesWidget } from "./dummy";
-import {
-  CashAccountsWidget,
-  ClosingReadinessWidget,
-  IncomeByTypeWidget,
-} from "./finance";
-import {
-  KpiCashBalance,
-  KpiExpense,
-  KpiIncome,
-  KpiSurplusYear,
-} from "./finance-kpi";
-import { IncomeExpenseChart } from "./income-expense-chart";
-import {
-  BirthdaysWidget,
-  KpiBirthdays,
-  KpiJemaatTotal,
-  KpiPendingLoans,
-  LoanRoomsWidget,
-} from "./office";
-import { KpiPayables, PayablesWidget } from "./payables";
-import { AnnouncementsWidget, MyOfferingsWidget } from "./personal";
+import { AgendaWidget } from "./agenda/agenda-widget";
+import { AgendaWeekWidget } from "./agenda-week/agenda-week-widget";
+import { KpiEventsFortnight } from "./agenda-week/kpi-events-fortnight";
+import { KpiServicesWeek } from "./agenda-week/kpi-services-week";
+import { ApprovalsWidget } from "./approvals/approvals-widget";
+import { KpiWaitingApprovals } from "./approvals/kpi-waiting-approvals";
+import { BudgetUseWidget } from "./dummy/budget-use-widget";
+import { NewMembersWidget } from "./dummy/new-members-widget";
+import { ZonesWidget } from "./dummy/zones-widget";
+import { CashAccountsWidget } from "./finance/cash-accounts-widget";
+import { ClosingReadinessWidget } from "./finance/closing-readiness-widget";
+import { IncomeByTypeWidget } from "./finance/income-by-type-widget";
+import { KpiCashBalance } from "./finance-kpi/kpi-cash-balance";
+import { KpiExpense } from "./finance-kpi/kpi-expense";
+import { KpiIncome } from "./finance-kpi/kpi-income";
+import { KpiSurplusYear } from "./finance-kpi/kpi-surplus-year";
+import { IncomeExpenseChart } from "./income-expense-chart/income-expense-chart";
+import { BirthdaysWidget } from "./office/birthdays-widget";
+import { KpiBirthdays } from "./office/kpi-birthdays";
+import { KpiJemaatTotal } from "./office/kpi-jemaat-total";
+import { KpiPendingLoans } from "./office/kpi-pending-loans";
+import { LoanRoomsWidget } from "./office/loan-rooms-widget";
+import { KpiPayables } from "./payables/kpi-payables";
+import { PayablesWidget } from "./payables/payables-widget";
+import { AnnouncementsWidget } from "./personal/announcements-widget";
+import { MyOfferingsWidget } from "./personal/my-offerings-widget";
 
 export type WidgetSlot = "kpi" | "main" | "side";
 

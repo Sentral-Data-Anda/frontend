@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 
-import { niceCeiling } from "./income-expense-chart";
+import { niceCeiling } from "./data";
 
 test("batas sumbu = 1/2/5 × 10ⁿ terdekat di atas nilai terbesar", () => {
   expect(niceCeiling(86_400_000)).toBe(100_000_000);

@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { buildPayables, dueLabel } from "./payables";
+import { buildPayables, dueLabel } from "./data";
 
 const now = new Date("2026-09-22T03:00:00Z");
 

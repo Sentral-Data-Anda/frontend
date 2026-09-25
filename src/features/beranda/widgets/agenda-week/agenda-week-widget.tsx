@@ -5,86 +5,24 @@ import { useState } from "react";
 
 import {
   DashboardCard,
-  KpiCell,
   DashboardTable,
   TableTitle,
   type TableRow,
 } from "@/components/common/dashboard";
 import { EmptyState } from "@/components/common/feedback";
-import { MENU, menuHref } from "@/config/menu";
+import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 
-import {
-  sortByStartTime,
-  useEventRange,
-  useIbadahRange,
-  type EventItem,
-  type IbadahWeekItem,
-} from "../api";
+import { useEventRange, useIbadahRange } from "../../api";
 import {
   addDaysKey,
   formatDayMonth,
   formatWeekdayShort,
   toDateKey,
   weekKeys,
-} from "../model";
+} from "../../model";
 
-const IBADAH_HREF = menuHref(MENU.PERIBADAHAN, MENU.IBADAH);
-const EVENT_HREF = menuHref(MENU.KEGIATAN, MENU.EVENT);
-
-const dayOf = (iso: string) => iso.slice(0, 10);
-
-type AgendaItem = {
-  key: string;
-  day: string;
-  time: string | null;
-  name: string;
-  room: string;
-  href: string;
-  until?: string;
-};
-
-export function buildAgenda(
-  ibadah: IbadahWeekItem[],
-  events: EventItem[],
-  days: string[],
-): AgendaItem[] {
-  const rows: AgendaItem[] = [
-    ...sortByStartTime(ibadah).map((item) => ({
-      key: `ibadah-${item.code}`,
-      day: dayOf(item.date),
-      time: item.startTime,
-      name: item.typeIbadah.name,
-      room: item.room?.name ?? "—",
-      href: IBADAH_HREF,
-    })),
-    ...events.flatMap((item) => {
-      const first = days.find(
-        (day) => dayOf(item.startDate) <= day && day <= dayOf(item.endDate),
-      );
-      return first
-        ? [
-            {
-              key: `event-${item.code}`,
-              day: first,
-              time: null,
-              name: item.name,
-              room: item.room?.name ?? item.location ?? "—",
-              href: EVENT_HREF,
-              until:
-                dayOf(item.endDate) > first ? dayOf(item.endDate) : undefined,
-            },
-          ]
-        : [];
-    }),
-  ];
-
-  return rows.sort(
-    (a, b) =>
-      a.day.localeCompare(b.day) ||
-      (a.time ?? "99").localeCompare(b.time ?? "99"),
-  );
-}
+import { buildAgenda } from "./data";
 
 const COLUMNS = [
   { label: "Hari", width: "0.8fr" },
@@ -185,37 +123,5 @@ export function AgendaWeekWidget() {
         />
       )}
     </DashboardCard>
-  );
-}
-
-export function KpiServicesWeek() {
-  const days = weekKeys(new Date());
-  const ibadah = useIbadahRange(days[0], days[6]);
-
-  return (
-    <KpiCell
-      label="Ibadah · minggu ini"
-      value={`${ibadah.data?.length ?? 0}`}
-      isLoading={ibadah.isPending}
-      isError={ibadah.isError}
-    />
-  );
-}
-
-export function KpiEventsFortnight() {
-  const today = toDateKey(new Date());
-  const events = useEventRange(today, addDaysKey(today, 13), true);
-  const todayCount = (events.data ?? []).filter(
-    (item) => dayOf(item.startDate) <= today && today <= dayOf(item.endDate),
-  ).length;
-
-  return (
-    <KpiCell
-      label="Kegiatan · 14 hari"
-      value={`${events.data?.length ?? 0}`}
-      hint={todayCount > 0 ? `${todayCount} hari ini` : undefined}
-      isLoading={events.isPending}
-      isError={events.isError}
-    />
   );
 }

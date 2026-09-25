@@ -2,7 +2,6 @@
 
 import {
   DashboardCard,
-  KpiCell,
   DashboardTable,
   TableTitle,
   type TableRow,
@@ -12,22 +11,12 @@ import { EmptyState } from "@/components/common/feedback";
 import { MENU, menuHref } from "@/config/menu";
 import { formatRupiahCompact } from "@/lib/format";
 
-import { amountOf, useWaitingApprovals, type ApprovalItem } from "../api";
-import { daysSince } from "../model";
+import { amountOf, useWaitingApprovals, type ApprovalItem } from "../../api";
+import { daysSince } from "../../model";
+
+import { DOCUMENT_LABEL } from "./data";
 
 const QUEUE_HREF = menuHref(MENU.PERSETUJUAN, MENU.PERMINTAAN_PERSETUJUAN);
-
-export const DOCUMENT_LABEL: Record<string, string> = {
-  PURCHASE_REQUEST: "Permintaan pembelian",
-  PROGRAM: "Program",
-  PROGRAM_MENDADAK: "Program mendadak",
-  BUDGET_USAGE_REPORT: "Laporan pemakaian anggaran",
-  CASH_EXPENSE: "Kas keluar",
-  LEAVE_REQUEST: "Cuti",
-  PAYROLL_RUN: "Penggajian",
-  PURCHASE_RETURN: "Retur pembelian",
-  LOAN_ROOM: "Peminjaman ruang",
-};
 
 const bapelOf = (item: ApprovalItem) =>
   item.steps.find((step) => step.order === item.currentOrder)?.approverBapel
@@ -99,25 +88,5 @@ export function ApprovalsWidget() {
         />
       )}
     </DashboardCard>
-  );
-}
-
-export function KpiWaitingApprovals() {
-  const query = useWaitingApprovals();
-  const items = query.data?.data ?? [];
-  const oldest = items[0];
-
-  return (
-    <KpiCell
-      label="Menunggu TTD"
-      value={`${query.data?.totalData ?? 0}`}
-      hint={
-        oldest
-          ? `tertua ${daysSince(oldest.submittedAt, new Date())} hari`
-          : undefined
-      }
-      isLoading={query.isPending}
-      isError={query.isError}
-    />
   );
 }

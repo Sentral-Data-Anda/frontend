@@ -21,7 +21,7 @@ import {
 } from "../types";
 
 import { ControlField } from "./control-field";
-import type { JemaatForm } from "./form-sections";
+import type { JemaatForm } from "./section";
 
 const RIWAYAT_PATH = menuHref(MENU.KEJEMAATAN, MENU.RIWAYAT_JEMAAT);
 

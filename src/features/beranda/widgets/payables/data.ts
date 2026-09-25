@@ -1,17 +1,7 @@
 "use client";
 
-import {
-  DashboardCard,
-  KpiCell,
-  DashboardTable,
-  TableTitle,
-  type TableRow,
-} from "@/components/common/dashboard";
-import { Badge } from "@/components/common/display";
-import { EmptyState } from "@/components/common/feedback";
-import { MENU, domainHref, menuHref, type MenuSlug } from "@/config/menu";
+import { MENU, menuHref, type MenuSlug } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
-import { formatRupiah, formatRupiahCompact } from "@/lib/format";
 
 import {
   amountOf,
@@ -25,11 +15,10 @@ import {
   type PaymentItem,
   type PayrollItem,
   type SupplierInvoiceItem,
-} from "../api";
-import { DUMMY_UNPOSTED_OFFERINGS, SHOW_DUMMY } from "../fixtures";
-import { daysSince, formatDayMonth, toDateKey } from "../model";
-
-import { DOCUMENT_LABEL } from "./approvals";
+} from "../../api";
+import { DUMMY_UNPOSTED_OFFERINGS, SHOW_DUMMY } from "../../fixtures";
+import { daysSince, formatDayMonth, toDateKey } from "../../model";
+import { DOCUMENT_LABEL } from "../approvals/data";
 
 type Tone = "due" | "draft" | "wait" | "neutral";
 
@@ -199,7 +188,7 @@ export function buildPayables(
   );
 }
 
-function usePayables() {
+export function usePayables() {
   const cash = useMenuAccess(MENU.KAS_KELUAR).isCanView;
   const invoice = useMenuAccess(MENU.FAKTUR_SUPPLIER).isCanView;
   const approval = useMenuAccess(MENU.PERMINTAAN_PERSETUJUAN).isCanView;
@@ -241,103 +230,4 @@ function usePayables() {
     error: live.find((query) => query.error)?.error ?? null,
     refetch: () => live.forEach((query) => void query.refetch()),
   };
-}
-
-const MAX_ROWS = 6;
-
-const COLUMNS = [
-  { label: "Item", width: "2.3fr" },
-  { label: "Jenis", width: "1fr", align: "right" as const },
-  { label: "Nominal", width: "0.9fr", align: "right" as const },
-  { label: "Status", width: "1fr", align: "right" as const },
-];
-
-export function PayablesWidget() {
-  const state = usePayables();
-  const rows = state.rows.slice(0, MAX_ROWS);
-
-  const tableRows: TableRow[] = rows.map((row) => {
-    const status = <Badge variant={row.status.tone}>{row.status.label}</Badge>;
-    const amount = row.amount === null ? "—" : formatRupiahCompact(row.amount);
-    const meta = (
-      <>
-        <span className="truncate">{row.meta}</span>
-        {row.isDummy ? <Badge variant="sample">contoh data</Badge> : null}
-      </>
-    );
-    return {
-      key: row.key,
-      href: row.href,
-      label: row.title,
-      cells: [
-        <span key="item" className="block min-w-0">
-          <TableTitle title={row.title} />
-          <span className="text-muted-foreground flex min-w-0 items-center gap-1.5 text-caption">
-            {meta}
-          </span>
-        </span>,
-        <span key="kind" className="text-muted-foreground truncate">
-          {row.kind}
-        </span>,
-        <span
-          key="amount"
-          className="font-semibold"
-          title={row.amount === null ? undefined : formatRupiah(row.amount)}
-        >
-          {amount}
-        </span>,
-        status,
-      ],
-      compact: {
-        title: row.title,
-        meta: (
-          <>
-            <span className="truncate">{row.kind}</span>
-            {status}
-          </>
-        ),
-        trailing: amount,
-      },
-    };
-  });
-
-  return (
-    <DashboardCard
-      title="Perlu diselesaikan"
-      actionLabel={
-        state.rows.length > MAX_ROWS
-          ? `Semua (${state.rows.length})`
-          : "Keuangan"
-      }
-      actionHref={domainHref(MENU.KEUANGAN)}
-      query={state}
-      minHeight="min-h-48"
-    >
-      {rows.length === 0 ? (
-        <EmptyState isCompact title="Tidak ada yang perlu diselesaikan" />
-      ) : (
-        <DashboardTable
-          label="Perlu diselesaikan"
-          columns={COLUMNS}
-          rows={tableRows}
-        />
-      )}
-    </DashboardCard>
-  );
-}
-
-export function KpiPayables() {
-  const state = usePayables();
-  const payable = state.rows.filter((row) => row.isPayable);
-  const total = payable.reduce((sum, row) => sum + (row.amount ?? 0), 0);
-
-  return (
-    <KpiCell
-      label="Perlu dibayar"
-      value={`${payable.length} dok.`}
-      hint={payable.length ? formatRupiahCompact(total) : "Semua lunas"}
-      isLoading={state.isPending}
-      isError={state.error !== null}
-    />
-  );
 }

@@ -4,9 +4,12 @@ import { DashboardCard } from "@/components/common/dashboard";
 import { MENU, menuHref } from "@/config/menu";
 import { formatRupiah } from "@/lib/format";
 
-import { useMonthlyFlow } from "../api";
-import { useNow } from "../hooks/use-now";
-import { toDateKey } from "../model";
+import { useMonthlyFlow } from "../../api";
+import { useNow } from "../../hooks/use-now";
+import { toDateKey } from "../../model";
+
+import { niceCeiling } from "./data";
+import { Legend } from "./legend";
 
 const MONTH_LABEL = [
   "Jan",
@@ -22,28 +25,6 @@ const MONTH_LABEL = [
   "Nov",
   "Des",
 ];
-
-export const niceCeiling = (value: number): number => {
-  if (value <= 0) return 1;
-  const power = 10 ** Math.floor(Math.log10(value));
-  const step = [1, 2, 5, 10].find((m) => m * power >= value) ?? 10;
-  return step * power;
-};
-
-function Legend() {
-  return (
-    <span className="text-muted-foreground flex items-center gap-3 text-caption">
-      <span className="flex items-center gap-1.5">
-        <span className="bg-chart-income size-1.5 rounded-xs" aria-hidden />
-        Masuk
-      </span>
-      <span className="flex items-center gap-1.5">
-        <span className="bg-chart-expense size-1.5 rounded-xs" aria-hidden />
-        Keluar
-      </span>
-    </span>
-  );
-}
 
 export function IncomeExpenseChart() {
   const today = toDateKey(new Date());

@@ -7,35 +7,25 @@ import {
   DashboardCard,
   DashboardList,
   DashboardRow,
-  KpiCell,
 } from "@/components/common/dashboard";
 import { TimeBadge } from "@/components/common/display";
 import { EmptyState } from "@/components/common/feedback";
 import { MENU, menuHref } from "@/config/menu";
-import { useMenuAccess } from "@/features/auth";
 import { cn } from "@/lib/utils";
 
-import { sortByStartTime, useEventRange, useIbadahRange } from "../api";
+import { sortByStartTime } from "../../api";
 import {
   findNextService,
   formatDayMonth,
   formatWeekdayShort,
   toDateKey,
-  weekKeys,
-} from "../model";
+} from "../../model";
+
+import { useWeekAgenda } from "./data";
 
 const IBADAH_HREF = menuHref(MENU.PERIBADAHAN, MENU.IBADAH);
+
 const EVENT_HREF = menuHref(MENU.KEGIATAN, MENU.EVENT);
-
-function useWeekAgenda() {
-  const now = new Date();
-  const days = weekKeys(now);
-  const eventAccess = useMenuAccess(MENU.EVENT);
-  const ibadah = useIbadahRange(days[0], days[6]);
-  const events = useEventRange(days[0], days[6], eventAccess.isCanView);
-
-  return { now, days, ibadah, events, isEventShown: eventAccess.isCanView };
-}
 
 const dayOf = (iso: string) => iso.slice(0, 10);
 
@@ -164,20 +154,5 @@ export function AgendaWidget() {
         ibadahList
       )}
     </DashboardCard>
-  );
-}
-
-export function KpiAgendaWeek() {
-  const { ibadah, events, isEventShown } = useWeekAgenda();
-  const isLoading = ibadah.isPending || (isEventShown && events.isPending);
-  const count = (ibadah.data?.length ?? 0) + (events.data?.length ?? 0);
-
-  return (
-    <KpiCell
-      label="Agenda minggu ini"
-      value={`${count} acara`}
-      hint={isEventShown ? "Ibadah & kegiatan" : "Ibadah"}
-      isLoading={isLoading}
-    />
   );
 }

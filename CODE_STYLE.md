@@ -117,6 +117,19 @@ diakhiri titik (`Kecamatan wajib dipilih, sesudah kabupaten/kota.`).
 (ditegakkan lint). Tata letak responsif milik `components/layout` dan
 `components/common`.
 
+**[WAJIB-11] Satu berkas satu komponen di `features/**`.**
+Nama berkas kebab-case dari nama komponennya (`IdentitySection` →
+`identity-section.tsx`). Komponen yang sekelompok jadi satu folder dengan barrel
+(`beranda/widgets/office/`); hook, konstanta, dan helper yang dipakai lebih dari
+satu komponen di folder itu tinggal di satu berkas non-komponen (`data.ts`,
+`section.ts`). Konfigurasi yang merender JSX tapi bukan komponen (`jemaatTable`)
+boleh menumpang di berkas komponen yang memakainya.
+
+Pengecualian di `components/**`: kerangka bersama yang komponennya saling terkait
+dan selalu dipakai bersama boleh tetap satu berkas, mis. `form-layout.tsx`
+(`FormLayout`, `FormSection`, `FormActions`), `data-list.tsx`, dan primitif
+`components/ui` bawaan shadcn.
+
 ## Yang dipertahankan
 
 - Test bersebelahan dengan berkas yang diuji (`x.test.ts`).

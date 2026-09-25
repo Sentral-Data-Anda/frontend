@@ -2,95 +2,14 @@
 
 import { Check } from "lucide-react";
 
-import { DashboardCard, ProgressBar } from "@/components/common/dashboard";
-import { EmptyState } from "@/components/common/feedback";
+import { DashboardCard } from "@/components/common/dashboard";
 import { MENU, menuHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
-import { formatRupiah, formatRupiahCompact } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
-import {
-  useDraftJournalCount,
-  useFiscalPeriods,
-  useIncomeByType,
-} from "../api";
-import {
-  DUMMY_CASH_ACCOUNTS,
-  DUMMY_CLOSING_CHECKS,
-  SHOW_DUMMY,
-} from "../fixtures";
-import { monthOf, toDateKey } from "../model";
-
-export function CashAccountsWidget() {
-  const total = DUMMY_CASH_ACCOUNTS.reduce((sum, row) => sum + row.amount, 0);
-
-  return (
-    <DashboardCard title="Saldo per rekening" isDummy>
-      <ul aria-label="Saldo per rekening" className="divide-hairline divide-y">
-        {DUMMY_CASH_ACCOUNTS.map((row) => (
-          <li
-            key={row.id}
-            className="flex items-center justify-between gap-3 py-2"
-          >
-            <span className="flex min-w-0 items-center gap-2 text-body font-medium">
-              <span
-                className="bg-chart-income size-1.5 shrink-0 rounded-full"
-                aria-hidden
-              />
-              <span className="truncate">{row.name}</span>
-            </span>
-            <span
-              className="shrink-0 text-body font-semibold tabular-nums"
-              title={formatRupiah(row.amount)}
-            >
-              {formatRupiahCompact(row.amount)}
-            </span>
-          </li>
-        ))}
-      </ul>
-      <div className="border-border mt-2 flex items-center justify-between gap-3 border-t pt-2.5">
-        <span className="text-muted-foreground text-caption">Total</span>
-        <span
-          className="text-body font-semibold tabular-nums"
-          title={formatRupiah(total)}
-        >
-          {formatRupiahCompact(total)}
-        </span>
-      </div>
-    </DashboardCard>
-  );
-}
-
-export function IncomeByTypeWidget() {
-  const today = toDateKey(new Date());
-  const query = useIncomeByType(`${today.slice(0, 7)}-01`, today);
-  const data = query.data;
-
-  return (
-    <DashboardCard
-      title="Pemasukan per jenis · bulan ini"
-      query={query}
-      minHeight="min-h-36"
-    >
-      {!data || data.parts.length === 0 ? (
-        <EmptyState isCompact title="Belum ada pemasukan bulan ini" />
-      ) : (
-        <ul aria-label="Pemasukan per jenis" className="space-y-3">
-          {data.parts.slice(0, 5).map((part) => (
-            <li key={part.code}>
-              <ProgressBar
-                label={part.name}
-                value={data.total > 0 ? (part.amount / data.total) * 100 : 0}
-                meta={`${Math.round(data.total > 0 ? (part.amount / data.total) * 100 : 0)}% · ${formatRupiahCompact(part.amount)}`}
-                title={formatRupiah(part.amount)}
-              />
-            </li>
-          ))}
-        </ul>
-      )}
-    </DashboardCard>
-  );
-}
+import { useDraftJournalCount, useFiscalPeriods } from "../../api";
+import { DUMMY_CLOSING_CHECKS, SHOW_DUMMY } from "../../fixtures";
+import { monthOf, toDateKey } from "../../model";
 
 export function ClosingReadinessWidget() {
   const now = new Date();

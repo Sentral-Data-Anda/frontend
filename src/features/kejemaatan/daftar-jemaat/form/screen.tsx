@@ -2,12 +2,11 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { TriangleAlert } from "lucide-react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type MouseEvent } from "react";
 import { useForm, useWatch } from "react-hook-form";
 
-import { Button, buttonVariants } from "@/components/common/control";
+import { Button } from "@/components/common/control";
 import { useToast } from "@/components/common/feedback";
 import { FormActions, FormLayout, LoadingForm } from "@/components/common/form";
 import { ConfirmDialog } from "@/components/common/overlay";
@@ -31,16 +30,15 @@ import {
   type JemaatFormValues,
 } from "../model";
 
+import { AddressSection } from "./address-section";
+import { ContactSection } from "./contact-section";
 import { DuplicateWarning } from "./duplicate-warning";
-import {
-  AddressSection,
-  ContactSection,
-  FamilySection,
-  IdentitySection,
-  MembershipSection,
-  SocialSection,
-} from "./form-sections";
+import { FamilySection } from "./family-section";
+import { IdentitySection } from "./identity-section";
+import { MembershipSection } from "./membership-section";
+import { NoFormAccess } from "./no-form-access";
 import { RiwayatSection } from "./riwayat-fields";
+import { SocialSection } from "./social-section";
 
 export function JemaatFormScreen({ code }: { code?: string }) {
   const router = useRouter();
@@ -226,37 +224,4 @@ function revealField(field: string | null | undefined) {
 
   control.focus({ preventScroll: true });
   control.scrollIntoView({ block: "center", behavior: "smooth" });
-}
-
-function NoFormAccess({ isEdit }: { isEdit: boolean }) {
-  return (
-    <div className="mx-auto w-full max-w-lg">
-      <PageHeader
-        title={
-          isEdit ? "Tidak bisa mengubah jemaat" : "Tidak bisa menambah jemaat"
-        }
-        backHref={JEMAAT_LIST_PATH}
-        isBackPersistent
-      />
-
-      <div className="flex flex-col items-start gap-3 px-gutter">
-        <p className="text-muted-foreground text-body">
-          Peran Anda hanya bisa melihat data jemaat.{" "}
-          {isEdit ? "Perubahan data" : "Penambahan jemaat baru"} biasanya
-          dikerjakan sekretariat.
-        </p>
-
-        <p className="text-muted-foreground text-body">
-          Hubungi administrator bila Anda memang seharusnya memegang akses ini.
-        </p>
-
-        <Link
-          href={JEMAAT_LIST_PATH}
-          className={buttonVariants({ variant: "outline" })}
-        >
-          Kembali ke Daftar Jemaat
-        </Link>
-      </div>
-    </div>
-  );
 }
