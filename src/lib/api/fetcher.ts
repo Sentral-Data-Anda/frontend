@@ -54,7 +54,7 @@ const readError = async (
 const readErrorMessage = async (response: Response): Promise<string> =>
   (await readError(response)).message;
 
-const onRequest = (path: string, init?: RequestInit): Promise<Response> =>
+const request = (path: string, init?: RequestInit): Promise<Response> =>
   fetch(`${BASE_PATH}${path}`, {
     ...init,
     headers: {
@@ -67,7 +67,7 @@ export async function fetchOne<T>(
   path: string,
   init?: RequestInit,
 ): Promise<ApiResponse<T>> {
-  const response = await onRequest(path, init);
+  const response = await request(path, init);
 
   if (!response.ok) {
     const failure = await readError(response);
@@ -82,7 +82,7 @@ export async function fetchList<T>(
   path: string,
   init?: RequestInit,
 ): Promise<ApiListResponse<T>> {
-  const response = await onRequest(path, init);
+  const response = await request(path, init);
 
   if (response.status === 404) {
     return {

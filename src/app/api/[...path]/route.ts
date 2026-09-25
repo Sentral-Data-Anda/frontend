@@ -45,7 +45,7 @@ const buildForwardHeaders = (request: NextRequest): Headers => {
   return headers;
 };
 
-const onHandle = async (
+const forwardToBackend = async (
   request: NextRequest,
   context: { params: Promise<{ path: string[] }> },
 ): Promise<Response> => {
@@ -123,8 +123,8 @@ const onHandle = async (
   return new Response(upstream.body, { status: upstream.status, headers });
 };
 
-export const GET = onHandle;
-export const POST = onHandle;
-export const PUT = onHandle;
-export const PATCH = onHandle;
-export const DELETE = onHandle;
+export const GET = forwardToBackend;
+export const POST = forwardToBackend;
+export const PUT = forwardToBackend;
+export const PATCH = forwardToBackend;
+export const DELETE = forwardToBackend;

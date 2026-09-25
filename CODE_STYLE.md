@@ -45,7 +45,10 @@ tidak terkena aturan ini.
   callback yang diteruskan lewat prop: `onSave`, `onPickPage`, `onRetry`.
 - State pilihan diawali `pick`: `pickStatus`, `pickId`.
 - Helper murni tidak memakai `on`. Namai dengan kata kerja biasa: `readNumber`,
-  `toApiQuery`, `formatDate`.
+  `toApiQuery`, `formatDate`. Alasannya: `on` menandai sesuatu yang dipicu dari
+  luar (event, prop, service), sedangkan helper dipanggil langsung dan hasilnya
+  hanya bergantung pada argumennya, sama seperti `packages/utils` di
+  monorepo-apower-fe (`formatDate`, `listMonths`, `toAreaFilter`).
 
 ```ts
 // SALAH
@@ -62,7 +65,7 @@ turunannya; `useEffect` berderet tepat sebelum `return`. Tidak ditegakkan lint, 
 diperiksa saat review (checklist pedoman-slicing §6).
 
 **[WAJIB-4] State boolean lewat `useBoolean()`**, bukan `useState<boolean>`
-(ditegakkan lint).
+atau `const [isX] = useState(…)` (keduanya ditegakkan lint).
 
 **[WAJIB-5] Loading.**
 
@@ -71,6 +74,7 @@ diperiksa saat review (checklist pedoman-slicing §6).
   `finally`, bukan `onToggle()`.
 - Data yang diambil TanStack Query memakai status query-nya sendiri; jangan
   disalin ke state.
+- Form RHF: `isSubmitting` adalah flag loading-nya; jangan ditambah `useBoolean`.
 
 **[WAJIB-6] `onConfirm` hanya membuka dialog.**
 Ia tidak `async` dan tidak memanggil service. Yang menyimpan adalah `onSave` /

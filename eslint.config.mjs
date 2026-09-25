@@ -30,6 +30,12 @@ const NAMING_SELECTORS = [
   },
   {
     selector:
+      "VariableDeclarator[init.callee.name='useState'][id.elements.0.name=/^is[A-Z0-9]/]",
+    message:
+      "State boolean wajib memakai useBoolean() dari @/hooks/use-boolean, bukan const [is…] = useState(…).",
+  },
+  {
+    selector:
       "VariableDeclarator[init.callee.name='useBoolean'][id.name!=/^is[A-Z0-9]/]",
     message:
       'Nama state boolean wajib diawali "is". "has", "should", "can", dan "show" tidak dikecualikan.',

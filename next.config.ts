@@ -1,25 +1,7 @@
 import type { NextConfig } from "next";
 
-/**
- * Identitas satu build, dipakai dua tempat sekaligus:
- *
- * - `generateBuildId` — supaya beberapa container yang menyajikan build yang
- *   sama memakai ID yang sama (kalau berbeda, aset antar-container tidak
- *   cocok dan navigasi bisa memuat chunk yang tidak ada).
- * - `NEXT_PUBLIC_BUILD_ID` — distempel ke URL registrasi service worker
- *   (`/sw.js?v=<id>`). Browser membandingkan service worker per-URL, jadi
- *   inilah yang membuat build baru benar-benar terdeteksi sebagai versi baru.
- *   Tanpa ini, cache lama nyangkut selamanya.
- *
- * Urutan sumbernya, dari yang paling bisa ditelusuri:
- *
- * 1. `BUILD_ID` — diisi eksplisit di CI/Docker dengan commit SHA.
- * 2. `VERCEL_GIT_COMMIT_SHA` — disediakan Vercel sendiri. Vercel TIDAK
- *    menyetel `BUILD_ID`, jadi tanpa langkah ini setiap deploy jatuh ke
- *    timestamp: tetap unik (service worker tetap terdeteksi baru), tapi tidak
- *    bisa ditelusuri balik ke commit mana pun saat menyelidiki laporan error.
- * 3. Timestamp — jaring terakhir untuk build lokal.
- */
+// Satu ID per build untuk generateBuildId dan URL service worker (`/sw.js?v=<id>`).
+// Urutan: BUILD_ID dari CI/Docker, commit SHA Vercel, lalu timestamp lokal.
 const buildId =
   process.env.BUILD_ID ||
   process.env.VERCEL_GIT_COMMIT_SHA ||
@@ -41,7 +23,6 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        // Header keamanan global, berlaku untuk seluruh rute.
         source: "/:path*",
         headers: [
           { key: "X-Content-Type-Options", value: "nosniff" },
@@ -59,9 +40,7 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        // Tanpa no-store, service worker basi bisa nyangkut di browser dan
-        // perbaikan berikutnya tidak pernah sampai ke user. Digandeng dengan
-        // `updateViaCache: "none"` saat registrasi — keduanya diperlukan.
+        // Tanpa no-store service worker basi nyangkut; pasangannya updateViaCache: "none".
         source: "/sw.js",
         headers: [
           {
@@ -76,11 +55,6 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-
-  // Daftarkan host gambar dari API/CDN eksternal di sini bila memakai next/image.
-  // images: {
-  //   remotePatterns: [{ protocol: "https", hostname: "cdn.gkigraharaya.org" }],
-  // },
 };
 
 export default nextConfig;

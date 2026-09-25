@@ -3,6 +3,7 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
+import { useBoolean } from "@/hooks/use-boolean";
 import {
   addDays,
   addMonths,
@@ -59,7 +60,7 @@ export function Calendar({
 
     return start;
   });
-  const [isYearGrid, setIsYearGrid] = useState(startInYearGrid);
+  const isYearGrid = useBoolean(startInYearGrid);
   const cursorRef = useRef<HTMLButtonElement>(null);
 
   const month = startOfMonth(cursor);
@@ -118,9 +119,9 @@ export function Calendar({
       cancelAnimationFrame(outer);
       cancelAnimationFrame(inner);
     };
-  }, [cursor, isYearGrid]);
+  }, [cursor, isYearGrid.value]);
 
-  if (isYearGrid) {
+  if (isYearGrid.value) {
     const firstYear = Number((min ?? "1900-01-01").slice(0, 4));
     const lastYear = Number((max ?? today).slice(0, 4));
     const years = Array.from(
@@ -190,7 +191,7 @@ export function Calendar({
                 data-autofocus={isCurrent ? "" : undefined}
                 onClick={() => {
                   onYear(year);
-                  setIsYearGrid(false);
+                  isYearGrid.onFalse();
                 }}
                 className={cn(
                   "h-control cursor-pointer rounded-control text-body tabular-nums",
@@ -229,7 +230,7 @@ export function Calendar({
           size="sm"
           aria-live="polite"
           className="flex-1 cursor-pointer font-semibold"
-          onClick={() => setIsYearGrid(true)}
+          onClick={isYearGrid.onTrue}
         >
           {monthTitle(month)}
         </Button>
