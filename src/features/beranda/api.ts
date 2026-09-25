@@ -105,28 +105,6 @@ export function usePublicAnnouncements(limit: number) {
   });
 }
 
-export type OfferingItem = {
-  code: string;
-  amount: string;
-  period: string | null;
-  receivedDate: string;
-  typePersembahan: { name: string };
-};
-
-export function useMyOfferings(year: string) {
-  const query = `periodStart=${year}-01&periodEnd=${year}-12&limit=100`;
-
-  return useQuery({
-    queryKey: ["persembahan", "saya", query],
-    queryFn: () => fetchList<OfferingItem>(`/persembahan/saya?${query}`),
-    select: (response) => ({
-      items: response.data,
-      count: response.totalData,
-      total: response.data.reduce((sum, row) => sum + toAmount(row.amount), 0),
-    }),
-  });
-}
-
 export type CashExpenseItem = {
   code: string;
   expenseDate: string;

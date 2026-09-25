@@ -38,7 +38,6 @@ import { LoanRoomsWidget } from "./office/loan-rooms-widget";
 import { KpiPayables } from "./payables/kpi-payables";
 import { PayablesWidget } from "./payables/payables-widget";
 import { AnnouncementsWidget } from "./personal/announcements-widget";
-import { MyOfferingsWidget } from "./personal/my-offerings-widget";
 
 export type WidgetSlot = "kpi" | "main" | "side";
 
@@ -255,12 +254,6 @@ export const WIDGETS: readonly Widget[] = [
     gate: [view(MENU.REPORT_JEMAAT)],
     isDummy: true,
     Component: NewMembersWidget,
-  },
-  {
-    id: "my-offerings",
-    slot: "side",
-    gate: [],
-    Component: MyOfferingsWidget,
   },
 ];
 

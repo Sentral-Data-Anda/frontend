@@ -221,7 +221,6 @@ describe("persona dev:mock", () => {
       "announcements",
       "loan-rooms",
       "new-members",
-      "my-offerings",
     ]);
   });
 
