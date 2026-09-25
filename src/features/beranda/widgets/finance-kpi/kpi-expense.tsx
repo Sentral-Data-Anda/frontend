@@ -8,7 +8,7 @@ import { formatRupiahCompact } from "@/lib/format";
 import { useMonthFlow } from "./data";
 
 export const KpiExpense = () => {
-  const { query, previous, deltaOf } = useMonthFlow();
+  const { ranges, query, previous, deltaOf } = useMonthFlow();
 
   return (
     <KpiCell
@@ -16,7 +16,7 @@ export const KpiExpense = () => {
       icon={ArrowUpFromLine}
       tone="warning"
       value={query.data ? formatRupiahCompact(query.data.expense) : undefined}
-      hint="tanpa pembanding tahun lalu"
+      hint={ranges.periodLabel}
       delta={deltaOf(query.data?.expense, previous?.expense ?? 0, false)}
       isLoading={query.isPending}
       isError={query.isError}

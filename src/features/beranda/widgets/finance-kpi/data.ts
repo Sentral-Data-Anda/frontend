@@ -20,6 +20,12 @@ const MONTH_SHORT = [
   "Des",
 ];
 
+const periodFormat = new Intl.DateTimeFormat("id-ID", {
+  month: "long",
+  year: "numeric",
+  timeZone: "UTC",
+});
+
 export const useRanges = () => {
   const today = toDateKey(new Date());
   const [year, month, day] = today.split("-");
@@ -33,6 +39,7 @@ export const useRanges = () => {
     lastYearFrom: `${lastYear}-${month}-01`,
     lastYearTo: `${lastYear}-${month}-${day}`,
     monthLabel: `${MONTH_SHORT[Number(month) - 1]} ${lastYear}`,
+    periodLabel: periodFormat.format(new Date(`${year}-${month}-01T00:00:00Z`)),
     untilLabel: `Jan–${MONTH_SHORT[monthOf(new Date()) - 1]} ${year}`,
   };
 };
