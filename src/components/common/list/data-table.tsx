@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import type { ReactNode, Ref } from "react";
+import { useId, type ReactNode, type Ref } from "react";
 
 import { SelectField } from "@/components/common/control";
 import { cn } from "@/lib/utils";
@@ -49,7 +49,7 @@ export function getRangeLabel(
 
 const LIMIT_OPTIONS = [10, 25, 50].map((limit) => ({
   value: String(limit),
-  label: `${limit} / halaman`,
+  label: String(limit),
 }));
 
 export function DataTable<T>({
@@ -175,37 +175,48 @@ export function DataTable<T>({
 
 export function DataTableFooter({
   pagination,
+  itemNoun = "data",
 }: {
   pagination: Extract<DataListPagination, { mode: "pages" }>;
+  itemNoun?: string;
 }) {
   const { page, totalPage, totalData, limit, onPickPage, onPickLimit } =
     pagination;
+  const limitId = useId();
 
   return (
-    <div className="flex min-h-12 items-center gap-3 px-gutter pt-3">
-      {totalData !== undefined && limit !== undefined ? (
-        <p className="text-muted-foreground text-caption tabular-nums">
-          {getRangeLabel(page, limit, totalData)}
-        </p>
-      ) : null}
+    <div className="@container/footer">
+      <div className="flex min-h-12 flex-wrap items-center gap-x-6 gap-y-3 px-gutter pt-3">
+        {totalData !== undefined && limit !== undefined ? (
+          <p className="text-muted-foreground text-body tabular-nums">
+            Menampilkan {getRangeLabel(page, limit, totalData)} {itemNoun}
+          </p>
+        ) : null}
 
-      <div className="ml-auto flex items-center gap-3">
+        {onPickLimit && limit !== undefined ? (
+          <div className="flex items-center gap-2">
+            <label
+              htmlFor={limitId}
+              className="text-muted-foreground sr-only text-body @min-[50rem]/footer:not-sr-only"
+            >
+              Baris per halaman
+            </label>
+            <SelectField
+              id={limitId}
+              value={String(limit)}
+              onValueChange={(value) => onPickLimit(Number(value))}
+              options={LIMIT_OPTIONS}
+              className="w-20 tabular-nums"
+            />
+          </div>
+        ) : null}
+
         {totalPage > 1 ? (
           <DataListPager
             page={page}
             totalPage={totalPage}
             onPickPage={onPickPage}
-            className="mt-0 px-0"
-          />
-        ) : null}
-
-        {onPickLimit && limit !== undefined ? (
-          <SelectField
-            value={String(limit)}
-            onValueChange={(value) => onPickLimit(Number(value))}
-            options={LIMIT_OPTIONS}
-            aria-label="Jumlah baris per halaman"
-            className="w-36"
+            className="mt-0 ml-auto px-0"
           />
         ) : null}
       </div>

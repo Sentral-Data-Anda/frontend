@@ -85,6 +85,7 @@ export const JemaatListScreen = () => {
         }
         pagination={jemaatList.pagination}
         table={jemaatTable(isCanUpdate)}
+        itemNoun="jemaat"
       >
         {(jemaat) => (
           <JemaatListItemRow jemaat={jemaat} isCanUpdate={isCanUpdate} />

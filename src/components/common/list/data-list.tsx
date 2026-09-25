@@ -90,6 +90,7 @@ export function DataList<T>({
   pagination,
   table,
   loadingShape,
+  itemNoun,
 }: {
   items: T[] | undefined;
   getKey: (item: T) => string;
@@ -105,6 +106,7 @@ export function DataList<T>({
   pagination?: DataListPagination;
   table?: DataTableConfig<T>;
   loadingShape?: LoadingShape;
+  itemNoun?: string;
 }) {
   const pathname = usePathname();
   const listRef = useRef<HTMLElement | null>(null);
@@ -202,7 +204,7 @@ export function DataList<T>({
         />
 
         {pagination?.mode === "pages" ? (
-          <DataTableFooter pagination={pagination} />
+          <DataTableFooter pagination={pagination} itemNoun={itemNoun} />
         ) : null}
 
         {pagination?.mode === "more" ? (

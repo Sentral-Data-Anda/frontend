@@ -56,11 +56,11 @@ export function DataListPager({
       aria-label="Paginasi"
       className={cn("mt-4 flex justify-center px-gutter", className)}
     >
-      <div className="bg-card flex items-center gap-0.5 rounded-lg p-1 shadow-sm">
+      <div className="flex items-center gap-1">
         <Button
           type="button"
           variant="ghost"
-          size="icon-sm"
+          size="icon"
           aria-label="Halaman sebelumnya"
           disabled={page <= 1}
           onClick={() => onPickPage(page - 1)}
@@ -74,11 +74,10 @@ export function DataListPager({
               key={item}
               type="button"
               variant={item === page ? "default" : "ghost"}
-              size="sm"
               aria-label={`Halaman ${item}`}
               aria-current={item === page ? "page" : undefined}
               onClick={() => onPickPage(item)}
-              className="min-w-7 px-1.5 tabular-nums"
+              className="min-w-control px-2 tabular-nums"
             >
               {item}
             </Button>
@@ -86,7 +85,7 @@ export function DataListPager({
             <span
               key={item}
               aria-hidden
-              className="text-muted-foreground flex size-7 items-center justify-center text-body"
+              className="text-muted-foreground flex size-control items-center justify-center text-body"
             >
               …
             </span>
@@ -96,7 +95,7 @@ export function DataListPager({
         <Button
           type="button"
           variant="ghost"
-          size="icon-sm"
+          size="icon"
           aria-label="Halaman berikutnya"
           disabled={page >= totalPage}
           onClick={() => onPickPage(page + 1)}
@@ -167,7 +166,6 @@ export function DataListMore({
             }}
             type="button"
             variant="ghost"
-            size="sm"
             disabled={isLoadingMore}
             focusableWhenDisabled
             onClick={onLoadMore}
@@ -196,7 +194,7 @@ export function DataListMore({
             }
           }}
           tabIndex={-1}
-          className="text-muted-foreground flex min-h-12 items-center justify-center px-gutter text-caption outline-none"
+          className="text-muted-foreground flex min-h-12 items-center justify-center px-gutter text-body outline-none"
         >
           Semua data sudah ditampilkan
         </p>

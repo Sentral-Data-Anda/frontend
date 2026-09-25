@@ -63,7 +63,7 @@ describe("DataList + table", () => {
         .getAllByRole("link")
         .map((link) => link.getAttribute("aria-label")),
     ).toEqual(["Ubah Andreas", "Ubah Bethari"]);
-    expect(screen.getByText("1–10 dari 12")).toBeTruthy();
+    expect(screen.getByText("Menampilkan 1–10 dari 12 data")).toBeTruthy();
   });
 
   test("HP (< md) → tetap baris daftar walau `table` diberikan", () => {
