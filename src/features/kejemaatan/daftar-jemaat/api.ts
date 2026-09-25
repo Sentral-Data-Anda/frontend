@@ -110,6 +110,10 @@ export function useKeluargaOptions() {
   const [query, setQuery] = useState("");
   const [debounced, setDebounced] = useState("");
 
+  const ddl = useDdlOptions(
+    `keluarga?limit=20${debounced ? `&filter=${encodeURIComponent(debounced)}` : ""}`,
+  );
+
   useEffect(() => {
     if (query === debounced) return;
 
@@ -117,10 +121,6 @@ export function useKeluargaOptions() {
 
     return () => clearTimeout(timer);
   }, [query, debounced]);
-
-  const ddl = useDdlOptions(
-    `keluarga?limit=20${debounced ? `&filter=${encodeURIComponent(debounced)}` : ""}`,
-  );
 
   return { ...ddl, onSearch: setQuery };
 }

@@ -56,6 +56,10 @@ const readNumber = (value: string | null, fallback: number) => …;
 ```
 
 **[WAJIB-3] Urutan di dalam komponen: state → function → useEffect → return.**
+Berlaku juga untuk custom hook. "State" mencakup semua hook yang mengembalikan
+nilai (`useState`, `useBoolean`, `useForm`, `useQuery`, `useRef`, …) dan nilai
+turunannya; `useEffect` berderet tepat sebelum `return`. Tidak ditegakkan lint, jadi
+diperiksa saat review (checklist pedoman-slicing §6).
 
 **[WAJIB-4] State boolean lewat `useBoolean()`**, bukan `useState<boolean>`
 (ditegakkan lint).

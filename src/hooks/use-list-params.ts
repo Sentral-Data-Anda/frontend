@@ -72,10 +72,6 @@ export function useListParams({
 
   const query = searchParams.toString();
 
-  useEffect(() => {
-    saveListReturn(pathname, query ? `${pathname}?${query}` : pathname);
-  }, [pathname, query]);
-
   const writeParams = useCallback(
     (next: Partial<ListParams>) => {
       // `searchParams` tertinggal satu render sesudah router.replace.
@@ -126,6 +122,10 @@ export function useListParams({
     (key: string, value: string) => writeParams({ [key]: value, page: 1 }),
     [writeParams],
   );
+
+  useEffect(() => {
+    saveListReturn(pathname, query ? `${pathname}?${query}` : pathname);
+  }, [pathname, query]);
 
   return {
     ...params,

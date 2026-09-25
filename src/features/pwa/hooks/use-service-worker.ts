@@ -18,6 +18,16 @@ export function useServiceWorker(): ServiceWorkerState {
 
   const reloadingRef = useRef(false);
 
+  const applyUpdate = useCallback(() => {
+    const waiting = waitingRef.current;
+    if (!waiting) {
+      return;
+    }
+
+    clearUpdateReady();
+    waiting.postMessage({ type: "SKIP_WAITING" });
+  }, [clearUpdateReady]);
+
   useEffect(() => {
     if (
       typeof window === "undefined" ||
@@ -91,16 +101,6 @@ export function useServiceWorker(): ServiceWorkerState {
       );
     };
   }, [markUpdateReady]);
-
-  const applyUpdate = useCallback(() => {
-    const waiting = waitingRef.current;
-    if (!waiting) {
-      return;
-    }
-
-    clearUpdateReady();
-    waiting.postMessage({ type: "SKIP_WAITING" });
-  }, [clearUpdateReady]);
 
   return { updateReady: isUpdateReady.value, applyUpdate };
 }

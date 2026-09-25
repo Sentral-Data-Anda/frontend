@@ -65,19 +65,6 @@ export function Calendar({
   const month = startOfMonth(cursor);
   const days = monthGrid(cursor);
 
-  useEffect(() => {
-    let inner = 0;
-    // Dua frame: Base UI memindahkan fokus lagi setelah popup terbuka.
-    const outer = requestAnimationFrame(() => {
-      inner = requestAnimationFrame(() => cursorRef.current?.focus());
-    });
-
-    return () => {
-      cancelAnimationFrame(outer);
-      cancelAnimationFrame(inner);
-    };
-  }, [cursor, isYearGrid]);
-
   const moveCursor = (next: string) => {
     if (!next || !isWithin(next, min, max)) return;
 
@@ -119,6 +106,19 @@ export function Calendar({
       if (isWithin(cursor, min, max)) onPick(cursor);
     }
   };
+
+  useEffect(() => {
+    let inner = 0;
+    // Dua frame: Base UI memindahkan fokus lagi setelah popup terbuka.
+    const outer = requestAnimationFrame(() => {
+      inner = requestAnimationFrame(() => cursorRef.current?.focus());
+    });
+
+    return () => {
+      cancelAnimationFrame(outer);
+      cancelAnimationFrame(inner);
+    };
+  }, [cursor, isYearGrid]);
 
   if (isYearGrid) {
     const firstYear = Number((min ?? "1900-01-01").slice(0, 4));

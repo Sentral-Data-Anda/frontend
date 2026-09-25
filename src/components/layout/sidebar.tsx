@@ -76,12 +76,6 @@ export function Sidebar({ defaultCollapsed }: { defaultCollapsed: boolean }) {
   const toggleLabel = isCollapsed.value ? "Lebarkan menu" : "Ciutkan menu";
   const ToggleIcon = isCollapsed.value ? ChevronRight : ChevronLeft;
 
-  useEffect(() => {
-    ref.current
-      ?.querySelector("nav [aria-current]")
-      ?.scrollIntoView({ block: "nearest" });
-  }, [pathname]);
-
   const onToggle = () => {
     const next = !isCollapsed.value;
 
@@ -94,6 +88,12 @@ export function Sidebar({ defaultCollapsed }: { defaultCollapsed: boolean }) {
     document.cookie = sidebarCookie(false);
     expand();
   }, [expand]);
+
+  useEffect(() => {
+    ref.current
+      ?.querySelector("nav [aria-current]")
+      ?.scrollIntoView({ block: "nearest" });
+  }, [pathname]);
 
   return (
     <Tooltip.Provider>

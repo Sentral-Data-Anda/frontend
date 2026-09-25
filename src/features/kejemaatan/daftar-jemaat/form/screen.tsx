@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { TriangleAlert } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type MouseEvent } from "react";
 import { useForm, useWatch } from "react-hook-form";
 
 import { Button, buttonVariants } from "@/components/common/control";
@@ -47,12 +47,11 @@ export function JemaatFormScreen({ code }: { code?: string }) {
   const toast = useToast();
   const isEdit = Boolean(code);
   const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.DAFTAR_JEMAAT);
-
   const listReturn = useListReturn(JEMAAT_LIST_PATH);
-
   const [rejectedField, setRejectedField] = useState<string | null>(null);
   const saveJemaat = useSaveJemaat(code);
   const detail = useJemaatDetail(code);
+  const isConfirmOpen = useBoolean();
 
   const form = useForm<JemaatFormValues>({
     resolver: zodResolver(jemaatFormSchema),
@@ -61,36 +60,22 @@ export function JemaatFormScreen({ code }: { code?: string }) {
     defaultValues: EMPTY_JEMAAT_FORM,
   });
 
-  useEffect(() => {
-    if (detail.data) form.reset(toJemaatForm(detail.data));
-  }, [detail.data, form]);
-
   const { isDirty, isSubmitting, submitCount } = form.formState;
-  const isConfirmOpen = useBoolean();
-
-  useEffect(() => {
-    if (!isDirty || isSubmitting) return;
-
-    const onBeforeUnload = (event: BeforeUnloadEvent) => event.preventDefault();
-
-    window.addEventListener("beforeunload", onBeforeUnload);
-
-    return () => window.removeEventListener("beforeunload", onBeforeUnload);
-  }, [isDirty, isSubmitting]);
+  const rootError = form.formState.errors.root?.message;
+  const watched = useWatch({ control: form.control });
+  const missing = incompleteFields(watched);
 
   const onLeave = () => {
     if (isDirty) isConfirmOpen.onTrue();
     else router.replace(listReturn);
   };
-  const rootError = form.formState.errors.root?.message;
-  const watched = useWatch({ control: form.control });
-  const missing = incompleteFields(watched);
 
-  useEffect(() => {
-    if (isSubmitting || !rejectedField) return;
+  const onBack = (event: MouseEvent<HTMLAnchorElement>) => {
+    if (!isDirty) return;
 
-    revealField(rejectedField);
-  }, [isSubmitting, submitCount, rejectedField]);
+    event.preventDefault();
+    isConfirmOpen.onTrue();
+  };
 
   const onSave = form.handleSubmit(
     async (values) => {
@@ -114,6 +99,26 @@ export function JemaatFormScreen({ code }: { code?: string }) {
       revealField(Object.keys(errors).find((key) => key !== "root"));
     },
   );
+
+  useEffect(() => {
+    if (detail.data) form.reset(toJemaatForm(detail.data));
+  }, [detail.data, form]);
+
+  useEffect(() => {
+    if (!isDirty || isSubmitting) return;
+
+    const onBeforeUnload = (event: BeforeUnloadEvent) => event.preventDefault();
+
+    window.addEventListener("beforeunload", onBeforeUnload);
+
+    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+  }, [isDirty, isSubmitting]);
+
+  useEffect(() => {
+    if (isSubmitting || !rejectedField) return;
+
+    revealField(rejectedField);
+  }, [isSubmitting, submitCount, rejectedField]);
 
   if (!(isEdit ? isCanUpdate : isCanCreate)) {
     return <NoFormAccess isEdit={isEdit} />;
@@ -153,12 +158,7 @@ export function JemaatFormScreen({ code }: { code?: string }) {
           subtitle={detail.data?.name ?? code}
           backHref={listReturn}
           isBackPersistent
-          onBack={(event) => {
-            if (!isDirty) return;
-
-            event.preventDefault();
-            isConfirmOpen.onTrue();
-          }}
+          onBack={onBack}
         />
       }
     >

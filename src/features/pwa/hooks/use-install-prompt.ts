@@ -46,6 +46,17 @@ export function useInstallPrompt(): InstallPromptState {
   );
   const ios = useSyncExternalStore(subscribeNever, isIOS, serverFalse);
 
+  const promptInstall = useCallback(async () => {
+    if (!deferred) {
+      return;
+    }
+
+    await deferred.prompt();
+    await deferred.userChoice;
+
+    setDeferred(null);
+  }, [deferred]);
+
   useEffect(() => {
     const onBeforeInstallPrompt = (event: Event) => {
       event.preventDefault();
@@ -62,17 +73,6 @@ export function useInstallPrompt(): InstallPromptState {
       window.removeEventListener("appinstalled", onAppInstalled);
     };
   }, []);
-
-  const promptInstall = useCallback(async () => {
-    if (!deferred) {
-      return;
-    }
-
-    await deferred.prompt();
-    await deferred.userChoice;
-
-    setDeferred(null);
-  }, [deferred]);
 
   return {
     isPromptAvailable: deferred !== null && !installed,
