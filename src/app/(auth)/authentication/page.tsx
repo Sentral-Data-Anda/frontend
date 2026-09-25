@@ -8,6 +8,8 @@ import { isSafeRedirectPath } from "@/lib/redirect";
 
 export const metadata = { title: "Menyiapkan" };
 
+// Keputusan user: animasi layar tunggu tampil utuh (150ms jeda + 800ms gerak).
+// Ditahan di server karena Next mencabut loading.tsx begitu kerja server selesai.
 const MINIMUM_HOLD_MS = 1_000;
 
 export default async function Page({

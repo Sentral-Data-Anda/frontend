@@ -64,6 +64,7 @@ export function IdentitySection({
             value={field.value}
             onValueChange={field.onChange}
             options={GENDER_OPTIONS}
+            // Popup Base UI ada di portal, di luar fieldset, jadi disabled diteruskan sendiri.
             disabled={isDisabled}
             placeholder="Pilih jenis kelamin"
           />

@@ -116,6 +116,7 @@ export function DataList<T>({
         )
       : undefined;
 
+    // Penanda dibuang hanya setelah barisnya ketemu; render pertama bisa masih berisi cache lama.
     if (!row) return;
 
     clearListFocus(pathname);

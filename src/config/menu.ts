@@ -366,6 +366,7 @@ export function isFormRoute(pathname: string): boolean {
   const segments = pathname.split("/").filter(Boolean);
   const last = segments.at(-1);
 
+  // ≥ 3 segmen: layar be-sada `/<domain>/<layar>` yang kebetulan ber-slug `baru` bukan form.
   return (
     segments.length >= 3 &&
     (last === FORM_SEGMENT.create || last === FORM_SEGMENT.edit)

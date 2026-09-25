@@ -114,6 +114,7 @@ export function JemaatFormScreen({ code }: { code?: string }) {
     return () => window.removeEventListener("beforeunload", onBeforeUnload);
   }, [isDirty, isSubmitting]);
 
+  // Ditunda sampai fieldset aktif lagi: kontrol yang disabled menolak fokus.
   useEffect(() => {
     if (isSubmitting || !rejectedField) return;
 
