@@ -4,6 +4,7 @@ import { Roboto } from "next/font/google";
 import { Providers } from "@/app/providers";
 import { brand } from "@/config/brand";
 import { siteConfig } from "@/config/site";
+import { AuthHandoff } from "@/features/auth/ui";
 import { ServiceWorkerProvider } from "@/features/pwa";
 import { publicEnv } from "@/lib/env";
 
@@ -50,6 +51,7 @@ export default function RootLayout({
       <body className="flex min-h-full flex-col">
         <ServiceWorkerProvider />
         <Providers>{children}</Providers>
+        <AuthHandoff />
       </body>
     </html>
   );

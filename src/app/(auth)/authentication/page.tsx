@@ -2,8 +2,9 @@ import { setTimeout as delay } from "node:timers/promises";
 
 import { redirect } from "next/navigation";
 
+import { AuthCard } from "@/components/common/brand";
 import { getSession } from "@/features/auth/get-session";
-import { FirstLoginForm } from "@/features/auth/ui";
+import { AuthHandoffDone, FirstLoginForm } from "@/features/auth/ui";
 import { isSafeRedirectPath } from "@/lib/redirect";
 
 export const metadata = { title: "Menyiapkan" };
@@ -28,7 +29,12 @@ export default async function Page({
   if (session.status === "DEACTIVATED") redirect("/login");
 
   if (session.status === "PENDING")
-    return <FirstLoginForm code={session.code} />;
+    return (
+      <AuthCard>
+        <FirstLoginForm code={session.code} />
+        <AuthHandoffDone />
+      </AuthCard>
+    );
 
   redirect(isSafeRedirectPath(params.redirect) ? params.redirect : "/");
 }

@@ -1,11 +1,24 @@
+import { cn } from "@/lib/utils";
+
 import styles from "./loading-page.module.css";
 
-export const LoadingPage = () => {
+interface PropTypes {
+  tone?: "default" | "brand";
+}
+
+export const LoadingPage = (props: PropTypes) => {
+  const { tone = "default" } = props;
+
   return (
     <div
       role="status"
       aria-busy="true"
-      className={`${styles.page} bg-background text-muted-foreground fixed inset-0 z-50 flex items-center justify-center`}
+      className={cn(
+        "fixed inset-0 z-50 flex items-center justify-center",
+        tone === "brand"
+          ? "bg-primary text-primary-foreground"
+          : `${styles.page} bg-background text-muted-foreground`,
+      )}
     >
       <div className={styles.stage}>
         <span className={`${styles.letter} ${styles.letterS}`} />

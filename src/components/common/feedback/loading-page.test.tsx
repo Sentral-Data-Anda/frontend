@@ -10,4 +10,11 @@ describe("LoadingPage", () => {
     expect(html).toContain('role="status"');
     expect(html).toContain("Memuat");
   });
+
+  test("nada brand: latar navy tanpa jeda muncul", () => {
+    const html = renderToStaticMarkup(<LoadingPage tone="brand" />);
+
+    expect(html).toContain("bg-primary");
+    expect(html).not.toContain("bg-background");
+  });
 });

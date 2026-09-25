@@ -12,9 +12,7 @@ export default function AuthLayout({
 
       <main className="relative flex flex-1 flex-col items-center justify-center gap-6 px-gutter pt-[max(4rem,env(safe-area-inset-top))] pb-[max(4rem,env(safe-area-inset-bottom))] md:py-16">
         <LogoWordmark className="w-40" />
-        <div className="bg-background w-full max-w-sm rounded-2xl p-6 shadow-sm md:p-8">
-          {children}
-        </div>
+        {children}
       </main>
     </div>
   );

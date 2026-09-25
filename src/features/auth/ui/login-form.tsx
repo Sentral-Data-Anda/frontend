@@ -10,6 +10,8 @@ import { Button, Input, PasswordInput } from "@/components/common/control";
 import { FormField } from "@/components/common/form";
 import { FetchError, fetchOne } from "@/lib/api/fetcher";
 
+import { markAuthHandoff } from "./auth-handoff";
+
 const loginSchema = z.object({
   username: z.string().min(1, "Username atau kode induk wajib diisi"),
   password: z.string().min(1, "Password wajib diisi"),
@@ -40,6 +42,7 @@ export const LoginForm = () => {
 
       const redirect = searchParams.get("redirect");
 
+      markAuthHandoff();
       router.replace(
         redirect
           ? `/authentication?redirect=${encodeURIComponent(redirect)}`
