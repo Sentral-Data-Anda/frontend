@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 
 import { BottomTab } from "./bottom-tab";
+import { mainInset } from "./shell-width";
 import { Sidebar } from "./sidebar";
 import { SIDEBAR_COOKIE, isSidebarCollapsed } from "./sidebar-collapse";
 
@@ -20,7 +21,7 @@ export const AppShell = async (props: PropTypes) => {
     <div className="bg-canvas-aurora flex min-h-dvh flex-col lg:flex-row">
       <Sidebar defaultCollapsed={isCollapsed} />
 
-      <main className="min-w-0 flex-1 lg:pl-3.5">{children}</main>
+      <main className={`min-w-0 flex-1 ${mainInset}`}>{children}</main>
 
       <BottomTab />
     </div>

@@ -352,7 +352,9 @@
   }
 
   :root:has(form[data-slot="form-layout"]) {
-    scroll-padding-bottom: 7rem;
+    scroll-padding-bottom: calc(
+      var(--spacing-control) + 2.5rem + 1px + env(safe-area-inset-bottom)
+    );
   }
 
   @keyframes row-focus {

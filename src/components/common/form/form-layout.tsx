@@ -1,6 +1,6 @@
 import type { FormHTMLAttributes, ReactNode } from "react";
 
-import { shellWidthFull } from "@/components/layout";
+import { mainInsetBleed, shellWidthFull } from "@/components/layout";
 import { cn } from "@/lib/utils";
 
 export function FormLayout({
@@ -14,16 +14,18 @@ export function FormLayout({
   actions?: ReactNode;
 }) {
   return (
-    <div className="w-full">
+    <div className="flex min-h-dvh w-full flex-col">
       <div className={shellWidthFull}>{header}</div>
 
       <form
         noValidate
         data-slot="form-layout"
-        className={cn("w-full", className)}
+        className={cn("flex w-full flex-1 flex-col", className)}
         {...props}
       >
-        <div className={cn(shellWidthFull, "@container/form")}>{children}</div>
+        <div className={cn(shellWidthFull, "@container/form flex-1")}>
+          {children}
+        </div>
         {actions}
       </form>
     </div>
@@ -106,9 +108,14 @@ function FormActionsBar({
   children: ReactNode;
 }) {
   return (
-    <div className="border-border bg-card sticky bottom-0 z-30 border-t pb-[env(safe-area-inset-bottom)] lg:static lg:border-t-0 lg:bg-transparent lg:pb-8">
+    <div
+      className={cn(
+        "border-border bg-card sticky bottom-0 z-30 border-t pb-[env(safe-area-inset-bottom)]",
+        mainInsetBleed,
+      )}
+    >
       <div className={cn(shellWidthFull, "md:px-gutter")}>
-        <div className="lg:border-border flex items-center justify-end gap-2 px-gutter py-3 md:px-0 lg:border-t lg:pt-5">
+        <div className="flex items-center justify-end gap-2 px-gutter py-3 md:px-0">
           {status ? (
             <p className="text-muted-foreground hidden flex-1 pr-4 text-caption lg:block">
               {status}
