@@ -5,22 +5,20 @@ const PASSWORD_PATTERN = /^(?=(.*[A-Z]){1})(?=(.*\d){3})/;
 
 const newPasswordField = z
   .string()
-  .min(1, "Mohon Lengkapi Password Baru")
-  .min(8, "Password Baru tidak boleh kurang dari 8 karakter")
-  .max(25, "Password Baru tidak boleh lebih dari 25 karakter")
-  .regex(PASSWORD_PATTERN, "Password Harus Mengandung Huruf Besar dan 3 Angka");
+  .min(8, "Password baru minimal 8 karakter")
+  .max(25, "Password baru maksimal 25 karakter")
+  .regex(PASSWORD_PATTERN, "Password harus mengandung huruf besar dan 3 angka");
 
 const confirmPasswordField = z
   .string()
-  .min(1, "Mohon Lengkapi Konfirmasi Password")
-  .max(25, "Konfirmasi Password tidak boleh lebih dari 25 karakter");
+  .max(25, "Konfirmasi password maksimal 25 karakter");
 
 const isConfirmed = (form: { newPassword: string; confirmPassword: string }) =>
   form.confirmPassword === form.newPassword;
 
 const MISMATCH = {
   path: ["confirmPassword"],
-  message: "Konfirmasi Password Tidak Sama Dengan Password Baru",
+  message: "Konfirmasi password tidak sama dengan password baru",
 };
 
 export const firstPasswordSchema = z
@@ -34,8 +32,8 @@ export const changePasswordSchema = z
   .object({
     oldPassword: z
       .string()
-      .min(1, "Mohon Lengkapi Password Lama")
-      .max(25, "Password Lama tidak boleh lebih dari 25 karakter"),
+      .min(1, "Mohon lengkapi password lama")
+      .max(25, "Password lama maksimal 25 karakter"),
     newPassword: newPasswordField,
     confirmPassword: confirmPasswordField,
   })

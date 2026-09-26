@@ -13,8 +13,8 @@ import { FetchError, fetchOne } from "@/lib/api/fetcher";
 import { markAuthHandoff } from "./auth-handoff";
 
 const loginSchema = z.object({
-  username: z.string().min(1, "Username atau kode induk wajib diisi"),
-  password: z.string().min(1, "Password wajib diisi"),
+  username: z.string().min(1, "Mohon lengkapi username"),
+  password: z.string().min(1, "Mohon lengkapi password"),
 });
 
 type LoginForm = z.infer<typeof loginSchema>;

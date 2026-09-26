@@ -9,9 +9,7 @@ import {
 
 test("pesan password lama salah dari be-sada mendarat di oldPassword", () => {
   expect(
-    passwordFieldError(
-      "Password Lama yang Anda masukkan tidak valid. Mohon periksa kembali",
-    )?.field,
+    passwordFieldError("Password lama tidak sesuai. Periksa kembali.")?.field,
   ).toBe("oldPassword");
   expect(passwordFieldError("Kesalahan server")).toBeNull();
 });

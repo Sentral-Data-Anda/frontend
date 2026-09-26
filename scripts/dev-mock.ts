@@ -420,8 +420,7 @@ Bun.serve({
         return json(
           {
             status: 400,
-            error:
-              "Password Lama yang Anda masukkan tidak valid. Mohon periksa kembali",
+            error: "Password lama tidak sesuai. Periksa kembali.",
           },
           400,
         );
@@ -429,7 +428,7 @@ Bun.serve({
 
       return json({
         status: 200,
-        message: "Berhasil Memperbarui Password User. Silakan Login Kembali",
+        message: "Berhasil mengganti password. Silakan masuk kembali.",
       });
     }
     if (path.startsWith("/auth/")) {
