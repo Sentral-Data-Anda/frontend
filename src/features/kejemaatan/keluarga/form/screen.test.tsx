@@ -174,7 +174,7 @@ describe("simpan", () => {
     ).toBe("KK-0007");
   });
 
-  test("wilayah ditolak server: galat mendarat di field wilayah", async () => {
+  test("wilayah ditolak server: galat dan fokus mendarat di field wilayah", async () => {
     onMockApi({
       method: "PUT",
       status: 404,
@@ -191,6 +191,26 @@ describe("simpan", () => {
     expect(
       document.getElementById("zoneChurchId")?.getAttribute("aria-invalid"),
     ).toBe("true");
+    await waitFor(() =>
+      expect(document.activeElement?.id).toBe("zoneChurchId"),
+    );
+    expect(replaced).toEqual([]);
+  });
+
+  test("galat 500: FormAlert tampil, fokus ke Simpan, tetap di form", async () => {
+    onMockApi({ method: "PUT", status: 500, error: "Kesalahan server." });
+    await onRenderLoadedEdit();
+
+    fireEvent.click(screen.getByRole("button", { name: "Simpan" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Ya" }));
+
+    expect(await screen.findByText("Kesalahan server.")).toBeTruthy();
+    expect(
+      screen.getByText("Data belum tersimpan. Coba simpan lagi."),
+    ).toBeTruthy();
+    await waitFor(() =>
+      expect(document.activeElement?.textContent).toBe("Simpan"),
+    );
     expect(replaced).toEqual([]);
   });
 });
