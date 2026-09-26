@@ -15,9 +15,7 @@ export const AccountScreen = () => (
       <SecuritySection />
       <OfferingSection />
 
-      <div className="flex justify-end">
-        <SignOutButton />
-      </div>
+      <SignOutButton />
     </div>
   </div>
 );

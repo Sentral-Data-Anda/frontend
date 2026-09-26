@@ -3,10 +3,12 @@
 import { LogOut } from "lucide-react";
 
 import { Button } from "@/components/common/control";
+import { ConfirmDialog } from "@/components/common/overlay";
 import { logout } from "@/components/layout";
 import { useBoolean } from "@/hooks/use-boolean";
 
 export const SignOutButton = () => {
+  const isConfirmOpen = useBoolean();
   const isPending = useBoolean();
 
   const onLogout = () => {
@@ -15,14 +17,29 @@ export const SignOutButton = () => {
   };
 
   return (
-    <Button
-      type="button"
-      variant="outline"
-      disabled={isPending.value}
-      onClick={onLogout}
-    >
-      <LogOut className="size-4" aria-hidden />
-      {isPending.value ? "Keluar…" : "Keluar"}
-    </Button>
+    <>
+      <Button
+        type="button"
+        variant="outline"
+        size="lg"
+        disabled={isPending.value}
+        onClick={isConfirmOpen.onTrue}
+        className="text-destructive border-destructive/40 hover:bg-[color-mix(in_oklch,var(--color-destructive)_6%,var(--color-card))] hover:border-destructive/60 hover:text-destructive focus-visible:border-destructive/60 focus-visible:ring-destructive/20 h-11 w-full"
+      >
+        <LogOut className="size-4" aria-hidden />
+        {isPending.value ? "Keluar…" : "Keluar dari akun"}
+      </Button>
+
+      <ConfirmDialog
+        isOpen={isConfirmOpen.value}
+        onOpenChange={isConfirmOpen.setValue}
+        title="Keluar dari akun?"
+        description="Anda perlu masuk lagi untuk memakai SADA di perangkat ini."
+        confirmLabel="Keluar"
+        cancelLabel="Batal"
+        isDestructive
+        onConfirm={onLogout}
+      />
+    </>
   );
 };
