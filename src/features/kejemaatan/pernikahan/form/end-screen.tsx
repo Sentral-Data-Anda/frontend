@@ -1,18 +1,18 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { useForm, type FieldErrors } from "react-hook-form";
+import { useForm } from "react-hook-form";
 
-import { Button, buttonVariants } from "@/components/common/control";
-import { EmptyState, useToast } from "@/components/common/feedback";
+import { Button } from "@/components/common/control";
+import { useToast } from "@/components/common/feedback";
 import {
   FormActions,
   FormAlert,
   FormConfirmDialog,
   FormLayout,
+  FormNotFound,
   LoadingForm,
   useFormConfirm,
 } from "@/components/common/form";
@@ -20,8 +20,8 @@ import { PageHeader } from "@/components/layout";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { useListReturn } from "@/hooks/use-list-return";
-import { applyServerError, revealField } from "@/lib/form-error";
-import { formatDate } from "@/lib/format";
+import { FetchError } from "@/lib/api/fetcher";
+import { FIRST_INVALID, applyServerError, revealField } from "@/lib/form-error";
 import { saveListFocus } from "@/lib/list-return";
 
 import { useEndMarriage, useMarriageDetail } from "../api";
@@ -34,6 +34,7 @@ import {
   type EndMarriageFormValues,
 } from "../model";
 
+import { AlreadyEnded } from "./already-ended";
 import { EndSection } from "./end-section";
 import { NoFormAccess } from "./no-form-access";
 
@@ -58,17 +59,16 @@ export const MarriageEndScreen = (props: PropTypes) => {
     resolver: zodResolver(endMarriageFormSchema),
     mode: "onSubmit",
     reValidateMode: "onChange",
+    shouldFocusError: false,
     defaultValues: EMPTY_END_FORM,
   });
 
   const { isDirty, isSubmitting, submitCount } = form.formState;
   const rootError = form.formState.errors.root?.message;
-  const endedAt = detail.data?.endedAt;
 
   const onLeave = () => router.replace(listReturn);
 
-  const onInvalid = (errors: FieldErrors<EndMarriageFormValues>) =>
-    setRejectedField(Object.keys(errors).find((key) => key !== "root") ?? null);
+  const onInvalid = () => setRejectedField(FIRST_INVALID);
 
   const onOpenSaveConfirm = () => {
     setRejectedField(null);
@@ -106,17 +106,33 @@ export const MarriageEndScreen = (props: PropTypes) => {
   }, [isDirty, isSubmitting]);
 
   // Ditunda sampai fieldset aktif lagi: kontrol yang disabled menolak fokus.
-  // Kontrol Base UI baru aktif satu render sesudahnya, jadi tunggu satu frame.
   useEffect(() => {
     if (isSubmitting || !rejectedField) return;
-    if (rejectedField === "root") return saveRef.current?.focus();
 
-    const frame = requestAnimationFrame(() => revealField(rejectedField));
-
-    return () => cancelAnimationFrame(frame);
+    if (rejectedField === "root") saveRef.current?.focus();
+    else revealField(rejectedField);
   }, [isSubmitting, submitCount, rejectedField]);
 
   if (!isCanUpdate) return <NoFormAccess isEdit />;
+
+  if (detail.error instanceof FetchError && detail.error.status === 404) {
+    return (
+      <FormNotFound
+        noun="pernikahan"
+        backHref={listReturn}
+        backLabel="Kembali ke Pernikahan"
+      />
+    );
+  }
+
+  if (detail.data?.endedAt) {
+    return (
+      <AlreadyEnded
+        marriage={{ ...detail.data, endedAt: detail.data.endedAt }}
+        backHref={listReturn}
+      />
+    );
+  }
 
   return (
     <FormLayout
@@ -135,7 +151,7 @@ export const MarriageEndScreen = (props: PropTypes) => {
           <Button
             ref={saveRef}
             type="submit"
-            disabled={isSubmitting || detail.isLoading || Boolean(endedAt)}
+            disabled={isSubmitting || detail.isLoading}
           >
             {isSubmitting ? "Menyimpan…" : "Simpan"}
           </Button>
@@ -151,26 +167,13 @@ export const MarriageEndScreen = (props: PropTypes) => {
         />
       }
     >
-      {detail.isLoading ? <LoadingForm fields={3} /> : null}
+      {detail.isLoading ? (
+        <LoadingForm fields={3} label="Memuat data pernikahan…" />
+      ) : null}
 
-      {endedAt ? (
-        <EmptyState
-          title="Pernikahan ini sudah berakhir"
-          description={`Tercatat berakhir ${formatDate(endedAt)}. Tidak ada yang perlu diakhiri lagi.`}
-          action={
-            <Link
-              href={listReturn}
-              className={buttonVariants({ variant: "outline" })}
-            >
-              Kembali ke Pernikahan
-            </Link>
-          }
-        />
-      ) : (
-        <div className={detail.isLoading ? "hidden" : undefined}>
-          <EndSection form={form} isDisabled={isSubmitting} />
-        </div>
-      )}
+      <div className={detail.isLoading ? "hidden" : undefined}>
+        <EndSection form={form} isDisabled={isSubmitting} />
+      </div>
 
       <div className="space-y-3 px-gutter pb-4 empty:hidden">
         {rootError ? (
