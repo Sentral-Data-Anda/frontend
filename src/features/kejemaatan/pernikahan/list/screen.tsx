@@ -1,14 +1,13 @@
 "use client";
 
-import { SearchInput } from "@/components/common/control";
-import { DataList, FilterChips, ListToolbar } from "@/components/common/list";
+import { DataList, ListToolbar } from "@/components/common/list";
 import { PageHeader, PageHeaderAdd } from "@/components/layout";
 import { MENU, createHref, domainHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { useListParams } from "@/hooks/use-list-params";
 
 import { useMarriageList } from "../api";
-import { MARRIAGE_STATUS_CHIPS } from "../types";
+import { MARRIAGE_STATUS_OPTIONS } from "../types";
 
 import { MarriageListItemRow, marriageTable } from "./list-item";
 
@@ -38,22 +37,17 @@ export const MarriageListScreen = () => {
       />
 
       <ListToolbar
-        search={
-          <SearchInput
-            value={listParams.search}
-            onSearch={listParams.onSearch}
-            label="Cari pernikahan"
-            placeholder="Cari nama suami atau istri"
-          />
-        }
-        filters={
-          <FilterChips
-            options={MARRIAGE_STATUS_CHIPS}
-            value={listParams.status}
-            onPick={listParams.onPickStatus}
-            label="Filter status pernikahan"
-          />
-        }
+        listParams={listParams}
+        searchLabel="Cari pernikahan"
+        searchPlaceholder="Cari nama suami atau istri"
+        filters={[
+          {
+            key: "status",
+            label: "Status",
+            kind: "choice",
+            options: MARRIAGE_STATUS_OPTIONS,
+          },
+        ]}
       />
 
       <DataList
@@ -66,9 +60,12 @@ export const MarriageListScreen = () => {
         onRetry={marriageList.onRetry}
         emptyTitle="Tidak ada pernikahan"
         emptyDescription={
-          listParams.search || listParams.status
+          listParams.search || listParams.isFiltered
             ? "Tidak ada pernikahan yang cocok dengan pencarian atau filter ini."
             : "Data pernikahan akan muncul di sini setelah dicatat."
+        }
+        onClearFilter={
+          listParams.isFiltered ? listParams.onClearFilters : undefined
         }
         pagination={marriageList.pagination}
         table={marriageTable(isCanUpdate)}

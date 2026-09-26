@@ -1,6 +1,5 @@
 "use client";
 
-import { SearchInput, SelectField } from "@/components/common/control";
 import { DataList, ListToolbar } from "@/components/common/list";
 import { PageHeader, PageHeaderAdd } from "@/components/layout";
 import { MENU, createHref, domainHref } from "@/config/menu";
@@ -42,23 +41,18 @@ export const RoleJemaatListScreen = () => {
       />
 
       <ListToolbar
-        search={
-          <SearchInput
-            value={listParams.search}
-            onSearch={listParams.onSearch}
-            label="Cari jabatan"
-            placeholder="Cari nama jabatan atau jemaat"
-          />
-        }
-        picker={
-          <SelectField
-            value={listParams.filters.tahun ?? ""}
-            onValueChange={(value) => listParams.onPickFilter("tahun", value)}
-            options={YEAR_OPTIONS}
-            placeholder="Semua tahun"
-            aria-label="Filter tahun mulai periode"
-          />
-        }
+        listParams={listParams}
+        searchLabel="Cari jabatan"
+        searchPlaceholder="Cari nama jabatan atau jemaat"
+        filters={[
+          {
+            key: "tahun",
+            label: "Tahun mulai periode",
+            kind: "select",
+            options: YEAR_OPTIONS,
+            chipLabel: (year) => `Tahun ${year}`,
+          },
+        ]}
       />
 
       <DataList
@@ -71,9 +65,12 @@ export const RoleJemaatListScreen = () => {
         onRetry={roleList.onRetry}
         emptyTitle="Tidak ada jabatan"
         emptyDescription={
-          listParams.search || listParams.filters.tahun
+          listParams.search || listParams.isFiltered
             ? "Tidak ada jabatan yang cocok dengan pencarian atau tahun ini."
             : "Jabatan jemaat di badan pelayanan akan muncul di sini setelah ditambahkan."
+        }
+        onClearFilter={
+          listParams.isFiltered ? listParams.onClearFilters : undefined
         }
         pagination={roleList.pagination}
         table={roleJemaatTable(isCanUpdate)}

@@ -1,14 +1,13 @@
 "use client";
 
-import { SearchInput, SelectField } from "@/components/common/control";
-import { DataList, FilterChips, ListToolbar } from "@/components/common/list";
+import { DataList, ListToolbar } from "@/components/common/list";
 import { PageHeader, PageHeaderAdd } from "@/components/layout";
 import { MENU, createHref, domainHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { useListParams, type ListFilterSchema } from "@/hooks/use-list-params";
 
 import { useJemaatList, useZoneFilterOptions } from "../api";
-import { STATUS_JEMAAT_CHIPS } from "../types";
+import { STATUS_JEMAAT_OPTIONS } from "../types";
 
 import { JemaatListItemRow, jemaatTable } from "./list-item";
 
@@ -41,32 +40,24 @@ export const JemaatListScreen = () => {
       />
 
       <ListToolbar
-        search={
-          <SearchInput
-            value={listParams.search}
-            onSearch={listParams.onSearch}
-            label="Cari jemaat"
-            placeholder="Cari nama, kode, atau telepon"
-          />
-        }
-        picker={
-          <SelectField
-            value={listParams.filters.wilayah ?? ""}
-            onValueChange={(value) => listParams.onPickFilter("wilayah", value)}
-            options={zoneOptions.options}
-            placeholder="Semua wilayah"
-            emptyMessage="Belum ada data wilayah"
-            aria-label="Filter wilayah"
-          />
-        }
-        filters={
-          <FilterChips
-            options={STATUS_JEMAAT_CHIPS}
-            value={listParams.status}
-            onPick={listParams.onPickStatus}
-            label="Filter status jemaat"
-          />
-        }
+        listParams={listParams}
+        searchLabel="Cari jemaat"
+        searchPlaceholder="Cari nama, kode, atau telepon"
+        filters={[
+          {
+            key: "wilayah",
+            label: "Wilayah",
+            kind: "select",
+            options: zoneOptions.options,
+            emptyMessage: "Belum ada data wilayah",
+          },
+          {
+            key: "status",
+            label: "Status",
+            kind: "choice",
+            options: STATUS_JEMAAT_OPTIONS,
+          },
+        ]}
       />
 
       <DataList
@@ -79,9 +70,12 @@ export const JemaatListScreen = () => {
         onRetry={jemaatList.onRetry}
         emptyTitle="Tidak ada jemaat"
         emptyDescription={
-          listParams.search || listParams.status || listParams.filters.wilayah
+          listParams.search || listParams.isFiltered
             ? "Tidak ada jemaat yang cocok dengan pencarian atau filter ini."
             : "Data jemaat akan muncul di sini setelah ditambahkan."
+        }
+        onClearFilter={
+          listParams.isFiltered ? listParams.onClearFilters : undefined
         }
         pagination={jemaatList.pagination}
         table={jemaatTable(isCanUpdate)}

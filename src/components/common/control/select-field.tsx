@@ -2,9 +2,14 @@
 
 import { Select } from "@base-ui/react/select";
 import { Check, ChevronDown } from "lucide-react";
+import { useContext } from "react";
 
 import { EmptyState } from "@/components/common/feedback";
-import { MENU_ITEM, MENU_POPUP } from "@/components/common/overlay";
+import {
+  MENU_ITEM,
+  MENU_POPUP,
+  SheetPortalContext,
+} from "@/components/common/overlay";
 import { inputVariants } from "@/components/ui";
 import { cn } from "@/lib/utils";
 
@@ -41,6 +46,8 @@ export const SelectField = (props: PropTypes) => {
     ...aria
   } = props;
 
+  const sheet = useContext(SheetPortalContext);
+
   return (
     <Select.Root
       items={options}
@@ -66,7 +73,7 @@ export const SelectField = (props: PropTypes) => {
         </Select.Icon>
       </Select.Trigger>
 
-      <Select.Portal>
+      <Select.Portal container={sheet ?? undefined}>
         {/* Bawaan Base UI menaruh item terpilih tepat di atas pemicu. */}
         <Select.Positioner
           alignItemWithTrigger={false}

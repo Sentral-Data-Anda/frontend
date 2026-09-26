@@ -86,7 +86,7 @@ export function DataList<T>({
   onRetry,
   emptyTitle,
   emptyDescription,
-  emptyAction,
+  onClearFilter,
   pagination,
   table,
   loadingShape,
@@ -102,7 +102,7 @@ export function DataList<T>({
   onRetry?: () => void;
   emptyTitle?: string;
   emptyDescription?: string;
-  emptyAction?: ReactNode;
+  onClearFilter?: () => void;
   pagination?: DataListPagination;
   table?: DataTableConfig<T>;
   loadingShape?: LoadingShape;
@@ -182,7 +182,13 @@ export function DataList<T>({
       <EmptyState
         title={emptyTitle}
         description={emptyDescription}
-        action={emptyAction}
+        action={
+          onClearFilter ? (
+            <Button type="button" variant="outline" onClick={onClearFilter}>
+              Hapus filter
+            </Button>
+          ) : null
+        }
         className="py-12"
       />
     );

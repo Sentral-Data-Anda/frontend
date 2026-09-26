@@ -1,5 +1,5 @@
-import { cleanup, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, test } from "bun:test";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, mock, test } from "bun:test";
 
 import { DataList, DataListRow } from "./data-list";
 
@@ -50,6 +50,16 @@ describe("DataList", () => {
 
     expect(screen.getByText("Tidak ada jemaat")).toBeTruthy();
     expect(screen.queryByRole("alert")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Hapus filter" })).toBeNull();
+  });
+
+  test("kosong karena filter menawarkan Hapus filter", () => {
+    const onClearFilter = mock();
+    onRenderList({ items: [], onClearFilter });
+
+    fireEvent.click(screen.getByRole("button", { name: "Hapus filter" }));
+
+    expect(onClearFilter).toHaveBeenCalledTimes(1);
   });
 
   test("galat sungguhan menampilkan pesannya beserta tombol coba lagi", () => {

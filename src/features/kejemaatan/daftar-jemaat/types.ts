@@ -1,4 +1,4 @@
-import type { FilterChip } from "@/components/common/list";
+import type { SelectOption } from "@/components/common/control";
 import {
   STATUS_JEMAAT_LABEL,
   type BloodType,
@@ -43,7 +43,7 @@ export type JemaatListItem = {
   zoneChurch: { id: number; name: string } | null;
 };
 
-export const STATUS_JEMAAT_CHIPS: FilterChip[] = [
+export const STATUS_JEMAAT_OPTIONS: SelectOption[] = [
   { label: "Semua", value: "" },
   { label: STATUS_JEMAAT_LABEL.AKTIF, value: "AKTIF" },
   { label: STATUS_JEMAAT_LABEL.TIDAK_AKTIF, value: "TIDAK_AKTIF" },

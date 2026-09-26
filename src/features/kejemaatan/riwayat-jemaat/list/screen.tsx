@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  SearchInput,
-  SelectField,
-  optionsOf,
-} from "@/components/common/control";
+import { optionsOf } from "@/components/common/control";
 import { DataList, ListToolbar } from "@/components/common/list";
 import { PageHeader, PageHeaderAdd } from "@/components/layout";
 import { MENU, createHref, domainHref } from "@/config/menu";
@@ -49,23 +45,17 @@ export const RiwayatListScreen = () => {
       />
 
       <ListToolbar
-        search={
-          <SearchInput
-            value={listParams.search}
-            onSearch={listParams.onSearch}
-            label="Cari riwayat"
-            placeholder="Cari nama jemaat, no. surat, atau tempat"
-          />
-        }
-        picker={
-          <SelectField
-            value={listParams.filters.jenis ?? ""}
-            onValueChange={(value) => listParams.onPickFilter("jenis", value)}
-            options={TYPE_FILTER_OPTIONS}
-            placeholder="Semua jenis"
-            aria-label="Filter jenis riwayat"
-          />
-        }
+        listParams={listParams}
+        searchLabel="Cari riwayat"
+        searchPlaceholder="Cari nama jemaat, no. surat, atau tempat"
+        filters={[
+          {
+            key: "jenis",
+            label: "Jenis",
+            kind: "select",
+            options: TYPE_FILTER_OPTIONS,
+          },
+        ]}
       />
 
       <DataList
@@ -78,9 +68,12 @@ export const RiwayatListScreen = () => {
         onRetry={riwayatList.onRetry}
         emptyTitle="Tidak ada riwayat"
         emptyDescription={
-          listParams.search || listParams.filters.jenis
+          listParams.search || listParams.isFiltered
             ? "Tidak ada riwayat yang cocok dengan pencarian atau filter ini."
             : "Riwayat baptis, sidi, atestasi, dan meninggal akan muncul di sini setelah dicatat."
+        }
+        onClearFilter={
+          listParams.isFiltered ? listParams.onClearFilters : undefined
         }
         pagination={riwayatList.pagination}
         table={riwayatTable(isCanUpdate)}

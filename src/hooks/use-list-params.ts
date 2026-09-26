@@ -101,11 +101,6 @@ export function useListParams({
     [writeParams],
   );
 
-  const onPickStatus = useCallback(
-    (status: string) => writeParams({ status, page: 1 }),
-    [writeParams],
-  );
-
   const onPickPage = useCallback(
     (page: number) => writeParams({ page }),
     [writeParams],
@@ -121,14 +116,32 @@ export function useListParams({
     [writeParams],
   );
 
+  const onApplyFilters = useCallback(
+    (values: Record<string, string>) => writeParams({ ...values, page: 1 }),
+    [writeParams],
+  );
+
+  const onClearFilters = useCallback(
+    () =>
+      writeParams({
+        status: "",
+        ...Object.fromEntries(Object.keys(filters).map((key) => [key, ""])),
+        page: 1,
+      }),
+    [filters, writeParams],
+  );
+
   useEffect(() => {
     saveListReturn(pathname, query ? `${pathname}?${query}` : pathname);
   }, [pathname, query]);
 
   return {
     ...params,
+    isFiltered:
+      Boolean(params.status) || Object.values(params.filters).some(Boolean),
     onSearch,
-    onPickStatus,
+    onApplyFilters,
+    onClearFilters,
     onPickPage,
     onPickLimit,
     onPickFilter,
