@@ -2,7 +2,7 @@ import { Pencil } from "lucide-react";
 import Link from "next/link";
 
 import { buttonVariants } from "@/components/common/control";
-import { Avatar } from "@/components/common/display";
+import { Avatar, OptionalText } from "@/components/common/display";
 import { DataListRow, type DataTableConfig } from "@/components/common/list";
 import { MENU, editHref } from "@/config/menu";
 import { saveListFocus } from "@/lib/list-return";
@@ -12,7 +12,6 @@ import { JEMAAT_LIST_PATH } from "../model";
 import { TYPE_JEMAAT_LABEL, type JemaatListItem } from "../types";
 
 import { JemaatStatus } from "./jemaat-status";
-import { OptionalName } from "./optional-name";
 
 interface PropTypes {
   jemaat: JemaatListItem;
@@ -98,7 +97,7 @@ export function jemaatTable(
         width: "minmax(0,2fr)",
         isSecondary: true,
         cell: (jemaat) => (
-          <OptionalName name={jemaat.keluarga?.name} empty="Tanpa keluarga" />
+          <OptionalText text={jemaat.keluarga?.name} empty="Tanpa keluarga" />
         ),
       },
       {
@@ -107,7 +106,7 @@ export function jemaatTable(
         width: "minmax(0,1.2fr)",
         narrowWidth: "minmax(0,1.2fr)",
         cell: (jemaat) => (
-          <OptionalName name={jemaat.zoneChurch?.name} empty="Tanpa wilayah" />
+          <OptionalText text={jemaat.zoneChurch?.name} empty="Tanpa wilayah" />
         ),
       },
       {

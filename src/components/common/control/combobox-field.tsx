@@ -59,7 +59,7 @@ export const ComboboxField = (props: PropTypes) => {
       <Combobox.InputGroup
         className={cn(
           inputVariants({ variant: "outline" }),
-          "relative flex items-center p-0 focus-within:border-primary has-disabled:cursor-not-allowed has-disabled:opacity-50",
+          "relative flex items-center p-0 focus-within:border-primary has-disabled:cursor-not-allowed has-disabled:opacity-50 has-aria-invalid:border-destructive has-aria-invalid:bg-destructive/10",
           className,
         )}
       >

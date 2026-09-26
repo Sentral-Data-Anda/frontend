@@ -1,8 +1,9 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 
+import type { SelectOption } from "@/components/common/control";
 import { fetchList } from "@/lib/api/fetcher";
 
 export type DdlOption = {
@@ -18,12 +19,17 @@ export const ddlKeys = {
   list: (path: string) => [...ddlKeys.all, path] as const,
 };
 
-export function useDdlOptions(path: string | null, valueKey: ValueKey = "id") {
+function useDdlQuery(
+  path: string | null,
+  valueKey: ValueKey,
+  isKeepingPrevious: boolean,
+) {
   const query = useQuery({
     queryKey: ddlKeys.list(path ?? ""),
     queryFn: () => fetchList<DdlOption>(`/ddl/${path}`),
     enabled: path !== null,
     staleTime: 10 * 60_000,
+    placeholderData: isKeepingPrevious ? keepPreviousData : undefined,
     select: (response) =>
       response.data.map((row) => ({
         value: String(row[valueKey]),
@@ -37,14 +43,26 @@ export function useDdlOptions(path: string | null, valueKey: ValueKey = "id") {
   };
 }
 
-export function useDdlSearch(resource: string, valueKey: ValueKey = "id") {
+export const useDdlOptions = (path: string | null, valueKey: ValueKey = "id") =>
+  useDdlQuery(path, valueKey, false);
+
+export function useDdlSearch(
+  resource: string,
+  valueKey: ValueKey = "id",
+  pinned: SelectOption | null = null,
+) {
   const [query, setQuery] = useState("");
   const [debounced, setDebounced] = useState("");
 
-  const ddl = useDdlOptions(
+  const ddl = useDdlQuery(
     `${resource}?limit=20${debounced ? `&filter=${encodeURIComponent(debounced)}` : ""}`,
     valueKey,
+    true,
   );
+
+  const isPinnedMissing =
+    pinned !== null &&
+    !ddl.options.some((option) => option.value === pinned.value);
 
   useEffect(() => {
     if (query === debounced) return;
@@ -54,5 +72,9 @@ export function useDdlSearch(resource: string, valueKey: ValueKey = "id") {
     return () => clearTimeout(timer);
   }, [query, debounced]);
 
-  return { ...ddl, onSearch: setQuery };
+  return {
+    ...ddl,
+    options: isPinnedMissing ? [pinned, ...ddl.options] : ddl.options,
+    onSearch: setQuery,
+  };
 }

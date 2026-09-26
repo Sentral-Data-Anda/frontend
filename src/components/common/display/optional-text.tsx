@@ -1,14 +1,14 @@
 interface PropTypes {
-  name?: string;
+  text?: string | null;
   empty: string;
 }
 
-export const OptionalName = (props: PropTypes) => {
-  const { name, empty } = props;
+export const OptionalText = (props: PropTypes) => {
+  const { text, empty } = props;
 
-  return name ? (
-    <span className="block truncate" title={name}>
-      {name}
+  return text ? (
+    <span className="block truncate" title={text}>
+      {text}
     </span>
   ) : (
     <span className="text-muted-foreground">

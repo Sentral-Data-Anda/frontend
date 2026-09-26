@@ -12,6 +12,7 @@ import {
   FormAlert,
   FormConfirmDialog,
   FormLayout,
+  FormNotFound,
   LoadingForm,
   useFormConfirm,
 } from "@/components/common/form";
@@ -19,6 +20,7 @@ import { PageHeader } from "@/components/layout";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { useListReturn } from "@/hooks/use-list-return";
+import { FetchError } from "@/lib/api/fetcher";
 import { applyServerError, FIRST_INVALID, revealField } from "@/lib/form-error";
 import { saveListFocus } from "@/lib/list-return";
 
@@ -132,6 +134,16 @@ export const JemaatFormScreen = (props: PropTypes) => {
 
   if (!(isEdit ? isCanUpdate : isCanCreate)) {
     return <NoFormAccess isEdit={isEdit} />;
+  }
+
+  if (detail.error instanceof FetchError && detail.error.status === 404) {
+    return (
+      <FormNotFound
+        noun="jemaat"
+        backHref={listReturn}
+        backLabel="Kembali ke Daftar Jemaat"
+      />
+    );
   }
 
   return (

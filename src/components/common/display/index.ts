@@ -3,5 +3,6 @@ export * from "./badge";
 export * from "./description-item";
 export * from "./description-list";
 export * from "./description-skeleton";
+export * from "./optional-text";
 export * from "./panel";
 export * from "./time-badge";

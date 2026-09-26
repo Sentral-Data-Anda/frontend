@@ -1090,6 +1090,35 @@ const VILLAGES: Record<
 };
 
 /** Daftar untuk satu path `ddl`; `undefined` = endpoint tidak dikenal. */
+// `ddl/jemaat` (id, code, name) dan `ddl/bapel`, dipakai semua form Kejemaatan.
+const DDL_JEMAAT = [
+  "Andreas Sitanggang",
+  "Bethari Ayu Kusuma",
+  "Christian Wijaya",
+  "Debora Manurung",
+  "Eleazar Panggabean",
+  "Fransiska Halim",
+  "Gideon Tampubolon",
+  "Hanna Simorangkir",
+  "Immanuel Saragih",
+  "Josephine Tanuwijaya",
+  "Kevin Nainggolan",
+  "Lidya Hutagalung",
+].map((name, index) => ({
+  id: index + 1,
+  code: `JMT-${String(index + 1).padStart(4, "0")}`,
+  name,
+}));
+
+const BAPEL_NAMES = [
+  "Majelis Jemaat",
+  "Komisi Pemuda",
+  "Komisi Wanita",
+  "Komisi Anak",
+  "Komisi Musik",
+  "Komisi Diakonia",
+];
+
 export function ddlRows(
   name: string,
   params: URLSearchParams,
@@ -1121,6 +1150,10 @@ export function ddlRows(
       return rowsOf(ZONE_CHURCHES, "ZON");
     case "keluarga":
       return narrow(KELUARGA);
+    case "jemaat":
+      return narrow(DDL_JEMAAT);
+    case "bapel":
+      return rowsOf(BAPEL_NAMES, "BPL");
     case "provinces":
       return PROVINCES;
     case "regencies":

@@ -20,6 +20,20 @@ export function formatDate(value: string | Date) {
   return date ? calendarFormat.format(date) : "-";
 }
 
+const shortDateFormat = new Intl.DateTimeFormat("id-ID", {
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+  timeZone: "UTC",
+});
+
+// "1 Jan 2025": kolom sempit dan rentang periode.
+export function formatDateShort(value: string | Date) {
+  const date = toDate(value);
+
+  return date ? shortDateFormat.format(date) : "-";
+}
+
 export function formatDateTime(value: string | Date) {
   const date = toDate(value);
 
