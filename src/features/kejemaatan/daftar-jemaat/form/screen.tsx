@@ -2,13 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import {
-  useEffect,
-  useRef,
-  useState,
-  type FormEvent,
-  type MouseEvent,
-} from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useForm, useWatch, type FieldErrors } from "react-hook-form";
 
 import { Button } from "@/components/common/control";
@@ -16,14 +10,14 @@ import { useToast } from "@/components/common/feedback";
 import {
   FormActions,
   FormAlert,
+  FormConfirmDialog,
   FormLayout,
   LoadingForm,
+  useFormConfirm,
 } from "@/components/common/form";
-import { ConfirmDialog } from "@/components/common/overlay";
 import { PageHeader } from "@/components/layout";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
-import { useBoolean } from "@/hooks/use-boolean";
 import { useListReturn } from "@/hooks/use-list-return";
 import { applyServerError, revealField } from "@/lib/form-error";
 import { saveListFocus } from "@/lib/list-return";
@@ -54,32 +48,6 @@ interface PropTypes {
   code?: string;
 }
 
-const SAVE_CONFIRM = {
-  title: "Konfirmasi Tindakan",
-  confirmLabel: "Ya",
-  cancelLabel: "Tidak",
-  isDestructive: false,
-  isFocusReturnedOnConfirm: false,
-} as const;
-
-const CONFIRM = {
-  create: {
-    ...SAVE_CONFIRM,
-    description: "Apakah Anda ingin menyimpan data jemaat ini?",
-  },
-  edit: {
-    ...SAVE_CONFIRM,
-    description: "Apakah Anda ingin menyimpan perubahan data jemaat ini?",
-  },
-  leave: {
-    title: "Buang perubahan?",
-    description: "Isian yang belum disimpan akan hilang.",
-    confirmLabel: "Buang",
-    cancelLabel: "Lanjut mengisi",
-    isDestructive: true,
-  },
-} as const;
-
 export const JemaatFormScreen = (props: PropTypes) => {
   const { code } = props;
 
@@ -91,10 +59,8 @@ export const JemaatFormScreen = (props: PropTypes) => {
   const [rejectedField, setRejectedField] = useState<string | null>(null);
   const saveJemaat = useSaveJemaat(code);
   const detail = useJemaatDetail(code);
-  const isConfirmOpen = useBoolean();
+  const confirm = useFormConfirm();
   const saveRef = useRef<HTMLButtonElement>(null);
-  const [pickConfirm, setPickConfirm] =
-    useState<keyof typeof CONFIRM>("create");
 
   const form = useForm<JemaatFormValues>({
     resolver: zodResolver(jemaatFormSchema),
@@ -108,24 +74,7 @@ export const JemaatFormScreen = (props: PropTypes) => {
   const watched = useWatch({ control: form.control });
   const missing = incompleteFields(watched);
 
-  const onOpenConfirm = (kind: keyof typeof CONFIRM) => {
-    setPickConfirm(kind);
-    isConfirmOpen.onTrue();
-  };
-
-  const onLeave = () => {
-    if (isDirty) onOpenConfirm("leave");
-    else router.replace(listReturn);
-  };
-
-  const onBack = (event: MouseEvent<HTMLAnchorElement>) => {
-    if (!isDirty) return;
-
-    event.preventDefault();
-    onOpenConfirm("leave");
-  };
-
-  const onDiscard = () => router.replace(listReturn);
+  const onLeave = () => router.replace(listReturn);
 
   const onInvalid = (errors: FieldErrors<JemaatFormValues>) => {
     setRejectedField(null);
@@ -134,7 +83,7 @@ export const JemaatFormScreen = (props: PropTypes) => {
 
   const onOpenSaveConfirm = () => {
     setRejectedField(null);
-    onOpenConfirm(isEdit ? "edit" : "create");
+    confirm.onOpen(isEdit ? "update" : "save");
   };
 
   const onConfirm = (event: FormEvent<HTMLFormElement>) => {
@@ -205,7 +154,7 @@ export const JemaatFormScreen = (props: PropTypes) => {
             type="button"
             variant="outline"
             disabled={isSubmitting}
-            onClick={onLeave}
+            onClick={() => confirm.onCancel(isDirty, onLeave)}
           >
             Batal
           </Button>
@@ -225,7 +174,7 @@ export const JemaatFormScreen = (props: PropTypes) => {
           subtitle={detail.data?.name ?? code}
           backHref={listReturn}
           isBackPersistent
-          onBack={onBack}
+          onBack={confirm.onBack(isDirty)}
         />
       }
     >
@@ -256,11 +205,11 @@ export const JemaatFormScreen = (props: PropTypes) => {
         ) : null}
       </div>
 
-      <ConfirmDialog
-        isOpen={isConfirmOpen.value}
-        onOpenChange={isConfirmOpen.setValue}
-        {...CONFIRM[pickConfirm]}
-        onConfirm={pickConfirm === "leave" ? onDiscard : () => onSave()}
+      <FormConfirmDialog
+        confirm={confirm}
+        noun="jemaat"
+        onSave={() => void onSave()}
+        onLeave={onLeave}
       />
     </FormLayout>
   );

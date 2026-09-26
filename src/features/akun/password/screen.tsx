@@ -9,16 +9,16 @@ import { Button, PasswordInput } from "@/components/common/control";
 import {
   FormActions,
   FormAlert,
+  FormConfirmDialog,
   FormField,
   FormLayout,
   FormSection,
   FormWide,
+  useFormConfirm,
 } from "@/components/common/form";
-import { ConfirmDialog } from "@/components/common/overlay";
 import { PageHeader, logout } from "@/components/layout";
 import { ACCOUNT_HREF } from "@/config/menu";
 import { useSession } from "@/features/auth";
-import { useBoolean } from "@/hooks/use-boolean";
 import { applyServerError, revealField } from "@/lib/form-error";
 import { PASSWORD_HINT } from "@/lib/password";
 
@@ -35,7 +35,7 @@ export const PasswordFormScreen = () => {
   const session = useSession();
   const changePassword = useChangePassword(session.code);
   const [rejectedField, setRejectedField] = useState<string | null>(null);
-  const isConfirmOpen = useBoolean();
+  const confirm = useFormConfirm();
   const saveRef = useRef<HTMLButtonElement>(null);
 
   const form = useForm<PasswordFormValues>({
@@ -45,7 +45,7 @@ export const PasswordFormScreen = () => {
     defaultValues: EMPTY_PASSWORD_FORM,
   });
 
-  const { errors, isSubmitting, submitCount } = form.formState;
+  const { errors, isDirty, isSubmitting, submitCount } = form.formState;
   const rootError = errors.root?.message;
 
   const onInvalid = (invalid: FieldErrors<PasswordFormValues>) => {
@@ -55,7 +55,7 @@ export const PasswordFormScreen = () => {
 
   const onOpenConfirm = () => {
     setRejectedField(null);
-    isConfirmOpen.onTrue();
+    confirm.onOpen("save");
   };
 
   const onConfirm = (event: FormEvent<HTMLFormElement>) => {
@@ -76,7 +76,7 @@ export const PasswordFormScreen = () => {
     }
   }, onInvalid);
 
-  const onCancel = () => router.replace(ACCOUNT_HREF);
+  const onLeave = () => router.replace(ACCOUNT_HREF);
 
   // Ditunda sampai fieldset aktif lagi: kontrol yang disabled menolak fokus.
   useEffect(() => {
@@ -95,6 +95,7 @@ export const PasswordFormScreen = () => {
           subtitle={session.jemaat?.name ?? session.username}
           backHref={ACCOUNT_HREF}
           isBackPersistent
+          onBack={confirm.onBack(isDirty)}
         />
       }
       actions={
@@ -103,7 +104,7 @@ export const PasswordFormScreen = () => {
             type="button"
             variant="outline"
             disabled={isSubmitting}
-            onClick={onCancel}
+            onClick={() => confirm.onCancel(isDirty, onLeave)}
           >
             Batal
           </Button>
@@ -168,15 +169,14 @@ export const PasswordFormScreen = () => {
         </div>
       ) : null}
 
-      <ConfirmDialog
-        isOpen={isConfirmOpen.value}
-        onOpenChange={isConfirmOpen.setValue}
-        title="Konfirmasi Tindakan"
-        description="Apakah Anda ingin mengganti password? Semua perangkat akan keluar."
-        confirmLabel="Ya"
-        cancelLabel="Tidak"
-        isFocusReturnedOnConfirm={false}
-        onConfirm={() => onSave()}
+      <FormConfirmDialog
+        confirm={confirm}
+        noun="password"
+        descriptions={{
+          save: "Apakah Anda ingin mengganti password? Semua perangkat akan keluar.",
+        }}
+        onSave={() => void onSave()}
+        onLeave={onLeave}
       />
     </FormLayout>
   );
