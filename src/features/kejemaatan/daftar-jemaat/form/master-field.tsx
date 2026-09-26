@@ -30,6 +30,9 @@ const errorText = (error: Error, noun: string) => {
   if (error.status === 403) {
     return `Anda tidak punya izin menambah ${noun}. Pilih dari daftar yang ada.`;
   }
+  if (error.status >= 500) {
+    return `Server sedang bermasalah, ${noun} belum ditambahkan. Coba lagi.`;
+  }
 
   return error.message;
 };
