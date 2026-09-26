@@ -1,13 +1,10 @@
 "use client";
 
-import {
-  ComboboxField,
-  Input,
-  type SelectOption,
-} from "@/components/common/control";
+import { ComboboxField, Input } from "@/components/common/control";
 import { ControlField, FormSection } from "@/components/common/form";
 
 import { useJemaatOptions } from "../api";
+import type { MarriageParty } from "../types";
 
 import { type MarriageForm } from "./form-options";
 
@@ -16,19 +13,16 @@ const LEGEND = { husband: "Suami", wife: "Istri" } as const;
 interface PropTypes {
   form: MarriageForm;
   side: "husband" | "wife";
-  current?: SelectOption;
+  saved?: MarriageParty;
   isDisabled: boolean;
 }
 
 export const PartySection = (props: PropTypes) => {
-  const { form, side, current, isDisabled } = props;
+  const { form, side, saved, isDisabled } = props;
 
-  const jemaat = useJemaatOptions();
-
-  const options =
-    current && !jemaat.options.some((option) => option.value === current.value)
-      ? [current, ...jemaat.options]
-      : jemaat.options;
+  const jemaat = useJemaatOptions(
+    saved?.jemaatCode ? { value: saved.jemaatCode, label: saved.name } : null,
+  );
 
   return (
     <FormSection
@@ -45,11 +39,10 @@ export const PartySection = (props: PropTypes) => {
           <ComboboxField
             value={field.value}
             onValueChange={field.onChange}
-            options={options}
+            options={jemaat.options}
             isLoading={jemaat.isLoading}
             onSearch={jemaat.onSearch}
             isClearable
-            disabled={isDisabled}
             placeholder="Cari nama atau kode jemaat"
             emptyMessage="Belum ada data jemaat"
           />

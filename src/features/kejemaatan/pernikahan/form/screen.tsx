@@ -3,15 +3,16 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { useForm, type FieldErrors } from "react-hook-form";
+import { useForm } from "react-hook-form";
 
-import { Button, type SelectOption } from "@/components/common/control";
+import { Button } from "@/components/common/control";
 import { useToast } from "@/components/common/feedback";
 import {
   FormActions,
   FormAlert,
   FormConfirmDialog,
   FormLayout,
+  FormNotFound,
   LoadingForm,
   useFormConfirm,
 } from "@/components/common/form";
@@ -19,7 +20,8 @@ import { PageHeader } from "@/components/layout";
 import { MENU, endHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { useListReturn } from "@/hooks/use-list-return";
-import { applyServerError, revealField } from "@/lib/form-error";
+import { FetchError } from "@/lib/api/fetcher";
+import { FIRST_INVALID, applyServerError, revealField } from "@/lib/form-error";
 import { saveListFocus } from "@/lib/list-return";
 
 import {
@@ -44,13 +46,6 @@ import type { MarriageParty } from "../types";
 import { MarriageSection } from "./marriage-section";
 import { NoFormAccess } from "./no-form-access";
 import { PartySection } from "./party-section";
-
-const toOption = (
-  party: MarriageParty | undefined,
-): SelectOption | undefined =>
-  party?.jemaatCode
-    ? { value: party.jemaatCode, label: party.name }
-    : undefined;
 
 interface PropTypes {
   id?: string;
@@ -78,39 +73,35 @@ export const MarriageFormScreen = (props: PropTypes) => {
     resolver: zodResolver(marriageFormSchema),
     mode: "onSubmit",
     reValidateMode: "onChange",
+    shouldFocusError: false,
     defaultValues: EMPTY_MARRIAGE_FORM,
   });
 
   const { isDirty, isSubmitting, submitCount } = form.formState;
   const isBusy = isSubmitting || deleteMarriage.isPending;
   const rootError = form.formState.errors.root?.message;
-  const husbandOption = toOption(detail.data?.husband);
-  const wifeOption = toOption(detail.data?.wife);
   const isEndable = Boolean(detail.data && !detail.data.endedAt);
 
   const onLeave = () => router.replace(listReturn);
 
-  const jemaatNames = (values: MarriageFormValues): JemaatPartyNames => {
-    const names: JemaatPartyNames = {};
-    const sides = [
-      ["husbandJemaatCode", husbandOption],
-      ["wifeJemaatCode", wifeOption],
-    ] as const;
+  const nameOf = (code: string, saved?: MarriageParty) =>
+    jemaatNameOf(code) ?? (saved?.jemaatCode === code ? saved.name : "");
 
-    for (const [field, known] of sides) {
-      const code = values[field];
+  const jemaatNames = (values: MarriageFormValues): JemaatPartyNames => ({
+    ...(values.husbandJemaatCode
+      ? {
+          husbandJemaatCode: nameOf(
+            values.husbandJemaatCode,
+            detail.data?.husband,
+          ),
+        }
+      : {}),
+    ...(values.wifeJemaatCode
+      ? { wifeJemaatCode: nameOf(values.wifeJemaatCode, detail.data?.wife) }
+      : {}),
+  });
 
-      if (code) {
-        names[field] =
-          jemaatNameOf(code) ?? (known?.value === code ? known.label : "");
-      }
-    }
-
-    return names;
-  };
-
-  const onInvalid = (errors: FieldErrors<MarriageFormValues>) =>
-    setRejectedField(Object.keys(errors).find((key) => key !== "root") ?? null);
+  const onInvalid = () => setRejectedField(FIRST_INVALID);
 
   const onOpenSaveConfirm = () => {
     setRejectedField(null);
@@ -170,18 +161,25 @@ export const MarriageFormScreen = (props: PropTypes) => {
   }, [isDirty, isSubmitting]);
 
   // Ditunda sampai fieldset aktif lagi: kontrol yang disabled menolak fokus.
-  // Kontrol Base UI baru aktif satu render sesudahnya, jadi tunggu satu frame.
   useEffect(() => {
     if (isBusy || !rejectedField) return;
-    if (rejectedField === "root") return saveRef.current?.focus();
 
-    const frame = requestAnimationFrame(() => revealField(rejectedField));
-
-    return () => cancelAnimationFrame(frame);
+    if (rejectedField === "root") saveRef.current?.focus();
+    else revealField(rejectedField);
   }, [isBusy, submitCount, rejectedField]);
 
   if (!(isEdit ? isCanUpdate : isCanCreate)) {
     return <NoFormAccess isEdit={isEdit} />;
+  }
+
+  if (detail.error instanceof FetchError && detail.error.status === 404) {
+    return (
+      <FormNotFound
+        noun="pernikahan"
+        backHref={listReturn}
+        backLabel="Kembali ke Pernikahan"
+      />
+    );
   }
 
   return (
@@ -228,19 +226,21 @@ export const MarriageFormScreen = (props: PropTypes) => {
         />
       }
     >
-      {detail.isLoading ? <LoadingForm fields={7} /> : null}
+      {detail.isLoading ? (
+        <LoadingForm fields={7} label="Memuat data pernikahan…" />
+      ) : null}
 
       <div className={detail.isLoading ? "hidden" : undefined}>
         <PartySection
           form={form}
           side="husband"
-          current={husbandOption}
+          saved={detail.data?.husband}
           isDisabled={isBusy}
         />
         <PartySection
           form={form}
           side="wife"
-          current={wifeOption}
+          saved={detail.data?.wife}
           isDisabled={isBusy}
         />
         <MarriageSection

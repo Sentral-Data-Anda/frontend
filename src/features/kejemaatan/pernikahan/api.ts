@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import type { SelectOption } from "@/components/common/control";
 import { ddlKeys, useDdlSearch, type DdlOption } from "@/hooks/use-ddl-options";
 import type { ListState } from "@/hooks/use-list-params";
 import { useListQuery } from "@/hooks/use-list-query";
@@ -84,7 +85,10 @@ export function useDeleteMarriage(id?: string) {
   });
 }
 
-export const useJemaatOptions = () => useDdlSearch("jemaat", "code");
+export const useJemaatOptions = (pinned: SelectOption | null) =>
+  useDdlSearch("jemaat", "code", pinned);
+
+const [, JEMAAT_DDL] = ddlKeys.list("jemaat");
 
 export function useJemaatNameOf() {
   const queryClient = useQueryClient();
@@ -92,7 +96,7 @@ export function useJemaatNameOf() {
   return (code: string): string | undefined =>
     queryClient
       .getQueriesData<ApiListResponse<DdlOption>>({ queryKey: ddlKeys.all })
-      .filter(([key]) => String(key[1]).startsWith("jemaat?"))
+      .filter(([key]) => String(key[1]).startsWith(`${JEMAAT_DDL}?`))
       .flatMap(([, response]) => response?.data ?? [])
       .find((row) => row.code === code)?.name;
 }

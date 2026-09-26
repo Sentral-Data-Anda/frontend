@@ -22,11 +22,11 @@ interface PropTypes {
   form: MarriageForm;
   isDisabled: boolean;
   endHref?: string;
-  isDirty?: boolean;
+  isDirty: boolean;
 }
 
 export const MarriageSection = (props: PropTypes) => {
-  const { form, isDisabled, endHref, isDirty = false } = props;
+  const { form, isDisabled, endHref, isDirty } = props;
 
   return (
     <FormSection legend="Pernikahan" disabled={isDisabled}>

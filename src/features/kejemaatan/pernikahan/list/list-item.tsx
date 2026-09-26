@@ -2,9 +2,10 @@ import { Pencil } from "lucide-react";
 import Link from "next/link";
 
 import { buttonVariants } from "@/components/common/control";
+import { OptionalText } from "@/components/common/display";
 import { DataListRow, type DataTableConfig } from "@/components/common/list";
 import { MENU, editHref } from "@/config/menu";
-import { formatDate } from "@/lib/format";
+import { formatDate, formatDateShort } from "@/lib/format";
 import { saveListFocus } from "@/lib/list-return";
 import { cn } from "@/lib/utils";
 
@@ -12,7 +13,6 @@ import { MARRIAGE_LIST_PATH, coupleName } from "../model";
 import type { MarriageListItem } from "../types";
 
 import { MarriageStatus } from "./marriage-status";
-import { OptionalName } from "./optional-name";
 
 interface PropTypes {
   marriage: MarriageListItem;
@@ -91,8 +91,10 @@ export function marriageTable(
         width: "minmax(0,1fr)",
         narrowWidth: "minmax(0,1.4fr)",
         cell: (marriage) => (
-          <OptionalName
-            name={marriage.marriedAt ? formatDate(marriage.marriedAt) : null}
+          <OptionalText
+            text={
+              marriage.marriedAt ? formatDateShort(marriage.marriedAt) : null
+            }
             empty="Tanggal belum dicatat"
           />
         ),
@@ -103,8 +105,8 @@ export function marriageTable(
         width: "minmax(0,1.5fr)",
         isSecondary: true,
         cell: (marriage) => (
-          <OptionalName
-            name={marriage.marriedPlace}
+          <OptionalText
+            text={marriage.marriedPlace}
             empty="Tempat belum dicatat"
           />
         ),
