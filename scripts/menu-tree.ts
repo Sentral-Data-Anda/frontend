@@ -15,6 +15,7 @@ export const TREE: Record<string, MenuSlug[]> = {
     MENU.RIWAYAT_JEMAAT,
     MENU.ROLE_JEMAAT,
     MENU.BAPEL,
+    MENU.WILAYAH,
     MENU.REPORT_JEMAAT,
   ],
   [MENU.PELAYANAN]: [
