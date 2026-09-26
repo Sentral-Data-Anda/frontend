@@ -44,6 +44,7 @@ export const ComboboxField = (props: PropTypes) => {
   const selected = options.find((option) => option.value === value) ?? null;
 
   const isBusy = isLoading && options.length === 0;
+  const isOff = disabled || isBusy;
 
   return (
     <Combobox.Root
@@ -52,7 +53,6 @@ export const ComboboxField = (props: PropTypes) => {
       onValueChange={(next) =>
         onValueChange((next as SelectOption | null)?.value ?? "")
       }
-      disabled={disabled || isBusy}
       filter={onSearch ? null : undefined}
       onInputValueChange={onSearch}
     >
@@ -65,6 +65,7 @@ export const ComboboxField = (props: PropTypes) => {
       >
         <Combobox.Input
           id={id}
+          disabled={isOff}
           {...aria}
           placeholder={isBusy ? "Memuat…" : placeholder}
           className="h-full min-w-0 flex-1 cursor-pointer bg-transparent pl-2.5 text-body outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed"
@@ -73,6 +74,7 @@ export const ComboboxField = (props: PropTypes) => {
         <div className="text-muted-foreground flex h-full shrink-0 items-center pr-1">
           {isClearable && value ? (
             <Combobox.Clear
+              disabled={isOff}
               aria-label="Kosongkan pilihan"
               className="flex size-6 cursor-pointer items-center justify-center rounded-control hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
             >
@@ -81,6 +83,7 @@ export const ComboboxField = (props: PropTypes) => {
           ) : null}
 
           <Combobox.Trigger
+            disabled={isOff}
             aria-label="Buka pilihan"
             className="flex size-6 cursor-pointer items-center justify-center rounded-control hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
           >
