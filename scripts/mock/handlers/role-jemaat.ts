@@ -1,14 +1,14 @@
 /**
- * Tiruan be-sada `/role-jemaat` + `/ddl/jemaat` + `/ddl/bapel`.
+ * Tiruan be-sada `/role-jemaat`; jemaat dan bapel diambil dari ddl bersama.
  *
  *   MOCK_ROLE_SAVE_ERROR=validasi|overlap|jemaat|500 → simpan jabatan gagal dengan jawaban itu
  *                                         (tumpang tindih juga muncul alami: jemaat, bapel,
  *                                         dan nama jabatan sama dengan periode beririsan)
  *   MOCK_ROLE_DELETE_ERROR=1           → hapus jabatan menjawab 404 (sudah dihapus orang lain)
- *   MOCK_BAPEL_MANY=1                  → 20 badan pelayanan: pilihan bapel jadi combobox
  *   MOCK_500=1                         → daftar jabatan menjawab 500
  */
 import { MENU } from "../../../src/config/menu";
+import { ddlRows } from "../../mock-dashboard";
 import { denied, json, list, readBody, type MockHandler } from "../kit";
 
 type Ref = { id: number; code: string; name: string };
@@ -33,75 +33,29 @@ type Body = Partial<{
   bapelId: unknown;
 }>;
 
-const refsOf = (names: string[], prefix: string): Ref[] =>
-  names.map((name, index) => ({
-    id: index + 1,
-    code: `${prefix}-${String(index + 1).padStart(4, "0")}`,
-    name,
-  }));
-
-const JEMAAT = refsOf(
-  [
-    "Andreas Sitanggang",
-    "Bethari Ayu Kusuma",
-    "Christian Wijaya",
-    "Debora Manurung",
-    "Eleazar Panggabean",
-    "Fransiska Halim",
-    "Gideon Tampubolon",
-    "Hanna Simorangkir",
-    "Immanuel Saragih",
-    "Josephine Tanuwijaya",
-    "Kevin Nainggolan",
-    "Lidya Hutagalung",
-  ],
-  "JMT",
-);
-
-const BAPEL_NAMES = [
-  "Majelis Jemaat",
-  "Komisi Pemuda",
-  "Komisi Anak",
-  "Komisi Wanita",
-  "Komisi Pria",
-  "Komisi Lansia",
-  "Komisi Musik",
-  "Diakonia",
-];
-
-const BAPEL = refsOf(
-  process.env.MOCK_BAPEL_MANY
-    ? [
-        ...BAPEL_NAMES,
-        ...Array.from(
-          { length: 12 },
-          (_, index) => `Sektor Pelayanan ${index + 1}`,
-        ),
-      ]
-    : BAPEL_NAMES,
-  "BPL",
-);
+const JEMAAT = (ddlRows("jemaat", new URLSearchParams()) ?? []) as Ref[];
+const BAPEL = (ddlRows("bapel", new URLSearchParams()) ?? []) as Ref[];
 
 const SEED: [number, number, string, string, string, boolean][] = [
   [0, 0, "Ketua", "2023-01-01", "2025-12-31", false],
   [1, 0, "Sekretaris", "2024-01-01", "2026-12-31", true],
   [2, 1, "Ketua", "2025-01-01", "2026-12-31", true],
   [3, 1, "Bendahara", "2025-01-01", "2026-12-31", true],
-  [4, 2, "Koordinator Sekolah Minggu", "2025-07-01", "2027-06-30", true],
-  [5, 3, "Ketua", "2026-01-01", "2028-12-31", true],
-  [6, 4, "Wakil Ketua", "2026-01-01", "2028-12-31", true],
-  [7, 5, "Sekretaris", "2024-01-01", "2025-12-31", false],
-  [8, 6, "Pemimpin Pujian", "2026-03-01", "2027-02-28", true],
-  [9, 7, "Koordinator Diakonia", "2026-01-01", "2027-12-31", true],
+  [4, 3, "Koordinator Sekolah Minggu", "2025-07-01", "2027-06-30", true],
+  [5, 2, "Ketua", "2026-01-01", "2028-12-31", true],
+  [6, 1, "Wakil Ketua", "2026-01-01", "2028-12-31", true],
+  [7, 2, "Sekretaris", "2024-01-01", "2025-12-31", false],
+  [8, 4, "Pemimpin Pujian", "2026-03-01", "2027-02-28", true],
+  [9, 5, "Koordinator Diakonia", "2026-01-01", "2027-12-31", true],
   [10, 0, "Penatua", "2026-01-01", "2030-12-31", true],
-  [11, 6, "Pemain Keyboard", "2027-01-01", "2027-12-31", true],
+  [11, 4, "Pemain Keyboard", "2027-01-01", "2027-12-31", true],
 ];
 
 const toInstant = (date: string) => `${date.slice(0, 10)}T00:00:00.000Z`;
 
 let nextId = SEED.length + 1;
 
-const rows: Role[] = SEED.map(
+const rows: Role[] = (JEMAAT.length && BAPEL.length ? SEED : []).map(
   ([jemaat, bapel, name, start, end, status], index) => ({
     id: index + 1,
     publicId: `role-jemaat-${index + 1}`,
@@ -116,23 +70,6 @@ const rows: Role[] = SEED.map(
 
 const byStart = (a: Role, b: Role) =>
   a.startPeriode.localeCompare(b.startPeriode);
-
-const ddl = (refs: Ref[], url: URL) => {
-  const filter = (url.searchParams.get("filter") ?? "").toLowerCase();
-  const limit = Number(url.searchParams.get("limit")) || refs.length;
-  const data = process.env.MOCK_DDL_EMPTY
-    ? []
-    : refs
-        .filter((ref) => ref.name.toLowerCase().includes(filter))
-        .sort((a, b) => a.name.localeCompare(b.name, "id"))
-        .slice(0, limit);
-
-  if (data.length === 0) {
-    return json({ status: 404, error: "Data Tidak Ditemukan" }, 404);
-  }
-
-  return json({ status: 200, message: "Berhasil Mendapatkan Data", data });
-};
 
 const isDate = (value: unknown): value is string =>
   typeof value === "string" && !Number.isNaN(Date.parse(value));
@@ -224,7 +161,17 @@ const FORCED_ERROR: Record<
   "500": { status: 500, error: "Kesalahan server." },
 };
 
-async function save(request: Request, current?: Role) {
+const notFound = () =>
+  json({ status: 404, error: "Role Jemaat Tidak Ditemukan" }, 404);
+
+const toRaw = ({ jemaat, bapel, ...role }: Role) => ({
+  ...role,
+  jemaatId: jemaat.id,
+  bapelId: bapel?.id ?? null,
+});
+
+// `current` null = PUT ke id yang tidak ada; be-sada memvalidasi badan dulu, baru 404.
+async function save(request: Request, current?: Role | null) {
   const forced = FORCED_ERROR[process.env.MOCK_ROLE_SAVE_ERROR ?? ""];
 
   if (forced) return json(forced, forced.status);
@@ -235,6 +182,7 @@ async function save(request: Request, current?: Role) {
   if (issues.length > 0) {
     return json({ status: 400, error: issues[0].message, issues }, 400);
   }
+  if (current === null) return notFound();
 
   const jemaat = JEMAAT.find((ref) => ref.id === body.jemaatId);
   if (!jemaat)
@@ -269,8 +217,7 @@ async function save(request: Request, current?: Role) {
   if (current) rows.splice(rows.indexOf(current), 1, next);
   else rows.push(next);
 
-  const { jemaat: _, bapel: __, ...raw } = next;
-  const data = { ...raw, jemaatId: jemaat.id, bapelId: bapel.id };
+  const data = toRaw(next);
 
   return current
     ? json({ status: 200, message: "Berhasil Memperbarui Role Jemaat", data })
@@ -284,12 +231,6 @@ export const roleJemaatMock: MockHandler = async ({
   method,
   can,
 }) => {
-  if (path === "/ddl/jemaat" || path === "/ddl/bapel") {
-    if (!can(MENU.ROLE_JEMAAT, "VIEW")) return null;
-
-    return ddl(path === "/ddl/jemaat" ? JEMAAT : BAPEL, url);
-  }
-
   if (path === "/role-jemaat") {
     if (method === "POST") {
       return can(MENU.ROLE_JEMAAT, "CREATE") ? save(request) : denied();
@@ -318,12 +259,9 @@ export const roleJemaatMock: MockHandler = async ({
   if (!match) return null;
 
   const row = rows.find((item) => String(item.id) === match[1]);
-  const notFound = () =>
-    json({ status: 404, error: "Role Jemaat Tidak Ditemukan" }, 404);
-
   if (method === "PUT") {
     if (!can(MENU.ROLE_JEMAAT, "UPDATE")) return denied();
-    return row ? save(request, row) : notFound();
+    return save(request, row ?? null);
   }
   if (method === "DELETE") {
     if (!can(MENU.ROLE_JEMAAT, "DELETE")) return denied();
@@ -333,7 +271,7 @@ export const roleJemaatMock: MockHandler = async ({
     return json({
       status: 200,
       message: "Berhasil Menghapus Role Jemaat",
-      data: row,
+      data: toRaw(row),
     });
   }
 
