@@ -28,7 +28,8 @@ import type { MenuNode } from "@/types/menu";
 
 import { AppIdentity } from "./app-identity";
 import { isTabActive } from "./bottom-tab";
-import { LogoutButton, logout } from "./logout-button";
+import { LogoutButton } from "./logout-button";
+import { LogoutDialog } from "./logout-dialog";
 import { SIDEBAR_MOTION, sidebarCookie } from "./sidebar-collapse";
 
 const FOCUS =
@@ -166,59 +167,68 @@ export function Sidebar({ defaultCollapsed }: { defaultCollapsed: boolean }) {
 }
 
 function AccountMenu({ name, role }: { name: string; role: string }) {
+  const isConfirmOpen = useBoolean();
+
   return (
-    <Menu.Root>
-      <RailTip label={name}>
-        <Menu.Trigger
-          aria-label={`Akun: ${name}`}
-          className={cn(
-            "hidden rounded-full group-data-collapsed/sidebar:block",
-            FOCUS,
-          )}
-        >
-          <Avatar label={name} />
-        </Menu.Trigger>
-      </RailTip>
-      <Menu.Portal>
-        <Menu.Positioner
-          side="right"
-          align="end"
-          sideOffset={10}
-          className="z-50"
-        >
-          <Menu.Popup className={cn(MENU_POPUP, "min-w-48")}>
-            <Menu.Group>
-              <Menu.GroupLabel className="px-2 py-1.5">
-                <span
-                  className="block truncate text-lead font-semibold"
-                  title={name}
+    <>
+      <Menu.Root>
+        <RailTip label={name}>
+          <Menu.Trigger
+            aria-label={`Akun: ${name}`}
+            className={cn(
+              "hidden rounded-full group-data-collapsed/sidebar:block",
+              FOCUS,
+            )}
+          >
+            <Avatar label={name} />
+          </Menu.Trigger>
+        </RailTip>
+        <Menu.Portal>
+          <Menu.Positioner
+            side="right"
+            align="end"
+            sideOffset={10}
+            className="z-50"
+          >
+            <Menu.Popup className={cn(MENU_POPUP, "min-w-48")}>
+              <Menu.Group>
+                <Menu.GroupLabel className="px-2 py-1.5">
+                  <span
+                    className="block truncate text-lead font-semibold"
+                    title={name}
+                  >
+                    {name}
+                  </span>
+                  <span
+                    className="text-muted-foreground block truncate text-body"
+                    title={role}
+                  >
+                    {role}
+                  </span>
+                </Menu.GroupLabel>
+                <Menu.Separator className="bg-border -mx-1 my-1 h-px" />
+                <Menu.LinkItem
+                  render={<Link href={ACCOUNT_HREF} />}
+                  className={MENU_ITEM}
                 >
-                  {name}
-                </span>
-                <span
-                  className="text-muted-foreground block truncate text-body"
-                  title={role}
-                >
-                  {role}
-                </span>
-              </Menu.GroupLabel>
-              <Menu.Separator className="bg-border -mx-1 my-1 h-px" />
-              <Menu.LinkItem
-                render={<Link href={ACCOUNT_HREF} />}
-                className={MENU_ITEM}
-              >
-                <UserRound className="size-4" aria-hidden />
-                Akun saya
-              </Menu.LinkItem>
-              <Menu.Item onClick={() => void logout()} className={MENU_ITEM}>
-                <LogOut className="size-4" aria-hidden />
-                Keluar
-              </Menu.Item>
-            </Menu.Group>
-          </Menu.Popup>
-        </Menu.Positioner>
-      </Menu.Portal>
-    </Menu.Root>
+                  <UserRound className="size-4" aria-hidden />
+                  Akun saya
+                </Menu.LinkItem>
+                <Menu.Item onClick={isConfirmOpen.onTrue} className={MENU_ITEM}>
+                  <LogOut className="size-4" aria-hidden />
+                  Keluar
+                </Menu.Item>
+              </Menu.Group>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>
+
+      <LogoutDialog
+        isOpen={isConfirmOpen.value}
+        onOpenChange={isConfirmOpen.setValue}
+      />
+    </>
   );
 }
 

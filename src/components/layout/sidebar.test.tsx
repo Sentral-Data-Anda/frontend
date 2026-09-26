@@ -299,7 +299,7 @@ describe("menu akun", () => {
     ).toBe("/akun");
   });
 
-  test("Keluar memanggil logout: DELETE BFF lalu ganti ke /login", async () => {
+  test("Keluar meminta konfirmasi dulu, lalu DELETE BFF dan ganti ke /login", async () => {
     const fetchSpy = spyOn(globalThis, "fetch").mockResolvedValue(
       new Response(null, { status: 204 }),
     );
@@ -309,6 +309,15 @@ describe("menu akun", () => {
 
     await act(async () =>
       fireEvent.click(screen.getByRole("menuitem", { name: "Keluar" })),
+    );
+
+    const dialog = await screen.findByRole("alertdialog");
+
+    expect(dialog.textContent).toContain("Keluar dari akun?");
+    expect(fetchSpy).not.toHaveBeenCalled();
+
+    await act(async () =>
+      fireEvent.click(screen.getByRole("button", { name: "Keluar" })),
     );
 
     expect(fetchSpy).toHaveBeenCalledWith("/api/v1/auth/logout", {

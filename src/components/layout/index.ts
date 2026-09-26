@@ -4,6 +4,7 @@ export * from "./app-identity";
 export * from "./bottom-tab";
 export * from "./dashboard-header";
 export * from "./logout-button";
+export * from "./logout-dialog";
 export * from "./mobile-only";
 export * from "./page-container";
 export * from "./page-header";

@@ -3,19 +3,13 @@
 import { LogOut } from "lucide-react";
 
 import { Button } from "@/components/common/control";
-import { ConfirmDialog } from "@/components/common/overlay";
-import { endActionSize, logout } from "@/components/layout";
+import { endActionSize, LogoutDialog } from "@/components/layout";
 import { useBoolean } from "@/hooks/use-boolean";
 import { cn } from "@/lib/utils";
 
 export const SignOutButton = () => {
   const isConfirmOpen = useBoolean();
   const isPending = useBoolean();
-
-  const onLogout = () => {
-    isPending.onTrue();
-    void logout();
-  };
 
   return (
     <>
@@ -34,15 +28,10 @@ export const SignOutButton = () => {
         {isPending.value ? "Keluar…" : "Keluar dari akun"}
       </Button>
 
-      <ConfirmDialog
+      <LogoutDialog
         isOpen={isConfirmOpen.value}
         onOpenChange={isConfirmOpen.setValue}
-        title="Keluar dari akun?"
-        description="Anda perlu masuk lagi untuk memakai SADA di perangkat ini."
-        confirmLabel="Keluar"
-        cancelLabel="Batal"
-        isDestructive
-        onConfirm={onLogout}
+        onConfirm={isPending.onTrue}
       />
     </>
   );
