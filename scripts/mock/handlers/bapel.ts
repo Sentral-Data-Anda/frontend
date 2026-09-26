@@ -127,7 +127,10 @@ const validate = (body: { name?: string; rules?: RuleInput[] }) => {
 };
 
 const isNameTaken = (name: string, ownId?: number) =>
-  rows.some((row) => row.name === name.trim() && row.id !== ownId);
+  rows.some(
+    (row) =>
+      row.name.toLowerCase() === name.trim().toLowerCase() && row.id !== ownId,
+  );
 
 export const bapelMock: MockHandler = async ({
   request,
