@@ -58,7 +58,7 @@ export const ComboboxField = (props: PropTypes) => {
       (option) => option.label.toLowerCase() === createText.toLowerCase(),
     );
   const items = isCreatable
-    ? [...options, { value: CREATE_VALUE, label: `Tambah “${createText}”` }]
+    ? [...options, { value: CREATE_VALUE, label: createText }]
     : options;
 
   const isBusy = isLoading && options.length === 0;
@@ -155,7 +155,7 @@ export const ComboboxField = (props: PropTypes) => {
                       >
                         <Plus className="col-start-1 size-3.5" aria-hidden />
                         <span className="col-start-2 truncate">
-                          {option.label}
+                          Tambah “{option.label}”
                         </span>
                       </Combobox.Item>
                     ) : (
