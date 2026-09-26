@@ -150,6 +150,16 @@ describe("gerbang izin rute form", () => {
 });
 
 describe("simpan", () => {
+  test("form tidak valid: tanpa konfirmasi, fokus ke jemaat (field pertama)", async () => {
+    onMockApi();
+    onRenderForm(["VIEW", "CREATE"]);
+
+    fireEvent.click(screen.getByRole("button", { name: "Simpan" }));
+
+    await waitFor(() => expect(document.activeElement?.id).toBe("jemaatId"));
+    expect(screen.queryByText(/Apakah Anda ingin menyimpan/)).toBeNull();
+  });
+
   test("kembali ke daftar membawa filter dan menandai baris", async () => {
     const listUrl = `${ROLE_JEMAAT_LIST_PATH}?tahun=2025&page=2`;
     window.sessionStorage.setItem(

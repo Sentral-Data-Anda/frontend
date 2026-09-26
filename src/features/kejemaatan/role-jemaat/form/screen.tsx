@@ -67,6 +67,8 @@ export const RoleJemaatFormScreen = (props: PropTypes) => {
     resolver: zodResolver(roleJemaatFormSchema),
     mode: "onSubmit",
     reValidateMode: "onChange",
+    // Fokus bawaan RHF melompati combobox/select (tanpa ref); fokus diurus efek di bawah.
+    shouldFocusError: false,
     defaultValues: EMPTY_ROLE_JEMAAT_FORM,
   });
 
@@ -79,10 +81,8 @@ export const RoleJemaatFormScreen = (props: PropTypes) => {
 
   const onLeave = () => router.replace(listReturn);
 
-  const onInvalid = (errors: FieldErrors<RoleJemaatFormValues>) => {
-    setRejectedField(null);
-    revealField(Object.keys(errors).find((key) => key !== "root"));
-  };
+  const onInvalid = (errors: FieldErrors<RoleJemaatFormValues>) =>
+    setRejectedField(Object.keys(errors).find((key) => key !== "root") ?? null);
 
   const onOpenSaveConfirm = () => {
     setRejectedField(null);
@@ -140,12 +140,16 @@ export const RoleJemaatFormScreen = (props: PropTypes) => {
     return () => window.removeEventListener("beforeunload", onBeforeUnload);
   }, [isDirty, isBusy]);
 
-  // Ditunda sampai fieldset aktif lagi: kontrol yang disabled menolak fokus.
+  // Ditunda sampai fieldset aktif lagi; combobox Base UI baru melepas disabled satu render sesudahnya.
   useEffect(() => {
     if (isBusy || !rejectedField) return;
 
-    if (rejectedField !== "root") revealField(rejectedField);
-    else (deleteRole.isError ? deleteRef : saveRef).current?.focus();
+    const frame = requestAnimationFrame(() => {
+      if (rejectedField !== "root") revealField(rejectedField);
+      else (deleteRole.isError ? deleteRef : saveRef).current?.focus();
+    });
+
+    return () => cancelAnimationFrame(frame);
   }, [isBusy, submitCount, rejectedField, deleteRole.isError]);
 
   if (!(isEdit ? isCanUpdate : isCanCreate)) {
