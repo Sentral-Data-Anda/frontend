@@ -2,15 +2,14 @@ import { Pencil } from "lucide-react";
 import Link from "next/link";
 
 import { buttonVariants } from "@/components/common/control";
+import { OptionalText } from "@/components/common/display";
 import { DataListRow, type DataTableConfig } from "@/components/common/list";
 import { MENU, editHref } from "@/config/menu";
 import { saveListFocus } from "@/lib/list-return";
 import { cn } from "@/lib/utils";
 
-import { BAPEL_LIST_PATH } from "../model";
+import { BAPEL_LIST_PATH, summarizeRules } from "../model";
 import type { BapelListItem } from "../types";
-
-import { RuleSummary } from "./rule-summary";
 
 interface PropTypes {
   bapel: BapelListItem;
@@ -74,10 +73,15 @@ export function bapelTable(
       },
       {
         key: "rules",
-        header: "Aturan",
+        header: "Larangan jadwal",
         width: "minmax(0,2fr)",
-        isSecondary: true,
-        cell: (bapel) => <RuleSummary rules={bapel.rules} />,
+        narrowWidth: "minmax(0,2fr)",
+        cell: (bapel) => (
+          <OptionalText
+            text={summarizeRules(bapel.rules)}
+            empty="Tanpa larangan jadwal"
+          />
+        ),
       },
     ],
     getRowHref: isCanUpdate

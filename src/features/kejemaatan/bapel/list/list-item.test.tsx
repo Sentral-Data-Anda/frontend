@@ -62,15 +62,15 @@ describe("baris HP", () => {
 });
 
 describe("konfigurasi tabel", () => {
-  test("kolom Nama | Kode | Aturan (sekunder), ubah hanya dengan UPDATE", () => {
+  test("kolom Nama | Kode | Larangan jadwal, semua tampil di tablet, ubah hanya dengan UPDATE", () => {
     const table = bapelTable(true);
 
     expect(table.columns.map((column) => column.header)).toEqual([
       "Nama",
       "Kode",
-      "Aturan",
+      "Larangan jadwal",
     ]);
-    expect(table.columns[2]?.isSecondary).toBe(true);
+    expect(table.columns.some((column) => column.isSecondary)).toBe(false);
     expect(table.getRowHref?.(BAPEL)).toBe("/kejemaatan/bapel/BPL-0001/ubah");
     expect(bapelTable(false).getRowHref).toBeUndefined();
   });
