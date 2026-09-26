@@ -17,7 +17,7 @@ export const DescriptionItem = (props: PropTypes) => {
       className={cn(
         "py-2 @min-[30rem]/dl:block @min-[30rem]/dl:space-y-0.5",
         isStacked ? "space-y-0.5" : "flex items-baseline justify-between gap-4",
-        isWide && "@min-[30rem]/dl:col-span-full",
+        isWide && "@min-[30rem]/dl:col-span-full @min-[64rem]/dl:col-span-2",
       )}
     >
       <dt className="text-muted-foreground shrink-0 text-body">{label}</dt>
