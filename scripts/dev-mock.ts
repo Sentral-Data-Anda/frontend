@@ -39,6 +39,13 @@
  *   MOCK_DDL_EMPTY=1                    → semua daftar pilihan form kosong (404)
  *   MOCK_DDL_MANY=1                     → daftar keluarga 400 baris (combobox panjang)
  *
+ *   MOCK_NO_DELETE=1                    → sub menu Kejemaatan (selain Daftar Jemaat) tanpa
+ *                                         DELETE untuk persona sekretariat
+ *
+ * Tiruan tiap sub menu Kejemaatan tinggal di `scripts/mock/handlers/<sub-menu>.ts`,
+ * didaftarkan di `scripts/mock/handlers/index.ts`, dan dipanggil sebelum handler
+ * bawaan di bawah. Flag MOCK_* milik sub menu ditulis di kepala berkasnya sendiri.
+ *
  * Port bisa digeser supaya berjalan di samping `dev:mock` lain:
  *   MOCK_API_PORT=3011 PORT=3010 bun run dev:mock
  *
@@ -48,6 +55,8 @@
 import { MENU, type MenuSlug } from "../src/config/menu";
 
 import { NAME, TREE } from "./menu-tree";
+import { MOCK_HANDLERS } from "./mock/handlers";
+import { json, list, paging, type MockAction } from "./mock/kit";
 import {
   PERSONAS,
   actionsOf,
@@ -306,48 +315,6 @@ const setCookies = (value: string, maxAge: number) =>
       `${name}=${value}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${maxAge}`,
   );
 
-const json = (body: unknown, status = 200, cookies: string[] = []) => {
-  const headers = new Headers({ "content-type": "application/json" });
-  for (const cookie of cookies) headers.append("set-cookie", cookie);
-  return new Response(JSON.stringify(body), { status, headers });
-};
-
-/** `parsePagination` be-sada: bawaan 10, maks 100, nilai buruk → bawaan. */
-const paging = (url: URL) => {
-  const page = Math.max(1, Number(url.searchParams.get("page")) || 1);
-  const limit = Math.min(
-    100,
-    Math.max(1, Number(url.searchParams.get("limit")) || 10),
-  );
-  return { page, limit };
-};
-
-/**
- * Daftar berpaginasi gaya be-sada: `{ status, message, totalData, totalPage,
- * data }`, dan 404 `"<X> Tidak Ditemukan"` bila kosong.
- */
-const list = (
-  rows: unknown[],
-  url: URL,
-  okName: string,
-  emptyName: string,
-  message = `Berhasil Mendapatkan Semua ${okName}`,
-) => {
-  // `MOCK_EMPTY=1` mengosongkan SEMUA daftar sekaligus, supaya keadaan kosong
-  // bisa dibuktikan lewat render — bukan hanya lewat unit test.
-  if (rows.length === 0 || process.env.MOCK_EMPTY) {
-    return json({ status: 404, error: `${emptyName} Tidak Ditemukan` }, 404);
-  }
-  const { page, limit } = paging(url);
-  return json({
-    status: 200,
-    message,
-    totalData: rows.length,
-    totalPage: Math.ceil(rows.length / limit),
-    data: rows.slice((page - 1) * limit, page * limit),
-  });
-};
-
 /**
  * Jawaban galat untuk simpan, dipilih lewat `MOCK_SAVE_ERROR`. Tiga jalur
  * galat di form tidak bisa dinilai dengan mata tanpa cara memunculkannya:
@@ -454,6 +421,19 @@ Bun.serve({
     }
     if (path.startsWith("/auth/")) {
       return json({ status: 200, message: "Berhasil", data: session });
+    }
+
+    for (const handle of MOCK_HANDLERS) {
+      const response = await handle({
+        request,
+        url,
+        path,
+        method: request.method,
+        can: (slug: MenuSlug, action: MockAction) =>
+          actionsOf(persona, slug).includes(action),
+      });
+
+      if (response) return response;
     }
 
     // Daftar pilihan form: tanpa paginasi, 404 saat kosong.

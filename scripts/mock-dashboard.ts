@@ -37,6 +37,14 @@ const JEMAAT_ACTIONS: Action[] = [
   ...(process.env.MOCK_NO_UPDATE ? [] : (["UPDATE"] as Action[])),
 ];
 
+// Sekretariat mengelola seluruh sub menu Kejemaatan; MOCK_NO_* mencabut satu per satu.
+const KEJEMAATAN_ACTIONS: Action[] = [
+  "VIEW",
+  ...(process.env.MOCK_NO_CREATE ? [] : (["CREATE"] as Action[])),
+  ...(process.env.MOCK_NO_UPDATE ? [] : (["UPDATE"] as Action[])),
+  ...(process.env.MOCK_NO_DELETE ? [] : (["DELETE"] as Action[])),
+];
+
 export const PERSONAS: Record<string, Persona> = {
   // docs/design/dashboard-desktop.md §3e.
   sekretariat: {
@@ -45,6 +53,11 @@ export const PERSONAS: Record<string, Persona> = {
     jemaatName: "Andreas Sitanggang",
     grants: {
       [MENU.DAFTAR_JEMAAT]: JEMAAT_ACTIONS,
+      [MENU.KELUARGA]: KEJEMAATAN_ACTIONS,
+      [MENU.PERNIKAHAN]: KEJEMAATAN_ACTIONS,
+      [MENU.RIWAYAT_JEMAAT]: KEJEMAATAN_ACTIONS,
+      [MENU.ROLE_JEMAAT]: KEJEMAATAN_ACTIONS,
+      [MENU.BAPEL]: KEJEMAATAN_ACTIONS,
       [MENU.REPORT_JEMAAT]: V,
       [MENU.IBADAH]: VC,
       [MENU.JADWAL_PELAYAN]: V,
