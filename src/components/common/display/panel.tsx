@@ -1,5 +1,8 @@
 import { cn } from "@/lib/utils";
 
+export const PANEL_TITLE =
+  "text-muted-foreground text-body font-semibold tracking-wide uppercase";
+
 interface PropTypes {
   label?: string;
   className?: string;

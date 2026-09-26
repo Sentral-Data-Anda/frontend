@@ -2,7 +2,7 @@ import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-import { Panel } from "@/components/common/display";
+import { Panel, PANEL_TITLE } from "@/components/common/display";
 import { Badge } from "@/components/ui";
 import { cn } from "@/lib/utils";
 
@@ -35,7 +35,12 @@ export function DashboardCard({
   return (
     <Panel label={title} className="p-4 lg:p-6">
       <div className="mb-4 flex min-h-6 items-center justify-between gap-3">
-        <h2 className="text-muted-foreground flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-body font-semibold tracking-wide uppercase">
+        <h2
+          className={cn(
+            PANEL_TITLE,
+            "flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1",
+          )}
+        >
           <span className="truncate" title={title}>
             {title}
           </span>

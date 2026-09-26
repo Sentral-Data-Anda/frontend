@@ -84,7 +84,7 @@ export const ProfileDetails = () => {
         </ReadOnlyField>
       </ProfileGroup>
 
-      <ProfileGroup title="Keanggotaan lainnya">
+      <ProfileGroup title="Keanggotaan">
         <ReadOnlyField label="Tipe">
           {TYPE_JEMAAT_LABEL[data.typeJemaat]}
         </ReadOnlyField>
