@@ -89,6 +89,7 @@ export function marriageTable(
         key: "marriedAt",
         header: "Tanggal menikah",
         width: "minmax(0,1fr)",
+        narrowWidth: "minmax(0,1.4fr)",
         cell: (marriage) => (
           <OptionalName
             name={marriage.marriedAt ? formatDate(marriage.marriedAt) : null}
