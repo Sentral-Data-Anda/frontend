@@ -10,7 +10,7 @@ export const SecuritySection = () => (
     <div className="flex items-center justify-between gap-4 px-gutter py-4">
       <div className="min-w-0">
         <p className="text-body font-medium">Password</p>
-        <p className="text-muted-foreground text-body">{PASSWORD_HINT}</p>
+        <p className="text-muted-foreground text-caption">{PASSWORD_HINT}</p>
       </div>
 
       <Link

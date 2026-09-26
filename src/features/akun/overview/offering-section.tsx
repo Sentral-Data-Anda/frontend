@@ -88,7 +88,7 @@ export const OfferingSection = () => {
                 title={item.typePersembahan.name}
                 meta={offeringMeta(item)}
                 trailing={
-                  <span className="text-body font-medium tabular-nums">
+                  <span className="text-body font-semibold tabular-nums">
                     {formatRupiah(Number(item.amount))}
                   </span>
                 }
