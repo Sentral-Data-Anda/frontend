@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { useForm, type FieldErrors } from "react-hook-form";
+import { useForm } from "react-hook-form";
 
 import { Button } from "@/components/common/control";
 import { useToast } from "@/components/common/feedback";
@@ -12,6 +12,7 @@ import {
   FormAlert,
   FormConfirmDialog,
   FormLayout,
+  FormNotFound,
   LoadingForm,
   useFormConfirm,
 } from "@/components/common/form";
@@ -19,7 +20,8 @@ import { PageHeader } from "@/components/layout";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { useListReturn } from "@/hooks/use-list-return";
-import { applyServerError, revealField } from "@/lib/form-error";
+import { FetchError } from "@/lib/api/fetcher";
+import { applyServerError, FIRST_INVALID, revealField } from "@/lib/form-error";
 import { saveListFocus } from "@/lib/list-return";
 
 import { useDeleteKeluarga, useKeluargaDetail, useSaveKeluarga } from "../api";
@@ -63,6 +65,7 @@ export const KeluargaFormScreen = (props: PropTypes) => {
     resolver: zodResolver(keluargaFormSchema),
     mode: "onSubmit",
     reValidateMode: "onChange",
+    shouldFocusError: false,
     defaultValues: EMPTY_KELUARGA_FORM,
   });
 
@@ -73,10 +76,7 @@ export const KeluargaFormScreen = (props: PropTypes) => {
 
   const onLeave = () => router.replace(listReturn);
 
-  const onInvalid = (errors: FieldErrors<KeluargaFormValues>) => {
-    setRejectedField(null);
-    revealField(Object.keys(errors).find((key) => key !== "root"));
-  };
+  const onInvalid = () => setRejectedField(FIRST_INVALID);
 
   const onOpenSaveConfirm = () => {
     setRejectedField(null);
@@ -146,6 +146,16 @@ export const KeluargaFormScreen = (props: PropTypes) => {
     return <NoFormAccess isEdit={isEdit} />;
   }
 
+  if (detail.error instanceof FetchError && detail.error.status === 404) {
+    return (
+      <FormNotFound
+        noun="keluarga"
+        backHref={listReturn}
+        backLabel="Kembali ke Keluarga"
+      />
+    );
+  }
+
   return (
     <FormLayout
       onSubmit={onConfirm}
@@ -191,7 +201,9 @@ export const KeluargaFormScreen = (props: PropTypes) => {
         />
       }
     >
-      {detail.isLoading ? <LoadingForm fields={8} /> : null}
+      {detail.isLoading ? (
+        <LoadingForm fields={8} label="Memuat data keluarga…" />
+      ) : null}
 
       <div className={detail.isLoading ? "hidden" : undefined}>
         <KeluargaSection form={form} isDisabled={isBusy} />

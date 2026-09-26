@@ -2,6 +2,7 @@ import { Pencil } from "lucide-react";
 import Link from "next/link";
 
 import { buttonVariants } from "@/components/common/control";
+import { OptionalText } from "@/components/common/display";
 import { DataListRow, type DataTableConfig } from "@/components/common/list";
 import { MENU, editHref } from "@/config/menu";
 import { saveListFocus } from "@/lib/list-return";
@@ -9,8 +10,6 @@ import { cn } from "@/lib/utils";
 
 import { KELUARGA_LIST_PATH, WORSHIPS_HERE_LABEL } from "../model";
 import type { Keluarga } from "../types";
-
-import { OptionalName } from "./optional-name";
 
 const memberCount = (keluarga: Keluarga) =>
   `${keluarga._count.members} anggota`;
@@ -77,8 +76,8 @@ export function keluargaTable(isCanUpdate: boolean): DataTableConfig<Keluarga> {
         header: "Wilayah",
         width: "minmax(0,1fr)",
         cell: (keluarga) => (
-          <OptionalName
-            name={keluarga.zoneChurch?.name}
+          <OptionalText
+            text={keluarga.zoneChurch?.name}
             empty="Tanpa wilayah"
           />
         ),
