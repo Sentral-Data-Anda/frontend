@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { Children, type ReactNode } from "react";
 
+import { Panel } from "@/components/common/display";
 import { Badge } from "@/components/ui";
 import { cn } from "@/lib/utils";
 
@@ -34,10 +35,10 @@ export function KpiStrip({
         )}
       >
         {cells.map((cell, index) => (
-          <div
+          <Panel
             key={index}
             className={cn(
-              "bg-card border-hairline @container/kpi min-w-0 rounded-lg border",
+              "@container/kpi",
               index === count - 1 && count % 2 === 1 && "col-span-2",
               isFive
                 ? index < 3
@@ -50,7 +51,7 @@ export function KpiStrip({
             )}
           >
             {cell}
-          </div>
+          </Panel>
         ))}
       </section>
     </div>
