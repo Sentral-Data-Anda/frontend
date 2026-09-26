@@ -1,7 +1,7 @@
 import { MENU, type MenuSlug } from "../src/config/menu";
 
 /**
- * Pohon menu lengkap (12 domain, 61 layar) supaya sidebar desktop bisa dinilai
+ * Pohon menu lengkap (12 domain, 62 layar) supaya sidebar desktop bisa dinilai
  * utuh. Slug diambil dari `src/config/menu.ts`, bukan disalin sebagai string;
  * pengelompokan domain → layar hanya ada di sini karena menu.ts sengaja tidak
  * menyimpan pohonnya (pohon milik be-sada). Dipakai juga `menu.test.ts` untuk
@@ -15,6 +15,7 @@ export const TREE: Record<string, MenuSlug[]> = {
     MENU.RIWAYAT_JEMAAT,
     MENU.ROLE_JEMAAT,
     MENU.BAPEL,
+    MENU.WILAYAH,
     MENU.REPORT_JEMAAT,
   ],
   [MENU.PELAYANAN]: [
