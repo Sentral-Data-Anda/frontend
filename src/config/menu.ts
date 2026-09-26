@@ -360,7 +360,26 @@ export const editHref = (
 ): string =>
   `${menuHref(groupSlug, leafSlug)}/${encodeURIComponent(code)}/${FORM_SEGMENT.edit}`;
 
-export const FORM_SEGMENT = { create: "baru", edit: "ubah" } as const;
+export const detailHref = (
+  groupSlug: string,
+  leafSlug: string,
+  code: string,
+): string => `${menuHref(groupSlug, leafSlug)}/${encodeURIComponent(code)}`;
+
+export const endHref = (
+  groupSlug: string,
+  leafSlug: string,
+  code: string,
+): string =>
+  `${menuHref(groupSlug, leafSlug)}/${encodeURIComponent(code)}/${FORM_SEGMENT.end}`;
+
+export const FORM_SEGMENT = {
+  create: "baru",
+  edit: "ubah",
+  end: "akhiri",
+} as const;
+
+const FORM_SEGMENTS: readonly string[] = Object.values(FORM_SEGMENT);
 
 export const ACCOUNT_HREF = "/akun";
 
@@ -372,8 +391,7 @@ export function isFormRoute(pathname: string): boolean {
 
   // ≥ 3 segmen: layar be-sada `/<domain>/<layar>` yang kebetulan ber-slug `baru` bukan form.
   return (
-    segments.length >= 3 &&
-    (last === FORM_SEGMENT.create || last === FORM_SEGMENT.edit)
+    segments.length >= 3 && last !== undefined && FORM_SEGMENTS.includes(last)
   );
 }
 

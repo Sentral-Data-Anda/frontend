@@ -98,6 +98,8 @@ describe("rute layar isian", () => {
   test("keduanya dikenali sebagai layar isian", () => {
     expect(isFormRoute("/kejemaatan/daftar-jemaat/baru")).toBe(true);
     expect(isFormRoute("/kejemaatan/daftar-jemaat/JMT-0042/ubah")).toBe(true);
+    expect(isFormRoute("/kejemaatan/pernikahan/abc/akhiri")).toBe(true);
+    expect(isFormRoute("/kejemaatan/keluarga/KK-0001/anggota/baru")).toBe(true);
   });
 
   test("layar daftar, halaman domain, dan Beranda bukan layar isian", () => {
