@@ -2,7 +2,12 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { useDdlOptions, useDdlSearch } from "@/hooks/use-ddl-options";
+import {
+  ddlKeys,
+  useDdlOptions,
+  useDdlSearch,
+  type DdlOption,
+} from "@/hooks/use-ddl-options";
 import type { ListState } from "@/hooks/use-list-params";
 import { useListQuery } from "@/hooks/use-list-query";
 import { fetchList, fetchOne } from "@/lib/api/fetcher";
@@ -60,8 +65,8 @@ export function useSaveJemaat(code?: string) {
   });
 }
 
-export function useZoneFilterOptions() {
-  const zones = useDdlOptions("zone-church");
+export function useZoneFilterOptions(keepValue: string) {
+  const zones = useDdlOptions("zone-church", "id", keepValue);
 
   return {
     ...zones,
@@ -75,3 +80,19 @@ export function useZoneFilterOptions() {
 }
 
 export const useKeluargaOptions = () => useDdlSearch("keluarga");
+
+export type MasterKind = "profession" | "ethnic-group";
+
+export function useCreateMaster(kind: MasterKind) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (name: string) =>
+      fetchOne<DdlOption>(`/${kind}`, {
+        method: "POST",
+        body: JSON.stringify({ name }),
+      }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ddlKeys.list(kind) }),
+  });
+}

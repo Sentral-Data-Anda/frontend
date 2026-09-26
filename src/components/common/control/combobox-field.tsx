@@ -1,13 +1,17 @@
 "use client";
 
 import { Combobox } from "@base-ui/react/combobox";
-import { Check, ChevronDown, X } from "lucide-react";
+import { Check, ChevronDown, Plus, X } from "lucide-react";
+import { useState } from "react";
 
 import { EmptyState } from "@/components/common/feedback";
 import { inputVariants } from "@/components/ui";
+import { normalizeName } from "@/lib/name";
 import { cn } from "@/lib/utils";
 
 import { FIELD_ITEM, FIELD_POPUP, type SelectOption } from "./select-field";
+
+const CREATE_VALUE = "\u0000create";
 
 interface PropTypes {
   id?: string;
@@ -20,6 +24,7 @@ interface PropTypes {
   emptyMessage?: string;
   isClearable?: boolean;
   onSearch?: (query: string) => void;
+  onCreate?: (text: string) => void;
   className?: string;
   "aria-invalid"?: boolean;
   "aria-describedby"?: string;
@@ -37,24 +42,49 @@ export const ComboboxField = (props: PropTypes) => {
     emptyMessage = "Belum ada pilihan",
     isClearable = false,
     onSearch,
+    onCreate,
     className,
     ...aria
   } = props;
 
+  const [query, setQuery] = useState("");
+  const collator = Combobox.useFilter();
+
   const selected = options.find((option) => option.value === value) ?? null;
+  const createText = onCreate ? normalizeName(query) : "";
+  const isCreatable =
+    createText !== "" &&
+    !options.some(
+      (option) => option.label.toLowerCase() === createText.toLowerCase(),
+    );
+  const items = isCreatable
+    ? [...options, { value: CREATE_VALUE, label: createText }]
+    : options;
 
   const isBusy = isLoading && options.length === 0;
   const isOff = disabled || isBusy;
 
+  const onPick = (next: SelectOption | null) => {
+    if (next?.value === CREATE_VALUE) onCreate?.(createText);
+    else onValueChange(next?.value ?? "");
+  };
+
+  const onType = (text: string) => {
+    setQuery(text);
+    onSearch?.(text);
+  };
+
+  const onFilter = (option: SelectOption, text: string) =>
+    option.value === CREATE_VALUE ||
+    collator.contains(option, text, (item) => item.label);
+
   return (
     <Combobox.Root
-      items={options as SelectOption[]}
+      items={items as SelectOption[]}
       value={selected}
-      onValueChange={(next) =>
-        onValueChange((next as SelectOption | null)?.value ?? "")
-      }
-      filter={onSearch ? null : undefined}
-      onInputValueChange={onSearch}
+      onValueChange={(next) => onPick(next as SelectOption | null)}
+      filter={onSearch ? null : onCreate ? onFilter : undefined}
+      onInputValueChange={onType}
     >
       <Combobox.InputGroup
         className={cn(
@@ -100,29 +130,49 @@ export const ComboboxField = (props: PropTypes) => {
           className="z-50 outline-none"
         >
           <Combobox.Popup className={FIELD_POPUP}>
-            {options.length === 0 ? (
+            {options.length === 0 && !onCreate ? (
               <EmptyState title={emptyMessage} isCompact />
             ) : (
               <>
                 <Combobox.Empty>
-                  <EmptyState title="Tidak ada yang cocok" isCompact />
+                  <EmptyState
+                    title={
+                      options.length === 0
+                        ? emptyMessage
+                        : "Tidak ada yang cocok"
+                    }
+                    isCompact
+                  />
                 </Combobox.Empty>
 
                 <Combobox.List>
-                  {(option: SelectOption) => (
-                    <Combobox.Item
-                      key={option.value}
-                      value={option}
-                      className={FIELD_ITEM}
-                    >
-                      <Combobox.ItemIndicator className="col-start-1">
-                        <Check className="size-3.5" aria-hidden />
-                      </Combobox.ItemIndicator>
-                      <span className="col-start-2 truncate">
-                        {option.label}
-                      </span>
-                    </Combobox.Item>
-                  )}
+                  {(option: SelectOption) =>
+                    option.value === CREATE_VALUE ? (
+                      <Combobox.Item
+                        key={option.value}
+                        value={option}
+                        className={cn(FIELD_ITEM, "text-primary font-medium")}
+                      >
+                        <Plus className="col-start-1 size-3.5" aria-hidden />
+                        <span className="col-start-2 truncate">
+                          Tambah “{option.label}”
+                        </span>
+                      </Combobox.Item>
+                    ) : (
+                      <Combobox.Item
+                        key={option.value}
+                        value={option}
+                        className={FIELD_ITEM}
+                      >
+                        <Combobox.ItemIndicator className="col-start-1">
+                          <Check className="size-3.5" aria-hidden />
+                        </Combobox.ItemIndicator>
+                        <span className="col-start-2 truncate">
+                          {option.label}
+                        </span>
+                      </Combobox.Item>
+                    )
+                  }
                 </Combobox.List>
               </>
             )}

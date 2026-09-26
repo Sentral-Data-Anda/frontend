@@ -3,13 +3,11 @@
 import { useWatch } from "react-hook-form";
 
 import {
-  ComboboxField,
   SelectField,
   type SelectOption,
   optionsOf,
 } from "@/components/common/control";
 import { FormSection, ControlField } from "@/components/common/form";
-import { useDdlOptions } from "@/hooks/use-ddl-options";
 
 import {
   BLOOD_TYPE_LABEL,
@@ -18,6 +16,7 @@ import {
 } from "../types";
 
 import { type JemaatForm } from "./form-options";
+import { MasterField } from "./master-field";
 
 const MARITAL_OPTIONS = optionsOf(STATUS_PERNIKAHAN_LABEL);
 
@@ -38,8 +37,6 @@ export const SocialSection = (props: PropTypes) => {
 
   const isAnggota =
     useWatch({ control: form.control, name: "typeJemaat" }) === "ANGGOTA";
-  const profession = useDdlOptions("profession");
-  const ethnicGroup = useDdlOptions("ethnic-group");
 
   return (
     <FormSection
@@ -67,39 +64,23 @@ export const SocialSection = (props: PropTypes) => {
         )}
       </ControlField>
 
-      <ControlField
-        control={form.control}
+      <MasterField
+        form={form}
         name="professionId"
+        kind="profession"
         label="Pekerjaan"
-      >
-        {(field) => (
-          <ComboboxField
-            value={field.value}
-            onValueChange={field.onChange}
-            options={profession.options}
-            isLoading={profession.isLoading}
-            isClearable
-            disabled={isDisabled}
-            placeholder="Pilih pekerjaan"
-            emptyMessage="Belum ada data pekerjaan"
-          />
-        )}
-      </ControlField>
+        isClearable
+        isDisabled={isDisabled}
+      />
 
-      <ControlField control={form.control} name="ethnicGroupId" label="Suku">
-        {(field) => (
-          <ComboboxField
-            value={field.value}
-            onValueChange={field.onChange}
-            options={ethnicGroup.options}
-            isLoading={ethnicGroup.isLoading}
-            isClearable={!isAnggota}
-            disabled={isDisabled}
-            placeholder="Pilih suku"
-            emptyMessage="Belum ada data suku"
-          />
-        )}
-      </ControlField>
+      <MasterField
+        form={form}
+        name="ethnicGroupId"
+        kind="ethnic-group"
+        label="Suku"
+        isClearable={!isAnggota}
+        isDisabled={isDisabled}
+      />
 
       <ControlField
         control={form.control}

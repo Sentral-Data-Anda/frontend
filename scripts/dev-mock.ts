@@ -31,6 +31,8 @@
  *   MOCK_SAVE_ERROR=induk|email|kepala|validasi|500
  *                                       → simpan jemaat gagal dengan jawaban itu
  *                                         (validasi = issues[] per field)
+ *   Simpan Anggota tanpa wilayah: lolos bila keluarganya berwilayah. Keluarga ber-id
+ *   kelipatan 5 (mis. "Keluarga Panggabean 5") tidak berwilayah → 400 zoneChurchId.
  *   MOCK_OFFERINGS=empty|500            → /persembahan/saya kosong atau galat (halaman Akun)
  *   Ganti password (/akun): password lama "salah" → 400 dari be-sada.
  *   MOCK_NO_JEMAAT=1                    → akun tanpa data jemaat (sesi jemaat: null)
@@ -56,7 +58,7 @@ import { MENU, type MenuSlug } from "../src/config/menu";
 
 import { NAME, TREE } from "./menu-tree";
 import { MOCK_HANDLERS } from "./mock/handlers";
-import { json, list, paging, type MockAction } from "./mock/kit";
+import { json, list, paging, readBody, type MockAction } from "./mock/kit";
 import {
   PERSONAS,
   actionsOf,
@@ -130,7 +132,8 @@ type JemaatRow = {
  */
 const personalZoneOf = (index: number, type: string) =>
   type === "ANGGOTA" ? (index % 4) + 1 : null;
-const keluargaZoneOf = (keluargaId: number) => ((keluargaId + 2) % 4) + 1;
+const keluargaZoneOf = (keluargaId: number) =>
+  keluargaId % 5 === 0 ? null : ((keluargaId + 2) % 4) + 1;
 const zoneOf = (id: number | null) =>
   id === null ? null : { id, name: ZONE_CHURCHES[id - 1] ?? `Wilayah ${id}` };
 
@@ -153,7 +156,8 @@ const rows: JemaatRow[] = names.map((name, index) => ({
   zoneChurch: zoneOf(
     index % 4 === 0
       ? personalZoneOf(index + 1, index % 5 === 0 ? "SIMPATISAN" : "ANGGOTA")
-      : keluargaZoneOf(index),
+      : (keluargaZoneOf(index) ??
+          personalZoneOf(index, index % 5 === 0 ? "SIMPATISAN" : "ANGGOTA")),
   ),
 }));
 
@@ -358,6 +362,47 @@ const saveFailure = () => {
   return failure ? json(failure, failure.status) : null;
 };
 
+type JemaatBody = {
+  name: string;
+  gender: string;
+  birthDate: string | null;
+  typeJemaat: string;
+  statusJemaat: string;
+  roleInFamily: string | null;
+  zoneChurchId: number | null;
+  keluargaId?: number | null;
+};
+
+const zoneIssue = (error: string, message: string) =>
+  json(
+    { status: 400, error, issues: [{ path: "zoneChurchId", message }] },
+    400,
+  );
+
+// Aturan wilayah be-sada (wilayah-keluarga.md): Anggota tanpa wilayah pribadi
+// lolos bila keluarga yang dipakai berwilayah.
+const zoneFailure = (body: JemaatBody, keluargaId: number | null) => {
+  if (body.zoneChurchId) {
+    return ZONE_CHURCHES[body.zoneChurchId - 1]
+      ? null
+      : zoneIssue("Wilayah Tidak Ditemukan", "Wilayah tidak ditemukan.");
+  }
+  if (body.typeJemaat !== "ANGGOTA") return null;
+  if (!keluargaId) {
+    return zoneIssue(
+      "Wilayah Wajib Diisi",
+      "Wilayah wajib diisi untuk Anggota yang belum masuk keluarga.",
+    );
+  }
+  if (keluargaZoneOf(keluargaId) === null) {
+    return zoneIssue(
+      "Wilayah Wajib Diisi",
+      "Keluarga ini belum punya wilayah. Isi wilayah jemaat atau lengkapi wilayah keluarganya.",
+    );
+  }
+  return null;
+};
+
 /** `MOCK_DELAY_MS=3000` — menunda SEMUA jawaban, untuk menguji layar tunggu. */
 const DELAY_MS = Number(process.env.MOCK_DELAY_MS ?? 0);
 
@@ -461,8 +506,15 @@ Bun.serve({
       const failure = saveFailure();
       if (failure) return failure;
 
-      const body = (await request.json()) as Record<string, string>;
+      const body = await readBody<JemaatBody>(request);
+      const keluargaId = body.keluargaId ?? null;
+      const zoneRejected = zoneFailure(body, keluargaId);
+      if (zoneRejected) return zoneRejected;
+
       const code = `JMT-${String(rows.length + 1).padStart(4, "0")}`;
+      const keluarga = (
+        ddlRows("keluarga", new URLSearchParams()) as JemaatRow["keluarga"][]
+      ).find((row) => row?.id === keluargaId);
 
       // Barisnya benar-benar DITAMBAHKAN ke daftar (hanya di memori, hilang
       // saat tiruan dimatikan): tanpa itu, kembali ke daftar setelah simpan
@@ -475,11 +527,12 @@ Bun.serve({
         birthDate: body.birthDate ? `${body.birthDate}T00:00:00.000Z` : null,
         type: body.typeJemaat,
         roleInFamily: body.roleInFamily ?? null,
-        keluarga: null,
+        keluarga: keluarga
+          ? { id: keluarga.id, code: keluarga.code, name: keluarga.name }
+          : null,
         status: body.statusJemaat,
-        // Tanpa keluarga, wilayah efektif = wilayah pribadi dari form.
         zoneChurch: zoneOf(
-          body.zoneChurchId ? Number(body.zoneChurchId) : null,
+          (keluargaId ? keluargaZoneOf(keluargaId) : null) ?? body.zoneChurchId,
         ),
       });
 
@@ -515,10 +568,20 @@ Bun.serve({
       const failure = saveFailure();
       if (failure) return failure;
 
+      const body = await readBody<JemaatBody>(request);
+      const current = rows.find((item) => item.code === detail[1]);
+      const zoneRejected = zoneFailure(
+        body,
+        body.keluargaId === undefined
+          ? (current?.keluarga?.id ?? null)
+          : body.keluargaId,
+      );
+      if (zoneRejected) return zoneRejected;
+
       return json({
         status: 200,
         message: "Berhasil Mengubah Data Jemaat",
-        data: { ...(await request.json()), code: detail[1] },
+        data: { ...body, code: detail[1] },
       });
     }
 

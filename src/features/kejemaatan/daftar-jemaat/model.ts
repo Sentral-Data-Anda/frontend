@@ -107,13 +107,15 @@ const ALWAYS_REQUIRED = [
   ["districtsCode", "Kecamatan wajib dipilih, sesudah kabupaten/kota."],
   ["villagesCode", "Kelurahan/desa wajib dipilih, sesudah kecamatan."],
   ["address", "Alamat wajib diisi, mis. Jl. Merdeka 10, RT 01 RW 02."],
-  ["typeJemaat", "Pilih tipe jemaat; Anggota butuh kode induk dan wilayah."],
+  [
+    "typeJemaat",
+    "Pilih tipe jemaat; Anggota butuh kode induk dan data sosial.",
+  ],
   ["statusJemaat", "Status jemaat wajib dipilih"],
 ] as const;
 
 const MEMBER_REQUIRED = [
   ["codeInduk", "Kode induk wajib untuk Anggota; juga jadi username akun."],
-  ["zoneChurchId", "Wilayah wajib dipilih untuk Anggota"],
   ["statusMarital", "Status pernikahan wajib dipilih untuk Anggota"],
   ["ethnicGroupId", "Suku wajib dipilih untuk Anggota"],
 ] as const;
@@ -129,6 +131,12 @@ export const jemaatFormSchema = baseSchema.superRefine((values, ctx) => {
   if (values.typeJemaat === "ANGGOTA") {
     for (const [field, message] of MEMBER_REQUIRED) {
       if (!values[field]) addIssue(field, message);
+    }
+    if (!values.keluargaId && !values.zoneChurchId) {
+      addIssue(
+        "zoneChurchId",
+        "Wilayah wajib dipilih untuk Anggota yang belum masuk keluarga",
+      );
     }
   }
 

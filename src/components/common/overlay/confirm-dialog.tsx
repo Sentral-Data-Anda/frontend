@@ -1,7 +1,7 @@
 "use client";
 
 import { AlertDialog } from "@base-ui/react/alert-dialog";
-import { useRef } from "react";
+import { useRef, type ReactNode } from "react";
 
 import { Button } from "@/components/ui";
 
@@ -14,7 +14,10 @@ interface PropTypes {
   cancelLabel?: string;
   isDestructive?: boolean;
   isFocusReturnedOnConfirm?: boolean;
+  isPending?: boolean;
+  isClosedOnConfirm?: boolean;
   onConfirm: () => void;
+  children?: ReactNode;
 }
 
 export const ConfirmDialog = (props: PropTypes) => {
@@ -27,7 +30,10 @@ export const ConfirmDialog = (props: PropTypes) => {
     cancelLabel = "Batal",
     isDestructive = false,
     isFocusReturnedOnConfirm = true,
+    isPending = false,
+    isClosedOnConfirm = true,
     onConfirm,
+    children,
   } = props;
   const isConfirmedRef = useRef(false);
 
@@ -63,24 +69,41 @@ export const ConfirmDialog = (props: PropTypes) => {
             </AlertDialog.Description>
           </div>
 
+          {children}
+
           <div className="flex justify-end gap-2">
             <AlertDialog.Close
+              disabled={isPending}
               render={<Button type="button" variant="outline" />}
             >
               {cancelLabel}
             </AlertDialog.Close>
 
-            <AlertDialog.Close
-              render={
-                <Button
-                  type="button"
-                  variant={isDestructive ? "destructive" : "default"}
-                />
-              }
-              onClick={onConfirmClick}
-            >
-              {confirmLabel}
-            </AlertDialog.Close>
+            {isClosedOnConfirm ? (
+              <AlertDialog.Close
+                disabled={isPending}
+                aria-busy={isPending || undefined}
+                render={
+                  <Button
+                    type="button"
+                    variant={isDestructive ? "destructive" : "default"}
+                  />
+                }
+                onClick={onConfirmClick}
+              >
+                {confirmLabel}
+              </AlertDialog.Close>
+            ) : (
+              <Button
+                type="button"
+                variant={isDestructive ? "destructive" : "default"}
+                disabled={isPending}
+                aria-busy={isPending || undefined}
+                onClick={onConfirmClick}
+              >
+                {confirmLabel}
+              </Button>
+            )}
           </div>
         </AlertDialog.Popup>
       </AlertDialog.Portal>

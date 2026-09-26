@@ -74,6 +74,39 @@ describe("jemaatFormSchema — wajib bersyarat (test wajib 1)", () => {
   });
 });
 
+describe("jemaatFormSchema — wilayah Anggota mengikuti keluarga", () => {
+  const ANGGOTA: JemaatFormValues = {
+    ...SIMPATISAN,
+    typeJemaat: "ANGGOTA",
+    codeInduk: "A-0184",
+    statusMarital: "BM",
+    ethnicGroupId: "2",
+  };
+
+  test("Anggota berkeluarga tanpa wilayah pribadi lolos", () => {
+    expect(
+      issuesOf({ ...ANGGOTA, keluargaId: "12", roleInFamily: "ANAK" }),
+    ).toEqual([]);
+  });
+
+  test("Anggota tanpa keluarga dan tanpa wilayah ditolak dengan pesan yang menjelaskan", () => {
+    const parsed = jemaatFormSchema.safeParse(ANGGOTA);
+
+    expect(parsed.success).toBe(false);
+    expect(parsed.error?.issues).toEqual([
+      expect.objectContaining({
+        path: ["zoneChurchId"],
+        message:
+          "Wilayah wajib dipilih untuk Anggota yang belum masuk keluarga",
+      }),
+    ]);
+  });
+
+  test("Anggota tanpa keluarga dengan wilayah lolos", () => {
+    expect(issuesOf({ ...ANGGOTA, zoneChurchId: "3" })).toEqual([]);
+  });
+});
+
 describe("jemaatFormSchema — batas nilai (test wajib 2)", () => {
   test("telepon non-angka ditolak", () => {
     expect(issuesOf({ ...SIMPATISAN, phone: "0812-3456" })).toEqual(["phone"]);
