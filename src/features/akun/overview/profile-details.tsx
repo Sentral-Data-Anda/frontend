@@ -1,7 +1,10 @@
 "use client";
 
 import { Button } from "@/components/common/control";
-import { DescriptionItem } from "@/components/common/display";
+import {
+  DescriptionItem,
+  DescriptionSkeleton,
+} from "@/components/common/display";
 import { formatDate } from "@/lib/format";
 import {
   GENDER_LABEL,
@@ -21,17 +24,8 @@ export const ProfileDetails = () => {
 
   if (profile.isPending) {
     return (
-      <div
-        aria-busy
-        aria-label="Memuat profil"
-        className="border-hairline space-y-3 border-t px-gutter py-4"
-      >
-        {[0, 1, 2, 3, 4, 5].map((row) => (
-          <div key={row} className="flex justify-between gap-4">
-            <span className="bg-skeleton block h-3 w-24 animate-pulse rounded" />
-            <span className="bg-skeleton block h-3 w-32 animate-pulse rounded" />
-          </div>
-        ))}
+      <div className="border-hairline border-t px-gutter py-2">
+        <DescriptionSkeleton label="Memuat profil" />
       </div>
     );
   }
