@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { useForm, type FieldErrors } from "react-hook-form";
+import { useForm } from "react-hook-form";
 
 import { Button } from "@/components/common/control";
 import { useToast } from "@/components/common/feedback";
@@ -12,6 +12,7 @@ import {
   FormAlert,
   FormConfirmDialog,
   FormLayout,
+  FormNotFound,
   LoadingForm,
   useFormConfirm,
 } from "@/components/common/form";
@@ -19,7 +20,8 @@ import { PageHeader } from "@/components/layout";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { useListReturn } from "@/hooks/use-list-return";
-import { applyServerError, revealField } from "@/lib/form-error";
+import { FetchError } from "@/lib/api/fetcher";
+import { applyServerError, FIRST_INVALID, revealField } from "@/lib/form-error";
 import { saveListFocus } from "@/lib/list-return";
 
 import {
@@ -67,7 +69,6 @@ export const RoleJemaatFormScreen = (props: PropTypes) => {
     resolver: zodResolver(roleJemaatFormSchema),
     mode: "onSubmit",
     reValidateMode: "onChange",
-    // Fokus bawaan RHF melompati combobox/select (tanpa ref); fokus diurus efek di bawah.
     shouldFocusError: false,
     defaultValues: EMPTY_ROLE_JEMAAT_FORM,
   });
@@ -75,14 +76,10 @@ export const RoleJemaatFormScreen = (props: PropTypes) => {
   const { isDirty, isSubmitting, submitCount } = form.formState;
   const isBusy = isSubmitting || deleteRole.isPending;
   const rootError = form.formState.errors.root?.message;
-  const savedJemaat = detail.data
-    ? { value: String(detail.data.jemaat.id), label: detail.data.jemaat.name }
-    : undefined;
 
   const onLeave = () => router.replace(listReturn);
 
-  const onInvalid = (errors: FieldErrors<RoleJemaatFormValues>) =>
-    setRejectedField(Object.keys(errors).find((key) => key !== "root") ?? null);
+  const onInvalid = () => setRejectedField(FIRST_INVALID);
 
   const onOpenSaveConfirm = () => {
     setRejectedField(null);
@@ -140,20 +137,25 @@ export const RoleJemaatFormScreen = (props: PropTypes) => {
     return () => window.removeEventListener("beforeunload", onBeforeUnload);
   }, [isDirty, isBusy]);
 
-  // Ditunda sampai fieldset aktif lagi; combobox Base UI baru melepas disabled satu render sesudahnya.
   useEffect(() => {
     if (isBusy || !rejectedField) return;
 
-    const frame = requestAnimationFrame(() => {
-      if (rejectedField !== "root") revealField(rejectedField);
-      else (deleteRole.isError ? deleteRef : saveRef).current?.focus();
-    });
-
-    return () => cancelAnimationFrame(frame);
+    if (rejectedField !== "root") revealField(rejectedField);
+    else (deleteRole.isError ? deleteRef : saveRef).current?.focus();
   }, [isBusy, submitCount, rejectedField, deleteRole.isError]);
 
   if (!(isEdit ? isCanUpdate : isCanCreate)) {
     return <NoFormAccess isEdit={isEdit} />;
+  }
+
+  if (detail.error instanceof FetchError && detail.error.status === 404) {
+    return (
+      <FormNotFound
+        noun="jabatan"
+        backHref={listReturn}
+        backLabel="Kembali ke Role Jemaat"
+      />
+    );
   }
 
   return (
@@ -201,13 +203,15 @@ export const RoleJemaatFormScreen = (props: PropTypes) => {
         />
       }
     >
-      {detail.isLoading ? <LoadingForm fields={6} /> : null}
+      {detail.isLoading ? (
+        <LoadingForm fields={6} label="Memuat data jabatan…" />
+      ) : null}
 
       <div className={detail.isLoading ? "hidden" : undefined}>
         <JabatanSection
           form={form}
           isDisabled={isBusy}
-          savedJemaat={savedJemaat}
+          savedJemaat={detail.data?.jemaat}
         />
         <PeriodeSection form={form} isDisabled={isBusy} />
       </div>

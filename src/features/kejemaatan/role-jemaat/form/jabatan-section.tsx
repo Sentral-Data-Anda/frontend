@@ -1,14 +1,10 @@
 "use client";
 
-import {
-  ComboboxField,
-  Input,
-  SelectField,
-  type SelectOption,
-} from "@/components/common/control";
+import { ComboboxField, Input, SelectField } from "@/components/common/control";
 import { ControlField, FormSection } from "@/components/common/form";
 
 import { useBapelOptions, useJemaatOptions } from "../api";
+import type { RoleJemaatItem } from "../types";
 
 import { type RoleJemaatForm } from "./form-options";
 
@@ -17,20 +13,14 @@ const SELECT_LIMIT = 15;
 interface PropTypes {
   form: RoleJemaatForm;
   isDisabled: boolean;
-  savedJemaat?: SelectOption;
+  savedJemaat?: RoleJemaatItem["jemaat"];
 }
 
 export const JabatanSection = (props: PropTypes) => {
   const { form, isDisabled, savedJemaat } = props;
 
-  const jemaat = useJemaatOptions();
+  const jemaat = useJemaatOptions(savedJemaat);
   const bapel = useBapelOptions();
-
-  const jemaatOptions =
-    savedJemaat &&
-    !jemaat.options.some((option) => option.value === savedJemaat.value)
-      ? [savedJemaat, ...jemaat.options]
-      : jemaat.options;
 
   return (
     <FormSection legend="Jabatan" disabled={isDisabled}>
@@ -39,10 +29,10 @@ export const JabatanSection = (props: PropTypes) => {
           <ComboboxField
             value={field.value}
             onValueChange={field.onChange}
-            options={jemaatOptions}
+            options={jemaat.options}
             isLoading={jemaat.isLoading}
             onSearch={jemaat.onSearch}
-            disabled={isDisabled}
+            // Tanpa prop disabled: fieldset sudah menonaktifkannya, dan prop itu baru lepas satu render sesudah simpan sehingga fokus galat gagal.
             placeholder="Ketik nama jemaat"
             emptyMessage="Tidak ada jemaat dengan nama itu"
           />

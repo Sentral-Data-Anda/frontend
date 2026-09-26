@@ -59,6 +59,11 @@ export function useDeleteRoleJemaat(id?: string) {
   });
 }
 
-export const useJemaatOptions = () => useDdlSearch("jemaat");
+export const useJemaatOptions = (saved?: RoleJemaatItem["jemaat"]) =>
+  useDdlSearch(
+    "jemaat",
+    "id",
+    saved ? { value: String(saved.id), label: saved.name } : null,
+  );
 
 export const useBapelOptions = () => useDdlOptions("bapel");

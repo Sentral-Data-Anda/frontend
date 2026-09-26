@@ -154,6 +154,11 @@ describe("simpan", () => {
     onMockApi();
     onRenderForm(["VIEW", "CREATE"]);
 
+    await waitFor(() =>
+      expect(
+        (screen.getByLabelText("Jemaat") as HTMLInputElement).disabled,
+      ).toBe(false),
+    );
     fireEvent.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(document.activeElement?.id).toBe("jemaatId"));
@@ -178,7 +183,7 @@ describe("simpan", () => {
     ).toBe("42");
   });
 
-  test("409 tumpang tindih: fokus ke tanggal mulai, tetap di form", async () => {
+  test("409 tumpang tindih: galat form, fokus ke Simpan, tetap di form", async () => {
     onMockApi({
       save: {
         status: 409,
@@ -190,10 +195,30 @@ describe("simpan", () => {
 
     await onConfirmYes("Simpan");
 
+    expect(
+      await screen.findByText(/sudah memegang jabatan dengan nama yang sama/),
+    ).toBeTruthy();
     await waitFor(() =>
-      expect(document.activeElement?.id).toBe("startPeriode"),
+      expect(document.activeElement?.textContent).toBe("Simpan"),
     );
     expect(replaced).toEqual([]);
+  });
+});
+
+describe("id tidak dikenal", () => {
+  test("404 detail: FormNotFound, bukan form kosong dengan Hapus", async () => {
+    globalThis.fetch = (async () =>
+      Response.json(
+        { status: 404, error: "Role Jemaat Tidak Ditemukan" },
+        { status: 404 },
+      )) as unknown as typeof fetch;
+    onRenderForm(["VIEW", "UPDATE", "DELETE"], "999");
+
+    expect(
+      await screen.findByText("Data jabatan tidak ditemukan"),
+    ).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Hapus" })).toBeNull();
+    expect(screen.queryByLabelText("Nama jabatan")).toBeNull();
   });
 });
 
