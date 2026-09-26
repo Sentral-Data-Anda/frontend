@@ -205,19 +205,34 @@ describe("simpan", () => {
   });
 
   test("jemaat masih menikah: galat di field sisi yang namanya cocok", async () => {
-    onMockApi({
-      status: 400,
-      error:
-        "Andreas Sitanggang Masih Tercatat Dalam Pernikahan Yang Belum Berakhir. Akhiri Pernikahan Tersebut Terlebih Dahulu",
-    });
+    onMockApi(
+      {
+        status: 400,
+        error:
+          "Bethari Ayu Kusuma Masih Tercatat Dalam Pernikahan Yang Belum Berakhir. Akhiri Pernikahan Tersebut Terlebih Dahulu",
+      },
+      {
+        ...DETAIL,
+        wife: { jemaatCode: "JMT-0002", name: "Bethari Ayu Kusuma" },
+      },
+    );
     await onRenderLoadedEdit(["VIEW", "UPDATE"]);
 
     fireEvent.click(screen.getByRole("button", { name: "Simpan" }));
     fireEvent.click(await screen.findByRole("button", { name: "Ya" }));
 
     await waitFor(() =>
-      expect(document.activeElement?.id).toBe("husbandJemaatCode"),
+      expect(document.activeElement?.id).toBe("wifeJemaatCode"),
     );
+    expect(document.getElementById("husbandJemaatCode-error")).toBeNull();
+  });
+
+  test("id tidak dikenal: halaman data tidak ditemukan, bukan form kosong", async () => {
+    onMockApi();
+    onRenderForm(["VIEW", "UPDATE"], "tidak-ada");
+
+    await screen.findByText("Data pernikahan tidak ditemukan");
+    expect(screen.queryByRole("button", { name: "Simpan" })).toBeNull();
   });
 });
 
@@ -259,6 +274,26 @@ describe("akhiri pernikahan", () => {
     ).toBe(`/kejemaatan/pernikahan/${ID}/akhiri`);
   });
 
+  test("form kotor: Akhiri nonaktif dengan keterangan", async () => {
+    onMockApi();
+    await onRenderLoadedEdit(["VIEW", "UPDATE"]);
+
+    fireEvent.change(screen.getByLabelText("Tempat", { exact: false }), {
+      target: { value: "GKI Sada, Cimahi" },
+    });
+
+    const endButton = await screen.findByRole("button", {
+      name: "Akhiri pernikahan",
+    });
+    expect((endButton as HTMLButtonElement).disabled).toBe(true);
+    expect(
+      screen.queryByRole("link", { name: "Akhiri pernikahan" }),
+    ).toBeNull();
+    expect(
+      screen.getByText(/Simpan atau batalkan perubahan dulu/),
+    ).toBeTruthy();
+  });
+
   test("pernikahan yang sudah berakhir tidak menautkan ke akhiri", async () => {
     onMockApi(undefined, { ...DETAIL, endedAt: "2021-11-03T00:00:00.000Z" });
     await onRenderLoadedEdit(["VIEW", "UPDATE"]);
@@ -291,15 +326,50 @@ describe("akhiri pernikahan", () => {
     expect(calls).toEqual([]);
   });
 
-  test("sudah berakhir: Simpan nonaktif dan tidak ada form", async () => {
+  test("sudah berakhir: halaman keterangan tanpa form", async () => {
     onMockApi(undefined, { ...DETAIL, endedAt: "2021-11-03T00:00:00.000Z" });
     actions.current = ["VIEW", "UPDATE"];
     render(wrap(<MarriageEndScreen id={ID} />));
 
     await screen.findByText("Pernikahan ini sudah berakhir");
+    expect(screen.queryByRole("button", { name: "Simpan" })).toBeNull();
     expect(
-      (screen.getByRole("button", { name: "Simpan" }) as HTMLButtonElement)
-        .disabled,
-    ).toBe(true);
+      screen.getByRole("link", { name: "Kembali ke Pernikahan" }),
+    ).toBeTruthy();
+  });
+
+  test("alur sukses: PUT /end, sorot baris, kembali ke daftar", async () => {
+    const listUrl = `${MARRIAGE_LIST_PATH}?status=AKTIF`;
+    window.sessionStorage.setItem(`list-return:${MARRIAGE_LIST_PATH}`, listUrl);
+    const calls = onMockApi();
+    actions.current = ["VIEW", "UPDATE"];
+    render(wrap(<MarriageEndScreen id={ID} />));
+    await screen.findByText("Andreas Sitanggang & Ruth Siregar");
+
+    const date = screen.getByLabelText("Tanggal berakhir");
+    fireEvent.change(date, { target: { value: "01/02/2024" } });
+    fireEvent.blur(date);
+    fireEvent.click(screen.getByLabelText("Alasan"));
+    fireEvent.click(await screen.findByRole("option", { name: "Cerai hidup" }));
+
+    fireEvent.click(screen.getByRole("button", { name: "Simpan" }));
+    await screen.findByText("Apakah Anda ingin mengakhiri pernikahan ini?");
+    fireEvent.click(screen.getByRole("button", { name: "Ya" }));
+
+    await waitFor(() => expect(replaced).toEqual([listUrl]));
+    expect(calls).toEqual([
+      {
+        method: "PUT",
+        url: `/api/v1/marriage/${ID}/end`,
+        body: {
+          endedAt: "2024-02-01",
+          endReason: "CERAI_HIDUP",
+          endNote: null,
+        },
+      },
+    ]);
+    expect(
+      window.sessionStorage.getItem(`list-focus:${MARRIAGE_LIST_PATH}`),
+    ).toBe(ID);
   });
 });
