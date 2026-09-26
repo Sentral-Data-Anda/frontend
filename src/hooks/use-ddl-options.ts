@@ -10,6 +10,7 @@ export type DdlOption = {
   id: number;
   code: string;
   name: string;
+  isActive?: boolean;
 };
 
 type ValueKey = "id" | "code";
@@ -19,10 +20,25 @@ export const ddlKeys = {
   list: (path: string) => [...ddlKeys.all, path] as const,
 };
 
+export const toDdlOptions = (
+  rows: DdlOption[],
+  valueKey: ValueKey,
+  keepValue = "",
+): SelectOption[] =>
+  rows
+    .filter(
+      (row) => row.isActive !== false || String(row[valueKey]) === keepValue,
+    )
+    .map((row) => ({
+      value: String(row[valueKey]),
+      label: row.isActive === false ? `${row.name} (nonaktif)` : row.name,
+    }));
+
 function useDdlQuery(
   path: string | null,
   valueKey: ValueKey,
   isKeepingPrevious: boolean,
+  keepValue = "",
 ) {
   const query = useQuery({
     queryKey: ddlKeys.list(path ?? ""),
@@ -30,11 +46,7 @@ function useDdlQuery(
     enabled: path !== null,
     staleTime: 10 * 60_000,
     placeholderData: isKeepingPrevious ? keepPreviousData : undefined,
-    select: (response) =>
-      response.data.map((row) => ({
-        value: String(row[valueKey]),
-        label: row.name,
-      })),
+    select: (response) => toDdlOptions(response.data, valueKey, keepValue),
   });
 
   return {
@@ -43,8 +55,11 @@ function useDdlQuery(
   };
 }
 
-export const useDdlOptions = (path: string | null, valueKey: ValueKey = "id") =>
-  useDdlQuery(path, valueKey, false);
+export const useDdlOptions = (
+  path: string | null,
+  valueKey: ValueKey = "id",
+  keepValue = "",
+) => useDdlQuery(path, valueKey, false, keepValue);
 
 export function useDdlSearch(
   resource: string,

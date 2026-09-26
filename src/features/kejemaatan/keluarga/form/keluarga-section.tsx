@@ -1,5 +1,7 @@
 "use client";
 
+import { useWatch } from "react-hook-form";
+
 import {
   ComboboxField,
   Input,
@@ -23,7 +25,11 @@ interface PropTypes {
 export const KeluargaSection = (props: PropTypes) => {
   const { form, isDisabled } = props;
 
-  const zoneChurch = useDdlOptions("zone-church");
+  const zoneChurchId = useWatch({
+    control: form.control,
+    name: "zoneChurchId",
+  });
+  const zoneChurch = useDdlOptions("zone-church", "id", zoneChurchId);
 
   return (
     <FormSection legend="Keluarga" disabled={isDisabled}>

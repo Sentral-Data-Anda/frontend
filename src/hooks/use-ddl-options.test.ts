@@ -1,0 +1,21 @@
+import { expect, test } from "bun:test";
+
+import { toDdlOptions } from "./use-ddl-options";
+
+const ROWS = [
+  { id: 1, code: "ZC-0001", name: "Satu" },
+  { id: 2, code: "ZC-0002", name: "Dua", isActive: false },
+  { id: 3, code: "ZC-0003", name: "Tiga", isActive: true },
+];
+
+test("toDdlOptions: baris nonaktif disembunyikan kecuali nilai tersimpan", () => {
+  expect(toDdlOptions(ROWS, "id")).toEqual([
+    { value: "1", label: "Satu" },
+    { value: "3", label: "Tiga" },
+  ]);
+  expect(toDdlOptions(ROWS, "id", "2")).toEqual([
+    { value: "1", label: "Satu" },
+    { value: "2", label: "Dua (nonaktif)" },
+    { value: "3", label: "Tiga" },
+  ]);
+});

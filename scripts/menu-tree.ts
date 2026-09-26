@@ -92,6 +92,7 @@ export const NAME: Record<MenuSlug, string> = {
   [MENU.RIWAYAT_JEMAAT]: "Riwayat Jemaat",
   [MENU.ROLE_JEMAAT]: "Role Jemaat",
   [MENU.BAPEL]: "Badan Pelayanan",
+  [MENU.WILAYAH]: "Wilayah",
   [MENU.REPORT_JEMAAT]: "Laporan Jemaat",
   [MENU.PELAYANAN]: "Pelayanan",
   [MENU.JADWAL_PELAYAN]: "Jadwal Pelayan",

@@ -980,7 +980,7 @@ const UNKNOWN_ROW = { id: 0, code: "UNKNOWN", name: "Tidak diketahui" };
 
 // Tanpa baris "Tidak diketahui": sejak 2026-09-23 jawaban itu disimpan
 // sebagai KOSONG, dan dropdown-nya yang menawarkan pilihan bernilai kosong.
-const PROFESSIONS = [
+export const PROFESSIONS = [
   "Buruh",
   "Guru",
   "Ibu rumah tangga",
@@ -995,7 +995,7 @@ const PROFESSIONS = [
   "Wiraswasta",
 ];
 
-const ETHNIC_GROUPS = [
+export const ETHNIC_GROUPS = [
   "Batak Toba",
   "Batak Karo",
   "Jawa",

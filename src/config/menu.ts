@@ -41,6 +41,7 @@ import {
   ListTree,
   Megaphone,
   Music,
+  MapPinned,
   Network,
   NotebookPen,
   Package,
@@ -91,6 +92,7 @@ export const MENU = {
   RIWAYAT_JEMAAT: "RIWAYAT_JEMAAT",
   ROLE_JEMAAT: "ROLE_JEMAAT",
   BAPEL: "BAPEL",
+  WILAYAH: "WILAYAH",
   REPORT_JEMAAT: "REPORT_JEMAAT",
 
   JADWAL_PELAYAN: "JADWAL_PELAYAN",
@@ -194,6 +196,7 @@ export const MENU_DESCRIPTION: Partial<Record<MenuSlug, string>> = {
   [MENU.RIWAYAT_JEMAAT]: "Baptis, sidi, atestasi, dan kedukaan",
   [MENU.ROLE_JEMAAT]: "Jabatan jemaat di komisi dan masanya",
   [MENU.BAPEL]: "Kelola komisi dan aturan jadwalnya",
+  [MENU.WILAYAH]: "Kelola wilayah pelayanan jemaat",
   [MENU.REPORT_JEMAAT]: "Statistik jemaat dan ulang tahun",
   [MENU.JADWAL_PELAYAN]: "Atur siapa melayani di tiap ibadah",
   [MENU.TEMPLATE_JADWAL]: "Pola jadwal siap pakai per komisi",
@@ -273,6 +276,7 @@ export const MENU_LEAF_ICON: Partial<Record<MenuSlug, LucideIcon>> = {
   [MENU.RIWAYAT_JEMAAT]: History,
   [MENU.ROLE_JEMAAT]: BadgeCheck,
   [MENU.BAPEL]: Network,
+  [MENU.WILAYAH]: MapPinned,
   [MENU.REPORT_JEMAAT]: ChartPie,
 
   [MENU.JADWAL_PELAYAN]: CalendarCheck,
