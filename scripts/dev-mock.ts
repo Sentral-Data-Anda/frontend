@@ -33,6 +33,7 @@
  *                                         (validasi = issues[] per field)
  *   MOCK_OFFERINGS=empty|500            → /persembahan/saya kosong atau galat (halaman Akun)
  *   Ganti password (/akun): password lama "salah" → 400 dari be-sada.
+ *   MOCK_NO_JEMAAT=1                    → akun tanpa data jemaat (sesi jemaat: null)
  *   MOCK_PENDING=1                      → akun PENDING: /authentication menampilkan form
  *                                         login pertama (PUT /auth/update/:code)
  *   MOCK_DDL_EMPTY=1                    → semua daftar pilihan form kosong (404)
@@ -268,11 +269,26 @@ const session = {
   username: "A-0184",
   status: process.env.MOCK_PENDING ? "PENDING" : "ACTIVE",
   roleUser: { name: persona.roleName, isAdmin: persona.isAdmin },
-  jemaat: {
-    code: "JMT-0012",
-    name: persona.jemaatName,
-    roleJemaat: ROLE_JEMAAT[PERSONA_KEY] ?? [],
-  },
+  jemaat: process.env.MOCK_NO_JEMAAT
+    ? null
+    : {
+        code: "JMT-0012",
+        name: persona.jemaatName,
+        gender: "L",
+        birthPlace: "Medan",
+        birthDate: "1985-05-12T00:00:00.000Z",
+        phone: "081234560184",
+        email: `${persona.jemaatName
+          .toLowerCase()
+          .replace(/[^a-z]+/g, ".")
+          .replace(/^\.|\.$/g, "")}@contoh.id`,
+        statusMarital: "SM",
+        address: "Jl. Merdeka No. 2, RT 03 RW 02, Kelurahan Cijerah",
+        typeJemaat: "ANGGOTA",
+        statusJemaat: "AKTIF",
+        joinedAt: "2012-06-17T00:00:00.000Z",
+        roleJemaat: ROLE_JEMAAT[PERSONA_KEY] ?? [],
+      },
   menu,
 };
 

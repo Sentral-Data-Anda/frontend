@@ -52,3 +52,13 @@ export const roleLabels = (
   (roles ?? []).map((role) =>
     role.bapel ? `${role.name}, ${role.bapel.name}` : role.name,
   );
+
+export const orDash = (value: string | null | undefined): string =>
+  value?.trim() ? value : "—";
+
+export const birthLabel = (
+  place: string | null | undefined,
+  date: string | null | undefined,
+): string =>
+  [place?.trim(), date ? formatDate(date) : null].filter(Boolean).join(", ") ||
+  "—";

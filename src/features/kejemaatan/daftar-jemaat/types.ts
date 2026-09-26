@@ -1,4 +1,24 @@
 import type { FilterChip } from "@/components/common/list";
+import {
+  STATUS_JEMAAT_LABEL,
+  type Gender,
+  type RoleInFamily,
+  type StatusJemaat,
+  type StatusPernikahan,
+  type TypeJemaat,
+} from "@/types/jemaat";
+
+export {
+  GENDER_LABEL,
+  STATUS_JEMAAT_LABEL,
+  STATUS_PERNIKAHAN_LABEL,
+  TYPE_JEMAAT_LABEL,
+  type Gender,
+  type RoleInFamily,
+  type StatusJemaat,
+  type StatusPernikahan,
+  type TypeJemaat,
+} from "@/types/jemaat";
 
 export type JemaatListItem = {
   code: string;
@@ -10,21 +30,6 @@ export type JemaatListItem = {
   keluarga: { id: number; code: string; name: string } | null;
   status: StatusJemaat;
   zoneChurch: { id: number; name: string } | null;
-};
-
-export type Gender = "L" | "P";
-export type TypeJemaat = "ANGGOTA" | "SIMPATISAN";
-export type StatusJemaat = "AKTIF" | "TIDAK_AKTIF";
-export type RoleInFamily = "KEPALA_KELUARGA" | "PASANGAN" | "ANAK";
-
-export const STATUS_JEMAAT_LABEL: Record<StatusJemaat, string> = {
-  AKTIF: "Aktif",
-  TIDAK_AKTIF: "Tidak aktif",
-};
-
-export const TYPE_JEMAAT_LABEL: Record<TypeJemaat, string> = {
-  ANGGOTA: "Anggota",
-  SIMPATISAN: "Simpatisan",
 };
 
 export const ROLE_IN_FAMILY_LABEL: Record<RoleInFamily, string> = {
@@ -40,7 +45,6 @@ export const STATUS_JEMAAT_CHIPS: FilterChip[] = [
 ];
 
 export type BloodType = "A" | "B" | "AB" | "O";
-export type StatusPernikahan = "SM" | "BM" | "CM" | "CH";
 export type LastEducation =
   | "TIDAK_SEKOLAH"
   | "SD"
@@ -57,11 +61,6 @@ export type LastEducation =
 
 export type SacramentType =
   "BAPTIS" | "SIDI" | "ATESTASI_MASUK" | "ATESTASI_KELUAR" | "MENINGGAL";
-
-export const GENDER_LABEL: Record<Gender, string> = {
-  L: "Laki-laki",
-  P: "Perempuan",
-};
 
 export const BLOOD_TYPE_LABEL: Record<BloodType, string> = {
   A: "A",
@@ -83,13 +82,6 @@ export const LAST_EDUCATION_LABEL: Record<LastEducation, string> = {
   S1: "S1",
   S2: "S2",
   S3: "S3",
-};
-
-export const STATUS_PERNIKAHAN_LABEL: Record<StatusPernikahan, string> = {
-  SM: "Sudah menikah",
-  BM: "Belum menikah",
-  CM: "Cerai mati",
-  CH: "Cerai hidup",
 };
 
 export const SACRAMENT_TYPE_LABEL: Record<SacramentType, string> = {

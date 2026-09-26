@@ -1,7 +1,9 @@
 import { describe, expect, test } from "bun:test";
 
 import {
+  birthLabel,
   offeringMeta,
+  orDash,
   passwordFieldError,
   roleLabels,
   summarizeOfferings,
@@ -44,4 +46,15 @@ describe("persembahan dan profil", () => {
     ).toEqual(["Ketua, Majelis Jemaat", "Anggota"]);
     expect(roleLabels(undefined)).toEqual([]);
   });
+});
+
+test("profil: nilai kosong jadi —, tempat dan tanggal lahir digabung", () => {
+  expect(orDash(null)).toBe("—");
+  expect(orDash("  ")).toBe("—");
+  expect(orDash("0812")).toBe("0812");
+  expect(birthLabel("Medan", "1985-05-12T00:00:00.000Z")).toBe(
+    "Medan, 12 Mei 1985",
+  );
+  expect(birthLabel(null, "1985-05-12T00:00:00.000Z")).toBe("12 Mei 1985");
+  expect(birthLabel(null, null)).toBe("—");
 });
