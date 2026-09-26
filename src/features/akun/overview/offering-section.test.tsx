@@ -59,7 +59,9 @@ describe("persembahan tersembunyi sampai diminta", () => {
     const calls = onMockOfferings();
     onRender();
 
-    const toggle = screen.getByRole("button", { name: "Tampilkan" });
+    const toggle = screen.getByRole("button", {
+      name: "Tampilkan persembahan",
+    });
 
     expect(toggle.getAttribute("aria-expanded")).toBe("false");
     expect(calls).toEqual([]);
@@ -70,14 +72,18 @@ describe("persembahan tersembunyi sampai diminta", () => {
     const calls = onMockOfferings();
     onRender();
 
-    fireEvent.click(screen.getByRole("button", { name: "Tampilkan" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "Tampilkan persembahan" }),
+    );
 
     await waitFor(() =>
       expect(screen.getAllByText("Rp 650.000").length).toBeGreaterThan(0),
     );
     expect(calls).toHaveLength(1);
 
-    fireEvent.click(screen.getByRole("button", { name: "Sembunyikan" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "Sembunyikan persembahan" }),
+    );
 
     expect(document.body.textContent).not.toContain("650.000");
   });

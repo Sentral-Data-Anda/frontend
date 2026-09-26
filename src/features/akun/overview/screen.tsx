@@ -1,22 +1,22 @@
-import { PageHeader, shellWidthFull } from "@/components/layout";
-import { cn } from "@/lib/utils";
+import { PageHeader } from "@/components/layout";
 
-import { LogoutSection } from "./logout-section";
 import { OfferingSection } from "./offering-section";
 import { ProfileSection } from "./profile-section";
 import { SecuritySection } from "./security-section";
+import { SignOutButton } from "./sign-out-button";
 
 export const AccountScreen = () => (
-  <div className="w-full pb-8">
-    <div className={shellWidthFull}>
-      <PageHeader title="Akun saya" backHref="/" />
-    </div>
+  <div className="mx-auto w-full max-w-[45rem] pb-8">
+    <PageHeader title="Akun saya" backHref="/" />
 
-    <div className={cn(shellWidthFull, "@container/form")}>
+    <div className="space-y-4 px-gutter">
       <ProfileSection />
       <SecuritySection />
       <OfferingSection />
-      <LogoutSection />
+
+      <div className="flex justify-end">
+        <SignOutButton />
+      </div>
     </div>
   </div>
 );
