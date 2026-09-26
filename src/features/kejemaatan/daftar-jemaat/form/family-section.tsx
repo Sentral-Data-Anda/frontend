@@ -2,14 +2,17 @@
 
 import { useWatch } from "react-hook-form";
 
-import { ComboboxField, SelectField } from "@/components/common/control";
-import { FormSection } from "@/components/common/form";
+import {
+  ComboboxField,
+  SelectField,
+  optionsOf,
+} from "@/components/common/control";
+import { FormSection, ControlField } from "@/components/common/form";
 
 import { useKeluargaOptions } from "../api";
 import { ROLE_IN_FAMILY_LABEL } from "../types";
 
-import { ControlField } from "./control-field";
-import { type JemaatForm, optionsOf } from "./form-options";
+import { type JemaatForm } from "./form-options";
 
 const ROLE_OPTIONS = optionsOf(ROLE_IN_FAMILY_LABEL);
 

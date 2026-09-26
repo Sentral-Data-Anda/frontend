@@ -6,18 +6,18 @@ import {
   ComboboxField,
   SelectField,
   type SelectOption,
+  optionsOf,
 } from "@/components/common/control";
-import { FormSection } from "@/components/common/form";
+import { FormSection, ControlField } from "@/components/common/form";
+import { useDdlOptions } from "@/hooks/use-ddl-options";
 
-import { useDdlOptions } from "../api";
 import {
   BLOOD_TYPE_LABEL,
   LAST_EDUCATION_LABEL,
   STATUS_PERNIKAHAN_LABEL,
 } from "../types";
 
-import { ControlField } from "./control-field";
-import { type JemaatForm, optionsOf } from "./form-options";
+import { type JemaatForm } from "./form-options";
 
 const MARITAL_OPTIONS = optionsOf(STATUS_PERNIKAHAN_LABEL);
 

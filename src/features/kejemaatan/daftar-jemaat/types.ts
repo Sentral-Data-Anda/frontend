@@ -3,6 +3,7 @@ import {
   STATUS_JEMAAT_LABEL,
   type Gender,
   type RoleInFamily,
+  type SacramentType,
   type StatusJemaat,
   type StatusPernikahan,
   type TypeJemaat,
@@ -10,11 +11,15 @@ import {
 
 export {
   GENDER_LABEL,
+  ROLE_IN_FAMILY_LABEL,
+  SACRAMENT_ONCE,
+  SACRAMENT_TYPE_LABEL,
   STATUS_JEMAAT_LABEL,
   STATUS_PERNIKAHAN_LABEL,
   TYPE_JEMAAT_LABEL,
   type Gender,
   type RoleInFamily,
+  type SacramentType,
   type StatusJemaat,
   type StatusPernikahan,
   type TypeJemaat,
@@ -30,12 +35,6 @@ export type JemaatListItem = {
   keluarga: { id: number; code: string; name: string } | null;
   status: StatusJemaat;
   zoneChurch: { id: number; name: string } | null;
-};
-
-export const ROLE_IN_FAMILY_LABEL: Record<RoleInFamily, string> = {
-  KEPALA_KELUARGA: "Kepala keluarga",
-  PASANGAN: "Pasangan",
-  ANAK: "Anak",
 };
 
 export const STATUS_JEMAAT_CHIPS: FilterChip[] = [
@@ -59,9 +58,6 @@ export type LastEducation =
   | "S2"
   | "S3";
 
-export type SacramentType =
-  "BAPTIS" | "SIDI" | "ATESTASI_MASUK" | "ATESTASI_KELUAR" | "MENINGGAL";
-
 export const BLOOD_TYPE_LABEL: Record<BloodType, string> = {
   A: "A",
   B: "B",
@@ -83,20 +79,6 @@ export const LAST_EDUCATION_LABEL: Record<LastEducation, string> = {
   S2: "S2",
   S3: "S3",
 };
-
-export const SACRAMENT_TYPE_LABEL: Record<SacramentType, string> = {
-  BAPTIS: "Baptis",
-  SIDI: "Sidi",
-  ATESTASI_MASUK: "Atestasi masuk",
-  ATESTASI_KELUAR: "Atestasi keluar",
-  MENINGGAL: "Meninggal",
-};
-
-export const SACRAMENT_ONCE: readonly SacramentType[] = [
-  "BAPTIS",
-  "SIDI",
-  "MENINGGAL",
-];
 
 export type JemaatAdditional = {
   type: SacramentType;
@@ -136,10 +118,4 @@ export type JemaatPayload = {
 export type JemaatDetail = Omit<JemaatPayload, "additional"> & {
   code: string;
   additional: JemaatAdditional[] | null;
-};
-
-export type DdlOption = {
-  id: number;
-  code: string;
-  name: string;
 };

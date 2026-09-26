@@ -10,7 +10,7 @@ import {
   Input,
   SelectField,
 } from "@/components/common/control";
-import { FormSection, FormWide } from "@/components/common/form";
+import { FormSection, FormWide, ControlField } from "@/components/common/form";
 import { MENU, menuHref } from "@/config/menu";
 import { formatDate } from "@/lib/format";
 
@@ -20,7 +20,6 @@ import {
   type SacramentType,
 } from "../types";
 
-import { ControlField } from "./control-field";
 import type { JemaatForm } from "./form-options";
 
 const RIWAYAT_PATH = menuHref(MENU.KEJEMAATAN, MENU.RIWAYAT_JEMAAT);

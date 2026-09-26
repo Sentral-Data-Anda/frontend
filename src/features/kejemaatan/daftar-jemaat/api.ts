@@ -1,18 +1,13 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
 
+import { useDdlOptions, useDdlSearch } from "@/hooks/use-ddl-options";
 import type { ListState } from "@/hooks/use-list-params";
 import { useListQuery } from "@/hooks/use-list-query";
 import { fetchList, fetchOne } from "@/lib/api/fetcher";
 
-import type {
-  DdlOption,
-  JemaatDetail,
-  JemaatListItem,
-  JemaatPayload,
-} from "./types";
+import type { JemaatDetail, JemaatListItem, JemaatPayload } from "./types";
 
 export const jemaatKeys = {
   all: ["jemaat"] as const,
@@ -65,33 +60,6 @@ export function useSaveJemaat(code?: string) {
   });
 }
 
-export const ddlKeys = {
-  all: ["ddl"] as const,
-  list: (path: string) => [...ddlKeys.all, path] as const,
-};
-
-export function useDdlOptions(
-  path: string | null,
-  valueKey: "id" | "code" = "id",
-) {
-  const query = useQuery({
-    queryKey: ddlKeys.list(path ?? ""),
-    queryFn: () => fetchList<DdlOption>(`/ddl/${path}`),
-    enabled: path !== null,
-    staleTime: 10 * 60_000,
-    select: (response) =>
-      response.data.map((row) => ({
-        value: String(row[valueKey]),
-        label: row.name,
-      })),
-  });
-
-  return {
-    options: query.data ?? [],
-    isLoading: query.isFetching,
-  };
-}
-
 export function useZoneFilterOptions() {
   const zones = useDdlOptions("zone-church");
 
@@ -106,21 +74,4 @@ export function useZoneFilterOptions() {
   };
 }
 
-export function useKeluargaOptions() {
-  const [query, setQuery] = useState("");
-  const [debounced, setDebounced] = useState("");
-
-  const ddl = useDdlOptions(
-    `keluarga?limit=20${debounced ? `&filter=${encodeURIComponent(debounced)}` : ""}`,
-  );
-
-  useEffect(() => {
-    if (query === debounced) return;
-
-    const timer = setTimeout(() => setDebounced(query), 300);
-
-    return () => clearTimeout(timer);
-  }, [query, debounced]);
-
-  return { ...ddl, onSearch: setQuery };
-}
+export const useKeluargaOptions = () => useDdlSearch("keluarga");

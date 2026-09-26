@@ -5,14 +5,11 @@ import {
   Controller,
   type Control,
   type FieldPath,
+  type FieldValues,
   type RefCallBack,
 } from "react-hook-form";
 
-import { FormField, type FieldControlProps } from "@/components/common/form";
-
-import type { JemaatFormValues } from "../model";
-
-type FieldName = FieldPath<JemaatFormValues>;
+import { FormField, type FieldControlProps } from "./form-field";
 
 export type StringField = {
   name: string;
@@ -23,9 +20,9 @@ export type StringField = {
   disabled?: boolean;
 };
 
-interface PropTypes {
-  control: Control<JemaatFormValues>;
-  name: FieldName;
+interface PropTypes<TValues extends FieldValues> {
+  control: Control<TValues>;
+  name: FieldPath<TValues>;
   label: string;
   hint?: string;
   isHintWarning?: boolean;
@@ -33,7 +30,9 @@ interface PropTypes {
   children: (field: StringField) => ReactElement<FieldControlProps>;
 }
 
-export const ControlField = (props: PropTypes) => {
+export function ControlField<TValues extends FieldValues>(
+  props: PropTypes<TValues>,
+) {
   const {
     control,
     name,
@@ -71,4 +70,4 @@ export const ControlField = (props: PropTypes) => {
       )}
     />
   );
-};
+}

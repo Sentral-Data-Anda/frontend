@@ -1,12 +1,16 @@
 "use client";
 
-import { DateField, Input, SelectField } from "@/components/common/control";
-import { FormSection } from "@/components/common/form";
+import {
+  DateField,
+  Input,
+  SelectField,
+  optionsOf,
+} from "@/components/common/control";
+import { FormSection, ControlField } from "@/components/common/form";
 
 import { GENDER_LABEL } from "../types";
 
-import { ControlField } from "./control-field";
-import { type JemaatForm, optionsOf } from "./form-options";
+import { type JemaatForm } from "./form-options";
 
 const GENDER_OPTIONS = optionsOf(GENDER_LABEL);
 

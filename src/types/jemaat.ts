@@ -26,3 +26,26 @@ export const STATUS_PERNIKAHAN_LABEL: Record<StatusPernikahan, string> = {
   CM: "Cerai mati",
   CH: "Cerai hidup",
 };
+
+export const ROLE_IN_FAMILY_LABEL: Record<RoleInFamily, string> = {
+  KEPALA_KELUARGA: "Kepala keluarga",
+  PASANGAN: "Pasangan",
+  ANAK: "Anak",
+};
+
+export type SacramentType =
+  "BAPTIS" | "SIDI" | "ATESTASI_MASUK" | "ATESTASI_KELUAR" | "MENINGGAL";
+
+export const SACRAMENT_TYPE_LABEL: Record<SacramentType, string> = {
+  BAPTIS: "Baptis",
+  SIDI: "Sidi",
+  ATESTASI_MASUK: "Atestasi masuk",
+  ATESTASI_KELUAR: "Atestasi keluar",
+  MENINGGAL: "Meninggal",
+};
+
+export const SACRAMENT_ONCE: readonly SacramentType[] = [
+  "BAPTIS",
+  "SIDI",
+  "MENINGGAL",
+];

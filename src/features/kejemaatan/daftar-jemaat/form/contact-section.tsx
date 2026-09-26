@@ -1,11 +1,10 @@
 "use client";
 
 import { Input } from "@/components/common/control";
-import { FormSection } from "@/components/common/form";
+import { FormSection, ControlField } from "@/components/common/form";
 
 import { normalizePhone } from "../model";
 
-import { ControlField } from "./control-field";
 import { type JemaatForm } from "./form-options";
 
 interface PropTypes {
