@@ -20,7 +20,9 @@ export const ProfileSection = () => {
         <div className="min-w-0">
           <p className="truncate text-title font-semibold">{name}</p>
           <p className="text-muted-foreground truncate text-body">
-            {session.roleUser.name} · {session.username}
+            {jemaat
+              ? `${session.roleUser.name} · ${session.username}`
+              : session.roleUser.name}
           </p>
         </div>
       </div>
