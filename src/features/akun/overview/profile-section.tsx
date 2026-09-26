@@ -3,7 +3,12 @@
 import { ChevronDown } from "lucide-react";
 
 import { Button } from "@/components/common/control";
-import { Avatar, Panel } from "@/components/common/display";
+import {
+  Avatar,
+  DescriptionItem,
+  DescriptionList,
+  Panel,
+} from "@/components/common/display";
 import { useSession } from "@/features/auth";
 import { cn } from "@/lib/utils";
 
@@ -12,7 +17,6 @@ import { orDash, roleLabels } from "../model";
 import { useReveal } from "../use-reveal";
 
 import { ProfileDetails } from "./profile-details";
-import { ReadOnlyField } from "./read-only-field";
 
 const DETAILS_ID = "profile-details";
 
@@ -39,14 +43,14 @@ export const ProfileSection = () => {
 
       {jemaat ? (
         <>
-          <dl className="border-hairline divide-hairline divide-y border-t px-gutter">
-            <ReadOnlyField label="Kode jemaat">
+          <DescriptionList className="border-hairline border-t px-gutter">
+            <DescriptionItem label="Kode jemaat">
               {orDash(jemaat.code)}
-            </ReadOnlyField>
-            <ReadOnlyField label="Jabatan" isStacked>
+            </DescriptionItem>
+            <DescriptionItem label="Jabatan" isStacked>
               {roles.length ? roles.join("; ") : "—"}
-            </ReadOnlyField>
-          </dl>
+            </DescriptionItem>
+          </DescriptionList>
 
           <Button
             type="button"

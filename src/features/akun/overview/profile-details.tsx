@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/common/control";
+import { DescriptionItem } from "@/components/common/display";
 import { formatDate } from "@/lib/format";
 import {
   GENDER_LABEL,
@@ -13,7 +14,6 @@ import { useMyProfile } from "../api";
 import { addressLabel, birthLabel, orDash } from "../model";
 
 import { ProfileGroup } from "./profile-group";
-import { ReadOnlyField } from "./read-only-field";
 
 export const ProfileDetails = () => {
   const profile = useMyProfile();
@@ -61,42 +61,42 @@ export const ProfileDetails = () => {
   return (
     <>
       <ProfileGroup title="Data diri">
-        <ReadOnlyField label="Jenis kelamin">
+        <DescriptionItem label="Jenis kelamin">
           {GENDER_LABEL[data.gender]}
-        </ReadOnlyField>
-        <ReadOnlyField label="Tempat, tanggal lahir" isStacked>
+        </DescriptionItem>
+        <DescriptionItem label="Tempat, tanggal lahir" isStacked>
           {birthLabel(data.birthPlace, data.birthDate)}
-        </ReadOnlyField>
-        <ReadOnlyField label="Status pernikahan">
+        </DescriptionItem>
+        <DescriptionItem label="Status pernikahan">
           {data.statusMarital
             ? STATUS_PERNIKAHAN_LABEL[data.statusMarital]
             : "—"}
-        </ReadOnlyField>
+        </DescriptionItem>
       </ProfileGroup>
 
       <ProfileGroup title="Kontak">
-        <ReadOnlyField label="No. HP">{orDash(data.phone)}</ReadOnlyField>
-        <ReadOnlyField label="Email" isStacked>
+        <DescriptionItem label="No. HP">{orDash(data.phone)}</DescriptionItem>
+        <DescriptionItem label="Email" isStacked>
           {orDash(data.email)}
-        </ReadOnlyField>
-        <ReadOnlyField label="Alamat" isStacked>
+        </DescriptionItem>
+        <DescriptionItem label="Alamat" isStacked isWide>
           {addressLabel(data)}
-        </ReadOnlyField>
+        </DescriptionItem>
       </ProfileGroup>
 
       <ProfileGroup title="Keanggotaan">
-        <ReadOnlyField label="Tipe">
+        <DescriptionItem label="Tipe">
           {TYPE_JEMAAT_LABEL[data.typeJemaat]}
-        </ReadOnlyField>
-        <ReadOnlyField label="Status">
+        </DescriptionItem>
+        <DescriptionItem label="Status">
           {STATUS_JEMAAT_LABEL[data.statusJemaat]}
-        </ReadOnlyField>
-        <ReadOnlyField label="Bergabung">
+        </DescriptionItem>
+        <DescriptionItem label="Bergabung">
           {data.joinedAt ? formatDate(data.joinedAt) : "—"}
-        </ReadOnlyField>
-        <ReadOnlyField label="Wilayah">
+        </DescriptionItem>
+        <DescriptionItem label="Wilayah">
           {orDash(data.zoneChurch?.name)}
-        </ReadOnlyField>
+        </DescriptionItem>
       </ProfileGroup>
     </>
   );
