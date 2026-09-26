@@ -13,6 +13,7 @@ export const LoadingPage = (props: PropTypes) => {
     <div
       role="status"
       aria-busy="true"
+      data-loading-page={tone === "default" ? "" : undefined}
       className={cn(
         "fixed inset-0 z-50 flex items-center justify-center",
         tone === "brand"

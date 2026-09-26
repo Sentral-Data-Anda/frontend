@@ -3,7 +3,6 @@ import { redirect } from "next/navigation";
 import { AppShell } from "@/components/layout/app-shell";
 import { SessionProvider } from "@/features/auth";
 import { getSession } from "@/features/auth/get-session";
-import { AuthHandoffDone } from "@/features/auth/ui";
 
 export default async function AppLayout({
   children,
@@ -19,7 +18,6 @@ export default async function AppLayout({
   return (
     <SessionProvider session={session}>
       <AppShell>{children}</AppShell>
-      <AuthHandoffDone />
     </SessionProvider>
   );
 }
