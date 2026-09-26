@@ -113,4 +113,4 @@ export const ListFilterButton = (props: PropTypes) => {
   );
 };
 
-const TRIGGER = "shrink-0 cursor-pointer bg-card";
+const TRIGGER = "shrink-0 cursor-pointer border-input bg-card";

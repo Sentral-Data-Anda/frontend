@@ -40,7 +40,7 @@ export const ActiveFilters = (props: PropTypes) => {
           <button
             type="button"
             onClick={onClearAll}
-            className="text-primary focus-visible:ring-ring flex h-7 cursor-pointer items-center rounded-full px-2 text-body font-medium underline-offset-4 outline-none hover:underline focus-visible:ring-2"
+            className="text-muted-foreground hover:text-foreground focus-visible:ring-ring flex h-7 cursor-pointer items-center rounded-full px-2 text-body font-medium underline underline-offset-4 outline-none focus-visible:ring-2"
           >
             Hapus semua
           </button>
