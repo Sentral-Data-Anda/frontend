@@ -38,12 +38,8 @@ export const RuleSection = (props: PropTypes) => {
 
   return (
     <FormSection
-      legend="Aturan jadwal"
-      note={
-        rows.fields.length === 0
-          ? "Belum ada aturan. Tambahkan bila badan pelayanan ini terikat hari, tanggal, minggu, atau jam tertentu."
-          : "Tiap baris satu aturan. Jenis yang berbeda digabung: Minggu dan Minggu ke-2 berarti Minggu kedua saja."
-      }
+      legend="Larangan jadwal"
+      note="Badan pelayanan ini tidak dijadwalkan pada kondisi yang dilarang. Larangan sejenis cukup salah satu cocok; jenis berbeda harus cocok bersamaan, mis. Minggu dan Pekan ke-2 berarti hanya Minggu kedua. Kosongkan bila tidak ada larangan."
       disabled={isDisabled}
     >
       <FormWide className="space-y-3">
@@ -125,7 +121,7 @@ export const RuleSection = (props: PropTypes) => {
                   <ControlField
                     control={form.control}
                     name={`rules.${index}.weekOfMonth`}
-                    label="Minggu"
+                    label="Pekan"
                   >
                     {(field) => (
                       <SelectField
@@ -133,7 +129,7 @@ export const RuleSection = (props: PropTypes) => {
                         onValueChange={field.onChange}
                         options={WEEK_OPTIONS}
                         disabled={isDisabled}
-                        placeholder="Pilih minggu"
+                        placeholder="Pilih pekan"
                       />
                     )}
                   </ControlField>
