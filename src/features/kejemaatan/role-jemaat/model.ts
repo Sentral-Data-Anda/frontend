@@ -1,7 +1,8 @@
 import { z } from "zod";
 
 import { MENU, menuHref } from "@/config/menu";
-import { todayJakarta } from "@/lib/date";
+import { toDateInput, todayJakarta } from "@/lib/date";
+import { formatDateShort } from "@/lib/format";
 
 import type { RoleJemaatItem, RoleJemaatPayload } from "./types";
 
@@ -48,8 +49,6 @@ export const EMPTY_ROLE_JEMAAT_FORM: RoleJemaatFormValues = {
   status: "true",
 };
 
-const toDateInput = (value: string) => value.slice(0, 10);
-
 export function toRoleJemaatPayload(
   values: RoleJemaatFormValues,
 ): RoleJemaatPayload {
@@ -74,13 +73,13 @@ export function toRoleJemaatForm(detail: RoleJemaatItem): RoleJemaatFormValues {
   };
 }
 
-const SERVER_FIELD_ERROR: ReadonlyArray<
-  [RegExp, keyof RoleJemaatFormValues, string]
-> = [
+type ServerField = keyof RoleJemaatFormValues | "root";
+
+const SERVER_FIELD_ERROR: ReadonlyArray<[RegExp, ServerField, string]> = [
   [
     /bertumpang tindih/i,
-    "startPeriode",
-    "Jemaat ini sudah memegang jabatan yang sama di badan pelayanan ini pada periode yang bertumpang tindih. Geser periodenya atau ubah jabatan yang lama.",
+    "root",
+    "Jemaat ini sudah memegang jabatan dengan nama yang sama di badan pelayanan ini pada periode yang bertumpang tindih. Ubah periodenya atau akhiri dulu jabatan yang lama. Tanggal mulai boleh sama dengan tanggal selesai jabatan lama.",
   ],
   [
     /periode selesai harus setelah/i,
@@ -101,19 +100,14 @@ const SERVER_FIELD_ERROR: ReadonlyArray<
 
 export function serverFieldError(
   message: string,
-): { field: keyof RoleJemaatFormValues; message: string } | null {
+): { field: ServerField; message: string } | null {
   const hit = SERVER_FIELD_ERROR.find(([pattern]) => pattern.test(message));
 
   return hit ? { field: hit[1], message: hit[2] } : null;
 }
 
-const periodeFormat = new Intl.DateTimeFormat("id-ID", {
-  dateStyle: "medium",
-  timeZone: "UTC",
-});
-
 export const formatPeriode = (item: RoleJemaatItem): string =>
-  `${periodeFormat.format(new Date(item.startPeriode))} – ${periodeFormat.format(new Date(item.endPeriode))}`;
+  `${formatDateShort(item.startPeriode)} – ${formatDateShort(item.endPeriode)}`;
 
 export function yearOptions(today: string = todayJakarta()) {
   const year = Number(today.slice(0, 4));

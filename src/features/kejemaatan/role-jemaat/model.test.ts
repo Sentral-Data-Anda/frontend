@@ -114,12 +114,12 @@ describe("form ↔ payload", () => {
 });
 
 describe("serverFieldError", () => {
-  test("409 tumpang tindih mendarat di tanggal mulai", () => {
+  test("409 tumpang tindih jadi galat form: penyebabnya bisa di field mana pun", () => {
     expect(
       serverFieldError(
         "Jemaat tersebut sudah menjabat peran yang sama di Bapel ini pada periode yang bertumpang tindih",
       )?.field,
-    ).toBe("startPeriode");
+    ).toBe("root");
   });
 
   test("jemaat/bapel tidak ditemukan mendarat di pilihannya", () => {
