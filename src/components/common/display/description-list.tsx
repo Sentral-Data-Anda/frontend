@@ -12,7 +12,7 @@ export const DescriptionList = (props: PropTypes) => {
 
   return (
     <div className={cn("@container/dl", className)}>
-      <dl className="divide-hairline divide-y @min-[36rem]/dl:grid @min-[36rem]/dl:grid-cols-2 @min-[36rem]/dl:gap-x-8 @min-[36rem]/dl:divide-y-0">
+      <dl className="divide-hairline divide-y @min-[30rem]/dl:grid @min-[30rem]/dl:grid-cols-2 @min-[30rem]/dl:gap-x-8 @min-[30rem]/dl:divide-y-0 @min-[64rem]/dl:grid-cols-4">
         {children}
       </dl>
     </div>

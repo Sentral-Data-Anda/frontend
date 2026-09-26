@@ -14,7 +14,7 @@ export const DescriptionSkeleton = (props: PropTypes) => {
         {Array.from({ length: rows }, (_, row) => (
           <div
             key={row}
-            className="flex items-center justify-between gap-4 py-2 @min-[36rem]/dl:block @min-[36rem]/dl:space-y-1.5"
+            className="flex items-center justify-between gap-4 py-2 @min-[30rem]/dl:block @min-[30rem]/dl:space-y-1.5"
           >
             <span className="bg-skeleton block h-3 w-24 animate-pulse rounded" />
             <span className="bg-skeleton block h-3 w-32 animate-pulse rounded" />
