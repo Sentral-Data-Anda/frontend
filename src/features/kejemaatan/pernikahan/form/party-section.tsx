@@ -43,6 +43,7 @@ export const PartySection = (props: PropTypes) => {
             isLoading={jemaat.isLoading}
             onSearch={jemaat.onSearch}
             isClearable
+            disabled={isDisabled}
             placeholder="Cari nama atau kode jemaat"
             emptyMessage="Belum ada data jemaat"
           />
