@@ -1,4 +1,3 @@
-export * from "./aside-layout";
 export * from "./avatar";
 export * from "./badge";
 export * from "./description-item";

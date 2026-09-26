@@ -1,5 +1,4 @@
-import { AsideLayout } from "@/components/common/display";
-import { PageHeader, shellWidthFull } from "@/components/layout";
+import { MobileOnly, PageHeader, shellWidthFull } from "@/components/layout";
 import { cn } from "@/lib/utils";
 
 import { OfferingSection } from "./offering-section";
@@ -11,17 +10,14 @@ export const AccountScreen = () => (
   <div className={cn(shellWidthFull, "pb-8")}>
     <PageHeader title="Akun saya" backHref="/" />
 
-    <AsideLayout
-      className="px-gutter"
-      aside={
-        <>
-          <SecuritySection />
-          <OfferingSection />
-          <SignOutButton />
-        </>
-      }
-    >
+    <div className="space-y-4 px-gutter">
       <ProfileSection />
-    </AsideLayout>
+      <SecuritySection />
+      <OfferingSection />
+
+      <MobileOnly>
+        <SignOutButton />
+      </MobileOnly>
+    </div>
   </div>
 );
