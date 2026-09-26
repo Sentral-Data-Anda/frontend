@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { afterEach, describe, expect, test } from "bun:test";
 
 import { FetchError } from "./api/fetcher";
 import { applyServerError, FIRST_INVALID, revealField } from "./form-error";
@@ -76,6 +76,10 @@ describe("applyServerError", () => {
 });
 
 describe("revealField", () => {
+  afterEach(() => {
+    document.body.replaceChildren();
+  });
+
   test("FIRST_INVALID memilih field bergalat pertama menurut urutan DOM", () => {
     document.body.innerHTML = `
       <form>
