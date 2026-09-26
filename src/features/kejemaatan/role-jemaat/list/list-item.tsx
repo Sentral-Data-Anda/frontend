@@ -2,7 +2,7 @@ import { Pencil } from "lucide-react";
 import Link from "next/link";
 
 import { buttonVariants } from "@/components/common/control";
-import { Avatar } from "@/components/common/display";
+import { Avatar, OptionalText } from "@/components/common/display";
 import { DataListRow, type DataTableConfig } from "@/components/common/list";
 import { MENU, editHref } from "@/config/menu";
 import { saveListFocus } from "@/lib/list-return";
@@ -96,17 +96,9 @@ export function roleJemaatTable(
         header: "Badan pelayanan",
         width: "minmax(0,1.5fr)",
         narrowWidth: "minmax(0,1.5fr)",
-        cell: (role) =>
-          role.bapel ? (
-            <span className="block truncate" title={role.bapel.name}>
-              {role.bapel.name}
-            </span>
-          ) : (
-            <span className="text-muted-foreground">
-              <span aria-hidden>—</span>
-              <span className="sr-only">Tanpa badan pelayanan</span>
-            </span>
-          ),
+        cell: (role) => (
+          <OptionalText text={role.bapel?.name} empty="Tanpa badan pelayanan" />
+        ),
       },
       {
         key: "periode",
