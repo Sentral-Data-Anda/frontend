@@ -55,7 +55,7 @@ export const ProfileSection = () => {
             aria-expanded={isShown}
             aria-controls={DETAILS_ID}
             onClick={onToggle}
-            className="border-hairline h-11 w-full justify-between rounded-none border-t px-gutter"
+            className="border-hairline h-11 w-full justify-between rounded-none border-x-0 border-t border-b-0 px-gutter"
           >
             {isShown ? "Sembunyikan data pribadi" : "Lihat data pribadi"}
             <ChevronDown
