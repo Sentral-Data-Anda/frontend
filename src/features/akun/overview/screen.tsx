@@ -1,4 +1,5 @@
-import { PageHeader } from "@/components/layout";
+import { PageHeader, shellWidthNarrow } from "@/components/layout";
+import { cn } from "@/lib/utils";
 
 import { OfferingSection } from "./offering-section";
 import { ProfileSection } from "./profile-section";
@@ -6,7 +7,7 @@ import { SecuritySection } from "./security-section";
 import { SignOutButton } from "./sign-out-button";
 
 export const AccountScreen = () => (
-  <div className="mx-auto w-full max-w-[45rem] pb-8">
+  <div className={cn(shellWidthNarrow, "pb-8")}>
     <PageHeader title="Akun saya" backHref="/" />
 
     <div className="space-y-4 px-gutter">
