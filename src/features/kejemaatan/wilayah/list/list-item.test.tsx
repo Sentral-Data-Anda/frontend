@@ -13,10 +13,6 @@ const WILAYAH: Wilayah = {
   code: "ZC-0001",
   name: "Wilayah I",
   isActive: true,
-  createdBy: "Admin",
-  createdAt: "2026-01-05T02:00:00.000Z",
-  updatedBy: null,
-  updatedAt: "2026-01-05T02:00:00.000Z",
 };
 
 const onRenderRow = (isCanUpdate: boolean, wilayah = WILAYAH) =>

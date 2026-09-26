@@ -63,10 +63,6 @@ describe("form ↔ payload", () => {
       code: "ZC-0005",
       name: "Wilayah V",
       isActive: false,
-      createdBy: "Admin",
-      createdAt: "2026-01-05T02:00:00.000Z",
-      updatedBy: null,
-      updatedAt: "2026-01-05T02:00:00.000Z",
     };
 
     expect(toWilayahForm(wilayah)).toEqual({

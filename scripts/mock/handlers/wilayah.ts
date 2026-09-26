@@ -21,9 +21,9 @@ type Row = {
   code: string;
   name: string;
   isActive: boolean;
-  createdBy: string;
+  createdBy: number;
   createdAt: string;
-  updatedBy: string | null;
+  updatedBy: number | null;
   updatedAt: string;
   blockers: string;
 };
@@ -38,7 +38,7 @@ const toRow = (id: number, name: string, isActive = true): Row => ({
   code: `ZC-${String(id).padStart(4, "0")}`,
   name,
   isActive,
-  createdBy: "Admin",
+  createdBy: 1,
   createdAt: SEEDED_AT,
   updatedBy: null,
   updatedAt: SEEDED_AT,
@@ -208,7 +208,7 @@ export const wilayahMock: MockHandler = async ({
 
     row.name = name;
     row.isActive = body.isActive !== false;
-    row.updatedBy = "Admin";
+    row.updatedBy = 1;
     row.updatedAt = new Date().toISOString();
 
     return json({

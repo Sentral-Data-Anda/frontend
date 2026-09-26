@@ -6,10 +6,6 @@ export type Wilayah = {
   code: string;
   name: string;
   isActive: boolean;
-  createdBy: string | null;
-  createdAt: string;
-  updatedBy: string | null;
-  updatedAt: string;
 };
 
 export type WilayahPayload = {
