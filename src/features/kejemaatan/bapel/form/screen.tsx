@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { useForm, type FieldErrors } from "react-hook-form";
+import { useForm } from "react-hook-form";
 
 import { Button } from "@/components/common/control";
 import { useToast } from "@/components/common/feedback";
@@ -12,6 +12,7 @@ import {
   FormAlert,
   FormConfirmDialog,
   FormLayout,
+  FormNotFound,
   LoadingForm,
   useFormConfirm,
 } from "@/components/common/form";
@@ -19,7 +20,8 @@ import { PageHeader } from "@/components/layout";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { useListReturn } from "@/hooks/use-list-return";
-import { applyServerError, revealField } from "@/lib/form-error";
+import { FetchError } from "@/lib/api/fetcher";
+import { applyServerError, FIRST_INVALID, revealField } from "@/lib/form-error";
 import { saveListFocus } from "@/lib/list-return";
 
 import { useBapelDetail, useDeleteBapel, useSaveBapel } from "../api";
@@ -41,16 +43,6 @@ interface PropTypes {
   code?: string;
 }
 
-const firstErrorPath = (errors: FieldErrors<BapelFormValues>) => {
-  if (errors.name) return "name";
-
-  const index = errors.rules?.findIndex?.(Boolean) ?? -1;
-  const row = index === -1 ? undefined : errors.rules?.[index];
-  const field = row ? Object.keys(row).find((key) => key !== "ref") : undefined;
-
-  return field ? `rules.${index}.${field}` : undefined;
-};
-
 export const BapelFormScreen = (props: PropTypes) => {
   const { code } = props;
 
@@ -71,6 +63,7 @@ export const BapelFormScreen = (props: PropTypes) => {
     resolver: zodResolver(bapelFormSchema),
     mode: "onSubmit",
     reValidateMode: "onChange",
+    shouldFocusError: false,
     defaultValues: EMPTY_BAPEL_FORM,
   });
 
@@ -80,9 +73,7 @@ export const BapelFormScreen = (props: PropTypes) => {
 
   const onLeave = () => router.replace(listReturn);
 
-  // Select Base UI menolak fokus selama isSubmitting; diungkap lewat efek di bawah.
-  const onInvalid = (errors: FieldErrors<BapelFormValues>) =>
-    setRejectedField(firstErrorPath(errors) ?? null);
+  const onInvalid = () => setRejectedField(FIRST_INVALID);
 
   const onOpenSaveConfirm = () => {
     setRejectedField(null);
@@ -150,6 +141,16 @@ export const BapelFormScreen = (props: PropTypes) => {
 
   if (!(isEdit ? isCanUpdate : isCanCreate)) {
     return <NoFormAccess isEdit={isEdit} />;
+  }
+
+  if (detail.error instanceof FetchError && detail.error.status === 404) {
+    return (
+      <FormNotFound
+        noun="badan pelayanan"
+        backHref={listReturn}
+        backLabel="Kembali ke Badan Pelayanan"
+      />
+    );
   }
 
   return (

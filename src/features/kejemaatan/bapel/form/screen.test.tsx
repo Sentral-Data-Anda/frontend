@@ -148,6 +148,18 @@ const onMockApi = (failure: { save?: Failure; remove?: Failure } = {}) => {
         data: DETAIL,
       });
     }
+    if (url === "/api/v1/bapel" && method === "POST") {
+      calls.push({ method, body: JSON.parse(String(init?.body)) });
+
+      return Response.json(
+        {
+          status: 201,
+          message: "Berhasil Membuat Bapel",
+          data: { ...DETAIL, code: "BPL-0009", name: "Komisi Remaja" },
+        },
+        { status: 201 },
+      );
+    }
     if (url === "/api/v1/bapel/BPL-0001") {
       return Response.json({ status: 200, message: "OK", data: DETAIL });
     }
@@ -233,6 +245,50 @@ describe("simpan", () => {
     expect(
       screen.getByText("Nama ini sudah dipakai badan pelayanan lain."),
     ).toBeTruthy();
+  });
+});
+
+describe("tambah", () => {
+  test("Ya mengirim POST, kembali ke daftar dengan filter dan sorot baris baru", async () => {
+    const listUrl = `${BAPEL_LIST_PATH}?search=komisi`;
+    window.sessionStorage.setItem(`list-return:${BAPEL_LIST_PATH}`, listUrl);
+    const calls = onMockApi();
+    onRenderForm(["VIEW", "CREATE"]);
+
+    fireEvent.change(screen.getByLabelText("Nama"), {
+      target: { value: " Komisi Remaja " },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Simpan" }));
+    await waitFor(() =>
+      expect(
+        screen.getByText(
+          "Apakah Anda ingin menyimpan data badan pelayanan ini?",
+        ),
+      ).toBeTruthy(),
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Ya" }));
+
+    await waitFor(() => expect(replaced).toEqual([listUrl]));
+    expect(calls).toEqual([
+      { method: "POST", body: { name: "Komisi Remaja", rules: [] } },
+    ]);
+    expect(window.sessionStorage.getItem(`list-focus:${BAPEL_LIST_PATH}`)).toBe(
+      "BPL-0009",
+    );
+  });
+});
+
+describe("kode tidak dikenal", () => {
+  test("404 detail: layar tidak ditemukan, bukan form kosong", async () => {
+    onMockApi();
+    onRenderForm(["VIEW", "UPDATE"], "BPL-9999");
+
+    await waitFor(() =>
+      expect(
+        screen.getByText("Data badan pelayanan tidak ditemukan"),
+      ).toBeTruthy(),
+    );
+    expect(screen.queryByLabelText("Nama")).toBeNull();
   });
 });
 
