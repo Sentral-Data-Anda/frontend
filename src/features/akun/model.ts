@@ -3,7 +3,7 @@ import type { z } from "zod";
 import { formatDate } from "@/lib/format";
 import { changePasswordSchema } from "@/lib/password";
 
-import type { OfferingItem } from "./types";
+import type { MyProfile, OfferingItem } from "./types";
 
 export const passwordFormSchema = changePasswordSchema;
 
@@ -62,3 +62,19 @@ export const birthLabel = (
 ): string =>
   [place?.trim(), date ? formatDate(date) : null].filter(Boolean).join(", ") ||
   "—";
+
+export const addressLabel = (
+  profile: Pick<
+    MyProfile,
+    "address" | "villages" | "districts" | "regencies" | "provinces"
+  >,
+): string =>
+  [
+    profile.address?.trim(),
+    profile.villages?.name,
+    profile.districts?.name,
+    profile.regencies?.name,
+    profile.provinces?.name,
+  ]
+    .filter(Boolean)
+    .join(", ") || "—";

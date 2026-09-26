@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 
 import {
+  addressLabel,
   birthLabel,
   offeringMeta,
   orDash,
@@ -57,4 +58,36 @@ test("profil: nilai kosong jadi —, tempat dan tanggal lahir digabung", () => {
   );
   expect(birthLabel(null, "1985-05-12T00:00:00.000Z")).toBe("12 Mei 1985");
   expect(birthLabel(null, null)).toBe("—");
+});
+
+test("alamat: jalan lalu kelurahan sampai provinsi, bagian kosong dilewati", () => {
+  const named = (name: string) => ({ name });
+
+  expect(
+    addressLabel({
+      address: "Jl. Merdeka No. 2",
+      villages: named("Cijerah"),
+      districts: named("Bandung Kulon"),
+      regencies: named("Kota Bandung"),
+      provinces: named("Jawa Barat"),
+    }),
+  ).toBe("Jl. Merdeka No. 2, Cijerah, Bandung Kulon, Kota Bandung, Jawa Barat");
+  expect(
+    addressLabel({
+      address: "  ",
+      villages: null,
+      districts: null,
+      regencies: named("Kota Bandung"),
+      provinces: null,
+    }),
+  ).toBe("Kota Bandung");
+  expect(
+    addressLabel({
+      address: null,
+      villages: null,
+      districts: null,
+      regencies: null,
+      provinces: null,
+    }),
+  ).toBe("—");
 });

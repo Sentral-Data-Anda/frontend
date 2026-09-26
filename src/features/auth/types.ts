@@ -18,16 +18,6 @@ export const sessionSchema = z.object({
     .object({
       name: z.string(),
       code: z.string().optional(),
-      gender: z.enum(["L", "P"]).optional(),
-      birthPlace: z.string().nullish(),
-      birthDate: z.string().nullish(),
-      phone: z.string().nullish(),
-      email: z.string().nullish(),
-      statusMarital: z.enum(["SM", "BM", "CM", "CH"]).nullish(),
-      address: z.string().nullish(),
-      typeJemaat: z.enum(["ANGGOTA", "SIMPATISAN"]).optional(),
-      statusJemaat: z.enum(["AKTIF", "TIDAK_AKTIF"]).optional(),
-      joinedAt: z.string().nullish(),
       roleJemaat: z
         .array(
           z.object({

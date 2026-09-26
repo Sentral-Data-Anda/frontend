@@ -11,3 +11,23 @@ export type ChangePasswordPayload = {
   newPassword: string;
   confirmPassword: string;
 };
+
+type Named = { name: string } | null;
+
+export type MyProfile = {
+  gender: "L" | "P";
+  birthPlace: string | null;
+  birthDate: string | null;
+  phone: string | null;
+  email: string | null;
+  statusMarital: "SM" | "BM" | "CM" | "CH" | null;
+  address: string | null;
+  typeJemaat: "ANGGOTA" | "SIMPATISAN";
+  statusJemaat: "AKTIF" | "TIDAK_AKTIF";
+  joinedAt: string | null;
+  villages: Named;
+  districts: Named;
+  regencies: Named;
+  provinces: Named;
+  zoneChurch: Named;
+};

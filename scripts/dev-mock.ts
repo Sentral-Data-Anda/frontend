@@ -283,7 +283,12 @@ const session = {
           .replace(/[^a-z]+/g, ".")
           .replace(/^\.|\.$/g, "")}@contoh.id`,
         statusMarital: "SM",
-        address: "Jl. Merdeka No. 2, RT 03 RW 02, Kelurahan Cijerah",
+        address: "Jl. Merdeka No. 2, RT 03 RW 02",
+        villages: { name: "Cijerah" },
+        districts: { name: "Bandung Kulon" },
+        regencies: { name: "Kota Bandung" },
+        provinces: { name: "Jawa Barat" },
+        zoneChurch: { name: "Wilayah II" },
         typeJemaat: "ANGGOTA",
         statusJemaat: "AKTIF",
         joinedAt: "2012-06-17T00:00:00.000Z",
