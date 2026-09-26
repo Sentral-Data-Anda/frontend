@@ -67,7 +67,7 @@ export const RiwayatSection = (props: PropTypes) => {
         name="place"
         label="Tempat"
         isOptional
-        hint="Untuk atestasi masuk: nama gereja asal."
+        hint="Untuk atestasi: gereja asal (masuk) atau gereja tujuan (keluar)."
       >
         {(field) => <Input {...field} maxLength={100} />}
       </ControlField>
