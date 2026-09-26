@@ -151,10 +151,10 @@ const SAVE_FAILURE: Record<
 > = {
   validasi: {
     status: 400,
-    error: "Tempat tidak dikenali server",
+    error: "Nomor surat ditolak server",
     issues: [
-      { path: "place", message: "Tempat tidak dikenali server" },
       { path: "certificateNumber", message: "Nomor surat ditolak server" },
+      { path: "place", message: "Tempat tidak dikenali server" },
     ],
   },
   "500": { status: 500, error: "Kesalahan server." },
