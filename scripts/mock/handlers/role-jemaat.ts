@@ -124,6 +124,7 @@ const ddl = (refs: Ref[], url: URL) => {
     ? []
     : refs
         .filter((ref) => ref.name.toLowerCase().includes(filter))
+        .sort((a, b) => a.name.localeCompare(b.name, "id"))
         .slice(0, limit);
 
   if (data.length === 0) {
