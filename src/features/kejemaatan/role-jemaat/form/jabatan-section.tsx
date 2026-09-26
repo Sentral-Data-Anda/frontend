@@ -32,7 +32,7 @@ export const JabatanSection = (props: PropTypes) => {
             options={jemaat.options}
             isLoading={jemaat.isLoading}
             onSearch={jemaat.onSearch}
-            // Tanpa prop disabled: fieldset sudah menonaktifkannya, dan prop itu baru lepas satu render sesudah simpan sehingga fokus galat gagal.
+            disabled={isDisabled}
             placeholder="Ketik nama jemaat"
             emptyMessage="Tidak ada jemaat dengan nama itu"
           />
