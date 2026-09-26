@@ -1,5 +1,5 @@
 /**
- * Tiruan be-sada `/marriage` (modules/marriage) dan `/ddl/jemaat`.
+ * Tiruan be-sada `/marriage` (modules/marriage). Jemaat dari `ddl/jemaat` di mock-dashboard.
  *
  *   MOCK_500=1                          → daftar pernikahan menjawab 500
  *   MOCK_MARRIAGE_SAVE_ERROR=suami|istri|masih|validasi|500
@@ -7,6 +7,7 @@
  *   MOCK_MARRIAGE_DELETE_ERROR=1        → hapus pernikahan menjawab 500
  */
 import { MENU } from "../../../src/config/menu";
+import { ddlRows } from "../../mock-dashboard";
 import { denied, json, list, readBody, type MockHandler } from "../kit";
 
 type Party = { code: string; name: string };
@@ -28,26 +29,15 @@ type Row = {
 
 type Body = Record<string, unknown>;
 
-// Sama dengan NAMES di scripts/dev-mock.ts: kode JMT-0001 … JMT-0012.
-const JEMAAT: Party[] = [
-  "Andreas Sitanggang",
-  "Bethari Ayu Kusuma",
-  "Christian Wijaya",
-  "Debora Manurung",
-  "Eleazar Panggabean",
-  "Fransiska Halim",
-  "Gideon Tampubolon",
-  "Hanna Simorangkir",
-  "Immanuel Saragih",
-  "Josephine Tanuwijaya",
-  "Kevin Nainggolan",
-  "Lidya Hutagalung",
-].map((name, index) => ({
-  code: `JMT-${String(index + 1).padStart(4, "0")}`,
-  name,
-}));
+const JEMAAT = (ddlRows("jemaat", new URLSearchParams()) ?? []) as (Party & {
+  id: number;
+})[];
 
-const jemaat = (code: string) => JEMAAT.find((row) => row.code === code);
+const jemaat = (code: string): Party | undefined => {
+  const row = JEMAAT.find((item) => item.code === code);
+
+  return row && { code: row.code, name: row.name };
+};
 
 const uuid = (id: number) =>
   `6f1c2a3e-0000-4000-8000-${String(id).padStart(12, "0")}`;
@@ -302,7 +292,10 @@ const saveMarriage = async (
   );
 };
 
-const endMarriage = async (request: Request, row: Row): Promise<Response> => {
+const endMarriage = async (
+  request: Request,
+  row: Row | undefined,
+): Promise<Response> => {
   const body = await readBody<Body>(request);
   const issues: { path: string; message: string }[] = [];
 
@@ -319,6 +312,7 @@ const endMarriage = async (request: Request, row: Row): Promise<Response> => {
     });
   }
   if (issues.length) return invalid(issues);
+  if (!row) return notFound();
   if (row.endedAt) return failure(400, "Pernikahan Ini Sudah Berakhir");
 
   row.endedAt = toDate(body.endedAt as string);
@@ -361,16 +355,6 @@ const listMarriage = (url: URL) => {
   return list(matched, url, "Pernikahan", "Pernikahan");
 };
 
-// be-sada: GET /ddl/jemaat tidak mengizinkan PERNIKAHAN (gap di brief).
-const DDL_JEMAAT_GUARD = [
-  MENU.DAFTAR_JEMAAT,
-  MENU.KARYAWAN,
-  MENU.PEMINJAMAN_RUANG,
-  MENU.DAFTAR_PELAYAN,
-  MENU.ROLE_JEMAAT,
-  MENU.USER,
-] as const;
-
 export const pernikahanMock: MockHandler = async ({
   request,
   url,
@@ -378,26 +362,6 @@ export const pernikahanMock: MockHandler = async ({
   method,
   can,
 }) => {
-  if (path === "/ddl/jemaat") {
-    if (!DDL_JEMAAT_GUARD.some((slug) => can(slug, "VIEW"))) return denied();
-
-    const filter = (url.searchParams.get("filter") ?? "").toLowerCase();
-    const limit = Number(url.searchParams.get("limit")) || JEMAAT.length;
-    const data = JEMAAT.filter(
-      (row) =>
-        row.name.toLowerCase().includes(filter) ||
-        row.code.toLowerCase().includes(filter),
-    )
-      .slice(0, limit)
-      .map((row, index) => ({ id: index + 1, ...row }));
-
-    if (data.length === 0 || process.env.MOCK_DDL_EMPTY) {
-      return failure(404, "Data Tidak Ditemukan");
-    }
-
-    return json({ status: 200, message: "Berhasil Mendapatkan Data", data });
-  }
-
   if (path !== "/marriage" && !path.startsWith("/marriage/")) return null;
 
   const [, , publicId, action] = path.split("/");
@@ -416,7 +380,7 @@ export const pernikahanMock: MockHandler = async ({
   if (action === "end" && method === "PUT") {
     if (!can(MENU.PERNIKAHAN, "UPDATE")) return denied();
 
-    return row ? endMarriage(request, row) : notFound();
+    return endMarriage(request, row);
   }
 
   if (method === "GET") {
