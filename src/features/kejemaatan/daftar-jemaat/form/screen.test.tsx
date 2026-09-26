@@ -115,7 +115,18 @@ const DETAIL: JemaatDetail = {
   additional: [],
 };
 
-const onMockApi = (saveFailure?: { status: number; error: string }) => {
+type SaveFailure = {
+  status: number;
+  error: string;
+  issues?: { path: string; message: string }[];
+};
+
+const ZONES = [
+  { id: 1, code: "ZON-1", name: "Wilayah I", isActive: true },
+  { id: 4, code: "ZON-4", name: "Wilayah IV", isActive: false },
+];
+
+const onMockApi = (saveFailure?: SaveFailure, detail = DETAIL) => {
   const saves: string[] = [];
 
   globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -135,7 +146,10 @@ const onMockApi = (saveFailure?: { status: number; error: string }) => {
       });
     }
     if (url === "/api/v1/jemaat/JMT-0042") {
-      return Response.json({ status: 200, message: "OK", data: DETAIL });
+      return Response.json({ status: 200, message: "OK", data: detail });
+    }
+    if (url === "/api/v1/ddl/zone-church") {
+      return Response.json({ status: 200, message: "OK", data: ZONES });
     }
 
     return Response.json({
@@ -207,6 +221,29 @@ describe("fokus sesudah simpan ditolak server", () => {
     await waitFor(() => expect(document.activeElement?.id).toBe("email"));
   });
 
+  test("wilayah wajib dari server (400 issues): fokus ke Wilayah", async () => {
+    onMockApi({
+      status: 400,
+      error: "Wilayah Wajib Diisi",
+      issues: [
+        {
+          path: "zoneChurchId",
+          message:
+            "Keluarga ini belum punya wilayah. Isi wilayah jemaat atau lengkapi wilayah keluarganya.",
+        },
+      ],
+    });
+    await onRenderLoadedEdit();
+
+    fireEvent.click(screen.getByRole("button", { name: "Simpan" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Ya" }));
+
+    await waitFor(() =>
+      expect(document.activeElement?.id).toBe("zoneChurchId"),
+    );
+    expect(screen.getByText(/Keluarga ini belum punya wilayah/)).toBeTruthy();
+  });
+
   test("galat tanpa field: fokus ke Simpan, bukan body", async () => {
     onMockApi({ status: 500, error: "Kesalahan server." });
     await onRenderLoadedEdit();
@@ -235,5 +272,32 @@ describe("kembali ke daftar setelah simpan (test wajib 8)", () => {
     expect(
       window.sessionStorage.getItem(`list-focus:${JEMAAT_LIST_PATH}`),
     ).toBe("JMT-0042");
+  });
+});
+
+describe("wilayah mengikuti keluarga", () => {
+  test("wilayah nonaktif yang tersimpan tetap tampil dengan penandanya", async () => {
+    onMockApi(undefined, { ...DETAIL, zoneChurchId: 4 });
+    await onRenderLoadedEdit();
+
+    await waitFor(() =>
+      expect(
+        (screen.getByLabelText(/^Wilayah/) as HTMLInputElement).value,
+      ).toBe("Wilayah IV (nonaktif)"),
+    );
+  });
+
+  test("berkeluarga: wilayah opsional dengan petunjuk mengikuti keluarga", async () => {
+    onMockApi(undefined, {
+      ...DETAIL,
+      typeJemaat: "ANGGOTA",
+      keluargaId: 12,
+      roleInFamily: "ANAK",
+    });
+    await onRenderLoadedEdit();
+
+    expect(
+      screen.getByText("Kosongkan untuk mengikuti wilayah keluarga."),
+    ).toBeTruthy();
   });
 });

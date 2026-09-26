@@ -30,7 +30,14 @@ export const MembershipSection = (props: PropTypes) => {
 
   const isAnggota =
     useWatch({ control: form.control, name: "typeJemaat" }) === "ANGGOTA";
-  const zoneChurch = useDdlOptions("zone-church");
+  const zoneChurchId = useWatch({
+    control: form.control,
+    name: "zoneChurchId",
+  });
+  const isInKeluarga = Boolean(
+    useWatch({ control: form.control, name: "keluargaId" }),
+  );
+  const zoneChurch = useDdlOptions("zone-church", "id", zoneChurchId);
 
   const codeInduk = useWatch({ control: form.control, name: "codeInduk" });
   const isCodeIndukChanged =
@@ -43,7 +50,7 @@ export const MembershipSection = (props: PropTypes) => {
         control={form.control}
         name="typeJemaat"
         label="Tipe jemaat"
-        hint="Anggota membutuhkan kode induk, wilayah, dan data sosial."
+        hint="Anggota membutuhkan kode induk dan data sosial; wilayah mengikuti keluarga bila ada."
       >
         {(field) => (
           <SelectField
@@ -93,8 +100,12 @@ export const MembershipSection = (props: PropTypes) => {
         control={form.control}
         name="zoneChurchId"
         label="Wilayah"
-        isOptional={!isAnggota}
-        hint="Bila ikut keluarga, wilayah mengikuti keluarganya."
+        isOptional={!isAnggota || isInKeluarga}
+        hint={
+          isInKeluarga
+            ? "Kosongkan untuk mengikuti wilayah keluarga."
+            : undefined
+        }
       >
         {(field) => (
           <ComboboxField
@@ -102,7 +113,7 @@ export const MembershipSection = (props: PropTypes) => {
             onValueChange={field.onChange}
             options={zoneChurch.options}
             isLoading={zoneChurch.isLoading}
-            isClearable={!isAnggota}
+            isClearable={!isAnggota || isInKeluarga}
             disabled={isDisabled}
             placeholder="Pilih wilayah"
             emptyMessage="Belum ada data wilayah"

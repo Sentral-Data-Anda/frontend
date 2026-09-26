@@ -60,8 +60,8 @@ export function useSaveJemaat(code?: string) {
   });
 }
 
-export function useZoneFilterOptions() {
-  const zones = useDdlOptions("zone-church");
+export function useZoneFilterOptions(keepValue: string) {
+  const zones = useDdlOptions("zone-church", "id", keepValue);
 
   return {
     ...zones,

@@ -18,7 +18,7 @@ export const JemaatListScreen = () => {
   const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.DAFTAR_JEMAAT);
   const listParams = useListParams({ filters: LIST_FILTERS });
   const jemaatList = useJemaatList(listParams);
-  const zoneOptions = useZoneFilterOptions();
+  const zoneOptions = useZoneFilterOptions(listParams.filters.wilayah ?? "");
 
   return (
     <div className="pb-6">
