@@ -182,28 +182,14 @@ describe("gerbang izin", () => {
 });
 
 describe("simpan", () => {
-  test("form kosong: konfirmasi tidak muncul, Jemaat ditandai galat", async () => {
-    onMockApi();
-    onRenderForm(["VIEW", "CREATE"]);
-
-    fireEvent.click(screen.getByRole("button", { name: "Simpan" }));
-
-    await waitFor(() =>
-      expect(
-        document.getElementById("jemaatCode")?.getAttribute("aria-invalid"),
-      ).toBe("true"),
-    );
-    expect(screen.queryByText(/Apakah Anda ingin menyimpan/)).toBeNull();
-  });
-
-  // Input ComboboxField masih disabled satu render sesudah fieldset aktif; perbaikan bersama.
-  test.todo("form kosong: fokus ke Jemaat", async () => {
+  test("form kosong: konfirmasi tidak muncul, fokus ke Jemaat", async () => {
     onMockApi();
     onRenderForm(["VIEW", "CREATE"]);
 
     fireEvent.click(screen.getByRole("button", { name: "Simpan" }));
 
     await waitFor(() => expect(document.activeElement?.id).toBe("jemaatCode"));
+    expect(screen.queryByText(/Apakah Anda ingin menyimpan/)).toBeNull();
   });
 
   test("catat: payload ke POST, kembali ke daftar, baris ditandai", async () => {
