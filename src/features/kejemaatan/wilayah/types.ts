@@ -1,4 +1,4 @@
-import type { FilterChip } from "@/components/common/list";
+import type { SelectOption } from "@/components/common/control";
 
 export type Wilayah = {
   id: number;
@@ -18,7 +18,7 @@ export const WILAYAH_STATUS_LABEL: Record<"true" | "false", string> = {
   false: "Nonaktif",
 };
 
-export const WILAYAH_STATUS_CHIPS: FilterChip[] = [
+export const WILAYAH_STATUS_OPTIONS: SelectOption[] = [
   { label: "Semua", value: "" },
   { label: WILAYAH_STATUS_LABEL.true, value: "aktif" },
   { label: WILAYAH_STATUS_LABEL.false, value: "nonaktif" },

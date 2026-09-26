@@ -1,6 +1,5 @@
 "use client";
 
-import { SearchInput } from "@/components/common/control";
 import { DataList, ListToolbar } from "@/components/common/list";
 import { PageHeader, PageHeaderAdd } from "@/components/layout";
 import { MENU, createHref, domainHref } from "@/config/menu";
@@ -37,14 +36,9 @@ export const BapelListScreen = () => {
       />
 
       <ListToolbar
-        search={
-          <SearchInput
-            value={listParams.search}
-            onSearch={listParams.onSearch}
-            label="Cari badan pelayanan"
-            placeholder="Cari nama badan pelayanan"
-          />
-        }
+        listParams={listParams}
+        searchLabel="Cari badan pelayanan"
+        searchPlaceholder="Cari nama badan pelayanan"
       />
 
       <DataList

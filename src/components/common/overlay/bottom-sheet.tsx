@@ -1,9 +1,12 @@
 "use client";
 
 import { X } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { createContext, useEffect, useState } from "react";
+
+export const SheetPortalContext = createContext<HTMLElement | null>(null);
 
 interface PropTypes {
+  id?: string;
   isOpen: boolean;
   title: string;
   subtitle?: string;
@@ -12,17 +15,15 @@ interface PropTypes {
 }
 
 export const BottomSheet = (props: PropTypes) => {
-  const { isOpen, title, subtitle, onClose, children } = props;
+  const { id, isOpen, title, subtitle, onClose, children } = props;
 
-  const dialogRef = useRef<HTMLDialogElement>(null);
+  const [dialog, setDialog] = useState<HTMLDialogElement | null>(null);
 
   const onBackdropClick = (event: React.MouseEvent<HTMLDialogElement>) => {
-    if (event.target === dialogRef.current) onClose();
+    if (event.target === dialog) onClose();
   };
 
   useEffect(() => {
-    const dialog = dialogRef.current;
-
     if (!dialog) return;
 
     if (isOpen && !dialog.open) {
@@ -33,11 +34,12 @@ export const BottomSheet = (props: PropTypes) => {
       );
     }
     if (!isOpen && dialog.open) dialog.close();
-  }, [isOpen]);
+  }, [isOpen, dialog]);
 
   return (
     <dialog
-      ref={dialogRef}
+      id={id}
+      ref={setDialog}
       onClose={onClose}
       onClick={onBackdropClick}
       className="bg-card text-foreground fixed inset-x-0 bottom-0 top-auto m-0 w-full max-w-none rounded-t-2xl p-0 backdrop:bg-black/40"
@@ -68,7 +70,7 @@ export const BottomSheet = (props: PropTypes) => {
       </div>
 
       <div className="max-h-[60dvh] overflow-y-auto pb-[max(1rem,env(safe-area-inset-bottom))]">
-        {children}
+        <SheetPortalContext value={dialog}>{children}</SheetPortalContext>
       </div>
     </dialog>
   );

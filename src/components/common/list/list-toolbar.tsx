@@ -1,39 +1,77 @@
-import type { ReactNode } from "react";
+"use client";
+
+import { useRef } from "react";
+
+import { SearchInput } from "@/components/common/control";
+import type { ListState } from "@/hooks/use-list-params";
+
+import { ActiveFilters } from "./active-filters";
+import { listActiveFilters, type ListFilter } from "./list-filter";
+import { ListFilterButton } from "./list-filter-button";
 
 interface PropTypes {
-  search: ReactNode;
-  picker?: ReactNode;
-  filters?: ReactNode;
+  listParams: Pick<
+    ListState,
+    | "search"
+    | "status"
+    | "filters"
+    | "onSearch"
+    | "onApplyFilters"
+    | "onClearFilters"
+  >;
+  searchLabel: string;
+  searchPlaceholder: string;
+  filters?: readonly ListFilter[];
 }
 
 export const ListToolbar = (props: PropTypes) => {
-  const { search, picker, filters } = props;
+  const { listParams, searchLabel, searchPlaceholder, filters = [] } = props;
 
-  if (!picker) {
-    return (
-      <div className="@container px-gutter pb-4">
-        <div className="flex flex-col gap-3 @min-[36rem]:flex-row @min-[36rem]:items-center @min-[36rem]:[&>[role=group]]:mx-0 @min-[36rem]:[&>[role=group]]:px-0">
-          <div className="@min-[36rem]:w-80 @min-[36rem]:shrink-0">
-            {search}
-          </div>
+  const values = { ...listParams.filters, status: listParams.status };
+  const activeFilters = listActiveFilters(filters, values);
+  const rowRef = useRef<HTMLDivElement>(null);
 
-          {filters}
-        </div>
-      </div>
-    );
-  }
+  const focusFilterButton = () =>
+    rowRef.current?.querySelector<HTMLButtonElement>("button")?.focus();
+
+  const onRemove = (key: string) => {
+    listParams.onApplyFilters({ [key]: "" });
+    focusFilterButton();
+  };
+
+  const onClearAll = () => {
+    listParams.onClearFilters();
+    focusFilterButton();
+  };
 
   return (
     <div className="@container px-gutter pb-4">
-      <div className="grid grid-cols-[8rem_minmax(0,1fr)] items-center gap-x-2 gap-y-3 [&>[role=group]]:ml-0 [&>[role=group]]:pl-0 @min-[36rem]:grid-cols-[minmax(0,20rem)_10rem_auto] @min-[36rem]:[&>[role=group]]:ml-1 @min-[36rem]:[&>[role=group]]:mr-0 @min-[36rem]:[&>[role=group]]:pr-0">
-        <div className="col-span-2 @min-[36rem]:col-span-1">{search}</div>
+      <div ref={rowRef} className="flex gap-2">
+        <SearchInput
+          value={listParams.search}
+          onSearch={listParams.onSearch}
+          label={searchLabel}
+          placeholder={searchPlaceholder}
+          className="min-w-0 flex-1 @min-[36rem]:max-w-80"
+        />
 
-        <div className="[&>button]:h-7 [&>button]:rounded-full @min-[36rem]:[&>button]:h-control @min-[36rem]:[&>button]:rounded-control">
-          {picker}
-        </div>
-
-        {filters}
+        {filters.length > 0 ? (
+          <ListFilterButton
+            filters={filters}
+            values={values}
+            activeCount={activeFilters.length}
+            onApply={listParams.onApplyFilters}
+          />
+        ) : null}
       </div>
+
+      {activeFilters.length > 0 ? (
+        <ActiveFilters
+          filters={activeFilters}
+          onRemove={onRemove}
+          onClearAll={onClearAll}
+        />
+      ) : null}
     </div>
   );
 };

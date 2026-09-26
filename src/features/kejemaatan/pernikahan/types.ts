@@ -1,4 +1,4 @@
-import type { FilterChip } from "@/components/common/list";
+import type { SelectOption } from "@/components/common/control";
 
 export type EndReason = "CERAI_HIDUP" | "CERAI_MATI";
 
@@ -26,7 +26,7 @@ export type MarriageDetail = {
 
 export type MarriageListItem = MarriageDetail;
 
-export const MARRIAGE_STATUS_CHIPS: FilterChip[] = [
+export const MARRIAGE_STATUS_OPTIONS: SelectOption[] = [
   { label: "Semua", value: "" },
   { label: "Aktif", value: "AKTIF" },
   { label: "Berakhir", value: "BERAKHIR" },

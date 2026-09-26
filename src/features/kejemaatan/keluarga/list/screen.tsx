@@ -1,6 +1,5 @@
 "use client";
 
-import { SearchInput } from "@/components/common/control";
 import { DataList, ListToolbar } from "@/components/common/list";
 import { PageHeader, PageHeaderAdd } from "@/components/layout";
 import { MENU, createHref, domainHref } from "@/config/menu";
@@ -37,14 +36,9 @@ export const KeluargaListScreen = () => {
       />
 
       <ListToolbar
-        search={
-          <SearchInput
-            value={listParams.search}
-            onSearch={listParams.onSearch}
-            label="Cari keluarga"
-            placeholder="Cari nama atau kode keluarga"
-          />
-        }
+        listParams={listParams}
+        searchLabel="Cari keluarga"
+        searchPlaceholder="Cari nama atau kode keluarga"
       />
 
       <DataList
