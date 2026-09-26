@@ -2,19 +2,21 @@ import { Pencil } from "lucide-react";
 import Link from "next/link";
 
 import { buttonVariants } from "@/components/common/control";
+import { OptionalText } from "@/components/common/display";
 import { DataListRow, type DataTableConfig } from "@/components/common/list";
 import { MENU, editHref } from "@/config/menu";
-import { formatDate } from "@/lib/format";
+import { formatDate, formatDateShort } from "@/lib/format";
 import { saveListFocus } from "@/lib/list-return";
 import { cn } from "@/lib/utils";
 
 import { RIWAYAT_LIST_PATH } from "../model";
-import type { RiwayatJemaat } from "../types";
+import { SACRAMENT_TYPE_LABEL, type RiwayatJemaat } from "../types";
 
-import { OptionalText } from "./optional-text";
+const typeLabel = (riwayat: RiwayatJemaat) =>
+  SACRAMENT_TYPE_LABEL[riwayat.type];
 
 const rowLabel = (riwayat: RiwayatJemaat) =>
-  `Ubah riwayat ${riwayat.typeLabel.toLowerCase()} ${riwayat.jemaat.name}`;
+  `Ubah riwayat ${typeLabel(riwayat).toLowerCase()} ${riwayat.jemaat.name}`;
 
 interface PropTypes {
   riwayat: RiwayatJemaat;
@@ -28,7 +30,7 @@ export const RiwayatListItemRow = (props: PropTypes) => {
     <DataListRow
       id={riwayat.id}
       title={riwayat.jemaat.name}
-      meta={`${riwayat.typeLabel} · ${formatDate(riwayat.date)}`}
+      meta={`${typeLabel(riwayat)} · ${formatDate(riwayat.date)}`}
       trailing={
         <>
           {riwayat.certificateNumber ? (
@@ -92,7 +94,7 @@ export function riwayatTable(
         header: "Jenis",
         width: "minmax(0,1fr)",
         narrowWidth: "minmax(0,1fr)",
-        cell: (riwayat) => riwayat.typeLabel,
+        cell: typeLabel,
       },
       {
         key: "date",
@@ -100,7 +102,7 @@ export function riwayatTable(
         width: "minmax(0,1fr)",
         narrowWidth: "minmax(0,1fr)",
         cell: (riwayat) => (
-          <span className="tabular-nums">{formatDate(riwayat.date)}</span>
+          <span className="tabular-nums">{formatDateShort(riwayat.date)}</span>
         ),
       },
       {

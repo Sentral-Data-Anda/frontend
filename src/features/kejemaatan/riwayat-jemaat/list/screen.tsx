@@ -80,7 +80,7 @@ export const RiwayatListScreen = () => {
         emptyDescription={
           listParams.search || listParams.filters.jenis
             ? "Tidak ada riwayat yang cocok dengan pencarian atau filter ini."
-            : "Riwayat baptis, sidi, atestasi, dan kedukaan akan muncul di sini setelah dicatat."
+            : "Riwayat baptis, sidi, atestasi, dan meninggal akan muncul di sini setelah dicatat."
         }
         pagination={riwayatList.pagination}
         table={riwayatTable(isCanUpdate)}

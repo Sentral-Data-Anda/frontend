@@ -33,6 +33,28 @@ describe("baris HP", () => {
     expect(screen.getByText("BPT/1990/014")).toBeTruthy();
   });
 
+  test("label jenis dari SACRAMENT_TYPE_LABEL, bukan typeLabel be-sada", () => {
+    const atestasi: RiwayatJemaat = {
+      ...RIWAYAT,
+      type: "ATESTASI_MASUK",
+      typeLabel: "Atestasi Masuk",
+    };
+
+    onRenderRow(true, atestasi);
+
+    expect(screen.getByText("Atestasi masuk · 17 Juni 1990")).toBeTruthy();
+    expect(
+      screen.getByRole("link", {
+        name: "Ubah riwayat atestasi masuk Andreas Sitanggang",
+      }),
+    ).toBeTruthy();
+
+    const typeCell = riwayatTable(true).columns.find(
+      (column) => column.key === "type",
+    );
+    expect(typeCell?.cell(atestasi)).toBe("Atestasi masuk");
+  });
+
   test("tanpa nomor surat: trailing kosong", () => {
     onRenderRow(false, { ...RIWAYAT, certificateNumber: null });
 
