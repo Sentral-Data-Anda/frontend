@@ -15,14 +15,7 @@ import { addressLabel, birthLabel, orDash } from "../model";
 import { ProfileGroup } from "./profile-group";
 import { ReadOnlyField } from "./read-only-field";
 
-interface PropTypes {
-  code: string | undefined;
-  roles: string[];
-}
-
-export const ProfileDetails = (props: PropTypes) => {
-  const { code, roles } = props;
-
+export const ProfileDetails = () => {
   const profile = useMyProfile();
   const data = profile.data;
 
@@ -91,28 +84,20 @@ export const ProfileDetails = (props: PropTypes) => {
         </ReadOnlyField>
       </ProfileGroup>
 
-      <ProfileGroup title="Keanggotaan">
-        <ReadOnlyField label="Kode jemaat">{orDash(code)}</ReadOnlyField>
+      <ProfileGroup title="Keanggotaan lainnya">
         <ReadOnlyField label="Tipe">
           {TYPE_JEMAAT_LABEL[data.typeJemaat]}
         </ReadOnlyField>
         <ReadOnlyField label="Status">
           {STATUS_JEMAAT_LABEL[data.statusJemaat]}
         </ReadOnlyField>
-        <ReadOnlyField label="Wilayah">
-          {orDash(data.zoneChurch?.name)}
-        </ReadOnlyField>
         <ReadOnlyField label="Bergabung">
           {data.joinedAt ? formatDate(data.joinedAt) : "—"}
         </ReadOnlyField>
-        <ReadOnlyField label="Jabatan" isStacked>
-          {roles.length ? roles.join("; ") : "—"}
+        <ReadOnlyField label="Wilayah">
+          {orDash(data.zoneChurch?.name)}
         </ReadOnlyField>
       </ProfileGroup>
-
-      <p className="text-muted-foreground border-hairline border-t px-gutter py-3 text-caption">
-        Data diambil dari catatan jemaat. Bila keliru, hubungi sekretariat.
-      </p>
     </>
   );
 };

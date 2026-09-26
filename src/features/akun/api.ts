@@ -26,9 +26,11 @@ export function useMyOfferings(year: string, isEnabled: boolean) {
 }
 
 // Data pribadi tidak ikut sesi: sesi dirender ke setiap halaman aplikasi.
+export const profileKey = ["akun", "profil"] as const;
+
 export function useMyProfile() {
   return useQuery({
-    queryKey: ["akun", "profil"],
+    queryKey: profileKey,
     queryFn: () => fetchOne<{ jemaat: MyProfile | null }>("/auth/me"),
     staleTime: 0,
     gcTime: 0,

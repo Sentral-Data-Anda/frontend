@@ -1,52 +1,26 @@
 "use client";
 
-import { useQueryClient } from "@tanstack/react-query";
 import { Eye, EyeOff, Lock, LockOpen } from "lucide-react";
-import { useEffect } from "react";
 
 import { Button } from "@/components/common/control";
 import { Panel } from "@/components/common/display";
 import { DataList, DataListRow } from "@/components/common/list";
-import { useBoolean } from "@/hooks/use-boolean";
 import { todayJakarta } from "@/lib/date";
 import { formatRupiah } from "@/lib/format";
 
 import { offeringKeys, useMyOfferings } from "../api";
 import { offeringMeta } from "../model";
+import { useReveal } from "../use-reveal";
 
 const HISTORY_ID = "offering-history";
 
 export const OfferingSection = () => {
-  const queryClient = useQueryClient();
   const year = todayJakarta().slice(0, 4);
-  const isShown = useBoolean();
-  const offerings = useMyOfferings(year, isShown.value);
+  const { isShown, onToggle } = useReveal(offeringKeys.mine(year));
+  const offerings = useMyOfferings(year, isShown);
   const summary = offerings.data;
-  const LockIcon = isShown.value ? LockOpen : Lock;
-  const EyeIcon = isShown.value ? EyeOff : Eye;
-
-  const onToggle = () => {
-    if (!isShown.value) return isShown.onTrue();
-
-    isShown.onFalse();
-    queryClient.removeQueries({ queryKey: offeringKeys.mine(year) });
-  };
-
-  useEffect(() => {
-    if (!isShown.value) return;
-
-    const onVisibilityChange = () => {
-      if (!document.hidden) return;
-
-      isShown.onFalse();
-      queryClient.removeQueries({ queryKey: offeringKeys.mine(year) });
-    };
-
-    document.addEventListener("visibilitychange", onVisibilityChange);
-
-    return () =>
-      document.removeEventListener("visibilitychange", onVisibilityChange);
-  }, [isShown, queryClient, year]);
+  const LockIcon = isShown ? LockOpen : Lock;
+  const EyeIcon = isShown ? EyeOff : Eye;
 
   return (
     <Panel label="Persembahan saya">
@@ -58,14 +32,14 @@ export const OfferingSection = () => {
 
         <div className="min-w-0 flex-1">
           <p className="text-body font-medium">Persembahan {year}</p>
-          {isShown.value && summary ? (
+          {isShown && summary ? (
             <p className="text-muted-foreground text-caption tabular-nums">
               {summary.count} kali tercatat
             </p>
           ) : null}
         </div>
 
-        {!isShown.value ? (
+        {!isShown ? (
           <p className="text-body font-semibold">
             <span aria-hidden>
               Rp <span className="tracking-widest">•••••</span>
@@ -85,9 +59,9 @@ export const OfferingSection = () => {
           variant="ghost"
           size="icon"
           aria-label={
-            isShown.value ? "Sembunyikan persembahan" : "Tampilkan persembahan"
+            isShown ? "Sembunyikan persembahan" : "Tampilkan persembahan"
           }
-          aria-expanded={isShown.value}
+          aria-expanded={isShown}
           aria-controls={HISTORY_ID}
           onClick={onToggle}
         >
@@ -96,7 +70,7 @@ export const OfferingSection = () => {
       </div>
 
       <div id={HISTORY_ID} className="border-hairline border-t empty:hidden">
-        {isShown.value ? (
+        {isShown ? (
           <DataList
             items={summary?.items}
             getKey={(item) => item.code}
