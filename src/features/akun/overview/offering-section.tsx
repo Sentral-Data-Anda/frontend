@@ -73,7 +73,7 @@ export const OfferingSection = () => {
             <span className="sr-only">Nominal disembunyikan</span>
           </p>
         ) : offerings.isPending ? (
-          <span className="bg-muted block h-4 w-24 animate-pulse rounded" />
+          <span className="bg-skeleton block h-4 w-24 animate-pulse rounded" />
         ) : (
           <p className="text-body font-semibold tabular-nums">
             {summary ? formatRupiah(summary.total) : "—"}

@@ -20,7 +20,7 @@ export function LoadingRows({
       className="flex h-14 items-center gap-3 px-gutter"
     >
       {shape === "leading" ? (
-        <span className="bg-primary-200 size-9 shrink-0 animate-pulse rounded-full" />
+        <span className="bg-skeleton size-9 shrink-0 animate-pulse rounded-full" />
       ) : null}
 
       <span
@@ -28,11 +28,11 @@ export function LoadingRows({
         className="flex flex-1 items-center gap-3 self-stretch border-border"
       >
         <span className="flex flex-1 flex-col justify-center gap-1.5">
-          <span className="bg-primary-200 block h-3 w-2/5 animate-pulse rounded" />
-          <span className="bg-primary-200 block h-2.5 w-1/4 animate-pulse rounded" />
+          <span className="bg-skeleton block h-3 w-2/5 animate-pulse rounded" />
+          <span className="bg-skeleton block h-2.5 w-1/4 animate-pulse rounded" />
         </span>
         {shape === "trailing" ? (
-          <span className="bg-primary-200 block h-3 w-20 shrink-0 animate-pulse rounded" />
+          <span className="bg-skeleton block h-3 w-20 shrink-0 animate-pulse rounded" />
         ) : null}
       </span>
     </li>

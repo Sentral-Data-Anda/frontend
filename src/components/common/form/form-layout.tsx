@@ -127,8 +127,8 @@ export function LoadingForm({ fields = 6 }: { fields?: number }) {
     <div role="status" aria-busy="true" className="space-y-4 px-gutter py-5">
       {Array.from({ length: fields }, (_, index) => (
         <div key={index} aria-hidden className="space-y-1.5">
-          <span className="bg-primary-200 block h-3 w-24 animate-pulse rounded" />
-          <span className="bg-primary-200 block h-control w-full animate-pulse rounded-control" />
+          <span className="bg-skeleton block h-3 w-24 animate-pulse rounded" />
+          <span className="bg-skeleton block h-control w-full animate-pulse rounded-control" />
         </div>
       ))}
 

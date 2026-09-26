@@ -57,7 +57,7 @@ export function LoadingTableRows({
         <span
           key={column.key}
           className={cn(
-            "bg-primary-200 block h-3 animate-pulse rounded",
+            "bg-skeleton block h-3 animate-pulse rounded",
             columnIndex === 0 ? "w-3/5" : "w-2/5",
             column.isSecondary && TABLE_SECONDARY,
           )}

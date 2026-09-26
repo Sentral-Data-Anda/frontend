@@ -61,9 +61,9 @@ export function DashboardCard({
           aria-label={`Memuat ${title}`}
           className={cn("space-y-3", minHeight)}
         >
-          <span className="bg-muted block h-3 w-3/4 animate-pulse rounded-control" />
-          <span className="bg-muted block h-3 w-1/2 animate-pulse rounded-control" />
-          <span className="bg-muted block h-3 w-2/3 animate-pulse rounded-control" />
+          <span className="bg-skeleton block h-3 w-3/4 animate-pulse rounded-control" />
+          <span className="bg-skeleton block h-3 w-1/2 animate-pulse rounded-control" />
+          <span className="bg-skeleton block h-3 w-2/3 animate-pulse rounded-control" />
         </div>
       ) : query?.error ? (
         <p

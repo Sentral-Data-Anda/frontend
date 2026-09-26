@@ -129,7 +129,7 @@ export function KpiCell({
 
       <div className="mt-2 flex min-h-5 min-w-0 items-center [grid-area:value] lg:mt-3 lg:min-h-7 @max-[36rem]/strip:@min-[19rem]/kpi:mt-0 @max-[36rem]/strip:@min-[19rem]/kpi:justify-self-end">
         {isLoading ? (
-          <span className="bg-muted block h-5 w-20 animate-pulse rounded-control lg:h-7" />
+          <span className="bg-skeleton block h-5 w-20 animate-pulse rounded-control lg:h-7" />
         ) : isError ? (
           <p className="text-muted-foreground flex min-w-0 items-center gap-1.5 text-body">
             <TriangleAlert className="size-3.5 shrink-0" aria-hidden />
@@ -144,7 +144,7 @@ export function KpiCell({
 
       <div className="mt-1 flex min-h-4 min-w-0 items-center [grid-area:hint] @max-[36rem]/strip:@min-[19rem]/kpi:mt-0.5">
         {isLoading ? (
-          <span className="bg-muted block h-3 w-16 animate-pulse rounded-control" />
+          <span className="bg-skeleton block h-3 w-16 animate-pulse rounded-control" />
         ) : delta && !isError ? (
           <p className="text-foreground flex min-w-0 items-center gap-1 text-caption tabular-nums">
             <Arrow
