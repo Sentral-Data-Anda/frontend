@@ -160,6 +160,18 @@ describe("serverFieldError", () => {
     ).toEqual({ field: "wifeJemaatCode", message: LIVE });
   });
 
+  test("masih menikah: nama yang jadi awalan nama lain tidak salah sisi", () => {
+    const message =
+      "Budi Santoso Masih Tercatat Dalam Pernikahan Yang Belum Berakhir. Akhiri Pernikahan Tersebut Terlebih Dahulu";
+
+    expect(
+      serverFieldError(message, {
+        husbandJemaatCode: "Budi",
+        wifeJemaatCode: "Budi Santoso",
+      })?.field,
+    ).toBe("wifeJemaatCode");
+  });
+
   test("masih menikah dengan satu sisi jemaat: sisi itu", () => {
     expect(serverFieldError(LIVE, { husbandJemaatCode: "" })?.field).toBe(
       "husbandJemaatCode",

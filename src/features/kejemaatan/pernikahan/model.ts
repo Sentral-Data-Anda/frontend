@@ -1,6 +1,8 @@
 import { z } from "zod";
 
 import { MENU, menuHref } from "@/config/menu";
+import { toDateInput } from "@/lib/date";
+import { emptyToNull } from "@/lib/utils";
 
 import type {
   EndMarriagePayload,
@@ -74,11 +76,6 @@ export const EMPTY_MARRIAGE_FORM: MarriageFormValues = {
   blessedHere: "false",
 };
 
-const emptyToNull = (value: string): string | null => value.trim() || null;
-
-export const toDateInput = (value: string | null | undefined): string =>
-  value ? value.slice(0, 10) : "";
-
 export function toMarriagePayload(values: MarriageFormValues): MarriagePayload {
   return {
     husbandJemaatCode: values.husbandJemaatCode || null,
@@ -115,7 +112,9 @@ const pickLiveSide = (
 
   if (sides.length === 1) return sides[0][0];
 
-  return sides.find(([, name]) => name && message.startsWith(`${name} `))?.[0];
+  return sides.find(
+    ([, name]) => name && message.startsWith(`${name} Masih Tercatat`),
+  )?.[0];
 };
 
 export function serverFieldError(
