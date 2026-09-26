@@ -1,6 +1,8 @@
 import { z } from "zod";
 
 import { MENU, menuHref } from "@/config/menu";
+import { toDateInput } from "@/lib/date";
+import { emptyToNull } from "@/lib/utils";
 
 import {
   SACRAMENT_TYPE_LABEL,
@@ -39,11 +41,6 @@ export const EMPTY_RIWAYAT_FORM: RiwayatFormValues = {
   certificateNumber: "",
   place: "",
 };
-
-const emptyToNull = (value: string): string | null => value.trim() || null;
-
-export const toDateInput = (value: string | null | undefined): string =>
-  value ? value.slice(0, 10) : "";
 
 export function toRiwayatPayload(
   values: RiwayatFormValues,
