@@ -68,7 +68,7 @@ describe("bapelFormSchema — aturan", () => {
     ).toEqual([
       "rules.0.dayOfWeek: Hari wajib dipilih",
       "rules.1.date: Tanggal wajib diisi",
-      "rules.2.weekOfMonth: Minggu wajib dipilih",
+      "rules.2.weekOfMonth: Pekan wajib dipilih",
       "rules.3.startTime: Jam mulai wajib diisi",
       "rules.3.endTime: Jam selesai wajib diisi",
     ]);
@@ -204,7 +204,7 @@ describe("toBapelForm", () => {
 describe("summarizeRules", () => {
   test("ringkasan baris tabel", () => {
     expect(summarizeRules(RULES)).toBe(
-      "Minggu, 07.00–09.00, 25 Desember 2026, Minggu terakhir",
+      "Minggu, 07.00–09.00, 25 Desember 2026, Pekan terakhir",
     );
     expect(summarizeRules([])).toBe("");
   });

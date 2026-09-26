@@ -1,9 +1,11 @@
-export type RuleType = "NO_DAY" | "NO_DATE" | "NO_WEEK" | "NO_TIME";
+export const RULE_TYPES = ["NO_DAY", "NO_DATE", "NO_WEEK", "NO_TIME"] as const;
+
+export type RuleType = (typeof RULE_TYPES)[number];
 
 export const RULE_TYPE_LABEL: Record<RuleType, string> = {
   NO_DAY: "Hari tertentu",
   NO_DATE: "Tanggal tertentu",
-  NO_WEEK: "Minggu ke-",
+  NO_WEEK: "Pekan ke-",
   NO_TIME: "Jam",
 };
 
@@ -18,12 +20,12 @@ export const DAY_OF_WEEK_LABEL: Record<string, string> = {
 };
 
 export const WEEK_OF_MONTH_LABEL: Record<string, string> = {
-  "1": "Minggu ke-1",
-  "2": "Minggu ke-2",
-  "3": "Minggu ke-3",
-  "4": "Minggu ke-4",
-  "5": "Minggu ke-5",
-  "-1": "Minggu terakhir",
+  "1": "Pekan ke-1",
+  "2": "Pekan ke-2",
+  "3": "Pekan ke-3",
+  "4": "Pekan ke-4",
+  "5": "Pekan ke-5",
+  "-1": "Pekan terakhir",
 };
 
 export type BapelRule = {

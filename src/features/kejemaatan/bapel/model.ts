@@ -5,14 +5,14 @@ import { formatDate } from "@/lib/format";
 
 import {
   DAY_OF_WEEK_LABEL,
+  RULE_TYPES,
   WEEK_OF_MONTH_LABEL,
   type BapelDetail,
   type BapelPayload,
   type BapelRule,
   type BapelRulePayload,
+  type RuleType,
 } from "./types";
-
-export const RULE_TYPES = ["NO_DAY", "NO_DATE", "NO_WEEK", "NO_TIME"] as const;
 
 export const BAPEL_LIST_PATH = menuHref(MENU.KEJEMAATAN, MENU.BAPEL);
 
@@ -55,7 +55,7 @@ const REQUIRED: Record<
 > = {
   NO_DAY: [["dayOfWeek", "Hari wajib dipilih"]],
   NO_DATE: [["date", "Tanggal wajib diisi"]],
-  NO_WEEK: [["weekOfMonth", "Minggu wajib dipilih"]],
+  NO_WEEK: [["weekOfMonth", "Pekan wajib dipilih"]],
   NO_TIME: [
     ["startTime", "Jam mulai wajib diisi"],
     ["endTime", "Jam selesai wajib diisi"],
@@ -105,7 +105,11 @@ export const bapelFormSchema = baseSchema.superRefine((values, ctx) => {
   });
 });
 
-const toRulePayload = (rule: BapelRuleValues): BapelRulePayload => {
+type TypedRule = BapelRuleValues & { type: RuleType };
+
+const isTyped = (rule: BapelRuleValues): rule is TypedRule => rule.type !== "";
+
+const toRulePayload = (rule: TypedRule): BapelRulePayload => {
   switch (rule.type) {
     case "NO_DAY":
       return { type: "NO_DAY", dayOfWeek: Number(rule.dayOfWeek) };
@@ -113,7 +117,7 @@ const toRulePayload = (rule: BapelRuleValues): BapelRulePayload => {
       return { type: "NO_DATE", date: rule.date };
     case "NO_WEEK":
       return { type: "NO_WEEK", weekOfMonth: Number(rule.weekOfMonth) };
-    default:
+    case "NO_TIME":
       return {
         type: "NO_TIME",
         startTime: rule.startTime,
@@ -127,7 +131,7 @@ export function toBapelPayload(values: BapelFormValues): BapelPayload {
 
   return {
     name: values.name.trim(),
-    rules: [...unique.values()].map(toRulePayload),
+    rules: [...unique.values()].filter(isTyped).map(toRulePayload),
   };
 }
 
