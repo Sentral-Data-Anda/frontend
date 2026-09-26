@@ -49,3 +49,87 @@ describe("ComboboxField sesudah simpan ditolak", () => {
     expect(document.activeElement?.id).toBe("jemaat");
   });
 });
+
+describe("ComboboxField dengan onCreate", () => {
+  const OPTIONS = [
+    { value: "1", label: "Petani" },
+    { value: "2", label: "PNS/ASN" },
+  ];
+
+  const onRender = (onCreate?: (text: string) => void) => {
+    const picked: string[] = [];
+
+    render(
+      <ComboboxField
+        value=""
+        onValueChange={(value) => picked.push(value)}
+        options={OPTIONS}
+        onCreate={onCreate}
+      />,
+    );
+
+    return picked;
+  };
+
+  const onType = (text: string) => {
+    const input = screen.getByRole("combobox");
+
+    fireEvent.focus(input);
+    fireEvent.input(input, {
+      target: { value: text },
+      inputType: "insertText",
+    });
+
+    return input;
+  };
+
+  test("teks baru: item Tambah dengan nama ternormalisasi muncul di akhir", async () => {
+    onRender(() => {});
+    onType("  petani   sawit ");
+
+    const options = await screen.findAllByRole("option");
+
+    expect(options.at(-1)?.textContent).toBe("Tambah “Petani Sawit”");
+  });
+
+  test("teks sama dengan opsi (beda huruf besar): tidak ada item Tambah", async () => {
+    onRender(() => {});
+    onType("pns/asn");
+
+    await screen.findByRole("option", { name: "PNS/ASN" });
+    expect(screen.queryByRole("option", { name: /^Tambah/ })).toBeNull();
+  });
+
+  test("tanpa onCreate: tidak ada item Tambah", async () => {
+    onRender();
+    onType("petani sawit");
+
+    await screen.findByText("Tidak ada yang cocok");
+    expect(screen.queryByRole("option", { name: /^Tambah/ })).toBeNull();
+  });
+
+  test("dipilih dengan keyboard: onCreate dipanggil, nilai field tidak berubah", async () => {
+    const created: string[] = [];
+    const picked = onRender((text) => created.push(text));
+    const input = onType("tukang las");
+
+    await screen.findByRole("option", { name: "Tambah “Tukang Las”" });
+    fireEvent.keyDown(input, { key: "ArrowDown" });
+    fireEvent.keyDown(input, { key: "Enter" });
+
+    expect(created).toEqual(["Tukang Las"]);
+    expect(picked).toEqual([]);
+  });
+
+  test("dipilih dengan klik: onCreate dipanggil", async () => {
+    const created: string[] = [];
+    onRender((text) => created.push(text));
+    onType("tukang las");
+
+    fireEvent.click(
+      await screen.findByRole("option", { name: "Tambah “Tukang Las”" }),
+    );
+
+    expect(created).toEqual(["Tukang Las"]);
+  });
+});
