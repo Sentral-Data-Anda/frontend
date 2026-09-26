@@ -61,15 +61,6 @@ export const DUMMY_BUDGET_USE: BudgetUse[] = [
   { id: "b4", commission: "Komisi Anak", budget: 30_000_000, used: 9_300_000 },
 ];
 
-export const DUMMY_ZONES = [
-  { id: "w1", name: "Wilayah I", count: 312 },
-  { id: "w2", name: "Wilayah II", count: 241 },
-  { id: "w3", name: "Wilayah III", count: 198 },
-  { id: "w4", name: "Wilayah IV", count: 174 },
-  { id: "w5", name: "Wilayah V", count: 216 },
-  { id: "w6", name: "Wilayah VI", count: 149 },
-];
-
 export const DUMMY_NEW_MEMBERS = [
   {
     id: "n1",
