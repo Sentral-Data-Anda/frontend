@@ -79,7 +79,7 @@ export function summarizeZones(rows: ZoneRow[]) {
     rows: [...rows].sort(
       (a, b) =>
         isUnzoned(a) - isUnzoned(b) ||
-        (a.code ?? "").localeCompare(b.code ?? ""),
+        (a.zoneChurchId ?? 0) - (b.zoneChurchId ?? 0),
     ),
     total,
     isEmpty: total.anggota + total.simpatisan + total.keluarga === 0,

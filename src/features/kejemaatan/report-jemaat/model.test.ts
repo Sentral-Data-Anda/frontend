@@ -143,14 +143,14 @@ const zone = (
 });
 
 describe("summarizeZones", () => {
-  test("wilayah urut kode, tanpa wilayah terakhir; total per kolom", () => {
+  test("wilayah urut dibuat (id), bukan kode; tanpa wilayah terakhir; total per kolom", () => {
     const report = summarizeZones([
       zone(null, null, { anggota: 3, simpatisan: 9, keluarga: 2 }),
-      zone(2, "ZC-0002", { anggota: 5, simpatisan: 1, keluarga: 4 }),
-      zone(1, "ZC-0001", { anggota: 120, simpatisan: 14, keluarga: 41 }),
+      zone(6, "ZC-0006", { anggota: 5, simpatisan: 1, keluarga: 4 }),
+      zone(1, "ZC-01", { anggota: 120, simpatisan: 14, keluarga: 41 }),
     ]);
 
-    expect(report.rows.map((row) => row.zoneChurchId)).toEqual([1, 2, null]);
+    expect(report.rows.map((row) => row.zoneChurchId)).toEqual([1, 6, null]);
     expect(report.total).toEqual({
       anggota: 128,
       simpatisan: 24,
