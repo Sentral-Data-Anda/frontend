@@ -8,6 +8,7 @@ import { BLOOD_TYPE_LABEL, LAST_EDUCATION_LABEL } from "@/types/jemaat";
 import {
   sortShares,
   summarizeTypeGender,
+  summarizeZones,
   toAgeShares,
   topShares,
 } from "./model";
@@ -21,6 +22,7 @@ import type {
   ProfessionRow,
   Share,
   TypeGenderRow,
+  ZoneRow,
 } from "./types";
 
 export const reportKeys = {
@@ -105,6 +107,14 @@ export function useIncompleteReport() {
     queryKey: reportKeys.jemaat("incomplete"),
     queryFn: () => fetchOne<IncompleteReport>("/report/jemaat/incomplete"),
     select: (response) => response.data,
+  });
+}
+
+export function useZoneReport() {
+  return useQuery({
+    queryKey: reportKeys.jemaat("zone"),
+    queryFn: () => fetchList<ZoneRow>("/report/jemaat/zone"),
+    select: (response) => summarizeZones(response.data),
   });
 }
 

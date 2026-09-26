@@ -2,10 +2,11 @@
  * Tiruan `/report/jemaat/*` be-sada (report.route.ts). `type-gender` dan
  * `birth/:month` dijawab dev-mock.ts, kecuali saat flag di bawah aktif.
  *
- *   MOCK_EMPTY=1          → sebaran `[]`, incomplete nol, birth 404
+ *   MOCK_EMPTY=1          → sebaran `[]`, incomplete & zone nol, birth 404
  *   MOCK_REPORT_500=1     → semua path laporan menjawab 500
  *   MOCK_REPORT_500=age   → hanya satu path (age, ethnic, type-gender, …) 500
  */
+import { ZONE_CHURCHES } from "../../mock-dashboard";
 import { denied, json, type MockHandler } from "../kit";
 
 const OK = "Berhasil Mendapatkan Report";
@@ -67,6 +68,41 @@ const INCOMPLETE = {
   profession: 132,
 };
 
+// Wilayah 5 nonaktif dan nol; baris tanpa wilayah selalu terakhir.
+const ZONE_COUNTS = [
+  [312, 18, 96],
+  [241, 11, 74],
+  [198, 25, 63],
+  [174, 9, 58],
+  [0, 0, 0],
+  [3, 21, 2],
+];
+
+const zoneRows = (isEmpty: boolean) =>
+  ZONE_COUNTS.map(([anggota, simpatisan, keluarga], index) => {
+    const id = index + 1;
+    const isUnzoned = index === ZONE_COUNTS.length - 1;
+    const counts = isEmpty
+      ? { anggota: 0, simpatisan: 0, keluarga: 0 }
+      : { anggota, simpatisan, keluarga };
+
+    return isUnzoned
+      ? {
+          zoneChurchId: null,
+          code: null,
+          name: null,
+          isActive: null,
+          ...counts,
+        }
+      : {
+          zoneChurchId: id,
+          code: `ZC-${String(id).padStart(4, "0")}`,
+          name: ZONE_CHURCHES[index] ?? "Wilayah V",
+          isActive: id <= ZONE_CHURCHES.length,
+          ...counts,
+        };
+  });
+
 export const reportJemaatMock: MockHandler = ({ path, method, can }) => {
   const match = path.match(/^\/report\/jemaat\/([^/]+)(\/[^/]+)?$/);
   if (!match || method !== "GET") return null;
@@ -90,6 +126,10 @@ export const reportJemaatMock: MockHandler = ({ path, method, can }) => {
       ? { total: 0, birthDate: 0, lastEducation: 0, profession: 0 }
       : INCOMPLETE;
     return json({ status: 200, message: OK, data });
+  }
+
+  if (name === "zone") {
+    return json({ status: 200, message: OK, data: zoneRows(isEmpty) });
   }
 
   const rows = GROUPS[name];

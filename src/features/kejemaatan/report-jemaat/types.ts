@@ -46,3 +46,13 @@ export const AGE_GROUP_LABEL: Record<AgeGroup, string> = {
 export const AGE_GROUPS = Object.keys(AGE_GROUP_LABEL) as AgeGroup[];
 
 export type Share = { key: string; label: string; count: number };
+
+export type ZoneRow = {
+  zoneChurchId: number | null;
+  code: string | null;
+  name: string | null;
+  isActive: boolean | null;
+  anggota: number;
+  simpatisan: number;
+  keluarga: number;
+};

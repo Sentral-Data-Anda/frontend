@@ -65,7 +65,7 @@ describe("gerbang VIEW", () => {
   test("dengan VIEW: semua laporan dimuat, ulang tahun memakai bulan di URL", async () => {
     onRender(["VIEW"]);
 
-    await waitFor(() => expect(requested).toHaveLength(8));
+    await waitFor(() => expect(requested).toHaveLength(9));
 
     expect(requested).toContain("/api/v1/report/jemaat/birth/3");
     expect(
