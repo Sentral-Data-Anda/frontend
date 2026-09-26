@@ -66,7 +66,7 @@ function toTableRow(
           {COUNT_LABELS.map(([field, fieldLabel]) => (
             <span key={field}>
               {fieldLabel}{" "}
-              <span className="text-foreground tabular-nums">
+              <span className={cn("text-foreground tabular-nums", tone)}>
                 {formatCount(counts[field])}
               </span>
             </span>
@@ -88,7 +88,7 @@ export const ZoneCard = (props: PropTypes) => {
   const report = query.data;
 
   return (
-    <DashboardCard title={TITLE} query={query} minHeight="min-h-72">
+    <DashboardCard title={TITLE} query={query} minHeight="min-h-76">
       {!report || report.isEmpty ? (
         <EmptyState isCompact title="Belum ada jemaat berwilayah" />
       ) : (
