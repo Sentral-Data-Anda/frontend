@@ -29,10 +29,16 @@ export function applyServerError<T extends FieldValues>(
   return field;
 }
 
+// Galat validasi klien: field bergalat pertama menurut urutan DOM, bukan urutan skema.
+export const FIRST_INVALID = "*";
+
 export function revealField(field: string | null | undefined): void {
   if (!field) return;
 
-  const control = document.getElementById(field);
+  const control =
+    field === FIRST_INVALID
+      ? document.querySelector<HTMLElement>('form [aria-invalid="true"]')
+      : document.getElementById(field);
 
   if (!control) return;
 

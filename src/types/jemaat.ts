@@ -49,3 +49,40 @@ export const SACRAMENT_ONCE: readonly SacramentType[] = [
   "SIDI",
   "MENINGGAL",
 ];
+
+export type BloodType = "A" | "B" | "AB" | "O";
+export type LastEducation =
+  | "TIDAK_SEKOLAH"
+  | "SD"
+  | "SMP"
+  | "SMA"
+  | "SMK"
+  | "D1"
+  | "D2"
+  | "D3"
+  | "D4"
+  | "S1"
+  | "S2"
+  | "S3";
+
+export const BLOOD_TYPE_LABEL: Record<BloodType, string> = {
+  A: "A",
+  B: "B",
+  AB: "AB",
+  O: "O",
+};
+
+export const LAST_EDUCATION_LABEL: Record<LastEducation, string> = {
+  TIDAK_SEKOLAH: "Tidak sekolah",
+  SD: "SD",
+  SMP: "SMP",
+  SMA: "SMA",
+  SMK: "SMK",
+  D1: "D1",
+  D2: "D2",
+  D3: "D3",
+  D4: "D4",
+  S1: "S1",
+  S2: "S2",
+  S3: "S3",
+};

@@ -129,7 +129,13 @@ function FormActionsBar({
   );
 }
 
-export function LoadingForm({ fields = 6 }: { fields?: number }) {
+export function LoadingForm({
+  fields = 6,
+  label = "Memuat data…",
+}: {
+  fields?: number;
+  label?: string;
+}) {
   return (
     <div role="status" aria-busy="true" className="space-y-4 px-gutter py-5">
       {Array.from({ length: fields }, (_, index) => (
@@ -139,7 +145,7 @@ export function LoadingForm({ fields = 6 }: { fields?: number }) {
         </div>
       ))}
 
-      <span className="sr-only">Memuat data jemaat…</span>
+      <span className="sr-only">{label}</span>
     </div>
   );
 }

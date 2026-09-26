@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 
 import { FetchError } from "./api/fetcher";
-import { applyServerError } from "./form-error";
+import { applyServerError, FIRST_INVALID, revealField } from "./form-error";
 
 type Recorded = { field: string; message?: string };
 
@@ -72,5 +72,22 @@ describe("applyServerError", () => {
 
     expect(calls[0].field).toBe("root");
     expect(calls[0].message).toContain("Periksa koneksi");
+  });
+});
+
+describe("revealField", () => {
+  test("FIRST_INVALID memilih field bergalat pertama menurut urutan DOM", () => {
+    document.body.innerHTML = `
+      <form>
+        <input id="name" />
+        <button id="gender" aria-invalid="true"></button>
+        <input id="birthPlace" aria-invalid="true" />
+      </form>`;
+    const gender = document.getElementById("gender") as HTMLElement;
+    gender.scrollIntoView = () => {};
+
+    revealField(FIRST_INVALID);
+
+    expect(document.activeElement?.id).toBe("gender");
   });
 });

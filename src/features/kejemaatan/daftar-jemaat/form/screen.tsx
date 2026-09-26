@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { useForm, useWatch, type FieldErrors } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 
 import { Button } from "@/components/common/control";
 import { useToast } from "@/components/common/feedback";
@@ -19,7 +19,7 @@ import { PageHeader } from "@/components/layout";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { useListReturn } from "@/hooks/use-list-return";
-import { applyServerError, revealField } from "@/lib/form-error";
+import { applyServerError, FIRST_INVALID, revealField } from "@/lib/form-error";
 import { saveListFocus } from "@/lib/list-return";
 
 import { useJemaatDetail, useSaveJemaat } from "../api";
@@ -66,6 +66,7 @@ export const JemaatFormScreen = (props: PropTypes) => {
     resolver: zodResolver(jemaatFormSchema),
     mode: "onSubmit",
     reValidateMode: "onChange",
+    shouldFocusError: false,
     defaultValues: EMPTY_JEMAAT_FORM,
   });
 
@@ -76,10 +77,7 @@ export const JemaatFormScreen = (props: PropTypes) => {
 
   const onLeave = () => router.replace(listReturn);
 
-  const onInvalid = (errors: FieldErrors<JemaatFormValues>) => {
-    setRejectedField(null);
-    revealField(Object.keys(errors).find((key) => key !== "root"));
-  };
+  const onInvalid = () => setRejectedField(FIRST_INVALID);
 
   const onOpenSaveConfirm = () => {
     setRejectedField(null);
@@ -178,7 +176,9 @@ export const JemaatFormScreen = (props: PropTypes) => {
         />
       }
     >
-      {detail.isLoading ? <LoadingForm fields={8} /> : null}
+      {detail.isLoading ? (
+        <LoadingForm fields={8} label="Memuat data jemaat…" />
+      ) : null}
 
       <div className={detail.isLoading ? "hidden" : undefined}>
         <IdentitySection form={form} isDisabled={isSubmitting} />

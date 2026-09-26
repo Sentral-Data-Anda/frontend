@@ -1,7 +1,9 @@
 import type { FilterChip } from "@/components/common/list";
 import {
   STATUS_JEMAAT_LABEL,
+  type BloodType,
   type Gender,
+  type LastEducation,
   type RoleInFamily,
   type SacramentType,
   type StatusJemaat,
@@ -10,14 +12,18 @@ import {
 } from "@/types/jemaat";
 
 export {
+  BLOOD_TYPE_LABEL,
   GENDER_LABEL,
+  LAST_EDUCATION_LABEL,
   ROLE_IN_FAMILY_LABEL,
   SACRAMENT_ONCE,
   SACRAMENT_TYPE_LABEL,
   STATUS_JEMAAT_LABEL,
   STATUS_PERNIKAHAN_LABEL,
   TYPE_JEMAAT_LABEL,
+  type BloodType,
   type Gender,
+  type LastEducation,
   type RoleInFamily,
   type SacramentType,
   type StatusJemaat,
@@ -42,43 +48,6 @@ export const STATUS_JEMAAT_CHIPS: FilterChip[] = [
   { label: STATUS_JEMAAT_LABEL.AKTIF, value: "AKTIF" },
   { label: STATUS_JEMAAT_LABEL.TIDAK_AKTIF, value: "TIDAK_AKTIF" },
 ];
-
-export type BloodType = "A" | "B" | "AB" | "O";
-export type LastEducation =
-  | "TIDAK_SEKOLAH"
-  | "SD"
-  | "SMP"
-  | "SMA"
-  | "SMK"
-  | "D1"
-  | "D2"
-  | "D3"
-  | "D4"
-  | "S1"
-  | "S2"
-  | "S3";
-
-export const BLOOD_TYPE_LABEL: Record<BloodType, string> = {
-  A: "A",
-  B: "B",
-  AB: "AB",
-  O: "O",
-};
-
-export const LAST_EDUCATION_LABEL: Record<LastEducation, string> = {
-  TIDAK_SEKOLAH: "Tidak sekolah",
-  SD: "SD",
-  SMP: "SMP",
-  SMA: "SMA",
-  SMK: "SMK",
-  D1: "D1",
-  D2: "D2",
-  D3: "D3",
-  D4: "D4",
-  S1: "S1",
-  S2: "S2",
-  S3: "S3",
-};
 
 export type JemaatAdditional = {
   type: SacramentType;
