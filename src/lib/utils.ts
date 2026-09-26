@@ -12,3 +12,6 @@ const twMerge = extendTailwindMerge({
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
+
+export const emptyToNull = (value: string): string | null =>
+  value.trim() || null;

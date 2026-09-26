@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 
 import {
+  toDateInput,
   addDays,
   addMonths,
   ageInYears,
@@ -188,4 +189,9 @@ describe("aritmetika kalender (kisi §7.5)", () => {
     expect(isWithin("1899-01-01", "1900-01-01")).toBe(false);
     expect(isWithin("2030-01-01")).toBe(true);
   });
+});
+
+test("toDateInput memotong jam, tanpa menyentuh zona waktu", () => {
+  expect(toDateInput("1990-05-12T00:00:00.000Z")).toBe("1990-05-12");
+  expect(toDateInput(null)).toBe("");
 });

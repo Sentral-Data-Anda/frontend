@@ -160,3 +160,6 @@ export const isSameMonth = (iso: string, monthIso: string): boolean =>
 
 export const isWithin = (iso: string, min?: string, max?: string): boolean =>
   (!min || iso >= min) && (!max || iso <= max);
+
+export const toDateInput = (value: string | null | undefined): string =>
+  value ? value.slice(0, 10) : "";

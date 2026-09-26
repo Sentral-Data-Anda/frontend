@@ -7,7 +7,6 @@ import {
   jemaatFormSchema,
   normalizePhone,
   serverFieldError,
-  toDateInput,
   toJemaatForm,
   toJemaatPayload,
   type JemaatFormValues,
@@ -289,11 +288,6 @@ describe("pembantu", () => {
   test("normalizePhone membuang +62, spasi, dan tanda hubung", () => {
     expect(normalizePhone("+62 812-3456-7890")).toBe("081234567890");
     expect(normalizePhone("(0812) 3456 7890 123")).toBe("081234567890");
-  });
-
-  test("toDateInput memotong jam, tanpa menyentuh zona waktu", () => {
-    expect(toDateInput("1990-05-12T00:00:00.000Z")).toBe("1990-05-12");
-    expect(toDateInput(null)).toBe("");
   });
 
   test("incompleteFields menandai yang belum lengkap, tanpa menolak", () => {

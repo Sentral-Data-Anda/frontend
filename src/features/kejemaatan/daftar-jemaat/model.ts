@@ -1,6 +1,8 @@
 import { z } from "zod";
 
 import { MENU, menuHref } from "@/config/menu";
+import { toDateInput } from "@/lib/date";
+import { emptyToNull } from "@/lib/utils";
 
 import type {
   JemaatAdditional,
@@ -189,13 +191,8 @@ export const EMPTY_JEMAAT_FORM: JemaatFormValues = {
   additional: [],
 };
 
-const emptyToNull = (value: string): string | null => value.trim() || null;
-
 const idToNumber = (value: string): number | null =>
   value.trim() ? Number(value) : null;
-
-export const toDateInput = (value: string | null | undefined): string =>
-  value ? value.slice(0, 10) : "";
 
 export const normalizePhone = (value: string): string =>
   value
