@@ -1,33 +1,22 @@
 "use client";
 
-import { ComboboxField } from "@/components/common/control";
+import { ComboboxField, type SelectOption } from "@/components/common/control";
 import { ControlField, FormSection } from "@/components/common/form";
 
 import { useJemaatOptions } from "../api";
-import type { RiwayatJemaat } from "../types";
 
 import type { RiwayatForm } from "./form-options";
 
 interface PropTypes {
   form: RiwayatForm;
   isDisabled: boolean;
-  savedJemaat?: RiwayatJemaat["jemaat"];
+  pinned: SelectOption | null;
 }
 
 export const JemaatSection = (props: PropTypes) => {
-  const { form, isDisabled, savedJemaat } = props;
+  const { form, isDisabled, pinned } = props;
 
-  const jemaat = useJemaatOptions();
-
-  // Jemaat tersimpan belum tentu masuk 20 hasil pertama pencarian.
-  const options =
-    savedJemaat &&
-    !jemaat.options.some((option) => option.value === savedJemaat.code)
-      ? [
-          { value: savedJemaat.code, label: savedJemaat.name },
-          ...jemaat.options,
-        ]
-      : jemaat.options;
+  const jemaat = useJemaatOptions(pinned);
 
   return (
     <FormSection legend="Jemaat" disabled={isDisabled}>
@@ -36,7 +25,7 @@ export const JemaatSection = (props: PropTypes) => {
           <ComboboxField
             value={field.value}
             onValueChange={field.onChange}
-            options={options}
+            options={jemaat.options}
             isLoading={jemaat.isLoading}
             onSearch={jemaat.onSearch}
             disabled={isDisabled}

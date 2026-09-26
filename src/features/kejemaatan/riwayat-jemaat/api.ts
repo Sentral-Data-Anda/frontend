@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import type { SelectOption } from "@/components/common/control";
 import { useDdlSearch } from "@/hooks/use-ddl-options";
 import type { ListState } from "@/hooks/use-list-params";
 import { useListQuery } from "@/hooks/use-list-query";
@@ -63,4 +64,5 @@ export function useDeleteRiwayat(id: string | undefined) {
   });
 }
 
-export const useJemaatOptions = () => useDdlSearch("jemaat", "code");
+export const useJemaatOptions = (pinned: SelectOption | null) =>
+  useDdlSearch("jemaat", "code", pinned);

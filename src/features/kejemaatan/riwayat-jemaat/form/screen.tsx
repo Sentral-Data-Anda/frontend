@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { useForm, type FieldErrors } from "react-hook-form";
+import { useForm } from "react-hook-form";
 
 import { Button } from "@/components/common/control";
 import { useToast } from "@/components/common/feedback";
@@ -12,6 +12,7 @@ import {
   FormAlert,
   FormConfirmDialog,
   FormLayout,
+  FormNotFound,
   LoadingForm,
   useFormConfirm,
 } from "@/components/common/form";
@@ -20,7 +21,7 @@ import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { useListReturn } from "@/hooks/use-list-return";
 import { FetchError } from "@/lib/api/fetcher";
-import { applyServerError, revealField } from "@/lib/form-error";
+import { applyServerError, FIRST_INVALID, revealField } from "@/lib/form-error";
 import { saveListFocus } from "@/lib/list-return";
 
 import { useDeleteRiwayat, useRiwayatDetail, useSaveRiwayat } from "../api";
@@ -63,6 +64,7 @@ export const RiwayatFormScreen = (props: PropTypes) => {
     resolver: zodResolver(riwayatFormSchema),
     mode: "onSubmit",
     reValidateMode: "onChange",
+    shouldFocusError: false,
     defaultValues: EMPTY_RIWAYAT_FORM,
   });
 
@@ -72,8 +74,7 @@ export const RiwayatFormScreen = (props: PropTypes) => {
 
   const onLeave = () => router.replace(listReturn);
 
-  const onInvalid = (errors: FieldErrors<RiwayatFormValues>) =>
-    setRejectedField(Object.keys(errors).find((key) => key !== "root") ?? null);
+  const onInvalid = () => setRejectedField(FIRST_INVALID);
 
   const onOpenSaveConfirm = () => {
     setRejectedField(null);
@@ -128,19 +129,25 @@ export const RiwayatFormScreen = (props: PropTypes) => {
   }, [isDirty, isBusy]);
 
   // Ditunda sampai fieldset aktif lagi: kontrol yang disabled menolak fokus.
-  // Satu frame lagi untuk Combobox/Select Base UI, yang melepas disabled-nya
-  // satu render sesudah fieldset.
   useEffect(() => {
     if (isSubmitting || !rejectedField) return;
-    if (rejectedField === "root") return saveRef.current?.focus();
 
-    const frame = requestAnimationFrame(() => revealField(rejectedField));
-
-    return () => cancelAnimationFrame(frame);
+    if (rejectedField === "root") saveRef.current?.focus();
+    else revealField(rejectedField);
   }, [isSubmitting, submitCount, rejectedField]);
 
   if (!(isEdit ? isCanUpdate : isCanCreate)) {
     return <NoFormAccess isEdit={isEdit} />;
+  }
+
+  if (detail.error instanceof FetchError && detail.error.status === 404) {
+    return (
+      <FormNotFound
+        noun="riwayat jemaat"
+        backHref={listReturn}
+        backLabel="Kembali ke Riwayat Jemaat"
+      />
+    );
   }
 
   return (
@@ -187,13 +194,22 @@ export const RiwayatFormScreen = (props: PropTypes) => {
         />
       }
     >
-      {detail.isLoading ? <LoadingForm fields={5} /> : null}
+      {detail.isLoading ? (
+        <LoadingForm fields={5} label="Memuat data riwayat jemaat…" />
+      ) : null}
 
       <div className={detail.isLoading ? "hidden" : undefined}>
         <JemaatSection
           form={form}
           isDisabled={isBusy}
-          savedJemaat={detail.data?.jemaat}
+          pinned={
+            detail.data
+              ? {
+                  value: detail.data.jemaat.code,
+                  label: detail.data.jemaat.name,
+                }
+              : null
+          }
         />
         <RiwayatSection form={form} isDisabled={isBusy} />
       </div>
