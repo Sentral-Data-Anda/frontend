@@ -8,12 +8,14 @@ import {
   useEthnicReport,
   useLastEducationReport,
   useProfessionReport,
+  useZoneReport,
 } from "../api";
 
 import { BirthdayCard } from "./birthday-card";
 import { CompletenessCard } from "./completeness-card";
 import { ReportKpi } from "./report-kpi";
 import { ShareCard } from "./share-card";
+import { ZoneCard } from "./zone-card";
 
 interface PropTypes {
   month: number;
@@ -28,6 +30,7 @@ export const ReportBody = (props: PropTypes) => {
   const lastEducation = useLastEducationReport();
   const ethnic = useEthnicReport();
   const profession = useProfessionReport();
+  const zone = useZoneReport();
 
   return (
     <div className="flex flex-col gap-4 px-gutter">
@@ -74,6 +77,8 @@ export const ReportBody = (props: PropTypes) => {
           />,
         ]}
       />
+
+      <ZoneCard query={zone} />
 
       <BirthdayCard month={month} onPickMonth={onPickMonth} />
     </div>

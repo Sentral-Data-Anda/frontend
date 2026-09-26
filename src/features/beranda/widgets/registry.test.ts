@@ -271,6 +271,10 @@ describe("persona dev:mock", () => {
     expect(picked("bendahara", true).groups).toEqual(["finance", "umum"]);
   });
 
+  test("production: jemaat per wilayah memakai data asli", () => {
+    expect(picked("sekretariat").main).toContain("zones");
+  });
+
   test("production: tidak ada widget dummy untuk persona mana pun", () => {
     const dummies = new Set(WIDGETS.filter((w) => w.isDummy).map((w) => w.id));
 

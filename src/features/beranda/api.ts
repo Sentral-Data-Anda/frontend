@@ -391,6 +391,39 @@ export function useJemaatStats() {
   });
 }
 
+export type ZoneCount = {
+  zoneChurchId: number | null;
+  name: string | null;
+  isActive: boolean | null;
+  anggota: number;
+  simpatisan: number;
+};
+
+const zoneLabel = (row: ZoneCount) =>
+  row.zoneChurchId === null
+    ? "Tanpa wilayah"
+    : row.isActive === false
+      ? `${row.name} (nonaktif)`
+      : (row.name ?? "");
+
+export const toZoneBars = (rows: ZoneCount[]) =>
+  rows
+    .map((row) => ({
+      key: String(row.zoneChurchId ?? "tanpa"),
+      label: zoneLabel(row),
+      count: row.anggota + row.simpatisan,
+      isOptional: row.zoneChurchId === null || row.isActive === false,
+    }))
+    .filter((bar) => bar.count > 0 || !bar.isOptional);
+
+export function useZoneCounts() {
+  return useQuery({
+    queryKey: ["report", "zone"],
+    queryFn: () => fetchList<ZoneCount>("/report/jemaat/zone"),
+    select: (response) => toZoneBars(response.data),
+  });
+}
+
 export function useBirthdaysInRange(days: string[]) {
   const months = [...new Set(days.map((day) => Number(day.slice(5, 7))))];
 

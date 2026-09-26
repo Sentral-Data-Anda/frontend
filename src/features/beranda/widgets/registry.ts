@@ -21,7 +21,6 @@ import { ApprovalsWidget } from "./approvals/approvals-widget";
 import { KpiWaitingApprovals } from "./approvals/kpi-waiting-approvals";
 import { BudgetUseWidget } from "./dummy/budget-use-widget";
 import { NewMembersWidget } from "./dummy/new-members-widget";
-import { ZonesWidget } from "./dummy/zones-widget";
 import { CashAccountsWidget } from "./finance/cash-accounts-widget";
 import { ClosingReadinessWidget } from "./finance/closing-readiness-widget";
 import { IncomeByTypeWidget } from "./finance/income-by-type-widget";
@@ -35,6 +34,7 @@ import { KpiBirthdays } from "./office/kpi-birthdays";
 import { KpiJemaatTotal } from "./office/kpi-jemaat-total";
 import { KpiPendingLoans } from "./office/kpi-pending-loans";
 import { LoanRoomsWidget } from "./office/loan-rooms-widget";
+import { ZonesWidget } from "./office/zones-widget";
 import { KpiPayables } from "./payables/kpi-payables";
 import { PayablesWidget } from "./payables/payables-widget";
 import { AnnouncementsWidget } from "./personal/announcements-widget";
@@ -195,7 +195,6 @@ export const WIDGETS: readonly Widget[] = [
     slot: "main",
     kind: "umum",
     gate: [view(MENU.REPORT_JEMAAT)],
-    isDummy: true,
     Component: ZonesWidget,
   },
 

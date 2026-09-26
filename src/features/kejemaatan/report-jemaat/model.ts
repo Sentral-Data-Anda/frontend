@@ -7,6 +7,7 @@ import {
   type AgeRow,
   type Share,
   type TypeGenderRow,
+  type ZoneRow,
 } from "./types";
 
 const countFormat = new Intl.NumberFormat("id-ID");
@@ -57,6 +58,35 @@ export function summarizeTypeGender(rows: TypeGenderRow[]) {
     sympathizer: sympathizer ?? { ALL: 0, L: 0, P: 0 },
   };
 }
+
+export const zoneLabel = (row: ZoneRow) =>
+  row.zoneChurchId === null
+    ? "Tanpa wilayah"
+    : row.isActive === false
+      ? `${row.name} (nonaktif)`
+      : (row.name ?? "");
+
+const isUnzoned = (row: ZoneRow) => Number(row.zoneChurchId === null);
+
+export function summarizeZones(rows: ZoneRow[]) {
+  const total = {
+    anggota: rows.reduce((sum, row) => sum + row.anggota, 0),
+    simpatisan: rows.reduce((sum, row) => sum + row.simpatisan, 0),
+    keluarga: rows.reduce((sum, row) => sum + row.keluarga, 0),
+  };
+
+  return {
+    rows: [...rows].sort(
+      (a, b) =>
+        isUnzoned(a) - isUnzoned(b) ||
+        (a.code ?? "").localeCompare(b.code ?? ""),
+    ),
+    total,
+    isEmpty: total.anggota + total.simpatisan + total.keluarga === 0,
+  };
+}
+
+export type ZoneReport = ReturnType<typeof summarizeZones>;
 
 const monthFormat = new Intl.DateTimeFormat("id-ID", {
   month: "long",
