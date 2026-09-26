@@ -1,4 +1,9 @@
-import type { Gender, TypeJemaat } from "@/types/jemaat";
+import type {
+  BloodType,
+  Gender,
+  LastEducation,
+  TypeJemaat,
+} from "@/types/jemaat";
 
 export type TypeGenderRow = {
   typeJemaat: TypeJemaat;
@@ -12,7 +17,7 @@ export type AgeGroup = "<12" | "12-17" | "18-30" | "30-50" | ">50";
 export type AgeRow = { Umur: AgeGroup; Count: number };
 export type EthnicRow = { Suku: string; Count: number };
 export type ProfessionRow = { Profession: string; Count: number };
-export type BloodTypeRow = { bloodType: string; Count: number };
+export type BloodTypeRow = { bloodType: BloodType; Count: number };
 export type LastEducationRow = { lastEducation: LastEducation; Count: number };
 
 export type IncompleteReport = {
@@ -27,35 +32,6 @@ export type BirthdayRow = {
   gender: Gender;
   birthDate: string;
   umur: number;
-};
-
-export type LastEducation =
-  | "TIDAK_SEKOLAH"
-  | "SD"
-  | "SMP"
-  | "SMA"
-  | "SMK"
-  | "D1"
-  | "D2"
-  | "D3"
-  | "D4"
-  | "S1"
-  | "S2"
-  | "S3";
-
-export const LAST_EDUCATION_LABEL: Record<LastEducation, string> = {
-  TIDAK_SEKOLAH: "Tidak sekolah",
-  SD: "SD",
-  SMP: "SMP",
-  SMA: "SMA",
-  SMK: "SMK",
-  D1: "D1",
-  D2: "D2",
-  D3: "D3",
-  D4: "D4",
-  S1: "S1",
-  S2: "S2",
-  S3: "S3",
 };
 
 // be-sada memasukkan umur 30 ke "18-30", jadi "30-50" sebenarnya 31–50.

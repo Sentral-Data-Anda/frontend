@@ -3,19 +3,24 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { fetchList, fetchOne } from "@/lib/api/fetcher";
+import { BLOOD_TYPE_LABEL, LAST_EDUCATION_LABEL } from "@/types/jemaat";
 
-import { sortShares, summarizeTypeGender, toAgeShares } from "./model";
 import {
-  LAST_EDUCATION_LABEL,
-  type AgeRow,
-  type BirthdayRow,
-  type BloodTypeRow,
-  type EthnicRow,
-  type IncompleteReport,
-  type LastEducationRow,
-  type ProfessionRow,
-  type Share,
-  type TypeGenderRow,
+  sortShares,
+  summarizeTypeGender,
+  toAgeShares,
+  topShares,
+} from "./model";
+import type {
+  AgeRow,
+  BirthdayRow,
+  BloodTypeRow,
+  EthnicRow,
+  IncompleteReport,
+  LastEducationRow,
+  ProfessionRow,
+  Share,
+  TypeGenderRow,
 } from "./types";
 
 export const reportKeys = {
@@ -43,21 +48,33 @@ export function useTypeGenderReport() {
 export const useAgeReport = () =>
   useShares<AgeRow>("age", (rows) => toAgeShares(rows));
 
+const OPEN_LIST_LIMIT = 8;
+
 export const useEthnicReport = () =>
   useShares<EthnicRow>("ethnic", (rows) =>
-    sortShares(
-      rows.map((row) => ({ key: row.Suku, label: row.Suku, count: row.Count })),
+    topShares(
+      sortShares(
+        rows.map((row) => ({
+          key: row.Suku,
+          label: row.Suku,
+          count: row.Count,
+        })),
+      ),
+      OPEN_LIST_LIMIT,
     ),
   );
 
 export const useProfessionReport = () =>
   useShares<ProfessionRow>("profession", (rows) =>
-    sortShares(
-      rows.map((row) => ({
-        key: row.Profession,
-        label: row.Profession,
-        count: row.Count,
-      })),
+    topShares(
+      sortShares(
+        rows.map((row) => ({
+          key: row.Profession,
+          label: row.Profession,
+          count: row.Count,
+        })),
+      ),
+      OPEN_LIST_LIMIT,
     ),
   );
 
@@ -66,7 +83,7 @@ export const useBloodTypeReport = () =>
     sortShares(
       rows.map((row) => ({
         key: row.bloodType,
-        label: row.bloodType,
+        label: BLOOD_TYPE_LABEL[row.bloodType] ?? row.bloodType,
         count: row.Count,
       })),
     ),

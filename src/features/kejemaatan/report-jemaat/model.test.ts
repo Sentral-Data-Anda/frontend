@@ -9,6 +9,8 @@ import {
   sortShares,
   summarizeTypeGender,
   toAgeShares,
+  topShares,
+  totalOf,
 } from "./model";
 
 describe("sortShares", () => {
@@ -24,6 +26,30 @@ describe("sortShares", () => {
       "Ambon",
       "Sunda",
     ]);
+  });
+});
+
+describe("topShares", () => {
+  const shares = [9, 7, 5, 3, 1].map((count, index) => ({
+    key: String(index),
+    label: `S${index}`,
+    count,
+  }));
+
+  test("sisa di luar batas digabung jadi satu baris Lainnya", () => {
+    const top = topShares(shares, 2);
+
+    expect(top.map((share) => [share.label, share.count])).toEqual([
+      ["S0", 9],
+      ["S1", 7],
+      ["Lainnya", 9],
+    ]);
+    expect(formatShare(top[2].count, totalOf(top))).toBe("9 (36%)");
+  });
+
+  test("tanpa sisa, tidak ada baris Lainnya", () => {
+    expect(topShares(shares, 5)).toEqual(shares);
+    expect(topShares(shares, 8)).toEqual(shares);
   });
 });
 

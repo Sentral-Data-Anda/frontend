@@ -27,6 +27,17 @@ export const sortShares = (shares: Share[]): Share[] =>
     (a, b) => b.count - a.count || a.label.localeCompare(b.label, "id"),
   );
 
+export function topShares(shares: Share[], limit: number): Share[] {
+  const rest = totalOf(shares.slice(limit));
+
+  return rest > 0
+    ? [
+        ...shares.slice(0, limit),
+        { key: "__lainnya", label: "Lainnya", count: rest },
+      ]
+    : shares.slice(0, limit);
+}
+
 export const toAgeShares = (rows: AgeRow[]): Share[] =>
   AGE_GROUPS.map((group) => ({
     key: group,
