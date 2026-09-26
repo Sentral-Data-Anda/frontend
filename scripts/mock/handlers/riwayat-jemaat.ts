@@ -1,5 +1,5 @@
 /**
- * Tiruan `/riwayat-jemaat` (be-sada `modules/riwayat_jemaat`) dan `/ddl/jemaat`.
+ * Tiruan `/riwayat-jemaat` (be-sada `modules/riwayat_jemaat`). Jemaat = `ddl/jemaat` mock-dashboard.
  *
  *   MOCK_RIWAYAT_ERROR=validasi → simpan 400 dengan `issues[]` (mendarat di field)
  *   MOCK_RIWAYAT_ERROR=500      → simpan 500 (galat tingkat form)
@@ -9,6 +9,7 @@
  * 409 "Sudah Memiliki Riwayat" muncul alami: catat Baptis untuk Andreas Sitanggang.
  */
 import { MENU } from "../../../src/config/menu";
+import { ddlRows } from "../../mock-dashboard";
 import { denied, json, list, readBody, type MockHandler } from "../kit";
 
 const TYPE_LABEL: Record<string, string> = {
@@ -21,27 +22,15 @@ const TYPE_LABEL: Record<string, string> = {
 
 const ONCE = ["BAPTIS", "SIDI", "MENINGGAL"];
 
-// Sama dengan 12 jemaat bawaan `dev-mock.ts` (JMT-0001 … JMT-0012).
-const JEMAAT = [
-  "Andreas Sitanggang",
-  "Bethari Ayu Kusuma",
-  "Christian Wijaya",
-  "Debora Manurung",
-  "Eleazar Panggabean",
-  "Fransiska Halim",
-  "Gideon Tampubolon",
-  "Hanna Simorangkir",
-  "Immanuel Saragih",
-  "Josephine Tanuwijaya",
-  "Kevin Nainggolan",
-  "Lidya Hutagalung",
-].map((name, index) => ({
-  id: index + 1,
-  code: `JMT-${String(index + 1).padStart(4, "0")}`,
-  name,
-}));
+type Jemaat = { id: number; code: string; name: string };
+
+const jemaatOf = (code: string) =>
+  ((ddlRows("jemaat", new URLSearchParams()) ?? []) as Jemaat[]).find(
+    (jemaat) => jemaat.code.toLowerCase() === code.toLowerCase(),
+  );
 
 type Row = {
+  seq: number;
   publicId: string;
   jemaatCode: string;
   type: string;
@@ -68,19 +57,17 @@ const SEED: [number, string, string, string | null, string | null][] = [
 ];
 
 const rows: Row[] = SEED.map(([jemaat, type, date, certificate, place], i) => ({
+  seq: i + 1,
   publicId: `0b5f3c2e-7d41-4c6a-9e2f-${String(i + 1).padStart(12, "0")}`,
-  jemaatCode: JEMAAT[jemaat - 1].code,
+  jemaatCode: `JMT-${String(jemaat).padStart(4, "0")}`,
   type,
   date: `${date}T00:00:00.000Z`,
   certificateNumber: certificate,
   place,
 }));
 
-const jemaatOf = (code: string) =>
-  JEMAAT.find((jemaat) => jemaat.code.toLowerCase() === code.toLowerCase());
-
 const present = (row: Row) => {
-  const jemaat = jemaatOf(row.jemaatCode)!;
+  const name = jemaatOf(row.jemaatCode)?.name ?? row.jemaatCode;
 
   return {
     id: row.publicId,
@@ -89,7 +76,7 @@ const present = (row: Row) => {
     date: row.date,
     certificateNumber: row.certificateNumber,
     place: row.place,
-    jemaat: { code: jemaat.code, name: jemaat.name },
+    jemaat: { code: row.jemaatCode, name },
   };
 };
 
@@ -160,7 +147,11 @@ const SAVE_FAILURE: Record<
   "500": { status: 500, error: "Kesalahan server." },
 };
 
-const save = async (request: Request, existing?: Row) => {
+const notFound = () =>
+  json({ status: 404, error: "Riwayat Jemaat Tidak Ditemukan" }, 404);
+
+// `existing` null = PUT ke id yang tidak ada: be-sada memvalidasi badan dulu, baru 404.
+const save = async (request: Request, existing?: Row | null) => {
   const failure = SAVE_FAILURE[process.env.MOCK_RIWAYAT_ERROR ?? ""];
   if (failure) return json(failure, failure.status);
 
@@ -170,6 +161,7 @@ const save = async (request: Request, existing?: Row) => {
   if (issues.length > 0) {
     return json({ status: 400, error: issues[0].message, issues }, 400);
   }
+  if (existing === null) return notFound();
 
   const jemaat = jemaatOf(String(body.jemaatCode).trim());
   if (!jemaat)
@@ -195,6 +187,7 @@ const save = async (request: Request, existing?: Row) => {
 
   const date = body.date === null ? new Date(0) : new Date(body.date as string);
   const next: Row = {
+    seq: existing?.seq ?? Math.max(0, ...rows.map((row) => row.seq)) + 1,
     publicId: existing?.publicId ?? crypto.randomUUID(),
     jemaatCode: jemaat.code,
     type,
@@ -224,12 +217,6 @@ const save = async (request: Request, existing?: Row) => {
   );
 };
 
-const JEMAAT_DDL_MENUS = [
-  MENU.DAFTAR_JEMAAT,
-  MENU.ROLE_JEMAAT,
-  MENU.USER,
-] as const;
-
 export const riwayatJemaatMock: MockHandler = async ({
   request,
   url,
@@ -237,23 +224,6 @@ export const riwayatJemaatMock: MockHandler = async ({
   method,
   can,
 }) => {
-  if (path === "/ddl/jemaat" && method === "GET") {
-    // be-sada: any-of, dan RIWAYAT_JEMAAT tidak termasuk (gap 1 di brief).
-    if (!JEMAAT_DDL_MENUS.some((menu) => can(menu, "VIEW"))) return denied();
-
-    const filter = (url.searchParams.get("filter") ?? "").toLowerCase();
-    const limit = Number(url.searchParams.get("limit")) || JEMAAT.length;
-    const data = process.env.MOCK_DDL_EMPTY
-      ? []
-      : JEMAAT.filter((jemaat) => jemaat.name.toLowerCase().includes(filter))
-          .sort((a, b) => a.name.localeCompare(b.name))
-          .slice(0, limit);
-
-    return data.length
-      ? json({ status: 200, message: "Berhasil Mendapatkan Data", data })
-      : json({ status: 404, error: "Data Tidak Ditemukan" }, 404);
-  }
-
   if (path !== "/riwayat-jemaat" && !path.startsWith("/riwayat-jemaat/")) {
     return null;
   }
@@ -278,7 +248,8 @@ export const riwayatJemaatMock: MockHandler = async ({
     const jemaatCode = (url.searchParams.get("jemaatCode") ?? "").toLowerCase();
     const type = url.searchParams.get("type") ?? "";
 
-    const matched = rows
+    const matched = [...rows]
+      .sort((a, b) => b.date.localeCompare(a.date) || b.seq - a.seq)
       .map(present)
       .filter(
         (row) =>
@@ -288,8 +259,7 @@ export const riwayatJemaatMock: MockHandler = async ({
             )) &&
           (!jemaatCode || row.jemaat.code.toLowerCase() === jemaatCode) &&
           (!TYPE_LABEL[type] || row.type === type),
-      )
-      .sort((a, b) => b.date.localeCompare(a.date));
+      );
 
     return list(matched, url, "Riwayat Jemaat", "Riwayat Jemaat");
   }
@@ -297,9 +267,6 @@ export const riwayatJemaatMock: MockHandler = async ({
   if (!id && method === "POST") return save(request);
 
   const row = rows.find((candidate) => candidate.publicId === id);
-  const notFound = () =>
-    json({ status: 404, error: "Riwayat Jemaat Tidak Ditemukan" }, 404);
-
   if (method === "GET") {
     return row
       ? json({
@@ -310,7 +277,7 @@ export const riwayatJemaatMock: MockHandler = async ({
       : notFound();
   }
 
-  if (method === "PUT") return row ? save(request, row) : notFound();
+  if (method === "PUT") return save(request, row ?? null);
 
   if (process.env.MOCK_RIWAYAT_ERROR === "hapus") {
     return json({ status: 500, error: "Kesalahan server." }, 500);
