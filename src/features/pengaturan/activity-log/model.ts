@@ -6,7 +6,7 @@ import type { ListFilterSchema } from "@/hooks/use-list-params";
 import { addDays, todayJakarta } from "@/lib/date";
 import { formatDate, formatDateShort, formatDateTime } from "@/lib/format";
 
-import type { ActionKind, ActivityLog } from "./types";
+import type { ActionKind, ActivityLog, LogKind } from "./types";
 
 export const ACTIVITY_LOG_LIST_PATH = menuHref(
   MENU.PENGATURAN,
@@ -33,6 +33,17 @@ export function actionKindOf(
 
   return "update";
 }
+
+const KIND_FROM_SERVER: Record<LogKind, ActionKind> = {
+  create: "create",
+  update: "update",
+  hapus: "softDelete",
+  pulihkan: "restore",
+  delete: "delete",
+};
+
+export const actionKindFromServer = (kind: LogKind): ActionKind =>
+  KIND_FROM_SERVER[kind] ?? "update";
 
 export const isDeleteKind = (kind: ActionKind) =>
   kind === "softDelete" || kind === "delete";

@@ -8,8 +8,12 @@ import { useListQuery } from "@/hooks/use-list-query";
 import { fetchList, fetchOne } from "@/lib/api/fetcher";
 import { todayJakarta } from "@/lib/date";
 
-import { actionKindOf, SUPPORTED_FILTERS, toLogApiFilters } from "./model";
-import type { ActivityLog, ActivityLogListItem } from "./types";
+import {
+  actionKindFromServer,
+  SUPPORTED_FILTERS,
+  toLogApiFilters,
+} from "./model";
+import type { ActivityLog, ActivityLogListItem, ActivityLogRow } from "./types";
 
 export const activityLogKeys = {
   all: ["activity-log"] as const,
@@ -17,17 +21,13 @@ export const activityLogKeys = {
   detail: (id: string) => [...activityLogKeys.all, "detail", id] as const,
 };
 
-const toListItem = ({
-  oldData,
-  newData,
-  ...log
-}: ActivityLog): ActivityLogListItem => ({
-  ...log,
-  kind: actionKindOf({ action: log.action, oldData, newData }),
+const toListItem = (row: ActivityLogRow): ActivityLogListItem => ({
+  ...row,
+  kind: actionKindFromServer(row.kind),
 });
 
 const fetchPage = async (apiQuery: string) => {
-  const response = await fetchList<ActivityLog>(`/activity-log?${apiQuery}`);
+  const response = await fetchList<ActivityLogRow>(`/activity-log?${apiQuery}`);
 
   return { ...response, data: response.data.map(toListItem) };
 };
