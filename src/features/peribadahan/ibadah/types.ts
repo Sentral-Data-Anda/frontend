@@ -1,3 +1,5 @@
+import type { IbadahPlaceType } from "@/lib/ibadah-place";
+
 export type IbadahRelation = { id: number; code: string; name: string };
 
 export type IbadahCounts = {
@@ -15,11 +17,17 @@ export type Ibadah = IbadahCounts & {
   bibleVerse: string | null;
   preacher: string | null;
   note: string | null;
+  placeType: IbadahPlaceType;
+  placeName: string | null;
   typeIbadah: IbadahRelation;
   room: IbadahRelation | null;
   bapel: IbadahRelation | null;
   jadwalPelayan: IbadahRelation | null;
+  hostKeluarga: IbadahRelation | null;
+  zoneChurch: IbadahRelation | null;
 };
+
+export type IbadahDetail = Ibadah & { address: string | null };
 
 export type IbadahPayload = IbadahCounts & {
   typeIbadahId: number;
@@ -29,6 +37,11 @@ export type IbadahPayload = IbadahCounts & {
   theme: string | null;
   bibleVerse: string | null;
   preacher: string | null;
+  placeType: IbadahPlaceType;
+  hostKeluargaId: number | null;
+  placeName: string | null;
+  address: string | null;
+  zoneChurchId: number | null;
   roomId: number | null;
   bapelId: number | null;
   jadwalPelayanId: number | null;
@@ -36,3 +49,11 @@ export type IbadahPayload = IbadahCounts & {
 };
 
 export type IbadahSaved = { code: string };
+
+export type HostSuggestion = IbadahRelation & { lastHostedDate: string | null };
+
+export type KeluargaAddress = {
+  id: number;
+  address: string;
+  zoneChurch: (IbadahRelation & { isActive: boolean }) | null;
+};

@@ -3,6 +3,7 @@
 import { useQueries, useQuery } from "@tanstack/react-query";
 
 import { fetchList, fetchOne } from "@/lib/api/fetcher";
+import type { IbadahPlace } from "@/lib/ibadah-place";
 import type { ApprovalDocumentType } from "@/types/persetujuan";
 
 export type IbadahListItem = {
@@ -52,10 +53,10 @@ export function useWaitingApprovals(isEnabled = true) {
   });
 }
 
-export type IbadahWeekItem = IbadahListItem & {
-  date: string;
-  room: { name: string } | null;
-};
+export type IbadahWeekItem = IbadahListItem &
+  IbadahPlace & {
+    date: string;
+  };
 
 export function useIbadahRange(start: string, end: string, isEnabled = true) {
   const query = `startDate=${start}&endDate=${end}&limit=100`;

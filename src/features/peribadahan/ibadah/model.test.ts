@@ -6,7 +6,9 @@ import {
   attendanceOf,
   formatServiceDate,
   formatServiceTime,
+  hostHint,
   ibadahFormSchema,
+  mergeHostOptions,
   monthOptions,
   monthRange,
   salinHref,
@@ -18,9 +20,9 @@ import {
   withSavedOption,
   type IbadahFormValues,
 } from "./model";
-import type { Ibadah } from "./types";
+import type { IbadahDetail } from "./types";
 
-const DETAIL: Ibadah = {
+const DETAIL: IbadahDetail = {
   code: "IBD_0001-2026-0010",
   date: "2026-09-20T00:00:00.000Z",
   startTime: "08:00",
@@ -36,6 +38,30 @@ const DETAIL: Ibadah = {
   room: { id: 1, code: "RM-0001", name: "Gedung Gereja" },
   bapel: null,
   jadwalPelayan: { id: 7, code: "JDP-0007", name: "Pelayan Minggu I" },
+  placeType: "GEREJA",
+  placeName: null,
+  address: null,
+  hostKeluarga: null,
+  zoneChurch: null,
+};
+
+const HOME: IbadahDetail = {
+  ...DETAIL,
+  typeIbadah: { id: 6, code: "TYP_IBD-0006", name: "Ibadah Wilayah" },
+  room: null,
+  placeType: "RUMAH_JEMAAT",
+  address: "Jl. Cijerah No. 1",
+  hostKeluarga: { id: 1, code: "KK-0001", name: "Keluarga Sitanggang" },
+  zoneChurch: { id: 1, code: "ZC-0001", name: "Wilayah I" },
+};
+
+const OTHER: IbadahDetail = {
+  ...DETAIL,
+  room: null,
+  placeType: "LAINNYA",
+  placeName: "Villa Ciater",
+  address: "Jl. Raya Ciater KM 12",
+  zoneChurch: { id: 5, code: "ZC-0005", name: "Wilayah V" },
 };
 
 const VALID: IbadahFormValues = {
@@ -127,13 +153,17 @@ describe("filter bulan", () => {
     });
     expect(monthRange("2028-02").end).toBe("2028-02-29");
     expect(monthRange("abc")).toEqual({ start: "", end: "" });
-    expect(toIbadahApiFilters({ tipe: "3", bulan: "2026-02" })).toEqual({
+    expect(
+      toIbadahApiFilters({ tipe: "3", wilayah: "2", bulan: "2026-02" }),
+    ).toEqual({
       typeIbadahId: "3",
+      zoneChurchId: "2",
       startDate: "2026-02-01",
       endDate: "2026-02-28",
     });
     expect(toIbadahApiFilters({})).toEqual({
       typeIbadahId: "",
+      zoneChurchId: "",
       startDate: "",
       endDate: "",
     });
@@ -184,6 +214,49 @@ describe("skema", () => {
     expect(errorsOf({ ...VALID, theme: "a".repeat(150) })).toEqual({});
   });
 
+  test("rumah jemaat: tuan rumah dan alamat wajib", () => {
+    const home = { ...VALID, placeType: "RUMAH_JEMAAT" as const };
+
+    expect(errorsOf({ ...home, address: "  " })).toEqual({
+      hostKeluargaId: "Pilih keluarga tuan rumah.",
+      address: "Isi alamat tempat ibadah.",
+    });
+    expect(
+      errorsOf({ ...home, hostKeluargaId: "1", address: "Jl. A" }),
+    ).toEqual({});
+    expect(
+      errorsOf({ ...home, hostKeluargaId: "1", address: "a".repeat(251) }),
+    ).toEqual({ address: "Alamat maksimal 250 karakter." });
+  });
+
+  test("lainnya: nama tempat wajib, alamat opsional", () => {
+    const other = { ...VALID, placeType: "LAINNYA" as const };
+
+    expect(errorsOf(other)).toEqual({ placeName: "Isi nama tempat." });
+    expect(errorsOf({ ...other, placeName: "a".repeat(151) })).toEqual({
+      placeName: "Nama tempat maksimal 150 karakter.",
+    });
+    expect(errorsOf({ ...other, placeName: "Villa Ciater" })).toEqual({});
+  });
+
+  test("field tempat yang tersembunyi tidak divalidasi", () => {
+    expect(
+      errorsOf({
+        ...VALID,
+        placeName: "a".repeat(151),
+        address: "a".repeat(251),
+      }),
+    ).toEqual({});
+    expect(
+      errorsOf({
+        ...VALID,
+        placeType: "LAINNYA",
+        placeName: "Aula",
+        hostKeluargaId: "",
+      }),
+    ).toEqual({});
+  });
+
   test("hitungan hanya digit", () => {
     expect(errorsOf({ ...VALID, maleCount: "1.200" })).toEqual({
       maleCount: "Isi angka tanpa titik atau koma.",
@@ -205,7 +278,12 @@ describe("form ↔ payload", () => {
       theme: "Hidup dalam kasih karunia",
       bibleVerse: "Efesus 2:8–10",
       preacher: "Pdt. Yohanes Simatupang",
+      placeType: "GEREJA",
+      zoneChurchId: "",
       roomId: "1",
+      hostKeluargaId: "",
+      placeName: "",
+      address: "",
       bapelId: "",
       jadwalPelayanId: "7",
       maleCount: "132",
@@ -224,6 +302,11 @@ describe("form ↔ payload", () => {
       theme: "Hidup dalam kasih karunia",
       bibleVerse: "Efesus 2:8–10",
       preacher: "Pdt. Yohanes Simatupang",
+      placeType: "GEREJA",
+      hostKeluargaId: null,
+      placeName: null,
+      address: null,
+      zoneChurchId: null,
       roomId: 1,
       bapelId: null,
       jadwalPelayanId: 7,
@@ -245,6 +328,11 @@ describe("form ↔ payload", () => {
       theme: null,
       bibleVerse: null,
       preacher: "Pdt. A",
+      placeType: "GEREJA",
+      hostKeluargaId: null,
+      placeName: null,
+      address: null,
+      zoneChurchId: null,
       roomId: null,
       bapelId: null,
       jadwalPelayanId: null,
@@ -256,12 +344,85 @@ describe("form ↔ payload", () => {
   });
 });
 
+describe("tempat di payload", () => {
+  const PLACE = {
+    roomId: "1",
+    hostKeluargaId: "4",
+    placeName: "Villa",
+    address: " Jl. A ",
+    zoneChurchId: "2",
+  };
+  const placeOf = (placeType: IbadahFormValues["placeType"]) => {
+    const payload = toIbadahPayload({ ...VALID, ...PLACE, placeType });
+
+    return {
+      placeType: payload.placeType,
+      roomId: payload.roomId,
+      hostKeluargaId: payload.hostKeluargaId,
+      placeName: payload.placeName,
+      address: payload.address,
+      zoneChurchId: payload.zoneChurchId,
+    };
+  };
+
+  test("field yang bukan milik tipe tempat dikirim null; wilayah untuk semua", () => {
+    expect(placeOf("GEREJA")).toEqual({
+      placeType: "GEREJA",
+      roomId: 1,
+      hostKeluargaId: null,
+      placeName: null,
+      address: null,
+      zoneChurchId: 2,
+    });
+    expect(placeOf("RUMAH_JEMAAT")).toEqual({
+      placeType: "RUMAH_JEMAAT",
+      roomId: null,
+      hostKeluargaId: 4,
+      placeName: null,
+      address: "Jl. A",
+      zoneChurchId: 2,
+    });
+    expect(placeOf("LAINNYA")).toEqual({
+      placeType: "LAINNYA",
+      roomId: null,
+      hostKeluargaId: null,
+      placeName: "Villa",
+      address: "Jl. A",
+      zoneChurchId: 2,
+    });
+  });
+
+  test("bolak-balik rumah jemaat dan lainnya", () => {
+    expect(toIbadahForm(HOME)).toMatchObject({
+      placeType: "RUMAH_JEMAAT",
+      hostKeluargaId: "1",
+      address: "Jl. Cijerah No. 1",
+      zoneChurchId: "1",
+      roomId: "",
+    });
+    expect(toIbadahPayload(toIbadahForm(HOME))).toMatchObject({
+      placeType: "RUMAH_JEMAAT",
+      hostKeluargaId: 1,
+      address: "Jl. Cijerah No. 1",
+      zoneChurchId: 1,
+      roomId: null,
+      placeName: null,
+    });
+    expect(toIbadahPayload(toIbadahForm(OTHER))).toMatchObject({
+      placeName: "Villa Ciater",
+      address: "Jl. Raya Ciater KM 12",
+      zoneChurchId: 5,
+    });
+  });
+});
+
 describe("salin", () => {
   test("tipe aktif, jam, ruang, badan pelayanan ikut; sisanya kosong", () => {
     expect(
       toIbadahCopy(
         { ...DETAIL, bapel: { id: 2, code: "BPL-2", name: "Komisi Pemuda" } },
         ["1", "2"],
+        ["1"],
       ),
     ).toEqual({
       ...EMPTY_IBADAH_FORM,
@@ -275,8 +436,78 @@ describe("salin", () => {
 
   test("tipe nonaktif tidak ikut; ruang dan jam selesai kosong tetap kosong", () => {
     expect(
-      toIbadahCopy({ ...DETAIL, room: null, endTime: null }, ["2", "3"]),
+      toIbadahCopy({ ...DETAIL, room: null, endTime: null }, ["2", "3"], []),
     ).toEqual({ ...EMPTY_IBADAH_FORM, startTime: "08:00" });
+  });
+
+  test("rumah jemaat: tipe tempat dan wilayah ikut, tuan rumah dan alamat tidak", () => {
+    expect(toIbadahCopy(HOME, ["6"], ["1", "2"])).toEqual({
+      ...EMPTY_IBADAH_FORM,
+      typeIbadahId: "6",
+      startTime: "08:00",
+      endTime: "09:30",
+      placeType: "RUMAH_JEMAAT",
+      zoneChurchId: "1",
+    });
+  });
+
+  test("lainnya: nama dan alamat ikut; wilayah nonaktif tidak", () => {
+    expect(toIbadahCopy(OTHER, ["1"], ["1", "2"])).toMatchObject({
+      placeType: "LAINNYA",
+      placeName: "Villa Ciater",
+      address: "Jl. Raya Ciater KM 12",
+      zoneChurchId: "",
+      roomId: "",
+    });
+  });
+});
+
+describe("saran tuan rumah", () => {
+  test("hint: belum pernah, terakhir, dijadwalkan", () => {
+    expect(hostHint(null, "2026-09-27")).toBe("Belum pernah");
+    expect(hostHint("2026-09-10T00:00:00.000Z", "2026-09-27")).toBe(
+      "Terakhir 10 Sep 2026",
+    );
+    expect(hostHint("2026-09-27T00:00:00.000Z", "2026-09-27")).toBe(
+      "Dijadwalkan 27 Sep 2026",
+    );
+  });
+
+  test("saran dulu dengan hint dan disaring kata cari; ddl tanpa duplikat, tanpa hint", () => {
+    const suggestions = [
+      {
+        id: 23,
+        code: "KK-0023",
+        name: "Keluarga Sembiring",
+        lastHostedDate: null,
+      },
+      {
+        id: 1,
+        code: "KK-0001",
+        name: "Keluarga Sitanggang",
+        lastHostedDate: "2026-09-10T00:00:00.000Z",
+      },
+    ];
+    const found = [
+      { value: "1", label: "Keluarga Sitanggang" },
+      { value: "3", label: "Keluarga Wijaya" },
+    ];
+
+    expect(mergeHostOptions(suggestions, found, "", "2026-09-27")).toEqual([
+      { value: "23", label: "Keluarga Sembiring", hint: "Belum pernah" },
+      {
+        value: "1",
+        label: "Keluarga Sitanggang",
+        hint: "Terakhir 10 Sep 2026",
+      },
+      { value: "3", label: "Keluarga Wijaya" },
+    ]);
+    expect(
+      mergeHostOptions(suggestions, found, " SITA", "2026-09-27").map(
+        (option) => option.value,
+      ),
+    ).toEqual(["1", "3"]);
+    expect(mergeHostOptions([], found, "")).toEqual(found);
   });
 });
 
@@ -299,13 +530,13 @@ describe("pesan server → field", () => {
   test("409 ke jam mulai dengan nama tipe", () => {
     expect(
       serverFieldError(
-        "Ibadah dengan tipe, tanggal dan jam mulai yang sama sudah tercatat",
+        "Ibadah dengan tipe, tanggal, jam mulai dan wilayah yang sama sudah tercatat. Isi Wilayah jika ibadah ini untuk wilayah yang berbeda",
         "Ibadah Minggu I",
       ),
     ).toEqual({
       field: "startTime",
       message:
-        "Ibadah Minggu I pada tanggal dan jam ini sudah tercatat. Ubah jam mulai, atau buka data yang sudah ada dari daftar.",
+        "Ibadah Minggu I pada tanggal, jam, dan wilayah ini sudah tercatat. Ubah jam mulai atau wilayah, atau buka data yang sudah ada dari daftar.",
     });
   });
 
@@ -319,6 +550,14 @@ describe("pesan server → field", () => {
     expect(fieldOf("Tipe Ibadah Tidak Ditemukan")).toBe("typeIbadahId");
     expect(fieldOf("Ruangan Tidak Ditemukan")).toBe("roomId");
     expect(fieldOf("Bapel Tidak Ditemukan")).toBe("bapelId");
+    expect(fieldOf("Keluarga Tuan Rumah Tidak Ditemukan")).toBe(
+      "hostKeluargaId",
+    );
+    expect(fieldOf("Wilayah Gereja Tidak Ditemukan")).toBe("zoneChurchId");
+    expect(serverFieldError("Wilayah Gereja Tidak Ditemukan", "Tipe")).toEqual({
+      field: "zoneChurchId",
+      message: "Wilayah ini sudah dihapus. Pilih wilayah lain atau kosongkan.",
+    });
     expect(
       fieldOf(
         "Jadwal Pelayan Tersebut Tidak Sesuai Dengan Tanggal atau Jam Ibadah",

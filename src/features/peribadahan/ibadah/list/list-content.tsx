@@ -14,6 +14,7 @@ import { IbadahListItemRow, ibadahTable } from "./list-item";
 
 const LIST_FILTERS = {
   tipe: { api: "typeIbadahId" },
+  wilayah: { api: "zoneChurchId" },
   bulan: { api: "bulan" },
 } satisfies ListFilterSchema;
 
@@ -22,6 +23,7 @@ export const IbadahListContent = () => {
   const listParams = useListParams({ filters: LIST_FILTERS });
   const ibadahList = useIbadahList(listParams);
   const types = useDdlOptions("type-ibadah", "id", listParams.filters.tipe);
+  const zones = useDdlOptions("zone-church", "id", listParams.filters.wilayah);
   const months = [{ value: "", label: "Semua bulan" }, ...monthOptions()];
 
   return (
@@ -47,13 +49,19 @@ export const IbadahListContent = () => {
       <ListToolbar
         listParams={listParams}
         searchLabel="Cari ibadah"
-        searchPlaceholder="Cari tipe, tema, pengkhotbah, atau kode"
+        searchPlaceholder="Cari tipe, tema, pengkhotbah, tempat, atau kode"
         filters={[
           {
             key: "tipe",
             label: "Tipe ibadah",
             kind: "select",
             options: [{ value: "", label: "Semua tipe" }, ...types.options],
+          },
+          {
+            key: "wilayah",
+            label: "Wilayah",
+            kind: "select",
+            options: [{ value: "", label: "Semua wilayah" }, ...zones.options],
           },
           {
             key: "bulan",

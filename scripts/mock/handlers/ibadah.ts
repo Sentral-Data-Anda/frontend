@@ -8,6 +8,7 @@
  *   MOCK_NO_IBADAH=1              → tanpa ibadah hari ini
  *   MOCK_IBADAH_MANY=1            → 30 pekan ke belakang (±150 baris), untuk paginasi
  *   MOCK_IBADAH_SAVE_ERROR=500    → POST/PUT/DELETE menjawab 500
+ *   MOCK_SARAN_EMPTY=1            → saran tuan rumah kosong (404)
  *
  * Hari ini selalu dua ibadah Minggu (bentuk Beranda yang sudah di-review, apa pun
  * harinya). Baris khusus, relatif ke hari ini: Persekutuan Doa Rabu lalu tanpa
@@ -15,11 +16,19 @@
  * lalu bertema 150 karakter; Minggu I sepekan lalu bertaut jadwal pelayan; Minggu I
  * dua pekan lalu punya persembahan ACTIVE (DELETE → 400); Persekutuan Doa dua pekan
  * lalu hanya punya persembahan VOID (DELETE berhasil).
+ *
+ * Tempat: seed lama = Gereja tanpa wilayah. Ibadah Wilayah Kamis 19:00 di Wilayah I
+ * dan II, 6 pekan lalu + 2 pekan depan, bergilir di keluarga layak (yang terakhir
+ * belum pernah). Tujuh pekan lalu: tuan rumah yang kini pindah wilayah dan tuan
+ * rumah yang sudah dihapus. Retret pemuda di Villa Ciater (Lainnya) dan Persekutuan
+ * Doa bertanda Wilayah V (nonaktif). Baris dibuat saat handler pertama dipanggil,
+ * karena `keluarga.ts` mengimpor berkas ini.
  */
 import { z } from "zod";
 
 import { MENU } from "../../../src/config/menu";
 import { addDays, todayJakarta } from "../../../src/lib/date";
+import type { IbadahPlaceType } from "../../../src/lib/ibadah-place";
 import { ROOM_ROWS, ddlRows } from "../../mock-dashboard";
 import {
   denied,
@@ -30,7 +39,9 @@ import {
   type MockHandler,
 } from "../kit";
 
+import { findKeluarga, keluargaRows } from "./keluarga";
 import { findTipeIbadah } from "./tipe-ibadah";
+import { findWilayah } from "./wilayah";
 
 type Relation = { id: number; code: string; name: string };
 
@@ -45,6 +56,11 @@ type Row = {
   theme: string | null;
   bibleVerse: string | null;
   preacher: string | null;
+  placeType: IbadahPlaceType;
+  hostKeluargaId: number | null;
+  placeName: string | null;
+  address: string | null;
+  zoneChurchId: number | null;
   roomId: number | null;
   bapelId: number | null;
   jadwalPelayanId: number | null;
@@ -72,6 +88,7 @@ const MINGGU_II = 2;
 const DOA = 3;
 const PEMUDA = 4;
 const PADANG = 5;
+const WILAYAH_TYPE = 6;
 
 const RUANG_GEREJA = 1;
 const RUANG_PEMUDA = 3;
@@ -228,6 +245,88 @@ const seedsOn = (key: string, index: number): Seed[] => {
   }
 };
 
+const eligibleHosts = (zoneChurchId: number) =>
+  keluargaRows().filter(
+    (row) =>
+      row.zoneChurchId === zoneChurchId &&
+      row.worshipsHere &&
+      row.activeMembers > 0,
+  );
+
+const homeSeed = (
+  date: string,
+  zoneChurchId: number,
+  host: { id: number; address: string },
+  isPast: boolean,
+  index: number,
+): Seed => ({
+  typeIbadahId: WILAYAH_TYPE,
+  date: iso(date),
+  startTime: "19:00",
+  endTime: "20:30",
+  placeType: "RUMAH_JEMAAT",
+  hostKeluargaId: host.id,
+  address: host.address,
+  zoneChurchId,
+  ...(isPast ? countsOf([6, 9, 3], index) : {}),
+});
+
+const zoneSeeds = (): Seed[] =>
+  [1, 2].flatMap((zoneChurchId) => {
+    const rotation = eligibleHosts(zoneChurchId).slice(0, -1);
+
+    return Array.from({ length: 8 }, (_, week) => {
+      const date = addDays(lastWeekday(4, 5), week * 7);
+
+      return homeSeed(
+        date,
+        zoneChurchId,
+        rotation[week % rotation.length],
+        date < TODAY,
+        week + zoneChurchId,
+      );
+    });
+  });
+
+const DELETED_HOST = {
+  id: 99,
+  code: "KK-0099",
+  name: "Keluarga Lumbantobing",
+  address: "Jl. Sisingamangaraja No. 12, RT 03 RW 02",
+};
+
+const placeSeeds = (): Seed[] => {
+  const movedHost = keluargaRows().find((row) => row.zoneChurchId === 4);
+
+  return [
+    ...(movedHost ? [homeSeed(lastWeekday(4, 6), 2, movedHost, true, 3)] : []),
+    homeSeed(lastWeekday(4, 6), 1, DELETED_HOST, true, 5),
+    {
+      typeIbadahId: PEMUDA,
+      date: iso(lastWeekday(5, 3)),
+      startTime: "16:00",
+      endTime: "21:00",
+      theme: "Retret pemuda: berakar dan bertumbuh",
+      placeType: "LAINNYA",
+      placeName: "Villa Ciater",
+      address: "Jl. Raya Ciater KM 12, Subang",
+      bapelId: KOMISI_PEMUDA,
+      maleCount: 24,
+      femaleCount: 31,
+    },
+    {
+      typeIbadahId: DOA,
+      date: iso(lastWeekday(2, 1)),
+      startTime: "19:00",
+      endTime: "20:30",
+      roomId: RUANG_GEREJA,
+      zoneChurchId: 5,
+      maleCount: 9,
+      femaleCount: 15,
+    },
+  ];
+};
+
 const withSpecials = (seed: Seed): Seed => {
   if (isSpecial(seed, SPECIAL.notCounted)) {
     return { ...seed, maleCount: 0, femaleCount: 0, childCount: 0 };
@@ -276,6 +375,11 @@ const toRow = (id: number, seed: Seed): Row => ({
   theme: null,
   bibleVerse: null,
   preacher: null,
+  placeType: "GEREJA",
+  hostKeluargaId: null,
+  placeName: null,
+  address: null,
+  zoneChurchId: null,
   roomId: null,
   bapelId: null,
   jadwalPelayanId: null,
@@ -292,40 +396,39 @@ const toRow = (id: number, seed: Seed): Row => ({
   ...seed,
 });
 
-const seeds: Seed[] = [
-  ...Array.from({ length: WEEKS_BACK * 7 + 15 }, (_, index) =>
-    addDays(TODAY, index - WEEKS_BACK * 7),
-  ).flatMap((key, index) => seedsOn(key, index).map(withSpecials)),
-  {
-    typeIbadahId: PADANG,
-    date: iso(addDays(lastWeekday(6, 2), -1)),
-    startTime: "07:00",
-    endTime: "11:00",
-    theme: "Syukur panen di tepi danau",
-    bibleVerse: "Mazmur 65:10–14",
-    preacher: "Pdt. Maria Sihombing",
-    maleCount: 88,
-    femaleCount: 97,
-    childCount: 41,
-    note: "Diadakan di Parapat; jemaat berangkat pukul 05.30.",
-  },
-];
+const seedRows = (): Row[] =>
+  [
+    ...Array.from({ length: WEEKS_BACK * 7 + 15 }, (_, index) =>
+      addDays(TODAY, index - WEEKS_BACK * 7),
+    ).flatMap((key, index) => seedsOn(key, index).map(withSpecials)),
+    {
+      typeIbadahId: PADANG,
+      date: iso(addDays(lastWeekday(6, 2), -1)),
+      startTime: "07:00",
+      endTime: "11:00",
+      theme: "Syukur panen di tepi danau",
+      bibleVerse: "Mazmur 65:10–14",
+      preacher: "Pdt. Maria Sihombing",
+      maleCount: 88,
+      femaleCount: 97,
+      childCount: 41,
+      note: "Diadakan di Parapat; jemaat berangkat pukul 05.30.",
+    },
+    ...zoneSeeds(),
+    ...placeSeeds(),
+  ]
+    .sort(
+      (a, b) =>
+        a.date.localeCompare(b.date) || a.startTime.localeCompare(b.startTime),
+    )
+    .map((seed, index) => toRow(index + 1, seed));
 
-const rows: Row[] = seeds
-  .sort(
-    (a, b) =>
-      a.date.localeCompare(b.date) || a.startTime.localeCompare(b.startTime),
-  )
-  .map((seed, index) => toRow(index + 1, seed));
+let seeded: Row[] | undefined;
 
-const OFFERINGS = [
-  ...rows
-    .filter((row) => isSpecial(row, SPECIAL.activeOffering))
-    .map((row) => ({ ibadahId: row.id, status: "ACTIVE" })),
-  ...rows
-    .filter((row) => isSpecial(row, SPECIAL.voidOffering))
-    .map((row) => ({ ibadahId: row.id, status: "VOID" })),
-];
+const allRows = () => (seeded ??= seedRows());
+
+const isActiveOffering = (row: Row) =>
+  row.createdAt === SEEDED_AT && isSpecial(row, SPECIAL.activeOffering);
 
 const relationOf = (source: Relation[], id: number | null) => {
   const found = id === null ? undefined : source.find((row) => row.id === id);
@@ -333,8 +436,37 @@ const relationOf = (source: Relation[], id: number | null) => {
   return found ? { id: found.id, code: found.code, name: found.name } : null;
 };
 
+// Relasi be-sada tetap membawa keluarga/wilayah yang sudah dihapus.
+const knownHosts = new Map<number, Relation>([[DELETED_HOST.id, DELETED_HOST]]);
+const knownZones = new Map<number, Relation>();
+
+const remembered = (
+  known: Map<number, Relation>,
+  id: number | null,
+  found: Relation | undefined,
+) => {
+  if (id === null) return null;
+  if (found) known.set(id, { id, code: found.code, name: found.name });
+
+  return known.get(id) ?? null;
+};
+
+const hostRelationOf = (id: number | null) =>
+  remembered(knownHosts, id, id === null ? undefined : findKeluarga(id));
+
+const zoneRelationOf = (id: number | null) =>
+  remembered(knownZones, id, id === null ? undefined : findWilayah(id));
+
 const present = (row: Row) => {
-  const { typeIbadahId, roomId, bapelId, jadwalPelayanId, ...rest } = row;
+  const {
+    typeIbadahId,
+    roomId,
+    bapelId,
+    jadwalPelayanId,
+    hostKeluargaId,
+    zoneChurchId,
+    ...rest
+  } = row;
 
   return {
     ...rest,
@@ -342,7 +474,15 @@ const present = (row: Row) => {
     room: relationOf(ROOM_ROWS, roomId),
     bapel: relationOf(BAPEL_ROWS, bapelId),
     jadwalPelayan: relationOf(JADWAL_ROWS, jadwalPelayanId),
+    hostKeluarga: hostRelationOf(hostKeluargaId),
+    zoneChurch: zoneRelationOf(zoneChurchId),
   };
+};
+
+const presentListed = (row: Row) => {
+  const { address: _address, ...listed } = present(row);
+
+  return listed;
 };
 
 const WALL_CLOCK = /^([01]\d|2[0-3]):[0-5]\d$/;
@@ -400,6 +540,16 @@ const headCount = (label: string) =>
       .min(0, { error: `${label} tidak boleh kurang dari 0` }),
   );
 
+const trimmedText = (label: string, max: number) =>
+  z.preprocess(
+    (value) =>
+      typeof value === "string" ? value.trim() || null : (value ?? null),
+    z
+      .string()
+      .max(max, { error: `${label} tidak boleh lebih dari ${max} karakter` })
+      .nullable(),
+  );
+
 const optionalText = (label: string, max: number) =>
   optionalFormString().refine(
     (value) => value === null || value.trim().length <= max,
@@ -415,6 +565,13 @@ const ibadahSchema = z
     theme: optionalText("Tema Ibadah", 150),
     bibleVerse: optionalText("Ayat Alkitab", 100),
     preacher: optionalText("Pengkhotbah", 150),
+    placeType: z.enum(["GEREJA", "RUMAH_JEMAAT", "LAINNYA"], {
+      error: "Mohon Lengkapi Tempat Ibadah",
+    }),
+    hostKeluargaId: optionalFormNumber(),
+    placeName: trimmedText("Nama Tempat", 150),
+    address: trimmedText("Alamat", 250),
+    zoneChurchId: optionalFormNumber(),
     roomId: optionalFormNumber(),
     bapelId: optionalFormNumber(),
     jadwalPelayanId: optionalFormNumber(),
@@ -426,21 +583,72 @@ const ibadahSchema = z
   .refine(
     (ibadah) => ibadah.endTime === null || ibadah.endTime > ibadah.startTime,
     { error: "Jam Selesai harus setelah Jam Mulai Ibadah", path: ["endTime"] },
-  );
+  )
+  .superRefine((ibadah, ctx) => {
+    const isChurch = ibadah.placeType === "GEREJA";
+    const isHome = ibadah.placeType === "RUMAH_JEMAAT";
+    const isOther = ibadah.placeType === "LAINNYA";
+    const rules: [boolean, string, string][] = [
+      [
+        isHome && ibadah.hostKeluargaId === null,
+        "hostKeluargaId",
+        "Mohon Lengkapi Keluarga Tuan Rumah",
+      ],
+      [
+        isHome && ibadah.address === null,
+        "address",
+        "Mohon Lengkapi Alamat Ibadah",
+      ],
+      [
+        isOther && ibadah.placeName === null,
+        "placeName",
+        "Mohon Lengkapi Nama Tempat",
+      ],
+      [
+        !isHome && ibadah.hostKeluargaId !== null,
+        "hostKeluargaId",
+        "Tuan Rumah Hanya Diisi Untuk Ibadah di Rumah Jemaat",
+      ],
+      [
+        !isOther && ibadah.placeName !== null,
+        "placeName",
+        "Nama Tempat Hanya Diisi Untuk Ibadah di Tempat Lainnya",
+      ],
+      [
+        isChurch && ibadah.address !== null,
+        "address",
+        "Alamat Tidak Diisi Untuk Ibadah di Gereja",
+      ],
+      [
+        !isChurch && ibadah.roomId !== null,
+        "roomId",
+        "Ruangan Hanya Diisi Untuk Ibadah di Gereja",
+      ],
+    ];
+
+    for (const [isBroken, path, message] of rules) {
+      if (isBroken) ctx.addIssue({ code: "custom", path: [path], message });
+    }
+  });
 
 type IbadahInput = Omit<z.infer<typeof ibadahSchema>, "date"> & {
   date: string;
 };
 
-const failure = (status: number, error: string) =>
-  json({ status, error }, status);
+const failure = (status: number, error: string, path?: string) =>
+  json(
+    path
+      ? { status, error, issues: [{ path, message: error }] }
+      : { status, error },
+    status,
+  );
 
 const notFound = () => failure(404, "Ibadah Tidak Ditemukan");
 
 const isLive = (row: Row) => row.deletedAt === null;
 
 const findByCode = (code: string) =>
-  rows.find(
+  allRows().find(
     (row) => isLive(row) && row.code.toLowerCase() === code.toLowerCase(),
   );
 
@@ -452,12 +660,14 @@ const listRows = (params: URLSearchParams) => {
   const typeIbadahId = params.get("typeIbadahId") ?? "";
   const bapelId = params.get("bapelId") ?? "";
   const roomId = params.get("roomId") ?? "";
+  const zoneChurchId = params.get("zoneChurchId") ?? "";
+  const hostKeluargaId = params.get("hostKeluargaId") ?? "";
   const date = params.get("date") ?? "";
   const startDate = params.get("startDate") ?? "";
   const endDate = params.get("endDate") ?? "";
   const isRange = Boolean(startDate && endDate);
 
-  return rows
+  return allRows()
     .filter(isLive)
     .filter(
       (row) =>
@@ -466,18 +676,22 @@ const listRows = (params: URLSearchParams) => {
           row.code,
           row.theme,
           row.preacher,
+          row.placeName,
           typeRelationOf(row.typeIbadahId)?.name,
+          hostRelationOf(row.hostKeluargaId)?.name,
         ].some((value) => value?.toLowerCase().includes(filter)),
     )
     .filter((row) => !typeIbadahId || row.typeIbadahId === +typeIbadahId)
     .filter((row) => !bapelId || row.bapelId === +bapelId)
     .filter((row) => !roomId || row.roomId === +roomId)
+    .filter((row) => !zoneChurchId || row.zoneChurchId === +zoneChurchId)
+    .filter((row) => !hostKeluargaId || row.hostKeluargaId === +hostKeluargaId)
     .filter((row) => !date || dayOf(row) === date)
     .filter(
       (row) => !isRange || (dayOf(row) >= startDate && dayOf(row) <= endDate),
     )
     .sort(byNewest)
-    .map(present);
+    .map(presentListed);
 };
 
 const scheduleCovers = (
@@ -489,7 +703,14 @@ const scheduleCovers = (
   schedule.endTime > service.startTime;
 
 const checkRelations = (input: IbadahInput, current?: Row): Response | null => {
-  const movingTo = (key: "roomId" | "bapelId" | "jadwalPelayanId") => {
+  const movingTo = (
+    key:
+      | "roomId"
+      | "bapelId"
+      | "jadwalPelayanId"
+      | "hostKeluargaId"
+      | "zoneChurchId",
+  ) => {
     const value = input[key];
 
     return value !== null && value !== current?.[key] ? value : null;
@@ -497,23 +718,51 @@ const checkRelations = (input: IbadahInput, current?: Row): Response | null => {
 
   const roomId = movingTo("roomId");
   if (roomId !== null && !relationOf(ROOM_ROWS, roomId)) {
-    return failure(404, "Ruangan Tidak Ditemukan");
+    return failure(404, "Ruangan Tidak Ditemukan", "roomId");
   }
 
   const bapelId = movingTo("bapelId");
   if (bapelId !== null && !relationOf(BAPEL_ROWS, bapelId)) {
-    return failure(404, "Bapel Tidak Ditemukan");
+    return failure(404, "Bapel Tidak Ditemukan", "bapelId");
   }
 
   const jadwalId = movingTo("jadwalPelayanId");
   if (jadwalId !== null) {
     const jadwal = JADWAL_ROWS.find((row) => row.id === jadwalId);
 
-    if (!jadwal) return failure(404, "Jadwal Pelayan Tidak Ditemukan");
+    if (!jadwal) {
+      return failure(404, "Jadwal Pelayan Tidak Ditemukan", "jadwalPelayanId");
+    }
     if (!scheduleCovers(jadwal, input)) {
       return failure(
         400,
         "Jadwal Pelayan Tersebut Tidak Sesuai Dengan Tanggal atau Jam Ibadah",
+        "jadwalPelayanId",
+      );
+    }
+  }
+
+  const hostId = movingTo("hostKeluargaId");
+  if (hostId !== null && !findKeluarga(hostId)) {
+    return failure(
+      404,
+      "Keluarga Tuan Rumah Tidak Ditemukan",
+      "hostKeluargaId",
+    );
+  }
+
+  const zoneId = movingTo("zoneChurchId");
+  if (zoneId !== null) {
+    const zone = findWilayah(zoneId);
+
+    if (!zone) {
+      return failure(404, "Wilayah Gereja Tidak Ditemukan", "zoneChurchId");
+    }
+    if (!zone.isActive) {
+      return failure(
+        400,
+        `Wilayah ${zone.name} sudah nonaktif. Pilih wilayah lain.`,
+        "zoneChurchId",
       );
     }
   }
@@ -521,14 +770,18 @@ const checkRelations = (input: IbadahInput, current?: Row): Response | null => {
   return null;
 };
 
+const DUPLICATE =
+  "Ibadah dengan tipe, tanggal, jam mulai dan wilayah yang sama sudah tercatat. Isi Wilayah jika ibadah ini untuk wilayah yang berbeda";
+
 const isDuplicate = (input: IbadahInput, ownId?: number) =>
-  rows.some(
+  allRows().some(
     (row) =>
       isLive(row) &&
       row.id !== ownId &&
       row.typeIbadahId === input.typeIbadahId &&
       dayOf(row) === input.date.slice(0, 10) &&
-      row.startTime === input.startTime,
+      row.startTime === input.startTime &&
+      (row.zoneChurchId ?? 0) === (input.zoneChurchId ?? 0),
   );
 
 const parse = async (
@@ -563,6 +816,11 @@ const fieldsOf = (input: IbadahInput) => ({
   theme: input.theme,
   bibleVerse: input.bibleVerse,
   preacher: input.preacher,
+  placeType: input.placeType,
+  hostKeluargaId: input.hostKeluargaId,
+  placeName: input.placeName,
+  address: input.address,
+  zoneChurchId: input.zoneChurchId,
   roomId: input.roomId,
   bapelId: input.bapelId,
   jadwalPelayanId: input.jadwalPelayanId,
@@ -571,6 +829,80 @@ const fieldsOf = (input: IbadahInput) => ({
   childCount: input.childCount,
   note: input.note,
 });
+
+export const nextHostedDate = (keluargaId: number) =>
+  allRows()
+    .filter(
+      (row) =>
+        isLive(row) &&
+        row.hostKeluargaId === keluargaId &&
+        dayOf(row) >= todayJakarta(),
+    )
+    .map((row) => row.date)
+    .sort()[0] ?? null;
+
+const positiveId = (value: string | null) =>
+  /^\d+$/.test(value ?? "") && Number(value) > 0 ? Number(value) : null;
+
+const lastHostedOf = (keluargaId: number, typeIbadahId: number) =>
+  allRows()
+    .filter(
+      (row) =>
+        isLive(row) &&
+        row.hostKeluargaId === keluargaId &&
+        row.typeIbadahId === typeIbadahId,
+    )
+    .map((row) => row.date)
+    .sort()
+    .at(-1) ?? null;
+
+const hostSuggestions = (params: URLSearchParams) => {
+  const typeIbadahId = positiveId(params.get("typeIbadahId"));
+  const zoneChurchId = positiveId(params.get("zoneChurchId"));
+
+  if (typeIbadahId === null) {
+    return failure(400, "Mohon Lengkapi Tipe Ibadah", "typeIbadahId");
+  }
+  if (zoneChurchId === null) {
+    return failure(400, "Mohon Lengkapi Wilayah", "zoneChurchId");
+  }
+
+  const data = process.env.MOCK_SARAN_EMPTY
+    ? []
+    : keluargaRows()
+        .filter(
+          (row) =>
+            row.zoneChurchId === zoneChurchId &&
+            row.worshipsHere &&
+            row.activeMembers > 0,
+        )
+        .map((row) => ({
+          id: row.id,
+          code: row.code,
+          name: row.name,
+          lastHostedDate: lastHostedOf(row.id, typeIbadahId),
+        }))
+        .sort(
+          (a, b) =>
+            Number(a.lastHostedDate !== null) -
+              Number(b.lastHostedDate !== null) ||
+            (a.lastHostedDate ?? "").localeCompare(b.lastHostedDate ?? "") ||
+            a.name.localeCompare(b.name, "id"),
+        );
+
+  if (data.length === 0) {
+    return failure(
+      404,
+      "Tidak Ada Keluarga Yang Dapat Menjadi Tuan Rumah di Wilayah Ini",
+    );
+  }
+
+  return json({
+    status: 200,
+    message: "Berhasil Mendapatkan Saran Tuan Rumah",
+    data,
+  });
+};
 
 const actionOf = (method: string): MockAction =>
   method === "POST"
@@ -592,6 +924,12 @@ export const ibadahMock: MockHandler = async ({
 
   const code = decodeURIComponent(path.slice("/ibadah/".length));
 
+  if (path === "/ibadah/saran-tuan-rumah" && method === "GET") {
+    if (!can(MENU.IBADAH, "CREATE")) return denied();
+
+    return hostSuggestions(url.searchParams);
+  }
+
   if (!can(MENU.IBADAH, actionOf(method))) return denied();
 
   if (method !== "GET" && process.env.MOCK_IBADAH_SAVE_ERROR === "500") {
@@ -611,23 +949,24 @@ export const ibadahMock: MockHandler = async ({
     const { input } = parsed;
     const type = typeRowOf(input.typeIbadahId);
 
-    if (!type) return failure(404, "Tipe Ibadah Tidak Ditemukan");
+    if (!type) {
+      return failure(404, "Tipe Ibadah Tidak Ditemukan", "typeIbadahId");
+    }
     if (!type.isActive) {
       return failure(
         400,
         "Tipe Ibadah Tersebut Sudah Tidak Aktif. Pilih Tipe Ibadah Lain",
+        "typeIbadahId",
       );
     }
 
     const relationError = checkRelations(input);
     if (relationError) return relationError;
     if (isDuplicate(input)) {
-      return failure(
-        409,
-        "Ibadah dengan tipe, tanggal dan jam mulai yang sama sudah tercatat",
-      );
+      return failure(409, DUPLICATE, "startTime");
     }
 
+    const rows = allRows();
     const row = toRow(Math.max(0, ...rows.map((item) => item.id)) + 1, {
       ...fieldsOf(input),
       createdBy: 1,
@@ -662,21 +1001,21 @@ export const ibadahMock: MockHandler = async ({
     const { input } = parsed;
     const type = typeRowOf(input.typeIbadahId);
 
-    if (!type) return failure(404, "Tipe Ibadah Tidak Ditemukan");
+    if (!type) {
+      return failure(404, "Tipe Ibadah Tidak Ditemukan", "typeIbadahId");
+    }
     if (row.typeIbadahId !== input.typeIbadahId && !type.isActive) {
       return failure(
         400,
         "Tipe Ibadah Tersebut Sudah Tidak Aktif. Pilih Tipe Ibadah Lain",
+        "typeIbadahId",
       );
     }
 
     const relationError = checkRelations(input, row);
     if (relationError) return relationError;
     if (isDuplicate(input, row.id)) {
-      return failure(
-        409,
-        "Ibadah dengan tipe, tanggal dan jam mulai yang sama sudah tercatat",
-      );
+      return failure(409, DUPLICATE, "startTime");
     }
 
     Object.assign(row, fieldsOf(input), {
@@ -695,12 +1034,7 @@ export const ibadahMock: MockHandler = async ({
     const row = findByCode(code);
     if (!row) return notFound();
 
-    const isOffered = OFFERINGS.some(
-      (offering) =>
-        offering.ibadahId === row.id && offering.status === "ACTIVE",
-    );
-
-    if (isOffered) {
+    if (isActiveOffering(row)) {
       return failure(
         400,
         "Ibadah Tidak Dapat Dihapus Karena Sudah Memiliki Data Persembahan",
