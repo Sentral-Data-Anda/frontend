@@ -115,7 +115,7 @@ export const PermintaanRejectScreen = (props: PropTypes) => {
   }, [isSubmitting, submitCount, rejectedField]);
 
   if (!isCanUpdate || request?.canSign === false) {
-    return <NoFormAccess backHref={backHref} />;
+    return <NoFormAccess backHref={backHref} isCanUpdate={isCanUpdate} />;
   }
 
   if (detail.error instanceof FetchError && detail.error.status === 404) {

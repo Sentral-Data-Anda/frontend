@@ -7,10 +7,11 @@ import { PageHeader } from "@/components/layout";
 
 interface PropTypes {
   backHref: string;
+  isCanUpdate: boolean;
 }
 
 export const NoFormAccess = (props: PropTypes) => {
-  const { backHref } = props;
+  const { backHref, isCanUpdate } = props;
 
   return (
     <div className="mx-auto w-full max-w-lg">
@@ -22,7 +23,9 @@ export const NoFormAccess = (props: PropTypes) => {
 
       <div className="flex flex-col items-start gap-3 px-gutter">
         <p className="text-muted-foreground text-body">
-          Permintaan ini tidak sedang menunggu tanda tangan Anda.
+          {isCanUpdate
+            ? "Permintaan ini tidak sedang menunggu tanda tangan Anda."
+            : "Peran Anda hanya bisa melihat permintaan persetujuan."}
         </p>
 
         <Link

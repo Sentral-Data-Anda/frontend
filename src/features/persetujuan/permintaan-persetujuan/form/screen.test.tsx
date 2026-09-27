@@ -95,7 +95,9 @@ describe("gerbang", () => {
     onRender();
 
     expect(
-      await screen.findByText("Tidak bisa menolak permintaan ini"),
+      await screen.findByText(
+        "Permintaan ini tidak sedang menunggu tanda tangan Anda.",
+      ),
     ).toBeTruthy();
   });
 
@@ -105,6 +107,9 @@ describe("gerbang", () => {
     onRender();
 
     expect(screen.getByText("Tidak bisa menolak permintaan ini")).toBeTruthy();
+    expect(
+      screen.getByText("Peran Anda hanya bisa melihat permintaan persetujuan."),
+    ).toBeTruthy();
   });
 
   test("404: FormNotFound", async () => {
