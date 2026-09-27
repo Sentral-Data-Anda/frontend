@@ -13,6 +13,7 @@ import {
   CalendarClock,
   CalendarCog,
   CalendarHeart,
+  CalendarOff,
   CalendarPlus,
   ChartColumn,
   ChartPie,
@@ -159,6 +160,7 @@ export const MENU = {
   USER: "USER",
   ROLE_USER: "ROLE_USER",
   ACTIVITY_LOG: "ACTIVITY_LOG",
+  HARI_LIBUR: "HARI_LIBUR",
 } as const;
 
 export type MenuSlug = (typeof MENU)[keyof typeof MENU];
@@ -252,6 +254,7 @@ export const MENU_DESCRIPTION: Partial<Record<MenuSlug, string>> = {
   [MENU.USER]: "Kelola akun login pengguna",
   [MENU.ROLE_USER]: "Atur hak akses tiap peran",
   [MENU.ACTIVITY_LOG]: "Riwayat perubahan data oleh pengguna",
+  [MENU.HARI_LIBUR]: "Libur nasional dan hari khusus gereja",
 };
 
 export const MENU_ICON: Record<string, LucideIcon> = {
@@ -343,6 +346,7 @@ export const MENU_LEAF_ICON: Partial<Record<MenuSlug, LucideIcon>> = {
   [MENU.USER]: UserCog,
   [MENU.ROLE_USER]: ShieldCheck,
   [MENU.ACTIVITY_LOG]: Activity,
+  [MENU.HARI_LIBUR]: CalendarOff,
 };
 
 export const leafIcon = (

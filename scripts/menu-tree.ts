@@ -160,4 +160,5 @@ export const NAME: Record<MenuSlug, string> = {
   [MENU.USER]: "User",
   [MENU.ROLE_USER]: "Role User",
   [MENU.ACTIVITY_LOG]: "Log Aktivitas",
+  [MENU.HARI_LIBUR]: "Hari Libur",
 };

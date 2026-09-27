@@ -2,6 +2,7 @@ import type { MockHandler } from "../kit";
 
 import { activityLogMock } from "./activity-log";
 import { bapelMock } from "./bapel";
+import { hariLiburMock } from "./hari-libur";
 import { keluargaMock } from "./keluarga";
 import { masterJemaatMock } from "./master-jemaat";
 import { pernikahanMock } from "./pernikahan";
@@ -25,4 +26,5 @@ export const MOCK_HANDLERS: MockHandler[] = [
   userMock,
   roleUserMock,
   activityLogMock,
+  hariLiburMock,
 ];
