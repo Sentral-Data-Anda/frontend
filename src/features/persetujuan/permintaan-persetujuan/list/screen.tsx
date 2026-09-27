@@ -1,0 +1,28 @@
+"use client";
+
+import { EmptyState } from "@/components/common/feedback";
+import { PageHeader } from "@/components/layout";
+import { MENU, domainHref } from "@/config/menu";
+import { useMenuAccess } from "@/features/auth";
+
+import { PermintaanList } from "./permintaan-list";
+
+export const PermintaanListScreen = () => {
+  const { isCanView } = useMenuAccess(MENU.PERMINTAAN_PERSETUJUAN);
+
+  if (isCanView) return <PermintaanList />;
+
+  return (
+    <div className="pb-6">
+      <PageHeader
+        title="Permintaan Persetujuan"
+        backHref={domainHref(MENU.PERSETUJUAN)}
+      />
+
+      <EmptyState
+        title="Anda tidak memiliki akses ke Permintaan Persetujuan"
+        description="Hubungi administrator bila Anda memerlukan akses ini."
+      />
+    </div>
+  );
+};
