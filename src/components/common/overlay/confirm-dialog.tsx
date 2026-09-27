@@ -11,7 +11,7 @@ interface PropTypes {
   title: string;
   description: string;
   confirmLabel: string;
-  cancelLabel?: string;
+  cancelLabel?: string | null;
   isDestructive?: boolean;
   isFocusReturnedOnConfirm?: boolean;
   isPending?: boolean;
@@ -72,12 +72,14 @@ export const ConfirmDialog = (props: PropTypes) => {
           {children}
 
           <div className="flex justify-end gap-2">
-            <AlertDialog.Close
-              disabled={isPending}
-              render={<Button type="button" variant="outline" />}
-            >
-              {cancelLabel}
-            </AlertDialog.Close>
+            {cancelLabel === null ? null : (
+              <AlertDialog.Close
+                disabled={isPending}
+                render={<Button type="button" variant="outline" />}
+              >
+                {cancelLabel}
+              </AlertDialog.Close>
+            )}
 
             {isClosedOnConfirm ? (
               <AlertDialog.Close
