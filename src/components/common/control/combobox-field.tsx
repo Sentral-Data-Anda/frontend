@@ -162,14 +162,23 @@ export const ComboboxField = (props: PropTypes) => {
                       <Combobox.Item
                         key={option.value}
                         value={option}
-                        className={FIELD_ITEM}
+                        className={cn(FIELD_ITEM, option.hint && "group")}
                       >
                         <Combobox.ItemIndicator className="col-start-1">
                           <Check className="size-3.5" aria-hidden />
                         </Combobox.ItemIndicator>
-                        <span className="col-start-2 truncate">
-                          {option.label}
-                        </span>
+                        {option.hint ? (
+                          <span className="col-start-2 flex min-w-0 items-baseline gap-2">
+                            <span className="truncate">{option.label}</span>
+                            <span className="text-muted-foreground group-data-highlighted:text-primary-foreground/80 ms-auto shrink-0 text-caption font-normal whitespace-nowrap">
+                              {option.hint}
+                            </span>
+                          </span>
+                        ) : (
+                          <span className="col-start-2 truncate">
+                            {option.label}
+                          </span>
+                        )}
                       </Combobox.Item>
                     )
                   }
