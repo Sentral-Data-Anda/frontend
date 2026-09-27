@@ -9,12 +9,11 @@ import {
 import { Badge } from "@/components/common/display";
 import { EmptyState } from "@/components/common/feedback";
 import { MENU, menuHref } from "@/config/menu";
+import { daysSince } from "@/lib/date";
 import { formatRupiahCompact } from "@/lib/format";
+import { APPROVAL_DOCUMENT_LABEL } from "@/types/persetujuan";
 
 import { amountOf, useWaitingApprovals, type ApprovalItem } from "../../api";
-import { daysSince } from "../../model";
-
-import { DOCUMENT_LABEL } from "./data";
 
 const QUEUE_HREF = menuHref(MENU.PERSETUJUAN, MENU.PERMINTAAN_PERSETUJUAN);
 
@@ -31,7 +30,7 @@ export const ApprovalsWidget = () => {
   const now = new Date();
 
   const rows: TableRow[] = items.slice(0, 5).map((item) => {
-    const kind = DOCUMENT_LABEL[item.documentType] ?? item.documentType;
+    const kind = APPROVAL_DOCUMENT_LABEL[item.documentType];
     const amount = amountOf(item.amount);
     const meta = [bapelOf(item), ageOf(daysSince(item.submittedAt, now))]
       .filter(Boolean)

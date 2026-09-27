@@ -3,6 +3,7 @@
 import { useQueries, useQuery } from "@tanstack/react-query";
 
 import { fetchList, fetchOne } from "@/lib/api/fetcher";
+import type { ApprovalDocumentType } from "@/types/persetujuan";
 
 export type IbadahListItem = {
   code: string;
@@ -35,7 +36,7 @@ const toAmount = (value: string | null | undefined) => Number(value ?? 0);
 
 export type ApprovalItem = {
   code: string;
-  documentType: string;
+  documentType: ApprovalDocumentType;
   amount: string;
   submittedAt: string;
   steps: { order: number; approverBapel: { name: string } | null }[];

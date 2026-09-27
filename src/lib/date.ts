@@ -76,6 +76,12 @@ const jakartaDateFormat = new Intl.DateTimeFormat("en-CA", {
 export const todayJakarta = (now: Date = new Date()): string =>
   jakartaDateFormat.format(now);
 
+export const daysSince = (iso: string, now: Date): number => {
+  const from = Date.parse(`${todayJakarta(new Date(iso))}T00:00:00Z`);
+  const to = Date.parse(`${todayJakarta(now)}T00:00:00Z`);
+  return Math.max(0, Math.round((to - from) / 86_400_000));
+};
+
 export const endOfYearIso = (
   yearsAhead: number,
   now: Date = new Date(),

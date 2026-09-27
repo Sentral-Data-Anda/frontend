@@ -13,6 +13,7 @@ import {
   parseDateInput,
   toInputText,
   toIsoDate,
+  daysSince,
   todayJakarta,
   weekdayIndex,
 } from "./date";
@@ -148,6 +149,16 @@ describe("todayJakarta", () => {
 
   test("bentuknya YYYY-MM-DD, siap dibandingkan sebagai string", () => {
     expect(todayJakarta()).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+  });
+});
+
+describe("daysSince", () => {
+  test("menghitung hari kalender WIB, tidak pernah negatif", () => {
+    const lateTuesday = new Date("2026-09-22T16:30:00Z");
+
+    expect(daysSince("2026-09-20T03:10:00.000Z", lateTuesday)).toBe(2);
+    expect(daysSince("2026-09-22T16:00:00.000Z", lateTuesday)).toBe(0);
+    expect(daysSince("2026-09-24T00:00:00.000Z", lateTuesday)).toBe(0);
   });
 });
 

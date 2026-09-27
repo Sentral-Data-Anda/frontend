@@ -3,9 +3,9 @@
 import { Inbox } from "lucide-react";
 
 import { KpiCell } from "@/components/common/dashboard";
+import { daysSince } from "@/lib/date";
 
 import { useWaitingApprovals } from "../../api";
-import { daysSince } from "../../model";
 
 export const KpiWaitingApprovals = () => {
   const query = useWaitingApprovals();
