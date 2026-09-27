@@ -214,9 +214,12 @@ describe("tambah akun", () => {
     onMockApi({ assignable: [] });
     onRenderForm(["VIEW", "CREATE"]);
 
-    expect(
-      await screen.findByText("Tidak ada role yang boleh Anda berikan."),
-    ).toBeTruthy();
+    const notice = await screen.findByText(
+      "Tidak ada role yang boleh Anda berikan.",
+    );
+
+    expect(notice.closest('[role="status"]')).not.toBeNull();
+    expect(screen.queryByRole("alert")).toBeNull();
     expect(
       screen.getByRole("button", { name: "Simpan" }).hasAttribute("disabled"),
     ).toBe(true);
