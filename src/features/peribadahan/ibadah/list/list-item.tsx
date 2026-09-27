@@ -96,8 +96,8 @@ export function ibadahTable(isCanUpdate: boolean): DataTableConfig<Ibadah> {
       {
         key: "date",
         header: "Tanggal",
-        width: "minmax(0,1.4fr)",
-        narrowWidth: "minmax(0,1.4fr)",
+        width: "minmax(0,1.8fr)",
+        narrowWidth: "minmax(0,1.7fr)",
         cell: (ibadah) => (
           <span className="block truncate tabular-nums">
             {formatServiceDate(ibadah.date)}
@@ -107,8 +107,8 @@ export function ibadahTable(isCanUpdate: boolean): DataTableConfig<Ibadah> {
       {
         key: "time",
         header: "Jam",
-        width: "minmax(0,0.9fr)",
-        narrowWidth: "minmax(0,0.9fr)",
+        width: "minmax(0,1fr)",
+        narrowWidth: "minmax(0,1fr)",
         cell: (ibadah) => (
           <span className="block truncate tabular-nums">
             {formatServiceTime(ibadah.startTime, ibadah.endTime)}
@@ -132,8 +132,8 @@ export function ibadahTable(isCanUpdate: boolean): DataTableConfig<Ibadah> {
       {
         key: "theme",
         header: "Tema",
-        width: "minmax(0,2.2fr)",
-        narrowWidth: "minmax(0,2.2fr)",
+        width: "minmax(0,2fr)",
+        narrowWidth: "minmax(0,1.6fr)",
         cell: (ibadah) => (
           <OptionalText text={ibadah.theme} empty="Tanpa tema" />
         ),
@@ -141,7 +141,7 @@ export function ibadahTable(isCanUpdate: boolean): DataTableConfig<Ibadah> {
       {
         key: "preacher",
         header: "Pengkhotbah",
-        width: "minmax(0,1.6fr)",
+        width: "minmax(0,1.5fr)",
         isSecondary: true,
         cell: (ibadah) => (
           <OptionalText text={ibadah.preacher} empty="Tanpa pengkhotbah" />
@@ -159,8 +159,8 @@ export function ibadahTable(isCanUpdate: boolean): DataTableConfig<Ibadah> {
       {
         key: "attendance",
         header: "Hadir",
-        width: "minmax(0,0.8fr)",
-        narrowWidth: "minmax(0,0.8fr)",
+        width: "minmax(0,1fr)",
+        narrowWidth: "minmax(0,1fr)",
         cell: attendanceCell,
       },
     ],

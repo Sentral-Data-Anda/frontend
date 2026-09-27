@@ -91,13 +91,13 @@ describe("tabel", () => {
         Boolean(column.isSecondary),
       ]),
     ).toEqual([
-      ["Tanggal", "minmax(0,1.4fr)", false],
-      ["Jam", "minmax(0,0.9fr)", false],
+      ["Tanggal", "minmax(0,1.8fr)", false],
+      ["Jam", "minmax(0,1fr)", false],
       ["Tipe ibadah", "minmax(0,1.6fr)", false],
-      ["Tema", "minmax(0,2.2fr)", false],
-      ["Pengkhotbah", "minmax(0,1.6fr)", true],
+      ["Tema", "minmax(0,2fr)", false],
+      ["Pengkhotbah", "minmax(0,1.5fr)", true],
       ["Ruang", "minmax(0,1.2fr)", true],
-      ["Hadir", "minmax(0,0.8fr)", false],
+      ["Hadir", "minmax(0,1fr)", false],
     ]);
     expect(table.getRowHref?.(IBADAH)).toBe(
       "/peribadahan/ibadah/IBD_0001-2026-0010/ubah",
