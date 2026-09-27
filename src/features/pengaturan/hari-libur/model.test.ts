@@ -3,11 +3,11 @@ import { describe, expect, test } from "bun:test";
 import {
   EMPTY_HOLIDAY_FORM,
   formatHolidayDate,
-  holidayDateMax,
   holidayFormSchema,
   serverFieldError,
   toHolidayForm,
   toHolidayPayload,
+  toHolidayRows,
   yearOptions,
   type HolidayFormValues,
 } from "./model";
@@ -103,10 +103,6 @@ describe("label dan format", () => {
     );
   });
 
-  test("tanggal boleh sampai akhir tahun ke-5 dari sekarang", () => {
-    expect(holidayDateMax("2026-09-27")).toBe("2031-12-31");
-  });
-
   test("tahun berjalan ± 2, terbaru di atas, plus Semua tahun", () => {
     expect(yearOptions("2026-09-27").map((option) => option.value)).toEqual([
       "",
@@ -127,5 +123,64 @@ describe("serverFieldError", () => {
       message: "Nama ini sudah dipakai hari libur lain di tanggal yang sama.",
     });
     expect(serverFieldError("Kesalahan server.")).toBeNull();
+  });
+});
+
+describe("toHolidayRows", () => {
+  const holiday = (
+    id: number,
+    date: string,
+    name: string,
+    isRecurring = false,
+  ): Holiday => ({
+    id,
+    publicId: String(id),
+    date: `${date}T00:00:00.000Z`,
+    name,
+    type: "GEREJA",
+    isRecurring,
+  });
+
+  const ROWS = [
+    holiday(13, "1985-09-27", "HUT Gereja", true),
+    holiday(14, "2024-02-29", "Syukur Kabisat", true),
+    holiday(1, "2026-01-01", "Tahun Baru"),
+    holiday(12, "2026-12-25", "Natal"),
+  ];
+
+  const view = (year: string) =>
+    toHolidayRows(ROWS, year).map((row) => [
+      row.id,
+      row.date.slice(0, 10),
+      row.recurringSince,
+    ]);
+
+  test("tanpa tahun: tanggal asal dan urutan be-sada apa adanya", () => {
+    expect(view("")).toEqual([
+      [13, "1985-09-27", 1985],
+      [14, "2024-02-29", 2024],
+      [1, "2026-01-01", null],
+      [12, "2026-12-25", null],
+    ]);
+  });
+
+  test("dengan tahun: kejadian di tahun itu, diurutkan bersama baris lain", () => {
+    expect(view("2026")).toEqual([
+      [1, "2026-01-01", null],
+      [13, "2026-09-27", 1985],
+      [12, "2026-12-25", null],
+    ]);
+  });
+
+  test("29 Februari hanya muncul di tahun kabisat", () => {
+    expect(view("2028").map(([id, date]) => [id, date])).toContainEqual([
+      14,
+      "2028-02-29",
+    ]);
+    expect(view("2027").some(([id]) => id === 14)).toBe(false);
+  });
+
+  test("tahun sebelum tahun asal tidak memunculkan kejadian", () => {
+    expect(view("2023").some(([id]) => id === 14)).toBe(false);
   });
 });

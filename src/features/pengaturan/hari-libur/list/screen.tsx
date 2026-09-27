@@ -8,7 +8,7 @@ import { useMenuAccess } from "@/features/auth";
 import { useListParams, type ListFilterSchema } from "@/hooks/use-list-params";
 
 import { useHolidayList } from "../api";
-import { yearOptions } from "../model";
+import { toHolidayRows, yearOptions } from "../model";
 import { HOLIDAY_TYPE_LABEL } from "../types";
 
 import { HolidayListItemRow, holidayTable } from "./list-item";
@@ -29,6 +29,9 @@ export const HolidayListScreen = () => {
   const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.HARI_LIBUR);
   const listParams = useListParams({ filters: LIST_FILTERS });
   const holidayList = useHolidayList(listParams);
+  const rows =
+    holidayList.items &&
+    toHolidayRows(holidayList.items, listParams.filters.tahun);
 
   return (
     <div className="pb-6">
@@ -72,7 +75,7 @@ export const HolidayListScreen = () => {
       />
 
       <DataList
-        items={holidayList.items}
+        items={rows}
         getKey={(holiday) => String(holiday.id)}
         label="Daftar hari libur"
         isLoading={holidayList.isLoading}

@@ -13,22 +13,22 @@ import {
   formatHolidayDate,
   formatHolidayDateShort,
 } from "../model";
-import { HOLIDAY_TYPE_LABEL, type Holiday } from "../types";
+import { HOLIDAY_TYPE_LABEL, type HolidayRow } from "../types";
 
 import { RecurringBadge } from "./recurring-badge";
 
-const keyOf = (holiday: Holiday) => String(holiday.id);
+const keyOf = (holiday: HolidayRow) => String(holiday.id);
 
-const editHrefOf = (holiday: Holiday) =>
+const editHrefOf = (holiday: HolidayRow) =>
   editHref(MENU.PENGATURAN, MENU.HARI_LIBUR, keyOf(holiday));
 
-const saveFocus = (holiday: Holiday) =>
+const saveFocus = (holiday: HolidayRow) =>
   saveListFocus(HARI_LIBUR_LIST_PATH, keyOf(holiday));
 
-const labelOf = (holiday: Holiday) => `Ubah ${holiday.name}`;
+const labelOf = (holiday: HolidayRow) => `Ubah ${holiday.name}`;
 
 interface PropTypes {
-  holiday: Holiday;
+  holiday: HolidayRow;
   isCanUpdate?: boolean;
 }
 
@@ -42,7 +42,9 @@ export const HolidayListItemRow = (props: PropTypes) => {
       meta={`${formatHolidayDate(holiday.date)} · ${HOLIDAY_TYPE_LABEL[holiday.type]}`}
       trailing={
         <>
-          {holiday.isRecurring ? <RecurringBadge /> : null}
+          {holiday.recurringSince ? (
+            <RecurringBadge since={holiday.recurringSince} />
+          ) : null}
 
           {isCanUpdate ? (
             <Link
@@ -63,7 +65,9 @@ export const HolidayListItemRow = (props: PropTypes) => {
   );
 };
 
-export function holidayTable(isCanUpdate: boolean): DataTableConfig<Holiday> {
+export function holidayTable(
+  isCanUpdate: boolean,
+): DataTableConfig<HolidayRow> {
   return {
     columns: [
       {
@@ -101,8 +105,8 @@ export function holidayTable(isCanUpdate: boolean): DataTableConfig<Holiday> {
         width: "minmax(0,0.75fr)",
         isSecondary: true,
         cell: (holiday) =>
-          holiday.isRecurring ? (
-            <RecurringBadge />
+          holiday.recurringSince ? (
+            <RecurringBadge since={holiday.recurringSince} />
           ) : (
             <OptionalText text={null} empty="Tidak berulang" />
           ),

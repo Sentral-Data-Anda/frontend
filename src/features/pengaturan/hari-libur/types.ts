@@ -15,6 +15,8 @@ export type Holiday = {
   isRecurring: boolean;
 };
 
+export type HolidayRow = Holiday & { recurringSince: number | null };
+
 export type HolidayPayload = {
   date: string;
   name: string;

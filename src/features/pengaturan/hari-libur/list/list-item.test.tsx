@@ -1,19 +1,20 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
-import type { Holiday } from "../types";
+import type { HolidayRow } from "../types";
 
 import { HolidayListItemRow, holidayTable } from "./list-item";
 
 afterEach(cleanup);
 
-const HOLIDAY: Holiday = {
+const HOLIDAY: HolidayRow = {
   id: 9,
   publicId: "a",
   date: "2026-08-17T00:00:00.000Z",
   name: "Hari Kemerdekaan",
   type: "NASIONAL",
   isRecurring: false,
+  recurringSince: null,
 };
 
 const onRenderRow = (isCanUpdate: boolean, holiday = HOLIDAY) =>
@@ -37,16 +38,16 @@ describe("baris HP", () => {
     expect(screen.queryByRole("link", { name: /Ubah/ })).toBeNull();
   });
 
-  test("meta = hari, tanggal · tipe; badge Berulang hanya bila berulang", () => {
+  test("meta = hari, tanggal · tipe; badge Berulang sejak hanya bila berulang", () => {
     onRenderRow(true);
 
     expect(screen.getByText("Senin, 17 Agustus 2026 · Nasional")).toBeTruthy();
     expect(document.querySelector('[data-row-id="9"]')).not.toBeNull();
-    expect(screen.queryByText("Berulang")).toBeNull();
+    expect(screen.queryByText(/Berulang/)).toBeNull();
 
     cleanup();
-    onRenderRow(true, { ...HOLIDAY, isRecurring: true });
-    expect(screen.getByText("Berulang")).toBeTruthy();
+    onRenderRow(true, { ...HOLIDAY, isRecurring: true, recurringSince: 1985 });
+    expect(screen.getByText("Berulang sejak 1985")).toBeTruthy();
   });
 });
 

@@ -7,15 +7,16 @@ import {
   optionsOf,
 } from "@/components/common/control";
 import { ControlField, FormSection } from "@/components/common/form";
+import { endOfYearIso } from "@/lib/date";
 
-import { RECURRING_HINT, holidayDateMax } from "../model";
+import { RECURRING_HINT } from "../model";
 import { HOLIDAY_TYPE_LABEL } from "../types";
 
 import { type HolidayForm } from "./form-options";
 
 const TYPE_OPTIONS = optionsOf(HOLIDAY_TYPE_LABEL);
 
-const DATE_MAX = holidayDateMax();
+const DATE_MAX = endOfYearIso(5);
 
 const RECURRING_OPTIONS = [
   { value: "true", label: "Ya" },

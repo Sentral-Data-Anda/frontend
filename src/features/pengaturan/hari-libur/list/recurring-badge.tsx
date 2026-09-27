@@ -1,3 +1,11 @@
 import { Badge } from "@/components/common/display";
 
-export const RecurringBadge = () => <Badge variant="secondary">Berulang</Badge>;
+interface PropTypes {
+  since: number;
+}
+
+export const RecurringBadge = (props: PropTypes) => {
+  const { since } = props;
+
+  return <Badge variant="secondary">Berulang sejak {since}</Badge>;
+};
