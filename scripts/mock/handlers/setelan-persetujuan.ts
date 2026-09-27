@@ -263,26 +263,34 @@ let nextId = SEED.length + 1;
 const withStepIds = (steps: Step[]) =>
   steps.map((step) => ({ ...step, publicId: crypto.randomUUID() }));
 
-const configs: Config[] = SEED.map(
-  (
-    [name, documentType, bapelId, minAmount, maxAmount, isActive, steps],
-    index,
-  ) => ({
-    id: index + 1,
-    publicId: seedUuid(index + 1),
-    name,
-    documentType,
-    bapelId,
-    minAmount,
-    maxAmount,
-    isActive,
-    createdBy: SESSION_USER_ID,
-    createdAt: "2026-09-01T02:00:00.000Z",
-    updatedBy: null,
-    updatedAt: null,
-    steps: withStepIds(steps),
-  }),
-);
+const seedConfigs = (): Config[] =>
+  SEED.map(
+    (
+      [name, documentType, bapelId, minAmount, maxAmount, isActive, steps],
+      index,
+    ) => ({
+      id: index + 1,
+      publicId: seedUuid(index + 1),
+      name,
+      documentType,
+      bapelId,
+      minAmount,
+      maxAmount,
+      isActive,
+      createdBy: SESSION_USER_ID,
+      createdAt: "2026-09-01T02:00:00.000Z",
+      updatedBy: null,
+      updatedAt: null,
+      steps: withStepIds(steps),
+    }),
+  );
+
+let configs = seedConfigs();
+
+export const resetSetelanMock = () => {
+  configs = seedConfigs();
+  nextId = SEED.length + 1;
+};
 
 const bapelOf = (id: number | null) =>
   id === null ? undefined : BAPEL.find((bapel) => bapel.id === id);

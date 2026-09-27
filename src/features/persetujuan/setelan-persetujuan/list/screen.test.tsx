@@ -4,6 +4,7 @@ import {
   afterAll,
   afterEach,
   beforeAll,
+  beforeEach,
   describe,
   expect,
   mock,
@@ -12,7 +13,10 @@ import {
 
 import type { MenuAction } from "@/types/menu";
 
-import { setelanPersetujuanMock } from "../../../../../scripts/mock/handlers/setelan-persetujuan";
+import {
+  resetSetelanMock,
+  setelanPersetujuanMock,
+} from "../../../../../scripts/mock/handlers/setelan-persetujuan";
 import { onStubViewport } from "../../../../../tests/viewport";
 
 const search = { current: "" };
@@ -61,6 +65,8 @@ afterAll(() => {
   globalThis.fetch = originalFetch;
 });
 
+beforeEach(resetSetelanMock);
+
 afterEach(cleanup);
 
 const onRenderList = (granted: MenuAction[], query = "") => {
@@ -87,8 +93,8 @@ describe("filter", () => {
   test("jenis dokumen → documentType, urut id", async () => {
     onRenderList(["VIEW"], "jenis=CASH_EXPENSE");
 
-    expect(await screen.findByText(/^\d+ alur$/)).toBeTruthy();
-    expect(rowNames().slice(0, 4)).toEqual([
+    expect(await screen.findByText("4 alur")).toBeTruthy();
+    expect(rowNames()).toEqual([
       "Kas keluar kecil",
       "Kas keluar besar",
       "Kas keluar Komisi Pemuda",
@@ -99,10 +105,8 @@ describe("filter", () => {
   test("status Nonaktif → isActive=false", async () => {
     onRenderList(["VIEW"], "status=false");
 
-    await screen.findByText("Kas keluar lama");
-
-    expect(rowNames()).toContain("Kas keluar lama");
-    expect(rowNames()).not.toContain("Kas keluar kecil");
+    expect(await screen.findByText("1 alur")).toBeTruthy();
+    expect(rowNames()).toEqual(["Kas keluar lama"]);
   });
 
   test("filter tanpa hasil: kosong karena filter + Hapus filter", async () => {
@@ -130,7 +134,7 @@ describe("gerbang izin", () => {
   test("VIEW saja: tanpa Tambah, baris tetap bisa dibuka (lihat)", async () => {
     onRenderList(["VIEW"]);
 
-    await screen.findByText("Kas keluar kecil");
+    await screen.findByText("8 alur");
 
     expect(screen.queryByRole("link", { name: "Tambah alur" })).toBeNull();
     expect(
@@ -145,7 +149,7 @@ describe("gerbang izin", () => {
   test("CREATE + UPDATE: Tambah dan aksi ubah", async () => {
     onRenderList(["VIEW", "CREATE", "UPDATE"]);
 
-    await screen.findByText("Kas keluar kecil");
+    await screen.findByText("8 alur");
 
     expect(screen.getByRole("link", { name: "Tambah alur" })).toBeTruthy();
     expect(

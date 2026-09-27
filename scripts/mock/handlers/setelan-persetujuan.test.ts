@@ -1,6 +1,11 @@
-import { describe, expect, test } from "bun:test";
+import { beforeEach, describe, expect, test } from "bun:test";
 
-import { setelanPersetujuanMock } from "./setelan-persetujuan";
+import {
+  resetSetelanMock,
+  setelanPersetujuanMock,
+} from "./setelan-persetujuan";
+
+beforeEach(resetSetelanMock);
 
 const call = async (
   method: string,
