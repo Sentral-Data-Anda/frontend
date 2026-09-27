@@ -59,7 +59,7 @@ export const TipeIbadahFormScreen = (props: PropTypes) => {
   const [rejectedField, setRejectedField] = useState<string | null>(null);
   const saveTipeIbadah = useSaveTipeIbadah(code);
   const deleteTipeIbadah = useDeleteTipeIbadah(code);
-  const detail = useTipeIbadahDetail(code);
+  const detail = useTipeIbadahDetail(isCanUpdate ? code : undefined);
   const confirm = useFormConfirm();
   const saveRef = useRef<HTMLButtonElement>(null);
   const deleteRef = useRef<HTMLButtonElement>(null);

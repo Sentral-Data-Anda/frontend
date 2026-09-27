@@ -75,10 +75,17 @@ describe("gerbang izin rute form", () => {
     expect(screen.queryByLabelText("Nama")).toBeNull();
   });
 
-  test("tanpa UPDATE: rute /ubah tidak merender form", () => {
+  test("tanpa UPDATE: rute /ubah tidak merender form dan tidak memuat detail", () => {
+    let isFetched = false;
+    globalThis.fetch = (() => {
+      isFetched = true;
+      return Promise.resolve(Response.json({}));
+    }) as unknown as typeof fetch;
+
     onRenderForm(["VIEW", "CREATE"], "TYP_IBD-0005");
 
     expect(screen.getByText("Tidak bisa mengubah tipe ibadah")).toBeTruthy();
+    expect(isFetched).toBe(false);
   });
 
   test("form tambah tidak punya Hapus, walau memegang DELETE", () => {
