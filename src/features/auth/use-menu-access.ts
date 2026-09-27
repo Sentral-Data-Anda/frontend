@@ -21,8 +21,6 @@ export function useMenuAccess(slug: MenuSlug) {
       isCanCreate: actions.has("CREATE"),
       isCanUpdate: actions.has("UPDATE"),
       isCanDelete: actions.has("DELETE"),
-      isCanApprove: actions.has("APPROVE"),
-      isCanReject: actions.has("REJECT"),
       isCanReset: actions.has("RESET"),
     };
   }, [session.menu, slug]);

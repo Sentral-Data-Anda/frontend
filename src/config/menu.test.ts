@@ -14,6 +14,7 @@ import {
   createHref,
   editHref,
   isFormRoute,
+  rejectHref,
 } from "./menu";
 
 const leaf = (slug: string): MenuNode => ({
@@ -100,6 +101,17 @@ describe("rute layar isian", () => {
     expect(isFormRoute("/kejemaatan/daftar-jemaat/JMT-0042/ubah")).toBe(true);
     expect(isFormRoute("/kejemaatan/pernikahan/abc/akhiri")).toBe(true);
     expect(isFormRoute("/kejemaatan/keluarga/KK-0001/anggota/baru")).toBe(true);
+  });
+
+  test("halaman tolak permintaan adalah layar isian", () => {
+    const href = rejectHref(
+      MENU.PERSETUJUAN,
+      MENU.PERMINTAAN_PERSETUJUAN,
+      "0b1c-uuid",
+    );
+
+    expect(href).toBe("/persetujuan/permintaan-persetujuan/0b1c-uuid/tolak");
+    expect(isFormRoute(href)).toBe(true);
   });
 
   test("layar daftar, halaman domain, dan Beranda bukan layar isian", () => {
