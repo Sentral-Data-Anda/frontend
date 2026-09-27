@@ -2,7 +2,7 @@
 
 import { useId, useState, type FormEvent } from "react";
 
-import { SelectField } from "@/components/common/control";
+import { ChoiceField, SelectField } from "@/components/common/control";
 import { Button } from "@/components/ui";
 
 import {
@@ -60,27 +60,14 @@ export const ListFilterForm = (props: PropTypes) => {
         }
 
         return (
-          <fieldset key={filter.key}>
-            <legend className="mb-1.5 text-body font-medium">
-              {filter.label}
-            </legend>
-
-            <div className="bg-muted flex gap-0.5 rounded-control p-0.5">
-              {filter.options.map((option) => (
-                <label key={option.value} className={CHOICE}>
-                  <input
-                    type="radio"
-                    name={id}
-                    value={option.value}
-                    checked={draft[filter.key] === option.value}
-                    onChange={() => onPick(filter.key, option.value)}
-                    className="sr-only"
-                  />
-                  {option.label}
-                </label>
-              ))}
-            </div>
-          </fieldset>
+          <ChoiceField
+            key={filter.key}
+            id={id}
+            label={filter.label}
+            value={draft[filter.key]}
+            onValueChange={(value) => onPick(filter.key, value)}
+            options={filter.options}
+          />
         );
       })}
 
@@ -93,6 +80,3 @@ export const ListFilterForm = (props: PropTypes) => {
     </form>
   );
 };
-
-const CHOICE =
-  "text-muted-foreground hover:text-foreground has-checked:bg-card has-checked:text-foreground has-focus-visible:ring-ring flex h-8 min-w-0 flex-1 cursor-pointer items-center justify-center rounded-[calc(var(--radius-control)-2px)] px-2 text-body font-medium whitespace-nowrap transition-colors select-none has-checked:shadow-sm has-focus-visible:ring-2";

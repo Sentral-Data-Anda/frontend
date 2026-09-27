@@ -19,8 +19,8 @@ interface PropTypes {
     | "onApplyFilters"
     | "onClearFilters"
   >;
-  searchLabel: string;
-  searchPlaceholder: string;
+  searchLabel?: string;
+  searchPlaceholder?: string;
   filters?: readonly ListFilter[];
 }
 
@@ -47,13 +47,15 @@ export const ListToolbar = (props: PropTypes) => {
   return (
     <div className="@container px-gutter pb-4">
       <div ref={rowRef} className="flex gap-2">
-        <SearchInput
-          value={listParams.search}
-          onSearch={listParams.onSearch}
-          label={searchLabel}
-          placeholder={searchPlaceholder}
-          className="min-w-0 flex-1 @min-[36rem]:max-w-80"
-        />
+        {searchLabel ? (
+          <SearchInput
+            value={listParams.search}
+            onSearch={listParams.onSearch}
+            label={searchLabel}
+            placeholder={searchPlaceholder}
+            className="min-w-0 flex-1 @min-[36rem]:max-w-80"
+          />
+        ) : null}
 
         {filters.length > 0 ? (
           <ListFilterButton

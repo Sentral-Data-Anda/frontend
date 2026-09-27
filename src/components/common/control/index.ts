@@ -1,5 +1,6 @@
 export * from "./button";
 export * from "./calendar";
+export * from "./choice-field";
 export * from "./combobox-field";
 export * from "./date-field";
 export * from "./input";
