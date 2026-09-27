@@ -115,7 +115,7 @@ function FormActionsBar({
       )}
     >
       <div className={cn(shellWidthFull, "md:px-gutter")}>
-        <div className="flex items-center justify-end gap-2 px-gutter py-3 md:px-0">
+        <div className="flex flex-wrap items-center justify-end gap-2 px-gutter py-3 md:px-0">
           {status ? (
             <p className="text-muted-foreground hidden flex-1 pr-4 text-caption lg:block">
               {status}
