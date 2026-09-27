@@ -3,6 +3,7 @@ import { describe, expect, test } from "bun:test";
 import { addDays, todayJakarta } from "../../../src/lib/date";
 
 import { ibadahMock } from "./ibadah";
+import { tipeIbadahMock } from "./tipe-ibadah";
 
 type Listed = {
   code: string;
@@ -246,5 +247,69 @@ describe("PUT dan DELETE /ibadah/:code", () => {
   test("PUT body invalid ke kode yang tidak ada: 400 lebih dulu dari 404", async () => {
     expect((await onCall("PUT", "/ibadah/IBD_X", {})).status).toBe(400);
     expect((await onCall("PUT", "/ibadah/IBD_X", BODY)).status).toBe(404);
+  });
+});
+
+const onType = async (method: string, path: string, body: unknown) => {
+  const url = new URL(path, "http://mock.test");
+  const response = (await tipeIbadahMock({
+    request: new Request(url, { method, body: JSON.stringify(body) }),
+    url,
+    path: url.pathname,
+    method,
+    can: () => true,
+    isAdmin: true,
+    sessionCode: "test",
+  })) as Response;
+
+  return (await response.json()) as { data: { id: number; code: string } };
+};
+
+describe("tipe dibaca dari state Tipe Ibadah", () => {
+  test("tipe baru bisa dipakai; sesudah dinonaktifkan ditolak 400", async () => {
+    const { data: type } = await onType("POST", "/type-ibadah", {
+      name: "Ibadah Syukur Keluarga",
+    });
+    const body = { ...BODY, typeIbadahId: type.id, date: addDays(TODAY, 50) };
+
+    const created = await onCall("POST", "/ibadah", body);
+    expect(created.status).toBe(201);
+    expect(created.body.data.code).toMatch(
+      new RegExp(`^IBD_${type.code.split("-")[1]}-`),
+    );
+
+    await onType("PUT", `/type-ibadah/${type.code}`, {
+      name: "Ibadah Syukur Keluarga",
+      isActive: false,
+    });
+    const refused = await onCall("POST", "/ibadah", {
+      ...body,
+      startTime: "10:00",
+      endTime: null,
+    });
+    expect(refused.status).toBe(400);
+    expect(refused.body.error).toBe(
+      "Tipe Ibadah Tersebut Sudah Tidak Aktif. Pilih Tipe Ibadah Lain",
+    );
+  });
+
+  test("ganti nama tipe tampil di daftar ibadah", async () => {
+    await onType("PUT", "/type-ibadah/TYP_IBD-0004", {
+      name: "Ibadah Remaja",
+      isActive: true,
+    });
+    const { body } = await onCall("GET", "/ibadah?typeIbadahId=4&limit=100");
+
+    expect(
+      body.data.every((row) => row.typeIbadah.name === "Ibadah Remaja"),
+    ).toBe(true);
+    expect(
+      (await onCall("GET", "/ibadah?filter=remaja&limit=100")).body.totalData,
+    ).toBe(body.totalData);
+
+    await onType("PUT", "/type-ibadah/TYP_IBD-0004", {
+      name: "Ibadah Pemuda",
+      isActive: true,
+    });
   });
 });

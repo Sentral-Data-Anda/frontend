@@ -20,7 +20,7 @@ import { z } from "zod";
 
 import { MENU } from "../../../src/config/menu";
 import { addDays, todayJakarta } from "../../../src/lib/date";
-import { ROOM_ROWS, TYPE_IBADAH_ROWS, ddlRows } from "../../mock-dashboard";
+import { ROOM_ROWS, ddlRows } from "../../mock-dashboard";
 import {
   denied,
   json,
@@ -29,6 +29,8 @@ import {
   type MockAction,
   type MockHandler,
 } from "../kit";
+
+import { findTipeIbadah } from "./tipe-ibadah";
 
 type Relation = { id: number; code: string; name: string };
 
@@ -238,8 +240,22 @@ const withSpecials = (seed: Seed): Seed => {
   return seed;
 };
 
-const typeRowOf = (id: number) =>
-  TYPE_IBADAH_ROWS.find((type) => type.id === id);
+// Relasi be-sada tetap membawa tipe yang sudah dihapus; ingat bentuk terakhirnya.
+const knownTypes = new Map<number, Relation>();
+
+const typeRowOf = (id: number) => {
+  const type = findTipeIbadah(id);
+
+  if (type) knownTypes.set(id, { id, code: type.code, name: type.name });
+
+  return type;
+};
+
+const typeRelationOf = (id: number) => {
+  typeRowOf(id);
+
+  return knownTypes.get(id) ?? null;
+};
 
 const serials = new Map<string, number>();
 
@@ -322,7 +338,7 @@ const present = (row: Row) => {
 
   return {
     ...rest,
-    typeIbadah: relationOf(TYPE_IBADAH_ROWS, typeIbadahId),
+    typeIbadah: typeRelationOf(typeIbadahId),
     room: relationOf(ROOM_ROWS, roomId),
     bapel: relationOf(BAPEL_ROWS, bapelId),
     jadwalPelayan: relationOf(JADWAL_ROWS, jadwalPelayanId),
@@ -450,7 +466,7 @@ const listRows = (params: URLSearchParams) => {
           row.code,
           row.theme,
           row.preacher,
-          typeRowOf(row.typeIbadahId)?.name,
+          typeRelationOf(row.typeIbadahId)?.name,
         ].some((value) => value?.toLowerCase().includes(filter)),
     )
     .filter((row) => !typeIbadahId || row.typeIbadahId === +typeIbadahId)
