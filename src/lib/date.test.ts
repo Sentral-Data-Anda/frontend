@@ -6,6 +6,7 @@ import {
   addMonths,
   ageInYears,
   DATE_ERROR,
+  endOfYearIso,
   isSameMonth,
   isWithin,
   monthGrid,
@@ -147,6 +148,17 @@ describe("todayJakarta", () => {
 
   test("bentuknya YYYY-MM-DD, siap dibandingkan sebagai string", () => {
     expect(todayJakarta()).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+  });
+});
+
+describe("endOfYearIso", () => {
+  test("31 Desember tahun WIB ditambah n tahun", () => {
+    expect(endOfYearIso(5, new Date("2026-09-23T02:00:00.000Z"))).toBe(
+      "2031-12-31",
+    );
+    expect(endOfYearIso(0, new Date("2026-12-31T18:00:00.000Z"))).toBe(
+      "2027-12-31",
+    );
   });
 });
 

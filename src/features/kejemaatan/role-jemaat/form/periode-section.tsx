@@ -2,12 +2,15 @@
 
 import { DateField, SelectField, optionsOf } from "@/components/common/control";
 import { ControlField, FormSection } from "@/components/common/form";
+import { endOfYearIso } from "@/lib/date";
 
 import { ROLE_STATUS_LABEL } from "../types";
 
 import { type RoleJemaatForm } from "./form-options";
 
 const STATUS_OPTIONS = optionsOf(ROLE_STATUS_LABEL);
+
+const DATE_MAX = endOfYearIso(5);
 
 interface PropTypes {
   form: RoleJemaatForm;
@@ -30,6 +33,7 @@ export const PeriodeSection = (props: PropTypes) => {
             onValueChange={field.onChange}
             onBlur={field.onBlur}
             disabled={field.disabled}
+            max={DATE_MAX}
             label="Tanggal mulai"
           />
         )}
@@ -46,6 +50,7 @@ export const PeriodeSection = (props: PropTypes) => {
             onValueChange={field.onChange}
             onBlur={field.onBlur}
             disabled={field.disabled}
+            max={DATE_MAX}
             label="Tanggal selesai"
           />
         )}

@@ -9,6 +9,7 @@ import {
 } from "@testing-library/react";
 import { afterEach, describe, expect, mock, test } from "bun:test";
 
+import { todayJakarta } from "@/lib/date";
 import type { MenuAction } from "@/types/menu";
 
 import { BAPEL_LIST_PATH } from "../model";
@@ -115,7 +116,10 @@ const DETAIL: BapelDetail = {
 
 type Failure = { status: number; error: string };
 
-const onMockApi = (failure: { save?: Failure; remove?: Failure } = {}) => {
+const onMockApi = (
+  failure: { save?: Failure; remove?: Failure } = {},
+  detail: BapelDetail = DETAIL,
+) => {
   const calls: { method: string; body?: unknown }[] = [];
 
   globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -132,7 +136,7 @@ const onMockApi = (failure: { save?: Failure; remove?: Failure } = {}) => {
       return Response.json({
         status: 200,
         message: "Berhasil Memperbarui Bapel",
-        data: DETAIL,
+        data: detail,
       });
     }
     if (url === "/api/v1/bapel/BPL-0001" && method === "DELETE") {
@@ -161,7 +165,7 @@ const onMockApi = (failure: { save?: Failure; remove?: Failure } = {}) => {
       );
     }
     if (url === "/api/v1/bapel/BPL-0001") {
-      return Response.json({ status: 200, message: "OK", data: DETAIL });
+      return Response.json({ status: 200, message: "OK", data: detail });
     }
 
     return Response.json({ status: 404, error: "?" }, { status: 404 });
@@ -231,6 +235,38 @@ describe("simpan", () => {
     ]);
     expect(window.sessionStorage.getItem(`list-focus:${BAPEL_LIST_PATH}`)).toBe(
       "BPL-0001",
+    );
+  });
+
+  test("tanggal larangan tahun depan diterima dan terkirim", async () => {
+    const nextYear = Number(todayJakarta().slice(0, 4)) + 1;
+    const calls = onMockApi(
+      {},
+      {
+        ...DETAIL,
+        rules: [{ ...DETAIL.rules[0], type: "NO_DATE", dayOfWeek: null }],
+      },
+    );
+    await onRenderLoadedEdit();
+    const date = screen.getByLabelText("Tanggal");
+
+    fireEvent.change(date, { target: { value: `25/12/${nextYear}` } });
+    fireEvent.blur(date);
+
+    expect(date.getAttribute("aria-invalid")).not.toBe("true");
+    fireEvent.click(screen.getByRole("button", { name: "Simpan" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Ya" }));
+
+    await waitFor(() =>
+      expect(calls).toEqual([
+        {
+          method: "PUT",
+          body: {
+            name: "Komisi Pemuda",
+            rules: [{ type: "NO_DATE", date: `${nextYear}-12-25` }],
+          },
+        },
+      ]),
     );
   });
 

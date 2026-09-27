@@ -76,10 +76,12 @@ export const DateField = (props: PropTypes) => {
     if (parsed.error) return parsed.error;
     if (!parsed.iso) return "";
     if (parsed.iso > upperBound) {
-      return `${label} tidak boleh di masa depan.`;
+      return upperBound === today
+        ? `${label} tidak boleh di masa depan.`
+        : `${label} setelah ${formatDate(upperBound)} tidak bisa disimpan.`;
     }
     if (parsed.iso < min) {
-      return `${label} sebelum ${min.slice(0, 4)} tidak bisa disimpan.`;
+      return `${label} sebelum ${formatDate(min)} tidak bisa disimpan.`;
     }
 
     return "";

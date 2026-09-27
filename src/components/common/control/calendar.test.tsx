@@ -1,11 +1,38 @@
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, test } from "bun:test";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 
+import type { CalendarHoliday } from "@/hooks/use-holiday-calendar";
 import { todayJakarta } from "@/lib/date";
 
 import { Calendar } from "./calendar";
 
-afterEach(cleanup);
+const originalFetch = globalThis.fetch;
+const requested: string[] = [];
+
+const onStubHolidays = (answer: CalendarHoliday[] | number) => {
+  globalThis.fetch = (async (input: RequestInfo | URL) => {
+    requested.push(String(input));
+
+    return typeof answer === "number"
+      ? Response.json({ status: answer, error: "Gagal" }, { status: answer })
+      : Response.json({ status: 200, message: "OK", data: answer });
+  }) as typeof fetch;
+};
+
+beforeEach(() => onStubHolidays([]));
+
+afterEach(() => {
+  cleanup();
+  globalThis.fetch = originalFetch;
+  requested.length = 0;
+});
 
 const onRenderCalendar = (
   props: Partial<Parameters<typeof Calendar>[0]> = {},
@@ -13,14 +40,16 @@ const onRenderCalendar = (
   const picked: string[] = [];
 
   render(
-    <Calendar
-      value="2026-09-23"
-      onPick={(iso) => picked.push(iso)}
-      onClose={() => {}}
-      min="1900-01-01"
-      max="2026-09-30"
-      {...props}
-    />,
+    <QueryClientProvider client={new QueryClient()}>
+      <Calendar
+        value="2026-09-23"
+        onPick={(iso) => picked.push(iso)}
+        onClose={() => {}}
+        min="1900-01-01"
+        max="2026-09-30"
+        {...props}
+      />
+    </QueryClientProvider>,
   );
 
   const cells = () => screen.queryAllByRole("gridcell");
@@ -108,6 +137,21 @@ describe("Calendar — batas min/max (§7.10 no. 7)", () => {
 
     fireEvent.click(future as HTMLElement);
     expect(cal.picked).toHaveLength(0);
+  });
+
+  test("disabled di bulan berjalan dicoret, tidak dipudarkan seperti luar bulan", () => {
+    const cal = onRenderCalendar({ max: "2026-09-27" });
+    const byLabel = (label: string) =>
+      cal.cells().find((c) => c.getAttribute("aria-label") === label)!;
+    const disabled = byLabel("28 September 2026");
+    const outside = byLabel("1 Oktober 2026");
+
+    expect(disabled.hasAttribute("data-outside")).toBe(false);
+    expect(disabled.className).toContain("line-through");
+    expect(disabled.className).not.toContain("text-muted-foreground/70");
+    expect(disabled.className).not.toContain("hover:bg-accent");
+    expect(outside.hasAttribute("data-outside")).toBe(true);
+    expect(outside.className).toContain("text-muted-foreground/70");
   });
 
   test("panah berhenti di batas, tidak melompat ke hari terlarang", () => {
@@ -329,5 +373,104 @@ describe("Calendar — panah di kisi tahun", () => {
       document.querySelector('[role="grid"][aria-label="Kalender"]'),
     ).not.toBeNull();
     expect(screen.getByRole("button", { name: /September 2014/ })).toBeTruthy();
+  });
+});
+
+describe("Calendar — penanda hari libur", () => {
+  const HOLIDAYS: CalendarHoliday[] = [
+    { date: "2026-08-31", name: "Libur Akhir Agustus", type: "GEREJA" },
+    { date: "2026-09-17", name: "Retret Majelis", type: "GEREJA" },
+    { date: "2026-09-23", name: "HUT Gereja", type: "GEREJA" },
+    { date: "2026-09-23", name: "Syukur Panen", type: "GEREJA" },
+    { date: "2026-09-23", name: "HUT Gereja", type: "GEREJA" },
+    { date: "2026-09-25", name: "Libur Nasional", type: "NASIONAL" },
+  ];
+
+  const byDate = (cal: ReturnType<typeof onRenderCalendar>, text: string) =>
+    cal
+      .cells()
+      .find((cell) => cell.getAttribute("aria-label")?.startsWith(text));
+
+  test("rentang = sel pertama sampai terakhir di kisi bulan", async () => {
+    onRenderCalendar({ value: "2026-09-10" });
+
+    await waitFor(() => expect(requested).toHaveLength(1));
+    expect(requested[0]).toBe(
+      "/api/v1/hari-libur/kalender?from=2026-08-31&to=2026-10-11",
+    );
+  });
+
+  test("tanggal libur diberi penanda, title, dan nama aksesibel", async () => {
+    onStubHolidays(HOLIDAYS);
+    const cal = onRenderCalendar({ value: "2026-09-10" });
+
+    await waitFor(() =>
+      expect(
+        cal.cells().filter((cell) => cell.hasAttribute("data-holiday")),
+      ).toHaveLength(4),
+    );
+
+    const retreat = byDate(cal, "17 September 2026")!;
+    expect(retreat.getAttribute("aria-label")).toBe(
+      "17 September 2026, libur: Retret Majelis",
+    );
+    expect(retreat.getAttribute("title")).toBe("Retret Majelis");
+    expect(byDate(cal, "31 Agustus 2026")?.hasAttribute("data-outside")).toBe(
+      true,
+    );
+    expect(byDate(cal, "18 September 2026")?.hasAttribute("data-holiday")).toBe(
+      false,
+    );
+  });
+
+  test("beberapa libur di satu hari digabung dengan titik koma, nama kembar sekali", async () => {
+    onStubHolidays(HOLIDAYS);
+    const cal = onRenderCalendar({ value: "2026-09-10" });
+
+    await waitFor(() =>
+      expect(byDate(cal, "23 September 2026")?.getAttribute("title")).toBe(
+        "HUT Gereja; Syukur Panen",
+      ),
+    );
+    expect(byDate(cal, "23 September 2026")?.getAttribute("aria-label")).toBe(
+      "23 September 2026, libur: HUT Gereja; Syukur Panen",
+    );
+  });
+
+  test("tanggal libur tetap bisa dipilih; batas max tetap berlaku", async () => {
+    onStubHolidays(HOLIDAYS);
+    const cal = onRenderCalendar({ value: "2026-09-10", max: "2026-09-24" });
+
+    await waitFor(() =>
+      expect(byDate(cal, "17 September 2026")?.title).toBe("Retret Majelis"),
+    );
+    fireEvent.click(byDate(cal, "17 September 2026")!);
+    expect(cal.picked).toEqual(["2026-09-17"]);
+
+    const beyond = byDate(cal, "25 September 2026") as HTMLButtonElement;
+    expect(beyond.hasAttribute("data-holiday")).toBe(true);
+    expect(beyond.disabled).toBe(true);
+  });
+
+  test("galat fetch: kalender utuh tanpa penanda", async () => {
+    onStubHolidays(500);
+    const cal = onRenderCalendar({ value: "2026-09-10" });
+
+    await waitFor(() => expect(requested).toHaveLength(1));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(cal.cells()).toHaveLength(42);
+    expect(document.querySelector("[data-holiday]")).toBeNull();
+    fireEvent.click(byDate(cal, "17 September 2026")!);
+    expect(cal.picked).toEqual(["2026-09-17"]);
+  });
+
+  test("kisi tahun tidak diberi penanda", async () => {
+    onStubHolidays(HOLIDAYS);
+    onRenderCalendar({ startInYearGrid: true, value: "2026-09-10" });
+
+    await waitFor(() => expect(requested).toHaveLength(1));
+
+    expect(document.querySelector("[data-holiday]")).toBeNull();
   });
 });

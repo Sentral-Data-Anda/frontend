@@ -9,6 +9,7 @@ import {
 } from "@testing-library/react";
 import { afterEach, describe, expect, mock, test } from "bun:test";
 
+import { todayJakarta } from "@/lib/date";
 import type { MenuAction } from "@/types/menu";
 
 import { ROLE_JEMAAT_LIST_PATH } from "../model";
@@ -181,6 +182,20 @@ describe("simpan", () => {
     expect(
       window.sessionStorage.getItem(`list-focus:${ROLE_JEMAAT_LIST_PATH}`),
     ).toBe("42");
+  });
+
+  test("tanggal selesai tahun depan diterima dan tersimpan", async () => {
+    const calls = onMockApi();
+    await onRenderLoadedEdit(["VIEW", "UPDATE"]);
+    const nextYear = Number(todayJakarta().slice(0, 4)) + 1;
+    const end = screen.getByLabelText("Tanggal selesai");
+
+    fireEvent.change(end, { target: { value: `31/12/${nextYear}` } });
+    fireEvent.blur(end);
+
+    expect(end.getAttribute("aria-invalid")).not.toBe("true");
+    await onConfirmYes("Simpan");
+    await waitFor(() => expect(calls).toEqual(["PUT"]));
   });
 
   test("409 tumpang tindih: galat form, fokus ke Simpan, tetap di form", async () => {
