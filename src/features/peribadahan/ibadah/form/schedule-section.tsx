@@ -3,6 +3,7 @@
 import { DateField, DdlField, Input } from "@/components/common/control";
 import { ControlField, FormSection } from "@/components/common/form";
 import { useDdlOptions } from "@/hooks/use-ddl-options";
+import { endOfYearIso } from "@/lib/date";
 
 import { type IbadahForm } from "./form-options";
 
@@ -16,6 +17,7 @@ export const ScheduleSection = (props: PropTypes) => {
 
   const savedTypeId = form.formState.defaultValues?.typeIbadahId ?? "";
   const types = useDdlOptions("type-ibadah", "id", savedTypeId);
+  const dateMax = endOfYearIso(1);
 
   return (
     <FormSection legend="Ibadah" disabled={isDisabled}>
@@ -45,6 +47,7 @@ export const ScheduleSection = (props: PropTypes) => {
             onBlur={field.onBlur}
             disabled={isDisabled}
             variant="dekat"
+            max={dateMax}
             label="Tanggal ibadah"
           />
         )}

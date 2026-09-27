@@ -9,6 +9,7 @@ import {
 } from "@testing-library/react";
 import { afterEach, describe, expect, mock, test } from "bun:test";
 
+import { addDays, todayJakarta } from "@/lib/date";
 import type { MenuAction } from "@/types/menu";
 
 import { IBADAH_LIST_PATH } from "../model";
@@ -414,7 +415,7 @@ describe("salin dari form ubah", () => {
 });
 
 describe("layar tambah hasil salin", () => {
-  test("tipe aktif, jam, dan ruang ikut; sisanya kosong; simpan POST", async () => {
+  test("tipe aktif, jam, dan ruang ikut; sisanya kosong; simpan POST untuk jadwal pekan depan", async () => {
     search.current = `salin=${CODE}`;
     const calls = onMockApi();
     onRenderForm(["VIEW", "CREATE"]);
@@ -434,8 +435,11 @@ describe("layar tambah hasil salin", () => {
     fireEvent.click(screen.getByRole("button", { name: "Batal" }));
     expect(replaced).toEqual([IBADAH_LIST_PATH]);
 
+    const nextWeek = addDays(todayJakarta(), 7);
     const date = screen.getByLabelText("Tanggal");
-    fireEvent.change(date, { target: { value: "27/09/2026" } });
+    fireEvent.change(date, {
+      target: { value: nextWeek.split("-").reverse().join("/") },
+    });
     fireEvent.blur(date);
     fireEvent.click(screen.getByRole("button", { name: "Simpan" }));
     fireEvent.click(await screen.findByRole("button", { name: "Ya" }));
@@ -446,7 +450,7 @@ describe("layar tambah hasil salin", () => {
       url: "/api/v1/ibadah",
       body: {
         typeIbadahId: 1,
-        date: "2026-09-27",
+        date: nextWeek,
         startTime: "08:00",
         endTime: "09:30",
         roomId: 1,
