@@ -67,7 +67,8 @@ export const PERSONAS: Record<string, Persona> = {
       [MENU.BAPEL]: KEJEMAATAN_ACTIONS,
       [MENU.WILAYAH]: KEJEMAATAN_ACTIONS,
       [MENU.REPORT_JEMAAT]: V,
-      [MENU.IBADAH]: VC,
+      [MENU.IBADAH]: KEJEMAATAN_ACTIONS,
+      [MENU.TIPE_IBADAH]: KEJEMAATAN_ACTIONS,
       [MENU.JADWAL_PELAYAN]: V,
       [MENU.EVENT]: V,
       [MENU.PENGUMUMAN]: VC,
@@ -221,6 +222,29 @@ const audit = {
   deletedAt: null,
 };
 
+// Seed bersama Peribadahan: id sama di handler ibadah, tipe-ibadah, dan Beranda.
+export const TYPE_IBADAH_ROWS = [
+  { id: 1, code: "TYP_IBD-0001", name: "Ibadah Minggu I", isActive: true },
+  { id: 2, code: "TYP_IBD-0002", name: "Ibadah Minggu II", isActive: true },
+  { id: 3, code: "TYP_IBD-0003", name: "Persekutuan Doa", isActive: true },
+  { id: 4, code: "TYP_IBD-0004", name: "Ibadah Pemuda", isActive: true },
+  { id: 5, code: "TYP_IBD-0005", name: "Ibadah Padang", isActive: false },
+];
+
+export const ROOM_ROWS = [
+  { id: 1, code: "RM-0001", name: "Gedung Gereja" },
+  { id: 2, code: "RM-0002", name: "Aula Serbaguna" },
+  { id: 3, code: "RM-0003", name: "Ruang Pemuda" },
+];
+
+const typeIbadahNamed = (name: string) => {
+  const row = TYPE_IBADAH_ROWS.find((type) => type.name === name);
+
+  if (!row) throw new Error(`Tipe ibadah mock tidak dikenal: ${name}`);
+
+  return { id: row.id, code: row.code, name: row.name };
+};
+
 // ---------------------------------------------------------------------------
 // GET /ibadah — `ibadah.repository.ts:6-35`. `date` persis, atau
 // `startDate` + `endDate` (keduanya wajib, inklusif per hari).
@@ -247,8 +271,8 @@ const ibadahRow = (
   childCount: 0,
   note: null,
   ...audit,
-  typeIbadah: { id: 1, code: "TI-1", name: typeName },
-  room: { id: 1, code: "R-01", name: "Gedung Gereja" },
+  typeIbadah: typeIbadahNamed(typeName),
+  room: ROOM_ROWS[0],
   bapel: null,
   jadwalPelayan: null,
 });
@@ -1214,6 +1238,10 @@ export function ddlRows(
       return rowsOf(BAPEL_NAMES, "BPL");
     case "role-user":
       return ROLE_USERS;
+    case "type-ibadah":
+      return [...TYPE_IBADAH_ROWS].sort((a, b) => a.name.localeCompare(b.name));
+    case "room":
+      return [...ROOM_ROWS].sort((a, b) => a.name.localeCompare(b.name));
     case "provinces":
       return PROVINCES;
     case "regencies":
