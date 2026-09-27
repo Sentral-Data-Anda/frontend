@@ -141,10 +141,9 @@ const AMOUNT: Column = {
   key: "amount",
   header: "Nominal",
   width: "minmax(0,1fr)",
+  align: "end",
   cell: (item) => (
-    <span className="block truncate text-right tabular-nums">
-      {amountOf(item)}
-    </span>
+    <span className="block truncate tabular-nums">{amountOf(item)}</span>
   ),
 };
 

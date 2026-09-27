@@ -38,13 +38,11 @@ const attendanceCell = (ibadah: Ibadah) => {
   const label = attendanceLabel(ibadah);
 
   return label ? (
-    <span className="text-muted-foreground block truncate text-right tabular-nums">
+    <span className="text-muted-foreground block truncate tabular-nums">
       {label}
     </span>
   ) : (
-    <span className="block text-right">
-      <OptionalText text={null} empty="Belum ada hitungan" />
-    </span>
+    <OptionalText text={null} empty="Belum ada hitungan" />
   );
 };
 
@@ -161,6 +159,7 @@ export function ibadahTable(isCanUpdate: boolean): DataTableConfig<Ibadah> {
         header: "Hadir",
         width: "minmax(0,1fr)",
         narrowWidth: "minmax(0,1fr)",
+        align: "end",
         cell: attendanceCell,
       },
     ],
