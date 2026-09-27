@@ -46,6 +46,12 @@ const KEJEMAATAN_ACTIONS: Action[] = [
   ...(process.env.MOCK_NO_DELETE ? [] : (["DELETE"] as Action[])),
 ];
 
+// Penanda tangan dan pengaju: be-sada hanya menjaga VIEW + UPDATE di menu ini.
+const APPROVAL_ACTIONS: Action[] = [
+  "VIEW",
+  ...(process.env.MOCK_NO_UPDATE ? [] : (["UPDATE"] as Action[])),
+];
+
 export const PERSONAS: Record<string, Persona> = {
   // docs/design/dashboard-desktop.md §3e.
   sekretariat: {
@@ -68,9 +74,8 @@ export const PERSONAS: Record<string, Persona> = {
       [MENU.PEMINJAMAN_RUANG]: V,
     },
   },
-  // §3b apa adanya (tanpa PERMINTAAN_PERSETUJUAN — "Menunggu tindakan saya
-  // jika memegang izin"), plus IBADAH/EVENT VIEW supaya Agenda dan
-  // "· 2 kebaktian" di rancangan §3b tampil.
+  // §3b, plus IBADAH/EVENT VIEW supaya Agenda dan "· 2 kebaktian" tampil, dan
+  // PERMINTAAN_PERSETUJUAN sebagai pengaju sekaligus penanda tangan tahap Bendahara.
   bendahara: {
     roleName: "Bendahara",
     isAdmin: false,
@@ -88,6 +93,7 @@ export const PERSONAS: Record<string, Persona> = {
       [MENU.PAYROLL]: V,
       [MENU.IBADAH]: V,
       [MENU.EVENT]: V,
+      [MENU.PERMINTAAN_PERSETUJUAN]: APPROVAL_ACTIONS,
     },
   },
   // §3c, dengan LAPORAN_KEUANGAN (keputusan admin; tanpanya grid merapat).
@@ -96,7 +102,7 @@ export const PERSONAS: Record<string, Persona> = {
     isAdmin: false,
     jemaatName: "Pdt. Yohanes Simatupang",
     grants: {
-      [MENU.PERMINTAAN_PERSETUJUAN]: ["VIEW", "APPROVE", "REJECT"],
+      [MENU.PERMINTAAN_PERSETUJUAN]: APPROVAL_ACTIONS,
       [MENU.LAPORAN_KEUANGAN]: process.env.MOCK_MAJELIS_NO_FINANCE
         ? undefined
         : V,
@@ -122,6 +128,7 @@ export const PERSONAS: Record<string, Persona> = {
       [MENU.HARI_LIBUR]: KEJEMAATAN_ACTIONS,
       [MENU.DAFTAR_JEMAAT]: V,
       [MENU.KELUARGA]: V,
+      [MENU.SETELAN_PERSETUJUAN]: KEJEMAATAN_ACTIONS,
     },
   },
   admin: {
@@ -133,6 +140,37 @@ export const PERSONAS: Record<string, Persona> = {
 };
 
 const ALL_ACTIONS: Action[] = [...MENU_ACTIONS];
+
+export const PERSONA_KEY = process.env.MOCK_PERSONA ?? "admin";
+
+export const currentPersona = (): Persona => {
+  const persona = PERSONAS[PERSONA_KEY];
+
+  if (!persona) {
+    throw new Error(
+      `MOCK_PERSONA tidak dikenal: "${PERSONA_KEY}". Pilih: ${Object.keys(PERSONAS).join(", ")}.`,
+    );
+  }
+
+  return persona;
+};
+
+// Satu akun mock untuk semua persona; "saya" di pengajuan dan tanda tangan.
+export const SESSION_USER_ID = 1;
+
+// Jabatan Role Jemaat yang dipegang persona hari ini; bapelId = id `ddl/bapel`.
+export const PERSONA_POSITIONS: Record<
+  string,
+  { name: string; bapelId: number; bapel: { name: string } }[]
+> = {
+  majelis: [{ name: "Ketua", bapelId: 1, bapel: { name: "Majelis Jemaat" } }],
+  sekretariat: [
+    { name: "Sekretaris", bapelId: 2, bapel: { name: "Komisi Pemuda" } },
+  ],
+  bendahara: [
+    { name: "Bendahara", bapelId: 1, bapel: { name: "Majelis Jemaat" } },
+  ],
+};
 
 export const actionsOf = (persona: Persona, slug: string): Action[] =>
   persona.grants === null

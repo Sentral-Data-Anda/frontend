@@ -21,7 +21,7 @@
  *                                         `next start` hasil build di port lain)
  *   MOCK_PERSONA=bendahara bun run dev:mock → Beranda per izin; persona:
  *                                         admin (bawaan, pohon menu lengkap) |
- *                                         sekretariat | bendahara | majelis.
+ *                                         sekretariat | bendahara | majelis | operator.
  *                                         Lihat `scripts/mock-dashboard.ts`.
  *   MOCK_MAJELIS_NO_FINANCE=1           → majelis tanpa LAPORAN_KEUANGAN
  *   MOCK_NO_APPROVAL=1                  → antrean persetujuan kosong
@@ -64,8 +64,10 @@ import { NAME, TREE } from "./menu-tree";
 import { MOCK_HANDLERS } from "./mock/handlers";
 import { json, list, paging, readBody, type MockAction } from "./mock/kit";
 import {
-  PERSONAS,
+  PERSONA_KEY,
+  PERSONA_POSITIONS,
   actionsOf,
+  currentPersona,
   ddlRows,
   ZONE_CHURCHES,
   guardSlugOf,
@@ -228,14 +230,7 @@ if (process.env.MOCK_SINGLE_LEAF) {
   delete TREE[MENU.PENGATURAN];
 }
 
-const PERSONA_KEY = process.env.MOCK_PERSONA ?? "admin";
-const persona = PERSONAS[PERSONA_KEY];
-
-if (!persona) {
-  throw new Error(
-    `MOCK_PERSONA tidak dikenal: "${PERSONA_KEY}". Pilih: ${Object.keys(PERSONAS).join(", ")}.`,
-  );
-}
+const persona = currentPersona();
 
 /**
  * Seperti `menuService.findTree` be-sada: layar tampil bila peran memegang
@@ -272,15 +267,6 @@ const menu = Object.entries(TREE).flatMap(([domain, leaves], domainIndex) => {
     : [];
 });
 
-const ROLE_JEMAAT: Record<
-  string,
-  { name: string; bapel: { name: string } | null }[]
-> = {
-  majelis: [{ name: "Ketua", bapel: { name: "Majelis Jemaat" } }],
-  sekretariat: [{ name: "Sekretaris", bapel: { name: "Komisi Pemuda" } }],
-  bendahara: [{ name: "Bendahara", bapel: { name: "Majelis Jemaat" } }],
-};
-
 const session = {
   code: "U-0001",
   username: "A-0184",
@@ -309,7 +295,9 @@ const session = {
         typeJemaat: "ANGGOTA",
         statusJemaat: "AKTIF",
         joinedAt: "2012-06-17T00:00:00.000Z",
-        roleJemaat: ROLE_JEMAAT[PERSONA_KEY] ?? [],
+        roleJemaat: (PERSONA_POSITIONS[PERSONA_KEY] ?? []).map(
+          ({ name, bapel }) => ({ name, bapel }),
+        ),
       },
   menu,
 };

@@ -235,7 +235,12 @@ describe("persona dev:mock", () => {
       "kpi-surplus-year",
       "kpi-payables",
     ]);
-    expect(main).toEqual(["income-expense-chart", "payables", "agenda-week"]);
+    expect(main).toEqual([
+      "income-expense-chart",
+      "payables",
+      "agenda-week",
+      "approvals",
+    ]);
     expect(side.slice(0, 4)).toEqual([
       "cash-accounts",
       "income-by-type",
