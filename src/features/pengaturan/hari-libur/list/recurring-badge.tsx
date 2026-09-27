@@ -1,11 +1,13 @@
 import { Badge } from "@/components/common/display";
 
 interface PropTypes {
-  since: number;
+  originDate: string;
 }
 
 export const RecurringBadge = (props: PropTypes) => {
-  const { since } = props;
+  const { originDate } = props;
 
-  return <Badge variant="secondary">Berulang sejak {since}</Badge>;
+  return (
+    <Badge variant="secondary">Berulang sejak {originDate.slice(0, 4)}</Badge>
+  );
 };

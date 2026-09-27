@@ -80,7 +80,8 @@ describe("useHolidayList", () => {
           {
             id: 13,
             publicId: "a",
-            date: "1985-09-27T00:00:00.000Z",
+            date: "2026-09-27T00:00:00.000Z",
+            originDate: "1985-09-27T00:00:00.000Z",
             name: "HUT Gereja",
             type: "GEREJA",
             isRecurring: true,

@@ -14,7 +14,7 @@ const HOLIDAY: HolidayRow = {
   name: "Hari Kemerdekaan",
   type: "NASIONAL",
   isRecurring: false,
-  recurringSince: null,
+  originDate: "2026-08-17T00:00:00.000Z",
 };
 
 const onRenderRow = (isCanUpdate: boolean, holiday = HOLIDAY) =>
@@ -38,7 +38,7 @@ describe("baris HP", () => {
     expect(screen.queryByRole("link", { name: /Ubah/ })).toBeNull();
   });
 
-  test("meta = hari, tanggal · tipe; badge Berulang sejak hanya bila berulang", () => {
+  test("meta = hari, tanggal · tipe; tanggal dari server, badge Berulang sejak tahun asal", () => {
     onRenderRow(true);
 
     expect(screen.getByText("Senin, 17 Agustus 2026 · Nasional")).toBeTruthy();
@@ -46,7 +46,15 @@ describe("baris HP", () => {
     expect(screen.queryByText(/Berulang/)).toBeNull();
 
     cleanup();
-    onRenderRow(true, { ...HOLIDAY, isRecurring: true, recurringSince: 1985 });
+    onRenderRow(true, {
+      ...HOLIDAY,
+      date: "2026-09-27T00:00:00.000Z",
+      originDate: "1985-09-27T00:00:00.000Z",
+      name: "HUT Gereja",
+      type: "GEREJA",
+      isRecurring: true,
+    });
+    expect(screen.getByText("Minggu, 27 September 2026 · Gereja")).toBeTruthy();
     expect(screen.getByText("Berulang sejak 1985")).toBeTruthy();
   });
 });

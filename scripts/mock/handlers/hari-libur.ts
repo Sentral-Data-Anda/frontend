@@ -27,6 +27,8 @@ type Row = {
   createdAt: string;
   updatedBy: number | null;
   updatedAt: string | null;
+  deletedBy: number | null;
+  deletedAt: string | null;
 };
 
 type Body = {
@@ -57,6 +59,8 @@ const toRow = (
   createdAt: SEEDED_AT,
   updatedBy: null,
   updatedAt: null,
+  deletedBy: null,
+  deletedAt: null,
 });
 
 const rows: Row[] = [
@@ -93,6 +97,18 @@ const byDateThenName = (
   a: { date: string; name: string },
   b: { date: string; name: string },
 ) => a.date.localeCompare(b.date) || a.name.localeCompare(b.name);
+
+const occurrenceIn = (row: Row, year: number) => {
+  const origin = Number(dayOf(row).slice(0, 4));
+  const monthDay = dayOf(row).slice(5);
+
+  if (!row.isRecurring) return origin === year ? dayOf(row) : null;
+  if (year < origin || (monthDay === "02-29" && !isLeapYear(year))) {
+    return null;
+  }
+
+  return `${year}-${monthDay}`;
+};
 
 const invalid = (path: string, message: string) =>
   json({ status: 400, error: message, issues: [{ path, message }] }, 400);
@@ -170,20 +186,13 @@ const calendar = (url: URL) => {
 
   const firstYear = Number(from.slice(0, 4));
   const lastYear = Number(to.slice(0, 4));
-  const occurrences = rows.flatMap((row) => {
-    if (!row.isRecurring) return [{ date: dayOf(row), row }];
-
-    const origin = Number(dayOf(row).slice(0, 4));
-    const monthDay = dayOf(row).slice(5);
-
-    return Array.from(
-      { length: lastYear - firstYear + 1 },
-      (_, index) => firstYear + index,
+  const occurrences = rows.flatMap((row) =>
+    Array.from({ length: lastYear - firstYear + 1 }, (_, index) =>
+      occurrenceIn(row, firstYear + index),
     )
-      .filter((year) => year >= origin)
-      .filter((year) => monthDay !== "02-29" || isLeapYear(year))
-      .map((year) => ({ date: `${year}-${monthDay}`, row }));
-  });
+      .filter((date) => date !== null)
+      .map((date) => ({ date, row })),
+  );
 
   return json({
     status: 200,
@@ -236,14 +245,14 @@ export const hariLiburMock: MockHandler = async ({
     return list(
       rows
         .filter((row) => row.name.toLowerCase().includes(filter))
-        .filter((row) => {
-          const rowYear = Number(dayOf(row).slice(0, 4));
-
-          return (
-            !year || rowYear === year || (row.isRecurring && rowYear <= year)
-          );
-        })
         .filter((row) => !type || row.type === type)
+        .flatMap((row) => {
+          const listed = { ...row, originDate: row.date };
+          if (!year) return [listed];
+
+          const date = occurrenceIn(row, year);
+          return date ? [{ ...listed, date: `${date}T00:00:00.000Z` }] : [];
+        })
         .sort(byDateThenName),
       url,
       "Hari Libur",
