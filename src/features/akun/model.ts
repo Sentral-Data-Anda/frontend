@@ -1,5 +1,6 @@
-import type { z } from "zod";
+import { z } from "zod";
 
+import { FetchError } from "@/lib/api/fetcher";
 import { formatDate } from "@/lib/format";
 import { changePasswordSchema } from "@/lib/password";
 
@@ -26,6 +27,18 @@ export function passwordFieldError(
 
   return match ? { field: match[1], message } : null;
 }
+
+export const verifyPasswordSchema = z.object({
+  password: z
+    .string()
+    .min(1, "Mohon lengkapi password")
+    .max(25, "Password maksimal 25 karakter"),
+});
+
+export type VerifyPasswordValues = z.infer<typeof verifyPasswordSchema>;
+
+export const isStepUpRequired = (error: unknown): boolean =>
+  error instanceof FetchError && error.code === "STEP_UP_REQUIRED";
 
 export function summarizeOfferings(items: OfferingItem[]) {
   return {

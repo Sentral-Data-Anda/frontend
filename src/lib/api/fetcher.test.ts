@@ -114,6 +114,27 @@ describe("fetchList", () => {
 
     expect(error).toBeInstanceOf(FetchError);
     expect(error.status).toBe(500);
+    expect(error.code).toBeNull();
+  });
+
+  test("membawa code dari badan galat", async () => {
+    stubFetch(() =>
+      Response.json(
+        {
+          status: 403,
+          error: "Verifikasi Password Diperlukan",
+          code: "STEP_UP_REQUIRED",
+        },
+        { status: 403 },
+      ),
+    );
+
+    const error = await fetchList("/persembahan/saya").catch(
+      (caught) => caught,
+    );
+
+    expect(error.status).toBe(403);
+    expect(error.code).toBe("STEP_UP_REQUIRED");
   });
 
   test("mengirim Content-Type hanya bila ada badan", async () => {

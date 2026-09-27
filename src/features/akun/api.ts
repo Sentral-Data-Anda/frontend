@@ -5,7 +5,12 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { fetchList, fetchOne } from "@/lib/api/fetcher";
 
 import { summarizeOfferings } from "./model";
-import type { ChangePasswordPayload, MyProfile, OfferingItem } from "./types";
+import type {
+  ChangePasswordPayload,
+  MyProfile,
+  OfferingItem,
+  StepUpGrant,
+} from "./types";
 
 export const offeringKeys = {
   mine: (year: string) => ["persembahan", "saya", year] as const,
@@ -47,3 +52,10 @@ export function useChangePassword(code: string) {
       }),
   });
 }
+
+// Bukan useMutation: variables mutasi (password) tertahan di MutationCache.
+export const verifyPassword = (password: string) =>
+  fetchOne<StepUpGrant>("/auth/verify-password", {
+    method: "POST",
+    body: JSON.stringify({ password }),
+  });
