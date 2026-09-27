@@ -1,26 +1,41 @@
-import { TriangleAlert } from "lucide-react";
+import { Info, TriangleAlert } from "lucide-react";
+
+import { cn } from "@/lib/utils";
 
 interface PropTypes {
   title: string;
   message: string;
+  tone?: "error" | "info";
 }
 
 export const FormAlert = (props: PropTypes) => {
-  const { title, message } = props;
+  const { title, message, tone = "error" } = props;
+
+  const isInfo = tone === "info";
+  const Icon = isInfo ? Info : TriangleAlert;
+  const textTone = isInfo ? "text-foreground" : "text-destructive";
 
   return (
     <div
-      role="alert"
-      className="border-destructive bg-destructive/10 flex items-start gap-2 rounded-control border p-3"
+      role={isInfo ? "status" : "alert"}
+      className={cn(
+        "flex items-start gap-2 rounded-control border p-3",
+        isInfo
+          ? "border-border bg-card"
+          : "border-destructive bg-destructive/10",
+      )}
     >
-      <TriangleAlert
-        className="text-destructive mt-0.5 size-4 shrink-0"
+      <Icon
+        className={cn(
+          "mt-0.5 size-4 shrink-0",
+          isInfo ? "text-muted-foreground" : "text-destructive",
+        )}
         aria-hidden
       />
 
       <div className="min-w-0">
-        <p className="text-destructive text-body font-medium">{title}</p>
-        <p className="text-destructive text-body">{message}</p>
+        <p className={cn("text-body font-medium", textTone)}>{title}</p>
+        <p className={cn("text-body", textTone)}>{message}</p>
       </div>
     </div>
   );
