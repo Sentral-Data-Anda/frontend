@@ -34,6 +34,9 @@ export const toDdlOptions = (
       label: row.isActive === false ? `${row.name} (nonaktif)` : row.name,
     }));
 
+export const ddlSearchPath = (resource: string, query: string) =>
+  `${resource}${resource.includes("?") ? "&" : "?"}limit=20${query ? `&filter=${encodeURIComponent(query)}` : ""}`;
+
 function useDdlQuery(
   path: string | null,
   valueKey: ValueKey,
@@ -69,11 +72,7 @@ export function useDdlSearch(
   const [query, setQuery] = useState("");
   const [debounced, setDebounced] = useState("");
 
-  const ddl = useDdlQuery(
-    `${resource}?limit=20${debounced ? `&filter=${encodeURIComponent(debounced)}` : ""}`,
-    valueKey,
-    true,
-  );
+  const ddl = useDdlQuery(ddlSearchPath(resource, debounced), valueKey, true);
 
   const isPinnedMissing =
     pinned !== null &&

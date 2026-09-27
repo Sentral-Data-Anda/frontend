@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 
-import { toDdlOptions } from "./use-ddl-options";
+import { ddlSearchPath, toDdlOptions } from "./use-ddl-options";
 
 const ROWS = [
   { id: 1, code: "ZC-0001", name: "Satu" },
@@ -18,4 +18,11 @@ test("toDdlOptions: baris nonaktif disembunyikan kecuali nilai tersimpan", () =>
     { value: "2", label: "Dua (nonaktif)" },
     { value: "3", label: "Tiga" },
   ]);
+});
+
+test("ddlSearchPath: resource boleh membawa query sendiri", () => {
+  expect(ddlSearchPath("jemaat", "")).toBe("jemaat?limit=20");
+  expect(ddlSearchPath("jemaat?register=0", "a b")).toBe(
+    "jemaat?register=0&limit=20&filter=a%20b",
+  );
 });
