@@ -101,6 +101,7 @@ describe("rute layar isian", () => {
     expect(isFormRoute("/kejemaatan/daftar-jemaat/JMT-0042/ubah")).toBe(true);
     expect(isFormRoute("/kejemaatan/pernikahan/abc/akhiri")).toBe(true);
     expect(isFormRoute("/kejemaatan/keluarga/KK-0001/anggota/baru")).toBe(true);
+    expect(isFormRoute("/peribadahan/ibadah/giliran")).toBe(true);
   });
 
   test("halaman tolak permintaan adalah layar isian", () => {
@@ -123,5 +124,6 @@ describe("rute layar isian", () => {
   test("layar ber-slug baru/ubah TIDAK ikut kehilangan navigasi", () => {
     expect(isFormRoute("/kegiatan/baru")).toBe(false);
     expect(isFormRoute("/kegiatan/ubah")).toBe(false);
+    expect(isFormRoute("/peribadahan/giliran")).toBe(false);
   });
 });
