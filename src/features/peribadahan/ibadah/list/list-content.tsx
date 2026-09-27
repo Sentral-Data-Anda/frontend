@@ -17,13 +17,12 @@ const LIST_FILTERS = {
   bulan: { api: "bulan" },
 } satisfies ListFilterSchema;
 
-const MONTH_OPTIONS = [{ value: "", label: "Semua bulan" }, ...monthOptions()];
-
 export const IbadahListContent = () => {
   const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.IBADAH);
   const listParams = useListParams({ filters: LIST_FILTERS });
   const ibadahList = useIbadahList(listParams);
   const types = useDdlOptions("type-ibadah", "id", listParams.filters.tipe);
+  const months = [{ value: "", label: "Semua bulan" }, ...monthOptions()];
 
   return (
     <div className="pb-6">
@@ -60,7 +59,7 @@ export const IbadahListContent = () => {
             key: "bulan",
             label: "Bulan",
             kind: "select",
-            options: MONTH_OPTIONS,
+            options: months,
           },
         ]}
       />
