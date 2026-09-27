@@ -4,15 +4,16 @@
  * berkas di tiap fungsi). Widget yang endpoint-nya belum ada memakai fixture
  * FE di `src/features/beranda/dummy.ts`, bukan tiruan di sini.
  *
- *   MOCK_PERSONA=admin (bawaan) | sekretariat | bendahara | majelis
+ *   MOCK_PERSONA=admin (bawaan) | sekretariat | bendahara | majelis | operator
  *
  * `admin` = pohon menu lengkap dengan semua aksi (be-sada menyintesis aksi
  * untuk `isAdmin`) — dipakai untuk menilai sidebar 12 domain / 61 layar.
  */
 import { MENU, type MenuSlug } from "../src/config/menu";
 import { toDateKey } from "../src/features/beranda/model";
+import { MENU_ACTIONS, type MenuAction } from "../src/types/menu";
 
-type Action = "VIEW" | "CREATE" | "UPDATE" | "DELETE" | "APPROVE" | "REJECT";
+type Action = MenuAction;
 
 export type Persona = {
   roleName: string;
@@ -107,6 +108,21 @@ export const PERSONAS: Record<string, Persona> = {
       [MENU.REPORT_JEMAAT]: V,
     },
   },
+  // Non-admin pemegang menu Pengaturan: be-sada menolak tambah akun dan
+  // mengatur role (hanya admin), dan membatasi izin yang boleh diberikan ke
+  // izin yang dipegang sendiri. MOCK_NO_* mencabut aksi USER/ROLE_USER.
+  operator: {
+    roleName: "Operator Sistem",
+    isAdmin: false,
+    jemaatName: "Yosua Sembiring",
+    grants: {
+      [MENU.USER]: [...KEJEMAATAN_ACTIONS, "RESET"],
+      [MENU.ROLE_USER]: KEJEMAATAN_ACTIONS,
+      [MENU.ACTIVITY_LOG]: V,
+      [MENU.DAFTAR_JEMAAT]: V,
+      [MENU.KELUARGA]: V,
+    },
+  },
   admin: {
     roleName: "Administrator",
     isAdmin: true,
@@ -115,14 +131,7 @@ export const PERSONAS: Record<string, Persona> = {
   },
 };
 
-const ALL_ACTIONS: Action[] = [
-  "VIEW",
-  "CREATE",
-  "UPDATE",
-  "DELETE",
-  "APPROVE",
-  "REJECT",
-];
+const ALL_ACTIONS: Action[] = [...MENU_ACTIONS];
 
 export const actionsOf = (persona: Persona, slug: string): Action[] =>
   persona.grants === null
@@ -1111,6 +1120,15 @@ const DDL_JEMAAT = [
   name,
 }));
 
+// be-sada ddl/role-user: { id, name } saja, tanpa isAdmin; urut nama.
+export const ROLE_USERS = [
+  { id: 1, name: "Administrator" },
+  { id: 4, name: "Bendahara" },
+  { id: 5, name: "Majelis Jemaat" },
+  { id: 3, name: "Operator Sistem" },
+  { id: 2, name: "Sekretariat" },
+];
+
 const BAPEL_NAMES = [
   "Majelis Jemaat",
   "Komisi Pemuda",
@@ -1155,6 +1173,8 @@ export function ddlRows(
       return narrow(DDL_JEMAAT);
     case "bapel":
       return rowsOf(BAPEL_NAMES, "BPL");
+    case "role-user":
+      return ROLE_USERS;
     case "provinces":
       return PROVINCES;
     case "regencies":

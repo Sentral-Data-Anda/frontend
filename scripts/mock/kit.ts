@@ -1,7 +1,7 @@
 import type { MenuSlug } from "../../src/config/menu";
+import type { MenuAction } from "../../src/types/menu";
 
-export type MockAction =
-  "VIEW" | "CREATE" | "UPDATE" | "DELETE" | "APPROVE" | "REJECT";
+export type MockAction = MenuAction;
 
 export type MockContext = {
   request: Request;
