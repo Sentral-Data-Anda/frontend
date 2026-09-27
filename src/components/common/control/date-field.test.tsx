@@ -107,10 +107,10 @@ describe("DateField — galat (§7.7, §7.10 no. 3 & 10)", () => {
     ).toBeTruthy();
   });
 
-  test("masa depan ditolak dengan menyebut nama fieldnya", () => {
-    const date = onRenderDate({ max: "2026-09-23" });
+  test("max bawaan (hari ini): masa depan ditolak dengan menyebut nama fieldnya", () => {
+    const date = onRenderDate();
 
-    date.type("01/01/2030");
+    date.type("01/01/2099");
     date.leave();
 
     expect(
@@ -118,14 +118,29 @@ describe("DateField — galat (§7.7, §7.10 no. 3 & 10)", () => {
     ).toBeTruthy();
   });
 
-  test("sebelum batas bawah ditolak", () => {
+  test("max bukan hari ini: pesan menyebut tanggal batasnya", () => {
+    const date = onRenderDate({ max: "2031-12-31" });
+
+    date.type("01/01/2032");
+    date.leave();
+
+    expect(
+      screen.getByText(
+        "Tanggal lahir setelah 31 Desember 2031 tidak bisa disimpan.",
+      ),
+    ).toBeTruthy();
+  });
+
+  test("sebelum batas bawah ditolak dengan tanggal lengkap", () => {
     const date = onRenderDate({ min: "1900-01-01" });
 
     date.type("31/12/1899");
     date.leave();
 
     expect(
-      screen.getByText("Tanggal lahir sebelum 1900 tidak bisa disimpan."),
+      screen.getByText(
+        "Tanggal lahir sebelum 1 Januari 1900 tidak bisa disimpan.",
+      ),
     ).toBeTruthy();
   });
 
