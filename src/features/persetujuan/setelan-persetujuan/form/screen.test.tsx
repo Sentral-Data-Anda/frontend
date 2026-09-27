@@ -154,6 +154,9 @@ describe("gerbang izin", () => {
     onRenderForm(["VIEW"]);
 
     expect(screen.getByText("Tidak bisa menambah alur")).toBeTruthy();
+    expect(
+      screen.getByText("Peran Anda hanya bisa melihat alur persetujuan."),
+    ).toBeTruthy();
     expect(screen.queryByLabelText("Nama alur")).toBeNull();
   });
 
@@ -192,6 +195,16 @@ describe("gerbang izin", () => {
       await screen.findByText("Data alur persetujuan tidak ditemukan"),
     ).toBeTruthy();
     expect(screen.queryByLabelText("Nama alur")).toBeNull();
+  });
+
+  test("tanpa VIEW: tidak disebut bisa melihat", () => {
+    onRenderForm([], "apa-saja");
+
+    expect(
+      screen.getByText(
+        "Peran Anda tidak memegang akses ke Setelan Alur Persetujuan.",
+      ),
+    ).toBeTruthy();
   });
 });
 
@@ -313,6 +326,25 @@ describe("nama jabatan", () => {
         "Saat ini tidak ada yang memegang jabatan ini; tahap akan menunggu sampai ada.",
       ),
     ).toBeTruthy();
+  });
+});
+
+describe("nominal", () => {
+  test("tempel teks berformat: hanya digit, maksimal 15", () => {
+    onMockApi();
+    onRenderForm(["VIEW", "CREATE"]);
+
+    const min = screen.getByLabelText(
+      "Nominal minimal (Rp)",
+    ) as HTMLInputElement;
+    const max = screen.getByLabelText(
+      "Nominal maksimal (Rp)",
+    ) as HTMLInputElement;
+    fireEvent.change(min, { target: { value: "Rp 1.000.000.000" } });
+    fireEvent.change(max, { target: { value: "1.234.567.890.123.456.789" } });
+
+    expect(min.value).toBe("1000000000");
+    expect(max.value).toBe("123456789012345");
   });
 });
 

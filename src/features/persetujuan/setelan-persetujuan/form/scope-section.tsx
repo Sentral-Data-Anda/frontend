@@ -3,7 +3,7 @@
 import { useWatch } from "react-hook-form";
 
 import { Input } from "@/components/common/control";
-import { ControlField, FormSection } from "@/components/common/form";
+import { ControlField, FormSection, FormWide } from "@/components/common/form";
 
 import { useBapelOptions } from "../api";
 import { amountLabelsOf, previewAmount } from "../model";
@@ -16,7 +16,7 @@ const ALL_BAPEL = "Semua badan pelayanan (alur umum)";
 const NOTE =
   "Alur khusus badan pelayanan didahulukan daripada alur umum. Batas rentang ikut dihitung: 0–1.000.000 dan 1.000.000–5.000.000 dianggap bertumpang tindih, jadi mulai rentang berikutnya dari 1.000.001.";
 
-const toDigits = (value: string) => value.replace(/\D/g, "");
+const toDigits = (value: string) => value.replace(/\D/g, "").slice(0, 15);
 
 interface PropTypes {
   form: SetelanForm;
@@ -38,23 +38,25 @@ export const ScopeSection = (props: PropTypes) => {
 
   return (
     <FormSection legend="Cakupan" note={NOTE} disabled={isDisabled}>
-      <ControlField
-        control={form.control}
-        name="bapelId"
-        label="Badan pelayanan"
-      >
-        {(field) => (
-          <DdlField
-            value={field.value}
-            onValueChange={field.onChange}
-            options={withEmptyOption(ALL_BAPEL, bapel.options)}
-            isLoading={bapel.isLoading}
-            disabled={isDisabled}
-            placeholder={ALL_BAPEL}
-            emptyMessage="Belum ada data badan pelayanan"
-          />
-        )}
-      </ControlField>
+      <FormWide>
+        <ControlField
+          control={form.control}
+          name="bapelId"
+          label="Badan pelayanan"
+        >
+          {(field) => (
+            <DdlField
+              value={field.value}
+              onValueChange={field.onChange}
+              options={withEmptyOption(ALL_BAPEL, bapel.options)}
+              isLoading={bapel.isLoading}
+              disabled={isDisabled}
+              placeholder={ALL_BAPEL}
+              emptyMessage="Belum ada data badan pelayanan"
+            />
+          )}
+        </ControlField>
+      </FormWide>
 
       <ControlField
         control={form.control}
@@ -67,7 +69,6 @@ export const ScopeSection = (props: PropTypes) => {
             {...field}
             onChange={(event) => field.onChange(toDigits(event.target.value))}
             inputMode="numeric"
-            maxLength={15}
             autoComplete="off"
           />
         )}
@@ -84,7 +85,6 @@ export const ScopeSection = (props: PropTypes) => {
             {...field}
             onChange={(event) => field.onChange(toDigits(event.target.value))}
             inputMode="numeric"
-            maxLength={15}
             autoComplete="off"
           />
         )}
