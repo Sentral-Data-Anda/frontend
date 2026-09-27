@@ -1238,8 +1238,6 @@ export function ddlRows(
       return rowsOf(BAPEL_NAMES, "BPL");
     case "role-user":
       return ROLE_USERS;
-    case "type-ibadah":
-      return [...TYPE_IBADAH_ROWS].sort((a, b) => a.name.localeCompare(b.name));
     case "room":
       return [...ROOM_ROWS].sort((a, b) => a.name.localeCompare(b.name));
     case "provinces":
