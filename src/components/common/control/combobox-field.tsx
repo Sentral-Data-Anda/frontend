@@ -50,7 +50,10 @@ export const ComboboxField = (props: PropTypes) => {
   const [query, setQuery] = useState("");
   const collator = Combobox.useFilter();
 
-  const selected = options.find((option) => option.value === value) ?? null;
+  const [held, setHeld] = useState<SelectOption | null>(null);
+
+  const found = options.find((option) => option.value === value);
+  const selected = found ?? (held?.value === value ? held : null);
   const createText = onCreate ? normalizeName(query) : "";
   const isCreatable =
     createText !== "" &&
@@ -63,6 +66,10 @@ export const ComboboxField = (props: PropTypes) => {
 
   const isBusy = isLoading && options.length === 0;
   const isOff = disabled || isBusy;
+
+  if (found && (found.value !== held?.value || found.label !== held.label)) {
+    setHeld(found);
+  }
 
   const onPick = (next: SelectOption | null) => {
     if (next?.value === CREATE_VALUE) onCreate?.(createText);

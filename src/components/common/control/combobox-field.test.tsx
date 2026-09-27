@@ -181,3 +181,43 @@ describe("ComboboxField dengan hint", () => {
     ]);
   });
 });
+
+describe("ComboboxField dengan onSearch: pilihan yang keluar dari hasil cari", () => {
+  const ALL = [
+    { value: "1", label: "Keluarga Kusuma" },
+    { value: "23", label: "Keluarga Sembiring" },
+  ];
+
+  const Harness = (props: { value: string; options: typeof ALL }) => (
+    <ComboboxField
+      value={props.value}
+      onValueChange={() => {}}
+      options={props.options}
+      onSearch={() => {}}
+    />
+  );
+
+  test("nilai terpilih tetap terbaca walau opsinya tidak ada lagi di hasil cari", () => {
+    const { rerender } = render(<Harness value="23" options={ALL} />);
+    const input = screen.getByRole<HTMLInputElement>("combobox");
+
+    expect(input.value).toBe("Keluarga Sembiring");
+
+    rerender(<Harness value="23" options={[ALL[0]]} />);
+    expect(input.value).toBe("Keluarga Sembiring");
+  });
+
+  test("nilai dikosongkan dari luar: input kosong", () => {
+    const { rerender } = render(<Harness value="23" options={ALL} />);
+    const input = screen.getByRole<HTMLInputElement>("combobox");
+
+    rerender(<Harness value="" options={[ALL[0]]} />);
+    expect(input.value).toBe("");
+  });
+
+  test("nilai yang belum pernah terlihat di opsi: tetap kosong", () => {
+    render(<Harness value="99" options={ALL} />);
+
+    expect(screen.getByRole<HTMLInputElement>("combobox").value).toBe("");
+  });
+});

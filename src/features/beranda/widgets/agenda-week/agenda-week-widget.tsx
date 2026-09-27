@@ -28,7 +28,7 @@ const COLUMNS = [
   { label: "Hari", width: "0.8fr" },
   { label: "Jam", width: "0.6fr" },
   { label: "Acara", width: "2fr" },
-  { label: "Ruang", width: "1.2fr", align: "right" as const },
+  { label: "Tempat", width: "1.2fr", align: "right" as const },
 ];
 
 export const AgendaWeekWidget = () => {
