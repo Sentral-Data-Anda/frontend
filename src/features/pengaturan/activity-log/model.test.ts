@@ -7,6 +7,8 @@ import {
   actionKindOf,
   filterSchemaOf,
   formatChangeValue,
+  formatLogTime,
+  isOneSided,
   listChanges,
   listLogFilters,
   MODEL_LABEL,
@@ -283,5 +285,21 @@ describe("tautan rekaman", () => {
         newData: { code: "P" },
       }),
     ).toBeNull();
+  });
+});
+
+describe("waktu log di daftar", () => {
+  test("tanggal pendek + jam WIB, termasuk dini hari yang berganti tanggal", () => {
+    expect(formatLogTime("2026-09-27T05:36:00.000Z")).toBe("27 Sep 2026 12.36");
+    expect(formatLogTime("2026-09-26T20:36:00.000Z")).toBe("27 Sep 2026 03.36");
+    expect(formatLogTime("bukan-tanggal")).toBe("-");
+  });
+});
+
+describe("sisi diff", () => {
+  test("create/delete satu sisi, update dua sisi", () => {
+    expect(isOneSided("create")).toBe(true);
+    expect(isOneSided("delete")).toBe(true);
+    expect(isOneSided("update")).toBe(false);
   });
 });

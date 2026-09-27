@@ -116,7 +116,7 @@ export const ActivityLogDetailScreen = (props: PropTypes) => {
 
       <div className="space-y-4 px-gutter">
         <SummaryPanel log={log} kind={kind} />
-        <ChangesPanel changes={listChanges(log)} />
+        <ChangesPanel action={log.action} changes={listChanges(log)} />
       </div>
     </div>
   );

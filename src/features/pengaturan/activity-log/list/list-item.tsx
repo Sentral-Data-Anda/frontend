@@ -8,12 +8,12 @@ import {
   type DataTableConfig,
 } from "@/components/common/list";
 import { MENU, detailHref } from "@/config/menu";
-import { formatDateTime } from "@/lib/format";
 import { saveListFocus } from "@/lib/list-return";
 
 import {
   ACTIVITY_LOG_LIST_PATH,
   actorName,
+  formatLogTime,
   logTitle,
   modelLabel,
 } from "../model";
@@ -52,7 +52,7 @@ export const ActivityLogListItemRow = (props: PropTypes) => {
           {logTitle(log.kind, log.model)}
         </Link>
       }
-      meta={`${actorName(log.user)} · ${formatDateTime(log.createdAt)}`}
+      meta={`${actorName(log.user)} · ${formatLogTime(log.createdAt)}`}
       trailing={
         log.recordId ? (
           <span className="text-muted-foreground text-caption tabular-nums">
@@ -73,7 +73,7 @@ export const activityLogTable: DataTableConfig<ActivityLogListItem> = {
       narrowWidth: "minmax(0,1.2fr)",
       cell: (log) => (
         <span className="block truncate tabular-nums">
-          {formatDateTime(log.createdAt)}
+          {formatLogTime(log.createdAt)}
         </span>
       ),
     },

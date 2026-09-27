@@ -1,9 +1,10 @@
 import type { SelectOption } from "@/components/common/control";
 import type { ListFilter } from "@/components/common/list";
 import { MENU, menuHref, type MenuSlug } from "@/config/menu";
+import { APP_TIMEZONE } from "@/config/site";
 import type { ListFilterSchema } from "@/hooks/use-list-params";
-import { addDays } from "@/lib/date";
-import { formatDate, formatDateTime } from "@/lib/format";
+import { addDays, todayJakarta } from "@/lib/date";
+import { formatDate, formatDateShort, formatDateTime } from "@/lib/format";
 
 import type { ActionKind, ActivityLog } from "./types";
 
@@ -146,13 +147,26 @@ export const modelLabel = (model: string) => MODEL_LABEL[model] ?? model;
 export const logTitle = (kind: ActionKind, model: string) =>
   `${ACTION_LABEL[kind]} ${modelLabel(model)}`;
 
+const clockFormat = new Intl.DateTimeFormat("id-ID", {
+  hour: "2-digit",
+  minute: "2-digit",
+  timeZone: APP_TIMEZONE,
+});
+
+export function formatLogTime(iso: string): string {
+  const date = new Date(iso);
+
+  return Number.isNaN(date.getTime())
+    ? "-"
+    : `${formatDateShort(todayJakarta(date))} ${clockFormat.format(date)}`;
+}
+
 export const actorName = (user: ActivityLog["user"]) =>
   user === null ? "Sistem" : user?.name;
 
 export type LogFilterKey =
   "periode" | "aksi" | "aksiHapus" | "data" | "pengguna";
 
-// Filter yang belum diterima be-sada disembunyikan supaya tidak diam tidak bekerja.
 export const SUPPORTED_FILTERS: readonly LogFilterKey[] = ["aksi"];
 
 const FILTER_KEYS = ["periode", "aksi", "data", "pengguna"] as const;
@@ -256,6 +270,9 @@ const AUDIT_KEYS = new Set([
 
 export type Change = { field: string; before: unknown; after: unknown };
 
+export const isOneSided = (action: ActivityLog["action"]) =>
+  action !== "update";
+
 export function listChanges(
   log: Pick<ActivityLog, "action" | "oldData" | "newData">,
 ): Change[] {
@@ -275,7 +292,6 @@ export function listChanges(
 
 const ISO_INSTANT = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/;
 
-// be-sada menyimpan kolom tanggal (@db.Date) sebagai tengah malam UTC.
 const MIDNIGHT_UTC = /T00:00:00(\.000)?Z$/;
 
 export type ChangeValue = { text: string | null; isJson: boolean };

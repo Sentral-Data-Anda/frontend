@@ -17,7 +17,6 @@ export const activityLogKeys = {
   detail: (id: string) => [...activityLogKeys.all, "detail", id] as const,
 };
 
-// Daftar tidak menyimpan oldData/newData (data pribadi) di cache.
 const toListItem = ({
   oldData,
   newData,
