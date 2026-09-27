@@ -1,0 +1,72 @@
+import { cleanup, render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, test } from "bun:test";
+
+import type { Holiday } from "../types";
+
+import { HolidayListItemRow, holidayTable } from "./list-item";
+
+afterEach(cleanup);
+
+const HOLIDAY: Holiday = {
+  id: 9,
+  publicId: "a",
+  date: "2026-08-17T00:00:00.000Z",
+  name: "Hari Kemerdekaan",
+  type: "NASIONAL",
+  isRecurring: false,
+};
+
+const onRenderRow = (isCanUpdate: boolean, holiday = HOLIDAY) =>
+  render(
+    <ul>
+      <HolidayListItemRow holiday={holiday} isCanUpdate={isCanUpdate} />
+    </ul>,
+  );
+
+describe("baris HP", () => {
+  test("dengan UPDATE: tautan ubah menunjuk rute id", () => {
+    onRenderRow(true);
+
+    const action = screen.getByRole("link", { name: "Ubah Hari Kemerdekaan" });
+    expect(action.getAttribute("href")).toBe("/pengaturan/hari-libur/9/ubah");
+  });
+
+  test("tanpa UPDATE: tidak ada aksi ubah sama sekali", () => {
+    onRenderRow(false);
+
+    expect(screen.queryByRole("link", { name: /Ubah/ })).toBeNull();
+  });
+
+  test("meta = hari, tanggal · tipe; badge Berulang hanya bila berulang", () => {
+    onRenderRow(true);
+
+    expect(screen.getByText("Senin, 17 Agustus 2026 · Nasional")).toBeTruthy();
+    expect(document.querySelector('[data-row-id="9"]')).not.toBeNull();
+    expect(screen.queryByText("Berulang")).toBeNull();
+
+    cleanup();
+    onRenderRow(true, { ...HOLIDAY, isRecurring: true });
+    expect(screen.getByText("Berulang")).toBeTruthy();
+  });
+});
+
+describe("konfigurasi tabel", () => {
+  test("Tanggal 1.25fr | Nama 2fr | Tipe 1fr | Berulang 0.75fr pelengkap", () => {
+    const table = holidayTable(true);
+
+    expect(
+      table.columns.map((column) => [
+        column.header,
+        column.width,
+        Boolean(column.isSecondary),
+      ]),
+    ).toEqual([
+      ["Tanggal", "minmax(0,1.25fr)", false],
+      ["Nama", "minmax(0,2fr)", false],
+      ["Tipe", "minmax(0,1fr)", false],
+      ["Berulang", "minmax(0,0.75fr)", true],
+    ]);
+    expect(table.getRowHref?.(HOLIDAY)).toBe("/pengaturan/hari-libur/9/ubah");
+    expect(holidayTable(false).getRowHref).toBeUndefined();
+  });
+});
