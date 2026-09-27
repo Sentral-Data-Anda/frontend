@@ -447,342 +447,360 @@ const many = (roleUserId: number): Row[] =>
     }),
   );
 
-const persona = currentPersona();
-const myRoleUserId =
-  ROLE_USERS.find((role) => role.name === persona.roleName)?.id ?? 0;
-const myPositions = PERSONA_POSITIONS[PERSONA_KEY] ?? [];
-
-const rows: Row[] = [
-  ...seed(),
-  ...(process.env.MOCK_APPROVAL_MANY ? many(myRoleUserId) : []),
-];
-
-let isRaceArmed = Boolean(process.env.MOCK_APPROVAL_RACE);
-
-const normalise = (name: string) => name.trim().toLowerCase();
-
-// approvalApprover.canSign be-sada.
-const canSignStep = (step: Step) => {
-  if (step.approverRoleUserId !== null) {
-    return step.approverRoleUserId === myRoleUserId;
-  }
-  if (step.approverRoleName === null || step.approverBapelId === null) {
-    return false;
-  }
-
-  const wanted = normalise(step.approverRoleName);
-
-  return myPositions.some(
-    (held) =>
-      held.bapelId === step.approverBapelId && normalise(held.name) === wanted,
-  );
+export type MockApprover = {
+  roleUserId: number;
+  positions: readonly { name: string; bapelId: number }[];
+  jemaatName: string;
 };
 
-const nameOf = (userId: number | null) => {
-  if (userId === null) return null;
-  const name = userId === ME ? persona.jemaatName : OTHER_USERS[userId];
+// Identitas penanda tangan disuntikkan supaya test bisa memakai persona lain dengan state segar.
+export const createPermintaanPersetujuanMock = (
+  me: MockApprover,
+): MockHandler => {
+  const myRoleUserId = me.roleUserId;
+  const myPositions = me.positions;
+  const rows: Row[] = [
+    ...seed(),
+    ...(process.env.MOCK_APPROVAL_MANY ? many(myRoleUserId) : []),
+  ];
 
-  return name ? { name } : null;
-};
+  let isRaceArmed = Boolean(process.env.MOCK_APPROVAL_RACE);
 
-const roleUserOf = (id: number | null) => {
-  const role = ROLE_USERS.find((item) => item.id === id);
+  const normalise = (name: string) => name.trim().toLowerCase();
 
-  return role ? { publicId: `role-user-${role.id}`, name: role.name } : null;
-};
+  // approvalApprover.canSign be-sada.
+  const canSignStep = (step: Step) => {
+    if (step.approverRoleUserId !== null) {
+      return step.approverRoleUserId === myRoleUserId;
+    }
+    if (step.approverRoleName === null || step.approverBapelId === null) {
+      return false;
+    }
 
-const bapelOf = (id: number | null) => {
-  const bapel = BAPELS.find((item) => item.id === id);
+    const wanted = normalise(step.approverRoleName);
 
-  return bapel
-    ? { publicId: bapel.publicId, code: bapel.code, name: bapel.name }
-    : null;
-};
+    return myPositions.some(
+      (held) =>
+        held.bapelId === step.approverBapelId &&
+        normalise(held.name) === wanted,
+    );
+  };
 
-const present = (row: Row) => ({
-  publicId: row.publicId,
-  code: row.code,
-  documentType: row.documentType,
-  amount: row.amount,
-  status: row.status,
-  currentOrder: row.currentOrder,
-  submittedAt: row.submittedAt,
-  completedAt: row.completedAt,
-  createdAt: row.createdAt,
-  updatedAt: row.updatedAt,
-  config: row.config,
-  document: row.document,
-  submitter: nameOf(row.submittedBy),
-  steps: row.steps.map((step) => ({
-    publicId: step.publicId,
-    order: step.order,
-    approverRoleName: step.approverRoleName,
-    approverRoleUser: roleUserOf(step.approverRoleUserId),
-    approverBapel: bapelOf(step.approverBapelId),
-    status: step.status,
-    note: step.note,
-    actedAt: step.actedAt,
-    actor: nameOf(step.actedBy),
-  })),
-});
+  const nameOf = (userId: number | null) => {
+    if (userId === null) return null;
+    const name = userId === ME ? me.jemaatName : OTHER_USERS[userId];
 
-const fail = (status: number, error: string) => json({ status, error }, status);
+    return name ? { name } : null;
+  };
 
-// Urutan guard persetujuan.service `actionableStep`.
-const actionable = (row: Row) => {
-  if (row.status !== "PENDING") {
-    return { failure: fail(400, "Permintaan Persetujuan Ini Sudah Selesai") };
-  }
+  const roleUserOf = (id: number | null) => {
+    const role = ROLE_USERS.find((item) => item.id === id);
 
-  const step = row.steps.find((one) => one.order === row.currentOrder);
-  if (!step)
-    return { failure: fail(404, "Tahapan Persetujuan Tidak Ditemukan") };
-  if (step.status !== "PENDING") {
-    return { failure: fail(400, "Tahapan Persetujuan Ini Sudah Diproses") };
-  }
-  if (row.submittedBy === ME) {
-    return {
-      failure: fail(
-        403,
-        "Pengaju Tidak Dapat Menyetujui Permintaannya Sendiri",
-      ),
-    };
-  }
-  if (!canSignStep(step)) {
-    return {
-      failure: fail(
-        403,
-        step.approverRoleName === null
-          ? "Tahapan Persetujuan Ini Bukan Wewenang Role Anda"
-          : `Tahapan Persetujuan Ini Menunggu Tanda Tangan ${step.approverRoleName} Komisi Terkait`,
-      ),
-    };
-  }
+    return role ? { publicId: `role-user-${role.id}`, name: role.name } : null;
+  };
 
-  return { step };
-};
+  const bapelOf = (id: number | null) => {
+    const bapel = BAPELS.find((item) => item.id === id);
 
-const withdrawable = (row: Row) => {
-  if (row.status !== "PENDING") {
-    return fail(400, "Permintaan Persetujuan Ini Sudah Selesai");
-  }
-  if (row.submittedBy !== ME) {
-    return fail(403, "Hanya Pengaju Yang Dapat Menarik Permintaan Ini");
-  }
-
-  return null;
-};
-
-const mayRead = (row: Row, isAdmin: boolean) =>
-  isAdmin ||
-  row.submittedBy === ME ||
-  row.steps.some((step) => step.actedBy === ME || canSignStep(step));
-
-const knownType = (value: string | null) =>
-  APPROVAL_DOCUMENT_TYPES.find((type) => type === value);
-
-const knownStatus = (value: string | null) =>
-  APPROVAL_STATUSES.find((status) => status === value);
-
-const myLatestAct = (row: Row) =>
-  row.steps
-    .filter(
-      (step) =>
-        step.actedBy === ME &&
-        step.actedAt !== null &&
-        step.status !== "PENDING",
-    )
-    .sort((a, b) => (b.actedAt ?? "").localeCompare(a.actedAt ?? ""))[0];
-
-const listRows = (url: URL) => {
-  const type = knownType(url.searchParams.get("documentType"));
-  const ofType = (row: Row) => !type || row.documentType === type;
-
-  if (url.searchParams.get("menunggu") === "saya") {
-    return rows
-      .filter((row) => {
-        const step = row.steps.find((one) => one.order === row.currentOrder);
-
-        return (
-          row.status === "PENDING" &&
-          step?.status === "PENDING" &&
-          canSignStep(step) &&
-          row.submittedBy !== ME &&
-          ofType(row)
-        );
-      })
-      .sort((a, b) => a.submittedAt.localeCompare(b.submittedAt) || a.id - b.id)
-      .map(present);
-  }
-
-  if (url.searchParams.get("diproses") === "saya") {
-    return rows
-      .filter((row) => myLatestAct(row) && ofType(row))
-      .map((row) => ({ row, act: myLatestAct(row) as Step }))
-      .sort(
-        (a, b) =>
-          (b.act.actedAt ?? "").localeCompare(a.act.actedAt ?? "") ||
-          b.row.id - a.row.id,
-      )
-      .map(({ row, act }) => ({
-        ...present(row),
-        myDecision: {
-          status: act.status,
-          note: act.note,
-          actedAt: act.actedAt,
-        },
-      }));
-  }
-
-  const status = knownStatus(url.searchParams.get("status"));
-
-  return rows
-    .filter(
-      (row) =>
-        row.submittedBy === ME &&
-        ofType(row) &&
-        (!status || row.status === status),
-    )
-    .sort((a, b) => b.submittedAt.localeCompare(a.submittedAt) || b.id - a.id)
-    .map(present);
-};
-
-const readNote = async (request: Request) => {
-  const body = await readBody<{ note?: unknown }>(request).catch(() => ({
-    note: undefined,
-  }));
-  const note = typeof body.note === "string" ? body.note.trim() : "";
-  const message = !note
-    ? "Mohon Lengkapi Alasan Penolakan"
-    : note.length > 250
-      ? "Alasan Penolakan tidak boleh lebih dari 250 karakter"
+    return bapel
+      ? { publicId: bapel.publicId, code: bapel.code, name: bapel.name }
       : null;
+  };
 
-  return message
-    ? {
-        failure: json(
-          { status: 400, error: message, issues: [{ path: "note", message }] },
-          400,
+  const present = (row: Row) => ({
+    publicId: row.publicId,
+    code: row.code,
+    documentType: row.documentType,
+    amount: row.amount,
+    status: row.status,
+    currentOrder: row.currentOrder,
+    submittedAt: row.submittedAt,
+    completedAt: row.completedAt,
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
+    config: row.config,
+    document: row.document,
+    submitter: nameOf(row.submittedBy),
+    steps: row.steps.map((step) => ({
+      publicId: step.publicId,
+      order: step.order,
+      approverRoleName: step.approverRoleName,
+      approverRoleUser: roleUserOf(step.approverRoleUserId),
+      approverBapel: bapelOf(step.approverBapelId),
+      status: step.status,
+      note: step.note,
+      actedAt: step.actedAt,
+      actor: nameOf(step.actedBy),
+    })),
+  });
+
+  const fail = (status: number, error: string) =>
+    json({ status, error }, status);
+
+  // Urutan guard persetujuan.service `actionableStep`.
+  const actionable = (row: Row) => {
+    if (row.status !== "PENDING") {
+      return { failure: fail(400, "Permintaan Persetujuan Ini Sudah Selesai") };
+    }
+
+    const step = row.steps.find((one) => one.order === row.currentOrder);
+    if (!step)
+      return { failure: fail(404, "Tahapan Persetujuan Tidak Ditemukan") };
+    if (step.status !== "PENDING") {
+      return { failure: fail(400, "Tahapan Persetujuan Ini Sudah Diproses") };
+    }
+    if (row.submittedBy === ME) {
+      return {
+        failure: fail(
+          403,
+          "Pengaju Tidak Dapat Menyetujui Permintaannya Sendiri",
         ),
-      }
-    : { note };
-};
+      };
+    }
+    if (!canSignStep(step)) {
+      return {
+        failure: fail(
+          403,
+          step.approverRoleName === null
+            ? "Tahapan Persetujuan Ini Bukan Wewenang Role Anda"
+            : `Tahapan Persetujuan Ini Menunggu Tanda Tangan ${step.approverRoleName} Komisi Terkait`,
+        ),
+      };
+    }
 
-const done = (message: string, row: Row) =>
-  json({ status: 200, message, data: present(row) });
+    return { step };
+  };
 
-const act = async (
-  request: Request,
-  publicId: string,
-  verb: "setujui" | "tolak" | "tarik",
-) => {
-  const reason = verb === "tolak" ? await readNote(request) : null;
-  if (reason?.failure) return reason.failure;
+  const withdrawable = (row: Row) => {
+    if (row.status !== "PENDING") {
+      return fail(400, "Permintaan Persetujuan Ini Sudah Selesai");
+    }
+    if (row.submittedBy !== ME) {
+      return fail(403, "Hanya Pengaju Yang Dapat Menarik Permintaan Ini");
+    }
 
-  if (process.env.MOCK_APPROVAL_ACT_ERROR) {
-    return fail(500, "Kesalahan server.");
-  }
-  if (isRaceArmed) {
-    isRaceArmed = false;
-    return fail(400, "Permintaan Persetujuan Ini Sudah Selesai");
-  }
+    return null;
+  };
 
-  const row = rows.find((item) => item.publicId === publicId);
-  if (!row) return fail(404, NOT_FOUND);
+  const mayRead = (row: Row, isAdmin: boolean) =>
+    isAdmin ||
+    row.submittedBy === ME ||
+    row.steps.some((step) => step.actedBy === ME || canSignStep(step));
 
-  const now = new Date().toISOString();
+  const knownType = (value: string | null) =>
+    APPROVAL_DOCUMENT_TYPES.find((type) => type === value);
 
-  if (verb === "tarik") {
-    const failure = withdrawable(row);
+  const knownStatus = (value: string | null) =>
+    APPROVAL_STATUSES.find((status) => status === value);
+
+  const myLatestAct = (row: Row) =>
+    row.steps
+      .filter(
+        (step) =>
+          step.actedBy === ME &&
+          step.actedAt !== null &&
+          step.status !== "PENDING",
+      )
+      .sort((a, b) => (b.actedAt ?? "").localeCompare(a.actedAt ?? ""))[0];
+
+  const listRows = (url: URL) => {
+    const type = knownType(url.searchParams.get("documentType"));
+    const ofType = (row: Row) => !type || row.documentType === type;
+
+    if (url.searchParams.get("menunggu") === "saya") {
+      return rows
+        .filter((row) => {
+          const step = row.steps.find((one) => one.order === row.currentOrder);
+
+          return (
+            row.status === "PENDING" &&
+            step?.status === "PENDING" &&
+            canSignStep(step) &&
+            row.submittedBy !== ME &&
+            ofType(row)
+          );
+        })
+        .sort(
+          (a, b) => a.submittedAt.localeCompare(b.submittedAt) || a.id - b.id,
+        )
+        .map(present);
+    }
+
+    if (url.searchParams.get("diproses") === "saya") {
+      return rows
+        .filter((row) => myLatestAct(row) && ofType(row))
+        .map((row) => ({ row, act: myLatestAct(row) as Step }))
+        .sort(
+          (a, b) =>
+            (b.act.actedAt ?? "").localeCompare(a.act.actedAt ?? "") ||
+            b.row.id - a.row.id,
+        )
+        .map(({ row, act }) => ({
+          ...present(row),
+          myDecision: {
+            status: act.status,
+            note: act.note,
+            actedAt: act.actedAt,
+          },
+        }));
+    }
+
+    const status = knownStatus(url.searchParams.get("status"));
+
+    return rows
+      .filter(
+        (row) =>
+          row.submittedBy === ME &&
+          ofType(row) &&
+          (!status || row.status === status),
+      )
+      .sort((a, b) => b.submittedAt.localeCompare(a.submittedAt) || b.id - a.id)
+      .map(present);
+  };
+
+  const readNote = async (request: Request) => {
+    const body = await readBody<{ note?: unknown }>(request).catch(() => ({
+      note: undefined,
+    }));
+    const note = typeof body.note === "string" ? body.note.trim() : "";
+    const message = !note
+      ? "Mohon Lengkapi Alasan Penolakan"
+      : note.length > 250
+        ? "Alasan Penolakan tidak boleh lebih dari 250 karakter"
+        : null;
+
+    return message
+      ? {
+          failure: json(
+            {
+              status: 400,
+              error: message,
+              issues: [{ path: "note", message }],
+            },
+            400,
+          ),
+        }
+      : { note };
+  };
+
+  const done = (message: string, row: Row) =>
+    json({ status: 200, message, data: present(row) });
+
+  const act = async (
+    request: Request,
+    publicId: string,
+    verb: "setujui" | "tolak" | "tarik",
+  ) => {
+    const reason = verb === "tolak" ? await readNote(request) : null;
+    if (reason?.failure) return reason.failure;
+
+    if (process.env.MOCK_APPROVAL_ACT_ERROR) {
+      return fail(500, "Kesalahan server.");
+    }
+    if (isRaceArmed) {
+      isRaceArmed = false;
+      return fail(400, "Permintaan Persetujuan Ini Sudah Selesai");
+    }
+
+    const row = rows.find((item) => item.publicId === publicId);
+    if (!row) return fail(404, NOT_FOUND);
+
+    const now = new Date().toISOString();
+
+    if (verb === "tarik") {
+      const failure = withdrawable(row);
+      if (failure) return failure;
+
+      Object.assign(row, {
+        status: "CANCELLED",
+        completedAt: now,
+        updatedAt: now,
+      });
+
+      return done("Berhasil Menarik Permintaan", row);
+    }
+
+    const { failure, step } = actionable(row);
     if (failure) return failure;
 
-    Object.assign(row, {
-      status: "CANCELLED",
-      completedAt: now,
-      updatedAt: now,
+    Object.assign(step, {
+      status: verb === "setujui" ? "APPROVED" : "REJECTED",
+      note: reason?.note ?? null,
+      actedBy: ME,
+      actedAt: now,
     });
 
-    return done("Berhasil Menarik Permintaan", row);
-  }
+    if (verb === "tolak") {
+      Object.assign(row, {
+        status: "REJECTED",
+        completedAt: now,
+        updatedAt: now,
+      });
 
-  const { failure, step } = actionable(row);
-  if (failure) return failure;
+      return done("Berhasil Menolak Permintaan", row);
+    }
 
-  Object.assign(step, {
-    status: verb === "setujui" ? "APPROVED" : "REJECTED",
-    note: reason?.note ?? null,
-    actedBy: ME,
-    actedAt: now,
-  });
+    const next = row.steps.find((one) => one.order > step.order);
 
-  if (verb === "tolak") {
-    Object.assign(row, {
-      status: "REJECTED",
-      completedAt: now,
-      updatedAt: now,
-    });
-
-    return done("Berhasil Menolak Permintaan", row);
-  }
-
-  const next = row.steps.find((one) => one.order > step.order);
-
-  Object.assign(
-    row,
-    next
-      ? { currentOrder: next.order, updatedAt: now }
-      : { status: "APPROVED", completedAt: now, updatedAt: now },
-  );
-
-  return done("Berhasil Menyetujui Permintaan", row);
-};
-
-export const permintaanPersetujuanMock: MockHandler = async ({
-  request,
-  url,
-  path,
-  method,
-  can,
-  isAdmin,
-}) => {
-  const match = path.match(
-    /^\/persetujuan(?:\/([^/]+))?(?:\/(setujui|tolak|tarik))?$/,
-  );
-  if (!match) return null;
-
-  const [, publicId, verb] = match;
-
-  if (method === "PUT" && publicId && verb) {
-    if (!can(MENU.PERMINTAAN_PERSETUJUAN, "UPDATE")) return denied();
-
-    return act(request, publicId, verb as "setujui" | "tolak" | "tarik");
-  }
-
-  if (method !== "GET" || verb) return null;
-  if (!can(MENU.PERMINTAAN_PERSETUJUAN, "VIEW")) return denied();
-
-  if (!publicId) {
-    if (process.env.MOCK_500) return fail(500, "Kesalahan server.");
-
-    return list(
-      listRows(url),
-      url,
-      "Permintaan Persetujuan",
-      "Permintaan Persetujuan",
-      LIST_MESSAGE,
+    Object.assign(
+      row,
+      next
+        ? { currentOrder: next.order, updatedAt: now }
+        : { status: "APPROVED", completedAt: now, updatedAt: now },
     );
-  }
 
-  const row = rows.find((item) => item.publicId === publicId);
-  if (!row || !mayRead(row, isAdmin)) return fail(404, NOT_FOUND);
+    return done("Berhasil Menyetujui Permintaan", row);
+  };
 
-  return json({
-    status: 200,
-    message: LIST_MESSAGE,
-    data: {
-      ...present(row),
-      canSign: !actionable(row).failure,
-      canWithdraw: withdrawable(row) === null,
-    },
-  });
+  return async ({ request, url, path, method, can, isAdmin }) => {
+    const match = path.match(
+      /^\/persetujuan(?:\/([^/]+))?(?:\/(setujui|tolak|tarik))?$/,
+    );
+    if (!match) return null;
+
+    const [, publicId, verb] = match;
+
+    if (method === "PUT" && publicId && verb) {
+      if (!can(MENU.PERMINTAAN_PERSETUJUAN, "UPDATE")) return denied();
+
+      return act(request, publicId, verb as "setujui" | "tolak" | "tarik");
+    }
+
+    if (method !== "GET" || verb) return null;
+    if (!can(MENU.PERMINTAAN_PERSETUJUAN, "VIEW")) return denied();
+
+    if (!publicId) {
+      if (process.env.MOCK_500) return fail(500, "Kesalahan server.");
+
+      return list(
+        listRows(url),
+        url,
+        "Permintaan Persetujuan",
+        "Permintaan Persetujuan",
+        LIST_MESSAGE,
+      );
+    }
+
+    const row = rows.find((item) => item.publicId === publicId);
+    if (!row || !mayRead(row, isAdmin)) return fail(404, NOT_FOUND);
+
+    return json({
+      status: 200,
+      message: LIST_MESSAGE,
+      data: {
+        ...present(row),
+        canSign: !actionable(row).failure,
+        canWithdraw: withdrawable(row) === null,
+      },
+    });
+  };
 };
+
+const persona = currentPersona();
+
+export const permintaanPersetujuanMock = createPermintaanPersetujuanMock({
+  roleUserId:
+    ROLE_USERS.find((role) => role.name === persona.roleName)?.id ?? 0,
+  positions: PERSONA_POSITIONS[PERSONA_KEY] ?? [],
+  jemaatName: persona.jemaatName,
+});
