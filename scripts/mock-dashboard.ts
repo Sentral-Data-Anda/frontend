@@ -1051,6 +1051,10 @@ export const keluargaCodeOf = (id: number) =>
  */
 const KELUARGA_COUNT = process.env.MOCK_DDL_MANY ? 400 : KELUARGA_SEED.length;
 
+/**
+ * be-sada: urut nama; `?zoneChurchId=` menyaring keluarga di wilayah itu
+ * (baris ke-25 dst. tanpa wilayah). Wilayah tidak dikirim di jawaban.
+ */
 const KELUARGA = Array.from({ length: KELUARGA_COUNT }, (_, index) => ({
   id: index + 1,
   code: keluargaCodeOf(index + 1),
@@ -1058,7 +1062,16 @@ const KELUARGA = Array.from({ length: KELUARGA_COUNT }, (_, index) => ({
     index < KELUARGA_SEED.length
       ? `Keluarga ${KELUARGA_SEED[index].surname}`
       : `Keluarga ${KELUARGA_SEED[index % KELUARGA_SEED.length].surname} ${index + 1}`,
-}));
+  zoneChurchId: KELUARGA_SEED[index]?.wilayah ?? null,
+})).sort((a, b) => a.name.localeCompare(b.name, "id"));
+
+const keluargaDdl = (params: URLSearchParams) => {
+  const zone = params.get("zoneChurchId") ?? "";
+
+  return KELUARGA.filter(
+    (row) => !/^\d+$/.test(zone) || row.zoneChurchId === Number(zone),
+  ).map(({ zoneChurchId: _zone, ...row }) => row);
+};
 
 const PROVINCES = [
   { id: 1, code: "32", name: "Jawa Barat" },
@@ -1185,7 +1198,7 @@ export function ddlRows(
     case "zone-church":
       return rowsOf(ZONE_CHURCHES, "ZON");
     case "keluarga":
-      return narrow(KELUARGA);
+      return narrow(keluargaDdl(params));
     case "jemaat":
       return narrow(DDL_JEMAAT);
     case "bapel":
