@@ -278,6 +278,7 @@ export const Calendar = (props: PropTypes) => {
           const isAllowed = isWithin(day, min, max);
           const isSelected = day === value;
           const isCursor = day === cursor;
+          const isToday = day === today;
 
           return (
             <button
@@ -291,18 +292,23 @@ export const Calendar = (props: PropTypes) => {
               disabled={!isAllowed}
               aria-label={formatDate(day)}
               aria-selected={isSelected}
-              aria-current={day === today ? "date" : undefined}
+              aria-current={isToday ? "date" : undefined}
+              data-outside={isOutside || undefined}
+              data-today={isToday || undefined}
               onClick={() => onPick(day)}
               className={cn(
-                "flex h-9 w-full items-center justify-center rounded-control text-body tabular-nums transition-colors",
+                "relative flex h-9 w-full items-center justify-center rounded-control text-body tabular-nums transition-colors",
                 "cursor-pointer focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:outline-none",
-                !isSelected && "hover:bg-accent",
                 "disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent",
-                isOutside && "text-muted-foreground",
-                day === today &&
-                  !isSelected &&
-                  "relative font-semibold after:absolute after:bottom-1 after:size-1 after:rounded-full after:bg-primary",
-                isSelected && "bg-primary text-primary-foreground",
+                isToday &&
+                  "font-semibold after:absolute after:bottom-1 after:size-1 after:rounded-full after:bg-current",
+                isSelected
+                  ? "bg-primary text-primary-foreground"
+                  : "hover:bg-accent",
+                !isSelected && isOutside && "text-muted-foreground/70",
+                !isSelected &&
+                  isToday &&
+                  "bg-secondary text-secondary-foreground",
               )}
             >
               {Number(day.slice(8))}
