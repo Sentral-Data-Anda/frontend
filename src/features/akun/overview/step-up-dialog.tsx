@@ -61,7 +61,13 @@ export const StepUpDialog = (props: PropTypes) => {
       isClosedOnConfirm={false}
       onConfirm={() => void onVerify()}
     >
-      <form noValidate onSubmit={onVerify} className="space-y-3">
+      <form
+        noValidate
+        onSubmit={(event) =>
+          isSubmitting ? event.preventDefault() : void onVerify(event)
+        }
+        className="space-y-3"
+      >
         <FormField
           label="Password"
           htmlFor={FIELD_ID}

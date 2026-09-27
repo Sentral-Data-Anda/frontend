@@ -423,7 +423,7 @@ const passwordIssue = (message: string) =>
   json(
     {
       status: 400,
-      error: "Validasi Gagal",
+      error: message,
       issues: [{ path: "password", message }],
     },
     400,
@@ -457,12 +457,11 @@ const verifyPassword = async (request: Request) => {
     return passwordIssue("Password tidak sesuai. Periksa kembali.");
   }
 
-  stepUp.failures = 0;
   stepUp.expiresAt = Date.now() + STEPUP_EXPIRE_MS;
 
   return json({
     status: 200,
-    message: "Password Terverifikasi",
+    message: "Berhasil Memverifikasi Password",
     data: { expiresAt: new Date(stepUp.expiresAt).toISOString() },
   });
 };
