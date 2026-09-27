@@ -91,5 +91,10 @@ export function useJabatanOptions(bapelId: string, isEnabled = true) {
       response.data.map((row) => ({ value: row.name, label: row.name })),
   });
 
-  return { options: query.data ?? [], isLoading: query.isFetching };
+  return {
+    options: query.data ?? [],
+    isLoading: query.isFetching,
+    isLoaded: query.isSuccess,
+    isError: query.isError,
+  };
 }

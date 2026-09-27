@@ -9,10 +9,11 @@ import { SETELAN_LIST_PATH } from "../model";
 
 interface PropTypes {
   isEdit: boolean;
+  isCanView: boolean;
 }
 
 export const NoFormAccess = (props: PropTypes) => {
-  const { isEdit } = props;
+  const { isEdit, isCanView } = props;
 
   return (
     <div className="mx-auto w-full max-w-lg">
@@ -24,9 +25,9 @@ export const NoFormAccess = (props: PropTypes) => {
 
       <div className="flex flex-col items-start gap-3 px-gutter">
         <p className="text-muted-foreground text-body">
-          {isEdit
-            ? "Peran Anda tidak memegang akses ke Setelan Alur Persetujuan."
-            : "Peran Anda hanya bisa melihat alur persetujuan."}
+          {isCanView
+            ? "Peran Anda hanya bisa melihat alur persetujuan."
+            : "Peran Anda tidak memegang akses ke Setelan Alur Persetujuan."}
         </p>
 
         <p className="text-muted-foreground text-body">

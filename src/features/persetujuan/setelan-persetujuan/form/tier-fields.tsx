@@ -54,8 +54,9 @@ export const TierFields = (props: PropTypes) => {
   const roles = useRoleOptions();
   const bapel = useBapelOptions();
   const jabatan = useJabatanOptions(bapelId, isPosition);
-  const saved = withSavedJabatan(jabatan.options, roleName, !jabatan.isLoading);
+  const saved = withSavedJabatan(jabatan.options, roleName, jabatan.isLoaded);
   const step = index + 1;
+  const titleId = `tier-${index}-title`;
 
   const onPickKind = (next: string) => {
     form.setValue(`tiers.${index}.kind`, next as "role" | "position", {
@@ -73,9 +74,14 @@ export const TierFields = (props: PropTypes) => {
   };
 
   return (
-    <li className="border-hairline space-y-3 rounded-control border p-3">
+    <li
+      aria-labelledby={titleId}
+      className="border-hairline space-y-3 rounded-control border p-3"
+    >
       <div className="flex items-center justify-between gap-2">
-        <p className="text-body font-medium">Tahap {step}</p>
+        <p id={titleId} className="text-body font-medium">
+          Tahap {step}
+        </p>
 
         {isEditable ? (
           <div className="flex gap-1">
@@ -181,9 +187,11 @@ export const TierFields = (props: PropTypes) => {
                     disabled={isDisabled}
                     placeholder="Pilih jabatan"
                     emptyMessage={
-                      bapelId
-                        ? "Belum ada jabatan di Role Jemaat untuk badan pelayanan ini."
-                        : "Belum ada jabatan di Role Jemaat."
+                      jabatan.isError
+                        ? "Daftar jabatan gagal dimuat. Muat ulang halaman untuk mencoba lagi."
+                        : bapelId
+                          ? "Belum ada jabatan di Role Jemaat untuk badan pelayanan ini."
+                          : "Belum ada jabatan di Role Jemaat."
                     }
                   />
                 )}

@@ -152,7 +152,7 @@ export const SetelanFormScreen = (props: PropTypes) => {
   }, [isBusy, submitCount, rejectedField, deactivateSetelan.isError]);
 
   if (!(isEdit ? isCanView : isCanCreate)) {
-    return <NoFormAccess isEdit={isEdit} />;
+    return <NoFormAccess isEdit={isEdit} isCanView={isCanView} />;
   }
 
   if (detail.error instanceof FetchError && detail.error.status === 404) {
