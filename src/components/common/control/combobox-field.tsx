@@ -13,6 +13,9 @@ import { FIELD_ITEM, FIELD_POPUP, type SelectOption } from "./select-field";
 
 const CREATE_VALUE = "\u0000create";
 
+const isSameOption = (item: SelectOption, value: SelectOption) =>
+  item.value === value.value;
+
 interface PropTypes {
   id?: string;
   value: string;
@@ -53,7 +56,11 @@ export const ComboboxField = (props: PropTypes) => {
   const [held, setHeld] = useState<SelectOption | null>(null);
 
   const found = options.find((option) => option.value === value);
-  const selected = found ?? (held?.value === value ? held : null);
+  const isHeld =
+    held !== null &&
+    held.value === value &&
+    (!found || found.label === held.label);
+  const selected = isHeld ? held : (found ?? null);
   const createText = onCreate ? normalizeName(query) : "";
   const isCreatable =
     createText !== "" &&
@@ -67,9 +74,7 @@ export const ComboboxField = (props: PropTypes) => {
   const isBusy = isLoading && options.length === 0;
   const isOff = disabled || isBusy;
 
-  if (found && (found.value !== held?.value || found.label !== held.label)) {
-    setHeld(found);
-  }
+  if (found && !isHeld) setHeld(found);
 
   const onPick = (next: SelectOption | null) => {
     if (next?.value === CREATE_VALUE) onCreate?.(createText);
@@ -89,6 +94,7 @@ export const ComboboxField = (props: PropTypes) => {
     <Combobox.Root
       items={items as SelectOption[]}
       value={selected}
+      isItemEqualToValue={isSameOption}
       onValueChange={(next) => onPick(next as SelectOption | null)}
       filter={onSearch ? null : onCreate ? onFilter : undefined}
       onInputValueChange={onType}
