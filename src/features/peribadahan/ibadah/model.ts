@@ -22,6 +22,8 @@ import type {
 
 export const IBADAH_LIST_PATH = menuHref(MENU.PERIBADAHAN, MENU.IBADAH);
 
+export const GILIRAN_PATH = `${IBADAH_LIST_PATH}/giliran`;
+
 export const salinHref = (code: string) =>
   `${createHref(MENU.PERIBADAHAN, MENU.IBADAH)}?salin=${encodeURIComponent(code)}`;
 

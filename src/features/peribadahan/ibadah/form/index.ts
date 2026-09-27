@@ -4,3 +4,4 @@ export * from "./form-options";
 export * from "./place-fields";
 export * from "./schedule-section";
 export * from "./screen";
+export { GiliranScreen } from "./giliran";
