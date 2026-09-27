@@ -1,14 +1,13 @@
 import { z } from "zod";
 
 import { MENU, menuHref } from "@/config/menu";
-import { toDateInput, toIsoDate, todayJakarta } from "@/lib/date";
+import { toDateInput, todayJakarta } from "@/lib/date";
 import { formatDate, formatDateShort, formatWeekday } from "@/lib/format";
 
 import {
   HOLIDAY_TYPE_LABEL,
   type Holiday,
   type HolidayPayload,
-  type HolidayRow,
   type HolidayType,
 } from "./types";
 
@@ -69,34 +68,6 @@ export const formatHolidayDate = (date: string) =>
 
 export const formatHolidayDateShort = (date: string) =>
   `${formatWeekday(date)}, ${formatDateShort(date)}`;
-
-export function toHolidayRows(holidays: Holiday[], year: string): HolidayRow[] {
-  const rows = holidays.flatMap((holiday): HolidayRow[] => {
-    if (!holiday.isRecurring) return [{ ...holiday, recurringSince: null }];
-
-    const since = Number(holiday.date.slice(0, 4));
-
-    if (!year) return [{ ...holiday, recurringSince: since }];
-
-    const date = toIsoDate(
-      Number(holiday.date.slice(8, 10)),
-      Number(holiday.date.slice(5, 7)),
-      Number(year),
-    );
-
-    return date && Number(year) >= since
-      ? [{ ...holiday, date, recurringSince: since }]
-      : [];
-  });
-
-  return year
-    ? rows.sort(
-        (a, b) =>
-          a.date.slice(0, 10).localeCompare(b.date.slice(0, 10)) ||
-          a.name.localeCompare(b.name),
-      )
-    : rows;
-}
 
 export function yearOptions(today: string = todayJakarta()) {
   const year = Number(today.slice(0, 4));

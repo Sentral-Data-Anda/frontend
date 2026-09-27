@@ -7,7 +7,7 @@ import type { ListState } from "@/hooks/use-list-params";
 import { useListQuery } from "@/hooks/use-list-query";
 import { fetchList, fetchOne } from "@/lib/api/fetcher";
 
-import type { Holiday, HolidayPayload } from "./types";
+import type { Holiday, HolidayPayload, HolidayRow } from "./types";
 
 export const holidayKeys = {
   all: ["hari-libur"] as const,
@@ -18,7 +18,7 @@ export const holidayKeys = {
 export function useHolidayList(params: ListState) {
   return useListQuery({
     queryKey: holidayKeys.lists(),
-    fetchPage: (apiQuery) => fetchList<Holiday>(`/hari-libur?${apiQuery}`),
+    fetchPage: (apiQuery) => fetchList<HolidayRow>(`/hari-libur?${apiQuery}`),
     params,
   });
 }

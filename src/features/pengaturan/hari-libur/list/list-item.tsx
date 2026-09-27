@@ -42,8 +42,8 @@ export const HolidayListItemRow = (props: PropTypes) => {
       meta={`${formatHolidayDate(holiday.date)} · ${HOLIDAY_TYPE_LABEL[holiday.type]}`}
       trailing={
         <>
-          {holiday.recurringSince ? (
-            <RecurringBadge since={holiday.recurringSince} />
+          {holiday.isRecurring ? (
+            <RecurringBadge originDate={holiday.originDate} />
           ) : null}
 
           {isCanUpdate ? (
@@ -105,8 +105,8 @@ export function holidayTable(
         width: "minmax(0,0.75fr)",
         isSecondary: true,
         cell: (holiday) =>
-          holiday.recurringSince ? (
-            <RecurringBadge since={holiday.recurringSince} />
+          holiday.isRecurring ? (
+            <RecurringBadge originDate={holiday.originDate} />
           ) : (
             <OptionalText text={null} empty="Tidak berulang" />
           ),
