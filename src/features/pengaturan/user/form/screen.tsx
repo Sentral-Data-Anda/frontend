@@ -392,6 +392,7 @@ export const UserFormScreen = (props: PropTypes) => {
       <div className="space-y-3 px-gutter pb-4 empty:hidden">
         {isNoAssignable ? (
           <FormAlert
+            tone="info"
             title="Tidak ada role yang boleh Anda berikan."
             message="Akun baru hanya bisa diberi role yang seluruh izinnya Anda pegang. Minta administrator membuat akun ini."
           />
