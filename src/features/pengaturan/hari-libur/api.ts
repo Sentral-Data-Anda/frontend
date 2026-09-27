@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import { HOLIDAY_CALENDAR_KEY } from "@/hooks/use-holiday-calendar";
 import type { ListState } from "@/hooks/use-list-params";
 import { useListQuery } from "@/hooks/use-list-query";
 import { fetchList, fetchOne } from "@/lib/api/fetcher";
@@ -35,7 +36,11 @@ export function useHolidayDetail(id: string | undefined) {
 function useInvalidateHoliday() {
   const queryClient = useQueryClient();
 
-  return () => queryClient.invalidateQueries({ queryKey: holidayKeys.lists() });
+  return () =>
+    Promise.all([
+      queryClient.invalidateQueries({ queryKey: holidayKeys.lists() }),
+      queryClient.invalidateQueries({ queryKey: HOLIDAY_CALENDAR_KEY }),
+    ]);
 }
 
 export function useSaveHoliday(id?: string) {

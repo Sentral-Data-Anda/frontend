@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import { useBoolean } from "@/hooks/use-boolean";
+import { useHolidayCalendar } from "@/hooks/use-holiday-calendar";
 import {
   addDays,
   addMonths,
@@ -69,6 +70,7 @@ export const Calendar = (props: PropTypes) => {
 
   const month = startOfMonth(cursor);
   const days = monthGrid(cursor);
+  const holidays = useHolidayCalendar(days[0] ?? "", days.at(-1) ?? "");
 
   const moveCursor = (next: string) => {
     if (!next || !isWithin(next, min, max)) return;
@@ -279,6 +281,7 @@ export const Calendar = (props: PropTypes) => {
           const isSelected = day === value;
           const isCursor = day === cursor;
           const isToday = day === today;
+          const holiday = holidays.get(day);
 
           return (
             <button
@@ -290,11 +293,17 @@ export const Calendar = (props: PropTypes) => {
               role="gridcell"
               tabIndex={isCursor ? 0 : -1}
               disabled={!isAllowed}
-              aria-label={formatDate(day)}
+              aria-label={
+                holiday
+                  ? `${formatDate(day)}, libur: ${holiday}`
+                  : formatDate(day)
+              }
+              title={holiday}
               aria-selected={isSelected}
               aria-current={isToday ? "date" : undefined}
               data-outside={isOutside || undefined}
               data-today={isToday || undefined}
+              data-holiday={holiday ? "" : undefined}
               onClick={() => onPick(day)}
               className={cn(
                 "relative flex h-9 w-full items-center justify-center rounded-control text-body tabular-nums transition-colors",
@@ -309,6 +318,15 @@ export const Calendar = (props: PropTypes) => {
                 !isSelected &&
                   isToday &&
                   "bg-secondary text-secondary-foreground",
+                holiday &&
+                  "before:absolute before:bottom-1 before:size-1 before:rounded-full before:bg-destructive",
+                holiday &&
+                  isToday &&
+                  "before:translate-x-1 after:-translate-x-1",
+                holiday &&
+                  isSelected &&
+                  "before:ring-1 before:ring-primary-foreground",
+                holiday && isOutside && !isSelected && "before:opacity-70",
               )}
             >
               {Number(day.slice(8))}
