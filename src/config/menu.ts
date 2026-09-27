@@ -381,10 +381,18 @@ export const endHref = (
 ): string =>
   `${menuHref(groupSlug, leafSlug)}/${encodeURIComponent(code)}/${FORM_SEGMENT.end}`;
 
+export const rejectHref = (
+  groupSlug: string,
+  leafSlug: string,
+  code: string,
+): string =>
+  `${menuHref(groupSlug, leafSlug)}/${encodeURIComponent(code)}/${FORM_SEGMENT.reject}`;
+
 export const FORM_SEGMENT = {
   create: "baru",
   edit: "ubah",
   end: "akhiri",
+  reject: "tolak",
 } as const;
 
 const FORM_SEGMENTS: readonly string[] = Object.values(FORM_SEGMENT);

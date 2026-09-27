@@ -1,7 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
 import {
-  daysSince,
   findNextService,
   formatDayMonth,
   formatLongDate,
@@ -95,8 +94,6 @@ describe("findNextService", () => {
 });
 
 describe("tanggal dashboard", () => {
-  const lateTuesday = new Date("2026-09-22T16:30:00Z");
-
   test("tujuh hari mulai hari ini (WIB), melewati akhir bulan", () => {
     expect(weekKeys(new Date("2026-09-27T20:00:00Z"))).toEqual([
       "2026-09-28",
@@ -115,9 +112,7 @@ describe("tanggal dashboard", () => {
     expect(formatMonthYear("2026-09-01T00:00:00.000Z")).toBe("Sep 2026");
   });
 
-  test("bulan dan umur tunggu memakai hari WIB", () => {
+  test("bulan memakai hari WIB", () => {
     expect(monthOf(new Date("2026-09-30T18:00:00Z"))).toBe(10);
-    expect(daysSince("2026-09-20T03:10:00.000Z", lateTuesday)).toBe(2);
-    expect(daysSince("2026-09-22T16:00:00.000Z", lateTuesday)).toBe(0);
   });
 });

@@ -2,6 +2,8 @@
 
 import { MENU, menuHref, type MenuSlug } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
+import { daysSince } from "@/lib/date";
+import { APPROVAL_DOCUMENT_LABEL } from "@/types/persetujuan";
 
 import {
   amountOf,
@@ -17,8 +19,7 @@ import {
   type SupplierInvoiceItem,
 } from "../../api";
 import { DUMMY_UNPOSTED_OFFERINGS, SHOW_DUMMY } from "../../fixtures";
-import { daysSince, formatDayMonth, toDateKey } from "../../model";
-import { DOCUMENT_LABEL } from "../approvals/data";
+import { formatDayMonth, toDateKey } from "../../model";
 
 type Tone = "due" | "draft" | "wait" | "neutral";
 
@@ -128,7 +129,7 @@ export function buildPayables(
     })),
     ...(sources.approvals ?? []).map((row): Payable => ({
       key: `pst-${row.code}`,
-      title: `${row.code} · ${DOCUMENT_LABEL[row.documentType] ?? row.documentType}`,
+      title: `${row.code} · ${APPROVAL_DOCUMENT_LABEL[row.documentType]}`,
       meta: [
         "Persetujuan",
         row.steps.find((step) => step.order === row.currentOrder)?.approverBapel
@@ -137,7 +138,7 @@ export function buildPayables(
       ]
         .filter(Boolean)
         .join(" · "),
-      kind: DOCUMENT_LABEL[row.documentType] ?? row.documentType,
+      kind: APPROVAL_DOCUMENT_LABEL[row.documentType],
       amount: amountOf(row.amount) || null,
       status: { tone: "wait", label: "Menunggu" },
       href: hrefOf(MENU.PERSETUJUAN, MENU.PERMINTAAN_PERSETUJUAN),

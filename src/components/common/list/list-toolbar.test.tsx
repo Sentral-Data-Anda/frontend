@@ -78,6 +78,25 @@ describe("ListToolbar", () => {
     expect(screen.queryByRole("button", { name: /^Filter/ })).toBeNull();
   });
 
+  test("tanpa label cari: hanya tombol Filter, tanpa kotak cari", () => {
+    render(
+      <ListToolbar
+        listParams={{
+          search: "",
+          status: "",
+          filters: {},
+          onSearch: mock(),
+          onApplyFilters: mock(),
+          onClearFilters: mock(),
+        }}
+        filters={FILTERS}
+      />,
+    );
+
+    expect(screen.queryByRole("searchbox")).toBeNull();
+    expect(screen.getByRole("button", { name: /^Filter/ })).toBeTruthy();
+  });
+
   test("badge menghitung filter aktif selain cari dan terbaca", () => {
     onRenderToolbar({ status: "AKTIF", wilayah: "2" });
 

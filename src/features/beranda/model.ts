@@ -89,9 +89,3 @@ export const formatMonthYear = (value: string): string =>
 
 export const monthOf = (now: Date): number =>
   Number(toDateKey(now).slice(5, 7));
-
-export const daysSince = (iso: string, now: Date): number => {
-  const from = Date.parse(`${toDateKey(new Date(iso))}T00:00:00Z`);
-  const to = Date.parse(`${toDateKey(now)}T00:00:00Z`);
-  return Math.max(0, Math.round((to - from) / 86_400_000));
-};
