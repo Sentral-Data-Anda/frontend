@@ -54,6 +54,8 @@ const rows: Row[] = TYPE_IBADAH_ROWS.map((row) =>
   toRow(row.id, row.name, row.isActive),
 );
 
+export const findTipeIbadah = (id: number) => rows.find((row) => row.id === id);
+
 let lastId = Math.max(0, ...rows.map((row) => row.id));
 
 const normalize = (name: string) => name.trim().replace(/\s+/g, " ");
