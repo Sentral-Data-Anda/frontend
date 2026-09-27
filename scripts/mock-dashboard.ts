@@ -180,7 +180,6 @@ export const actionsOf = (persona: Persona, slug: string): Action[] =>
 
 /** Guard be-sada: `Authorization(MENU.X, "VIEW")`; admin melewatinya. */
 export const GUARD: Record<string, MenuSlug> = {
-  "/ibadah": MENU.IBADAH,
   "/event": MENU.EVENT,
   "/persetujuan": MENU.PERMINTAAN_PERSETUJUAN,
   "/laporan-keuangan/neraca": MENU.LAPORAN_KEUANGAN,
@@ -211,8 +210,6 @@ export const addDays = (key: string, days: number): string => {
 
 const iso = (key: string) => `${key}T00:00:00.000Z`;
 
-const dayOfWeek = (key: string) => new Date(`${key}T00:00:00Z`).getUTCDay();
-
 const audit = {
   createdBy: 3,
   createdAt: "2026-09-01T02:00:00.000Z",
@@ -236,94 +233,6 @@ export const ROOM_ROWS = [
   { id: 2, code: "RM-0002", name: "Aula Serbaguna" },
   { id: 3, code: "RM-0003", name: "Ruang Pemuda" },
 ];
-
-const typeIbadahNamed = (name: string) => {
-  const row = TYPE_IBADAH_ROWS.find((type) => type.name === name);
-
-  if (!row) throw new Error(`Tipe ibadah mock tidak dikenal: ${name}`);
-
-  return { id: row.id, code: row.code, name: row.name };
-};
-
-// ---------------------------------------------------------------------------
-// GET /ibadah — `ibadah.repository.ts:6-35`. `date` persis, atau
-// `startDate` + `endDate` (keduanya wajib, inklusif per hari).
-
-const ibadahRow = (
-  id: number,
-  dateKey: string,
-  startTime: string,
-  endTime: string,
-  preacher: string | null,
-  typeName: string,
-) => ({
-  id,
-  publicId: `00000000-0000-4000-8000-${String(id).padStart(12, "0")}`,
-  code: `IBD-${String(id).padStart(4, "0")}`,
-  date: iso(dateKey),
-  startTime,
-  endTime,
-  theme: null,
-  bibleVerse: null,
-  preacher,
-  maleCount: 0,
-  femaleCount: 0,
-  childCount: 0,
-  note: null,
-  ...audit,
-  typeIbadah: typeIbadahNamed(typeName),
-  room: ROOM_ROWS[0],
-  bapel: null,
-  jadwalPelayan: null,
-});
-
-/**
- * Hari ini: dua ibadah Minggu (bentuk Beranda yang sudah di-review, apa pun
- * harinya). Minggu lain: dua ibadah; Rabu: persekutuan doa.
- */
-const ibadahOn = (key: string, seed: number) => {
-  if (process.env.MOCK_NO_IBADAH) return [];
-  if (key === today() || dayOfWeek(key) === 0) {
-    return [
-      ibadahRow(seed + 2, key, "17:00", "18:30", null, "Ibadah Minggu II"),
-      ibadahRow(
-        seed + 1,
-        key,
-        "08:00",
-        "09:30",
-        "Pdt. Yohanes Simatupang",
-        "Ibadah Minggu I",
-      ),
-    ];
-  }
-  if (dayOfWeek(key) === 3) {
-    return [
-      ibadahRow(seed + 3, key, "19:00", "20:30", null, "Persekutuan Doa"),
-    ];
-  }
-  return [];
-};
-
-export function listIbadah(params: URLSearchParams) {
-  const date = params.get("date");
-  const start = params.get("startDate");
-  const end = params.get("endDate");
-  const keys = date
-    ? [date]
-    : start && end
-      ? Array.from({ length: 62 }, (_, i) => addDays(start, i)).filter(
-          (key) => key <= end,
-        )
-      : Array.from({ length: 14 }, (_, i) => addDays(today(), i - 7));
-
-  // Urutan be-sada: date desc, startTime desc.
-  return keys
-    .flatMap((key, index) => ibadahOn(key, index * 10))
-    .sort(
-      (a, b) =>
-        b.date.localeCompare(a.date) || b.startTime.localeCompare(a.startTime),
-    );
-}
 
 // ---------------------------------------------------------------------------
 // GET /event — `event.repository.ts:47-62`. Tanggal saja (tanpa jam);
