@@ -226,6 +226,7 @@ export const TYPE_IBADAH_ROWS = [
   { id: 3, code: "TYP_IBD-0003", name: "Persekutuan Doa", isActive: true },
   { id: 4, code: "TYP_IBD-0004", name: "Ibadah Pemuda", isActive: true },
   { id: 5, code: "TYP_IBD-0005", name: "Ibadah Padang", isActive: false },
+  { id: 6, code: "TYP_IBD-0006", name: "Ibadah Wilayah", isActive: true },
 ];
 
 export const ROOM_ROWS = [
@@ -1003,16 +1004,60 @@ const rowsOf = (names: string[], prefix: string) =>
   }));
 
 /**
+ * Nama keluarga yang sama dengan store `mock/handlers/keluarga.ts`: id, kode,
+ * dan nama di `ddl/keluarga` harus menunjuk keluarga yang sama dengan detail
+ * Keluarga dan saran tuan rumah Ibadah. `wilayah` = `zoneChurchId` keluarga
+ * itu (null = tanpa wilayah); `worshipsHere: false` dan "Halim" (tanpa
+ * anggota) membuat Wilayah III tanpa keluarga yang layak menjadi tuan rumah.
+ */
+export const KELUARGA_SEED: {
+  surname: string;
+  wilayah: number | null;
+  worshipsHere: boolean;
+}[] = [
+  { surname: "Sitanggang", wilayah: 1, worshipsHere: true },
+  { surname: "Kusuma", wilayah: 2, worshipsHere: true },
+  { surname: "Wijaya", wilayah: 4, worshipsHere: true },
+  { surname: "Manurung", wilayah: 1, worshipsHere: true },
+  { surname: "Panggabean", wilayah: null, worshipsHere: true },
+  { surname: "Halim", wilayah: 3, worshipsHere: true },
+  { surname: "Saragih", wilayah: 2, worshipsHere: true },
+  { surname: "Nainggolan", wilayah: 1, worshipsHere: true },
+  { surname: "Hutagalung", wilayah: 4, worshipsHere: true },
+  { surname: "Simorangkir", wilayah: null, worshipsHere: true },
+  { surname: "Tampubolon", wilayah: 2, worshipsHere: true },
+  { surname: "Tanuwijaya", wilayah: 3, worshipsHere: false },
+  { surname: "Siregar", wilayah: 1, worshipsHere: true },
+  { surname: "Lubis", wilayah: 2, worshipsHere: true },
+  { surname: "Harahap", wilayah: 4, worshipsHere: true },
+  { surname: "Pardede", wilayah: 1, worshipsHere: false },
+  { surname: "Sinaga", wilayah: 1, worshipsHere: true },
+  { surname: "Gultom", wilayah: 4, worshipsHere: true },
+  { surname: "Situmorang", wilayah: 2, worshipsHere: true },
+  { surname: "Silalahi", wilayah: null, worshipsHere: true },
+  { surname: "Purba", wilayah: 4, worshipsHere: true },
+  { surname: "Damanik", wilayah: 4, worshipsHere: true },
+  { surname: "Sembiring", wilayah: 1, worshipsHere: true },
+  { surname: "Ginting", wilayah: 2, worshipsHere: true },
+];
+
+export const keluargaCodeOf = (id: number) =>
+  `KK-${String(id).padStart(4, "0")}`;
+
+/**
  * `MOCK_DDL_MANY=1` membesarkan daftar keluarga ke 400 baris: itu ukuran yang
  * membuat combobox harus benar-benar menyaring, dan yang menunjukkan kenapa
- * `?filter=` di be-sada (B9) dibutuhkan.
+ * `?filter=` di be-sada (B9) dibutuhkan. Baris ke-25 dst. hanya ada di ddl.
  */
-const KELUARGA_COUNT = process.env.MOCK_DDL_MANY ? 400 : 24;
+const KELUARGA_COUNT = process.env.MOCK_DDL_MANY ? 400 : KELUARGA_SEED.length;
 
 const KELUARGA = Array.from({ length: KELUARGA_COUNT }, (_, index) => ({
   id: index + 1,
-  code: `KEL-${String(index + 1).padStart(4, "0")}`,
-  name: `Keluarga ${["Sitanggang", "Kusuma", "Wijaya", "Manurung", "Panggabean", "Halim", "Saragih", "Nainggolan"][index % 8]} ${index + 1}`,
+  code: keluargaCodeOf(index + 1),
+  name:
+    index < KELUARGA_SEED.length
+      ? `Keluarga ${KELUARGA_SEED[index].surname}`
+      : `Keluarga ${KELUARGA_SEED[index % KELUARGA_SEED.length].surname} ${index + 1}`,
 }));
 
 const PROVINCES = [

@@ -48,6 +48,7 @@ describe("mock /type-ibadah", () => {
       "Ibadah Minggu II",
       "Ibadah Padang",
       "Ibadah Pemuda",
+      "Ibadah Wilayah",
       "Persekutuan Doa",
     ]);
 
@@ -104,7 +105,7 @@ describe("mock /type-ibadah", () => {
     });
     expect(created.status).toBe(201);
     expect(created.body.data).toMatchObject({
-      code: "TYP_IBD-0006",
+      code: "TYP_IBD-0007",
       name: "Ibadah Syukur",
       isActive: true,
     });
@@ -113,10 +114,10 @@ describe("mock /type-ibadah", () => {
     expect(used.status).toBe(400);
     expect(used.body.error).toContain("Masih Digunakan oleh Data Ibadah");
 
-    expect((await onCall("DELETE", "/type-ibadah/TYP_IBD-0006")).status).toBe(
+    expect((await onCall("DELETE", "/type-ibadah/TYP_IBD-0007")).status).toBe(
       200,
     );
-    expect((await onCall("GET", "/type-ibadah/TYP_IBD-0006")).status).toBe(404);
+    expect((await onCall("GET", "/type-ibadah/TYP_IBD-0007")).status).toBe(404);
   });
 
   test("tanpa izin aksi: 403", async () => {
