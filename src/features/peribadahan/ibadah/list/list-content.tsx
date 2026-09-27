@@ -1,14 +1,19 @@
 "use client";
 
+import { CalendarRange } from "lucide-react";
+import Link from "next/link";
+
+import { buttonVariants } from "@/components/common/control";
 import { DataList, ListToolbar } from "@/components/common/list";
 import { PageHeader, PageHeaderAdd } from "@/components/layout";
 import { MENU, createHref, domainHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { useDdlOptions } from "@/hooks/use-ddl-options";
 import { useListParams, type ListFilterSchema } from "@/hooks/use-list-params";
+import { useIsTableWidth } from "@/hooks/use-media";
 
 import { useIbadahList } from "../api";
-import { monthOptions } from "../model";
+import { GILIRAN_PATH, monthOptions } from "../model";
 
 import { IbadahListItemRow, ibadahTable } from "./list-item";
 
@@ -24,6 +29,7 @@ export const IbadahListContent = () => {
   const ibadahList = useIbadahList(listParams);
   const types = useDdlOptions("type-ibadah", "id", listParams.filters.tipe);
   const zones = useDdlOptions("zone-church", "id", listParams.filters.wilayah);
+  const isWide = useIsTableWidth() === true;
   const months = [{ value: "", label: "Semua bulan" }, ...monthOptions()];
 
   return (
@@ -38,10 +44,20 @@ export const IbadahListContent = () => {
         backHref={domainHref(MENU.PERIBADAHAN)}
         action={
           isCanCreate ? (
-            <PageHeaderAdd
-              href={createHref(MENU.PERIBADAHAN, MENU.IBADAH)}
-              label="Tambah ibadah"
-            />
+            <>
+              <Link
+                href={GILIRAN_PATH}
+                aria-label="Buat jadwal giliran"
+                className={buttonVariants({ variant: "outline" })}
+              >
+                <CalendarRange aria-hidden />
+                {isWide ? "Buat jadwal giliran" : "Giliran"}
+              </Link>
+              <PageHeaderAdd
+                href={createHref(MENU.PERIBADAHAN, MENU.IBADAH)}
+                label="Tambah ibadah"
+              />
+            </>
           ) : null
         }
       />

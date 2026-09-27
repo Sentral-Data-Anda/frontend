@@ -543,3 +543,132 @@ describe("keluarga untuk ibadah", () => {
     );
   });
 });
+
+describe("POST /ibadah/batch", () => {
+  const HOME = {
+    ...BODY,
+    typeIbadahId: 6,
+    startTime: "19:00",
+    endTime: "20:30",
+    placeType: "RUMAH_JEMAAT",
+    hostKeluargaId: 1,
+    address: "Jl. Cijerah No. 1",
+    zoneChurchId: 1,
+  };
+  const homeOn = (days: number) => ({ ...HOME, date: addDays(TODAY, days) });
+  const countAll = async () =>
+    (await onCall("GET", "/ibadah?limit=1")).body.totalData;
+
+  test("rows kosong dan lebih dari 60 → 400 path rows", async () => {
+    const empty = await onCall("POST", "/ibadah/batch", { rows: [] });
+    expect(empty.status).toBe(400);
+    expect(empty.body.issues).toEqual([
+      { path: "rows", message: "Mohon Lengkapi Daftar Ibadah" },
+    ]);
+
+    const missing = await onCall("POST", "/ibadah/batch", {});
+    expect(missing.body.error).toBe("Mohon Lengkapi Daftar Ibadah");
+
+    const many = await onCall("POST", "/ibadah/batch", {
+      rows: Array.from({ length: 61 }, () => ({})),
+    });
+    expect(many.body.issues).toEqual([
+      { path: "rows", message: "Maksimal 60 Ibadah Dalam Satu Kali Simpan" },
+    ]);
+  });
+
+  test("galat skema per baris; tidak ada yang ditulis", async () => {
+    const before = await countAll();
+    const { status, body } = await onCall("POST", "/ibadah/batch", {
+      rows: [homeOn(100), { ...homeOn(107), hostKeluargaId: null }],
+    });
+
+    expect(status).toBe(400);
+    expect(body.issues).toEqual([
+      {
+        path: "rows.1.hostKeluargaId",
+        message: "Mohon Lengkapi Keluarga Tuan Rumah",
+      },
+    ]);
+    expect(await countAll()).toBe(before);
+  });
+
+  test("sama dengan baris sebelumnya dan duplikat DB tetap 400", async () => {
+    const seeded = (
+      await onCall(
+        "GET",
+        `/ibadah?typeIbadahId=6&zoneChurchId=1&startDate=${TODAY}&endDate=${addDays(TODAY, 30)}&limit=100`,
+      )
+    ).body.data[0];
+    const { status, body } = await onCall("POST", "/ibadah/batch", {
+      rows: [
+        { ...HOME, date: seeded.date.slice(0, 10) },
+        homeOn(114),
+        homeOn(114),
+        { ...homeOn(121), hostKeluargaId: 999 },
+      ],
+    });
+
+    expect(status).toBe(400);
+    expect(body.issues).toEqual([
+      {
+        path: "rows.0.startTime",
+        message:
+          "Ibadah dengan tipe, tanggal, jam mulai dan wilayah yang sama sudah tercatat. Isi Wilayah jika ibadah ini untuk wilayah yang berbeda",
+      },
+      { path: "rows.2.startTime", message: "Ibadah Ini Sama Dengan Baris 2" },
+      {
+        path: "rows.3.hostKeluargaId",
+        message: "Keluarga Tuan Rumah Tidak Ditemukan",
+      },
+    ]);
+  });
+
+  test("tanpa CREATE → 403", async () => {
+    const { status } = await onCall(
+      "POST",
+      "/ibadah/batch",
+      { rows: [homeOn(128)] },
+      (_slug, action) => action !== "CREATE",
+    );
+
+    expect(status).toBe(403);
+  });
+
+  test("MOCK_BATCH_ERROR=race → 409 tanpa issues, tidak ada yang ditulis", async () => {
+    const before = await countAll();
+    process.env.MOCK_BATCH_ERROR = "race";
+    try {
+      const { status, body } = await onCall("POST", "/ibadah/batch", {
+        rows: [homeOn(135)],
+      });
+
+      expect(status).toBe(409);
+      expect(body.issues).toBeUndefined();
+    } finally {
+      delete process.env.MOCK_BATCH_ERROR;
+    }
+    expect(await countAll()).toBe(before);
+  });
+
+  test("berhasil: 201, kode urut rows, semua masuk daftar", async () => {
+    const { status, body } = await onCall("POST", "/ibadah/batch", {
+      rows: [homeOn(142), { ...homeOn(149), hostKeluargaId: 4 }],
+    });
+    const codes = (body.data as unknown as { codes: string[] }).codes;
+
+    expect(status).toBe(201);
+    expect(body.message).toBe("Berhasil Membuat 2 Data Ibadah");
+    expect(codes).toHaveLength(2);
+    expect(codes[0] < codes[1]).toBe(true);
+
+    const listed = await onCall(
+      "GET",
+      `/ibadah?typeIbadahId=6&zoneChurchId=1&startDate=${addDays(TODAY, 142)}&endDate=${addDays(TODAY, 149)}&limit=100`,
+    );
+    expect(listed.body.data.map((row) => row.code).sort()).toEqual(codes);
+    expect(listed.body.data.map((row) => row.hostKeluarga?.id).sort()).toEqual([
+      1, 4,
+    ]);
+  });
+});
