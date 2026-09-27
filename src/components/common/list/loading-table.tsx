@@ -7,6 +7,7 @@ import {
   TABLE_HEAD,
   TABLE_ROW_LINE_ON_CANVAS,
   TABLE_SECONDARY,
+  alignClass,
 } from "./table-style";
 
 export const ROW_BLEED = "px-2.5";
@@ -19,7 +20,7 @@ export const TABLE_GRID =
 
 type SkeletonColumn = Pick<
   DataTableColumn<never>,
-  "key" | "header" | "width" | "narrowWidth" | "isSecondary"
+  "key" | "header" | "width" | "narrowWidth" | "isSecondary" | "align"
 >;
 
 export function tableTemplate(columns: SkeletonColumn[]): CSSProperties {
@@ -60,6 +61,7 @@ export function LoadingTableRows({
             "bg-skeleton block h-3 animate-pulse rounded",
             columnIndex === 0 ? "w-3/5" : "w-2/5",
             column.isSecondary && TABLE_SECONDARY,
+            column.align === "end" && "ml-auto",
           )}
         />
       ))}
@@ -83,7 +85,11 @@ export function LoadingTable({
           {columns.map((column) => (
             <span
               key={column.key}
-              className={cn(TABLE_HEAD, column.isSecondary && TABLE_SECONDARY)}
+              className={cn(
+                TABLE_HEAD,
+                column.isSecondary && TABLE_SECONDARY,
+                alignClass(column.align),
+              )}
             >
               {column.header}
             </span>

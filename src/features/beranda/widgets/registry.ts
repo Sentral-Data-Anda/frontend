@@ -1,7 +1,7 @@
 import type { ComponentType } from "react";
 
 import type { HeaderAction } from "@/components/layout";
-import { MENU, type MenuSlug, menuHref } from "@/config/menu";
+import { MENU, type MenuSlug, createHref, menuHref } from "@/config/menu";
 import { findMenuNode } from "@/lib/menu-tree";
 import type { MenuAction, MenuNode } from "@/types/menu";
 
@@ -332,7 +332,7 @@ const HEADER_ACTIONS: readonly (HeaderAction & { gate: WidgetGate })[] = [
   },
   {
     label: "Tambah jadwal ibadah",
-    href: menuHref(MENU.PERIBADAHAN, MENU.IBADAH),
+    href: createHref(MENU.PERIBADAHAN, MENU.IBADAH),
     gate: { slug: MENU.IBADAH, action: "CREATE" },
   },
   {

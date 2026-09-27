@@ -108,8 +108,10 @@ describe("tabel", () => {
   test("hadir rata kanan; kosong nanti = — dengan teks pembaca layar", () => {
     const hadir = ibadahTable(true).columns.at(-1);
 
+    expect(hadir?.align).toBe("end");
+
     render(<div>{hadir?.cell(IBADAH)}</div>);
-    expect(screen.getByText("371 hadir").className).toContain("text-right");
+    expect(screen.getByText("371 hadir")).toBeTruthy();
 
     cleanup();
     render(<div>{hadir?.cell({ ...IBADAH, ...ZERO, date: FUTURE })}</div>);

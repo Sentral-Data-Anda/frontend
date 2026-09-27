@@ -2,7 +2,7 @@ import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
 import { DataList, DataListRow } from "./data-list";
-import { getRangeLabel, type DataTableConfig } from "./data-table";
+import { DataTable, getRangeLabel, type DataTableConfig } from "./data-table";
 
 afterEach(cleanup);
 
@@ -125,5 +125,44 @@ describe("DataList + table", () => {
     expect(screen.getByText("Nama")).toBeTruthy();
     expect(container.querySelector(".md\\:hidden ul")).toBeTruthy();
     expect(container.querySelector(".hidden.md\\:block .grid")).toBeTruthy();
+  });
+});
+
+describe("align", () => {
+  test("end meratakan kanan kepala dan sel kolom itu saja", () => {
+    render(
+      <DataTable<Row>
+        items={rows}
+        getKey={(row) => row.code}
+        label="Daftar uji"
+        config={{
+          columns: [
+            {
+              key: "name",
+              header: "Nama",
+              width: "1fr",
+              cell: (row) => row.name,
+            },
+            {
+              key: "code",
+              header: "Kode",
+              width: "1fr",
+              align: "end",
+              cell: (row) => row.code,
+            },
+          ],
+        }}
+      />,
+    );
+
+    const [name, code] = screen.getAllByRole("columnheader");
+    expect(name.className).not.toContain("text-right");
+    expect(code.className).toContain("text-right");
+    expect(
+      screen.getByText("JMT-0001").closest("[role=cell]")?.className,
+    ).toContain("text-right");
+    expect(
+      screen.getByText("Andreas").closest("[role=cell]")?.className,
+    ).not.toContain("text-right");
   });
 });

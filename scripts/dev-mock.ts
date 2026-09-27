@@ -80,7 +80,6 @@ import {
   listPayrolls,
   jemaatTypeGender,
   listEvent,
-  listIbadah,
   listLoanRoom,
   listMyOfferings,
   listPublicAnnouncements,
@@ -711,18 +710,6 @@ Bun.serve({
       return json(
         { status: 403, error: "Access denied: You do not have permission" },
         403,
-      );
-    }
-
-    if (path === "/ibadah") {
-      if (process.env.MOCK_500) {
-        return json({ status: 500, error: "Kesalahan server." }, 500);
-      }
-      return list(
-        listIbadah(url.searchParams),
-        url,
-        "Data Ibadah",
-        "Data Ibadah",
       );
     }
 

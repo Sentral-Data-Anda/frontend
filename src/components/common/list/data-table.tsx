@@ -15,7 +15,12 @@ import {
   TABLE_GRID,
   tableTemplate,
 } from "./loading-table";
-import { TABLE_HEAD, TABLE_ROW_LINK, TABLE_SECONDARY } from "./table-style";
+import {
+  TABLE_HEAD,
+  TABLE_ROW_LINK,
+  TABLE_SECONDARY,
+  alignClass,
+} from "./table-style";
 
 export type DataTableColumn<T> = {
   key: string;
@@ -24,6 +29,7 @@ export type DataTableColumn<T> = {
   narrowWidth?: string;
   cell: (item: T) => ReactNode;
   isSecondary?: boolean;
+  align?: "start" | "end";
 };
 
 export type DataTableConfig<T> = {
@@ -99,6 +105,7 @@ export function DataTable<T>({
                 className={cn(
                   TABLE_HEAD,
                   column.isSecondary && TABLE_SECONDARY,
+                  alignClass(column.align),
                 )}
               >
                 {column.header}
@@ -135,6 +142,7 @@ export function DataTable<T>({
                     className={cn(
                       "min-w-0 text-body",
                       column.isSecondary && TABLE_SECONDARY,
+                      alignClass(column.align),
                     )}
                   >
                     {index === 0 && href ? (
