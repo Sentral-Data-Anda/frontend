@@ -4,6 +4,7 @@ import { PRISMA_MODELS } from "../../../../scripts/mock/handlers/activity-log";
 
 import {
   ACTION_LABEL,
+  actionKindFromServer,
   actionKindOf,
   filterSchemaOf,
   formatChangeValue,
@@ -68,6 +69,16 @@ describe("label aksi", () => {
         newData: { deletedAt: null },
       }),
     ).toBe("Ubah");
+  });
+});
+
+describe("kind dari be-sada", () => {
+  test("lima nilai kind dipetakan ke label aksi", () => {
+    expect(
+      (["create", "update", "hapus", "pulihkan", "delete"] as const).map(
+        (kind) => ACTION_LABEL[actionKindFromServer(kind)],
+      ),
+    ).toEqual(["Tambah", "Ubah", "Hapus", "Pulihkan", "Hapus permanen"]);
   });
 });
 

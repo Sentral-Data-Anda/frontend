@@ -3,6 +3,7 @@
  * filter B7 (`dateFrom`/`dateTo`, `model`, `user`, `filter`, `kind=hapus`), dan
  * `GET /ddl/user`. Baris ditulis seperti ekstensi Prisma `config/activityLog.ts`:
  * `oldData` seluruh baris, `newData` argumen `data`, tanpa `password`/`token`.
+ * Daftar (B13) tanpa `oldData`/`newData`, dengan `kind`; detail tetap lengkap.
  *
  *   MOCK_LOG_500=1   → daftar dan detail log menjawab 500
  */
@@ -409,6 +410,16 @@ const rows: Row[] = Array.from({ length: COUNT }, (_, index) => {
   };
 });
 
+const kindOf = (row: Row) => {
+  if (row.action !== "update") return row.action;
+  if (row.newData?.deletedAt) return "hapus";
+  if (row.newData?.deletedAt === null && row.oldData?.deletedAt) {
+    return "pulihkan";
+  }
+
+  return "update";
+};
+
 const dayOf = (row: Row) => todayJakarta(new Date(row.createdAt));
 
 const isMatch = (row: Row, query: URLSearchParams) => {
@@ -422,20 +433,20 @@ const isMatch = (row: Row, query: URLSearchParams) => {
   if (read("model") && row.model !== read("model")) return false;
   if (read("user") && row.actor?.code !== read("user")) return false;
   if (read("filter") && row.recordId !== read("filter").trim()) return false;
-  if (
-    read("kind") === "hapus" &&
-    (row.action !== "update" || !row.newData?.deletedAt)
-  ) {
-    return false;
-  }
+  if (read("kind") && kindOf(row) !== read("kind")) return false;
 
   return true;
 };
 
-const listView = ({ actor, ...row }: Row) => ({
-  ...row,
-  user: actor ? { name: actor.name } : null,
-});
+const listView = (row: Row) => {
+  const { actor, oldData: _oldData, newData: _newData, ...rest } = row;
+
+  return {
+    ...rest,
+    kind: kindOf(row),
+    user: actor ? { name: actor.name } : null,
+  };
+};
 
 const detailView = ({ actor, ...row }: Row) => ({
   ...row,

@@ -16,6 +16,12 @@ export type ActivityLog = {
 export type ActionKind =
   "create" | "update" | "softDelete" | "restore" | "delete";
 
+export type LogKind = "create" | "update" | "hapus" | "pulihkan" | "delete";
+
+export type ActivityLogRow = Omit<ActivityLog, "oldData" | "newData"> & {
+  kind: LogKind;
+};
+
 export type ActivityLogListItem = Omit<ActivityLog, "oldData" | "newData"> & {
   kind: ActionKind;
 };
