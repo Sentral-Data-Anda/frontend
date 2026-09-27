@@ -9,6 +9,7 @@ import {
   hostHint,
   ibadahFormSchema,
   mergeHostOptions,
+  toHostOptions,
   monthOptions,
   monthRange,
   salinHref,
@@ -473,7 +474,7 @@ describe("saran tuan rumah", () => {
     );
   });
 
-  test("saran dulu dengan hint dan disaring kata cari; ddl tanpa duplikat, tanpa hint", () => {
+  test("saran dulu dengan hint dan disaring kata cari (pilihan aktif tetap ada); ddl tanpa duplikat, tanpa hint", () => {
     const suggestions = [
       {
         id: 23,
@@ -493,7 +494,9 @@ describe("saran tuan rumah", () => {
       { value: "3", label: "Keluarga Wijaya" },
     ];
 
-    expect(mergeHostOptions(suggestions, found, "", "2026-09-27")).toEqual([
+    const suggested = toHostOptions(suggestions, "2026-09-27");
+
+    expect(mergeHostOptions(suggested, found, "", "")).toEqual([
       { value: "23", label: "Keluarga Sembiring", hint: "Belum pernah" },
       {
         value: "1",
@@ -503,11 +506,19 @@ describe("saran tuan rumah", () => {
       { value: "3", label: "Keluarga Wijaya" },
     ]);
     expect(
-      mergeHostOptions(suggestions, found, " SITA", "2026-09-27").map(
+      mergeHostOptions(suggested, found, " SITA", "").map(
         (option) => option.value,
       ),
     ).toEqual(["1", "3"]);
-    expect(mergeHostOptions([], found, "")).toEqual(found);
+    expect(
+      mergeHostOptions(suggested, found, "wija", "23").map(
+        (option) => option.value,
+      ),
+    ).toEqual(["23", "3"]);
+    expect(mergeHostOptions(suggested, found, "wija", "23")[0]).toBe(
+      suggested[0],
+    );
+    expect(mergeHostOptions([], found, "", "")).toEqual(found);
   });
 });
 

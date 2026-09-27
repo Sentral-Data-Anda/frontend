@@ -9,7 +9,7 @@ import type { ListState } from "@/hooks/use-list-params";
 import { useListQuery } from "@/hooks/use-list-query";
 import { fetchList, fetchOne } from "@/lib/api/fetcher";
 
-import { mergeHostOptions, toIbadahApiFilters } from "./model";
+import { mergeHostOptions, toHostOptions, toIbadahApiFilters } from "./model";
 import type {
   HostSuggestion,
   Ibadah,
@@ -104,11 +104,12 @@ type HostParams = {
   isEnabled: boolean;
   typeIbadahId: string;
   zoneChurchId: string;
+  selected: string;
   pinned: SelectOption | null;
 };
 
 export function useHostOptions(params: HostParams) {
-  const { isEnabled, typeIbadahId, zoneChurchId, pinned } = params;
+  const { isEnabled, typeIbadahId, zoneChurchId, selected, pinned } = params;
 
   const [term, setTerm] = useState("");
   const keluarga = useDdlSearch("keluarga", "id", pinned);
@@ -119,7 +120,7 @@ export function useHostOptions(params: HostParams) {
         `/ibadah/saran-tuan-rumah?typeIbadahId=${typeIbadahId}&zoneChurchId=${zoneChurchId}`,
       ),
     enabled: isEnabled && Boolean(typeIbadahId && zoneChurchId),
-    select: (response) => response.data,
+    select: (response) => toHostOptions(response.data),
   });
 
   const onSearch = (query: string) => {
@@ -128,7 +129,12 @@ export function useHostOptions(params: HostParams) {
   };
 
   return {
-    options: mergeHostOptions(suggestions.data ?? [], keluarga.options, term),
+    options: mergeHostOptions(
+      suggestions.data ?? [],
+      keluarga.options,
+      term,
+      selected,
+    ),
     isLoading: keluarga.isLoading || suggestions.isFetching,
     onSearch,
   };

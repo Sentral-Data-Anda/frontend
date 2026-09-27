@@ -1,7 +1,7 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useWatch } from "react-hook-form";
 
 import {
@@ -59,13 +59,19 @@ export const PlaceFields = (props: PropTypes) => {
   const isOther = placeType === "LAINNYA";
   const savedHost = saved?.hostKeluarga ?? null;
   const savedHostId = String(savedHost?.id ?? "");
+  const pinnedHost = useMemo(
+    () =>
+      savedHost ? { value: String(savedHost.id), label: savedHost.name } : null,
+    [savedHost],
+  );
   const zones = useDdlOptions("zone-church", "id", zoneChurchId);
   const rooms = useDdlOptions("room", "id");
   const hosts = useHostOptions({
     isEnabled: isCanCreate && isHome,
     typeIbadahId,
     zoneChurchId,
-    pinned: savedHost ? { value: savedHostId, label: savedHost.name } : null,
+    selected: hostKeluargaId,
+    pinned: pinnedHost,
   });
   const savedHostAddress = useKeluargaAddress(
     savedHostId,
@@ -112,13 +118,24 @@ export const PlaceFields = (props: PropTypes) => {
     const shouldValidate = form.formState.submitCount > 0;
     const typedAddress = form.getValues("address");
     const pickedZone = form.getValues("zoneChurchId");
+    const isOtherFamily = value !== form.getValues("hostKeluargaId");
+
+    const dropStaleAddress = () => {
+      if (!isOtherFamily || form.getValues("address") !== typedAddress) return;
+
+      form.setValue("address", "", { shouldDirty: true, shouldValidate });
+    };
 
     setAddressStatus("idle");
     form.setValue("hostKeluargaId", value, {
       shouldDirty: true,
       shouldValidate,
     });
-    if (!value || !isCanCreate) return;
+    if (!value) return;
+    if (!isCanCreate) {
+      dropStaleAddress();
+      return;
+    }
 
     setAddressStatus("loading");
     try {
@@ -141,8 +158,10 @@ export const PlaceFields = (props: PropTypes) => {
       }
       setAddressStatus("idle");
     } catch {
-      if (form.getValues("hostKeluargaId") === value)
-        setAddressStatus("failed");
+      if (form.getValues("hostKeluargaId") !== value) return;
+
+      setAddressStatus("failed");
+      dropStaleAddress();
     }
   };
 

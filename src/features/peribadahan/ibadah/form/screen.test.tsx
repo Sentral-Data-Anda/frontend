@@ -699,7 +699,7 @@ describe("tempat", () => {
     expect(valueOf("Alamat")).toBe("Jl. Rawa Buntu No. 3");
   });
 
-  test("mengetik sebelum alamat tiba: tidak ditimpa; alamat gagal: hint isi manual", async () => {
+  test("mengetik sebelum alamat tiba: tidak ditimpa; alamat gagal: hint isi manual dan alamat lama dikosongkan", async () => {
     await onRenderCopy(HOME);
     let onRelease = () => {};
     const gate = new Promise<void>((resolve) => {
@@ -726,7 +726,7 @@ describe("tempat", () => {
     expect(
       await screen.findByText("Alamat keluarga tidak bisa dimuat. Isi manual."),
     ).toBeTruthy();
-    expect(valueOf("Alamat")).toBe("Jl. Diketik");
+    expect(valueOf("Alamat")).toBe("");
   });
 
   test("form ubah dimuat: tanpa isi otomatis; hint tuan rumah pindah wilayah", async () => {
@@ -748,9 +748,63 @@ describe("tempat", () => {
 
     expect(screen.getByText("Isi alamat rumah tuan rumah.")).toBeTruthy();
     await onPickHost("Keluarga Wijaya");
-    expect(valueOf("Alamat")).toBe("Jl. Cijerah No. 1");
+    expect(valueOf("Alamat")).toBe("");
     expect(screen.queryByText(/Belum pernah/)).toBeNull();
     expect(isRequested(/saran-tuan-rumah|\/alamat$/)).toBe(false);
+  });
+
+  test("ganti tuan rumah tanpa isi otomatis: alamat keluarga lama tidak ikut tersimpan, alamat yang diketik sesudah memilih tetap", async () => {
+    const calls = onMockApi();
+    onRenderForm(["VIEW", "UPDATE"], HOME.code);
+    await waitFor(() => expect(valueOf("Alamat")).toBe("Jl. Cijerah No. 1"));
+
+    await onPickHost("Keluarga Wijaya");
+    expect(valueOf("Alamat")).toBe("");
+    fireEvent.click(screen.getByRole("button", { name: "Simpan" }));
+    expect(await screen.findByText("Isi alamat tempat ibadah.")).toBeTruthy();
+    expect(calls).toEqual([]);
+
+    cleanup();
+    onMockApi();
+    onRenderForm(["VIEW", "UPDATE", "CREATE"], HOME.code);
+    await waitFor(() => expect(valueOf("Alamat")).toBe("Jl. Cijerah No. 1"));
+    let onRelease = () => {};
+    const gate = new Promise<void>((resolve) => {
+      onRelease = resolve;
+    });
+    alamat.gate = gate;
+    alamat.failure = { status: 404, error: "Keluarga Tidak Ditemukan" };
+
+    await onPickHost("Keluarga Wijaya");
+    fireEvent.change(screen.getByLabelText("Alamat"), {
+      target: { value: "Jl. Rawa Buntu No. 3" },
+    });
+    await act(async () => {
+      onRelease();
+      await gate;
+    });
+    expect(
+      await screen.findByText("Alamat keluarga tidak bisa dimuat. Isi manual."),
+    ).toBeTruthy();
+    expect(valueOf("Alamat")).toBe("Jl. Rawa Buntu No. 3");
+  });
+
+  test("mencari tuan rumah lain di form ubah: ketikan tidak dikembalikan ke tuan rumah tersimpan", async () => {
+    onMockApi();
+    onRenderForm(["VIEW", "UPDATE", "CREATE"], HOME.code);
+    await screen.findByText("Tuan rumah sekarang di Wilayah II.");
+    const input = screen.getByLabelText("Tuan rumah");
+
+    fireEvent.focus(input);
+    fireEvent.input(input, {
+      target: { value: "Semb" },
+      inputType: "insertText",
+    });
+
+    expect(
+      await screen.findByRole("option", { name: /Keluarga Sembiring/ }),
+    ).toBeTruthy();
+    expect(valueOf("Tuan rumah")).toBe("Semb");
   });
 
   test("salin lainnya bertanda wilayah nonaktif: nama dan alamat ikut, wilayah kosong + info", async () => {

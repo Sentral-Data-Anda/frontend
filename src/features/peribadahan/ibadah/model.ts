@@ -293,23 +293,31 @@ export function hostHint(
   return `${toDateInput(lastHostedDate) < today ? "Terakhir" : "Dijadwalkan"} ${formatDateShort(lastHostedDate)}`;
 }
 
-export function mergeHostOptions(
+export const toHostOptions = (
   suggestions: readonly HostSuggestion[],
+  today: string = todayJakarta(),
+): SelectOption[] =>
+  suggestions.map((host) => ({
+    value: String(host.id),
+    label: host.name,
+    hint: hostHint(host.lastHostedDate, today),
+  }));
+
+export function mergeHostOptions(
+  suggested: readonly SelectOption[],
   found: readonly SelectOption[],
   term: string,
-  today: string = todayJakarta(),
+  selected: string,
 ): SelectOption[] {
   const needle = term.trim().toLowerCase();
-  const suggestedIds = new Set(suggestions.map((host) => String(host.id)));
+  const suggestedIds = new Set(suggested.map((option) => option.value));
 
   return [
-    ...suggestions
-      .filter((host) => host.name.toLowerCase().includes(needle))
-      .map((host) => ({
-        value: String(host.id),
-        label: host.name,
-        hint: hostHint(host.lastHostedDate, today),
-      })),
+    ...suggested.filter(
+      (option) =>
+        option.value === selected ||
+        option.label.toLowerCase().includes(needle),
+    ),
     ...found.filter((option) => !suggestedIds.has(option.value)),
   ];
 }
