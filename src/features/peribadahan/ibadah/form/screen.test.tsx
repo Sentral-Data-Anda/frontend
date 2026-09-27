@@ -90,7 +90,9 @@ const ok = (data: unknown, message = "OK", status = 200) =>
 const fail = (failure: Failure) =>
   Response.json(failure, { status: failure.status });
 
-const onMockApi = (failure: { save?: Failure; remove?: Failure } = {}) => {
+const onMockApi = (
+  failure: { save?: Failure; remove?: Failure; load?: Failure[] } = {},
+) => {
   const calls: { method: string; url: string; body?: unknown }[] = [];
 
   globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -123,7 +125,11 @@ const onMockApi = (failure: { save?: Failure; remove?: Failure } = {}) => {
       );
     }
 
-    if (url === `/api/v1/ibadah/${CODE}`) return ok(DETAIL);
+    if (url === `/api/v1/ibadah/${CODE}`) {
+      const loadFailure = failure.load?.shift();
+
+      return loadFailure ? fail(loadFailure) : ok(DETAIL);
+    }
     if (url === `/api/v1/ibadah/${PADANG.code}`) return ok(PADANG);
 
     return fail({ status: 404, error: "Ibadah Tidak Ditemukan" });
@@ -322,6 +328,38 @@ describe("ubah", () => {
     ).toBeTruthy();
     expect(valueOf("Tema")).toBe("Hidup dalam kasih karunia");
     expect(replaced).toEqual([]);
+  });
+
+  test("galat 500 saat memuat: tanpa field, aksi terkunci; Coba lagi mengisi form", async () => {
+    onMockApi({ load: [{ status: 500, error: "Kesalahan server." }] });
+    onRenderForm(["VIEW", "UPDATE", "CREATE", "DELETE"], CODE);
+
+    await screen.findByText("Data ibadah gagal dimuat.");
+    expect(screen.getByLabelText("Tema").closest(".hidden")).not.toBeNull();
+    expect(
+      (screen.getByRole("button", { name: "Simpan" }) as HTMLButtonElement)
+        .disabled,
+    ).toBe(true);
+    expect(
+      (screen.getByRole("button", { name: "Hapus" }) as HTMLButtonElement)
+        .disabled,
+    ).toBe(true);
+    const salin = screen.getByRole("link", { name: "Salin" });
+    expect(salin.getAttribute("aria-disabled")).toBe("true");
+    fireEvent.click(salin);
+    expect(pushed).toEqual([]);
+
+    fireEvent.click(screen.getByRole("button", { name: "Coba lagi" }));
+
+    await waitFor(() =>
+      expect(valueOf("Tema")).toBe("Hidup dalam kasih karunia"),
+    );
+    expect(screen.getByLabelText("Tema").closest(".hidden")).toBeNull();
+    expect(screen.queryByText("Data ibadah gagal dimuat.")).toBeNull();
+    expect(
+      (screen.getByRole("button", { name: "Simpan" }) as HTMLButtonElement)
+        .disabled,
+    ).toBe(false);
   });
 
   test("404 saat memuat: FormNotFound", async () => {

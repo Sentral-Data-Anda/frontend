@@ -94,6 +94,8 @@ export const IbadahFormScreen = (props: PropTypes) => {
   const isCopyLoading =
     isCopy && (detail.isLoading || (activeTypes.isLoading && !activeTypeKey));
   const isLoading = isEdit ? detail.isLoading : isCopyLoading;
+  const isHidden = isEdit ? !detail.data : isCopyLoading;
+  const isLocked = isBusy || isHidden;
   const source = isCopy ? detail.data : undefined;
   const isSourceTypeInactive =
     source !== undefined &&
@@ -130,6 +132,8 @@ export const IbadahFormScreen = (props: PropTypes) => {
 
   const onCopy = (event: MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
+    if (isLocked) return;
+
     setPickLeaveHref(copyHref);
     confirm.onCancel(isDirty, () => router.push(copyHref));
   };
@@ -245,7 +249,7 @@ export const IbadahFormScreen = (props: PropTypes) => {
               ref={deleteRef}
               type="button"
               variant="destructive"
-              disabled={isBusy || isLoading}
+              disabled={isLocked}
               onClick={() => confirm.onOpen("delete")}
             >
               {deleteIbadah.isPending ? "Menghapus…" : "Hapus"}
@@ -261,7 +265,7 @@ export const IbadahFormScreen = (props: PropTypes) => {
             Batal
           </Button>
 
-          <Button ref={saveRef} type="submit" disabled={isBusy || isLoading}>
+          <Button ref={saveRef} type="submit" disabled={isLocked}>
             {isSubmitting ? "Menyimpan…" : "Simpan"}
           </Button>
         </FormActions>
@@ -278,11 +282,12 @@ export const IbadahFormScreen = (props: PropTypes) => {
               <Link
                 href={copyHref}
                 onClick={onCopy}
-                aria-disabled={isBusy || undefined}
+                aria-disabled={isLocked || undefined}
+                tabIndex={isLocked ? -1 : undefined}
                 className={cn(
                   buttonVariants({ variant: "outline" }),
                   "shrink-0 cursor-pointer gap-1.5",
-                  isBusy && "pointer-events-none opacity-50",
+                  isLocked && "pointer-events-none opacity-50",
                 )}
               >
                 <Copy aria-hidden />
@@ -342,7 +347,7 @@ export const IbadahFormScreen = (props: PropTypes) => {
         />
       ) : null}
 
-      <div className={isLoading ? "hidden" : undefined}>
+      <div className={isHidden ? "hidden" : undefined}>
         <ScheduleSection form={form} isDisabled={isBusy} />
         <ConductSection
           form={form}
