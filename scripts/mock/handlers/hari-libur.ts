@@ -8,8 +8,8 @@
  *   MOCK_HOLIDAY_CALENDAR_ERROR=500      → /kalender menjawab 500 (kalender tanpa penanda)
  *
  * `/kalender` hanya butuh sesi (tanpa guard menu). Ganda → 409
- * "Hari Libur Sudah Tersedia": (tanggal, nama) di antara rekaman hidup, atau
- * (bulan-hari, nama) di antara rekaman berulang.
+ * "Hari Libur Sudah Tersedia": (tanggal, nama) sama, atau (bulan-hari, nama) sama
+ * dengan rekaman berulang yang berlaku di tanggal itu (sama dengan assertUnique be-sada).
  */
 import { MENU } from "../../../src/config/menu";
 import { denied, json, list, readBody, type MockHandler } from "../kit";
@@ -138,9 +138,13 @@ const isTaken = (
       return false;
     }
 
+    if (dayOf(row) === date) return true;
+    if (dayOf(row).slice(5) !== date.slice(5)) return false;
+
     return (
-      dayOf(row) === date ||
-      (isRecurring && row.isRecurring && dayOf(row).slice(5) === date.slice(5))
+      (isRecurring && row.isRecurring) ||
+      (row.isRecurring && dayOf(row) <= date) ||
+      (isRecurring && date <= dayOf(row))
     );
   });
 
