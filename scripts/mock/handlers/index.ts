@@ -3,6 +3,7 @@ import type { MockHandler } from "../kit";
 import { activityLogMock } from "./activity-log";
 import { bapelMock } from "./bapel";
 import { hariLiburMock } from "./hari-libur";
+import { ibadahMock } from "./ibadah";
 import { keluargaMock } from "./keluarga";
 import { masterJemaatMock } from "./master-jemaat";
 import { permintaanPersetujuanMock } from "./permintaan-persetujuan";
@@ -12,6 +13,7 @@ import { riwayatJemaatMock } from "./riwayat-jemaat";
 import { roleJemaatMock } from "./role-jemaat";
 import { roleUserMock } from "./role-user";
 import { setelanPersetujuanMock } from "./setelan-persetujuan";
+import { tipeIbadahMock } from "./tipe-ibadah";
 import { userMock } from "./user";
 import { wilayahMock } from "./wilayah";
 
@@ -31,4 +33,6 @@ export const MOCK_HANDLERS: MockHandler[] = [
   hariLiburMock,
   permintaanPersetujuanMock,
   setelanPersetujuanMock,
+  tipeIbadahMock,
+  ibadahMock,
 ];
