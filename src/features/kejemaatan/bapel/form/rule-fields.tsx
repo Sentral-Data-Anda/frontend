@@ -11,6 +11,7 @@ import {
   optionsOf,
 } from "@/components/common/control";
 import { ControlField, FormSection, FormWide } from "@/components/common/form";
+import { endOfYearIso } from "@/lib/date";
 
 import { EMPTY_RULE } from "../model";
 import {
@@ -18,6 +19,8 @@ import {
   RULE_TYPE_LABEL,
   WEEK_OF_MONTH_LABEL,
 } from "../types";
+
+const DATE_MAX = endOfYearIso(5);
 
 import type { BapelForm } from "./form-options";
 
@@ -111,6 +114,7 @@ export const RuleSection = (props: PropTypes) => {
                         onValueChange={field.onChange}
                         onBlur={field.onBlur}
                         disabled={isDisabled}
+                        max={DATE_MAX}
                         label="Tanggal aturan"
                       />
                     )}
