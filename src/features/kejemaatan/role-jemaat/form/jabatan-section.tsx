@@ -1,14 +1,12 @@
 "use client";
 
-import { ComboboxField, Input, SelectField } from "@/components/common/control";
+import { ComboboxField, DdlField, Input } from "@/components/common/control";
 import { ControlField, FormSection } from "@/components/common/form";
 
 import { useBapelOptions, useJemaatOptions } from "../api";
 import type { RoleJemaatItem } from "../types";
 
 import { type RoleJemaatForm } from "./form-options";
-
-const SELECT_LIMIT = 15;
 
 interface PropTypes {
   form: RoleJemaatForm;
@@ -44,30 +42,17 @@ export const JabatanSection = (props: PropTypes) => {
         name="bapelId"
         label="Badan pelayanan"
       >
-        {(field) =>
-          bapel.options.length > SELECT_LIMIT ? (
-            <ComboboxField
-              value={field.value}
-              onValueChange={field.onChange}
-              options={bapel.options}
-              isLoading={bapel.isLoading}
-              disabled={isDisabled}
-              placeholder="Pilih badan pelayanan"
-              emptyMessage="Belum ada data badan pelayanan"
-            />
-          ) : (
-            <SelectField
-              value={field.value}
-              onValueChange={field.onChange}
-              options={bapel.options}
-              disabled={isDisabled}
-              placeholder={
-                bapel.isLoading ? "Memuat…" : "Pilih badan pelayanan"
-              }
-              emptyMessage="Belum ada data badan pelayanan"
-            />
-          )
-        }
+        {(field) => (
+          <DdlField
+            value={field.value}
+            onValueChange={field.onChange}
+            options={bapel.options}
+            isLoading={bapel.isLoading}
+            disabled={isDisabled}
+            placeholder="Pilih badan pelayanan"
+            emptyMessage="Belum ada data badan pelayanan"
+          />
+        )}
       </ControlField>
 
       <ControlField

@@ -6,8 +6,6 @@ import type { SetelanFormValues } from "../model";
 
 export type SetelanForm = UseFormReturn<SetelanFormValues>;
 
-export const SELECT_LIMIT = 15;
-
 export const withEmptyOption = (
   label: string,
   options: readonly SelectOption[],

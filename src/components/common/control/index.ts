@@ -3,6 +3,7 @@ export * from "./calendar";
 export * from "./choice-field";
 export * from "./combobox-field";
 export * from "./date-field";
+export * from "./ddl-field";
 export * from "./input";
 export * from "./options";
 export * from "./password-input";

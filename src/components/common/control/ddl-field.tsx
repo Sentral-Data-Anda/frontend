@@ -1,12 +1,9 @@
 "use client";
 
-import {
-  ComboboxField,
-  SelectField,
-  type SelectOption,
-} from "@/components/common/control";
+import { ComboboxField } from "./combobox-field";
+import { SelectField, type SelectOption } from "./select-field";
 
-import { SELECT_LIMIT } from "./form-options";
+export const SELECT_LIMIT = 15;
 
 interface PropTypes {
   id?: string;

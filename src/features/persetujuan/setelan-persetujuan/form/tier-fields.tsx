@@ -7,13 +7,13 @@ import {
   Button,
   ChoiceField,
   ComboboxField,
+  DdlField,
 } from "@/components/common/control";
 import { ControlField } from "@/components/common/form";
 
 import { useBapelOptions, useJabatanOptions, useRoleOptions } from "../api";
 import { withSavedJabatan } from "../model";
 
-import { DdlField } from "./ddl-field";
 import {
   tierButtonId,
   withEmptyOption,
