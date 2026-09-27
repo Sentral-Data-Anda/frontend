@@ -9,6 +9,9 @@
  *   MOCK_IBADAH_MANY=1            → 30 pekan ke belakang (±150 baris), untuk paginasi
  *   MOCK_IBADAH_SAVE_ERROR=500    → POST/PUT/DELETE menjawab 500
  *   MOCK_SARAN_EMPTY=1            → saran tuan rumah kosong (404)
+ *   MOCK_BATCH_ERROR=row          → POST /ibadah/batch: baris indeks 1 selalu gagal
+ *   MOCK_BATCH_ERROR=500          → POST /ibadah/batch menjawab 500
+ *   MOCK_BATCH_ERROR=race         → POST /ibadah/batch menjawab 409 duplikat tanpa issues
  *
  * Hari ini selalu dua ibadah Minggu (bentuk Beranda yang sudah di-review, apa pun
  * harinya). Baris khusus, relatif ke hari ini: Persekutuan Doa Rabu lalu tanpa
@@ -904,6 +907,120 @@ const hostSuggestions = (params: URLSearchParams) => {
   });
 };
 
+const BATCH_MAX = 60;
+
+const batchSchema = z.object({
+  rows: z
+    .array(z.unknown(), { error: "Mohon Lengkapi Daftar Ibadah" })
+    .min(1, { error: "Mohon Lengkapi Daftar Ibadah" })
+    .max(BATCH_MAX, {
+      error: `Maksimal ${BATCH_MAX} Ibadah Dalam Satu Kali Simpan`,
+    })
+    .pipe(z.array(ibadahSchema)),
+});
+
+type Issue = { path: string; message: string };
+
+const creatableIssue = async (input: IbadahInput): Promise<Issue | null> => {
+  const type = typeRowOf(input.typeIbadahId);
+
+  if (!type) {
+    return { path: "typeIbadahId", message: "Tipe Ibadah Tidak Ditemukan" };
+  }
+  if (!type.isActive) {
+    return {
+      path: "typeIbadahId",
+      message: "Tipe Ibadah Tersebut Sudah Tidak Aktif. Pilih Tipe Ibadah Lain",
+    };
+  }
+
+  const relationError = checkRelations(input);
+  if (relationError) {
+    return ((await relationError.json()) as { issues: Issue[] }).issues[0];
+  }
+
+  return isDuplicate(input) ? { path: "startTime", message: DUPLICATE } : null;
+};
+
+const slotOf = (input: IbadahInput) =>
+  [
+    input.typeIbadahId,
+    input.date.slice(0, 10),
+    input.startTime,
+    input.zoneChurchId ?? 0,
+  ].join("|");
+
+const createBatch = async (request: Request) => {
+  const parsed = batchSchema.safeParse(await readBody<unknown>(request));
+
+  if (!parsed.success) {
+    const issues = parsed.error.issues.map((issue) => ({
+      path: issue.path.join("."),
+      message: issue.message,
+    }));
+
+    return json({ status: 400, error: issues[0].message, issues }, 400);
+  }
+
+  const inputs: IbadahInput[] = parsed.data.rows.map((row) => ({
+    ...row,
+    date: iso(row.date.toISOString().slice(0, 10)),
+  }));
+  const issues: Issue[] = [];
+  const seen = new Map<string, number>();
+
+  for (const [index, input] of inputs.entries()) {
+    const earlier = seen.get(slotOf(input));
+
+    if (earlier !== undefined) {
+      issues.push({
+        path: `rows.${index}.startTime`,
+        message: `Ibadah Ini Sama Dengan Baris ${earlier + 1}`,
+      });
+      continue;
+    }
+    seen.set(slotOf(input), index);
+
+    const issue =
+      process.env.MOCK_BATCH_ERROR === "row" && index === 1
+        ? {
+            path: "hostKeluargaId",
+            message: "Keluarga Tuan Rumah Tidak Ditemukan",
+          }
+        : await creatableIssue(input);
+
+    if (issue) {
+      issues.push({
+        path: `rows.${index}.${issue.path}`,
+        message: issue.message,
+      });
+    }
+  }
+
+  if (issues.length > 0) {
+    return json({ status: 400, error: issues[0].message, issues }, 400);
+  }
+  if (process.env.MOCK_BATCH_ERROR === "race") return failure(409, DUPLICATE);
+
+  const rows = allRows();
+  const firstId = Math.max(0, ...rows.map((row) => row.id)) + 1;
+  const createdAt = new Date().toISOString();
+  const created = inputs.map((input, index) =>
+    toRow(firstId + index, { ...fieldsOf(input), createdBy: 1, createdAt }),
+  );
+
+  rows.push(...created);
+
+  return json(
+    {
+      status: 201,
+      message: `Berhasil Membuat ${created.length} Data Ibadah`,
+      data: { codes: created.map((row) => row.code) },
+    },
+    201,
+  );
+};
+
 const actionOf = (method: string): MockAction =>
   method === "POST"
     ? "CREATE"
@@ -940,6 +1057,14 @@ export const ibadahMock: MockHandler = async ({
     if (process.env.MOCK_500) return failure(500, "Kesalahan server.");
 
     return list(listRows(url.searchParams), url, "Data Ibadah", "Ibadah");
+  }
+
+  if (path === "/ibadah/batch" && method === "POST") {
+    if (process.env.MOCK_BATCH_ERROR === "500") {
+      return failure(500, "Kesalahan server.");
+    }
+
+    return createBatch(request);
   }
 
   if (path === "/ibadah" && method === "POST") {
