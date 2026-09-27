@@ -76,6 +76,11 @@ const jakartaDateFormat = new Intl.DateTimeFormat("en-CA", {
 export const todayJakarta = (now: Date = new Date()): string =>
   jakartaDateFormat.format(now);
 
+export const endOfYearIso = (
+  yearsAhead: number,
+  now: Date = new Date(),
+): string => `${Number(todayJakarta(now).slice(0, 4)) + yearsAhead}-12-31`;
+
 export function ageInYears(
   birthIso: string,
   today: string = todayJakarta(),
