@@ -38,6 +38,7 @@ export function usePermintaanDetail(id: string, isEnabled = true) {
     queryFn: () => fetchOne<ApprovalDetail>(requestPath(id)),
     enabled: isEnabled,
     staleTime: 0,
+    gcTime: 0,
     select: (response) => response.data,
   });
 }
@@ -51,18 +52,11 @@ function useDecision<TBody>(id: string, verb: "setujui" | "tolak" | "tarik") {
         method: "PUT",
         body: body === undefined ? undefined : JSON.stringify(body),
       }),
-    // Detail yang masih terbuka tidak diambil ulang: layar sedang pergi, jangan berkedip.
     onSuccess: () =>
-      Promise.all([
-        queryClient.invalidateQueries({
-          queryKey: persetujuanKeys.all,
-          predicate: (query) => query.queryKey[1] !== "detail",
-        }),
-        queryClient.invalidateQueries({
-          queryKey: persetujuanKeys.detail(id),
-          refetchType: "none",
-        }),
-      ]),
+      queryClient.invalidateQueries({
+        queryKey: persetujuanKeys.all,
+        predicate: (query) => query.queryKey[1] !== "detail",
+      }),
   });
 }
 
