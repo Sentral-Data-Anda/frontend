@@ -1,6 +1,6 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import { useBoolean } from "@/hooks/use-boolean";
 import { FIRST_INVALID, revealField } from "@/lib/form-error";
@@ -219,5 +219,57 @@ describe("ComboboxField dengan onSearch: pilihan yang keluar dari hasil cari", (
     render(<Harness value="99" options={ALL} />);
 
     expect(screen.getByRole<HTMLInputElement>("combobox").value).toBe("");
+  });
+});
+
+describe("ComboboxField: opsi dibuat ulang tiap render (pola useDdlSearch)", () => {
+  const PEOPLE = [
+    { value: "1", label: "Andreas Sitanggang" },
+    { value: "7", label: "Gideon Tampubolon" },
+  ];
+
+  const Searching = () => {
+    const [term, setTerm] = useState("");
+    const options = PEOPLE.filter(
+      (person) =>
+        person.value === "7" ||
+        person.label.toLowerCase().includes(term.toLowerCase()),
+    ).map((person) => ({ ...person }));
+
+    return (
+      <ComboboxField
+        value="7"
+        onValueChange={() => {}}
+        options={options}
+        onSearch={setTerm}
+      />
+    );
+  };
+
+  test("mengetik tidak melompat kembali ke nama terpilih (repro Pernikahan)", async () => {
+    render(<Searching />);
+
+    const input = screen.getByRole<HTMLInputElement>("combobox");
+    expect(input.value).toBe("Gideon Tampubolon");
+
+    fireEvent.focus(input);
+    fireEvent.input(input, {
+      target: { value: "Andr" },
+      inputType: "insertText",
+    });
+
+    await screen.findByRole("option", { name: "Andreas Sitanggang" });
+    expect(input.value).toBe("Andr");
+  });
+
+  test("nilai terpilih tetap bertanda di daftar walau objeknya baru", async () => {
+    render(<Searching />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Buka pilihan" }));
+
+    const selected = await screen.findByRole("option", {
+      name: "Gideon Tampubolon",
+    });
+    expect(selected.getAttribute("aria-selected")).toBe("true");
   });
 });
