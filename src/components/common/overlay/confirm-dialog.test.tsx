@@ -1,4 +1,10 @@
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+} from "@testing-library/react";
 import { afterEach, describe, expect, mock, test } from "bun:test";
 import { type ComponentProps } from "react";
 
@@ -75,5 +81,29 @@ describe("ConfirmDialog", () => {
 
     expect(onConfirm).toHaveBeenCalledTimes(1);
     expect(isClosed()).toBe(true);
+  });
+
+  test("bawaan: tombol batal berlabel Batal", () => {
+    render(<Harness />);
+
+    expect(
+      screen.getAllByRole("button").map((button) => button.textContent),
+    ).toEqual(["Batal", "Tambahkan"]);
+  });
+
+  test("cancelLabel null: hanya tombol konfirmasi, Escape tetap menutup", async () => {
+    const onConfirm = mock();
+    render(<Harness cancelLabel={null} onConfirm={onConfirm} />);
+
+    expect(
+      screen.getAllByRole("button").map((button) => button.textContent),
+    ).toEqual(["Tambahkan"]);
+
+    await act(async () =>
+      fireEvent.keyDown(screen.getByRole("alertdialog"), { key: "Escape" }),
+    );
+
+    expect(isClosed()).toBe(true);
+    expect(onConfirm).not.toHaveBeenCalled();
   });
 });
