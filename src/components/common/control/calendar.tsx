@@ -299,12 +299,12 @@ export const Calendar = (props: PropTypes) => {
               className={cn(
                 "relative flex h-9 w-full items-center justify-center rounded-control text-body tabular-nums transition-colors",
                 "cursor-pointer focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:outline-none",
-                "disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent",
+                "disabled:cursor-not-allowed disabled:line-through",
                 isToday &&
                   "font-semibold after:absolute after:bottom-1 after:size-1 after:rounded-full after:bg-current",
-                isSelected
-                  ? "bg-primary text-primary-foreground"
-                  : "hover:bg-accent",
+                isSelected && "bg-primary text-primary-foreground",
+                !isSelected && isAllowed && "hover:bg-accent",
+                !isSelected && !isAllowed && "text-muted-foreground",
                 !isSelected && isOutside && "text-muted-foreground/70",
                 !isSelected &&
                   isToday &&

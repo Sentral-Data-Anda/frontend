@@ -110,6 +110,21 @@ describe("Calendar — batas min/max (§7.10 no. 7)", () => {
     expect(cal.picked).toHaveLength(0);
   });
 
+  test("disabled di bulan berjalan dicoret, tidak dipudarkan seperti luar bulan", () => {
+    const cal = onRenderCalendar({ max: "2026-09-27" });
+    const byLabel = (label: string) =>
+      cal.cells().find((c) => c.getAttribute("aria-label") === label)!;
+    const disabled = byLabel("28 September 2026");
+    const outside = byLabel("1 Oktober 2026");
+
+    expect(disabled.hasAttribute("data-outside")).toBe(false);
+    expect(disabled.className).toContain("line-through");
+    expect(disabled.className).not.toContain("text-muted-foreground/70");
+    expect(disabled.className).not.toContain("hover:bg-accent");
+    expect(outside.hasAttribute("data-outside")).toBe(true);
+    expect(outside.className).toContain("text-muted-foreground/70");
+  });
+
   test("panah berhenti di batas, tidak melompat ke hari terlarang", () => {
     const cal = onRenderCalendar({ value: "2026-09-23", max: "2026-09-23" });
 
