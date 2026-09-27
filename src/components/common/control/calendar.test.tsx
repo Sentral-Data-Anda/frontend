@@ -382,6 +382,7 @@ describe("Calendar — penanda hari libur", () => {
     { date: "2026-09-17", name: "Retret Majelis", type: "GEREJA" },
     { date: "2026-09-23", name: "HUT Gereja", type: "GEREJA" },
     { date: "2026-09-23", name: "Syukur Panen", type: "GEREJA" },
+    { date: "2026-09-23", name: "HUT Gereja", type: "GEREJA" },
     { date: "2026-09-25", name: "Libur Nasional", type: "NASIONAL" },
   ];
 
@@ -422,7 +423,7 @@ describe("Calendar — penanda hari libur", () => {
     );
   });
 
-  test("beberapa libur di satu hari digabung dengan titik koma", async () => {
+  test("beberapa libur di satu hari digabung dengan titik koma, nama kembar sekali", async () => {
     onStubHolidays(HOLIDAYS);
     const cal = onRenderCalendar({ value: "2026-09-10" });
 

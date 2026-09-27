@@ -17,14 +17,13 @@ const ONE_DAY_MS = 86_400_000;
 const NO_HOLIDAYS = new Map<string, string>();
 
 const namesByDate = (response: { data: CalendarHoliday[] }) => {
-  const names = new Map<string, string>();
+  const names = new Map<string, Set<string>>();
 
   for (const { date, name } of response.data) {
-    const previous = names.get(date);
-    names.set(date, previous ? `${previous}; ${name}` : name);
+    names.set(date, (names.get(date) ?? new Set()).add(name));
   }
 
-  return names;
+  return new Map([...names].map(([date, set]) => [date, [...set].join("; ")]));
 };
 
 export function useHolidayCalendar(from: string, to: string) {
