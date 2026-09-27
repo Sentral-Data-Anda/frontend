@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 import { PageContainer } from "@/components/layout";
-import { ActivityLogDetailScreen } from "@/features/pengaturan/activity-log/list";
+import { ActivityLogDetailScreen } from "@/features/pengaturan/activity-log/detail";
 
 export const metadata: Metadata = {
   title: "Detail Log Aktivitas",
