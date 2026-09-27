@@ -13,8 +13,9 @@ import { formatDateShort, formatWeekday } from "@/lib/format";
 import { emptyToNull } from "@/lib/utils";
 
 import type {
-  Ibadah,
+  HostSuggestion,
   IbadahCounts,
+  IbadahDetail,
   IbadahPayload,
   IbadahRelation,
 } from "./types";
@@ -85,6 +86,7 @@ export function toIbadahApiFilters(filters: Record<string, string>) {
 
   return {
     typeIbadahId: filters.tipe ?? "",
+    zoneChurchId: filters.wilayah ?? "",
     startDate: start,
     endDate: end,
   };
@@ -94,31 +96,94 @@ const DIGITS = /^\d*$/;
 
 const count = z.string().regex(DIGITS, "Isi angka tanpa titik atau koma.");
 
-export const ibadahFormSchema = z
-  .object({
-    typeIbadahId: z.string().min(1, "Pilih tipe ibadah."),
-    date: z.string().min(1, "Tanggal wajib diisi"),
-    startTime: z.string().min(1, "Isi jam mulai."),
-    endTime: z.string(),
-    theme: z.string().max(150, "Tema maksimal 150 karakter."),
-    bibleVerse: z.string().max(100, "Ayat maksimal 100 karakter."),
-    preacher: z.string().max(150, "Nama pengkhotbah maksimal 150 karakter."),
-    roomId: z.string(),
-    bapelId: z.string(),
-    jadwalPelayanId: z.string(),
-    maleCount: count,
-    femaleCount: count,
-    childCount: count,
-    note: z.string().max(250, "Catatan maksimal 250 karakter."),
-  })
+const ibadahFields = z.object({
+  typeIbadahId: z.string().min(1, "Pilih tipe ibadah."),
+  date: z.string().min(1, "Tanggal wajib diisi"),
+  startTime: z.string().min(1, "Isi jam mulai."),
+  endTime: z.string(),
+  theme: z.string().max(150, "Tema maksimal 150 karakter."),
+  bibleVerse: z.string().max(100, "Ayat maksimal 100 karakter."),
+  preacher: z.string().max(150, "Nama pengkhotbah maksimal 150 karakter."),
+  placeType: z.enum(["GEREJA", "RUMAH_JEMAAT", "LAINNYA"]),
+  zoneChurchId: z.string(),
+  roomId: z.string(),
+  hostKeluargaId: z.string(),
+  placeName: z.string(),
+  address: z.string(),
+  bapelId: z.string(),
+  jadwalPelayanId: z.string(),
+  maleCount: count,
+  femaleCount: count,
+  childCount: count,
+  note: z.string().max(250, "Catatan maksimal 250 karakter."),
+});
+
+type FormFields = z.infer<typeof ibadahFields>;
+
+const rule = (
+  field: keyof FormFields,
+  isBroken: (values: FormFields) => boolean,
+  message: string,
+): [
+  (values: FormFields) => boolean,
+  { path: string[]; message: string; when: () => boolean },
+] => [
+  (values) => !isBroken(values),
+  { path: [field], message, when: () => true },
+];
+
+const isHome = (values: Pick<FormFields, "placeType">) =>
+  values.placeType === "RUMAH_JEMAAT";
+
+const isOther = (values: Pick<FormFields, "placeType">) =>
+  values.placeType === "LAINNYA";
+
+export const ibadahFormSchema = ibadahFields
   .refine(
-    (values) =>
-      !values.endTime || !values.startTime || values.endTime > values.startTime,
-    {
-      path: ["endTime"],
-      message: "Jam selesai harus sesudah jam mulai.",
-      when: () => true,
-    },
+    ...rule(
+      "endTime",
+      (values) =>
+        Boolean(values.endTime && values.startTime) &&
+        values.endTime <= values.startTime,
+      "Jam selesai harus sesudah jam mulai.",
+    ),
+  )
+  .refine(
+    ...rule(
+      "hostKeluargaId",
+      (values) => isHome(values) && !values.hostKeluargaId,
+      "Pilih keluarga tuan rumah.",
+    ),
+  )
+  .refine(
+    ...rule(
+      "placeName",
+      (values) => isOther(values) && !values.placeName.trim(),
+      "Isi nama tempat.",
+    ),
+  )
+  .refine(
+    ...rule(
+      "placeName",
+      (values) => isOther(values) && values.placeName.trim().length > 150,
+      "Nama tempat maksimal 150 karakter.",
+    ),
+  )
+  .refine(
+    ...rule(
+      "address",
+      (values) => isHome(values) && !values.address.trim(),
+      "Isi alamat tempat ibadah.",
+    ),
+  )
+  .refine(
+    ...rule(
+      "address",
+      (values) =>
+        (isHome(values) || isOther(values)) &&
+        values.address.trim().length > 250,
+      "Alamat maksimal 250 karakter.",
+    ),
   );
 
 export type IbadahFormValues = z.infer<typeof ibadahFormSchema>;
@@ -131,7 +196,12 @@ export const EMPTY_IBADAH_FORM: IbadahFormValues = {
   theme: "",
   bibleVerse: "",
   preacher: "",
+  placeType: "GEREJA",
+  zoneChurchId: "",
   roomId: "",
+  hostKeluargaId: "",
+  placeName: "",
+  address: "",
   bapelId: "",
   jadwalPelayanId: "",
   maleCount: "",
@@ -146,24 +216,33 @@ const idOf = (relation: IbadahRelation | null) => String(relation?.id ?? "");
 
 const countOf = (value: number) => (value ? String(value) : "");
 
-export const toIbadahPayload = (values: IbadahFormValues): IbadahPayload => ({
-  typeIbadahId: Number(values.typeIbadahId),
-  date: values.date,
-  startTime: values.startTime,
-  endTime: values.endTime || null,
-  theme: emptyToNull(values.theme),
-  bibleVerse: emptyToNull(values.bibleVerse),
-  preacher: emptyToNull(values.preacher),
-  roomId: toId(values.roomId),
-  bapelId: toId(values.bapelId),
-  jadwalPelayanId: toId(values.jadwalPelayanId),
-  maleCount: Number(values.maleCount || 0),
-  femaleCount: Number(values.femaleCount || 0),
-  childCount: Number(values.childCount || 0),
-  note: emptyToNull(values.note),
-});
+export const toIbadahPayload = (values: IbadahFormValues): IbadahPayload => {
+  const isChurch = values.placeType === "GEREJA";
 
-export const toIbadahForm = (ibadah: Ibadah): IbadahFormValues => ({
+  return {
+    typeIbadahId: Number(values.typeIbadahId),
+    date: values.date,
+    startTime: values.startTime,
+    endTime: values.endTime || null,
+    theme: emptyToNull(values.theme),
+    bibleVerse: emptyToNull(values.bibleVerse),
+    preacher: emptyToNull(values.preacher),
+    placeType: values.placeType,
+    hostKeluargaId: isHome(values) ? toId(values.hostKeluargaId) : null,
+    placeName: isOther(values) ? emptyToNull(values.placeName) : null,
+    address: isChurch ? null : emptyToNull(values.address),
+    zoneChurchId: toId(values.zoneChurchId),
+    roomId: isChurch ? toId(values.roomId) : null,
+    bapelId: toId(values.bapelId),
+    jadwalPelayanId: toId(values.jadwalPelayanId),
+    maleCount: Number(values.maleCount || 0),
+    femaleCount: Number(values.femaleCount || 0),
+    childCount: Number(values.childCount || 0),
+    note: emptyToNull(values.note),
+  };
+};
+
+export const toIbadahForm = (ibadah: IbadahDetail): IbadahFormValues => ({
   typeIbadahId: idOf(ibadah.typeIbadah),
   date: toDateInput(ibadah.date),
   startTime: ibadah.startTime,
@@ -171,7 +250,12 @@ export const toIbadahForm = (ibadah: Ibadah): IbadahFormValues => ({
   theme: ibadah.theme ?? "",
   bibleVerse: ibadah.bibleVerse ?? "",
   preacher: ibadah.preacher ?? "",
+  placeType: ibadah.placeType,
+  zoneChurchId: idOf(ibadah.zoneChurch),
   roomId: idOf(ibadah.room),
+  hostKeluargaId: idOf(ibadah.hostKeluarga),
+  placeName: ibadah.placeName ?? "",
+  address: ibadah.address ?? "",
   bapelId: idOf(ibadah.bapel),
   jadwalPelayanId: idOf(ibadah.jadwalPelayan),
   maleCount: countOf(ibadah.maleCount),
@@ -180,19 +264,63 @@ export const toIbadahForm = (ibadah: Ibadah): IbadahFormValues => ({
   note: ibadah.note ?? "",
 });
 
+const keptOf = (id: string, activeIds: readonly string[]) =>
+  activeIds.includes(id) ? id : "";
+
 export const toIbadahCopy = (
-  source: Ibadah,
+  source: IbadahDetail,
   activeTypeIds: readonly string[],
+  activeZoneIds: readonly string[],
 ): IbadahFormValues => ({
   ...EMPTY_IBADAH_FORM,
-  typeIbadahId: activeTypeIds.includes(idOf(source.typeIbadah))
-    ? idOf(source.typeIbadah)
-    : "",
+  typeIbadahId: keptOf(idOf(source.typeIbadah), activeTypeIds),
   startTime: source.startTime,
   endTime: source.endTime ?? "",
-  roomId: idOf(source.room),
+  placeType: source.placeType,
+  zoneChurchId: keptOf(idOf(source.zoneChurch), activeZoneIds),
+  roomId: source.placeType === "GEREJA" ? idOf(source.room) : "",
+  placeName: isOther(source) ? (source.placeName ?? "") : "",
+  address: isOther(source) ? (source.address ?? "") : "",
   bapelId: idOf(source.bapel),
 });
+
+export function hostHint(
+  lastHostedDate: string | null,
+  today: string = todayJakarta(),
+): string {
+  if (!lastHostedDate) return "Belum pernah";
+
+  return `${toDateInput(lastHostedDate) < today ? "Terakhir" : "Dijadwalkan"} ${formatDateShort(lastHostedDate)}`;
+}
+
+export const toHostOptions = (
+  suggestions: readonly HostSuggestion[],
+  today: string = todayJakarta(),
+): SelectOption[] =>
+  suggestions.map((host) => ({
+    value: String(host.id),
+    label: host.name,
+    hint: hostHint(host.lastHostedDate, today),
+  }));
+
+export function mergeHostOptions(
+  suggested: readonly SelectOption[],
+  found: readonly SelectOption[],
+  term: string,
+  selected: string,
+): SelectOption[] {
+  const needle = term.trim().toLowerCase();
+  const suggestedIds = new Set(suggested.map((option) => option.value));
+
+  return [
+    ...suggested.filter(
+      (option) =>
+        option.value === selected ||
+        option.label.toLowerCase().includes(needle),
+    ),
+    ...found.filter((option) => !suggestedIds.has(option.value)),
+  ];
+}
 
 export const withSavedOption = (
   options: readonly SelectOption[],
@@ -205,11 +333,11 @@ export const withSavedOption = (
 export function serverFieldError(
   message: string,
   typeName: string,
-): { field: keyof IbadahFormValues; message: string } | null {
+): { field: keyof IbadahFormValues | "root"; message: string } | null {
   if (/sudah tercatat/i.test(message)) {
     return {
       field: "startTime",
-      message: `${typeName} pada tanggal dan jam ini sudah tercatat. Ubah jam mulai, atau buka data yang sudah ada dari daftar.`,
+      message: `${typeName} pada tanggal, jam, dan wilayah ini sudah tercatat. Ubah jam mulai atau wilayah, atau buka data yang sudah ada dari daftar.`,
     };
   }
   if (/^tipe ibadah tersebut sudah tidak aktif/i.test(message)) {
@@ -237,6 +365,19 @@ export function serverFieldError(
         "Badan pelayanan ini sudah dihapus. Pilih yang lain atau kosongkan.",
     };
   }
+  if (/^keluarga tuan rumah tidak ditemukan/i.test(message)) {
+    return {
+      field: "hostKeluargaId",
+      message: "Keluarga ini sudah dihapus. Pilih keluarga lain.",
+    };
+  }
+  if (/^wilayah gereja tidak ditemukan/i.test(message)) {
+    return {
+      field: "zoneChurchId",
+      message: "Wilayah ini sudah dihapus. Pilih wilayah lain atau kosongkan.",
+    };
+  }
+  if (/^jadwal pelayan/i.test(message)) return { field: "root", message };
 
   return null;
 }

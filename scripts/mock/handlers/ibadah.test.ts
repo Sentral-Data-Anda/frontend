@@ -1,8 +1,10 @@
 import { describe, expect, test } from "bun:test";
 
 import { addDays, todayJakarta } from "../../../src/lib/date";
+import type { MockAction } from "../kit";
 
 import { ibadahMock } from "./ibadah";
+import { keluargaMock } from "./keluarga";
 import { tipeIbadahMock } from "./tipe-ibadah";
 
 type Listed = {
@@ -16,6 +18,14 @@ type Listed = {
   jadwalPelayan: { id: number } | null;
   maleCount: number;
   typeIbadahId?: number;
+  placeType: string;
+  placeName: string | null;
+  address?: string | null;
+  hostKeluarga: { id: number; name: string } | null;
+  zoneChurch: { id: number; name: string } | null;
+  lastHostedDate?: string | null;
+  id: number;
+  name: string;
 };
 
 const TODAY = todayJakarta();
@@ -24,14 +34,15 @@ const onCall = async (
   method: string,
   input: string,
   body?: unknown,
-  can: () => boolean = () => true,
+  can: (slug: string, action: MockAction) => boolean = () => true,
+  handler = ibadahMock,
 ) => {
   const url = new URL(input, "http://mock.test");
   const request = new Request(url, {
     method,
     body: body === undefined ? undefined : JSON.stringify(body),
   });
-  const response = (await ibadahMock({
+  const response = (await handler({
     request,
     url,
     path: url.pathname,
@@ -72,6 +83,11 @@ const BODY = {
   theme: null,
   bibleVerse: null,
   preacher: null,
+  placeType: "GEREJA",
+  hostKeluargaId: null,
+  placeName: null,
+  address: null,
+  zoneChurchId: null,
   roomId: null,
   bapelId: null,
   jadwalPelayanId: null,
@@ -138,6 +154,7 @@ describe("POST /ibadah", () => {
       "typeIbadahId",
       "date",
       "startTime",
+      "placeType",
     ]);
 
     const endBefore = await onCall("POST", "/ibadah", {
@@ -179,6 +196,7 @@ describe("PUT dan DELETE /ibadah/:code", () => {
       typeIbadahId: 1,
       date: row.date.slice(0, 10),
       startTime: "08:00",
+      placeType: "GEREJA",
     });
 
     expect(status).toBe(200);
@@ -311,5 +329,217 @@ describe("tipe dibaca dari state Tipe Ibadah", () => {
       name: "Ibadah Pemuda",
       isActive: true,
     });
+  });
+});
+
+const THURSDAY = lastWeekday(4);
+
+const HOME = {
+  ...BODY,
+  typeIbadahId: 6,
+  date: addDays(TODAY, 60),
+  startTime: "19:00",
+  endTime: null,
+  placeType: "RUMAH_JEMAAT",
+  hostKeluargaId: 1,
+  address: "Jl. Cijerah No. 1",
+  zoneChurchId: 1,
+};
+
+describe("tempat ibadah", () => {
+  test("daftar tanpa alamat; detail membawa alamat, tuan rumah, dan wilayah", async () => {
+    const { body } = await onCall(
+      "GET",
+      `/ibadah?date=${THURSDAY}&zoneChurchId=1&limit=100`,
+    );
+    const [row] = body.data;
+
+    expect(body.data).toHaveLength(1);
+    expect(row).toMatchObject({
+      placeType: "RUMAH_JEMAAT",
+      zoneChurch: { id: 1, name: "Wilayah I" },
+    });
+    expect("address" in row).toBe(false);
+
+    const detail = await onCall("GET", `/ibadah/${row.code}`);
+    expect(detail.body.data.address).toMatch(/^Jl\./);
+    expect(detail.body.data.hostKeluarga?.name).toBe(row.hostKeluarga?.name);
+  });
+
+  test("filter: nama tempat, nama tuan rumah, tuan rumah terhapus tetap terbaca", async () => {
+    const villa = await onCall("GET", "/ibadah?filter=ciater");
+    expect(villa.body.data.map((row) => row.placeName)).toEqual([
+      "Villa Ciater",
+    ]);
+
+    const deleted = await onCall("GET", "/ibadah?filter=lumbantobing");
+    expect(deleted.body.data[0].hostKeluarga).toMatchObject({
+      id: 99,
+      name: "Keluarga Lumbantobing",
+    });
+
+    const byHost = await onCall("GET", "/ibadah?hostKeluargaId=99");
+    expect(byHost.body.totalData).toBe(1);
+  });
+
+  test("aturan per tipe tempat: wajib dan terlarang", async () => {
+    const missing = await onCall("POST", "/ibadah", {
+      ...BODY,
+      placeType: undefined,
+    });
+    expect(missing.body.error).toBe("Mohon Lengkapi Tempat Ibadah");
+
+    const home = await onCall("POST", "/ibadah", {
+      ...HOME,
+      hostKeluargaId: null,
+      address: "  ",
+      roomId: 1,
+    });
+    expect(home.body.issues).toEqual([
+      {
+        path: "hostKeluargaId",
+        message: "Mohon Lengkapi Keluarga Tuan Rumah",
+      },
+      { path: "address", message: "Mohon Lengkapi Alamat Ibadah" },
+      { path: "roomId", message: "Ruangan Hanya Diisi Untuk Ibadah di Gereja" },
+    ]);
+
+    const church = await onCall("POST", "/ibadah", {
+      ...BODY,
+      address: "Jl. A",
+      placeName: "Aula",
+    });
+    expect(church.body.issues?.map((issue) => issue.message)).toEqual([
+      "Nama Tempat Hanya Diisi Untuk Ibadah di Tempat Lainnya",
+      "Alamat Tidak Diisi Untuk Ibadah di Gereja",
+    ]);
+
+    const other = await onCall("POST", "/ibadah", {
+      ...BODY,
+      placeType: "LAINNYA",
+    });
+    expect(other.body.error).toBe("Mohon Lengkapi Nama Tempat");
+  });
+
+  test("relasi tempat membawa issues; duplikat per wilayah", async () => {
+    const host = await onCall("POST", "/ibadah", {
+      ...HOME,
+      hostKeluargaId: 999,
+    });
+    expect(host.status).toBe(404);
+    expect(host.body.issues).toEqual([
+      {
+        path: "hostKeluargaId",
+        message: "Keluarga Tuan Rumah Tidak Ditemukan",
+      },
+    ]);
+
+    const zone = await onCall("POST", "/ibadah", { ...HOME, zoneChurchId: 99 });
+    expect(zone.body.error).toBe("Wilayah Gereja Tidak Ditemukan");
+
+    const inactive = await onCall("POST", "/ibadah", {
+      ...HOME,
+      zoneChurchId: 5,
+    });
+    expect(inactive.status).toBe(400);
+    expect(inactive.body.issues?.[0].path).toBe("zoneChurchId");
+
+    expect((await onCall("POST", "/ibadah", HOME)).status).toBe(201);
+    const duplicate = await onCall("POST", "/ibadah", HOME);
+    expect(duplicate.status).toBe(409);
+    expect(duplicate.body.issues?.[0].path).toBe("startTime");
+    expect(
+      (
+        await onCall("POST", "/ibadah", {
+          ...HOME,
+          zoneChurchId: 2,
+          hostKeluargaId: 2,
+        })
+      ).status,
+    ).toBe(201);
+  });
+});
+
+describe("saran tuan rumah", () => {
+  test("hanya CREATE; query wajib", async () => {
+    const viewOnly = await onCall(
+      "GET",
+      "/ibadah/saran-tuan-rumah?typeIbadahId=6&zoneChurchId=1",
+      undefined,
+      (_slug, action) => action === "VIEW",
+    );
+    expect(viewOnly.status).toBe(403);
+
+    const invalid = await onCall(
+      "GET",
+      "/ibadah/saran-tuan-rumah?typeIbadahId=6&zoneChurchId=x",
+    );
+    expect(invalid.body.error).toBe("Mohon Lengkapi Wilayah");
+  });
+
+  test("keluarga layak: belum pernah dulu, lalu tertua; yang dijadwalkan di bawah", async () => {
+    const { body } = await onCall(
+      "GET",
+      "/ibadah/saran-tuan-rumah?typeIbadahId=6&zoneChurchId=2",
+    );
+    const dates = body.data.map((row) => row.lastHostedDate ?? "");
+
+    expect(body.data.map((row) => row.id).sort((a, b) => a - b)).toEqual([
+      2, 7, 11, 14, 19, 24,
+    ]);
+    expect(dates[0]).toBe("");
+    expect(dates.slice(1)).toEqual([...dates.slice(1)].sort());
+    expect((dates.at(-1) ?? "").slice(0, 10) >= TODAY).toBe(true);
+  });
+
+  test("wilayah tanpa keluarga layak: 404", async () => {
+    const { status, body } = await onCall(
+      "GET",
+      "/ibadah/saran-tuan-rumah?typeIbadahId=6&zoneChurchId=3",
+    );
+
+    expect(status).toBe(404);
+    expect(body.error).toBe(
+      "Tidak Ada Keluarga Yang Dapat Menjadi Tuan Rumah di Wilayah Ini",
+    );
+  });
+});
+
+describe("keluarga untuk ibadah", () => {
+  test("alamat hanya IBADAH CREATE; wilayah dengan status aktif; 404", async () => {
+    const onAlamat = (id: string, can = () => true) =>
+      onCall("GET", `/ddl/keluarga/${id}/alamat`, undefined, can, keluargaMock);
+
+    expect((await onAlamat("1", () => false)).status).toBe(403);
+    expect((await onAlamat("1")).body.data).toMatchObject({
+      id: 1,
+      zoneChurch: { id: 1, name: "Wilayah I", isActive: true },
+    });
+    expect((await onAlamat("5")).body.data).toMatchObject({ zoneChurch: null });
+    expect((await onAlamat("999")).body.error).toBe("Keluarga Tidak Ditemukan");
+  });
+
+  test("hapus keluarga tanpa anggota yang dijadwalkan menjadi tuan rumah: 400 dengan tanggal", async () => {
+    const date = addDays(TODAY, 70);
+    const created = await onCall("POST", "/ibadah", {
+      ...HOME,
+      date,
+      hostKeluargaId: 6,
+      zoneChurchId: null,
+    });
+    expect(created.status).toBe(201);
+
+    const { status, body } = await onCall(
+      "DELETE",
+      "/keluarga/KK-0006",
+      undefined,
+      () => true,
+      keluargaMock,
+    );
+
+    expect(status).toBe(400);
+    expect(body.error).toMatch(
+      /^Keluarga Masih Dijadwalkan Menjadi Tuan Rumah pada \d{1,2} \w+ \d{4}$/,
+    );
   });
 });

@@ -74,6 +74,7 @@ export const IbadahFormScreen = (props: PropTypes) => {
   const deleteIbadah = useDeleteIbadah(code);
   const detail = useIbadahDetail(code ?? (copyCode || undefined));
   const activeTypes = useDdlOptions("type-ibadah", "id");
+  const activeZones = useDdlOptions("zone-church", "id");
   const confirm = useFormConfirm();
   const saveRef = useRef<HTMLButtonElement>(null);
   const deleteRef = useRef<HTMLButtonElement>(null);
@@ -91,8 +92,12 @@ export const IbadahFormScreen = (props: PropTypes) => {
   const rootError = form.formState.errors.root?.message;
   const isBusy = isSubmitting || deleteIbadah.isPending;
   const activeTypeKey = activeTypes.options.map((type) => type.value).join();
+  const activeZoneKey = activeZones.options.map((zone) => zone.value).join();
   const isCopyLoading =
-    isCopy && (detail.isLoading || (activeTypes.isLoading && !activeTypeKey));
+    isCopy &&
+    (detail.isLoading ||
+      (activeTypes.isLoading && !activeTypeKey) ||
+      (activeZones.isLoading && !activeZoneKey));
   const isLoading = isEdit ? detail.isLoading : isCopyLoading;
   const isHidden = isEdit ? !detail.data : isCopyLoading;
   const isLocked = isBusy || isHidden;
@@ -101,6 +106,16 @@ export const IbadahFormScreen = (props: PropTypes) => {
     source !== undefined &&
     Boolean(activeTypeKey) &&
     !activeTypeKey.split(",").includes(String(source.typeIbadah.id));
+  const inactiveZone =
+    source?.zoneChurch &&
+    activeZoneKey &&
+    !activeZoneKey.split(",").includes(String(source.zoneChurch.id))
+      ? source.zoneChurch.name
+      : null;
+  const inactiveNames = [
+    isSourceTypeInactive ? `Tipe ${source.typeIbadah.name}` : null,
+    inactiveZone,
+  ].filter(Boolean);
   const isNotFound =
     detail.error instanceof FetchError && detail.error.status === 404;
   const copyHref = code ? salinHref(code) : "";
@@ -162,10 +177,14 @@ export const IbadahFormScreen = (props: PropTypes) => {
       saveListFocus(IBADAH_LIST_PATH, saved.data.code);
       router.replace(listReturn);
     } catch (error) {
+      const known =
+        error instanceof FetchError
+          ? serverFieldError(error.message, typeNameOf(values.typeIbadahId))
+          : null;
+
+      if (known) form.setError(known.field, { message: known.message });
       setRejectedField(
-        applyServerError(error, form.setError, (message) =>
-          serverFieldError(message, typeNameOf(values.typeIbadahId)),
-        ),
+        known ? known.field : applyServerError(error, form.setError),
       );
     }
   }, onInvalid);
@@ -191,9 +210,23 @@ export const IbadahFormScreen = (props: PropTypes) => {
     if (copiedRef.current === copyCode) return;
 
     copiedRef.current = copyCode;
-    form.reset(toIbadahCopy(detail.data, activeTypeKey.split(",")));
+    form.reset(
+      toIbadahCopy(
+        detail.data,
+        activeTypeKey.split(","),
+        activeZoneKey.split(","),
+      ),
+    );
     document.getElementById("date")?.focus();
-  }, [detail.data, isCopy, isCopyLoading, copyCode, activeTypeKey, form]);
+  }, [
+    detail.data,
+    isCopy,
+    isCopyLoading,
+    copyCode,
+    activeTypeKey,
+    activeZoneKey,
+    form,
+  ]);
 
   useEffect(() => {
     if (!isDirty || isSubmitting) return;
@@ -299,11 +332,23 @@ export const IbadahFormScreen = (props: PropTypes) => {
       }
     >
       <div className="space-y-3 px-gutter pt-4 empty:hidden">
-        {isSourceTypeInactive ? (
+        {inactiveNames.length ? (
           <FormAlert
             tone="info"
-            title={`Tipe ${source.typeIbadah.name} sudah nonaktif, jadi tidak ikut disalin.`}
-            message="Pilih tipe lain."
+            title={`${inactiveNames.join(" dan ")} sudah nonaktif, jadi tidak ikut disalin.`}
+            message={
+              isSourceTypeInactive
+                ? "Pilih tipe lain."
+                : "Pilih wilayah lain atau kosongkan."
+            }
+          />
+        ) : null}
+
+        {source?.placeType === "RUMAH_JEMAAT" ? (
+          <FormAlert
+            tone="info"
+            title="Tuan rumah tidak ikut disalin."
+            message="Pilih dari urutan giliran di field Tuan rumah."
           />
         ) : null}
 

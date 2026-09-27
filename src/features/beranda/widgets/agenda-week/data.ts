@@ -1,6 +1,7 @@
 "use client";
 
 import { MENU, menuHref } from "@/config/menu";
+import { placeLabelOf } from "@/lib/ibadah-place";
 
 import {
   sortByStartTime,
@@ -35,7 +36,7 @@ export function buildAgenda(
       day: dayOf(item.date),
       time: item.startTime,
       name: item.typeIbadah.name,
-      room: item.room?.name ?? "—",
+      room: placeLabelOf(item),
       href: IBADAH_HREF,
     })),
     ...events.flatMap((item) => {

@@ -58,6 +58,12 @@ rows[0].blockers = "Keluarga";
 
 const view = ({ blockers: _blockers, ...row }: Row) => row;
 
+export const findWilayah = (id: number) => {
+  const row = rows.find((item) => item.id === id);
+
+  return row ? view(row) : undefined;
+};
+
 const normalize = (name: string) => name.trim().replace(/\s+/g, " ");
 
 const findRow = (code: string) =>

@@ -5,6 +5,7 @@ import { buttonVariants } from "@/components/common/control";
 import { OptionalText } from "@/components/common/display";
 import { DataListRow, type DataTableConfig } from "@/components/common/list";
 import { MENU, editHref } from "@/config/menu";
+import { placeLabelOf } from "@/lib/ibadah-place";
 import { saveListFocus } from "@/lib/list-return";
 import { cn } from "@/lib/utils";
 
@@ -29,10 +30,8 @@ const metaOf = (ibadah: Ibadah) =>
   [
     formatServiceDate(ibadah.date),
     formatServiceTime(ibadah.startTime, null),
-    ibadah.theme,
-  ]
-    .filter(Boolean)
-    .join(" · ");
+    placeLabelOf(ibadah),
+  ].join(" · ");
 
 const attendanceCell = (ibadah: Ibadah) => {
   const label = attendanceLabel(ibadah);
@@ -146,12 +145,12 @@ export function ibadahTable(isCanUpdate: boolean): DataTableConfig<Ibadah> {
         ),
       },
       {
-        key: "room",
-        header: "Ruang",
-        width: "minmax(0,1.2fr)",
+        key: "place",
+        header: "Tempat",
+        width: "minmax(0,1.4fr)",
         isSecondary: true,
         cell: (ibadah) => (
-          <OptionalText text={ibadah.room?.name} empty="Tanpa ruang" />
+          <OptionalText text={placeLabelOf(ibadah)} empty="Tanpa tempat" />
         ),
       },
       {

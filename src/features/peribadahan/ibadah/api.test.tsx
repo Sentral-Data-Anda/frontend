@@ -62,7 +62,7 @@ const EMPTY_LIST = () =>
   );
 
 describe("useIbadahList", () => {
-  test("cari → filter, tipe → typeIbadahId, bulan → startDate + endDate tanpa bulan", async () => {
+  test("cari → filter, tipe → typeIbadahId, wilayah → zoneChurchId, bulan → startDate + endDate tanpa bulan", async () => {
     let requested = "";
     const onRestore = onStubFetch((url) => {
       requested = url;
@@ -78,8 +78,12 @@ describe("useIbadahList", () => {
         useIbadahList(
           onParams({
             search: "minggu",
-            filters: { tipe: "2", bulan: "2026-02" },
-            apiFilters: { typeIbadahId: "2", bulan: "2026-02" },
+            filters: { tipe: "2", wilayah: "1", bulan: "2026-02" },
+            apiFilters: {
+              typeIbadahId: "2",
+              zoneChurchId: "1",
+              bulan: "2026-02",
+            },
           }),
         ),
       {
@@ -94,7 +98,7 @@ describe("useIbadahList", () => {
     await waitFor(() => expect(result.current.items).toEqual([]));
 
     expect(requested).toBe(
-      "/api/v1/ibadah?page=1&limit=10&filter=minggu&typeIbadahId=2&startDate=2026-02-01&endDate=2026-02-28",
+      "/api/v1/ibadah?page=1&limit=10&filter=minggu&typeIbadahId=2&zoneChurchId=1&startDate=2026-02-01&endDate=2026-02-28",
     );
     expect(result.current.error).toBeNull();
     expect(
@@ -112,7 +116,7 @@ describe("useIbadahList", () => {
 });
 
 describe("useSaveIbadah", () => {
-  test("simpan meng-invalidate semua daftar ibadah, termasuk kueri Beranda", async () => {
+  test("simpan meng-invalidate semua daftar ibadah (termasuk Beranda) dan saran tuan rumah", async () => {
     const onRestore = onStubFetch(() =>
       Response.json(
         {
@@ -125,7 +129,9 @@ describe("useSaveIbadah", () => {
     );
     const queryClient = new QueryClient();
     const beranda = ["ibadah", "list", "date=2026-09-27&limit=100"];
+    const hosts = ["ibadah", "saran", "6", "1"];
     queryClient.setQueryData(beranda, { data: [] });
+    queryClient.setQueryData(hosts, { data: [] });
 
     const { result } = renderHook(() => useSaveIbadah("IBD_0001-2026-0001"), {
       wrapper: ({ children }) => (
@@ -148,6 +154,7 @@ describe("useSaveIbadah", () => {
 
     expect(ibadahKeys.lists()).toEqual(["ibadah", "list"]);
     expect(queryClient.getQueryState(beranda)?.isInvalidated).toBe(true);
+    expect(queryClient.getQueryState(hosts)?.isInvalidated).toBe(true);
 
     onRestore();
   });

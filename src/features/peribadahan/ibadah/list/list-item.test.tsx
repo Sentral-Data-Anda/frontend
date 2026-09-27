@@ -28,6 +28,19 @@ const IBADAH: Ibadah = {
   room: { id: 1, code: "RM-0001", name: "Gedung Gereja" },
   bapel: null,
   jadwalPelayan: null,
+  placeType: "GEREJA",
+  placeName: null,
+  hostKeluarga: null,
+  zoneChurch: null,
+};
+
+const HOME: Ibadah = {
+  ...IBADAH,
+  typeIbadah: { id: 6, code: "TYP_IBD-0006", name: "Ibadah Wilayah" },
+  room: null,
+  placeType: "RUMAH_JEMAAT",
+  hostKeluarga: { id: 1, code: "KK-0001", name: "Keluarga Sitanggang" },
+  zoneChurch: { id: 1, code: "ZC-0001", name: "Wilayah I" },
 };
 
 const ZERO = { maleCount: 0, femaleCount: 0, childCount: 0 };
@@ -40,15 +53,14 @@ const onRenderRow = (isCanUpdate: boolean, ibadah = IBADAH) =>
   );
 
 describe("baris HP", () => {
-  test("judul tipe, meta tanggal · jam mulai · tema, hadir, pensil ke kode", () => {
+  test("judul tipe, meta tanggal · jam mulai · tempat, hadir, pensil ke kode", () => {
     onRenderRow(true);
 
     expect(screen.getByText("Ibadah Minggu I")).toBeTruthy();
     expect(
-      screen.getByText(
-        "Minggu, 20 Sep 2026 · 08.00 · Hidup dalam kasih karunia",
-      ),
+      screen.getByText("Minggu, 20 Sep 2026 · 08.00 · Gedung Gereja"),
     ).toBeTruthy();
+    expect(screen.queryByText(/Hidup dalam kasih karunia/)).toBeNull();
     expect(screen.getByText("371 hadir")).toBeTruthy();
     expect(
       screen
@@ -62,11 +74,21 @@ describe("baris HP", () => {
     ).not.toBeNull();
   });
 
-  test("tanpa UPDATE tidak ada pensil; tanpa tema meta berhenti di jam", () => {
-    onRenderRow(false, { ...IBADAH, theme: null });
+  test("tanpa UPDATE tidak ada pensil; tempat rumah jemaat dan gereja tanpa ruang", () => {
+    onRenderRow(false, HOME);
 
     expect(screen.queryByRole("link")).toBeNull();
-    expect(screen.getByText("Minggu, 20 Sep 2026 · 08.00")).toBeTruthy();
+    expect(
+      screen.getByText(
+        "Minggu, 20 Sep 2026 · 08.00 · Rumah Keluarga Sitanggang",
+      ),
+    ).toBeTruthy();
+
+    cleanup();
+    onRenderRow(false, { ...IBADAH, room: null });
+    expect(
+      screen.getByText("Minggu, 20 Sep 2026 · 08.00 · Gereja"),
+    ).toBeTruthy();
   });
 
   test("0 lampau = Belum dicatat; 0 nanti tanpa label", () => {
@@ -96,7 +118,7 @@ describe("tabel", () => {
       ["Tipe ibadah", "minmax(0,1.6fr)", false],
       ["Tema", "minmax(0,2fr)", false],
       ["Pengkhotbah", "minmax(0,1.5fr)", true],
-      ["Ruang", "minmax(0,1.2fr)", true],
+      ["Tempat", "minmax(0,1.4fr)", true],
       ["Hadir", "minmax(0,1fr)", false],
     ]);
     expect(table.getRowHref?.(IBADAH)).toBe(
@@ -116,6 +138,29 @@ describe("tabel", () => {
     cleanup();
     render(<div>{hadir?.cell({ ...IBADAH, ...ZERO, date: FUTURE })}</div>);
     expect(screen.getByText("Belum ada hitungan")).toBeTruthy();
+  });
+
+  test("tempat memakai label bersama dengan title penuh", () => {
+    const tempat = ibadahTable(true).columns.find(
+      (column) => column.header === "Tempat",
+    );
+
+    render(
+      <div>
+        {tempat?.cell(HOME)}
+        {tempat?.cell({
+          ...IBADAH,
+          room: null,
+          placeType: "LAINNYA",
+          placeName: "Villa Ciater",
+        })}
+      </div>,
+    );
+
+    expect(
+      screen.getByText("Rumah Keluarga Sitanggang").getAttribute("title"),
+    ).toBe("Rumah Keluarga Sitanggang");
+    expect(screen.getByText("Villa Ciater")).toBeTruthy();
   });
 
   test("jam dengan selesai dan tema kosong", () => {

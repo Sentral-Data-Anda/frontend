@@ -3,17 +3,23 @@
  *
  *   MOCK_KELUARGA_500=1                         → daftar keluarga menjawab 500
  *   MOCK_KELUARGA_SAVE_ERROR=wilayah|validasi|500 → simpan keluarga gagal dengan jawaban itu
+ *   MOCK_ALAMAT_ERROR=500                       → GET /ddl/keluarga/:id/alamat menjawab 500
  *
  * Hapus keluarga yang masih punya anggota aktif menjawab 400 seperti be-sada;
- * keluarga tanpa anggota (mis. "Keluarga Halim") bisa dihapus.
+ * keluarga tanpa anggota (mis. "Keluarga Halim") bisa dihapus, kecuali masih
+ * dijadwalkan menjadi tuan rumah ibadah hari ini atau sesudahnya.
  */
 import { MENU } from "../../../src/config/menu";
+import { formatDate } from "../../../src/lib/format";
 import {
   KELUARGA_SEED,
   ZONE_CHURCHES,
   keluargaCodeOf,
 } from "../../mock-dashboard";
 import { denied, json, list, readBody, type MockHandler } from "../kit";
+
+import { nextHostedDate } from "./ibadah";
+import { findWilayah } from "./wilayah";
 
 type Member = {
   id: string;
@@ -147,6 +153,40 @@ const toResponse = ({ members, ...row }: KeluargaRow) => {
   };
 };
 
+export const findKeluarga = (id: number) => store.find((row) => row.id === id);
+
+export const keluargaRows = () =>
+  store.map(({ members, ...row }) => ({
+    ...row,
+    activeMembers: members.filter(isLive).length,
+  }));
+
+const addressResponse = (idText: string) => {
+  const id = Number(idText);
+  const row = Number.isInteger(id) && id > 0 ? findKeluarga(id) : undefined;
+
+  if (!row) return notFound();
+
+  const zone = row.zoneChurchId ? findWilayah(row.zoneChurchId) : undefined;
+
+  return json({
+    status: 200,
+    message: "Berhasil Mendapatkan Alamat Keluarga",
+    data: {
+      id: row.id,
+      address: row.address,
+      zoneChurch: zone
+        ? {
+            id: zone.id,
+            code: zone.code,
+            name: zone.name,
+            isActive: zone.isActive,
+          }
+        : null,
+    },
+  });
+};
+
 const findByCode = (code: string) =>
   store.find((row) => row.code.toLowerCase() === code.toLowerCase());
 
@@ -225,6 +265,17 @@ export const keluargaMock: MockHandler = async ({
   method,
   can,
 }) => {
+  const addressOf = /^\/ddl\/keluarga\/([^/]+)\/alamat$/.exec(path);
+
+  if (addressOf && method === "GET") {
+    if (!can(MENU.IBADAH, "CREATE")) return denied();
+    if (process.env.MOCK_ALAMAT_ERROR === "500") {
+      return json({ status: 500, error: "Kesalahan server." }, 500);
+    }
+
+    return addressResponse(decodeURIComponent(addressOf[1]));
+  }
+
   const match = /^\/keluarga(?:\/([^/]+))?$/.exec(path);
 
   if (!match) return null;
@@ -328,6 +379,18 @@ export const keluargaMock: MockHandler = async ({
       {
         status: 400,
         error: `Keluarga Tidak Dapat Dihapus Karena Masih Memiliki ${liveMembers} Anggota Aktif`,
+      },
+      400,
+    );
+  }
+
+  const hostedOn = nextHostedDate(row.id);
+
+  if (hostedOn) {
+    return json(
+      {
+        status: 400,
+        error: `Keluarga Masih Dijadwalkan Menjadi Tuan Rumah pada ${formatDate(hostedOn)}`,
       },
       400,
     );

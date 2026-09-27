@@ -1,6 +1,7 @@
 import { Toast } from "@base-ui/react/toast";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
+  act,
   cleanup,
   fireEvent,
   render,
@@ -10,10 +11,11 @@ import {
 import { afterEach, describe, expect, mock, test } from "bun:test";
 
 import { addDays, todayJakarta } from "@/lib/date";
+import { formatDateShort } from "@/lib/format";
 import type { MenuAction } from "@/types/menu";
 
 import { IBADAH_LIST_PATH } from "../model";
-import type { Ibadah } from "../types";
+import type { IbadahDetail } from "../types";
 
 const actions: { current: MenuAction[] } = { current: [] };
 const search = { current: "" };
@@ -49,11 +51,14 @@ afterEach(() => {
   replaced.length = 0;
   pushed.length = 0;
   search.current = "";
+  requested.length = 0;
+  alamat.failure = undefined;
+  alamat.gate = undefined;
 });
 
 const CODE = "IBD_0001-2026-0010";
 
-const DETAIL: Ibadah = {
+const DETAIL: IbadahDetail = {
   code: CODE,
   date: "2026-09-20T00:00:00.000Z",
   startTime: "08:00",
@@ -69,9 +74,38 @@ const DETAIL: Ibadah = {
   room: { id: 1, code: "RM-0001", name: "Gedung Gereja" },
   bapel: null,
   jadwalPelayan: { id: 7, code: "JDP-0007", name: "Pelayan Minggu I" },
+  placeType: "GEREJA",
+  placeName: null,
+  address: null,
+  hostKeluarga: null,
+  zoneChurch: null,
 };
 
-const PADANG: Ibadah = {
+const HOME: IbadahDetail = {
+  ...DETAIL,
+  code: "IBD_0006-2026-0003",
+  typeIbadah: { id: 6, code: "TYP_IBD-0006", name: "Ibadah Wilayah" },
+  startTime: "19:00",
+  endTime: "20:30",
+  room: null,
+  jadwalPelayan: null,
+  placeType: "RUMAH_JEMAAT",
+  address: "Jl. Cijerah No. 1",
+  hostKeluarga: { id: 1, code: "KK-0001", name: "Keluarga Sitanggang" },
+  zoneChurch: { id: 1, code: "ZC-0001", name: "Wilayah I" },
+};
+
+const VILLA: IbadahDetail = {
+  ...DETAIL,
+  code: "IBD_0004-2026-0009",
+  room: null,
+  placeType: "LAINNYA",
+  placeName: "Villa Ciater",
+  address: "Jl. Raya Ciater KM 12",
+  zoneChurch: { id: 5, code: "ZC-0005", name: "Wilayah V" },
+};
+
+const PADANG: IbadahDetail = {
   ...DETAIL,
   code: "IBD_0005-2026-0001",
   typeIbadah: { id: 5, code: "TYP_IBD-0005", name: "Ibadah Padang" },
@@ -81,9 +115,50 @@ const TYPES = [
   { id: 1, code: "TYP_IBD-0001", name: "Ibadah Minggu I", isActive: true },
   { id: 2, code: "TYP_IBD-0002", name: "Ibadah Minggu II", isActive: true },
   { id: 5, code: "TYP_IBD-0005", name: "Ibadah Padang", isActive: false },
+  { id: 6, code: "TYP_IBD-0006", name: "Ibadah Wilayah", isActive: true },
 ];
 
-type Failure = { status: number; error: string };
+const ZONES = [
+  { id: 1, code: "ZC-0001", name: "Wilayah I", isActive: true },
+  { id: 2, code: "ZC-0002", name: "Wilayah II", isActive: true },
+  { id: 5, code: "ZC-0005", name: "Wilayah V", isActive: false },
+];
+
+const KELUARGA = [
+  { id: 4, code: "KK-0004", name: "Keluarga Manurung" },
+  { id: 1, code: "KK-0001", name: "Keluarga Sitanggang" },
+  { id: 3, code: "KK-0003", name: "Keluarga Wijaya" },
+];
+
+const TODAY = todayJakarta();
+const HOSTED = `${addDays(TODAY, -17)}T00:00:00.000Z`;
+const SCHEDULED = `${addDays(TODAY, 7)}T00:00:00.000Z`;
+
+const SUGGESTIONS = [
+  { id: 23, code: "KK-0023", name: "Keluarga Sembiring", lastHostedDate: null },
+  { ...KELUARGA[1], lastHostedDate: HOSTED },
+  { ...KELUARGA[0], lastHostedDate: SCHEDULED },
+];
+
+const ADDRESSES: Record<string, unknown> = {
+  "1": {
+    id: 1,
+    address: "Jl. Cijerah No. 1 Blok B",
+    zoneChurch: { ...ZONES[1] },
+  },
+  "3": { id: 3, address: "Jl. Rawa Buntu No. 3", zoneChurch: { ...ZONES[2] } },
+  "4": { id: 4, address: "Jl. Manurung No. 4", zoneChurch: null },
+  "23": { id: 23, address: "Jl. Sembiring No. 23", zoneChurch: null },
+};
+
+const requested: string[] = [];
+const alamat: { failure?: Failure; gate?: Promise<void> } = {};
+
+type Failure = {
+  status: number;
+  error: string;
+  issues?: { path: string; message: string }[];
+};
 
 const ok = (data: unknown, message = "OK", status = 200) =>
   Response.json({ status, message, data }, { status });
@@ -100,7 +175,21 @@ const onMockApi = (
     const url = String(input);
     const method = init?.method ?? "GET";
 
+    requested.push(url);
+
+    const address = /^\/api\/v1\/ddl\/keluarga\/(\d+)\/alamat$/.exec(url);
+
+    if (address) {
+      await alamat.gate;
+
+      return alamat.failure ? fail(alamat.failure) : ok(ADDRESSES[address[1]]);
+    }
     if (url === "/api/v1/ddl/type-ibadah") return ok(TYPES);
+    if (url === "/api/v1/ddl/zone-church") return ok(ZONES);
+    if (url.startsWith("/api/v1/ddl/keluarga?")) return ok(KELUARGA);
+    if (url.startsWith("/api/v1/ibadah/saran-tuan-rumah?")) {
+      return ok(SUGGESTIONS);
+    }
     if (url.startsWith("/api/v1/ddl/")) return ok([]);
 
     if (method !== "GET") {
@@ -132,6 +221,8 @@ const onMockApi = (
       return loadFailure ? fail(loadFailure) : ok(DETAIL);
     }
     if (url === `/api/v1/ibadah/${PADANG.code}`) return ok(PADANG);
+    if (url === `/api/v1/ibadah/${HOME.code}`) return ok(HOME);
+    if (url === `/api/v1/ibadah/${VILLA.code}`) return ok(VILLA);
 
     return fail({ status: 404, error: "Ibadah Tidak Ditemukan" });
   }) as typeof fetch;
@@ -258,6 +349,11 @@ describe("ubah", () => {
           theme: "Hidup dalam kasih karunia",
           bibleVerse: null,
           preacher: "Pdt. Yohanes Simatupang",
+          placeType: "GEREJA",
+          hostKeluargaId: null,
+          placeName: null,
+          address: null,
+          zoneChurchId: null,
           roomId: 1,
           bapelId: null,
           jadwalPelayanId: 7,
@@ -274,11 +370,13 @@ describe("ubah", () => {
   });
 
   test("409: galat di jam mulai dengan nama tipe, tetap di form", async () => {
+    const error =
+      "Ibadah dengan tipe, tanggal, jam mulai dan wilayah yang sama sudah tercatat. Isi Wilayah jika ibadah ini untuk wilayah yang berbeda";
     onMockApi({
       save: {
         status: 409,
-        error:
-          "Ibadah dengan tipe, tanggal dan jam mulai yang sama sudah tercatat",
+        error,
+        issues: [{ path: "startTime", message: error }],
       },
     });
     onRenderForm(["VIEW", "UPDATE"], CODE);
@@ -292,7 +390,7 @@ describe("ubah", () => {
     await waitFor(() => expect(document.activeElement?.id).toBe("startTime"));
     expect(
       screen.getByText(
-        "Ibadah Minggu I pada tanggal dan jam ini sudah tercatat. Ubah jam mulai, atau buka data yang sudah ada dari daftar.",
+        "Ibadah Minggu I pada tanggal, jam, dan wilayah ini sudah tercatat. Ubah jam mulai atau wilayah, atau buka data yang sudah ada dari daftar.",
       ),
     ).toBeTruthy();
     expect(replaced).toEqual([]);
@@ -494,5 +592,231 @@ describe("layar tambah hasil salin", () => {
     );
     expect(valueOf("Jam mulai")).toBe("");
     expect(screen.queryByText("Data ibadah tidak ditemukan")).toBeNull();
+  });
+});
+
+const onPickHost = async (name: string) => {
+  fireEvent.click(screen.getByRole("button", { name: "Buka pilihan" }));
+  fireEvent.click(
+    await screen.findByRole("option", { name: new RegExp(name) }),
+  );
+};
+
+const onRenderCopy = async (source: IbadahDetail) => {
+  search.current = `salin=${source.code}`;
+  onMockApi();
+  onRenderForm(["VIEW", "CREATE"]);
+
+  await waitFor(() => expect(valueOf("Jam mulai")).toBe(source.startTime));
+};
+
+const zoneText = () => screen.getByLabelText("Wilayah").textContent;
+
+const isRequested = (pattern: RegExp) =>
+  requested.some((url) => pattern.test(url));
+
+describe("tempat", () => {
+  test("ganti tipe tempat bolak-balik memulihkan isian; payload membersihkan yang bukan milik", async () => {
+    const calls = onMockApi();
+    onRenderForm(["VIEW", "UPDATE"], CODE);
+    await waitFor(() =>
+      expect(valueOf("Tema")).toBe("Hidup dalam kasih karunia"),
+    );
+
+    fireEvent.click(screen.getByLabelText("Lainnya"));
+    expect(screen.queryByLabelText("Ruang")).toBeNull();
+    fireEvent.change(screen.getByLabelText("Nama tempat"), {
+      target: { value: "Aula Kelurahan" },
+    });
+    fireEvent.click(screen.getByLabelText("Gereja"));
+    expect(screen.getByLabelText("Ruang").textContent).toContain(
+      "Gedung Gereja",
+    );
+    fireEvent.click(screen.getByLabelText("Lainnya"));
+    expect(valueOf("Nama tempat")).toBe("Aula Kelurahan");
+
+    fireEvent.click(screen.getByRole("button", { name: "Simpan" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Ya" }));
+
+    await waitFor(() => expect(calls).toHaveLength(1));
+    expect(calls[0].body).toMatchObject({
+      placeType: "LAINNYA",
+      placeName: "Aula Kelurahan",
+      roomId: null,
+      hostKeluargaId: null,
+      address: null,
+    });
+  });
+
+  test("rumah jemaat tanpa tuan rumah dan alamat: galat di field saat Simpan", async () => {
+    await onRenderCopy(HOME);
+
+    fireEvent.click(screen.getByRole("button", { name: "Simpan" }));
+
+    expect(await screen.findByText("Pilih keluarga tuan rumah.")).toBeTruthy();
+    expect(screen.getByText("Isi alamat tempat ibadah.")).toBeTruthy();
+  });
+
+  test("salin rumah jemaat: tuan rumah dan alamat kosong + info; saran berhint di atas", async () => {
+    await onRenderCopy(HOME);
+
+    expect(screen.getByText("Tuan rumah tidak ikut disalin.")).toBeTruthy();
+    expect(valueOf("Tuan rumah")).toBe("");
+    expect(valueOf("Alamat")).toBe("");
+    expect(zoneText()).toContain("Wilayah I");
+
+    fireEvent.click(screen.getByRole("button", { name: "Buka pilihan" }));
+    await screen.findByRole("option", { name: /Keluarga Wijaya/ });
+    await waitFor(() =>
+      expect(
+        screen.getAllByRole("option").map((option) => option.textContent),
+      ).toEqual([
+        "Keluarga SembiringBelum pernah",
+        `Keluarga SitanggangTerakhir ${formatDateShort(HOSTED)}`,
+        `Keluarga ManurungDijadwalkan ${formatDateShort(SCHEDULED)}`,
+        "Keluarga Wijaya",
+      ]),
+    );
+    expect(
+      isRequested(/saran-tuan-rumah\?typeIbadahId=6&zoneChurchId=1$/),
+    ).toBe(true);
+  });
+
+  test("pilih tuan rumah: alamat dan wilayah terisi; ganti tuan rumah menimpa alamat, wilayah nonaktif tidak dipakai", async () => {
+    await onRenderCopy(HOME);
+
+    await onPickHost("Keluarga Sitanggang");
+    await waitFor(() =>
+      expect(valueOf("Alamat")).toBe("Jl. Cijerah No. 1 Blok B"),
+    );
+    expect(zoneText()).toContain("Wilayah II");
+
+    await onPickHost("Keluarga Wijaya");
+    await waitFor(() => expect(valueOf("Alamat")).toBe("Jl. Rawa Buntu No. 3"));
+    expect(zoneText()).toContain("Wilayah II");
+
+    fireEvent.click(screen.getByRole("button", { name: "Kosongkan pilihan" }));
+    expect(valueOf("Alamat")).toBe("Jl. Rawa Buntu No. 3");
+  });
+
+  test("mengetik sebelum alamat tiba: tidak ditimpa; alamat gagal: hint isi manual dan alamat lama dikosongkan", async () => {
+    await onRenderCopy(HOME);
+    let onRelease = () => {};
+    const gate = new Promise<void>((resolve) => {
+      onRelease = resolve;
+    });
+    alamat.gate = gate;
+
+    await onPickHost("Keluarga Sitanggang");
+    expect(await screen.findByText("Memuat alamat keluarga…")).toBeTruthy();
+    fireEvent.change(screen.getByLabelText("Alamat"), {
+      target: { value: "Jl. Diketik" },
+    });
+    await act(async () => {
+      onRelease();
+      await gate;
+    });
+    await waitFor(() => expect(zoneText()).toContain("Wilayah II"));
+    expect(screen.queryByText("Memuat alamat keluarga…")).toBeNull();
+    expect(valueOf("Alamat")).toBe("Jl. Diketik");
+
+    alamat.gate = undefined;
+    alamat.failure = { status: 500, error: "Kesalahan server." };
+    await onPickHost("Keluarga Wijaya");
+    expect(
+      await screen.findByText("Alamat keluarga tidak bisa dimuat. Isi manual."),
+    ).toBeTruthy();
+    expect(valueOf("Alamat")).toBe("");
+  });
+
+  test("form ubah dimuat: tanpa isi otomatis; hint tuan rumah pindah wilayah", async () => {
+    onMockApi();
+    onRenderForm(["VIEW", "UPDATE", "CREATE"], HOME.code);
+
+    expect(
+      await screen.findByText("Tuan rumah sekarang di Wilayah II."),
+    ).toBeTruthy();
+    expect(valueOf("Alamat")).toBe("Jl. Cijerah No. 1");
+    expect(valueOf("Tuan rumah")).toBe("Keluarga Sitanggang");
+    expect(zoneText()).toContain("Wilayah I");
+  });
+
+  test("tanpa CREATE: tanpa saran dan tanpa alamat otomatis, alamat diketik", async () => {
+    onMockApi();
+    onRenderForm(["VIEW", "UPDATE"], HOME.code);
+    await waitFor(() => expect(valueOf("Alamat")).toBe("Jl. Cijerah No. 1"));
+
+    expect(screen.getByText("Isi alamat rumah tuan rumah.")).toBeTruthy();
+    await onPickHost("Keluarga Wijaya");
+    expect(valueOf("Alamat")).toBe("");
+    expect(screen.queryByText(/Belum pernah/)).toBeNull();
+    expect(isRequested(/saran-tuan-rumah|\/alamat$/)).toBe(false);
+  });
+
+  test("ganti tuan rumah tanpa isi otomatis: alamat keluarga lama tidak ikut tersimpan, alamat yang diketik sesudah memilih tetap", async () => {
+    const calls = onMockApi();
+    onRenderForm(["VIEW", "UPDATE"], HOME.code);
+    await waitFor(() => expect(valueOf("Alamat")).toBe("Jl. Cijerah No. 1"));
+
+    await onPickHost("Keluarga Wijaya");
+    expect(valueOf("Alamat")).toBe("");
+    fireEvent.click(screen.getByRole("button", { name: "Simpan" }));
+    expect(await screen.findByText("Isi alamat tempat ibadah.")).toBeTruthy();
+    expect(calls).toEqual([]);
+
+    cleanup();
+    onMockApi();
+    onRenderForm(["VIEW", "UPDATE", "CREATE"], HOME.code);
+    await waitFor(() => expect(valueOf("Alamat")).toBe("Jl. Cijerah No. 1"));
+    let onRelease = () => {};
+    const gate = new Promise<void>((resolve) => {
+      onRelease = resolve;
+    });
+    alamat.gate = gate;
+    alamat.failure = { status: 404, error: "Keluarga Tidak Ditemukan" };
+
+    await onPickHost("Keluarga Wijaya");
+    fireEvent.change(screen.getByLabelText("Alamat"), {
+      target: { value: "Jl. Rawa Buntu No. 3" },
+    });
+    await act(async () => {
+      onRelease();
+      await gate;
+    });
+    expect(
+      await screen.findByText("Alamat keluarga tidak bisa dimuat. Isi manual."),
+    ).toBeTruthy();
+    expect(valueOf("Alamat")).toBe("Jl. Rawa Buntu No. 3");
+  });
+
+  test("mencari tuan rumah lain di form ubah: ketikan tidak dikembalikan ke tuan rumah tersimpan", async () => {
+    onMockApi();
+    onRenderForm(["VIEW", "UPDATE", "CREATE"], HOME.code);
+    await screen.findByText("Tuan rumah sekarang di Wilayah II.");
+    const input = screen.getByLabelText("Tuan rumah");
+
+    fireEvent.focus(input);
+    fireEvent.input(input, {
+      target: { value: "Semb" },
+      inputType: "insertText",
+    });
+
+    expect(
+      await screen.findByRole("option", { name: /Keluarga Sembiring/ }),
+    ).toBeTruthy();
+    expect(valueOf("Tuan rumah")).toBe("Semb");
+  });
+
+  test("salin lainnya bertanda wilayah nonaktif: nama dan alamat ikut, wilayah kosong + info", async () => {
+    await onRenderCopy(VILLA);
+
+    expect(
+      screen.getByText("Wilayah V sudah nonaktif, jadi tidak ikut disalin."),
+    ).toBeTruthy();
+    expect(valueOf("Nama tempat")).toBe("Villa Ciater");
+    expect(
+      (screen.getByLabelText(/^Alamat/) as HTMLTextAreaElement).value,
+    ).toBe("Jl. Raya Ciater KM 12");
+    expect(zoneText()).toContain("Pilih wilayah");
   });
 });

@@ -5,26 +5,22 @@ import { ControlField, FormSection, FormWide } from "@/components/common/form";
 import { useDdlOptions } from "@/hooks/use-ddl-options";
 
 import { withSavedOption } from "../model";
-import type { Ibadah } from "../types";
+import type { IbadahDetail } from "../types";
 
 import { type IbadahForm, withNoneOption } from "./form-options";
+import { PlaceFields } from "./place-fields";
 
 interface PropTypes {
   form: IbadahForm;
   isDisabled: boolean;
-  saved?: Ibadah;
+  saved?: IbadahDetail;
 }
 
 export const ConductSection = (props: PropTypes) => {
   const { form, isDisabled, saved } = props;
 
-  const rooms = useDdlOptions("room", "id");
   const bapels = useDdlOptions("bapel", "id");
 
-  const roomOptions = withNoneOption(
-    "Tanpa ruang",
-    withSavedOption(rooms.options, saved?.room),
-  );
   const bapelOptions = withNoneOption(
     "Tanpa badan pelayanan",
     withSavedOption(bapels.options, saved?.bapel),
@@ -33,7 +29,7 @@ export const ConductSection = (props: PropTypes) => {
   return (
     <FormSection
       legend="Pelaksanaan"
-      note="Semua opsional; bisa dilengkapi nanti."
+      note="Tempat bawaan Gereja. Selain itu semua opsional; bisa dilengkapi nanti."
       disabled={isDisabled}
     >
       <ControlField control={form.control} name="theme" label="Tema">
@@ -58,19 +54,7 @@ export const ConductSection = (props: PropTypes) => {
         {(field) => <Input {...field} maxLength={150} autoCapitalize="words" />}
       </ControlField>
 
-      <ControlField control={form.control} name="roomId" label="Ruang">
-        {(field) => (
-          <DdlField
-            value={field.value}
-            onValueChange={field.onChange}
-            options={roomOptions}
-            isLoading={rooms.isLoading}
-            disabled={isDisabled}
-            placeholder="Pilih ruang"
-            emptyMessage="Belum ada data ruang"
-          />
-        )}
-      </ControlField>
+      <PlaceFields form={form} isDisabled={isDisabled} saved={saved} />
 
       <ControlField
         control={form.control}
