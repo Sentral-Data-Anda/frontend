@@ -325,7 +325,9 @@ export const IbadahFormScreen = (props: PropTypes) => {
                   : "Data ibadah gagal dimuat."
               }
               message={
-                isCopy ? "Isi data dari awal atau coba lagi." : "Coba lagi."
+                isCopy
+                  ? "Isi data dari awal atau coba lagi."
+                  : "Form belum bisa diisi sampai datanya termuat."
               }
             />
             <Button
