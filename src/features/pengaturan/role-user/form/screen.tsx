@@ -70,6 +70,7 @@ export const RoleUserFormScreen = (props: PropTypes) => {
   const confirm = useFormConfirm();
   const saveRef = useRef<HTMLButtonElement>(null);
   const deleteRef = useRef<HTMLButtonElement>(null);
+  const alertRef = useRef<HTMLDivElement>(null);
 
   const form = useForm<RoleUserFormValues>({
     resolver: zodResolver(roleUserFormSchema),
@@ -154,12 +155,17 @@ export const RoleUserFormScreen = (props: PropTypes) => {
   useEffect(() => {
     if (isSubmitting || !rejectedField) return;
 
-    if (rejectedField === "root") saveRef.current?.focus();
-    else revealField(rejectedField);
+    if (rejectedField !== "root") return revealField(rejectedField);
+
+    saveRef.current?.focus();
+    alertRef.current?.scrollIntoView({ block: "center" });
   }, [isSubmitting, submitCount, rejectedField]);
 
   useEffect(() => {
-    if (deleteRole.isError) deleteRef.current?.focus();
+    if (!deleteRole.isError) return;
+
+    deleteRef.current?.focus();
+    alertRef.current?.scrollIntoView({ block: "center" });
   }, [deleteRole.isError]);
 
   if (!(isEdit ? isCanUpdate : isCanCreate)) {
@@ -258,7 +264,7 @@ export const RoleUserFormScreen = (props: PropTypes) => {
         )}
       </div>
 
-      <div className="space-y-3 px-gutter pb-4 empty:hidden">
+      <div ref={alertRef} className="space-y-3 px-gutter pb-4 empty:hidden">
         {rootError ? (
           <FormAlert
             title="Data belum tersimpan. Coba simpan lagi."

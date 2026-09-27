@@ -64,7 +64,7 @@ export const AccessPills = (props: PropTypes) => {
                   <label
                     key={action}
                     title={isPickable ? undefined : NOT_HELD_HINT}
-                    className="border-input bg-card has-checked:border-primary has-checked:bg-accent has-checked:text-accent-foreground has-focus-visible:ring-ring not-has-checked:hover:bg-muted has-disabled:cursor-not-allowed has-disabled:opacity-50 has-disabled:hover:bg-card inline-flex h-control cursor-pointer items-center gap-1.5 rounded-full border px-3.5 text-body transition-colors has-focus-visible:ring-2"
+                    className="border-input bg-card has-checked:border-primary has-checked:bg-primary has-checked:text-primary-foreground has-focus-visible:ring-ring not-has-checked:hover:bg-muted has-disabled:cursor-not-allowed has-disabled:opacity-50 has-disabled:hover:bg-card inline-flex h-control cursor-pointer items-center gap-1.5 rounded-full border px-3.5 text-body transition-colors has-focus-visible:ring-2"
                   >
                     <input
                       type="checkbox"

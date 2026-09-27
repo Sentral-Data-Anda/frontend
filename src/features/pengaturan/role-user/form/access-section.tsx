@@ -56,7 +56,7 @@ export const AccessSection = (props: PropTypes) => {
         ) : null}
 
         {isAdmin === "false" && optionsError ? (
-          <div className="flex flex-col items-start gap-3">
+          <div className="space-y-3">
             <FormAlert
               title="Daftar menu belum termuat."
               message={optionsError.message}
