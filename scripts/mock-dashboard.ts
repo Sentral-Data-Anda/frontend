@@ -119,6 +119,7 @@ export const PERSONAS: Record<string, Persona> = {
       [MENU.USER]: [...KEJEMAATAN_ACTIONS, "RESET"],
       [MENU.ROLE_USER]: KEJEMAATAN_ACTIONS,
       [MENU.ACTIVITY_LOG]: V,
+      [MENU.HARI_LIBUR]: KEJEMAATAN_ACTIONS,
       [MENU.DAFTAR_JEMAAT]: V,
       [MENU.KELUARGA]: V,
     },

@@ -54,10 +54,10 @@ describe("domainEntryHref", () => {
 });
 
 describe("MENU_LEAF_ICON", () => {
-  test("ke-62 layar punya ikon", () => {
+  test("ke-63 layar punya ikon", () => {
     const leaves = Object.values(TREE).flat();
 
-    expect(leaves).toHaveLength(62);
+    expect(leaves).toHaveLength(63);
     expect(leaves.filter((slug) => !MENU_LEAF_ICON[slug])).toEqual([]);
   });
 
