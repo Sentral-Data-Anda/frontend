@@ -2,13 +2,12 @@
 
 import { useWatch } from "react-hook-form";
 
-import { Input } from "@/components/common/control";
+import { DdlField, Input } from "@/components/common/control";
 import { ControlField, FormSection, FormWide } from "@/components/common/form";
 
 import { useBapelOptions } from "../api";
 import { amountLabelsOf, previewAmount } from "../model";
 
-import { DdlField } from "./ddl-field";
 import { withEmptyOption, type SetelanForm } from "./form-options";
 
 const ALL_BAPEL = "Semua badan pelayanan (alur umum)";
