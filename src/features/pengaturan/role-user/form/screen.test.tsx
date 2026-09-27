@@ -319,6 +319,29 @@ describe("matriks", () => {
     ).toBeTruthy();
   });
 
+  test("aktor non-admin: grup tanpa aksi yang bisa diberikan terlipat, tetap bisa dibuka", async () => {
+    const detailsOf = (name: string) =>
+      screen.getByText(name).closest("details") as HTMLDetailsElement;
+
+    session.current = {
+      ...OPERATOR,
+      menu: [node("ROLE_USER", ["VIEW", "CREATE", "UPDATE", "DELETE"])],
+    };
+    onMockApi();
+
+    for (const isWide of [true, false]) {
+      cleanup();
+      isTable.current = isWide;
+      await onRenderLoaded(["CREATE"]);
+
+      expect(detailsOf("Kejemaatan").open).toBe(false);
+      expect(detailsOf("Pengaturan").open).toBe(isWide);
+    }
+
+    fireEvent.click(detailsOf("Kejemaatan").querySelector("summary")!);
+    await waitFor(() => expect(detailsOf("Kejemaatan").open).toBe(true));
+  });
+
   test("role berizin di luar aktor: hanya-baca, tanpa Simpan dan Hapus", async () => {
     session.current = OPERATOR;
     onMockApi(

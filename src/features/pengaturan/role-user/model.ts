@@ -125,7 +125,6 @@ const heldActions = (held: MenuNode[], slug: string): MenuAction[] => {
   return actions.includes("VIEW") ? actions : [];
 };
 
-// held null = aktor admin, boleh memberi semua aksi.
 export const pickableActions = (
   menu: MenuOption,
   held: MenuNode[] | null,
@@ -195,7 +194,6 @@ export function toRoleUserPayload(values: RoleUserFormValues): RoleUserPayload {
   };
 }
 
-// Issue menuAccess.* tidak punya field; tampil sebagai galat form.
 export function toRoleSaveError(error: unknown): unknown {
   if (!(error instanceof FetchError)) return error;
 

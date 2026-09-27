@@ -35,14 +35,14 @@ export const AccessGroup = (props: PropTypes) => {
   const { group, access, held, isTable, onChange } = props;
 
   const granted = countGranted(access, group.children);
-  const isOpenWanted = isTable || granted > 0;
-  const isOpen = useBoolean(isOpenWanted);
-  const onOpen = isOpen.onTrue;
   const rows = group.children.map((menu) => ({
     slug: menu.slug,
     pickable: pickableActions(menu, held),
   }));
   const isPickable = rows.some((row) => row.pickable.length > 0);
+  const isOpenWanted = granted > 0 || (isTable && isPickable);
+  const isOpen = useBoolean(isOpenWanted);
+  const onOpen = isOpen.onTrue;
 
   const onToggle = (event: SyntheticEvent<HTMLDetailsElement>) =>
     isOpen.setValue(event.currentTarget.open);
@@ -55,7 +55,6 @@ export const AccessGroup = (props: PropTypes) => {
   const onPickRow = (slug: string, pickable: MenuAction[]) =>
     onChange(withMenu(access, slug, toggleRow(access[slug], pickable)));
 
-  // Hanya membuka: izin yang baru termuat atau baru dicentang tidak boleh tersembunyi.
   useEffect(() => {
     if (isOpenWanted) onOpen();
   }, [isOpenWanted, onOpen]);
