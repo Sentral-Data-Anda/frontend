@@ -253,7 +253,7 @@ export const MENU_DESCRIPTION: Partial<Record<MenuSlug, string>> = {
   [MENU.SETELAN_PERSETUJUAN]: "Tentukan siapa menyetujui dokumen",
   [MENU.USER]: "Kelola akun login pengguna",
   [MENU.ROLE_USER]: "Atur hak akses tiap peran",
-  [MENU.ACTIVITY_LOG]: "Riwayat perubahan data oleh pengguna",
+  [MENU.ACTIVITY_LOG]: "Riwayat perubahan data; sebaiknya khusus admin",
   [MENU.HARI_LIBUR]: "Libur nasional dan hari khusus gereja",
 };
 
