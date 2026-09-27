@@ -305,60 +305,64 @@ export const UserFormScreen = (props: PropTypes) => {
       onSubmit={onConfirm}
       actions={
         <FormActions>
-          {gate?.isCanDeactivate ? (
-            <Button
-              ref={deactivateRef}
-              type="button"
-              variant="destructive"
-              disabled={isBusy || isLoading}
-              onClick={() => confirm.onOpen("delete")}
-            >
-              {deactivateUser.isPending ? "Menonaktifkan…" : "Nonaktifkan"}
-            </Button>
-          ) : null}
+          <div className="flex gap-2 empty:hidden">
+            {gate?.isCanDeactivate ? (
+              <Button
+                ref={deactivateRef}
+                type="button"
+                variant="destructive"
+                disabled={isBusy || isLoading}
+                onClick={() => confirm.onOpen("delete")}
+              >
+                {deactivateUser.isPending ? "Menonaktifkan…" : "Nonaktifkan"}
+              </Button>
+            ) : null}
 
-          {gate?.isCanReset ? (
+            {gate?.isCanReset ? (
+              <Button
+                ref={resetRef}
+                type="button"
+                variant="outline"
+                disabled={isBusy || isLoading}
+                onClick={() => setPickIssue("reset")}
+              >
+                Reset password
+              </Button>
+            ) : null}
+
+            {gate?.isCanRestore ? (
+              <Button
+                ref={restoreRef}
+                type="button"
+                variant="outline"
+                disabled={isBusy || isLoading}
+                onClick={() => setPickIssue("restore")}
+              >
+                Aktifkan kembali
+              </Button>
+            ) : null}
+          </div>
+
+          <div className="flex gap-2">
             <Button
-              ref={resetRef}
               type="button"
               variant="outline"
-              disabled={isBusy || isLoading}
-              onClick={() => setPickIssue("reset")}
+              disabled={isBusy}
+              onClick={() => confirm.onCancel(isDirty, onLeave)}
             >
-              Reset password
+              {isRoleEditable ? "Batal" : "Kembali"}
             </Button>
-          ) : null}
 
-          {gate?.isCanRestore ? (
-            <Button
-              ref={restoreRef}
-              type="button"
-              variant="outline"
-              disabled={isBusy || isLoading}
-              onClick={() => setPickIssue("restore")}
-            >
-              Aktifkan kembali
-            </Button>
-          ) : null}
-
-          <Button
-            type="button"
-            variant="outline"
-            disabled={isBusy}
-            onClick={() => confirm.onCancel(isDirty, onLeave)}
-          >
-            {isRoleEditable ? "Batal" : "Kembali"}
-          </Button>
-
-          {isRoleEditable ? (
-            <Button
-              ref={saveRef}
-              type="submit"
-              disabled={isBusy || isLoading || isNoAssignable}
-            >
-              {isSubmitting ? "Menyimpan…" : "Simpan"}
-            </Button>
-          ) : null}
+            {isRoleEditable ? (
+              <Button
+                ref={saveRef}
+                type="submit"
+                disabled={isBusy || isLoading || isNoAssignable}
+              >
+                {isSubmitting ? "Menyimpan…" : "Simpan"}
+              </Button>
+            ) : null}
+          </div>
         </FormActions>
       }
       header={
