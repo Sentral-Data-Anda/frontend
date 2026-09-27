@@ -1,5 +1,6 @@
 "use client";
 
+import { TriangleAlert } from "lucide-react";
 import Link from "next/link";
 
 import { Button, buttonVariants } from "@/components/common/control";
@@ -68,10 +69,11 @@ export const ActivityLogDetailScreen = (props: PropTypes) => {
         {header("Log Aktivitas")}
         <div
           role="alert"
-          className="flex flex-col items-center gap-3 px-gutter py-12 text-center"
+          className="flex flex-col items-center px-gutter py-12 text-center"
         >
+          <TriangleAlert className="text-destructive mb-3 size-8" aria-hidden />
           <p className="text-body font-medium">Gagal memuat catatan</p>
-          <p className="text-muted-foreground text-body">
+          <p className="text-muted-foreground mt-1 text-body">
             {detail.error.message}
           </p>
           <Button
@@ -79,6 +81,7 @@ export const ActivityLogDetailScreen = (props: PropTypes) => {
             variant="outline"
             onClick={() => void detail.refetch()}
             disabled={detail.isFetching}
+            className="mt-4"
           >
             {detail.isFetching ? "Memuat…" : "Coba lagi"}
           </Button>

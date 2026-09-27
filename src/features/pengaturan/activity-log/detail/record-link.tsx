@@ -21,7 +21,7 @@ export const RecordLink = (props: PropTypes) => {
   return (
     <Link
       href={href}
-      className="text-primary focus-visible:ring-ring rounded-sm underline-offset-4 outline-none hover:underline focus-visible:ring-2"
+      className="text-primary decoration-primary/40 hover:decoration-primary focus-visible:ring-ring relative rounded-sm underline after:absolute after:-inset-2.5 underline-offset-4 outline-none focus-visible:ring-2"
     >
       {children}
     </Link>
