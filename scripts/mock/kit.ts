@@ -9,6 +9,8 @@ export type MockContext = {
   path: string;
   method: string;
   can: (slug: MenuSlug, action: MockAction) => boolean;
+  isAdmin: boolean;
+  sessionCode: string;
 };
 
 // Kembalikan null bila path bukan milik handler ini.

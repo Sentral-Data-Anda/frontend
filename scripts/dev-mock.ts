@@ -476,6 +476,8 @@ Bun.serve({
         method: request.method,
         can: (slug: MenuSlug, action: MockAction) =>
           actionsOf(persona, slug).includes(action),
+        isAdmin: persona.isAdmin,
+        sessionCode: session.code,
       });
 
       if (response) return response;
