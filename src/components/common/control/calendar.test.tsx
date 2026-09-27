@@ -1,6 +1,8 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
+import { todayJakarta } from "@/lib/date";
+
 import { Calendar } from "./calendar";
 
 afterEach(cleanup);
@@ -54,6 +56,28 @@ describe("Calendar — kisi (§7.5)", () => {
     expect(
       cal.cells().filter((c) => c.getAttribute("aria-current") === "date"),
     ).toHaveLength(1);
+  });
+
+  test("hari di luar bulan ditandai data-outside dan tetap bisa dipilih", () => {
+    const cal = onRenderCalendar({ value: "2024-09-10" });
+    const outside = cal.cells().filter((c) => c.hasAttribute("data-outside"));
+
+    expect(outside.map((c) => Number(c.textContent))).toEqual([
+      26, 27, 28, 29, 30, 31, 1, 2, 3, 4, 5, 6,
+    ]);
+    expect(outside.every((c) => !(c as HTMLButtonElement).disabled)).toBe(true);
+    fireEvent.click(outside[0]);
+    expect(cal.picked).toEqual(["2024-08-26"]);
+  });
+
+  test("hari ini: aria-current + data-today, juga saat terpilih", () => {
+    const today = todayJakarta();
+    const cal = onRenderCalendar({ value: today, max: undefined });
+    const marked = cal.cells().filter((c) => c.hasAttribute("data-today"));
+
+    expect(marked).toHaveLength(1);
+    expect(marked[0].getAttribute("aria-current")).toBe("date");
+    expect(marked[0].getAttribute("aria-selected")).toBe("true");
   });
 
   test("tiap sel punya aria-label lengkap, bukan cuma angka", () => {
