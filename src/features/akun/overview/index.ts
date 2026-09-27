@@ -5,3 +5,4 @@ export * from "./profile-section";
 export * from "./screen";
 export * from "./security-section";
 export * from "./sign-out-button";
+export * from "./step-up-dialog";

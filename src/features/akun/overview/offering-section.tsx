@@ -1,26 +1,57 @@
 "use client";
 
 import { Eye, EyeOff, Lock, LockOpen } from "lucide-react";
+import { useEffect, useEffectEvent } from "react";
 
 import { Button } from "@/components/common/control";
 import { Panel } from "@/components/common/display";
 import { DataList, DataListRow } from "@/components/common/list";
+import { useBoolean } from "@/hooks/use-boolean";
 import { todayJakarta } from "@/lib/date";
 import { formatRupiah } from "@/lib/format";
 
 import { offeringKeys, useMyOfferings } from "../api";
-import { offeringMeta } from "../model";
+import { isStepUpRequired, offeringMeta } from "../model";
 import { useReveal } from "../use-reveal";
+import { useStepUp } from "../use-step-up";
+
+import { StepUpDialog } from "./step-up-dialog";
 
 const HISTORY_ID = "offering-history";
 
 export const OfferingSection = () => {
   const year = todayJakarta().slice(0, 4);
-  const { isShown, onToggle } = useReveal(offeringKeys.mine(year));
-  const offerings = useMyOfferings(year, isShown);
+  const reveal = useReveal(offeringKeys.mine(year));
+  const stepUp = useStepUp();
+  const isAsking = useBoolean();
+  const offerings = useMyOfferings(year, reveal.isShown);
+  const isStepUpLost = isStepUpRequired(offerings.error);
+  const isShown = reveal.isShown && !isStepUpLost;
   const summary = offerings.data;
   const LockIcon = isShown ? LockOpen : Lock;
   const EyeIcon = isShown ? EyeOff : Eye;
+
+  const onToggle = () => {
+    if (reveal.isShown) reveal.onHide();
+    else if (stepUp.isActive()) reveal.onShow();
+    else isAsking.onTrue();
+  };
+
+  const onVerified = (expiresAt: string) => {
+    stepUp.onGrant(expiresAt);
+    isAsking.onFalse();
+    reveal.onShow();
+  };
+
+  const onStepUpLost = useEffectEvent(() => {
+    stepUp.onForget();
+    reveal.onHide();
+    isAsking.onTrue();
+  });
+
+  useEffect(() => {
+    if (isStepUpLost) onStepUpLost();
+  }, [isStepUpLost]);
 
   return (
     <Panel label="Persembahan saya">
@@ -97,6 +128,12 @@ export const OfferingSection = () => {
           </DataList>
         ) : null}
       </div>
+
+      <StepUpDialog
+        isOpen={isAsking.value}
+        onClose={isAsking.onFalse}
+        onVerified={onVerified}
+      />
     </Panel>
   );
 };

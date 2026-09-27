@@ -12,6 +12,8 @@ export type ChangePasswordPayload = {
   confirmPassword: string;
 };
 
+export type StepUpGrant = { expiresAt: string };
+
 type Named = { name: string } | null;
 
 export type MyProfile = {

@@ -34,6 +34,10 @@
  *   Simpan Anggota tanpa wilayah: lolos bila keluarganya berwilayah. Keluarga ber-id
  *   kelipatan 5 (mis. "Keluarga Panggabean 5") tidak berwilayah → 400 zoneChurchId.
  *   MOCK_OFFERINGS=empty|500            → /persembahan/saya kosong atau galat (halaman Akun)
+ *   Konfirmasi password persembahan (/akun): password benar "Sada1234" (atau
+ *   MOCK_STEPUP_PASSWORD); berlaku 5 menit per sesi, lalu /persembahan/saya 403
+ *   STEP_UP_REQUIRED. Salah 5 kali → 429 selama 1 menit.
+ *   MOCK_STEPUP_EXPIRE_MS=20000         → masa berlaku konfirmasi dipendekkan
  *   Ganti password (/akun): password lama "salah" → 400 dari be-sada.
  *   MOCK_NO_JEMAAT=1                    → akun tanpa data jemaat (sesi jemaat: null)
  *   MOCK_PENDING=1                      → akun PENDING: /authentication menampilkan form
@@ -406,6 +410,62 @@ const zoneFailure = (body: JemaatBody, keluargaId: number | null) => {
 /** `MOCK_DELAY_MS=3000` — menunda SEMUA jawaban, untuk menguji layar tunggu. */
 const DELAY_MS = Number(process.env.MOCK_DELAY_MS ?? 0);
 
+// Satu sesi mock (cookie "mock" sama untuk semua), jadi satu keadaan global.
+const STEPUP_PASSWORD = process.env.MOCK_STEPUP_PASSWORD ?? "Sada1234";
+const STEPUP_EXPIRE_MS = Number(process.env.MOCK_STEPUP_EXPIRE_MS ?? 300_000);
+const STEPUP_MAX_FAILURES = 5;
+const STEPUP_LOCK_MS = 60_000;
+const stepUp = { expiresAt: 0, failures: 0, lockedUntil: 0 };
+
+const resetStepUp = () => Object.assign(stepUp, { expiresAt: 0, failures: 0 });
+
+const passwordIssue = (message: string) =>
+  json(
+    {
+      status: 400,
+      error: message,
+      issues: [{ path: "password", message }],
+    },
+    400,
+  );
+
+const verifyPassword = async (request: Request) => {
+  if (Date.now() < stepUp.lockedUntil) {
+    return json(
+      {
+        status: 429,
+        error: "Terlalu banyak percobaan. Coba lagi beberapa menit lagi.",
+      },
+      429,
+    );
+  }
+
+  const { password } = (await request.json()) as { password?: unknown };
+
+  if (typeof password !== "string" || password === "") {
+    return passwordIssue("Mohon lengkapi password");
+  }
+  if (password.length > 25) {
+    return passwordIssue("Password maksimal 25 karakter");
+  }
+  if (password !== STEPUP_PASSWORD) {
+    stepUp.failures += 1;
+    if (stepUp.failures >= STEPUP_MAX_FAILURES) {
+      stepUp.failures = 0;
+      stepUp.lockedUntil = Date.now() + STEPUP_LOCK_MS;
+    }
+    return passwordIssue("Password tidak sesuai. Periksa kembali.");
+  }
+
+  stepUp.expiresAt = Date.now() + STEPUP_EXPIRE_MS;
+
+  return json({
+    status: 200,
+    message: "Berhasil Memverifikasi Password",
+    data: { expiresAt: new Date(stepUp.expiresAt).toISOString() },
+  });
+};
+
 Bun.serve({
   port: API_PORT,
   async fetch(request) {
@@ -414,6 +474,10 @@ Bun.serve({
     const url = new URL(request.url);
     const path = url.pathname.replace(/^\/api\/v1/, "");
 
+    if (path === "/auth/login" || path === "/auth/logout") resetStepUp();
+    if (path === "/auth/verify-password" && request.method === "POST") {
+      return verifyPassword(request);
+    }
     if (path === "/auth/login") {
       return json(
         { status: 200, message: "Berhasil Login", data: session },
@@ -764,6 +828,16 @@ Bun.serve({
 
     // 200 `[]` bila kosong — tidak ada 404 di endpoint "saya".
     if (path === "/persembahan/saya") {
+      if (Date.now() >= stepUp.expiresAt) {
+        return json(
+          {
+            status: 403,
+            error: "Verifikasi Password Diperlukan",
+            code: "STEP_UP_REQUIRED",
+          },
+          403,
+        );
+      }
       if (process.env.MOCK_OFFERINGS === "500") {
         return json({ status: 500, error: "Kesalahan Server" }, 500);
       }

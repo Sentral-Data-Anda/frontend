@@ -7,12 +7,19 @@ export type ApiIssue = { path: string; message: string };
 export class FetchError extends Error {
   readonly status: number;
   readonly issues: ApiIssue[];
+  readonly code: string | null;
 
-  constructor(status: number, message: string, issues: ApiIssue[] = []) {
+  constructor(
+    status: number,
+    message: string,
+    issues: ApiIssue[] = [],
+    code: string | null = null,
+  ) {
     super(message);
     this.name = "FetchError";
     this.status = status;
     this.issues = issues;
+    this.code = code;
   }
 }
 
@@ -29,26 +36,31 @@ const readIssues = (body: Record<string, unknown>): ApiIssue[] =>
 
 const readError = async (
   response: Response,
-): Promise<{ message: string; issues: ApiIssue[] }> => {
+): Promise<{ message: string; issues: ApiIssue[]; code: string | null }> => {
   try {
     const body: unknown = await response.json();
 
     if (body && typeof body === "object") {
       const record = body as Record<string, unknown>;
       const issues = readIssues(record);
+      const code = typeof record.code === "string" ? record.code : null;
 
       if (typeof record.error === "string") {
-        return { message: record.error, issues };
+        return { message: record.error, issues, code };
       }
       if (typeof record.message === "string") {
-        return { message: record.message, issues };
+        return { message: record.message, issues, code };
       }
     }
   } catch {
     // Badan bukan JSON: pakai pesan bawaan.
   }
 
-  return { message: `Permintaan gagal (${response.status}).`, issues: [] };
+  return {
+    message: `Permintaan gagal (${response.status}).`,
+    issues: [],
+    code: null,
+  };
 };
 
 const readErrorMessage = async (response: Response): Promise<string> =>
@@ -72,7 +84,12 @@ export async function fetchOne<T>(
   if (!response.ok) {
     const failure = await readError(response);
 
-    throw new FetchError(response.status, failure.message, failure.issues);
+    throw new FetchError(
+      response.status,
+      failure.message,
+      failure.issues,
+      failure.code,
+    );
   }
 
   return response.json() as Promise<ApiResponse<T>>;
@@ -95,7 +112,9 @@ export async function fetchList<T>(
   }
 
   if (!response.ok) {
-    throw new FetchError(response.status, await readErrorMessage(response));
+    const failure = await readError(response);
+
+    throw new FetchError(response.status, failure.message, [], failure.code);
   }
 
   return response.json() as Promise<ApiListResponse<T>>;

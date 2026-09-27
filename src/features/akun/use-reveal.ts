@@ -34,5 +34,5 @@ export function useReveal(queryKey: QueryKey) {
       document.removeEventListener("visibilitychange", onVisibilityChange);
   }, [isShown.value]);
 
-  return { isShown: isShown.value, onToggle };
+  return { isShown: isShown.value, onShow: isShown.onTrue, onHide, onToggle };
 }
