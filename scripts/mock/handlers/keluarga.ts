@@ -8,7 +8,11 @@
  * keluarga tanpa anggota (mis. "Keluarga Halim") bisa dihapus.
  */
 import { MENU } from "../../../src/config/menu";
-import { ZONE_CHURCHES } from "../../mock-dashboard";
+import {
+  KELUARGA_SEED,
+  ZONE_CHURCHES,
+  keluargaCodeOf,
+} from "../../mock-dashboard";
 import { denied, json, list, readBody, type MockHandler } from "../kit";
 
 type Member = {
@@ -53,25 +57,15 @@ type KeluargaBody = Partial<
   >
 >;
 
-const SURNAMES = [
-  "Sitanggang",
-  "Kusuma",
-  "Wijaya",
-  "Manurung",
-  "Panggabean",
-  "Halim",
-  "Saragih",
-  "Nainggolan",
-  "Hutagalung",
-  "Simorangkir",
-  "Tampubolon",
-  "Tanuwijaya",
-];
-
-const ADDRESSES = [
-  ["32", "3273", "327301", "3273011001", "Jl. Cijerah No. 12, RT 03 RW 05"],
-  ["36", "3671", "367101", "3671011002", "Jl. Rawa Buntu Utara Blok C2 No. 7"],
+const REGIONS = [
+  ["32", "3273", "327301", "3273011001"],
+  ["36", "3671", "367101", "3671011002"],
 ] as const;
+
+const addressOf = (id: number) =>
+  id % 2 === 1
+    ? `Jl. Cijerah No. ${id}, RT 0${(id % 9) + 1} RW 05`
+    : `Jl. Rawa Buntu Utara Blok C2 No. ${id}`;
 
 const member = (
   keluargaId: number,
@@ -112,24 +106,24 @@ const membersOf = (id: number, surname: string): Member[] => {
   ];
 };
 
-const store: KeluargaRow[] = SURNAMES.map((surname, index) => {
+const store: KeluargaRow[] = KELUARGA_SEED.map((seed, index) => {
   const id = index + 1;
-  const [provincesCode, regenciesCode, districtsCode, villagesCode, address] =
-    ADDRESSES[index % 2];
+  const [provincesCode, regenciesCode, districtsCode, villagesCode] =
+    REGIONS[index % 2];
 
   return {
     id,
     publicId: `10000000-0000-4000-8000-${String(id).padStart(12, "0")}`,
-    code: `KK-${String(id).padStart(4, "0")}`,
-    name: `Keluarga ${surname}`,
+    code: keluargaCodeOf(id),
+    name: `Keluarga ${seed.surname}`,
     provincesCode,
     regenciesCode,
     districtsCode,
     villagesCode,
-    address,
-    zoneChurchId: index % 5 === 4 ? null : (index % ZONE_CHURCHES.length) + 1,
-    worshipsHere: index % 6 !== 5,
-    members: membersOf(id, surname),
+    address: addressOf(id),
+    zoneChurchId: seed.wilayah,
+    worshipsHere: seed.worshipsHere,
+    members: membersOf(id, seed.surname),
   };
 });
 
@@ -275,7 +269,7 @@ export const keluargaMock: MockHandler = async ({
     const row: KeluargaRow = {
       id,
       publicId: crypto.randomUUID(),
-      code: `KK-${String(id).padStart(4, "0")}`,
+      code: keluargaCodeOf(id),
       name: "",
       provincesCode: "",
       regenciesCode: "",

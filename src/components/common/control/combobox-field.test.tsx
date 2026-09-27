@@ -133,3 +133,51 @@ describe("ComboboxField dengan onCreate", () => {
     expect(created).toEqual(["Tukang Las"]);
   });
 });
+
+describe("ComboboxField dengan hint", () => {
+  test("hint tampil di item, bukan di input terpilih; penyaringan tetap pada label", async () => {
+    render(
+      <ComboboxField
+        value="1"
+        onValueChange={() => {}}
+        options={[
+          { value: "1", label: "Keluarga Halim", hint: "Belum pernah" },
+          { value: "2", label: "Keluarga Saragih" },
+        ]}
+      />,
+    );
+
+    const input = screen.getByRole<HTMLInputElement>("combobox");
+    expect(input.value).toBe("Keluarga Halim");
+
+    fireEvent.focus(input);
+    fireEvent.input(input, {
+      target: { value: "belum" },
+      inputType: "insertText",
+    });
+
+    await screen.findByText("Tidak ada yang cocok");
+  });
+
+  test("item ber-hint memuat label dan hint", async () => {
+    render(
+      <ComboboxField
+        value=""
+        onValueChange={() => {}}
+        options={[
+          { value: "1", label: "Keluarga Halim", hint: "Belum pernah" },
+          { value: "2", label: "Keluarga Saragih" },
+        ]}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Buka pilihan" }));
+
+    const options = await screen.findAllByRole("option");
+
+    expect(options.map((option) => option.textContent)).toEqual([
+      "Keluarga HalimBelum pernah",
+      "Keluarga Saragih",
+    ]);
+  });
+});
