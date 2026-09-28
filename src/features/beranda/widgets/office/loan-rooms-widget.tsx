@@ -7,20 +7,21 @@ import {
 } from "@/components/common/dashboard";
 import { EmptyState } from "@/components/common/feedback";
 import { MENU, menuHref } from "@/config/menu";
+import { formatClock } from "@/lib/format";
 
-import { formatDayMonth } from "../../model";
+import { formatDayMonth, formatWeekdayShort } from "../../model";
 
-import { usePendingLoans } from "./data";
+import { useUpcomingLoans } from "./data";
 
 const LOAN_ROOM_HREF = menuHref(MENU.FASILITAS, MENU.PEMINJAMAN_RUANG);
 
 export const LoanRoomsWidget = () => {
-  const query = usePendingLoans();
+  const { query } = useUpcomingLoans();
   const items = query.data ?? [];
 
   return (
     <DashboardCard
-      title="Peminjaman ruang"
+      title="Peminjaman ruang 7 hari ke depan"
       actionLabel="Peminjaman"
       actionHref={LOAN_ROOM_HREF}
       query={query}
@@ -29,17 +30,17 @@ export const LoanRoomsWidget = () => {
       {items.length === 0 ? (
         <EmptyState
           isCompact
-          title="Tidak ada peminjaman yang menunggu persetujuan"
+          title="Tidak ada peminjaman ruang 7 hari ke depan"
         />
       ) : (
-        <DashboardList label="Peminjaman menunggu">
+        <DashboardList label="Peminjaman ruang">
           {items.slice(0, 4).map((item) => (
             <DashboardRow
               key={item.code}
               title={item.room.name}
               meta={`${item.purpose} · ${item.jemaat.name}`}
               href={LOAN_ROOM_HREF}
-              trailing={`${formatDayMonth(item.date)} ${item.startTime.replace(":", ".")}`}
+              trailing={`${formatWeekdayShort(item.date)} ${formatDayMonth(item.date)} ${formatClock(item.startTime)}`}
             />
           ))}
         </DashboardList>

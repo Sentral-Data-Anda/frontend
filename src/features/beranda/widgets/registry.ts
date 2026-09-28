@@ -32,7 +32,7 @@ import { IncomeExpenseChart } from "./income-expense-chart/income-expense-chart"
 import { BirthdaysWidget } from "./office/birthdays-widget";
 import { KpiBirthdays } from "./office/kpi-birthdays";
 import { KpiJemaatTotal } from "./office/kpi-jemaat-total";
-import { KpiPendingLoans } from "./office/kpi-pending-loans";
+import { KpiTodayLoans } from "./office/kpi-today-loans";
 import { LoanRoomsWidget } from "./office/loan-rooms-widget";
 import { ZonesWidget } from "./office/zones-widget";
 import { KpiPayables } from "./payables/kpi-payables";
@@ -142,11 +142,11 @@ export const WIDGETS: readonly Widget[] = [
     Component: KpiWaitingApprovals,
   },
   {
-    id: "kpi-pending-loans",
+    id: "kpi-today-loans",
     slot: "kpi",
     group: "umum",
     gate: [view(MENU.PEMINJAMAN_RUANG)],
-    Component: KpiPendingLoans,
+    Component: KpiTodayLoans,
   },
 
   {

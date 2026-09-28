@@ -1,6 +1,6 @@
 "use client";
 
-import { useBirthdaysInRange, usePendingLoanRooms } from "../../api";
+import { useBirthdaysInRange, useLoanRoomsInRange } from "../../api";
 import { addDaysKey, toDateKey, weekKeys } from "../../model";
 
 export const useWeekBirthdays = () => {
@@ -8,7 +8,7 @@ export const useWeekBirthdays = () => {
   return { days, query: useBirthdaysInRange(days) };
 };
 
-export const usePendingLoans = () => {
+export const useUpcomingLoans = () => {
   const today = toDateKey(new Date());
-  return usePendingLoanRooms(today, addDaysKey(today, 30));
+  return { today, query: useLoanRoomsInRange(today, addDaysKey(today, 6)) };
 };
