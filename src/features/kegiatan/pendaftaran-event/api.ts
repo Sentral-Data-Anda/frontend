@@ -99,6 +99,7 @@ export function useCancelPendaftaran(code: string) {
 }
 
 export function useReissueInvoice(code: string) {
+  const queryClient = useQueryClient();
   const onInvalidate = useInvalidatePendaftaran();
 
   return useMutation({
@@ -106,6 +107,10 @@ export function useReissueInvoice(code: string) {
       fetchOne<RegistrationDetail>(`${pathOf(code)}/invoice`, {
         method: "POST",
       }),
-    onSuccess: onInvalidate,
+    // Jawaban bisa CONFIRMED/PAID bila tagihan lama terbayar bersamaan.
+    onSuccess: (response) => {
+      queryClient.setQueryData(pendaftaranKeys.detail(code), response);
+      return onInvalidate();
+    },
   });
 }

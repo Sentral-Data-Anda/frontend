@@ -10,6 +10,7 @@
  *   MOCK_PENDAFTARAN_GATEWAY_OFF=1        → event berbayar 503 sebelum menulis
  *   MOCK_PENDAFTARAN_GATEWAY_DOWN=1       → event berbayar 201 dengan invoiceUrl null
  *   MOCK_PENDAFTARAN_INVOICE_502=1        → POST /:code/invoice 502 (gateway gagal)
+ *   MOCK_PENDAFTARAN_INVOICE_PAID=1       → POST /:code/invoice 200, tagihan lama terbayar bersamaan (CONFIRMED/PAID, invoiceUrl null)
  */
 import { MENU } from "../../../src/config/menu";
 import {
@@ -56,7 +57,7 @@ const GRACE_MS = 5 * 60 * 1000;
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const GATEWAY_DOWN =
-  "Peserta Terdaftar, Tetapi Tagihan Pembayaran Gagal Dibuat. Kursinya Kembali Otomatis Setelah Batas Pembayaran Lewat";
+  "Peserta Terdaftar, Tetapi Tagihan Pembayaran Gagal Dibuat. Buat Ulang Tagihannya Dari Halaman Pendaftaran, Atau Kursinya Kembali Otomatis Setelah Batas Pembayaran Lewat";
 
 const failure = (status: number, error: string, path?: string) =>
   json(
@@ -446,7 +447,12 @@ const onReissue = (row: RegistrationRow) => {
     return failure(502, "Tagihan Pembayaran Gagal Dibuat. Coba Lagi");
   }
 
-  row.payment = newPayment(row.id, row.payment.amount, true);
+  if (process.env.MOCK_PENDAFTARAN_INVOICE_PAID) {
+    row.status = "CONFIRMED";
+    row.payment.status = "PAID";
+  } else {
+    row.payment = newPayment(row.id, row.payment.amount, true);
+  }
 
   return json({
     status: 200,

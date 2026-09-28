@@ -12,6 +12,7 @@ const FLAGS = [
   "MOCK_PENDAFTARAN_GATEWAY_OFF",
   "MOCK_PENDAFTARAN_GATEWAY_DOWN",
   "MOCK_PENDAFTARAN_INVOICE_502",
+  "MOCK_PENDAFTARAN_INVOICE_PAID",
 ];
 
 afterEach(() => {
@@ -190,7 +191,9 @@ describe("daftarkan", () => {
 
     expect(down.status).toBe(201);
     expect(down.body.data.payment?.invoiceUrl).toBeNull();
-    expect(down.body.message).toContain("Tagihan Pembayaran Gagal Dibuat");
+    expect(down.body.message).toBe(
+      "Peserta Terdaftar, Tetapi Tagihan Pembayaran Gagal Dibuat. Buat Ulang Tagihannya Dari Halaman Pendaftaran, Atau Kursinya Kembali Otomatis Setelah Batas Pembayaran Lewat",
+    );
 
     process.env.MOCK_PENDAFTARAN_GATEWAY_OFF = "1";
     const count = REGISTRATION.length;
@@ -246,5 +249,21 @@ describe("batalkan dan buat ulang tagihan", () => {
       "Berhasil Membuat Ulang Tagihan Pembayaran",
     );
     expect(reissued.body.data.payment?.invoiceUrl).toContain("checkout");
+  });
+
+  test("buat ulang tagihan saat tagihan lama terbayar bersamaan: 200 CONFIRMED/PAID tanpa tautan", async () => {
+    process.env.MOCK_PENDAFTARAN_GATEWAY_DOWN = "1";
+    const created = await onPost({ eventId: 2, jemaatId: 5 });
+
+    process.env.MOCK_PENDAFTARAN_INVOICE_PAID = "1";
+    const paid = await onCall(
+      `/pendaftaran-event/${created.body.data.code}/invoice`,
+      { method: "POST" },
+    );
+
+    expect(paid.status).toBe(200);
+    expect(paid.body.data.status).toBe("CONFIRMED");
+    expect(paid.body.data.payment?.status).toBe("PAID");
+    expect(paid.body.data.payment?.invoiceUrl).toBeNull();
   });
 });

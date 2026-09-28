@@ -76,6 +76,7 @@ afterEach(() => {
   REGISTRATION.splice(0, Infinity, ...structuredClone(SNAPSHOT));
   requested.length = 0;
   replaced.length = 0;
+  delete process.env.MOCK_PENDAFTARAN_INVOICE_PAID;
   Object.defineProperty(navigator, "clipboard", {
     value: undefined,
     configurable: true,
@@ -204,6 +205,30 @@ describe("halaman baca", () => {
     expect(requested).toContain(
       "POST /pendaftaran-event/REG-2026-0001/invoice",
     );
+  });
+
+  test("buat ulang tagihan, tagihan lama terbayar bersamaan: tampil lunas tanpa tombol", async () => {
+    const pending = REGISTRATION.find((row) => row.id === 1);
+
+    if (pending?.payment) pending.payment.invoiceUrl = null;
+    process.env.MOCK_PENDAFTARAN_INVOICE_PAID = "1";
+    onRender(ALL, "REG-2026-0001");
+
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Buat ulang tagihan" }),
+    );
+    fireEvent.click(await screen.findByRole("button", { name: "Ya" }));
+
+    expect(
+      await screen.findByText("Pengembalian dana ditangani di luar sistem."),
+    ).toBeTruthy();
+    expect((await onPanel("Pembayaran")).textContent).toContain("Lunas");
+    expect(
+      screen.queryByRole("button", { name: "Buat ulang tagihan" }),
+    ).toBeNull();
+    expect(screen.queryByText(/Tagihan belum terbit/)).toBeNull();
+    expect(screen.queryByRole("button", { name: "Salin tautan" })).toBeNull();
+    expect(screen.getByText("Terkonfirmasi")).toBeTruthy();
   });
 
   test("404: tidak ditemukan; tanpa VIEW: tanpa akses dan tanpa memanggil be-sada", async () => {
