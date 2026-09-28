@@ -1,7 +1,7 @@
 "use client";
 
 import { ImageIcon, ImageOff } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -16,10 +16,18 @@ interface PropTypes {
 export const MediaThumb = (props: PropTypes) => {
   const { src, alt, size = "sm", ratio = "square", fit = "cover" } = props;
 
+  const imageRef = useRef<HTMLImageElement>(null);
   const [failedSrc, setFailedSrc] = useState<string | null>(null);
 
   const isFailed = src !== null && failedSrc === src;
   const Icon = isFailed ? ImageOff : ImageIcon;
+
+  // Gambar dari HTML server bisa gagal sebelum hidrasi; onError-nya terlewat.
+  useEffect(() => {
+    const image = imageRef.current;
+
+    if (image?.complete && image.naturalWidth === 0) setFailedSrc(src);
+  }, [src]);
 
   return (
     <span
@@ -35,6 +43,7 @@ export const MediaThumb = (props: PropTypes) => {
       {src && !isFailed ? (
         // eslint-disable-next-line @next/next/no-img-element -- URL bertanda tangan MinIO, bukan aset yang dioptimasi Next
         <img
+          ref={imageRef}
           src={src}
           alt={alt}
           loading="lazy"
