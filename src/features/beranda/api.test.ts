@@ -3,6 +3,7 @@ import { expect, test } from "bun:test";
 import {
   sortByStartTime,
   toZoneBars,
+  tugasSayaKey,
   type IbadahListItem,
   type ZoneCount,
 } from "./api";
@@ -36,6 +37,14 @@ const zone = (
   isActive,
   anggota,
   simpatisan,
+});
+
+test("tugas saya: kunci di bawah jadwal-pelayan, hanya bergantung tanggal", () => {
+  expect(tugasSayaKey("2026-09-28")).toEqual([
+    "jadwal-pelayan",
+    "saya",
+    "2026-09-28",
+  ]);
 });
 
 test("wilayah: nilai = anggota + simpatisan, nol aktif tetap tampil", () => {

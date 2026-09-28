@@ -220,6 +220,7 @@ describe("persona dev:mock", () => {
     expect(side).toEqual([
       "birthdays",
       "announcements",
+      "tugas-saya",
       "loan-rooms",
       "new-members",
     ]);
@@ -279,6 +280,29 @@ describe("persona dev:mock", () => {
 
   test("production: jemaat per wilayah memakai data asli", () => {
     expect(picked("sekretariat").main).toContain("zones");
+  });
+
+  test("tugas saya: tanpa gerbang, tepat sesudah pengumuman, di sisi semua persona", () => {
+    const sideIds = WIDGETS.filter((w) => w.slot === "side").map((w) => w.id);
+    const tugas = WIDGETS.find((w) => w.id === "tugas-saya");
+
+    expect(tugas?.gate).toEqual([]);
+    expect(tugas?.gateAny).toBeUndefined();
+    expect(sideIds[sideIds.indexOf("announcements") + 1]).toBe("tugas-saya");
+
+    for (const key of Object.keys(PERSONAS)) {
+      const { main, side } = picked(key);
+      expect(main).not.toContain("tugas-saya");
+      expect(side).toContain("tugas-saya");
+    }
+  });
+
+  test("operator dan koordinator: pengumuman tetap naik ke main", () => {
+    for (const key of ["operator", "koordinator"]) {
+      const { main, side } = picked(key);
+      expect(main).toEqual(["announcements"]);
+      expect(side).toEqual(["tugas-saya"]);
+    }
   });
 
   test("production: tidak ada widget dummy untuk persona mana pun", () => {

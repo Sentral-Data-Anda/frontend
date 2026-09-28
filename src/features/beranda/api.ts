@@ -426,6 +426,29 @@ export function useZoneCounts() {
   });
 }
 
+export type TugasSayaItem = {
+  date: string;
+  startTime: string;
+  endTime: string;
+  jadwal: { code: string; name: string };
+  bapel: { name: string };
+  role: { name: string };
+  musikSkill: { name: string } | null;
+  group: { name: string } | null;
+  ibadah: { code: string; typeIbadah: { name: string } }[];
+};
+
+export const tugasSayaKey = (today: string) =>
+  ["jadwal-pelayan", "saya", today] as const;
+
+export function useTugasSaya(today: string) {
+  return useQuery({
+    queryKey: tugasSayaKey(today),
+    queryFn: () => fetchList<TugasSayaItem>("/jadwal-pelayan/saya"),
+    select: (response) => response.data,
+  });
+}
+
 export function useBirthdaysInRange(days: string[]) {
   const months = [...new Set(days.map((day) => Number(day.slice(5, 7))))];
 
