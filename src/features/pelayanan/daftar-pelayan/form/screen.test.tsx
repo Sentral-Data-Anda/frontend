@@ -455,6 +455,27 @@ describe("anggota kelompok", () => {
     expect(screen.getByText("3 anggota")).toBeTruthy();
   });
 
+  test("anggota baru bentrok jadwal (409): pesan server di field anggota", async () => {
+    const message =
+      "Hanna Simorangkir sudah terjadwal di Majelis Jemaat pada 4 Oktober 2026 pukul 07:30 - 10:00, bersamaan dengan Paduan Suara Efrata di Pelayan Ibadah Minggu I (JDL_0001-2026-0002). Silakan pilih anggota lain atau ubah jadwal tersebut";
+    onMockApi({
+      save: {
+        status: 409,
+        error: message,
+        issues: [{ path: "members", message }],
+      },
+    });
+    await onRenderLoaded(EFRATA.code);
+
+    await onSaveConfirmed();
+
+    expect(await screen.findByText(message)).toBeTruthy();
+    await waitFor(() => expect(document.activeElement?.id).toBe("members"));
+    expect(
+      screen.queryByText("Data belum tersimpan. Coba simpan lagi."),
+    ).toBeNull();
+  });
+
   test("tanpa anggota: Simpan ditolak di field anggota", async () => {
     onMockApi();
     onRenderForm(["VIEW", "CREATE"]);

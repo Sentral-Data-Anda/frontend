@@ -191,6 +191,11 @@ const rulesOf = (isEdit: boolean): Rule[] => [
       "Salah satu anggota sudah dihapus dari data jemaat. Hapus lalu tambahkan lagi.",
   },
   {
+    pattern: /^.+ sudah terjadwal di .+ bersamaan dengan .+$/i,
+    field: "members",
+    message: ([message]) => message,
+  },
+  {
     pattern: /^anggota group (.+) bukan jemaat aktif/i,
     field: "members",
     message: ([, name]) =>

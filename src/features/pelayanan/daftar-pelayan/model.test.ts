@@ -187,6 +187,10 @@ describe("pesan server ke field", () => {
     ],
     ["Anggota Group dengan Jemaat ID 99 Tidak Ditemukan", "members"],
     ["Anggota Group Hanna Simorangkir Bukan Jemaat Aktif", "members"],
+    [
+      "Hanna Simorangkir sudah terjadwal di Komisi Pemuda pada 4 Oktober 2026 pukul 17:00 - 19:00, bersamaan dengan Band Pemuda di Pelayan Ibadah Pemuda (JDL_0002-2026-0001). Silakan pilih anggota lain atau ubah jadwal tersebut",
+      "members",
+    ],
   ])("%s → %s", (message, field) => {
     expect<string | undefined>(serverFieldError(message, false)?.field).toBe(
       field,

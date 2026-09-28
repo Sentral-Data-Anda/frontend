@@ -213,6 +213,42 @@ describe("mock simpan", () => {
   });
 });
 
+describe("mock PUT kelompok: anggota baru yang bentrok", () => {
+  const band = (members: number[]) => ({
+    typePelayan: "GROUP",
+    bapelId: 2,
+    jemaatId: null,
+    name: "Band Pemuda",
+    phone: "081298765432",
+    members,
+    rolePelayan: [2],
+    isPemusik: true,
+    musikSkill: [1, 2],
+    status: true,
+  });
+
+  test("Hanna (terjadwal di jam yang sama) → 409 di members, menyebut jadwalnya", async () => {
+    const { status, body } = await onCall(
+      "PUT",
+      "/pelayan/GPLYN_0002-0001",
+      band([3, 5, 12, 8]),
+    );
+
+    expect(status).toBe(409);
+    expect(body.issues?.[0].path).toBe("members");
+    expect(body.error).toMatch(
+      /^Hanna Simorangkir sudah terjadwal di Komisi Pemuda pada \d{1,2} \S+ \d{4} pukul 17:00 - 19:00, bersamaan dengan Band Pemuda di Pelayan Ibadah Pemuda \(JDL_0002-\d{4}-\d{4}\)\. Silakan pilih anggota lain atau ubah jadwal tersebut$/,
+    );
+  });
+
+  test("anggota lama tidak diperiksa ulang (Eleazar juga bertugas di jadwal itu)", async () => {
+    expect(
+      (await onCall("PUT", "/pelayan/GPLYN_0002-0001", band([3, 5, 12])))
+        .status,
+    ).toBe(200);
+  });
+});
+
 describe("mock DELETE", () => {
   test("Bethari terjadwal mendatang: 400 menyarankan nonaktifkan", async () => {
     const { status, body } = await onCall("DELETE", "/pelayan/PLYN_0001-0002");

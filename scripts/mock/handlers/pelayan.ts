@@ -8,6 +8,7 @@
  *
  * Bethari (PLYN_0001-0002) terjadwal Minggu depan: hapus 400, nonaktifkan →
  * `futureSlots`. Debora (PLYN_0001-0004) tidak terjadwal: hapus berhasil.
+ * Tambah Hanna ke Band Pemuda (GPLYN_0002-0001) → 409 bentrok di `members`.
  */
 import { MENU } from "../../../src/config/menu";
 import { todayJakarta } from "../../../src/lib/date";
@@ -26,6 +27,7 @@ import {
   pelayanCodeOf,
   ROLE_PELAYAN,
   type GroupPelayanRow,
+  type JadwalPelayanRow,
   type PelayanRow,
 } from "../pelayanan-store";
 
@@ -184,6 +186,61 @@ const futureSlotsOf = (row: PelayanRow | GroupPelayanRow) => {
       endTime: jadwal.endTime,
       bapel: { name: bapelOf(jadwal.bapelId)?.name ?? "" },
     }));
+};
+
+const isOverlapping = (a: JadwalPelayanRow, b: JadwalPelayanRow) =>
+  a.date === b.date && a.startTime < b.endTime && b.startTime < a.endTime;
+
+const bookingOf = (
+  jemaatId: number,
+  target: JadwalPelayanRow,
+  groupId: number,
+): { jadwal: JadwalPelayanRow; via: string | null } | undefined =>
+  JADWAL_PELAYAN.filter(isLive)
+    .filter((jadwal) => isOverlapping(jadwal, target))
+    .flatMap((jadwal) =>
+      jadwal.detail.flatMap(
+        (slot): { jadwal: JadwalPelayanRow; via: string | null }[] => {
+          const pelayan = PELAYAN.find((row) => row.id === slot.pelayanId);
+          const group = GROUP_PELAYAN.find(
+            (row) => row.id === slot.groupPelayanId && row.id !== groupId,
+          );
+
+          if (pelayan?.jemaatId === jemaatId) return [{ jadwal, via: null }];
+          if (group?.memberIds.includes(jemaatId)) {
+            return [{ jadwal, via: group.name }];
+          }
+
+          return [];
+        },
+      ),
+    )[0];
+
+const memberClash = (saved: GroupPelayanRow, input: Input) => {
+  const added = input.members.filter((id) => !saved.memberIds.includes(id));
+  const rosters = JADWAL_PELAYAN.filter(isLive).filter(
+    (jadwal) =>
+      jadwal.date >= todayJakarta() &&
+      jadwal.detail.some((slot) => slot.groupPelayanId === saved.id),
+  );
+
+  for (const target of rosters) {
+    for (const jemaatId of added) {
+      const booking = bookingOf(jemaatId, target, saved.id);
+
+      if (!booking) continue;
+
+      const { jadwal, via } = booking;
+
+      return failAt(
+        409,
+        "members",
+        `${jemaatName(jemaatId)} sudah terjadwal di ${bapelOf(jadwal.bapelId)?.name ?? ""}${via ? ` Bersama ${via}` : ""} pada ${formatDate(jadwal.date)} pukul ${jadwal.startTime} - ${jadwal.endTime}, bersamaan dengan ${input.name} di ${target.name} (${target.code}). Silakan pilih anggota lain atau ubah jadwal tersebut`,
+      );
+    }
+  }
+
+  return null;
 };
 
 const parse = (body: Body): { issues: Issue[]; value: Input } => {
@@ -468,7 +525,9 @@ export const pelayanMock: MockHandler = async ({
       return notFound();
     }
 
-    const failure = checkRelations(value, saved);
+    const failure =
+      checkRelations(value, saved) ??
+      (isGroupRow(saved) ? memberClash(saved, value) : null);
 
     if (failure) return failure;
 
