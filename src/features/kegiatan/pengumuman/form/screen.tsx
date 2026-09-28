@@ -22,6 +22,7 @@ import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { useListReturn } from "@/hooks/use-list-return";
 import { FetchError } from "@/lib/api/fetcher";
+import { withFreshUrls } from "@/lib/attachment";
 import { applyServerError, FIRST_INVALID, revealField } from "@/lib/form-error";
 import { saveListFocus } from "@/lib/list-return";
 
@@ -37,7 +38,6 @@ import {
   toAnnouncementBody,
   toAnnouncementForm,
   toFormError,
-  withFreshUrls,
   type AnnouncementFormValues,
 } from "../model";
 

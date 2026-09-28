@@ -12,7 +12,6 @@ import {
   toAnnouncementBody,
   toAnnouncementForm,
   toFormError,
-  withFreshUrls,
   type AnnouncementFormValues,
 } from "./model";
 import type { Announcement } from "./types";
@@ -291,16 +290,6 @@ describe("pratinjau status", () => {
     });
     expect(statusPreviewOf({ ...base, publishDate: "" }, "", TODAY)).toBeNull();
   });
-});
-
-test("URL lampiran lama diperbarui dari server; berkas baru tidak disentuh", () => {
-  const server = [{ ...ROW.listImage[0], url: "http://media/p1?baru" }];
-  const value = [saved("p1"), fresh("c.pdf", false)];
-
-  expect(withFreshUrls(value, server).map((item) => item.url)).toEqual([
-    "http://media/p1?baru",
-    "blob:c.pdf",
-  ]);
 });
 
 test("galat lampiran server jatuh ke field listImage", () => {

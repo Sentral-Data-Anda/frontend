@@ -63,3 +63,16 @@ export const keptAttachments = (value: readonly AttachmentValue[]) =>
       publicId: item.key,
       showOnWebsite: item.showOnWebsite,
     }));
+
+export const withFreshUrls = (
+  value: readonly AttachmentValue[],
+  server: readonly ServerAttachment[],
+): AttachmentValue[] =>
+  value.map((item) => {
+    const fresh =
+      item.file === null
+        ? server.find((attachment) => attachment.publicId === item.key)
+        : undefined;
+
+    return fresh ? { ...item, url: fresh.url } : item;
+  });
