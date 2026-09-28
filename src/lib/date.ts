@@ -174,3 +174,48 @@ export const isWithin = (iso: string, min?: string, max?: string): boolean =>
 
 export const toDateInput = (value: string | null | undefined): string =>
   value ? value.slice(0, 10) : "";
+
+const monthFormat = new Intl.DateTimeFormat("id-ID", {
+  month: "long",
+  year: "numeric",
+  timeZone: "UTC",
+});
+
+export function monthOptions(
+  today: string = todayJakarta(),
+): { value: string; label: string }[] {
+  const current = startOfMonth(today);
+
+  return Array.from({ length: 13 }, (_, index) => {
+    const month = addMonths(current, 1 - index);
+
+    return {
+      value: month.slice(0, 7),
+      label: monthFormat.format(new Date(`${month}T00:00:00Z`)),
+    };
+  });
+}
+
+export function monthRange(month: string): {
+  startDate: string;
+  endDate: string;
+} {
+  const startDate = /^\d{4}-\d{2}$/.test(month) ? `${month}-01` : "";
+  const endDate = startDate ? addDays(addMonths(startDate, 1), -1) : "";
+
+  return endDate ? { startDate, endDate } : { startDate: "", endDate: "" };
+}
+
+export function weeklyDates(start: string, until: string, max: number) {
+  const dates: string[] = [];
+
+  for (
+    let date = start;
+    date && date <= until && dates.length < max;
+    date = addDays(date, 7)
+  ) {
+    dates.push(date);
+  }
+
+  return dates;
+}

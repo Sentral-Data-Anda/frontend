@@ -445,8 +445,11 @@ export const holdersOf = (eventId: number, now = Date.now()) =>
     (row) => row.eventId === eventId && isHoldingSeat(row, now),
   ).length;
 
-const roomOf = (id: number | null) =>
-  ROOM_ROWS.find((row) => row.id === id) ?? null;
+const roomOf = (id: number | null) => {
+  const room = ROOM_ROWS.find((row) => row.id === id);
+
+  return room ? { id: room.id, code: room.code, name: room.name } : null;
+};
 
 export const eventView = (row: EventRow) => {
   const image = attachmentsOf("Event", row.id)[0];

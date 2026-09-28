@@ -186,7 +186,7 @@ const makeRow = (
       name: CONFIGS[spec.type],
     },
     document:
-      spec.title === null || spec.type === "LOAN_ROOM"
+      spec.title === null
         ? null
         : {
             publicId: `doc-${id}`,
@@ -339,13 +339,6 @@ const seed = (): Row[] => [
     daysAgo: 0,
     tiers: [BENDAHARA, MAJELIS],
     title: "Penggajian 10/2026",
-  }),
-  makeRow(16, {
-    type: "LOAN_ROOM",
-    amount: 0,
-    by: 11,
-    daysAgo: 3,
-    tiers: [BENDAHARA],
   }),
   makeRow(17, {
     type: "CASH_EXPENSE",

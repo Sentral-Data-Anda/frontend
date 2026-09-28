@@ -150,19 +150,17 @@ export type LoanRoomItem = {
   startTime: string;
   endTime: string;
   purpose: string;
-  status: "PENDING" | "APPROVED" | "REJECTED" | "CANCELLED";
   room: { name: string };
   jemaat: { name: string };
 };
 
-export function usePendingLoanRooms(start: string, end: string) {
+export function useLoanRoomsInRange(start: string, end: string) {
   const query = `startDate=${start}&endDate=${end}&limit=100`;
 
   return useQuery({
     queryKey: ["loan-room", "list", query],
     queryFn: () => fetchList<LoanRoomItem>(`/loan-room?${query}`),
-    select: (response) =>
-      response.data.filter((row) => row.status === "PENDING"),
+    select: (response) => response.data,
   });
 }
 

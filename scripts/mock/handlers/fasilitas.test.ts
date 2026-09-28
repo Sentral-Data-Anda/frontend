@@ -1,0 +1,227 @@
+import { describe, expect, test } from "bun:test";
+
+import { MENU, type MenuSlug } from "../../../src/config/menu";
+import { addDays } from "../../../src/lib/date";
+import {
+  clashesOf,
+  clashMessage,
+  LOAN,
+  loanCodeOf,
+  loanView,
+  occupancyOf,
+  ROOM,
+  roomUsageOf,
+  TODAY,
+  upcomingCountsOf,
+} from "../fasilitas-store";
+import { EVENT, eventView } from "../kegiatan-store";
+
+import { fasilitasMock } from "./fasilitas";
+import { ibadahInRoom } from "./ibadah";
+
+const call = async (path: string, grants: MenuSlug[]) => {
+  const url = new URL(path, "http://mock.test");
+  const response = await fasilitasMock({
+    request: new Request(url),
+    url,
+    path: url.pathname,
+    method: "GET",
+    can: (slug) => grants.includes(slug),
+    isAdmin: false,
+    sessionCode: "test",
+  });
+
+  return response!;
+};
+
+describe("GET /ddl/room", () => {
+  test("ruang hidup + isActive, urut nama; terhapus tidak ikut", async () => {
+    const response = await call("/ddl/room", [MENU.IBADAH]);
+    const body = await response.json();
+    const names = body.data.map((row: { name: string }) => row.name);
+
+    expect(response.status).toBe(200);
+    expect(names).toEqual([...names].sort((a, b) => a.localeCompare(b)));
+    expect(names).not.toContain("Perpustakaan");
+    expect(
+      body.data.find(
+        (row: { name: string }) => row.name === "Kelas Sekolah Minggu",
+      ),
+    ).toMatchObject({ isActive: false });
+  });
+
+  test("tanpa menu pemakai = 403", async () => {
+    expect((await call("/ddl/room", [MENU.PENGUMUMAN])).status).toBe(403);
+  });
+});
+
+describe("GET /loan-room (cadangan)", () => {
+  test("startDate satu sisi = mulai tanggal itu, urut tanggal lalu jam", async () => {
+    const response = await call(`/loan-room?startDate=${TODAY}&limit=100`, [
+      MENU.PEMINJAMAN_RUANG,
+    ]);
+    const body = await response.json();
+    const keys = body.data.map(
+      (row: { date: string; startTime: string }) =>
+        `${row.date}${row.startTime}`,
+    );
+
+    expect(body.data.every((row: { date: string }) => row.date >= TODAY)).toBe(
+      true,
+    );
+    expect(keys).toEqual([...keys].sort());
+    expect(
+      body.data.some(
+        (row: { purpose: string }) => row.purpose === "Rapat panitia bazar",
+      ),
+    ).toBe(false);
+  });
+
+  test("baris tanpa id, tanpa status; pribadi = bapel null", async () => {
+    const body = await (
+      await call("/loan-room?filter=pemberkatan", [MENU.PEMINJAMAN_RUANG])
+    ).json();
+
+    expect(body.data).toHaveLength(1);
+    expect(body.data[0]).not.toHaveProperty("id");
+    expect(body.data[0]).not.toHaveProperty("status");
+    expect(body.data[0].bapel).toBeNull();
+    expect(body.data[0].room).toEqual({
+      code: "RM-0001",
+      name: "Gedung Gereja",
+    });
+  });
+
+  test("tanpa VIEW = 403", async () => {
+    expect((await call("/loan-room", [MENU.RUANG])).status).toBe(403);
+  });
+});
+
+describe("bentrok", () => {
+  const aula = 2;
+  const tomorrow = addDays(TODAY, 1);
+
+  test("setengah terbuka: bersebelahan tidak bentrok", () => {
+    expect(
+      clashesOf({
+        roomId: aula,
+        date: tomorrow,
+        startTime: "14:00",
+        endTime: "16:00",
+      }),
+    ).toEqual([]);
+    expect(
+      clashesOf({
+        roomId: aula,
+        date: tomorrow,
+        startTime: "11:00",
+        endTime: "13:00",
+      }).map((item) => item.name),
+    ).toEqual(["Rapat pengurus Komisi Wanita", "Kelas katekisasi"]);
+  });
+
+  test("peminjaman terhapus membebaskan jam; dirinya sendiri dikecualikan", () => {
+    expect(
+      clashesOf({
+        roomId: aula,
+        date: tomorrow,
+        startTime: "15:00",
+        endTime: "17:00",
+      }),
+    ).toEqual([]);
+
+    const own = LOAN.find((row) => row.purpose === "Kelas katekisasi")!;
+
+    expect(
+      clashesOf({
+        roomId: aula,
+        date: tomorrow,
+        startTime: "12:00",
+        endTime: "14:00",
+        excludeCode: own.code.toLowerCase(),
+      }),
+    ).toEqual([]);
+  });
+
+  test("event dan ibadah di ruang yang sama ikut bentrok", () => {
+    const rapat = EVENT.find((row) => row.name === "Rapat Majelis")!;
+    const [eventClash] = clashesOf({
+      roomId: 1,
+      date: rapat.startDate,
+      startTime: "20:00",
+      endTime: "22:00",
+    }).filter((item) => item.kind === "EVENT");
+
+    expect(clashMessage(eventClash)).toBe(
+      "Ruang Sudah Dipakai Event Rapat Majelis Pukul 19.00–21.00",
+    );
+
+    const [ibadah] = ibadahInRoom(1, TODAY, TODAY);
+    const kinds = clashesOf({
+      roomId: 1,
+      date: TODAY,
+      startTime: ibadah.startTime,
+      endTime: "23:00",
+    }).map((item) => item.kind);
+
+    expect(kinds).toContain("IBADAH");
+  });
+
+  test("ibadah tanpa jam selesai dianggap 2 jam", () => {
+    const open = [...Array(7).keys()]
+      .flatMap((offset) =>
+        ibadahInRoom(3, addDays(TODAY, offset), addDays(TODAY, offset)),
+      )
+      .find((row) => row.endTime === null)!;
+    const item = occupancyOf(3, open.date).find(
+      (row) => row.kind === "IBADAH",
+    )!;
+
+    expect(item.startTime).toBe("18:00");
+    expect(item.endTime).toBe("20:00");
+  });
+});
+
+describe("store", () => {
+  test("ROOM adalah ROOM_ROWS yang diperluas, event tetap menjawab id/kode/nama", () => {
+    expect(ROOM.find((row) => row.id === 1)).toMatchObject({
+      code: "RM-0001",
+      capacity: 400,
+      isActive: true,
+    });
+
+    const rapat = EVENT.find((row) => row.name === "Rapat Majelis")!;
+
+    expect(eventView(rapat).room).toEqual({
+      id: 1,
+      code: "RM-0001",
+      name: "Gedung Gereja",
+    });
+  });
+
+  test("kode peminjaman berurutan per ruang + badan pelayanan per tahun", () => {
+    const year = TODAY.slice(0, 4);
+
+    expect(loanCodeOf(2, 5, year)).toMatch(
+      new RegExp(`^LR_0002_0005-${year}-\\d{4}$`),
+    );
+    expect(loanCodeOf(1, null, "2099")).toBe("LR_0001_0000-2099-0001");
+  });
+
+  test("detail membawa id relasi", () => {
+    const view = loanView(LOAN[2], true);
+
+    expect(view.room).toHaveProperty("id");
+    expect(view.jemaat).toHaveProperty("id");
+  });
+
+  test("Konsistori punya peminjaman mendatang; pemakaian 30 hari urut", () => {
+    expect(upcomingCountsOf(4, TODAY).loans).toBeGreaterThan(0);
+
+    const usage = roomUsageOf(2, TODAY, 30);
+    const keys = usage.map((row) => `${row.date}${row.startTime}`);
+
+    expect(keys).toEqual([...keys].sort());
+    expect(usage.some((row) => row.kind === "EVENT")).toBe(true);
+  });
+});

@@ -10,6 +10,9 @@ import {
   isSameMonth,
   isWithin,
   monthGrid,
+  monthOptions,
+  monthRange,
+  weeklyDates,
   parseDateInput,
   toInputText,
   toIsoDate,
@@ -217,4 +220,51 @@ describe("aritmetika kalender (kisi §7.5)", () => {
 test("toDateInput memotong jam, tanpa menyentuh zona waktu", () => {
   expect(toDateInput("1990-05-12T00:00:00.000Z")).toBe("1990-05-12");
   expect(toDateInput(null)).toBe("");
+});
+
+describe("monthOptions", () => {
+  test("bulan depan, bulan berjalan, lalu 11 bulan sebelumnya", () => {
+    const options = monthOptions("2026-01-15");
+
+    expect(options).toHaveLength(13);
+    expect(options[0]).toEqual({ value: "2026-02", label: "Februari 2026" });
+    expect(options[1].value).toBe("2026-01");
+    expect(options[12].value).toBe("2025-02");
+  });
+});
+
+describe("monthRange", () => {
+  test("hari pertama dan terakhir bulan, termasuk kabisat", () => {
+    expect(monthRange("2026-02")).toEqual({
+      startDate: "2026-02-01",
+      endDate: "2026-02-28",
+    });
+    expect(monthRange("2028-02").endDate).toBe("2028-02-29");
+  });
+
+  test("nilai tak terbaca = kosong", () => {
+    expect(monthRange("")).toEqual({ startDate: "", endDate: "" });
+  });
+});
+
+describe("weeklyDates", () => {
+  test("tiap tujuh hari sampai tanggal akhir inklusif", () => {
+    expect(weeklyDates("2026-10-01", "2026-10-15", 26)).toEqual([
+      "2026-10-01",
+      "2026-10-08",
+      "2026-10-15",
+    ]);
+  });
+
+  test("berhenti di batas dan melewati akhir bulan", () => {
+    expect(weeklyDates("2026-12-24", "2027-12-31", 3)).toEqual([
+      "2026-12-24",
+      "2026-12-31",
+      "2027-01-07",
+    ]);
+  });
+
+  test("akhir sebelum mulai = kosong", () => {
+    expect(weeklyDates("2026-10-08", "2026-10-01", 26)).toEqual([]);
+  });
 });

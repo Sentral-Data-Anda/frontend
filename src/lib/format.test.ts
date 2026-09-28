@@ -6,6 +6,7 @@ import {
   formatDateTime,
   formatRupiah,
   formatRupiahCompact,
+  formatTimeRange,
 } from "./format";
 
 describe("formatDate", () => {
@@ -57,5 +58,16 @@ describe("firstNameOf", () => {
 
   test("nama yang seluruhnya bertitik tetap tampil", () => {
     expect(firstNameOf("A.")).toBe("A.");
+  });
+});
+
+describe("formatTimeRange", () => {
+  test("memakai titik dan tanda pisah", () => {
+    expect(formatTimeRange("18:00", "20:30")).toBe("18.00–20.30");
+  });
+
+  test("tanpa jam selesai hanya jam mulai", () => {
+    expect(formatTimeRange("07:00", null)).toBe("07.00");
+    expect(formatTimeRange("07:00")).toBe("07.00");
   });
 });

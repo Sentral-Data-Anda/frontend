@@ -214,7 +214,7 @@ describe("persona dev:mock", () => {
       "kpi-services-week",
       "kpi-events-fortnight",
       "kpi-birthdays",
-      "kpi-pending-loans",
+      "kpi-today-loans",
     ]);
     expect(main).toEqual(["agenda-week", "zones"]);
     expect(side).toEqual([
