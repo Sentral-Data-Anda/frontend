@@ -38,9 +38,9 @@ describe("rolePelayanFormSchema", () => {
 });
 
 describe("form ↔ payload", () => {
-  test("payload mengirim nama yang sudah dinormalisasi", () => {
-    expect(toRolePelayanPayload({ name: "  penerima   tamu " })).toEqual({
-      name: "Penerima Tamu",
+  test("payload: trim + spasi ganda dilebur, huruf tidak diubah", () => {
+    expect(toRolePelayanPayload({ name: "  worship  leader baru " })).toEqual({
+      name: "worship leader baru",
     });
     expect(toRolePelayanPayload({ name: "LITURGIS" })).toEqual({
       name: "LITURGIS",

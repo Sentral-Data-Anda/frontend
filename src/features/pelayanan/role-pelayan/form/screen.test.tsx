@@ -310,7 +310,7 @@ describe("tambah", () => {
 
     await waitFor(() => expect(replaced).toEqual([ROLE_PELAYAN_LIST_PATH]));
     expect(calls).toEqual([
-      { method: "POST", body: { name: "Pembaca Warta" } },
+      { method: "POST", body: { name: "pembaca warta" } },
     ]);
     expect(
       window.sessionStorage.getItem(`list-focus:${ROLE_PELAYAN_LIST_PATH}`),
