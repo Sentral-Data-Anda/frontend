@@ -6,3 +6,4 @@ export * from "./description-skeleton";
 export * from "./optional-text";
 export * from "./panel";
 export * from "./time-badge";
+export * from "./media-thumb";
