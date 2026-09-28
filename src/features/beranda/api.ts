@@ -91,12 +91,12 @@ export function useEventRange(start: string, end: string, isEnabled: boolean) {
 }
 
 export type AnnouncementItem = {
-  code: string;
+  id: string;
   category: string;
   title: string;
   publishDate: string;
   isPinned: boolean;
-  bapel: { name: string } | null;
+  bapelName: string | null;
 };
 
 export function useAnnouncementFeed(limit: number) {

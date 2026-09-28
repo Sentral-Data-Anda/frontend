@@ -6,6 +6,9 @@ import type {
 
 export const MAX_UPLOAD_BYTES = 10_000_000;
 
+// URL lampiran be-sada berlaku 15 menit; baca ulang sebelum kedaluwarsa.
+export const MEDIA_REFETCH_MS = 10 * 60 * 1000;
+
 const TYPES: Record<AttachmentAccept, readonly string[]> = {
   image: ["image/jpeg", "image/png"],
   "image-pdf": ["image/jpeg", "image/png", "application/pdf"],
