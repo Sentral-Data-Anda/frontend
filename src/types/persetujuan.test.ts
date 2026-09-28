@@ -8,12 +8,12 @@ import {
 } from "./persetujuan";
 
 describe("jenis dokumen persetujuan", () => {
-  test("sembilan jenis, urutan enum be-sada, semuanya berlabel", () => {
-    expect(APPROVAL_DOCUMENT_TYPES).toHaveLength(9);
+  test("sepuluh jenis, urutan enum be-sada, semuanya berlabel", () => {
+    expect(APPROVAL_DOCUMENT_TYPES).toHaveLength(10);
     expect(APPROVAL_DOCUMENT_TYPES.slice(-3)).toEqual([
-      "PAYROLL_RUN",
       "PURCHASE_RETURN",
       "LOAN_ROOM",
+      "ASSET_DISPOSAL",
     ]);
     expect(Object.keys(APPROVAL_DOCUMENT_LABEL)).toEqual([
       ...APPROVAL_DOCUMENT_TYPES,
