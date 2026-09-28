@@ -100,7 +100,7 @@ export const RuangDetailScreen = (props: PropTypes) => {
             </span>
             <span
               aria-hidden
-              className="bg-skeleton h-40 max-w-3xl flex-[999_1_32rem] animate-pulse rounded-lg"
+              className="bg-skeleton h-40 flex-[999_1_32rem] animate-pulse rounded-lg"
             />
             <span className="sr-only">Memuat ruang…</span>
           </div>
@@ -161,7 +161,7 @@ export const RuangDetailScreen = (props: PropTypes) => {
 
         <Panel
           label="Pemakaian 30 hari ke depan"
-          className="max-w-3xl flex-[999_1_32rem] px-gutter py-4"
+          className="flex-[999_1_32rem] px-gutter py-4"
         >
           <h2 className={HEADING}>Pemakaian 30 hari ke depan</h2>
           <UsageList code={room.code} />

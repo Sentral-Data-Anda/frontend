@@ -14,9 +14,14 @@ export const UsageRow = (props: PropTypes) => {
   const { usage, isLinked } = props;
 
   return (
-    <li className="grid grid-cols-[6.5rem_minmax(0,1fr)_auto] items-baseline gap-x-3 py-2 text-body">
-      <span className="tabular-nums">
-        {formatTimeRange(usage.startTime, usage.endTime)}
+    <li className="grid grid-cols-[6.5rem_minmax(0,1fr)] items-baseline gap-x-3 py-2 text-body">
+      <span className="flex flex-col">
+        <span className="tabular-nums">
+          {formatTimeRange(usage.startTime, usage.endTime)}
+        </span>
+        <span className="text-muted-foreground text-caption">
+          {USAGE_KIND_LABEL[usage.kind]}
+        </span>
       </span>
 
       {isLinked ? (
@@ -35,10 +40,6 @@ export const UsageRow = (props: PropTypes) => {
           {usage.name}
         </span>
       )}
-
-      <span className="text-muted-foreground text-caption">
-        {USAGE_KIND_LABEL[usage.kind]}
-      </span>
     </li>
   );
 };
