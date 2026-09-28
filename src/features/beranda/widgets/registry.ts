@@ -236,16 +236,16 @@ export const WIDGETS: readonly Widget[] = [
     Component: BirthdaysWidget,
   },
   {
-    id: "tugas-saya",
-    slot: "side",
-    gate: [],
-    Component: TugasSayaWidget,
-  },
-  {
     id: "announcements",
     slot: "side",
     gate: [],
     Component: AnnouncementsWidget,
+  },
+  {
+    id: "tugas-saya",
+    slot: "side",
+    gate: [],
+    Component: TugasSayaWidget,
   },
   {
     id: "loan-rooms",

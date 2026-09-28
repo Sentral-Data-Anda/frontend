@@ -75,3 +75,12 @@ test("dengan VIEW Jadwal Pelayan: baris ke halaman baca, aksi ke daftar", () => 
     screen.getByRole("link", { name: "Semua jadwal" }).getAttribute("href"),
   ).toBe("/pelayanan/jadwal-pelayan");
 });
+
+test("tugas lewat kelompok: nama tautan menyebut kelompoknya", () => {
+  access.isCanView = true;
+  renderWidget([{ ...task(1), group: { name: "Band Pemuda" } }]);
+
+  expect(
+    screen.getByRole("link", { name: "Tugas 1 lewat Band Pemuda" }),
+  ).toBeDefined();
+});

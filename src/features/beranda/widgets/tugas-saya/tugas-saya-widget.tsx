@@ -53,6 +53,7 @@ export const TugasSayaWidget = () => {
                   row.group ? (
                     <>
                       {row.title}
+                      <span className="sr-only"> lewat </span>
                       <Badge variant="secondary" className="ml-2 align-middle">
                         {row.group}
                       </Badge>

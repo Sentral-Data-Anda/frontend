@@ -9,3 +9,4 @@ export * from "./office";
 export * from "./payables";
 export * from "./personal";
 export * from "./registry";
+export * from "./tugas-saya";
