@@ -842,17 +842,17 @@ describe("tempat", () => {
     expect(valueOf("Tuan rumah")).toBe("Semb");
   });
 
-  test("salin lainnya bertanda wilayah nonaktif: nama dan alamat ikut, wilayah kosong + info", async () => {
+  test("salin lainnya: nama dan alamat ikut; wilayah tidak ditampilkan dan tidak ikut", async () => {
     await onRenderCopy(VILLA);
 
-    expect(
-      screen.getByText("Wilayah V sudah nonaktif, jadi tidak ikut disalin."),
-    ).toBeTruthy();
     expect(valueOf("Nama tempat")).toBe("Villa Ciater");
     expect(
       (screen.getByLabelText(/^Alamat/) as HTMLTextAreaElement).value,
     ).toBe("Jl. Raya Ciater KM 12");
-    expect(zoneText()).toContain("Pilih wilayah");
+    expect(
+      screen.queryByText(/sudah nonaktif, jadi tidak ikut disalin/),
+    ).toBeNull();
+    expect(screen.queryByLabelText("Wilayah")).toBeNull();
   });
 });
 

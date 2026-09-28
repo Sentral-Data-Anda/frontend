@@ -178,28 +178,30 @@ export const PlaceFields = (props: PropTypes) => {
         />
       </FormWide>
 
-      <ControlField
-        control={form.control}
-        name="zoneChurchId"
-        label="Wilayah"
-        hint={
-          isHome && isCanCreate
-            ? "Isi untuk ibadah wilayah; ikut terisi dari keluarga tuan rumah."
-            : "Isi untuk ibadah wilayah."
-        }
-      >
-        {(field) => (
-          <DdlField
-            value={field.value}
-            onValueChange={field.onChange}
-            options={zoneOptions}
-            isLoading={zones.isLoading}
-            disabled={isDisabled}
-            placeholder="Pilih wilayah"
-            emptyMessage="Belum ada data wilayah"
-          />
-        )}
-      </ControlField>
+      {isHome ? (
+        <ControlField
+          control={form.control}
+          name="zoneChurchId"
+          label="Wilayah"
+          hint={
+            isCanCreate
+              ? "Isi untuk ibadah wilayah; ikut terisi dari keluarga tuan rumah."
+              : "Isi untuk ibadah wilayah."
+          }
+        >
+          {(field) => (
+            <DdlField
+              value={field.value}
+              onValueChange={field.onChange}
+              options={zoneOptions}
+              isLoading={zones.isLoading}
+              disabled={isDisabled}
+              placeholder="Pilih wilayah"
+              emptyMessage="Belum ada data wilayah"
+            />
+          )}
+        </ControlField>
+      ) : null}
 
       {placeType === "GEREJA" ? (
         <ControlField control={form.control} name="roomId" label="Ruang">

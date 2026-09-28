@@ -107,7 +107,8 @@ export const IbadahFormScreen = (props: PropTypes) => {
     Boolean(activeTypeKey) &&
     !activeTypeKey.split(",").includes(String(source.typeIbadah.id));
   const inactiveZone =
-    source?.zoneChurch &&
+    source?.placeType === "RUMAH_JEMAAT" &&
+    source.zoneChurch &&
     activeZoneKey &&
     !activeZoneKey.split(",").includes(String(source.zoneChurch.id))
       ? source.zoneChurch.name

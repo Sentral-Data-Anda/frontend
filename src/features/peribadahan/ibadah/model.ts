@@ -233,7 +233,7 @@ export const toIbadahPayload = (values: IbadahFormValues): IbadahPayload => {
     hostKeluargaId: isHome(values) ? toId(values.hostKeluargaId) : null,
     placeName: isOther(values) ? emptyToNull(values.placeName) : null,
     address: isChurch ? null : emptyToNull(values.address),
-    zoneChurchId: toId(values.zoneChurchId),
+    zoneChurchId: isHome(values) ? toId(values.zoneChurchId) : null,
     roomId: isChurch ? toId(values.roomId) : null,
     bapelId: toId(values.bapelId),
     jadwalPelayanId: toId(values.jadwalPelayanId),
@@ -279,7 +279,10 @@ export const toIbadahCopy = (
   startTime: source.startTime,
   endTime: source.endTime ?? "",
   placeType: source.placeType,
-  zoneChurchId: keptOf(idOf(source.zoneChurch), activeZoneIds),
+  zoneChurchId:
+    source.placeType === "RUMAH_JEMAAT"
+      ? keptOf(idOf(source.zoneChurch), activeZoneIds)
+      : "",
   roomId: source.placeType === "GEREJA" ? idOf(source.room) : "",
   placeName: isOther(source) ? (source.placeName ?? "") : "",
   address: isOther(source) ? (source.address ?? "") : "",

@@ -368,14 +368,14 @@ describe("tempat di payload", () => {
     };
   };
 
-  test("field yang bukan milik tipe tempat dikirim null; wilayah untuk semua", () => {
+  test("field yang bukan milik tipe tempat dikirim null; wilayah hanya untuk rumah jemaat", () => {
     expect(placeOf("GEREJA")).toEqual({
       placeType: "GEREJA",
       roomId: 1,
       hostKeluargaId: null,
       placeName: null,
       address: null,
-      zoneChurchId: 2,
+      zoneChurchId: null,
     });
     expect(placeOf("RUMAH_JEMAAT")).toEqual({
       placeType: "RUMAH_JEMAAT",
@@ -391,7 +391,7 @@ describe("tempat di payload", () => {
       hostKeluargaId: null,
       placeName: "Villa",
       address: "Jl. A",
-      zoneChurchId: 2,
+      zoneChurchId: null,
     });
   });
 
@@ -414,7 +414,7 @@ describe("tempat di payload", () => {
     expect(toIbadahPayload(toIbadahForm(OTHER))).toMatchObject({
       placeName: "Villa Ciater",
       address: "Jl. Raya Ciater KM 12",
-      zoneChurchId: 5,
+      zoneChurchId: null,
     });
   });
 });
