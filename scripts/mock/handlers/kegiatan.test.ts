@@ -6,7 +6,11 @@ import {
   EVENT,
   eventView,
   holdersOf,
+  isHoldingSeat,
   publicAnnouncements,
+  readStatusOf,
+  REGISTRATION,
+  SEAT_GRACE_MS,
   TODAY,
 } from "../kegiatan-store";
 import { multerRejection } from "../media";
@@ -38,6 +42,27 @@ afterEach(() => {
 });
 
 describe("seed Kegiatan", () => {
+  test("kode event unik", () => {
+    const codes = EVENT.map((row) => row.code);
+
+    expect(new Set(codes).size).toBe(codes.length);
+  });
+
+  test("tagihan lewat masih memegang kursi 5 menit, lalu dibaca EXPIRED", () => {
+    const pending = REGISTRATION.find(
+      (row) => row.status === "PENDING_PAYMENT",
+    )!;
+    const expiry = Date.parse(pending.payment!.expiredAt!);
+
+    expect(isHoldingSeat(pending, expiry + SEAT_GRACE_MS - 1)).toBe(true);
+    expect(readStatusOf(pending, expiry + SEAT_GRACE_MS - 1)).toBe(
+      "PENDING_PAYMENT",
+    );
+    expect(isHoldingSeat(pending, expiry + SEAT_GRACE_MS)).toBe(false);
+    expect(readStatusOf(pending, expiry + SEAT_GRACE_MS)).toBe("EXPIRED");
+    expect(holdersOf(2, expiry + SEAT_GRACE_MS)).toBe(2);
+  });
+
   test("Latihan Paduan Suara penuh, Retret menahan kursi menunggu bayar", () => {
     expect(holdersOf(3)).toBe(3);
     expect(holdersOf(2)).toBe(3);
@@ -61,19 +86,42 @@ describe("GET /ddl/event", () => {
     expect((await call("/ddl/event", [])).status).toBe(403);
   });
 
-  test("isOpen=1: terbit dan belum mulai, urut tanggal naik, penuh ditandai", async () => {
+  test("isOpen=1: terbit, belum mulai, belum penuh, urut tanggal naik", async () => {
     const body = await (await call("/ddl/event?isOpen=1")).json();
     const names = body.data.map((row: { name: string }) => row.name);
 
     expect(names).not.toContain("Seminar Keluarga Kristen");
     expect(names).not.toContain("Donor Darah");
     expect(names).not.toContain("Sekolah Minggu Kreatif");
+    expect(names).not.toContain("Latihan Paduan Suara");
     expect(names[0]).toBe("Rapat Majelis");
+    expect(body.message).toBe("Berhasil Mendapatkan Semua Event");
+    expect(Object.keys(body.data[0]).sort()).toEqual(
+      [
+        "id",
+        "code",
+        "name",
+        "startDate",
+        "endDate",
+        "startTime",
+        "endTime",
+        "capacity",
+        "registeredCount",
+        "isPaid",
+        "price",
+        "isOpen",
+      ].sort(),
+    );
+  });
+
+  test("tanpa query: event penuh ikut dengan isOpen false", async () => {
+    const body = await (await call("/ddl/event")).json();
+
     expect(
       body.data.find(
         (row: { name: string }) => row.name === "Latihan Paduan Suara",
       ),
-    ).toMatchObject({ isFull: true, registeredCount: 3, capacity: 3 });
+    ).toMatchObject({ isOpen: false, registeredCount: 3, capacity: 3 });
   });
 });
 
