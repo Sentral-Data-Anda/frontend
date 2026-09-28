@@ -50,7 +50,10 @@ function useInvalidatePelayan(code: string | undefined) {
         refetchType: "none",
       }),
       queryClient.invalidateQueries({ queryKey: ["jadwal-pelayan"] }),
-      queryClient.invalidateQueries({ queryKey: ddlKeys.all }),
+      queryClient.invalidateQueries({
+        queryKey: ddlKeys.all,
+        refetchType: "none",
+      }),
     ]);
 }
 

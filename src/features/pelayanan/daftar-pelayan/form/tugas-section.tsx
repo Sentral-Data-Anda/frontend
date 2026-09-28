@@ -30,7 +30,7 @@ export const TugasSection = (props: PropTypes) => {
           render={({ field, fieldState }) => (
             <FormField
               htmlFor="rolePelayan"
-              label="Tugas"
+              label="Tugas kelompok"
               error={fieldState.error?.message}
               hint="Kelompok memegang satu tugas, mis. Singer untuk paduan suara."
             >
