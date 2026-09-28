@@ -25,7 +25,7 @@ import { type IbadahForm, withNoneOption } from "./form-options";
 
 const FOOT_LINK = cn(
   buttonVariants({ variant: "link" }),
-  "h-auto min-h-6 gap-1.5 px-0 text-body",
+  "-mx-1 h-auto min-h-6 gap-1.5 px-1 text-body",
 );
 
 // Harus stabil: larik baru tiap render membuat useWatch berlangganan ulang dan kosongnya jadwal tidak terbaca.
@@ -158,7 +158,7 @@ export const JadwalPelayanField = (props: PropTypes) => {
           <Button
             type="button"
             variant="link"
-            className="h-auto min-h-6 px-0 text-body"
+            className="-mx-1 h-auto min-h-6 px-1 text-body"
             disabled={isDisabled || rosters.isFetching}
             onClick={onRetry}
           >
