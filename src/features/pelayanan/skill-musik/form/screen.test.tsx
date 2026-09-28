@@ -107,7 +107,11 @@ describe("gerbang izin rute form", () => {
 
 const DETAIL: SkillMusik = { id: 5, name: "Biola" };
 
-type Failure = { status: number; error: string };
+type Failure = {
+  status: number;
+  error: string;
+  issues?: { path: string; message: string }[];
+};
 
 const onMockApi = (failure: { save?: Failure; remove?: Failure } = {}) => {
   const calls: { method: string; body?: unknown }[] = [];
@@ -223,18 +227,25 @@ describe("simpan", () => {
     ).toBe("5");
   });
 
-  test("nama ganda (409): galat di field nama", async () => {
-    onMockApi({ save: { status: 409, error: "Skill Musik Sudah Tersedia" } });
+  test("nama ganda (409 dengan issue name): pesan ramah di field nama", async () => {
+    const error = "Skill Musik Sudah Tersedia";
+    onMockApi({
+      save: { status: 409, error, issues: [{ path: "name", message: error }] },
+    });
     await onRenderLoadedEdit();
 
     await onSaveConfirmed();
 
     await waitFor(() => expect(document.activeElement?.id).toBe("name"));
     expect(
+      screen.getByLabelText("Nama alat").getAttribute("aria-invalid"),
+    ).toBe("true");
+    expect(
       screen.getByText(
         "Alat musik dengan nama ini sudah ada. Pakai nama lain.",
       ),
     ).toBeTruthy();
+    expect(screen.queryByText(error)).toBeNull();
     expect(replaced).toEqual([]);
   });
 
