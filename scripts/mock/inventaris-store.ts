@@ -244,6 +244,16 @@ export const userNameOf = (userId: number | null) => {
   return name ? { name } : null;
 };
 
+const counters = new Map<string, number>();
+
+export const codeOf = (prefix: string, options: { yearly?: boolean } = {}) => {
+  const key = options.yearly ? `${prefix}-${YEAR}` : prefix;
+  const next = (counters.get(key) ?? 0) + 1;
+  counters.set(key, next);
+
+  return `${key}-${pad(next)}`;
+};
+
 const master = (
   prefix: string,
   group: string,
@@ -253,14 +263,14 @@ const master = (
   ...names.map((name, index) => ({
     id: index + 1,
     publicId: uuid(group, index + 1),
-    code: `${prefix}-${pad(index + 1)}`,
+    code: codeOf(prefix),
     name,
     deletedAt: null,
   })),
   {
     id: names.length + 1,
     publicId: uuid(group, names.length + 1),
-    code: `${prefix}-${pad(names.length + 1)}`,
+    code: codeOf(prefix),
     name: deleted,
     deletedAt: stamp(day(-90)),
   },
@@ -354,16 +364,6 @@ export const assetCodeOf = (typeId: number, bapelId: number) => {
   const count = ASSET.filter((row) => row.code.startsWith(prefix)).length;
 
   return `${prefix}${pad(count + 1)}`;
-};
-
-const counters = new Map<string, number>();
-
-export const codeOf = (prefix: string, options: { yearly?: boolean } = {}) => {
-  const key = options.yearly ? `${prefix}-${YEAR}` : prefix;
-  const next = (counters.get(key) ?? 0) + 1;
-  counters.set(key, next);
-
-  return `${key}-${pad(next)}`;
 };
 
 type AssetSeed = Partial<AssetRow> &
