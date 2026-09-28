@@ -158,4 +158,45 @@ describe("AttachmentField", () => {
       "listImage",
     );
   });
+
+  test("seret dan lepas berkas: ditambahkan seperti dipilih, penanda seret tampil", () => {
+    const { changes } = onRender([]);
+    const group = screen.getByRole("group", { name: "Foto" });
+    const dataTransfer = {
+      types: ["Files"],
+      files: [file("a.jpg"), file("b.txt", "text/plain")],
+      dropEffect: "none",
+    };
+
+    fireEvent.dragEnter(group, { dataTransfer });
+
+    expect(screen.getByText("Lepaskan untuk menambah")).toBeTruthy();
+
+    fireEvent.drop(group, { dataTransfer });
+
+    expect(changes[0].map((item) => item.name)).toEqual(["a.jpg"]);
+    expect(screen.getByRole("alert")).toBeTruthy();
+    expect(screen.getByText("atau seret ke sini")).toBeTruthy();
+  });
+
+  test("lepas saat penuh ditolak; saat nonaktif diabaikan", () => {
+    const dataTransfer = { types: ["Files"], files: [file("x.jpg")] };
+    const full = onRender([server("a"), server("b")], { max: 2 });
+
+    fireEvent.drop(screen.getByRole("group", { name: "Foto" }), {
+      dataTransfer,
+    });
+
+    expect(full.changes).toEqual([]);
+    expect(screen.getByText("Maksimal 2 berkas")).toBeTruthy();
+
+    cleanup();
+    const off = onRender([], { disabled: true });
+
+    fireEvent.drop(screen.getByRole("group", { name: "Foto" }), {
+      dataTransfer,
+    });
+
+    expect(off.changes).toEqual([]);
+  });
 });

@@ -1,9 +1,16 @@
 "use client";
 
 import { FileText, ImagePlus, X } from "lucide-react";
-import { useEffect, useRef, useState, type ChangeEvent } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ChangeEvent,
+  type DragEvent,
+} from "react";
 
 import { MediaThumb } from "@/components/common/display";
+import { useBoolean } from "@/hooks/use-boolean";
 import { acceptOf, isPdf, rejectionOf } from "@/lib/attachment";
 import { cn } from "@/lib/utils";
 import type { AttachmentAccept, AttachmentValue } from "@/types/attachment";
@@ -49,7 +56,9 @@ export const AttachmentField = (props: PropTypes) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const addRef = useRef<HTMLButtonElement>(null);
   const objectUrls = useRef(new Set<string>());
+  const dragDepth = useRef(0);
   const [rejection, setRejection] = useState<string | null>(null);
+  const isDragging = useBoolean();
 
   const isSingle = max === 1;
   const isFull = !isSingle && value.length >= max;
@@ -77,13 +86,10 @@ export const AttachmentField = (props: PropTypes) => {
     objectUrls.current.delete(item.url);
   };
 
-  const onPick = (event: ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(event.target.files ?? []);
+  const onAddFiles = (files: File[]) => {
     const room = isSingle ? 1 : max - value.length;
     const added: AttachmentValue[] = [];
     let firstRejection: string | null = null;
-
-    event.target.value = "";
 
     for (const file of files) {
       const reason =
@@ -99,6 +105,46 @@ export const AttachmentField = (props: PropTypes) => {
 
     if (isSingle) value.forEach(release);
     onValueChange(isSingle ? added : [...value, ...added]);
+  };
+
+  const onPick = (event: ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files ?? []);
+
+    event.target.value = "";
+    onAddFiles(files);
+  };
+
+  const isFileDrag = (event: DragEvent) =>
+    !disabled && event.dataTransfer.types.includes("Files");
+
+  const onDragEnter = (event: DragEvent) => {
+    if (!isFileDrag(event)) return;
+    event.preventDefault();
+    dragDepth.current += 1;
+    isDragging.onTrue();
+  };
+
+  const onDragOver = (event: DragEvent) => {
+    if (!isFileDrag(event)) return;
+    event.preventDefault();
+    event.dataTransfer.dropEffect = isFull ? "none" : "copy";
+  };
+
+  const onDragLeave = () => {
+    dragDepth.current = Math.max(0, dragDepth.current - 1);
+    if (dragDepth.current === 0) isDragging.onFalse();
+  };
+
+  const onDrop = (event: DragEvent) => {
+    if (!isFileDrag(event)) return;
+    event.preventDefault();
+    dragDepth.current = 0;
+    isDragging.onFalse();
+    if (isFull) {
+      setRejection(`Maksimal ${max} berkas`);
+      return;
+    }
+    onAddFiles(Array.from(event.dataTransfer.files));
   };
 
   const onRemove = (item: AttachmentValue) => {
@@ -124,7 +170,13 @@ export const AttachmentField = (props: PropTypes) => {
   }, []);
 
   return (
-    <div className="@container">
+    <div
+      className="@container"
+      onDragEnter={onDragEnter}
+      onDragOver={onDragOver}
+      onDragLeave={onDragLeave}
+      onDrop={onDrop}
+    >
       <fieldset aria-describedby={messageId} disabled={disabled}>
         <legend
           className={cn(
@@ -146,7 +198,12 @@ export const AttachmentField = (props: PropTypes) => {
         />
 
         {isSingle && value[0] ? (
-          <div className="flex max-w-96 flex-col gap-2">
+          <div
+            className={cn(
+              "flex max-w-96 flex-col gap-2 rounded-control",
+              isDragging.value && "ring-primary ring-2 ring-offset-2",
+            )}
+          >
             <MediaThumb
               src={value[0].url}
               alt={value[0].name}
@@ -229,6 +286,8 @@ export const AttachmentField = (props: PropTypes) => {
                     ADD,
                     isSingle ? "aspect-video" : "aspect-square",
                     isAlert && "border-destructive",
+                    isDragging.value &&
+                      "border-primary bg-primary/5 text-primary",
                   )}
                 >
                   <ImagePlus aria-hidden className="size-5" />
@@ -236,6 +295,11 @@ export const AttachmentField = (props: PropTypes) => {
                     {addLabel}
                   </span>
                   <span className="text-caption">{FORMAT_LABEL[accept]}</span>
+                  <span className="text-caption">
+                    {isDragging.value
+                      ? "Lepaskan untuk menambah"
+                      : "atau seret ke sini"}
+                  </span>
                 </button>
               </li>
             )}
