@@ -1,12 +1,10 @@
 /**
  * Bagian bersama grup Fasilitas milik TL (docs/design/fasilitas/README.md §4):
- * cadangan `GET /loan-room` (bentuk B10/B11, untuk Beranda sebelum handler
- * Peminjaman ada) dan `GET /ddl/room` (ruang hidup + `isActive`, B19).
- * Terdaftar sesudah handler fitur, jadi handler fitur yang menang.
+ * `GET /ddl/room` (ruang hidup + `isActive`, B19).
  */
 import { MENU } from "../../../src/config/menu";
-import { listLoans, roomDdl } from "../fasilitas-store";
-import { denied, json, list, type MockHandler } from "../kit";
+import { roomDdl } from "../fasilitas-store";
+import { denied, json, type MockHandler } from "../kit";
 
 const ROOM_DDL_MENUS = [
   MENU.RUANG,
@@ -31,17 +29,6 @@ export const fasilitasMock: MockHandler = (ctx) => {
           message: "Berhasil Mendapatkan Semua Ruang",
           data: rows,
         });
-  }
-
-  if (ctx.path === "/loan-room") {
-    if (!ctx.can(MENU.PEMINJAMAN_RUANG, "VIEW")) return denied();
-
-    return list(
-      listLoans(ctx.url.searchParams),
-      ctx.url,
-      "Peminjaman",
-      "Peminjaman",
-    );
   }
 
   return null;
