@@ -5,6 +5,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ListState } from "@/hooks/use-list-params";
 import { useListQuery } from "@/hooks/use-list-query";
 import { fetchList, fetchOne } from "@/lib/api/fetcher";
+import { MEDIA_REFETCH_MS } from "@/lib/attachment";
 
 import type { Announcement, AnnouncementSaved } from "./types";
 
@@ -31,6 +32,7 @@ export function usePengumumanDetail(code: string | undefined) {
     queryFn: () => fetchOne<Announcement>(pathOf(code)),
     enabled: Boolean(code),
     staleTime: 0,
+    refetchInterval: MEDIA_REFETCH_MS,
     select: (response) => response.data,
   });
 }

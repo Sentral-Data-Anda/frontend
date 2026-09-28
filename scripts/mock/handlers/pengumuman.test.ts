@@ -161,8 +161,8 @@ describe("POST /pengumuman", () => {
       ["poster", true],
       ["denah", false],
     ]);
-    expect(announcementFeed(100).map((row) => row.code)).toContain(
-      body.data.code,
+    expect(announcementFeed(100).map((row) => row.id)).toContain(
+      body.data.publicId,
     );
   });
 
@@ -313,8 +313,8 @@ describe("PUT /pengumuman/:code", () => {
       body: formOf({ ...VALID, isPublished: "0" }),
     });
 
-    expect(announcementFeed(100).map((row) => row.code)).not.toContain(
-      retret().code,
+    expect(announcementFeed(100).map((row) => row.id)).not.toContain(
+      retret().publicId,
     );
     expect(publicAnnouncements(100).map((row) => row.title)).not.toContain(
       VALID.title,

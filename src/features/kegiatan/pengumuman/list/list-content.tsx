@@ -68,12 +68,7 @@ export const PengumumanListContent = () => {
             key: "bapel",
             label: "Badan pelayanan",
             kind: "select",
-            options: bapel.options.length
-              ? [
-                  { value: "", label: "Semua badan pelayanan" },
-                  ...bapel.options,
-                ]
-              : bapel.options,
+            options: bapel.options,
             emptyMessage: "Belum ada data badan pelayanan",
           },
         ]}

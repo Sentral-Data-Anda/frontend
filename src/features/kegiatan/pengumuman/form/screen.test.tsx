@@ -1,6 +1,7 @@
 import { Toast } from "@base-ui/react/toast";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
+  act,
   cleanup,
   fireEvent,
   render,
@@ -97,6 +98,7 @@ afterEach(() => {
   globalThis.fetch = originalFetch;
   window.sessionStorage.clear();
   replaced.length = 0;
+  delete (HTMLImageElement.prototype as { naturalWidth?: number }).naturalWidth;
 });
 
 const onMockApi = (
@@ -153,15 +155,16 @@ const onMockApi = (
   return calls;
 };
 
+let queryClient: QueryClient;
+
 const onRenderForm = (granted: MenuAction[], code?: string) => {
   actions.current = granted;
+  queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
 
   return render(
-    <QueryClientProvider
-      client={
-        new QueryClient({ defaultOptions: { queries: { retry: false } } })
-      }
-    >
+    <QueryClientProvider client={queryClient}>
       <Toast.Provider>
         <PengumumanFormScreen code={code} />
       </Toast.Provider>
@@ -405,6 +408,49 @@ describe("simpan", () => {
       screen.getByRole("button", { name: "Hapus Poster Retret" }),
     ).toBeTruthy();
   });
+});
+
+test("refetch berkala: URL lampiran diperbarui, isian user tetap", async () => {
+  // happy-dom tidak memuat gambar; tanpa ini MediaThumb menganggapnya gagal muat.
+  Object.defineProperty(HTMLImageElement.prototype, "naturalWidth", {
+    configurable: true,
+    get: () => 1,
+  });
+  onMockApi();
+  await onRenderLoadedEdit();
+
+  fireEvent.change(screen.getByLabelText("Judul"), {
+    target: { value: "Retret Pemuda 2026 (revisi)" },
+  });
+  fireEvent.click(
+    screen.getByRole("button", { name: "Hapus Rundown internal" }),
+  );
+
+  const [poster, rundown] = DETAIL.listImage;
+  onMockApi({
+    detail: {
+      ...DETAIL,
+      listImage: [
+        { ...poster, url: "http://media.test/p1.jpeg?baru" },
+        { ...rundown, url: "http://media.test/p2.pdf?baru" },
+      ],
+    },
+  });
+  await act(() =>
+    queryClient.refetchQueries({ queryKey: ["pengumuman", "detail"] }),
+  );
+
+  await waitFor(() =>
+    expect(
+      screen.getByRole("img", { name: "Poster Retret" }).getAttribute("src"),
+    ).toBe("http://media.test/p1.jpeg?baru"),
+  );
+  expect((screen.getByLabelText("Judul") as HTMLInputElement).value).toBe(
+    "Retret Pemuda 2026 (revisi)",
+  );
+  expect(
+    screen.queryByRole("button", { name: "Hapus Rundown internal" }),
+  ).toBeNull();
 });
 
 test("hapus: Ya menghapus lalu kembali ke daftar", async () => {

@@ -19,7 +19,7 @@ import {
 import { toDateInput, todayJakarta } from "@/lib/date";
 import { toFormData } from "@/lib/form-data";
 import { formatDateShort } from "@/lib/format";
-import type { AttachmentValue } from "@/types/attachment";
+import type { AttachmentValue, ServerAttachment } from "@/types/attachment";
 
 import type { Announcement } from "./types";
 
@@ -108,6 +108,19 @@ export const toAnnouncementForm = (
   isPinned: announcement.isPinned ? "true" : "false",
   listImage: announcement.listImage.map(fromServerAttachment),
 });
+
+export const withFreshUrls = (
+  value: readonly AttachmentValue[],
+  server: readonly ServerAttachment[],
+): AttachmentValue[] =>
+  value.map((item) => {
+    const fresh =
+      item.file === null
+        ? server.find((attachment) => attachment.publicId === item.key)
+        : undefined;
+
+    return fresh ? { ...item, url: fresh.url } : item;
+  });
 
 export const toAnnouncementBody = (
   values: AnnouncementFormValues,

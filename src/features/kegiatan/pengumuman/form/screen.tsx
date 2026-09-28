@@ -37,6 +37,7 @@ import {
   toAnnouncementBody,
   toAnnouncementForm,
   toFormError,
+  withFreshUrls,
   type AnnouncementFormValues,
 } from "../model";
 
@@ -127,8 +128,15 @@ export const PengumumanFormScreen = (props: PropTypes) => {
 
   const onRetryDetail = () => void detail.refetch();
 
+  // Refetch berkala hanya memperbarui URL lampiran bertanda tangan; isian user tetap.
   useEffect(() => {
-    if (detail.data) form.reset(toAnnouncementForm(detail.data));
+    if (!detail.data) return;
+
+    form.reset(toAnnouncementForm(detail.data), { keepDirtyValues: true });
+    form.setValue(
+      "listImage",
+      withFreshUrls(form.getValues("listImage"), detail.data.listImage),
+    );
   }, [detail.data, form]);
 
   useEffect(() => {
