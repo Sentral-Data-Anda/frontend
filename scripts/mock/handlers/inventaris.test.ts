@@ -21,6 +21,7 @@ import {
   codeOf,
   decideDisposal,
   openRun,
+  postRun,
   roomHoldsInventory,
   runOpenFailure,
   stockItemDdl,
@@ -182,6 +183,32 @@ describe("penyusutan", () => {
     expect(failure?.status).toBe(400);
     expect(failure?.message).toStartWith("Posting Penyusutan ");
     expect(failure?.message).toContain(String(draft.year));
+  });
+
+  test("tanpa draf: bulan sesudah posting terakhir boleh, bulan lebih awal = penyusutan berikutnya", () => {
+    const draft = RUN[2];
+    const first = RUN[0];
+    const earlier =
+      first.month === 1
+        ? { year: first.year - 1, month: 12 }
+        : { year: first.year, month: first.month - 1 };
+
+    postRun(draft);
+    const results = [
+      runOpenFailure(first.year, first.month),
+      runOpenFailure(Number(TODAY.slice(0, 4)), Number(TODAY.slice(5, 7))),
+      runOpenFailure(earlier.year, earlier.month),
+    ];
+    Object.assign(draft, {
+      status: "DRAFT",
+      postedAt: null,
+      journalCode: null,
+    });
+
+    expect(results[0]?.status).toBe(409);
+    expect(results[1]).toBeNull();
+    expect(results[2]).toMatchObject({ status: 400, path: "month" });
+    expect(results[2]?.message).toStartWith("Penyusutan Berikutnya Adalah ");
   });
 
   test("barang lama habis: nilai buku = residu, tidak ada entri di draf", () => {

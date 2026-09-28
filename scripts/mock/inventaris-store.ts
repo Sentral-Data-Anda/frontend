@@ -187,6 +187,7 @@ export type RunRow = {
   month: number;
   status: "DRAFT" | "POSTED";
   totalAmount: number;
+  createdAt: string;
   updatedAt: string | null;
   postedAt: string | null;
   journalCode: string | null;
@@ -1011,19 +1012,26 @@ export const runOpenFailure = (year: number, month: number): Failure | null => {
   const posted = RUN.filter((run) => run.status === "POSTED").sort(
     (a, b) => runIndex(b) - runIndex(a),
   )[0];
-  const blocker = draft
-    ? draft
-    : posted && year * 12 + month - 1 !== runIndex(posted) + 1
-      ? periodOfIndex(runIndex(posted) + 1)
-      : null;
+  const next = posted ? periodOfIndex(runIndex(posted) + 1) : null;
+  const index = year * 12 + month - 1;
+  const monthFailure = (message: string): Failure => ({
+    status: 400,
+    path: "month",
+    message,
+  });
 
-  return blocker
-    ? {
-        status: 400,
-        path: "month",
-        message: `Posting Penyusutan ${periodLabel(blocker.year, blocker.month)} Terlebih Dahulu`,
-      }
-    : null;
+  if (draft) {
+    return monthFailure(
+      `Posting Penyusutan ${periodLabel(draft.year, draft.month)} Terlebih Dahulu`,
+    );
+  }
+  if (!next || index === runIndex(next)) return null;
+
+  return monthFailure(
+    index > runIndex(next)
+      ? `Posting Penyusutan ${periodLabel(next.year, next.month)} Terlebih Dahulu`
+      : `Penyusutan Berikutnya Adalah ${periodLabel(next.year, next.month)}`,
+  );
 };
 
 export const openRun = (year: number, month: number) => {
@@ -1036,6 +1044,7 @@ export const openRun = (year: number, month: number) => {
     month,
     status: "DRAFT",
     totalAmount: 0,
+    createdAt: new Date().toISOString(),
     updatedAt: null,
     postedAt: null,
     journalCode: null,
@@ -1069,6 +1078,7 @@ export const runView = (run: RunRow, isDetail = false) => ({
   status: run.status,
   totalAmount: money(run.totalAmount),
   postedAt: run.postedAt,
+  createdAt: run.createdAt,
   updatedAt: run.updatedAt,
   entryCount: run.entries.length,
   ...(isDetail
