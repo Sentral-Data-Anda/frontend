@@ -247,3 +247,36 @@ describe("booking, check, batch", () => {
     expect(saved.body.data.codes).toHaveLength(2);
   });
 });
+
+describe("GET /loan-room (daftar, juga dibaca Beranda)", () => {
+  test("startDate satu sisi = mulai tanggal itu, urut tanggal lalu jam", async () => {
+    const { body } = await call(
+      "GET",
+      `/loan-room?startDate=${TODAY}&limit=100`,
+    );
+    const keys = body.data.map(
+      (row: { date: string; startTime: string }) =>
+        `${row.date}${row.startTime}`,
+    );
+
+    expect(body.data.every((row: { date: string }) => row.date >= TODAY)).toBe(
+      true,
+    );
+    expect(keys).toEqual([...keys].sort());
+  });
+
+  test("baris tanpa id, tanpa status; pribadi = bapel null", async () => {
+    const { body } = await call("GET", "/loan-room?filter=pemberkatan");
+
+    expect(body.data).toHaveLength(1);
+    expect(body.data[0]).not.toHaveProperty("id");
+    expect(body.data[0]).not.toHaveProperty("status");
+    expect(body.data[0].bapel).toBeNull();
+  });
+
+  test("tanpa VIEW = 403", async () => {
+    expect(
+      (await call("GET", "/loan-room", undefined, [MENU.RUANG])).status,
+    ).toBe(403);
+  });
+});

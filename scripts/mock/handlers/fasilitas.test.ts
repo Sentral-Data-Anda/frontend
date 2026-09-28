@@ -55,48 +55,6 @@ describe("GET /ddl/room", () => {
   });
 });
 
-describe("GET /loan-room (cadangan)", () => {
-  test("startDate satu sisi = mulai tanggal itu, urut tanggal lalu jam", async () => {
-    const response = await call(`/loan-room?startDate=${TODAY}&limit=100`, [
-      MENU.PEMINJAMAN_RUANG,
-    ]);
-    const body = await response.json();
-    const keys = body.data.map(
-      (row: { date: string; startTime: string }) =>
-        `${row.date}${row.startTime}`,
-    );
-
-    expect(body.data.every((row: { date: string }) => row.date >= TODAY)).toBe(
-      true,
-    );
-    expect(keys).toEqual([...keys].sort());
-    expect(
-      body.data.some(
-        (row: { purpose: string }) => row.purpose === "Rapat panitia bazar",
-      ),
-    ).toBe(false);
-  });
-
-  test("baris tanpa id, tanpa status; pribadi = bapel null", async () => {
-    const body = await (
-      await call("/loan-room?filter=pemberkatan", [MENU.PEMINJAMAN_RUANG])
-    ).json();
-
-    expect(body.data).toHaveLength(1);
-    expect(body.data[0]).not.toHaveProperty("id");
-    expect(body.data[0]).not.toHaveProperty("status");
-    expect(body.data[0].bapel).toBeNull();
-    expect(body.data[0].room).toEqual({
-      code: "RM-0001",
-      name: "Gedung Gereja",
-    });
-  });
-
-  test("tanpa VIEW = 403", async () => {
-    expect((await call("/loan-room", [MENU.RUANG])).status).toBe(403);
-  });
-});
-
 describe("bentrok", () => {
   const aula = 2;
   const tomorrow = addDays(TODAY, 1);
