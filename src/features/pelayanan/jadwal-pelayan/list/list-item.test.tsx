@@ -108,11 +108,13 @@ describe("tabel", () => {
 
     render(
       <div>
+        {cell("date", JADWAL)}
         {cell("petugas", JADWAL)}
         {cell("ibadah", FULL)}
       </div>,
     );
 
+    expect(screen.getByText("Min, 4 Okt 2026")).toBeTruthy();
     expect(screen.getByText("2 belum diisi")).toBeTruthy();
     expect(screen.getByText("Ibadah Minggu I · 07:30 +1")).toBeTruthy();
   });

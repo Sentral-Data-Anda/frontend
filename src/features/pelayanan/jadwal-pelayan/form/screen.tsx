@@ -89,6 +89,7 @@ export const JadwalPelayanFormScreen = (props: PropTypes) => {
   const saveRef = useRef<HTMLButtonElement>(null);
   const deleteRef = useRef<HTMLButtonElement>(null);
   const copiedRef = useRef<string | null>(null);
+  const alertsRef = useRef<HTMLDivElement>(null);
 
   const form = useForm<JadwalFormValues>({
     resolver: zodResolver(jadwalFormSchema),
@@ -247,12 +248,17 @@ export const JadwalPelayanFormScreen = (props: PropTypes) => {
   useEffect(() => {
     if (isSubmitting || !rejectedField) return;
 
-    if (rejectedField === "root") saveRef.current?.focus();
-    else revealField(rejectedField);
+    if (rejectedField !== "root") return revealField(rejectedField);
+
+    saveRef.current?.focus({ preventScroll: true });
+    alertsRef.current?.scrollIntoView({ block: "center", behavior: "smooth" });
   }, [isSubmitting, submitCount, rejectedField]);
 
   useEffect(() => {
-    if (deleteJadwal.isError) deleteRef.current?.focus();
+    if (!deleteJadwal.isError) return;
+
+    deleteRef.current?.focus({ preventScroll: true });
+    alertsRef.current?.scrollIntoView({ block: "center", behavior: "smooth" });
   }, [deleteJadwal.isError]);
 
   if (!(isEdit ? isCanUpdate : isCanCreate)) {
@@ -397,7 +403,7 @@ export const JadwalPelayanFormScreen = (props: PropTypes) => {
         />
       </div>
 
-      <div className="space-y-3 px-gutter pb-4 empty:hidden">
+      <div ref={alertsRef} className="space-y-3 px-gutter pb-4 empty:hidden">
         {rootError ? (
           <FormAlert
             title="Data belum tersimpan. Coba simpan lagi."

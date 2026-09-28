@@ -48,6 +48,14 @@ export const formatTimeRange = (start: string, end: string) =>
 export const formatScheduleDate = (date: string) =>
   `${formatWeekday(date)}, ${formatDateShort(date)}`;
 
+const shortWeekdayFormat = new Intl.DateTimeFormat("id-ID", {
+  weekday: "short",
+  timeZone: "UTC",
+});
+
+export const formatTableDate = (date: string) =>
+  `${shortWeekdayFormat.format(new Date(date))}, ${formatDateShort(date)}`;
+
 export const ibadahLabel = (ibadah: IbadahLink) =>
   `${ibadah.typeIbadah.name} · ${ibadah.startTime}`;
 

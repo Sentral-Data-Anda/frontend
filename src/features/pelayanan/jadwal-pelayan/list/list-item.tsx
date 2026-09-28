@@ -15,6 +15,7 @@ import {
   JADWAL_PELAYAN_LIST_PATH,
   emptySlotCount,
   formatScheduleDate,
+  formatTableDate,
   formatTimeRange,
   ibadahLabel,
   jadwalDetailHref,
@@ -97,7 +98,7 @@ const COLUMNS: Column[] = [
     width: "minmax(0,1.2fr)",
     cell: (jadwal) => (
       <span className="block truncate tabular-nums">
-        {formatScheduleDate(jadwal.date)}
+        {formatTableDate(jadwal.date)}
       </span>
     ),
   },
