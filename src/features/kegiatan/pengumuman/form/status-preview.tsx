@@ -1,19 +1,20 @@
 "use client";
 
 import { Badge } from "@/components/common/display";
-import { useDdlOptions } from "@/hooks/use-ddl-options";
 import { ANNOUNCEMENT_STATUS_LABEL } from "@/lib/announcement";
 
 import { STATUS_BADGE, statusPreviewOf } from "../model";
+import type { AnnouncementBapel } from "../types";
 
-import { type AnnouncementForm } from "./form-options";
+import { useBapelOptions, type AnnouncementForm } from "./form-options";
 
 interface PropTypes {
   form: AnnouncementForm;
+  savedBapel: AnnouncementBapel | null;
 }
 
 export const StatusPreview = (props: PropTypes) => {
-  const { form } = props;
+  const { form, savedBapel } = props;
 
   const [category, bapelId, publishDate, expiryDate, isPublished] = form.watch([
     "category",
@@ -22,7 +23,7 @@ export const StatusPreview = (props: PropTypes) => {
     "expiryDate",
     "isPublished",
   ]);
-  const bapel = useDdlOptions("bapel", "id", bapelId);
+  const bapel = useBapelOptions(bapelId, savedBapel);
   const bapelName =
     bapel.options.find((option) => option.value === bapelId)?.label ??
     "badan pelayanan";

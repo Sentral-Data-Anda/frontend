@@ -6,6 +6,8 @@ import { ChoiceField, DateField } from "@/components/common/control";
 import { ControlField, FormSection, FormWide } from "@/components/common/form";
 import { endOfYearIso } from "@/lib/date";
 
+import type { AnnouncementBapel } from "../types";
+
 import {
   PIN_OPTIONS,
   PUBLISH_OPTIONS,
@@ -17,11 +19,12 @@ const DATE_MAX = endOfYearIso(2);
 
 interface PropTypes {
   form: AnnouncementForm;
+  savedBapel: AnnouncementBapel | null;
   isDisabled: boolean;
 }
 
 export const ScheduleSection = (props: PropTypes) => {
-  const { form, isDisabled } = props;
+  const { form, savedBapel, isDisabled } = props;
 
   return (
     <FormSection legend="Penayangan" disabled={isDisabled}>
@@ -59,7 +62,6 @@ export const ScheduleSection = (props: PropTypes) => {
             max={DATE_MAX}
             label="Tanggal berakhir"
             hint="Hari terakhir tampil. Kosongkan bila tidak berakhir."
-            isClearable
           />
         )}
       </ControlField>
@@ -99,7 +101,7 @@ export const ScheduleSection = (props: PropTypes) => {
       </FormWide>
 
       <FormWide>
-        <StatusPreview form={form} />
+        <StatusPreview form={form} savedBapel={savedBapel} />
       </FormWide>
     </FormSection>
   );

@@ -99,7 +99,9 @@ afterEach(() => {
   replaced.length = 0;
 });
 
-const onMockApi = (options: { detail?: Announcement; save?: Failure } = {}) => {
+const onMockApi = (
+  options: { detail?: Announcement; save?: Failure; isDdlEmpty?: boolean } = {},
+) => {
   const calls: Call[] = [];
   const detail = options.detail ?? DETAIL;
 
@@ -107,6 +109,12 @@ const onMockApi = (options: { detail?: Announcement; save?: Failure } = {}) => {
     const url = String(input);
     const method = init?.method ?? "GET";
 
+    if (url.startsWith("/api/v1/ddl/bapel") && options.isDdlEmpty) {
+      return Response.json(
+        { status: 404, error: "Badan Pelayanan Tidak Ditemukan" },
+        { status: 404 },
+      );
+    }
     if (url.startsWith("/api/v1/ddl/bapel")) {
       return Response.json({
         status: 200,
@@ -250,6 +258,24 @@ describe("website", () => {
     ).toBeTruthy();
     await screen.findByText(
       "Hanya tampil di aplikasi: pengumuman untuk Komisi Pemuda.",
+    );
+  });
+
+  test("komisi yang tidak ada di /ddl/bapel tetap tampil dengan namanya", async () => {
+    onMockApi({
+      isDdlEmpty: true,
+      detail: {
+        ...DETAIL,
+        bapel: { id: 7, code: "BPL-7", name: "Komisi Lansia" },
+      },
+    });
+    await onRenderLoadedEdit();
+
+    await screen.findByText(
+      "Hanya tampil di aplikasi: pengumuman untuk Komisi Lansia.",
+    );
+    expect(screen.getByLabelText("Untuk").textContent).toContain(
+      "Komisi Lansia",
     );
   });
 

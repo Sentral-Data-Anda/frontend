@@ -7,24 +7,22 @@ import {
   Textarea,
 } from "@/components/common/control";
 import { ControlField, FormSection, FormWide } from "@/components/common/form";
-import { useDdlOptions } from "@/hooks/use-ddl-options";
 
 import { CATEGORY_OPTIONS } from "../model";
+import type { AnnouncementBapel } from "../types";
 
-import { type AnnouncementForm } from "./form-options";
+import { useBapelOptions, type AnnouncementForm } from "./form-options";
 
 interface PropTypes {
   form: AnnouncementForm;
+  savedBapel: AnnouncementBapel | null;
   isDisabled: boolean;
 }
 
 export const ContentSection = (props: PropTypes) => {
-  const { form, isDisabled } = props;
+  const { form, savedBapel, isDisabled } = props;
 
-  const bapel = useDdlOptions("bapel", "id", form.watch("bapelId"));
-  const bapelOptions = bapel.options.length
-    ? [{ value: "", label: "Seluruh jemaat" }, ...bapel.options]
-    : bapel.options;
+  const bapel = useBapelOptions(form.watch("bapelId"), savedBapel);
 
   return (
     <FormSection legend="Pengumuman" disabled={isDisabled}>
@@ -60,7 +58,7 @@ export const ContentSection = (props: PropTypes) => {
           <DdlField
             value={field.value}
             onValueChange={field.onChange}
-            options={bapelOptions}
+            options={bapel.options}
             isLoading={bapel.isLoading}
             disabled={isDisabled}
             placeholder="Seluruh jemaat"

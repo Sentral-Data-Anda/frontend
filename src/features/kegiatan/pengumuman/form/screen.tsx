@@ -81,6 +81,7 @@ export const PengumumanFormScreen = (props: PropTypes) => {
   const isLocked = isBusy || isHidden;
   const isNotFound =
     detail.error instanceof FetchError && detail.error.status === 404;
+  const savedBapel = detail.data?.bapel ?? null;
 
   const onLeave = () => router.replace(listReturn);
 
@@ -239,8 +240,16 @@ export const PengumumanFormScreen = (props: PropTypes) => {
       ) : null}
 
       <div className={isHidden ? "hidden" : undefined}>
-        <ContentSection form={form} isDisabled={isBusy} />
-        <ScheduleSection form={form} isDisabled={isBusy} />
+        <ContentSection
+          form={form}
+          savedBapel={savedBapel}
+          isDisabled={isBusy}
+        />
+        <ScheduleSection
+          form={form}
+          savedBapel={savedBapel}
+          isDisabled={isBusy}
+        />
         <AttachmentSection form={form} isDisabled={isBusy} />
       </div>
 
