@@ -8,6 +8,9 @@
  *   MOCK_APPROVAL_ACT_ERROR=500   → setujui/tolak/tarik menjawab 500
  *   MOCK_APPROVAL_RACE=1          → aksi pertama menjawab 400 "… Sudah Selesai"
  *
+ * Permintaan `ASSET_DISPOSAL` dibaca dari store Inventaris (pelepasan barang) dan
+ * keputusan akhirnya ditulis balik lewat `decideDisposal`.
+ *
  * "Saya" = SESSION_USER_ID (satu akun untuk semua persona), jadi Pengajuan dan Riwayat
  * sama di semua persona; antrean dan hak tanda tangan berbeda lewat role dan jabatan.
  */
@@ -25,6 +28,14 @@ import {
   SESSION_USER_ID,
   currentPersona,
 } from "../../mock-dashboard";
+import {
+  ASSET,
+  DISPOSAL,
+  TODAY,
+  decideDisposal,
+  type DisposalMethod,
+  type DisposalRow,
+} from "../inventaris-store";
 import { denied, json, list, readBody, type MockHandler } from "../kit";
 
 type StepStatus = Exclude<ApprovalStatus, "CANCELLED">;
@@ -101,6 +112,14 @@ const CONFIGS: Record<ApprovalDocumentType, string> = {
   PAYROLL_RUN: "Penggajian bulanan",
   PURCHASE_RETURN: "Retur pembelian",
   LOAN_ROOM: "Peminjaman ruang (lama)",
+  ASSET_DISPOSAL: "Pelepasan barang",
+};
+
+const DISPOSAL_METHOD_LABEL: Record<DisposalMethod, string> = {
+  SOLD: "Dijual",
+  SCRAPPED: "Dimusnahkan",
+  DONATED: "Dihibahkan",
+  LOST: "Hilang",
 };
 
 const NOT_FOUND = "Permintaan Persetujuan Tidak Ditemukan";
@@ -428,6 +447,47 @@ const seed = (): Row[] => [
   }),
 ];
 
+const disposalRow = (
+  disposal: DisposalRow,
+  approval: { id: number; publicId: string; code: string },
+): Row => {
+  const target = ASSET.find((item) => item.id === disposal.assetId);
+  const daysAgo = Math.max(
+    0,
+    Math.round(
+      (Date.parse(TODAY) - Date.parse(disposal.disposalDate)) / 86_400_000,
+    ),
+  );
+  const row = makeRow(approval.id, {
+    type: "ASSET_DISPOSAL",
+    amount: target?.acquisitionCost ?? 0,
+    by: disposal.submittedBy,
+    daysAgo,
+    tiers: [BENDAHARA],
+    acts:
+      disposal.status === "APPROVED"
+        ? [{ status: "APPROVED", by: 15 }]
+        : disposal.status === "REJECTED"
+          ? [
+              {
+                status: "REJECTED",
+                by: 15,
+                note: disposal.rejectionNote ?? "Pelepasan ditolak.",
+              },
+            ]
+          : [],
+    title: `${target?.code ?? "-"} · ${target?.name ?? "-"} · ${DISPOSAL_METHOD_LABEL[disposal.method]}`,
+    isCancelled: disposal.status === "CANCELLED",
+  });
+
+  return {
+    ...row,
+    publicId: approval.publicId,
+    code: approval.code,
+    document: row.document ? { ...row.document, code: disposal.code } : null,
+  };
+};
+
 const many = (roleUserId: number): Row[] =>
   Array.from({ length: 150 }, (_, index) =>
     makeRow(100 + index, {
@@ -458,6 +518,35 @@ export const createPermintaanPersetujuanMock = (
   ];
 
   let isRaceArmed = Boolean(process.env.MOCK_APPROVAL_RACE);
+
+  const syncDisposals = () => {
+    for (const disposal of DISPOSAL) {
+      const approval = disposal.approval;
+      if (!approval) continue;
+
+      const existing = rows.find((row) => row.publicId === approval.publicId);
+      if (!existing) {
+        rows.push(disposalRow(disposal, approval));
+        continue;
+      }
+      if (existing.status === "PENDING" && disposal.status === "CANCELLED") {
+        const now = new Date().toISOString();
+        Object.assign(existing, {
+          status: "CANCELLED",
+          completedAt: now,
+          updatedAt: now,
+        });
+      }
+    }
+  };
+
+  const writeBack = (row: Row, note: string | null = null) => {
+    if (row.documentType !== "ASSET_DISPOSAL" || row.status === "PENDING") {
+      return;
+    }
+
+    decideDisposal(row.publicId, row.status, note);
+  };
 
   const normalise = (name: string) => name.trim().toLowerCase();
 
@@ -709,6 +798,7 @@ export const createPermintaanPersetujuanMock = (
         completedAt: now,
         updatedAt: now,
       });
+      writeBack(row);
 
       return done("Berhasil Menarik Permintaan", row);
     }
@@ -729,6 +819,7 @@ export const createPermintaanPersetujuanMock = (
         completedAt: now,
         updatedAt: now,
       });
+      writeBack(row, reason?.note ?? null);
 
       return done("Berhasil Menolak Permintaan", row);
     }
@@ -741,6 +832,7 @@ export const createPermintaanPersetujuanMock = (
         ? { currentOrder: next.order, updatedAt: now }
         : { status: "APPROVED", completedAt: now, updatedAt: now },
     );
+    writeBack(row);
 
     return done("Berhasil Menyetujui Permintaan", row);
   };
@@ -750,6 +842,8 @@ export const createPermintaanPersetujuanMock = (
       /^\/persetujuan(?:\/([^/]+))?(?:\/(setujui|tolak|tarik))?$/,
     );
     if (!match) return null;
+
+    syncDisposals();
 
     const [, publicId, verb] = match;
 

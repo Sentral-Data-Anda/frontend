@@ -61,6 +61,8 @@ const rupiahCompactFormat = new Intl.NumberFormat("id-ID", {
 export const formatRupiah = (value: number) =>
   `${value < 0 ? "−" : ""}Rp ${rupiahFormat.format(Math.abs(value))}`;
 
+export const formatNumber = (value: number) => rupiahFormat.format(value);
+
 export const formatRupiahCompact = (value: number) =>
   `${value < 0 ? "−" : ""}Rp ${rupiahCompactFormat.format(Math.abs(value))}`;
 

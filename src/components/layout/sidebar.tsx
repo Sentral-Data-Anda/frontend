@@ -89,7 +89,7 @@ export function Sidebar({ defaultCollapsed }: { defaultCollapsed: boolean }) {
 
   return (
     <Tooltip.Provider>
-      <div className="sticky top-0 z-30 hidden h-dvh shrink-0 lg:flex">
+      <div className="sticky top-0 z-30 hidden h-dvh shrink-0 lg:flex print:hidden">
         <RailTip label={toggleLabel}>
           <button
             type="button"

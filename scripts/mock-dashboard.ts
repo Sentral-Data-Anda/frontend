@@ -52,6 +52,11 @@ const REGISTRATION_ACTIONS: Action[] = KEJEMAATAN_ACTIONS.filter(
   (action) => action !== "UPDATE",
 );
 
+// be-sada MUTASI_STOK tanpa UPDATE dan DELETE; MOCK_NO_CREATE mencabut.
+const LEDGER_ACTIONS: Action[] = KEJEMAATAN_ACTIONS.filter(
+  (action) => action === "VIEW" || action === "CREATE",
+);
+
 // Penanda tangan dan pengaju: be-sada hanya menjaga VIEW + UPDATE di menu ini.
 const APPROVAL_ACTIONS: Action[] = [
   "VIEW",
@@ -86,6 +91,13 @@ export const PERSONAS: Record<string, Persona> = {
       [MENU.PENGUMUMAN]: KEJEMAATAN_ACTIONS,
       [MENU.PEMINJAMAN_RUANG]: KEJEMAATAN_ACTIONS,
       [MENU.RUANG]: KEJEMAATAN_ACTIONS,
+      [MENU.BARANG]: KEJEMAATAN_ACTIONS,
+      [MENU.TIPE_BARANG]: KEJEMAATAN_ACTIONS,
+      [MENU.SATUAN]: KEJEMAATAN_ACTIONS,
+      [MENU.BARANG_PERSEDIAAN]: KEJEMAATAN_ACTIONS,
+      [MENU.MUTASI_STOK]: LEDGER_ACTIONS,
+      [MENU.STOK_OPNAME]: KEJEMAATAN_ACTIONS,
+      [MENU.SIKLUS_ASET]: KEJEMAATAN_ACTIONS,
     },
   },
   // §3b, plus IBADAH/EVENT VIEW supaya Agenda dan "· 2 kebaktian" tampil, dan
@@ -108,6 +120,8 @@ export const PERSONAS: Record<string, Persona> = {
       [MENU.IBADAH]: V,
       [MENU.EVENT]: V,
       [MENU.PERMINTAAN_PERSETUJUAN]: APPROVAL_ACTIONS,
+      [MENU.PENYUSUTAN]: KEJEMAATAN_ACTIONS,
+      [MENU.BARANG]: V,
     },
   },
   // §3c, dengan LAPORAN_KEUANGAN (keputusan admin; tanpanya grid merapat).

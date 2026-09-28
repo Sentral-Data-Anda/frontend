@@ -88,7 +88,7 @@ export function FormActions({
   return (
     <>
       {status ? (
-        <div className={cn(shellWidthFull, "lg:hidden")}>
+        <div className={cn(shellWidthFull, "lg:hidden print:hidden")}>
           <p className="text-muted-foreground px-gutter pb-4 text-caption">
             {status}
           </p>
@@ -110,7 +110,7 @@ function FormActionsBar({
   return (
     <div
       className={cn(
-        "border-border bg-card sticky bottom-0 z-30 border-t pb-[env(safe-area-inset-bottom)]",
+        "border-border bg-card sticky bottom-0 z-30 border-t pb-[env(safe-area-inset-bottom)] print:hidden",
         mainInsetBleed,
       )}
     >

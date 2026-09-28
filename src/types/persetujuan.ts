@@ -10,6 +10,7 @@ export const APPROVAL_DOCUMENT_TYPES = [
   "PAYROLL_RUN",
   "PURCHASE_RETURN",
   "LOAN_ROOM",
+  "ASSET_DISPOSAL",
 ] as const;
 
 export type ApprovalDocumentType = (typeof APPROVAL_DOCUMENT_TYPES)[number];
@@ -24,6 +25,7 @@ export const APPROVAL_DOCUMENT_LABEL: Record<ApprovalDocumentType, string> = {
   PAYROLL_RUN: "Penggajian",
   PURCHASE_RETURN: "Retur pembelian",
   LOAN_ROOM: "Peminjaman ruang",
+  ASSET_DISPOSAL: "Pelepasan barang",
 };
 
 export const APPROVAL_STATUSES = [

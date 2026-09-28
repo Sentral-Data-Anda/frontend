@@ -256,12 +256,15 @@ describe("label", () => {
     expect(tierLabel(ketua)).toBe("Ketua · BP pengaju");
   });
 
-  test("opsi: form 8 jenis tanpa LOAN_ROOM, filter 9 + Semua", () => {
-    expect(DOCUMENT_FORM_OPTIONS).toHaveLength(8);
+  test("opsi: form 9 jenis tanpa LOAN_ROOM, filter 10 + Semua", () => {
+    expect(DOCUMENT_FORM_OPTIONS).toHaveLength(9);
+    expect(
+      DOCUMENT_FORM_OPTIONS.some((option) => option.value === "ASSET_DISPOSAL"),
+    ).toBe(true);
     expect(
       DOCUMENT_FORM_OPTIONS.some((option) => option.value === "LOAN_ROOM"),
     ).toBe(false);
-    expect(DOCUMENT_FILTER_OPTIONS).toHaveLength(10);
+    expect(DOCUMENT_FILTER_OPTIONS).toHaveLength(11);
   });
 });
 

@@ -26,3 +26,14 @@ test("ddlSearchPath: resource boleh membawa query sendiri", () => {
     "jemaat?register=0&limit=20&filter=a%20b",
   );
 });
+
+test("toDdlOptions: hintOf mengisi hint tiap opsi", () => {
+  const rows = [
+    { id: 7, code: "BRP-0007", name: "Lilin", quantity: 12, unit: "Buah" },
+  ];
+
+  expect(
+    toDdlOptions(rows, "id", "", (row) => `Stok ${row.quantity} ${row.unit}`),
+  ).toEqual([{ value: "7", label: "Lilin", hint: "Stok 12 Buah" }]);
+  expect(toDdlOptions(rows, "id")).toEqual([{ value: "7", label: "Lilin" }]);
+});

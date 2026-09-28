@@ -24,7 +24,7 @@ export function PageHeader({
   return (
     <header
       className={cn(
-        "flex items-center gap-3 px-gutter pt-[max(1rem,env(safe-area-inset-top))] pb-3",
+        "flex items-center gap-3 px-gutter pt-[max(1rem,env(safe-area-inset-top))] pb-3 print:hidden",
         !title && !subtitle && "lg:hidden",
       )}
     >

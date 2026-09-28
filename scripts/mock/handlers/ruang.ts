@@ -7,6 +7,7 @@
  *   MOCK_ROOM_SAVE_ERROR=500     → POST/PUT/DELETE menjawab 500
  *   MOCK_ROOM_USAGE_500=1        → pemakaian ruang menjawab 500
  *   MOCK_ROOM_HAS_BARANG=1       → hapus ditolak karena ruang punya data barang
+ *                                  (tanpa flag: barang/persediaan hidup di store Inventaris)
  */
 import { MENU } from "../../../src/config/menu";
 import {
@@ -21,6 +22,7 @@ import {
   type RoomPhoto,
   type RoomRow,
 } from "../fasilitas-store";
+import { roomHoldsInventory } from "../inventaris-store";
 import { denied, json, list, type MockHandler } from "../kit";
 import { filesOf, putMedia, readMultipart } from "../media";
 
@@ -339,7 +341,7 @@ export const ruangMock: MockHandler = async ({
   }
 
   if (method === "DELETE") {
-    if (process.env.MOCK_ROOM_HAS_BARANG) {
+    if (process.env.MOCK_ROOM_HAS_BARANG || roomHoldsInventory(row.id)) {
       return json(
         {
           status: 400,

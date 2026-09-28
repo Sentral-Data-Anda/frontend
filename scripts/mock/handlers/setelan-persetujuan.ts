@@ -54,6 +54,7 @@ const APPROVAL_DOCUMENT_TYPES = [
   "LEAVE_REQUEST",
   "PAYROLL_RUN",
   "PURCHASE_RETURN",
+  "ASSET_DISPOSAL",
 ] as const;
 
 const isBlank = (value: unknown) =>
