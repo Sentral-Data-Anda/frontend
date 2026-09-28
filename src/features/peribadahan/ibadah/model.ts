@@ -379,7 +379,53 @@ export function serverFieldError(
       message: "Wilayah ini sudah dihapus. Pilih wilayah lain atau kosongkan.",
     };
   }
-  if (/^jadwal pelayan/i.test(message)) return { field: "root", message };
+  if (/^jadwal pelayan tidak ditemukan/i.test(message)) {
+    return {
+      field: "jadwalPelayanId",
+      message:
+        "Jadwal pelayan ini sudah dihapus. Pilih jadwal lain atau kosongkan.",
+    };
+  }
+  if (/^jadwal pelayan tersebut tidak sesuai/i.test(message)) {
+    return {
+      field: "jadwalPelayanId",
+      message:
+        "Jadwal pelayan ini tidak sesuai dengan tanggal atau jam ibadah. Pilih jadwal lain.",
+    };
+  }
 
   return null;
 }
+
+export type JadwalPelayanOption = IbadahRelation & {
+  date: string;
+  startTime: string;
+  endTime: string;
+};
+
+type ServiceSlot = { date: string; startTime: string; endTime: string | null };
+
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+
+export const isSlotReady = (slot: ServiceSlot) =>
+  ISO_DATE.test(slot.date) && Boolean(slot.startTime);
+
+export const coversService = (
+  schedule: Omit<JadwalPelayanOption, "id" | "code" | "name">,
+  service: ServiceSlot,
+) =>
+  toDateInput(schedule.date) === toDateInput(service.date) &&
+  schedule.startTime <= (service.endTime || service.startTime) &&
+  schedule.endTime > service.startTime;
+
+export const toJadwalOptions = (
+  rosters: readonly JadwalPelayanOption[],
+  service: ServiceSlot,
+): SelectOption[] =>
+  rosters
+    .filter((roster) => coversService(roster, service))
+    .map((roster) => ({
+      value: String(roster.id),
+      label: roster.name,
+      hint: `${roster.startTime}–${roster.endTime}`,
+    }));

@@ -4,12 +4,17 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 
 import type { SelectOption } from "@/components/common/control";
-import { useDdlSearch } from "@/hooks/use-ddl-options";
+import { ddlKeys, useDdlSearch } from "@/hooks/use-ddl-options";
 import type { ListState } from "@/hooks/use-list-params";
 import { useListQuery } from "@/hooks/use-list-query";
 import { fetchList, fetchOne } from "@/lib/api/fetcher";
 
-import { mergeHostOptions, toHostOptions, toIbadahApiFilters } from "./model";
+import {
+  mergeHostOptions,
+  toHostOptions,
+  toIbadahApiFilters,
+  type JadwalPelayanOption,
+} from "./model";
 import type {
   HostSuggestion,
   Ibadah,
@@ -52,6 +57,7 @@ function useInvalidateIbadah(code: string | undefined) {
     Promise.all([
       queryClient.invalidateQueries({ queryKey: ibadahKeys.lists() }),
       queryClient.invalidateQueries({ queryKey: ibadahKeys.hosts() }),
+      queryClient.invalidateQueries({ queryKey: ["jadwal-pelayan"] }),
       code
         ? queryClient.invalidateQueries({
             queryKey: ibadahKeys.detail(code),
@@ -138,4 +144,14 @@ export function useHostOptions(params: HostParams) {
     isLoading: keluarga.isLoading || suggestions.isFetching,
     onSearch,
   };
+}
+
+export function useJadwalPelayanRosters(date: string, isEnabled: boolean) {
+  return useQuery({
+    queryKey: ddlKeys.list(`jadwal-pelayan?date=${date}`),
+    queryFn: () =>
+      fetchList<JadwalPelayanOption>(`/ddl/jadwal-pelayan?date=${date}`),
+    enabled: isEnabled,
+    select: (response) => response.data,
+  });
 }

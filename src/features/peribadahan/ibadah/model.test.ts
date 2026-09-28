@@ -4,6 +4,7 @@ import {
   EMPTY_IBADAH_FORM,
   attendanceLabel,
   attendanceOf,
+  coversService,
   formatServiceDate,
   formatServiceTime,
   hostHint,
@@ -18,6 +19,7 @@ import {
   toIbadahCopy,
   toIbadahForm,
   toIbadahPayload,
+  toJadwalOptions,
   withSavedOption,
   type IbadahFormValues,
 } from "./model";
@@ -551,7 +553,7 @@ describe("pesan server → field", () => {
     });
   });
 
-  test("tipe, ruang, bapel ke field; jadwal pelayan dan 404 ibadah ke root", () => {
+  test("tipe, ruang, bapel, jadwal pelayan ke field; 404 ibadah ke root", () => {
     const fieldOf = (message: string) =>
       serverFieldError(message, "Tipe")?.field ?? "root";
 
@@ -570,10 +572,83 @@ describe("pesan server → field", () => {
       message: "Wilayah ini sudah dihapus. Pilih wilayah lain atau kosongkan.",
     });
     expect(
-      fieldOf(
+      serverFieldError(
         "Jadwal Pelayan Tersebut Tidak Sesuai Dengan Tanggal atau Jam Ibadah",
+        "Tipe",
       ),
-    ).toBe("root");
+    ).toEqual({
+      field: "jadwalPelayanId",
+      message:
+        "Jadwal pelayan ini tidak sesuai dengan tanggal atau jam ibadah. Pilih jadwal lain.",
+    });
+    expect(serverFieldError("Jadwal Pelayan Tidak Ditemukan", "Tipe")).toEqual({
+      field: "jadwalPelayanId",
+      message:
+        "Jadwal pelayan ini sudah dihapus. Pilih jadwal lain atau kosongkan.",
+    });
     expect(fieldOf("Ibadah Tidak Ditemukan")).toBe("root");
+  });
+});
+
+describe("jadwal pelayan yang bersinggungan dengan ibadah", () => {
+  const DAY = "2026-10-04";
+  const ROSTER = {
+    date: `${DAY}T00:00:00.000Z`,
+    startTime: "07:00",
+    endTime: "09:00",
+  };
+
+  test.each([
+    ["07:30", "08:30", true],
+    ["06:00", "07:00", true],
+    ["09:00", "10:00", false],
+    ["09:30", "", false],
+    ["08:00", "", true],
+    ["05:00", "06:59", false],
+  ])(
+    "ibadah %s–%s → %s (sama dengan be-sada)",
+    (startTime, endTime, isCovered) => {
+      expect(coversService(ROSTER, { date: DAY, startTime, endTime })).toBe(
+        isCovered,
+      );
+    },
+  );
+
+  test("tanggal lain tidak pernah bersinggungan", () => {
+    expect(
+      coversService(ROSTER, {
+        date: "2026-10-05",
+        startTime: "07:30",
+        endTime: "08:00",
+      }),
+    ).toBe(false);
+  });
+
+  test("opsi: hanya yang bersinggungan, hint jam jadwal", () => {
+    const rosters = [
+      {
+        ...ROSTER,
+        id: 1,
+        code: "JDL_1",
+        name: "Minggu Pagi",
+        endTime: "10:00",
+      },
+      {
+        ...ROSTER,
+        id: 2,
+        code: "JDL_2",
+        name: "Pemuda",
+        startTime: "17:00",
+        endTime: "19:00",
+      },
+    ];
+
+    expect(
+      toJadwalOptions(rosters, {
+        date: DAY,
+        startTime: "07:30",
+        endTime: "10:00",
+      }),
+    ).toEqual([{ value: "1", label: "Minggu Pagi", hint: "07:00–10:00" }]);
   });
 });
