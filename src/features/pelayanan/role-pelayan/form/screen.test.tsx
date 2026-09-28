@@ -227,20 +227,7 @@ describe("simpan", () => {
     ).toBe("7");
   });
 
-  test("nama ganda (409): galat di field nama", async () => {
-    onMockApi({ save: { status: 409, error: "Role Pelayan Sudah Tersedia" } });
-    await onRenderLoadedEdit();
-
-    await onSaveConfirmed();
-
-    await waitFor(() => expect(document.activeElement?.id).toBe("name"));
-    expect(
-      screen.getByText("Tugas dengan nama ini sudah ada. Pakai nama lain."),
-    ).toBeTruthy();
-    expect(replaced).toEqual([]);
-  });
-
-  test("nama ganda (409 dengan issue name): galat tetap di field nama", async () => {
+  test("nama ganda (409 dengan issue name): pesan ramah di field nama", async () => {
     const error = "Role Pelayan Sudah Tersedia";
     onMockApi({
       save: { status: 409, error, issues: [{ path: "name", message: error }] },
@@ -254,8 +241,13 @@ describe("simpan", () => {
       screen.getByLabelText("Nama tugas").getAttribute("aria-invalid"),
     ).toBe("true");
     expect(
+      screen.getByText("Tugas dengan nama ini sudah ada. Pakai nama lain."),
+    ).toBeTruthy();
+    expect(screen.queryByText(error)).toBeNull();
+    expect(
       screen.queryByText("Data belum tersimpan. Coba simpan lagi."),
     ).toBeNull();
+    expect(replaced).toEqual([]);
   });
 
   test("nama ganda lewat 404 be-sada lama: tetap galat di field nama", async () => {
