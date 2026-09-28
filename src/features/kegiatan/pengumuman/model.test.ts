@@ -207,6 +207,9 @@ describe("baris ↔ form", () => {
   test("periode dan website", () => {
     expect(periodOf(ROW)).toBe("26 Sep 2026 s.d. 2 Okt 2026");
     expect(periodOf({ ...ROW, expiryDate: null })).toBe("26 Sep 2026");
+    expect(periodOf({ ...ROW, expiryDate: ROW.publishDate })).toBe(
+      "26 Sep 2026",
+    );
     expect(isOnWebsite(ROW)).toBe(true);
     expect(isOnWebsite({ ...ROW, status: "TERJADWAL" })).toBe(false);
     expect(isOnWebsite({ ...ROW, category: "BERITA_DUKA" })).toBe(false);
@@ -234,6 +237,9 @@ describe("pratinjau status", () => {
     expect(
       statusPreviewOf({ ...base, expiryDate: "2026-10-20" }, "", TODAY)?.timing,
     ).toBe("tampil sekarang sampai 20 Okt 2026.");
+    expect(
+      statusPreviewOf({ ...base, expiryDate: TODAY }, "", TODAY)?.timing,
+    ).toBe("tampil hari ini saja.");
   });
 
   test("terjadwal, termasuk berakhir = terbit", () => {

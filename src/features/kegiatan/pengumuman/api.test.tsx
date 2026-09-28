@@ -16,6 +16,7 @@ import { onStubViewport } from "../../../../tests/viewport";
 
 import {
   useDeletePengumuman,
+  usePengumumanDetail,
   usePengumumanList,
   useSavePengumuman,
 } from "./api";
@@ -154,7 +155,7 @@ describe("simpan dan hapus", () => {
     expect(isStale(queryClient, ["pengumuman", "list"])).toBe(true);
   });
 
-  test("PUT dan DELETE memakai kode", async () => {
+  test("PUT dan DELETE memakai kode; detail yang terbuka tidak di-refetch", async () => {
     const queryClient = newClient();
     onSeedFeed(queryClient);
     onStubFetch(() =>
@@ -164,6 +165,11 @@ describe("simpan dan hapus", () => {
         data: { code: "PGM-2026-0001" },
       }),
     );
+
+    const detail = renderHook(() => usePengumumanDetail("PGM-2026-0001"), {
+      wrapper: onWrapper(queryClient),
+    });
+    await waitFor(() => expect(detail.result.current.data).toBeDefined());
 
     const save = renderHook(() => useSavePengumuman("PGM-2026-0001"), {
       wrapper: onWrapper(queryClient),
@@ -176,9 +182,13 @@ describe("simpan dan hapus", () => {
     await act(() => remove.result.current.mutateAsync());
 
     expect(requests.map(({ url, method }) => `${method} ${url}`)).toEqual([
+      "GET /api/v1/pengumuman/PGM-2026-0001",
       "PUT /api/v1/pengumuman/PGM-2026-0001",
       "DELETE /api/v1/pengumuman/PGM-2026-0001",
     ]);
     expect(isStale(queryClient, ["pengumuman", "feed", 4])).toBe(true);
+    expect(
+      isStale(queryClient, ["pengumuman", "detail", "PGM-2026-0001"]),
+    ).toBe(true);
   });
 });

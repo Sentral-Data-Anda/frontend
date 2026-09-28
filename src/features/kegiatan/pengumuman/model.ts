@@ -150,10 +150,14 @@ export const toFormError = (error: unknown) =>
       )
     : error;
 
-export const periodOf = (announcement: Announcement) =>
-  announcement.expiryDate
-    ? `${formatDateShort(announcement.publishDate)} s.d. ${formatDateShort(announcement.expiryDate)}`
-    : formatDateShort(announcement.publishDate);
+export const periodOf = (announcement: Announcement) => {
+  const start = formatDateShort(announcement.publishDate);
+  const end = announcement.expiryDate
+    ? formatDateShort(announcement.expiryDate)
+    : start;
+
+  return end === start ? start : `${start} s.d. ${end}`;
+};
 
 export const isOnWebsite = (announcement: Announcement) =>
   announcement.status === "TERBIT" &&
@@ -179,10 +183,14 @@ const timingOf = (status: AnnouncementStatus, values: PreviewInput) => {
 
   if (status === "DRAF") return "belum tampil di mana pun.";
   if (status === "KEDALUWARSA") return "tanggal berakhir sudah lewat.";
+  if (values.expiryDate === values.publishDate) {
+    return status === "TERBIT"
+      ? "tampil hari ini saja."
+      : `tampil ${start} saja.`;
+  }
   if (status === "TERBIT") {
     return end ? `tampil sekarang sampai ${end}.` : "tampil sekarang.";
   }
-  if (values.expiryDate === values.publishDate) return `tampil ${start} saja.`;
 
   return end ? `tampil ${start} sampai ${end}.` : `tampil mulai ${start}.`;
 };

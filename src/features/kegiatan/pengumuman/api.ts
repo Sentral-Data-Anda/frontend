@@ -35,10 +35,23 @@ export function usePengumumanDetail(code: string | undefined) {
   });
 }
 
+// Detail yang sedang terbuka tidak di-refetch: form segera ditinggalkan, dan sesudah hapus jawabannya 404.
 function useInvalidatePengumuman() {
   const queryClient = useQueryClient();
 
-  return () => queryClient.invalidateQueries({ queryKey: pengumumanKeys.all });
+  return () =>
+    queryClient
+      .invalidateQueries({
+        queryKey: pengumumanKeys.all,
+        refetchType: "none",
+        predicate: (query) => query.queryKey[1] === "detail",
+      })
+      .then(() =>
+        queryClient.invalidateQueries({
+          queryKey: pengumumanKeys.all,
+          predicate: (query) => query.queryKey[1] !== "detail",
+        }),
+      );
 }
 
 export function useSavePengumuman(code?: string) {

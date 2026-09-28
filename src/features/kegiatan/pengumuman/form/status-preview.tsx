@@ -39,12 +39,15 @@ export const StatusPreview = (props: PropTypes) => {
     >
       {preview ? (
         <>
-          <p className="flex flex-wrap items-center gap-x-1.5">
-            <span className="text-muted-foreground">Setelah disimpan:</span>
-            <Badge variant={STATUS_BADGE[preview.status]}>
+          <p>
+            <span className="text-muted-foreground">Setelah disimpan:</span>{" "}
+            <Badge
+              variant={STATUS_BADGE[preview.status]}
+              className="mx-0.5 align-middle"
+            >
               {ANNOUNCEMENT_STATUS_LABEL[preview.status]}
-            </Badge>
-            <span>{preview.timing}</span>
+            </Badge>{" "}
+            {preview.timing}
           </p>
           {preview.reach ? (
             <p className="text-muted-foreground mt-1">{preview.reach}</p>

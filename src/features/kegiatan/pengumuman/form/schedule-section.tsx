@@ -23,8 +23,6 @@ interface PropTypes {
 export const ScheduleSection = (props: PropTypes) => {
   const { form, isDisabled } = props;
 
-  const publishDate = form.watch("publishDate");
-
   return (
     <FormSection legend="Penayangan" disabled={isDisabled}>
       <ControlField
@@ -58,7 +56,6 @@ export const ScheduleSection = (props: PropTypes) => {
             onBlur={field.onBlur}
             disabled={isDisabled}
             variant="dekat"
-            min={publishDate || undefined}
             max={DATE_MAX}
             label="Tanggal berakhir"
             hint="Hari terakhir tampil. Kosongkan bila tidak berakhir."
