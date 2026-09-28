@@ -70,7 +70,9 @@ const request = (path: string, init?: RequestInit): Promise<Response> =>
   fetch(`${BASE_PATH}${path}`, {
     ...init,
     headers: {
-      ...(init?.body ? { "Content-Type": "application/json" } : {}),
+      ...(init?.body && !(init.body instanceof FormData)
+        ? { "Content-Type": "application/json" }
+        : {}),
       ...init?.headers,
     },
   });

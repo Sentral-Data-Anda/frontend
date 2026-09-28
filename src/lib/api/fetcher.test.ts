@@ -150,4 +150,17 @@ describe("fetchList", () => {
       "application/json",
     );
   });
+
+  test("FormData dikirim tanpa Content-Type supaya boundary dipasang peramban", async () => {
+    const calls = stubFetch(() =>
+      Response.json({ status: 201, message: "", data: null }),
+    );
+    const body = new FormData();
+    body.append("name", "Retret");
+
+    await fetchOne("/event", { method: "POST", body });
+
+    expect(new Headers(calls[0].init?.headers).get("content-type")).toBeNull();
+    expect(calls[0].init?.body).toBe(body);
+  });
 });

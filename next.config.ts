@@ -16,6 +16,12 @@ const nextConfig: NextConfig = {
   // Lencana "N" menutupi tab Dashboard di bottom tab saat review mobile.
   devIndicators: false,
 
+  // Proxy menyangga badan permintaan; bawaan 10 MB memotong unggahan multipart
+  // (be-sada: 5 berkas x 10 MB + field) tanpa galat.
+  experimental: {
+    proxyClientMaxBodySize: "52mb",
+  },
+
   env: {
     NEXT_PUBLIC_BUILD_ID: buildId,
   },
