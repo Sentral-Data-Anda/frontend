@@ -650,26 +650,26 @@ const visibleAnnouncements = () =>
     .sort(byFeedOrder);
 
 // Sesudah perubahan be-sada "feed": semua TERBIT, semua kategori dan komisi.
-export const announcementFeed = (limit: number) =>
+export const announcementFeed = (limit: number, page = 1) =>
   visibleAnnouncements()
-    .slice(0, limit)
+    .slice((page - 1) * limit, page * limit)
     .map((row) => ({
-      code: row.code,
+      id: row.publicId,
       category: row.category,
       title: row.title,
       content: row.content,
       publishDate: iso(row.publishDate),
       expiryDate: row.expiryDate ? iso(row.expiryDate) : null,
       isPinned: row.isPinned,
-      bapel:
-        row.bapelId === null
-          ? null
-          : { name: bapelOf(row.bapelId)?.name ?? "" },
+      bapelName:
+        row.bapelId === null ? null : (bapelOf(row.bapelId)?.name ?? null),
       files: attachmentsOf("Announcement", row.id).map((file) => {
         const { name, mimeType, url } = attachmentOf(file);
         return { name, mimeType, url };
       }),
     }));
+
+export const visibleAnnouncementCount = () => visibleAnnouncements().length;
 
 // `/public/announcement`: hanya seluruh jemaat, tanpa berita duka/ucapan syukur.
 export const publicAnnouncements = (limit: number) =>

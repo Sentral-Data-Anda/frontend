@@ -187,6 +187,20 @@ describe("pengumuman", () => {
     ).json();
 
     expect(body.data).toHaveLength(2);
+    expect(body).toMatchObject({ totalData: 6, totalPage: 3 });
+    expect(Object.keys(body.data[0]).sort()).toEqual(
+      [
+        "id",
+        "category",
+        "title",
+        "content",
+        "publishDate",
+        "expiryDate",
+        "isPinned",
+        "bapelName",
+        "files",
+      ].sort(),
+    );
   });
 });
 

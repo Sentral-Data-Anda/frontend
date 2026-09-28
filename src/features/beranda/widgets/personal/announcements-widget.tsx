@@ -34,12 +34,12 @@ export const AnnouncementsWidget = () => {
         <DashboardList label="Pengumuman terbaru">
           {items.map((item) => (
             <DashboardRow
-              key={item.code}
+              key={item.id}
               title={item.title}
               meta={[
                 item.isPinned ? "Disematkan" : null,
                 categoryLabelOf(item.category),
-                item.bapel?.name,
+                item.bapelName,
                 formatDayMonth(item.publishDate),
               ]
                 .filter(Boolean)
