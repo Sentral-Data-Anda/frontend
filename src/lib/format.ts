@@ -58,8 +58,13 @@ const rupiahCompactFormat = new Intl.NumberFormat("id-ID", {
   maximumFractionDigits: 1,
 });
 
+const rupiahCentsFormat = new Intl.NumberFormat("id-ID", {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+});
+
 export const formatRupiah = (value: number) =>
-  `${value < 0 ? "−" : ""}Rp ${rupiahFormat.format(Math.abs(value))}`;
+  `${value < 0 ? "−" : ""}Rp ${(Number.isInteger(value) ? rupiahFormat : rupiahCentsFormat).format(Math.abs(value))}`;
 
 export const formatNumber = (value: number) => rupiahFormat.format(value);
 

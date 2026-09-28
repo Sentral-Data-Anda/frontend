@@ -43,6 +43,12 @@ describe("formatRupiah", () => {
     expect(formatRupiah(-1_500)).toBe("−Rp 1.500");
   });
 
+  test("pecahan selalu dua desimal", () => {
+    expect(formatRupiah(1_333_333.4)).toBe("Rp 1.333.333,40");
+    expect(formatRupiah(166_666.67)).toBe("Rp 166.666,67");
+    expect(formatRupiah(-0.5)).toBe("−Rp 0,50");
+  });
+
   test("ringkas: jt / M", () => {
     expect(formatRupiahCompact(86_400_000)).toBe("Rp 86,4\u00a0jt");
     expect(formatRupiahCompact(1_250_000_000)).toBe("Rp 1,3\u00a0M");
