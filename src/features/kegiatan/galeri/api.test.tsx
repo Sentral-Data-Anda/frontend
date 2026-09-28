@@ -11,12 +11,14 @@ import {
 import type { ReactNode } from "react";
 
 import type { ListState } from "@/hooks/use-list-params";
+import { MEDIA_REFETCH_MS } from "@/lib/attachment";
 
 import { onStubViewport } from "../../../../tests/viewport";
 
 import {
   galeriKeys,
   useDeleteGaleri,
+  useGaleriDetail,
   useGaleriList,
   useSaveGaleri,
 } from "./api";
@@ -104,6 +106,40 @@ describe("useGaleriList", () => {
     expect(stub.calls[0].url).toBe(
       "/api/v1/gallery?page=1&limit=10&filter=retret&bapelId=2",
     );
+  });
+
+  test("daftar dan detail dibaca ulang sebelum URL foto kedaluwarsa", async () => {
+    const queryClient = onNewClient();
+    const stub = onStubFetch(() =>
+      Response.json({
+        status: 200,
+        message: "OK",
+        totalData: 0,
+        totalPage: 0,
+        data: [],
+      }),
+    );
+
+    renderHook(
+      () => {
+        useGaleriList(onParams({}));
+        useGaleriDetail("ALBM_0002-0001");
+      },
+      { wrapper: onWrapper(queryClient) },
+    );
+    await waitFor(() => expect(stub.calls.length).toBe(2));
+    stub.onRestore();
+
+    const intervals = queryClient
+      .getQueryCache()
+      .getAll()
+      .map(
+        (query) =>
+          (query.options as { refetchInterval?: number }).refetchInterval,
+      );
+
+    expect(intervals.length).toBeGreaterThanOrEqual(2);
+    expect(new Set(intervals)).toEqual(new Set([MEDIA_REFETCH_MS]));
   });
 });
 

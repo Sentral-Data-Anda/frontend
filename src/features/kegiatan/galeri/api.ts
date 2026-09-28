@@ -5,6 +5,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ListState } from "@/hooks/use-list-params";
 import { useListQuery } from "@/hooks/use-list-query";
 import { fetchList, fetchOne } from "@/lib/api/fetcher";
+import { MEDIA_REFETCH_MS } from "@/lib/attachment";
 
 import type { Album, AlbumSaved } from "./types";
 
@@ -14,9 +15,6 @@ export const galeriKeys = {
   detail: (code: string) => [...galeriKeys.all, "detail", code] as const,
 };
 
-// URL foto bertanda tangan 15 menit; dimuat ulang sebelum kedaluwarsa.
-const URL_REFRESH_MS = 10 * 60_000;
-
 const albumPath = (code: string) => `/gallery/${encodeURIComponent(code)}`;
 
 export function useGaleriList(params: ListState) {
@@ -24,6 +22,7 @@ export function useGaleriList(params: ListState) {
     queryKey: galeriKeys.lists(),
     fetchPage: (apiQuery) => fetchList<Album>(`/gallery?${apiQuery}`),
     params,
+    refetchInterval: MEDIA_REFETCH_MS,
   });
 }
 
@@ -33,7 +32,7 @@ export function useGaleriDetail(code: string | undefined) {
     queryFn: () => fetchOne<Album>(albumPath(code ?? "")),
     enabled: Boolean(code),
     staleTime: 0,
-    refetchInterval: URL_REFRESH_MS,
+    refetchInterval: MEDIA_REFETCH_MS,
     select: (response) => response.data,
   });
 }
