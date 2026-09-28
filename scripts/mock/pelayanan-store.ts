@@ -11,6 +11,9 @@
  * - Bethari (pelayan 2) terjadwal Minggu depan (jadwal 2);
  * - jadwal 1 = tanggal dan jam ibadah Minggu I mock Ibadah yang menautnya;
  * - jadwal 4 (Komisi Pemuda 09:00–11:00) memakai Christian → ia bentrok di jadwal 2.
+ * Tidak ada jemaat yang muncul dua kali dalam satu jadwal (aturan 6 be-sada), jadi
+ * PUT jadwal seed tanpa perubahan lolos: Paduan Suara Efrata tanpa Kevin, dan
+ * Multimedia jadwal 3 kosong karena Eleazar sudah ikut lewat Band Pemuda.
  */
 import { addDays, todayJakarta } from "../../src/lib/date";
 import { BAPEL_NAMES, DDL_JEMAAT } from "../mock-dashboard";
@@ -190,7 +193,7 @@ export const GROUP_PELAYAN: GroupPelayanRow[] = [
     bapelId: MAJELIS,
     rolePelayanId: SINGER,
     skillIds: [],
-    memberIds: [9, 10, 11],
+    memberIds: [7, 9, 10],
     status: true,
     deletedAt: null,
   },
@@ -317,7 +320,7 @@ export const JADWAL_PELAYAN: JadwalPelayanRow[] = [
     ["17:00", "19:00"],
     filled(
       [PEMANDU, PEMUSIK, MULTIMEDIA],
-      [{ pelayan: 8 }, { group: 2 }, { pelayan: 5 }],
+      [{ pelayan: 8 }, { group: 2 }, null],
     ),
   ),
   jadwal(
