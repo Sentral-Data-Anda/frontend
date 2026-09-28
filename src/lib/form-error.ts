@@ -16,7 +16,9 @@ export function applyServerError<T extends FieldValues>(
 
   if (error.issues.length > 0) {
     for (const issue of error.issues) {
-      setError(issue.path as Path<T>, { message: issue.message });
+      const message = mapMessage?.(issue.message)?.message ?? issue.message;
+
+      setError(issue.path as Path<T>, { message });
     }
     return error.issues[0].path;
   }

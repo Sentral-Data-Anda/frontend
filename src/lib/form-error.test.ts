@@ -52,6 +52,28 @@ describe("applyServerError", () => {
     expect(field).toBe("email");
   });
 
+  test("issues[] yang pesannya dikenal fitur memakai kalimat fitur, path tetap dari server", () => {
+    const { calls, setError } = onCollect();
+
+    const field = applyServerError(
+      new FetchError(409, "Role Pelayan Sudah Tersedia", [
+        { path: "name", message: "Role Pelayan Sudah Tersedia" },
+        { path: "other", message: "Tidak dikenal" },
+      ]),
+      setError,
+      (message) =>
+        /role pelayan sudah tersedia/i.test(message)
+          ? { field: "root", message: "Tugas dengan nama ini sudah ada." }
+          : null,
+    );
+
+    expect(calls).toEqual([
+      { field: "name", message: "Tugas dengan nama ini sudah ada." },
+      { field: "other", message: "Tidak dikenal" },
+    ]);
+    expect(field).toBe("name");
+  });
+
   test("galat 500 jadi galat tingkat form, bukan galat field (test wajib 7)", () => {
     const { calls, setError } = onCollect();
 
