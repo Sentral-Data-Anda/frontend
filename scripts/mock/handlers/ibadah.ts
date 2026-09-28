@@ -655,6 +655,23 @@ export const ibadahLinkedTo = (jadwalId: number) =>
       typeIbadah: { name: findTipeIbadah(row.typeIbadahId)?.name ?? "" },
     }));
 
+export const ibadahInRoom = (roomId: number, from: string, to?: string) =>
+  allRows()
+    .filter(
+      (row) =>
+        isLive(row) &&
+        row.roomId === roomId &&
+        row.date.slice(0, 10) >= from &&
+        (!to || row.date.slice(0, 10) <= to),
+    )
+    .map((row) => ({
+      code: row.code,
+      name: findTipeIbadah(row.typeIbadahId)?.name ?? "Ibadah",
+      date: row.date.slice(0, 10),
+      startTime: row.startTime,
+      endTime: row.endTime,
+    }));
+
 const findByCode = (code: string) =>
   allRows().find(
     (row) => isLive(row) && row.code.toLowerCase() === code.toLowerCase(),
