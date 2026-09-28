@@ -305,6 +305,26 @@ describe("form ubah", () => {
     expect(screen.queryByText(/masih terjadwal/)).toBeNull();
   });
 
+  test("Alat musik hanya muncul untuk Pemusik; lepas Pemusik mengosongkan alat musik", async () => {
+    const calls = onMockApi();
+    await onRenderLoaded();
+
+    expect(screen.getByRole("checkbox", { name: "Keyboard" })).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("checkbox", { name: "Pemusik" }));
+
+    expect(screen.queryByRole("checkbox", { name: "Keyboard" })).toBeNull();
+
+    await onSaveConfirmed();
+
+    await waitFor(() => expect(calls).toHaveLength(1));
+    expect(calls[0].body).toMatchObject({
+      rolePelayan: [4],
+      isPemusik: false,
+      musikSkill: [],
+    });
+  });
+
   test("Aktif → Nonaktif: hint berganti peringatan", async () => {
     onMockApi();
     await onRenderLoaded();

@@ -6,6 +6,8 @@ import { CheckboxGroupField, DdlField } from "@/components/common/control";
 import { FormField, FormSection, FormWide } from "@/components/common/form";
 import { useDdlOptions } from "@/hooks/use-ddl-options";
 
+import { isPemusikRole } from "../model";
+
 import { type PelayanForm } from "./form-options";
 
 interface PropTypes {
@@ -17,9 +19,23 @@ export const TugasSection = (props: PropTypes) => {
   const { form, isDisabled } = props;
 
   const typePelayan = useWatch({ control: form.control, name: "typePelayan" });
+  const rolePelayan = useWatch({ control: form.control, name: "rolePelayan" });
   const roles = useDdlOptions("role-pelayan", "id");
   const skills = useDdlOptions("skill-music", "id");
   const isGroup = typePelayan === "GROUP";
+  const pemusikId = roles.options.find((option) =>
+    isPemusikRole(option.label),
+  )?.value;
+  const isPemusik = pemusikId !== undefined && rolePelayan.includes(pemusikId);
+
+  const onRoleChange = (next: string[]) => {
+    form.setValue("rolePelayan", next, {
+      shouldDirty: true,
+      shouldValidate: form.formState.isSubmitted,
+    });
+    if (pemusikId === undefined || next.includes(pemusikId)) return;
+    form.setValue("musikSkill", [], { shouldDirty: true });
+  };
 
   return (
     <FormSection legend="Tugas" disabled={isDisabled}>
@@ -36,7 +52,7 @@ export const TugasSection = (props: PropTypes) => {
             >
               <DdlField
                 value={field.value[0] ?? ""}
-                onValueChange={(value) => field.onChange(value ? [value] : [])}
+                onValueChange={(value) => onRoleChange(value ? [value] : [])}
                 options={roles.options}
                 isLoading={roles.isLoading}
                 disabled={isDisabled}
@@ -57,7 +73,7 @@ export const TugasSection = (props: PropTypes) => {
                 label="Tugas"
                 isLabelVisible={false}
                 value={field.value}
-                onValueChange={field.onChange}
+                onValueChange={onRoleChange}
                 options={roles.options}
                 error={fieldState.error?.message}
                 hint="Pilih semua tugas yang biasa dipegang."
@@ -71,29 +87,31 @@ export const TugasSection = (props: PropTypes) => {
         </FormWide>
       )}
 
-      <FormWide>
-        <Controller
-          control={form.control}
-          name="musikSkill"
-          render={({ field, fieldState }) => (
-            <CheckboxGroupField
-              id="musikSkill"
-              label="Alat musik"
-              value={field.value}
-              onValueChange={field.onChange}
-              options={skills.options}
-              error={fieldState.error?.message}
-              hint="Isi untuk pemusik. Di Jadwal Pelayan pemusik dipilih per alat, mis. Christian (Gitar)."
-              disabled={isDisabled}
-              emptyMessage={
-                skills.isLoading
-                  ? "Memuat alat musik…"
-                  : "Belum ada data alat musik"
-              }
-            />
-          )}
-        />
-      </FormWide>
+      {isPemusik ? (
+        <FormWide>
+          <Controller
+            control={form.control}
+            name="musikSkill"
+            render={({ field, fieldState }) => (
+              <CheckboxGroupField
+                id="musikSkill"
+                label="Alat musik"
+                value={field.value}
+                onValueChange={field.onChange}
+                options={skills.options}
+                error={fieldState.error?.message}
+                hint="Isi untuk pemusik. Di Jadwal Pelayan pemusik dipilih per alat, mis. Christian (Gitar)."
+                disabled={isDisabled}
+                emptyMessage={
+                  skills.isLoading
+                    ? "Memuat alat musik…"
+                    : "Belum ada data alat musik"
+                }
+              />
+            )}
+          />
+        </FormWide>
+      ) : null}
     </FormSection>
   );
 };
