@@ -394,4 +394,12 @@ describe("selectHeaderActions", () => {
       { label: "Tambah jadwal ibadah", href: "/peribadahan/ibadah/baru" },
     ]);
   });
+
+  test("buat pengumuman langsung membuka form tambah pengumuman", () => {
+    const menu = [domain([leaf(MENU.PENGUMUMAN, ["VIEW", "CREATE"])])];
+
+    expect(selectHeaderActions(menu)).toEqual([
+      { label: "Buat pengumuman", href: "/kegiatan/pengumuman/baru" },
+    ]);
+  });
 });

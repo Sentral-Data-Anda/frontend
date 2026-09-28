@@ -334,7 +334,7 @@ const HEADER_ACTIONS: readonly (HeaderAction & { gate: WidgetGate })[] = [
   },
   {
     label: "Buat pengumuman",
-    href: menuHref(MENU.KEGIATAN, MENU.PENGUMUMAN),
+    href: createHref(MENU.KEGIATAN, MENU.PENGUMUMAN),
     gate: { slug: MENU.PENGUMUMAN, action: "CREATE" },
   },
   {
