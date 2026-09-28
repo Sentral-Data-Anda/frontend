@@ -9,6 +9,8 @@ import {
   STOCK_ITEM,
   STOCK_MOVEMENT,
   TODAY,
+  TYPE_ITEM,
+  UNIT,
   accumulatedOf,
   applyMovement,
   assetDdl,
@@ -16,6 +18,7 @@ import {
   assetView,
   bookValueOf,
   calculateRun,
+  codeOf,
   decideDisposal,
   openRun,
   roomHoldsInventory,
@@ -63,6 +66,19 @@ const stockNamed = (name: string) => {
 
   return found;
 };
+
+describe("kode", () => {
+  test("kode baru master melanjutkan urutan seed, tidak bertabrakan", () => {
+    const typeCode = codeOf("TYP_ITM");
+    const unitCode = codeOf("UNT");
+
+    expect(TYPE_ITEM.some((row) => row.code === typeCode)).toBe(false);
+    expect(UNIT.some((row) => row.code === unitCode)).toBe(false);
+    expect(typeCode).toBe(
+      `TYP_ITM-${String(TYPE_ITEM.length + 1).padStart(4, "0")}`,
+    );
+  });
+});
 
 describe("stok", () => {
   test("stok akhir seed sesuai brief dan saldo berjalan urut tanggal", () => {
