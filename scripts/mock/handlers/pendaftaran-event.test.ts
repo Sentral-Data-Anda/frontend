@@ -13,6 +13,7 @@ const FLAGS = [
   "MOCK_PENDAFTARAN_GATEWAY_DOWN",
   "MOCK_PENDAFTARAN_INVOICE_502",
   "MOCK_PENDAFTARAN_INVOICE_PAID",
+  "MOCK_PENDAFTARAN_INVOICE_409",
 ];
 
 afterEach(() => {
@@ -239,7 +240,12 @@ describe("batalkan dan buat ulang tagihan", () => {
     const created = await onPost({ eventId: 2, jemaatId: 5 });
 
     process.env.MOCK_PENDAFTARAN_INVOICE_502 = "1";
-    expect((await onReissue(created.body.data.code)).status).toBe(502);
+    const failed = await onReissue(created.body.data.code);
+
+    expect(failed.status).toBe(502);
+    expect(failed.body.error).toBe(
+      "Tidak Bisa Menghubungi Payment Gateway. Coba Lagi Sebentar Lagi",
+    );
 
     delete process.env.MOCK_PENDAFTARAN_INVOICE_502;
     const reissued = await onReissue(created.body.data.code);

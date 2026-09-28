@@ -5,13 +5,16 @@ import { FormAlert } from "@/components/common/form";
 
 interface PropTypes {
   reason: string | null;
+  isCanDelete: boolean;
   isCancelling: boolean;
   error: string | null;
   onCancel: () => void;
 }
 
 export const CancelAction = (props: PropTypes) => {
-  const { reason, isCancelling, error, onCancel } = props;
+  const { reason, isCanDelete, isCancelling, error, onCancel } = props;
+
+  if (!reason && !isCanDelete) return null;
 
   return (
     <section aria-label="Pembatalan" className="space-y-3 pt-4">

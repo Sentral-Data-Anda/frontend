@@ -77,6 +77,7 @@ afterEach(() => {
   requested.length = 0;
   replaced.length = 0;
   delete process.env.MOCK_PENDAFTARAN_INVOICE_PAID;
+  delete process.env.MOCK_PENDAFTARAN_INVOICE_409;
   Object.defineProperty(navigator, "clipboard", {
     value: undefined,
     configurable: true,
@@ -173,11 +174,60 @@ describe("halaman baca", () => {
     expect(requested).toContain("DELETE /pendaftaran-event/REG-2026-0008");
   });
 
-  test("tanpa DELETE: aksi batal dan alasannya tidak dirender", async () => {
+  test("tanpa DELETE: tombol batal hilang, alasan tetap tampil", async () => {
     onRender(["VIEW"], "REG-2026-0008");
 
     await onPanel("Pendaftaran");
     expect(screen.queryByRole("region", { name: "Pembatalan" })).toBeNull();
+
+    cleanup();
+    onRender(["VIEW"], "REG-2026-0002");
+
+    await onPanel("Pembayaran");
+    expect(
+      screen.getByText("Pengembalian dana ditangani di luar sistem."),
+    ).toBeTruthy();
+    expect(
+      screen.queryByRole("button", { name: "Batalkan pendaftaran" }),
+    ).toBeNull();
+  });
+
+  test("kedaluwarsa tetapi lunas (bayar terlambat): baris pengembalian dana", async () => {
+    const late = REGISTRATION.find((row) => row.id === 3);
+
+    if (late?.payment) late.payment.status = "PAID";
+    onRender(["VIEW"], "REG-2026-0003");
+
+    expect((await onPanel("Pembayaran")).textContent).toContain("Lunas");
+    expect(screen.getByText("Kedaluwarsa")).toBeTruthy();
+    expect(
+      screen.getByText("Pengembalian dana ditangani di luar sistem."),
+    ).toBeTruthy();
+  });
+
+  test("buat ulang tagihan 409 berubah: detail dimuat ulang", async () => {
+    const pending = REGISTRATION.find((row) => row.id === 1);
+
+    if (pending?.payment) pending.payment.invoiceUrl = null;
+    process.env.MOCK_PENDAFTARAN_INVOICE_409 = "1";
+    onRender(ALL, "REG-2026-0001");
+
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Buat ulang tagihan" }),
+    );
+    fireEvent.click(await screen.findByRole("button", { name: "Ya" }));
+
+    expect(
+      await screen.findByText("Pengembalian dana ditangani di luar sistem."),
+    ).toBeTruthy();
+    expect(
+      requested.filter(
+        (line) => line === "GET /pendaftaran-event/REG-2026-0001",
+      ),
+    ).toHaveLength(2);
+    expect(
+      screen.queryByRole("button", { name: "Buat ulang tagihan" }),
+    ).toBeNull();
   });
 
   test("tagihan belum terbit: Buat ulang tagihan (CREATE) menerbitkan tautan", async () => {

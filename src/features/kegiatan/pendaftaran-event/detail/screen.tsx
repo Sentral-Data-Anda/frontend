@@ -85,6 +85,11 @@ export const PendaftaranDetailScreen = (props: PropTypes) => {
     cancelPendaftaran.reset();
     reissueInvoice.mutate(undefined, {
       onSuccess: (reissued) => toast.add({ title: reissued.message }),
+      onError: (error) => {
+        if (error instanceof FetchError && error.status === 409) {
+          toast.add({ title: error.message, type: "warning" });
+        }
+      },
     });
   };
 
@@ -163,14 +168,13 @@ export const PendaftaranDetailScreen = (props: PropTypes) => {
             isCanUpdateEvent={isCanUpdateEvent}
           />
 
-          {isCanDelete ? (
-            <CancelAction
-              reason={cancelReasonOf(registration)}
-              isCancelling={cancelPendaftaran.isPending}
-              error={cancelPendaftaran.error?.message ?? null}
-              onCancel={() => confirm.onOpen("delete")}
-            />
-          ) : null}
+          <CancelAction
+            reason={cancelReasonOf(registration)}
+            isCanDelete={isCanDelete}
+            isCancelling={cancelPendaftaran.isPending}
+            error={cancelPendaftaran.error?.message ?? null}
+            onCancel={() => confirm.onOpen("delete")}
+          />
         </div>
 
         {registration.payment ? (

@@ -183,35 +183,69 @@ describe("tampilan", () => {
     ).toMatchObject({ hint: "12 Okt 2026 · Penuh", isDisabled: true });
   });
 
-  test("ringkasan kuota dijepit ke kapasitas", () => {
+  test("ringkasan kuota memakai hitungan asli; lebih dari kapasitas = Penuh", () => {
     expect(quotaTextOf(EVENT)).toBe(
       "32 dari 40 kursi terisi · Rp 350.000 per peserta",
     );
     expect(quotaTextOf({ ...EVENT, registeredCount: 41 })).toBe(
-      "40 dari 40 kursi terisi · Penuh · Rp 350.000 per peserta",
+      "41 dari 40 kursi terisi · Penuh · Rp 350.000 per peserta",
     );
   });
 
-  test("waktu event satu hari vs rentang", () => {
+  test("waktu event satu hari vs rentang; jam kosong = tanggal saja", () => {
     expect(formatEventTime(FREE)).toBe("12 Oktober 2026, 18:30");
     expect(formatEventTime(EVENT)).toBe(
       "12 Okt 2026 – 14 Okt 2026, 07:00–17:00",
+    );
+    expect(formatEventTime({ ...FREE, startTime: null })).toBe(
+      "12 Oktober 2026",
     );
   });
 
   test("alasan tidak bisa dibatalkan", () => {
     const paid = { ...FREE, isPaid: true };
+    const payment = (status: "PENDING" | "PAID" | "EXPIRED") => ({
+      code: "PAY-2026-0001",
+      status,
+      amount: "350000",
+      invoiceUrl: null,
+      expiredAt: null,
+    });
+    const REFUND = "Pengembalian dana ditangani di luar sistem.";
 
-    expect(cancelReasonOf({ status: "CONFIRMED", event: FREE })).toBeNull();
-    expect(cancelReasonOf({ status: "CONFIRMED", event: paid })).toBe(
-      "Pengembalian dana ditangani di luar sistem.",
-    );
-    expect(cancelReasonOf({ status: "PENDING_PAYMENT", event: paid })).toBe(
+    expect(
+      cancelReasonOf({ status: "CONFIRMED", event: FREE, payment: null }),
+    ).toBeNull();
+    expect(
+      cancelReasonOf({
+        status: "CONFIRMED",
+        event: paid,
+        payment: payment("PAID"),
+      }),
+    ).toBe(REFUND);
+    expect(
+      cancelReasonOf({
+        status: "PENDING_PAYMENT",
+        event: paid,
+        payment: payment("PENDING"),
+      }),
+    ).toBe(
       "Menunggu pembayaran. Kursi kembali sendiri bila tagihan kedaluwarsa.",
     );
-    expect(cancelReasonOf({ status: "EXPIRED", event: paid })).toBe(
-      "Pendaftaran ini sudah tidak aktif.",
-    );
+    expect(
+      cancelReasonOf({
+        status: "EXPIRED",
+        event: paid,
+        payment: payment("EXPIRED"),
+      }),
+    ).toBe("Pendaftaran ini sudah tidak aktif.");
+    expect(
+      cancelReasonOf({
+        status: "EXPIRED",
+        event: paid,
+        payment: payment("PAID"),
+      }),
+    ).toBe(REFUND);
   });
 
   test("pesan server ke field", () => {

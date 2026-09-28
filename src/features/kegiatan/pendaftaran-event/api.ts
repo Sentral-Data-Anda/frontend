@@ -5,7 +5,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ddlKeys, useDdlSearch } from "@/hooks/use-ddl-options";
 import type { ListState } from "@/hooks/use-list-params";
 import { useListQuery } from "@/hooks/use-list-query";
-import { fetchList, fetchOne } from "@/lib/api/fetcher";
+import { FetchError, fetchList, fetchOne } from "@/lib/api/fetcher";
 
 import type {
   EventOption,
@@ -111,6 +111,13 @@ export function useReissueInvoice(code: string) {
     onSuccess: (response) => {
       queryClient.setQueryData(pendaftaranKeys.detail(code), response);
       return onInvalidate();
+    },
+    onError: (error) => {
+      if (error instanceof FetchError && error.status === 409) {
+        return queryClient.invalidateQueries({
+          queryKey: pendaftaranKeys.detail(code),
+        });
+      }
     },
   });
 }

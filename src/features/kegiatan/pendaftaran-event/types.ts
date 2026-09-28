@@ -23,7 +23,7 @@ export type RegistrationEvent = {
   name: string;
   startDate: string;
   endDate: string;
-  startTime: string;
+  startTime: string | null;
   endTime: string | null;
   isPaid: boolean;
   price: string | null;
@@ -81,12 +81,11 @@ export type EventOption = {
   name: string;
   startDate: string;
   endDate: string;
-  startTime: string;
-  endTime?: string | null;
+  startTime: string | null;
+  endTime: string | null;
   capacity: number;
   registeredCount: number;
   isPaid: boolean;
   price: string | null;
   isOpen: boolean;
-  isFull?: boolean;
 };

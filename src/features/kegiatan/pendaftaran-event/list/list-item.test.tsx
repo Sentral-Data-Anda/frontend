@@ -34,7 +34,7 @@ describe("baris peserta", () => {
     render(<PendaftaranListItemRow registration={ROW} />);
 
     expect(
-      screen.getByText("Latihan Paduan Suara · 0812••••0006"),
+      screen.getByText("0812••••0006 · Latihan Paduan Suara"),
     ).toBeTruthy();
     expect(screen.getByText("Terkonfirmasi")).toBeTruthy();
     expect(
@@ -60,7 +60,7 @@ describe("baris peserta", () => {
     );
 
     expect(
-      screen.getByText("Latihan Paduan Suara · 0812••••7766 · Tamu"),
+      screen.getByText("Tamu · 0812••••7766 · Latihan Paduan Suara"),
     ).toBeTruthy();
     expect(screen.getByText("Menunggu pembayaran")).toBeTruthy();
   });

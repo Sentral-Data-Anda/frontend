@@ -62,14 +62,14 @@ export const priceOf = (price: string | null) =>
   price === null ? null : formatRupiah(Number(price));
 
 export const isEventFull = (event: EventOption) =>
-  event.isFull === true || event.registeredCount >= event.capacity;
+  event.registeredCount >= event.capacity;
 
 export const seatsLeftOf = (event: EventOption) =>
   Math.max(0, event.capacity - event.registeredCount);
 
 export const quotaTextOf = (event: EventOption) =>
   [
-    `${Math.min(event.registeredCount, event.capacity)} dari ${event.capacity} kursi terisi`,
+    `${event.registeredCount} dari ${event.capacity} kursi terisi`,
     isEventFull(event) ? "Penuh" : null,
     event.isPaid && event.price ? `${priceOf(event.price)} per peserta` : null,
   ]
@@ -100,14 +100,18 @@ export const formOptionOf = (event: EventOption): SelectOption => {
 };
 
 export const formatEventTime = (
-  event: Pick<RegistrationEvent, "startDate" | "endDate" | "startTime"> & {
-    endTime?: string | null;
-  },
+  event: Pick<
+    RegistrationEvent,
+    "startDate" | "endDate" | "startTime" | "endTime"
+  >,
 ) => {
   const isOneDay = event.startDate.slice(0, 10) === event.endDate.slice(0, 10);
   const date = isOneDay
     ? formatDate(event.startDate)
     : `${formatDateShort(event.startDate)} – ${formatDateShort(event.endDate)}`;
+
+  if (!event.startTime) return date;
+
   const time = event.endTime
     ? `${event.startTime}–${event.endTime}`
     : event.startTime;
@@ -115,18 +119,20 @@ export const formatEventTime = (
   return `${date}, ${time}`;
 };
 
+const REFUND_REASON = "Pengembalian dana ditangani di luar sistem.";
+
 export const cancelReasonOf = (
-  registration: Pick<RegistrationDetail, "status" | "event">,
+  registration: Pick<RegistrationDetail, "status" | "event" | "payment">,
 ) => {
-  if (registration.status === "PENDING_PAYMENT") {
+  const { status, event, payment } = registration;
+
+  if (status === "PENDING_PAYMENT") {
     return "Menunggu pembayaran. Kursi kembali sendiri bila tagihan kedaluwarsa.";
   }
-  if (registration.status !== "CONFIRMED") {
-    return "Pendaftaran ini sudah tidak aktif.";
+  if (payment?.status === "PAID" || (status === "CONFIRMED" && event.isPaid)) {
+    return REFUND_REASON;
   }
-  if (registration.event.isPaid) {
-    return "Pengembalian dana ditangani di luar sistem.";
-  }
+  if (status !== "CONFIRMED") return "Pendaftaran ini sudah tidak aktif.";
 
   return null;
 };

@@ -10,7 +10,8 @@
  *   MOCK_PENDAFTARAN_GATEWAY_OFF=1        → event berbayar 503 sebelum menulis
  *   MOCK_PENDAFTARAN_GATEWAY_DOWN=1       → event berbayar 201 dengan invoiceUrl null
  *   MOCK_PENDAFTARAN_INVOICE_502=1        → POST /:code/invoice 502 (gateway gagal)
- *   MOCK_PENDAFTARAN_INVOICE_PAID=1       → POST /:code/invoice 200, tagihan lama terbayar bersamaan (CONFIRMED/PAID, invoiceUrl null)
+ *   MOCK_PENDAFTARAN_INVOICE_409=1        → POST /:code/invoice 409, tagihan berubah (baris jadi lunas)
+ *   MOCK_PENDAFTARAN_INVOICE_PAID=1      → POST /:code/invoice 200, tagihan lama terbayar bersamaan (CONFIRMED/PAID, invoiceUrl null)
  */
 import { MENU } from "../../../src/config/menu";
 import {
@@ -18,8 +19,12 @@ import {
   JEMAAT_PHONE,
   REGISTRATION,
   TODAY,
+  holdersOf,
+  isHoldingSeat,
+  isLapsed,
   isLive,
   jemaatOf,
+  readStatusOf,
   paymentCodeOf,
   registrationCodeOf,
   type EventRow,
@@ -53,7 +58,6 @@ const STATUSES: RegistrationStatus[] = [
 ];
 
 const INVOICE_TTL_MS = 60 * 60 * 1000;
-const GRACE_MS = 5 * 60 * 1000;
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const GATEWAY_DOWN =
@@ -70,24 +74,6 @@ const failure = (status: number, error: string, path?: string) =>
 const notFound = () => failure(404, "Pendaftaran Tidak Ditemukan");
 
 const eventOf = (id: number) => EVENT.find((row) => row.id === id);
-
-const isLapsed = (row: RegistrationRow, now = Date.now()) =>
-  row.status === "PENDING_PAYMENT" &&
-  row.payment?.status === "PENDING" &&
-  new Date(row.payment.expiredAt ?? 0).getTime() + GRACE_MS < now;
-
-const statusOf = (row: RegistrationRow): RegistrationStatus =>
-  isLapsed(row) ? "EXPIRED" : row.status;
-
-const holders = (eventId: number) =>
-  REGISTRATION.filter(
-    (row) =>
-      row.eventId === eventId &&
-      (row.status === "CONFIRMED" ||
-        (row.status === "PENDING_PAYMENT" &&
-          row.payment?.status === "PENDING" &&
-          !isLapsed(row))),
-  ).length;
 
 export const maskPhone = (phone: string) =>
   phone.length <= 8
@@ -119,7 +105,7 @@ const jemaatView = (id: number | null) => {
 };
 
 const detailView = (row: RegistrationRow) => {
-  const isExpired = isLapsed(row);
+  const isExpired = isLapsed(row) && row.payment?.status === "PENDING";
   const event = eventOf(row.eventId) as EventRow;
 
   return {
@@ -128,7 +114,7 @@ const detailView = (row: RegistrationRow) => {
     participantName: row.participantName,
     participantPhone: row.participantPhone,
     participantEmail: row.participantEmail,
-    status: statusOf(row),
+    status: readStatusOf(row),
     createdAt: row.createdAt,
     event: eventView(event),
     jemaat: jemaatView(row.jemaatId),
@@ -176,7 +162,7 @@ const listRows = (url: URL) => {
     (row) => eventId === null || row.eventId === eventId,
   )
     .filter((row) => jemaatId === null || row.jemaatId === jemaatId)
-    .filter((row) => !status || statusOf(row) === status)
+    .filter((row) => !status || readStatusOf(row) === status)
     .filter(
       (row) =>
         !filter ||
@@ -324,7 +310,7 @@ const onCreate = async (request: Request) => {
   }
   if (
     process.env.MOCK_PENDAFTARAN_FULL ||
-    holders(event.id) >= event.capacity
+    holdersOf(event.id) >= event.capacity
   ) {
     return failure(
       409,
@@ -337,8 +323,7 @@ const onCreate = async (request: Request) => {
       (row) =>
         row.eventId === event.id &&
         row.jemaatId === jemaat.id &&
-        (row.status === "CONFIRMED" ||
-          (row.status === "PENDING_PAYMENT" && !isLapsed(row))),
+        isHoldingSeat(row),
     )
   ) {
     return failure(409, "Jemaat ini sudah terdaftar pada event tersebut");
@@ -347,7 +332,7 @@ const onCreate = async (request: Request) => {
   for (const row of REGISTRATION) {
     if (row.eventId === event.id && isLapsed(row)) {
       row.status = "EXPIRED";
-      if (row.payment) row.payment.status = "EXPIRED";
+      if (row.payment?.status === "PENDING") row.payment.status = "EXPIRED";
     }
   }
 
@@ -385,7 +370,7 @@ const onCreate = async (request: Request) => {
 };
 
 const onCancel = (row: RegistrationRow) => {
-  const status = statusOf(row);
+  const status = readStatusOf(row);
 
   if (status === "PENDING_PAYMENT") {
     return failure(
@@ -414,7 +399,7 @@ const onCancel = (row: RegistrationRow) => {
 
 const onReissue = (row: RegistrationRow) => {
   const event = eventOf(row.eventId) as EventRow;
-  const status = statusOf(row);
+  const status = readStatusOf(row);
 
   if (!event.isPaid || !row.payment) {
     return failure(
@@ -443,8 +428,20 @@ const onReissue = (row: RegistrationRow) => {
       "Payment Gateway Belum Dikonfigurasi. Hubungi Administrator",
     );
   }
+  if (process.env.MOCK_PENDAFTARAN_INVOICE_409) {
+    row.status = "CONFIRMED";
+    row.payment.status = "PAID";
+
+    return failure(
+      409,
+      "Tagihan Pendaftaran Ini Baru Saja Berubah. Muat Ulang Lalu Coba Lagi",
+    );
+  }
   if (process.env.MOCK_PENDAFTARAN_INVOICE_502) {
-    return failure(502, "Tagihan Pembayaran Gagal Dibuat. Coba Lagi");
+    return failure(
+      502,
+      "Tidak Bisa Menghubungi Payment Gateway. Coba Lagi Sebentar Lagi",
+    );
   }
 
   if (process.env.MOCK_PENDAFTARAN_INVOICE_PAID) {

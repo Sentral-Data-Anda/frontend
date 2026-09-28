@@ -36,9 +36,9 @@ const kindOf = (registration: Registration) =>
 
 const metaOf = (registration: Registration) =>
   [
-    registration.event.name,
-    maskPhone(registration.participantPhone),
     registration.jemaat ? null : PARTICIPANT_KIND_LABEL.tamu,
+    maskPhone(registration.participantPhone),
+    registration.event.name,
   ]
     .filter(Boolean)
     .join(" · ");
