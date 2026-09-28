@@ -3,6 +3,7 @@ import type { MockHandler } from "../kit";
 import { activityLogMock } from "./activity-log";
 import { bapelMock } from "./bapel";
 import { eventMock } from "./event";
+import { fasilitasMock } from "./fasilitas";
 import { galeriMock } from "./galeri";
 import { hariLiburMock } from "./hari-libur";
 import { ibadahMock } from "./ibadah";
@@ -13,6 +14,7 @@ import { keluargaMock } from "./keluarga";
 import { masterJemaatMock } from "./master-jemaat";
 import { pelayanMock } from "./pelayan";
 import { pelayananDdlMock } from "./pelayanan-ddl";
+import { peminjamanRuangMock } from "./peminjaman-ruang";
 import { pendaftaranEventMock } from "./pendaftaran-event";
 import { pengumumanMock } from "./pengumuman";
 import { pengumumanFeedMock } from "./pengumuman-feed";
@@ -23,6 +25,7 @@ import { riwayatJemaatMock } from "./riwayat-jemaat";
 import { roleJemaatMock } from "./role-jemaat";
 import { rolePelayanMock } from "./role-pelayan";
 import { roleUserMock } from "./role-user";
+import { ruangMock } from "./ruang";
 import { setelanPersetujuanMock } from "./setelan-persetujuan";
 import { skillMusikMock } from "./skill-musik";
 import { templateJadwalMock } from "./template-jadwal";
@@ -61,4 +64,7 @@ export const MOCK_HANDLERS: MockHandler[] = [
   pengumumanFeedMock,
   pengumumanMock,
   kegiatanMock,
+  ruangMock,
+  peminjamanRuangMock,
+  fasilitasMock,
 ];

@@ -81,7 +81,6 @@ import {
   listPayments,
   listPayrolls,
   jemaatTypeGender,
-  listLoanRoom,
   listMyOfferings,
   listWaitingApprovals,
   neraca,
@@ -785,15 +784,6 @@ Bun.serve({
         message: "Berhasil Mendapatkan Report",
         data: jemaatTypeGender(),
       });
-    }
-
-    if (path === "/loan-room") {
-      return list(
-        listLoanRoom(url.searchParams),
-        url,
-        "Pemakaian Ruangan",
-        "Pemakaian Ruangan",
-      );
     }
 
     // 200 `[]` bila kosong — tidak ada 404 di endpoint "saya".

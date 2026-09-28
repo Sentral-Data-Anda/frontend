@@ -84,7 +84,8 @@ export const PERSONAS: Record<string, Persona> = {
       [MENU.PENDAFTARAN_EVENT]: REGISTRATION_ACTIONS,
       [MENU.GALERI]: KEJEMAATAN_ACTIONS,
       [MENU.PENGUMUMAN]: KEJEMAATAN_ACTIONS,
-      [MENU.PEMINJAMAN_RUANG]: V,
+      [MENU.PEMINJAMAN_RUANG]: KEJEMAATAN_ACTIONS,
+      [MENU.RUANG]: KEJEMAATAN_ACTIONS,
     },
   },
   // §3b, plus IBADAH/EVENT VIEW supaya Agenda dan "· 2 kebaktian" tampil, dan
@@ -220,7 +221,6 @@ export const GUARD: Record<string, MenuSlug> = {
   "/payroll": MENU.PAYROLL,
   "/periode-fiskal": MENU.PERIODE_FISKAL,
   "/jurnal": MENU.JURNAL,
-  "/loan-room": MENU.PEMINJAMAN_RUANG,
   "/jemaat": MENU.DAFTAR_JEMAAT,
 };
 
@@ -313,7 +313,6 @@ export function listWaitingApprovals() {
   if (process.env.MOCK_NO_APPROVAL) return [];
   return [
     approval(19, "PROGRAM", 12_000_000, 5, "Komisi Wanita"),
-    approval(20, "LOAN_ROOM", 0, 3, "Komisi Musik"),
     approval(21, "CASH_EXPENSE", 4_500_000, 2, "Komisi Pemuda"),
   ];
 }
@@ -581,95 +580,6 @@ export function listBirthdays(month: number) {
     ),
     umur: year - Number(born),
   }));
-}
-
-// ---------------------------------------------------------------------------
-// GET /loan-room — `loan_room.repository.ts:30-57`. TIDAK ada filter status;
-// `date` atau `startDate` + `endDate`; urut `date asc, startTime asc`.
-
-const loanRoom = (
-  id: number,
-  days: number,
-  startTime: string,
-  endTime: string,
-  purpose: string,
-  status: string,
-  room: string,
-  bapel: string,
-  borrower: string,
-) => ({
-  id,
-  publicId: `lr-${id}`,
-  code: `LRM-2026-${String(id).padStart(4, "0")}`,
-  date: iso(addDays(today(), days)),
-  startTime,
-  endTime,
-  purpose,
-  status,
-  ...audit,
-  bapel: { code: "BPL-00" + id, name: bapel },
-  room: { code: "R-0" + id, name: room, image: [] },
-  jemaat: { code: "JMT-000" + id, name: borrower, gender: "P" },
-});
-
-export function listLoanRoom(params: URLSearchParams) {
-  const rows = [
-    loanRoom(
-      1,
-      0,
-      "18:00",
-      "20:00",
-      "Latihan paduan suara",
-      "APPROVED",
-      "Aula",
-      "Komisi Musik",
-      "Sari Lubis",
-    ),
-    loanRoom(
-      2,
-      2,
-      "10:00",
-      "12:00",
-      "Rapat pengurus",
-      "PENDING",
-      "Ruang Konsistori",
-      "Komisi Wanita",
-      "Debora Manurung",
-    ),
-    loanRoom(
-      3,
-      4,
-      "16:00",
-      "18:00",
-      "Kelas katekisasi",
-      "PENDING",
-      "Ruang Kelas 2",
-      "Komisi Pemuda",
-      "Fransiska Halim",
-    ),
-    loanRoom(
-      4,
-      6,
-      "09:00",
-      "13:00",
-      "Pernikahan",
-      "PENDING",
-      "Gedung Gereja",
-      "Majelis Jemaat",
-      "Lidya Hutagalung",
-    ),
-  ];
-  const date = params.get("date");
-  const start = params.get("startDate");
-  const end = params.get("endDate");
-
-  return rows.filter((row) =>
-    date
-      ? row.date === iso(date)
-      : start && end
-        ? row.date >= iso(start) && row.date <= iso(end)
-        : true,
-  );
 }
 
 // ---------------------------------------------------------------------------
@@ -1158,8 +1068,6 @@ export function ddlRows(
       return rowsOf(BAPEL_NAMES, "BPL");
     case "role-user":
       return ROLE_USERS;
-    case "room":
-      return [...ROOM_ROWS].sort((a, b) => a.name.localeCompare(b.name));
     case "provinces":
       return PROVINCES;
     case "regencies":
