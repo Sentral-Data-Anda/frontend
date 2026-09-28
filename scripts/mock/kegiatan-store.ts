@@ -312,7 +312,7 @@ export const EVENT: EventRow[] = [
     endTime: "12:00",
     isPublish: true,
   }),
-  event(8, 1, {
+  event(8, 2, {
     name: "Konser Natal",
     bapelId: MUSIK,
     ...indoor(GEDUNG),
@@ -422,13 +422,27 @@ export const REGISTRATION: RegistrationRow[] = [
   registration(14, 4, 9, "CONFIRMED"),
 ];
 
-export const holdersOf = (eventId: number) =>
+// be-sada: tagihan yang lewat masih memegang kursi 5 menit (callback terlambat).
+export const SEAT_GRACE_MS = 5 * 60 * 1000;
+
+export const isLapsed = (row: RegistrationRow, now = Date.now()) =>
+  row.status === "PENDING_PAYMENT" &&
+  (row.payment?.status !== "PENDING" ||
+    Date.parse(row.payment.expiredAt ?? "") + SEAT_GRACE_MS <= now);
+
+// Status yang dibaca be-sada: PENDING_PAYMENT yang lewat tenggang tampil EXPIRED.
+export const readStatusOf = (
+  row: RegistrationRow,
+  now = Date.now(),
+): RegistrationStatus => (isLapsed(row, now) ? "EXPIRED" : row.status);
+
+export const isHoldingSeat = (row: RegistrationRow, now = Date.now()) =>
+  row.status === "CONFIRMED" ||
+  (row.status === "PENDING_PAYMENT" && !isLapsed(row, now));
+
+export const holdersOf = (eventId: number, now = Date.now()) =>
   REGISTRATION.filter(
-    (row) =>
-      row.eventId === eventId &&
-      (row.status === "CONFIRMED" ||
-        (row.status === "PENDING_PAYMENT" &&
-          (row.payment?.expiredAt ?? "") > new Date().toISOString())),
+    (row) => row.eventId === eventId && isHoldingSeat(row, now),
   ).length;
 
 const roomOf = (id: number | null) =>
@@ -636,26 +650,26 @@ const visibleAnnouncements = () =>
     .sort(byFeedOrder);
 
 // Sesudah perubahan be-sada "feed": semua TERBIT, semua kategori dan komisi.
-export const announcementFeed = (limit: number) =>
+export const announcementFeed = (limit: number, page = 1) =>
   visibleAnnouncements()
-    .slice(0, limit)
+    .slice((page - 1) * limit, page * limit)
     .map((row) => ({
-      code: row.code,
+      id: row.publicId,
       category: row.category,
       title: row.title,
       content: row.content,
       publishDate: iso(row.publishDate),
       expiryDate: row.expiryDate ? iso(row.expiryDate) : null,
       isPinned: row.isPinned,
-      bapel:
-        row.bapelId === null
-          ? null
-          : { name: bapelOf(row.bapelId)?.name ?? "" },
+      bapelName:
+        row.bapelId === null ? null : (bapelOf(row.bapelId)?.name ?? null),
       files: attachmentsOf("Announcement", row.id).map((file) => {
         const { name, mimeType, url } = attachmentOf(file);
         return { name, mimeType, url };
       }),
     }));
+
+export const visibleAnnouncementCount = () => visibleAnnouncements().length;
 
 // `/public/announcement`: hanya seluruh jemaat, tanpa berita duka/ucapan syukur.
 export const publicAnnouncements = (limit: number) =>

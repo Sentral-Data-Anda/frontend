@@ -25,10 +25,12 @@ export function useListQuery<T>({
   queryKey,
   fetchPage,
   params,
+  refetchInterval,
 }: {
   queryKey: QueryKey;
   fetchPage: (apiQuery: string) => Promise<ApiListResponse<T>>;
   params: ListState;
+  refetchInterval?: number;
 }) {
   const isDesktop = useIsDesktop();
   const pageQuery = toApiQuery(params);
@@ -39,6 +41,7 @@ export function useListQuery<T>({
     queryFn: () => fetchPage(pageQuery),
     placeholderData: keepPreviousData,
     gcTime: LIST_GC_TIME,
+    refetchInterval,
     enabled: isDesktop === true,
   });
 
@@ -50,6 +53,7 @@ export function useListQuery<T>({
     getNextPageParam,
     placeholderData: keepPreviousData,
     gcTime: LIST_GC_TIME,
+    refetchInterval,
     enabled: isDesktop === false,
   });
 

@@ -23,11 +23,18 @@ export const ddlEvents = (url: URL) => {
   const isOpenOnly = url.searchParams.get("isOpen") === "1";
 
   return EVENT.filter(isLive)
-    .map((row) => ({
-      row,
-      isOpen: row.isPublish && row.startDate >= TODAY,
-      registeredCount: holdersOf(row.id),
-    }))
+    .map((row) => {
+      const registeredCount = holdersOf(row.id);
+
+      return {
+        row,
+        registeredCount,
+        isOpen:
+          row.isPublish &&
+          row.startDate >= TODAY &&
+          registeredCount < row.capacity,
+      };
+    })
     .filter((item) => !isOpenOnly || item.isOpen)
     .sort((a, b) =>
       isOpenOnly
@@ -41,12 +48,12 @@ export const ddlEvents = (url: URL) => {
       startDate: `${row.startDate}T00:00:00.000Z`,
       endDate: `${row.endDate}T00:00:00.000Z`,
       startTime: row.startTime,
+      endTime: row.endTime,
       capacity: row.capacity,
       registeredCount,
       isPaid: row.isPaid,
       price: row.price,
       isOpen,
-      isFull: registeredCount >= row.capacity,
     }));
 };
 
@@ -68,7 +75,11 @@ export const kegiatanMock: MockHandler = (ctx) => {
 
     return rows.length === 0
       ? json({ status: 404, error: "Event Tidak Ditemukan" }, 404)
-      : json({ status: 200, message: "Berhasil Mendapatkan Data", data: rows });
+      : json({
+          status: 200,
+          message: "Berhasil Mendapatkan Semua Event",
+          data: rows,
+        });
   }
 
   if (ctx.path === "/event") {
