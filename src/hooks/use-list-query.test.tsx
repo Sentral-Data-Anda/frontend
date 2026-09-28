@@ -72,6 +72,7 @@ const onRender = (
   isDesktop: boolean,
   server: ReturnType<typeof onServer>,
   params = onParams(),
+  refetchInterval?: number,
 ) => {
   const viewport = onStubViewport(isDesktop);
   onRestoreViewport = viewport.onRestore;
@@ -86,6 +87,7 @@ const onRender = (
         queryKey: ["uji"],
         fetchPage: server.fetchPage,
         params: props,
+        refetchInterval,
       }),
     {
       initialProps: params,
@@ -233,5 +235,31 @@ describe("useListQuery — desktop (berhalaman)", () => {
     expect(codes(result.current.items)).toEqual(["row-3", "row-4"]);
     expect(result.current.pagination.mode).toBe("pages");
     expect(server.requests).toEqual(["page=2&limit=2", "page=1&limit=2"]);
+  });
+});
+
+describe("useListQuery — refetchInterval", () => {
+  test("membaca ulang halaman berkala di desktop", async () => {
+    const server = onServer(5);
+    onRender(true, server, onParams(), 40);
+
+    await waitFor(() => expect(server.requests.length).toBeGreaterThan(2));
+    expect(new Set(server.requests)).toEqual(new Set(["page=1&limit=2"]));
+  });
+
+  test("membaca ulang halaman yang sudah dimuat di HP", async () => {
+    const server = onServer(5);
+    onRender(false, server, onParams(), 40);
+
+    await waitFor(() => expect(server.requests.length).toBeGreaterThan(2));
+  });
+
+  test("tanpa refetchInterval tidak membaca ulang", async () => {
+    const server = onServer(5);
+    onRender(true, server);
+
+    await waitFor(() => expect(server.requests).toHaveLength(1));
+    await new Promise((resolve) => setTimeout(resolve, 120));
+    expect(server.requests).toHaveLength(1);
   });
 });
