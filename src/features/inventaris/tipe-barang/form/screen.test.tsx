@@ -264,7 +264,7 @@ describe("simpan", () => {
 });
 
 describe("tambah", () => {
-  test("Ya mengirim POST dengan nama dinormalisasi, kembali ke daftar dan sorot baris baru", async () => {
+  test("Ya mengirim POST dengan spasi dirapikan, huruf apa adanya, kembali ke daftar dan sorot baris baru", async () => {
     const listUrl = `${TIPE_BARANG_LIST_PATH}?search=alat`;
     window.sessionStorage.setItem(
       `list-return:${TIPE_BARANG_LIST_PATH}`,
@@ -285,7 +285,7 @@ describe("tambah", () => {
     fireEvent.click(screen.getByRole("button", { name: "Ya" }));
 
     await waitFor(() => expect(replaced).toEqual([listUrl]));
-    expect(calls).toEqual([{ method: "POST", body: { name: "Alat Tulis" } }]);
+    expect(calls).toEqual([{ method: "POST", body: { name: "alat tulis" } }]);
     expect(
       window.sessionStorage.getItem(`list-focus:${TIPE_BARANG_LIST_PATH}`),
     ).toBe("TYP_ITM-0006");

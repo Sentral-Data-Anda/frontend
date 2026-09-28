@@ -90,11 +90,11 @@ describe("mock /unit", () => {
   });
 
   test("tambah: 201 dengan kode baru yang tidak bentrok; duplikat 409 name", async () => {
-    const created = await onCall("POST", "/unit", { name: "  Kotak  Besar " });
+    const created = await onCall("POST", "/unit", { name: "  kotak   BESAR " });
     expect(created?.status).toBe(201);
 
     const row = created?.body.data as { code: string; name: string };
-    expect(row.name).toBe("Kotak Besar");
+    expect(row.name).toBe("kotak BESAR");
     expect(UNIT.filter((item) => item.code === row.code)).toHaveLength(1);
 
     expect(await onCall("POST", "/unit", { name: "pak" })).toEqual({

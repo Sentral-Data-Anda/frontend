@@ -6,6 +6,7 @@
  *   MOCK_UNIT_SAVE_ERROR=500   → POST/PUT/DELETE menjawab 500
  */
 import { MENU } from "../../../src/config/menu";
+import { collapseSpaces } from "../../../src/lib/name";
 import {
   STOCK_ITEM,
   UNIT,
@@ -25,8 +26,6 @@ const view = ({ id, publicId, code, name }: MasterRow) => ({
   code,
   name,
 });
-
-const normalize = (name: string) => name.trim().replace(/\s+/g, " ");
 
 const byName = (a: MasterRow, b: MasterRow) =>
   a.name.localeCompare(b.name, "id");
@@ -57,7 +56,7 @@ const parse = (body: { name?: unknown }) => {
     return { failure: nameError(400, "Mohon Lengkapi Nama Satuan") };
   }
 
-  const name = normalize(body.name);
+  const name = collapseSpaces(body.name);
   const message = messageOf(name);
 
   return message ? { failure: nameError(400, message) } : { name };
@@ -72,14 +71,6 @@ const taken = () => nameError(409, "Satuan Sudah Tersedia");
 
 const isInUse = (id: number) =>
   STOCK_ITEM.some((row) => isLive(row) && row.unitId === id);
-
-// codeOf berhitung dari 1, sedangkan seed UNIT sudah memakai kode awal.
-const freshCode = () => {
-  let code = codeOf("UNT");
-  while (UNIT.some((row) => row.code === code)) code = codeOf("UNT");
-
-  return code;
-};
 
 const actionOf = (method: string) =>
   method === "POST"
@@ -135,7 +126,7 @@ export const satuanMock: MockHandler = async ({
     const row: MasterRow = {
       id,
       publicId: crypto.randomUUID(),
-      code: freshCode(),
+      code: codeOf("UNT"),
       name: parsed.name,
       deletedAt: null,
     };

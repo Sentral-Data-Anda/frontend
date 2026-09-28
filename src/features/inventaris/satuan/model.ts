@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import { MENU, menuHref } from "@/config/menu";
-import { normalizeName } from "@/lib/name";
+import { collapseSpaces } from "@/lib/name";
 
 import type { Satuan, SatuanPayload } from "./types";
 
@@ -10,7 +10,7 @@ export const SATUAN_LIST_PATH = menuHref(MENU.INVENTARIS, MENU.SATUAN);
 export const satuanFormSchema = z.object({
   name: z
     .string()
-    .transform(normalizeName)
+    .transform(collapseSpaces)
     .pipe(
       z
         .string()
@@ -24,7 +24,7 @@ export type SatuanFormValues = z.infer<typeof satuanFormSchema>;
 export const EMPTY_SATUAN_FORM: SatuanFormValues = { name: "" };
 
 export const toSatuanPayload = (values: SatuanFormValues): SatuanPayload => ({
-  name: normalizeName(values.name),
+  name: collapseSpaces(values.name),
 });
 
 export const toSatuanForm = (satuan: Satuan): SatuanFormValues => ({

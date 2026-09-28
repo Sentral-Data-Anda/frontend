@@ -6,6 +6,7 @@
  *   MOCK_TYPE_ITEM_SAVE_ERROR=500   → POST/PUT/DELETE menjawab 500
  */
 import { MENU } from "../../../src/config/menu";
+import { collapseSpaces } from "../../../src/lib/name";
 import {
   ASSET,
   STOCK_ITEM,
@@ -30,8 +31,6 @@ const view = ({ id, publicId, code, name }: MasterRow) => ({
   depreciationExpenseAccountId: null,
   accumulatedDepreciationAccountId: null,
 });
-
-const normalize = (name: string) => name.trim().replace(/\s+/g, " ");
 
 const byName = (a: MasterRow, b: MasterRow) =>
   a.name.localeCompare(b.name, "id");
@@ -62,7 +61,7 @@ const parse = (body: { name?: unknown }) => {
     return { failure: nameError(400, "Mohon Lengkapi Nama Tipe Barang") };
   }
 
-  const name = normalize(body.name);
+  const name = collapseSpaces(body.name);
   const message = messageOf(name);
 
   return message ? { failure: nameError(400, message) } : { name };
@@ -78,14 +77,6 @@ const taken = () => nameError(409, "Tipe Barang Sudah Tersedia");
 const isInUse = (id: number) =>
   ASSET.some((row) => isLive(row) && row.typeId === id) ||
   STOCK_ITEM.some((row) => isLive(row) && row.typeId === id);
-
-// codeOf berhitung dari 1, sedangkan seed TYPE_ITEM sudah memakai kode awal.
-const freshCode = () => {
-  let code = codeOf("TYP_ITM");
-  while (TYPE_ITEM.some((row) => row.code === code)) code = codeOf("TYP_ITM");
-
-  return code;
-};
 
 const actionOf = (method: string) =>
   method === "POST"
@@ -141,7 +132,7 @@ export const tipeBarangMock: MockHandler = async ({
     const row: MasterRow = {
       id,
       publicId: crypto.randomUUID(),
-      code: freshCode(),
+      code: codeOf("TYP_ITM"),
       name: parsed.name,
       deletedAt: null,
     };

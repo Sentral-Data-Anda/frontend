@@ -100,12 +100,12 @@ describe("mock /type-item", () => {
 
   test("tambah: 201 dengan kode baru yang tidak bentrok; duplikat 409 name", async () => {
     const created = await onCall("POST", "/type-item", {
-      name: "  Alat  Tulis ",
+      name: "  tv   LED ",
     });
     expect(created?.status).toBe(201);
 
     const row = created?.body.data as { code: string; name: string };
-    expect(row.name).toBe("Alat Tulis");
+    expect(row.name).toBe("tv LED");
     expect(TYPE_ITEM.filter((item) => item.code === row.code)).toHaveLength(1);
 
     expect(await onCall("POST", "/type-item", { name: "elektronik" })).toEqual({

@@ -261,7 +261,7 @@ describe("simpan", () => {
 });
 
 describe("tambah", () => {
-  test("Ya mengirim POST dengan nama dinormalisasi, kembali ke daftar dan sorot baris baru", async () => {
+  test("Ya mengirim POST dengan spasi dirapikan, huruf apa adanya, kembali ke daftar dan sorot baris baru", async () => {
     const listUrl = `${SATUAN_LIST_PATH}?search=kotak`;
     window.sessionStorage.setItem(`list-return:${SATUAN_LIST_PATH}`, listUrl);
     const calls = onMockApi();
@@ -279,7 +279,7 @@ describe("tambah", () => {
     fireEvent.click(screen.getByRole("button", { name: "Ya" }));
 
     await waitFor(() => expect(replaced).toEqual([listUrl]));
-    expect(calls).toEqual([{ method: "POST", body: { name: "Kotak Besar" } }]);
+    expect(calls).toEqual([{ method: "POST", body: { name: "kotak besar" } }]);
     expect(
       window.sessionStorage.getItem(`list-focus:${SATUAN_LIST_PATH}`),
     ).toBe("UNT-0006");

@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import { MENU, menuHref } from "@/config/menu";
-import { normalizeName } from "@/lib/name";
+import { collapseSpaces } from "@/lib/name";
 
 import type { TipeBarang, TipeBarangPayload } from "./types";
 
@@ -15,7 +15,7 @@ const NAME_ERROR = "Isi nama tipe, minimal 2 karakter";
 export const tipeBarangFormSchema = z.object({
   name: z
     .string()
-    .transform(normalizeName)
+    .transform(collapseSpaces)
     .pipe(
       z.string().min(2, NAME_ERROR).max(50, "Nama tipe maksimal 50 karakter"),
     ),
@@ -27,7 +27,7 @@ export const EMPTY_TIPE_BARANG_FORM: TipeBarangFormValues = { name: "" };
 
 export const toTipeBarangPayload = (
   values: TipeBarangFormValues,
-): TipeBarangPayload => ({ name: normalizeName(values.name) });
+): TipeBarangPayload => ({ name: collapseSpaces(values.name) });
 
 export const toTipeBarangForm = (
   tipeBarang: TipeBarang,

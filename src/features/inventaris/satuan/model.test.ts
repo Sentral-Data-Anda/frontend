@@ -38,10 +38,11 @@ describe("satuanFormSchema", () => {
 });
 
 describe("form ↔ payload", () => {
-  test("payload hanya { name } yang dinormalisasi", () => {
-    expect(toSatuanPayload({ name: "  Kotak   Besar " })).toEqual({
-      name: "Kotak Besar",
+  test("payload hanya { name }: spasi dirapikan, huruf tidak diubah", () => {
+    expect(toSatuanPayload({ name: "  kotak   besar " })).toEqual({
+      name: "kotak besar",
     });
+    expect(satuanFormSchema.parse({ name: " mL " })).toEqual({ name: "mL" });
   });
 
   test("detail be-sada jadi nilai form", () => {
