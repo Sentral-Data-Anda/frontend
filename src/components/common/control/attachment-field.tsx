@@ -172,7 +172,7 @@ export const AttachmentField = (props: PropTypes) => {
               "grid gap-2",
               isSingle
                 ? "max-w-96 grid-cols-1"
-                : "grid-cols-2 @min-[26rem]:grid-cols-3 @min-[40rem]:grid-cols-5",
+                : "grid-cols-2 @min-[26rem]:grid-cols-3 @min-[34rem]:grid-cols-4 @min-[44rem]:grid-cols-5",
             )}
           >
             {value.map((item, index) => (
