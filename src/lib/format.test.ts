@@ -4,6 +4,7 @@ import {
   formatDate,
   firstNameOf,
   formatDateTime,
+  formatNumber,
   formatRupiah,
   formatRupiahCompact,
   formatTimeRange,
@@ -69,5 +70,12 @@ describe("formatTimeRange", () => {
   test("tanpa jam selesai hanya jam mulai", () => {
     expect(formatTimeRange("07:00", null)).toBe("07.00");
     expect(formatTimeRange("07:00")).toBe("07.00");
+  });
+});
+
+describe("formatNumber", () => {
+  test("memakai pemisah ribuan titik", () => {
+    expect(formatNumber(1250)).toBe("1.250");
+    expect(formatNumber(0)).toBe("0");
   });
 });
