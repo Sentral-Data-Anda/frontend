@@ -13,11 +13,19 @@ import {
 import { inputVariants } from "@/components/ui";
 import { cn } from "@/lib/utils";
 
-export type SelectOption = { value: string; label: string; hint?: string };
+export type SelectOption = {
+  value: string;
+  label: string;
+  hint?: string;
+  isDisabled?: boolean;
+};
 
 export const FIELD_POPUP = `${MENU_POPUP} max-h-[min(18rem,var(--available-height))] w-(--anchor-width) origin-(--transform-origin) overflow-y-auto overscroll-contain transition-[opacity,scale] duration-100 data-ending-style:scale-[0.98] data-ending-style:opacity-0 data-starting-style:scale-[0.98] data-starting-style:opacity-0`;
 
-export const FIELD_ITEM = `${MENU_ITEM} grid cursor-pointer grid-cols-[1rem_1fr]`;
+export const FIELD_ITEM = `${MENU_ITEM} group grid cursor-pointer grid-cols-[1rem_1fr] data-disabled:cursor-not-allowed data-disabled:text-muted-foreground data-disabled:data-highlighted:bg-muted data-disabled:data-highlighted:text-muted-foreground`;
+
+export const FIELD_HINT =
+  "text-muted-foreground group-data-highlighted:text-primary-foreground/80 group-data-disabled:group-data-highlighted:text-muted-foreground ms-auto shrink-0 text-caption font-normal whitespace-nowrap";
 
 interface PropTypes {
   id?: string;
@@ -91,14 +99,24 @@ export const SelectField = (props: PropTypes) => {
                   <Select.Item
                     key={option.value}
                     value={option.value}
+                    disabled={option.isDisabled}
                     className={FIELD_ITEM}
                   >
                     <Select.ItemIndicator className="col-start-1">
                       <Check className="size-3.5" aria-hidden />
                     </Select.ItemIndicator>
-                    <Select.ItemText className="col-start-2 truncate">
-                      {option.label}
-                    </Select.ItemText>
+                    {option.hint ? (
+                      <span className="col-start-2 flex min-w-0 items-baseline gap-2">
+                        <Select.ItemText className="truncate">
+                          {option.label}
+                        </Select.ItemText>
+                        <span className={FIELD_HINT}>{option.hint}</span>
+                      </span>
+                    ) : (
+                      <Select.ItemText className="col-start-2 truncate">
+                        {option.label}
+                      </Select.ItemText>
+                    )}
                   </Select.Item>
                 ))}
               </Select.List>

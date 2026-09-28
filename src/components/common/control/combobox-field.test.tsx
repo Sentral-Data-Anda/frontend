@@ -273,3 +273,39 @@ describe("ComboboxField: opsi dibuat ulang tiap render (pola useDdlSearch)", () 
     expect(selected.getAttribute("aria-selected")).toBe("true");
   });
 });
+
+describe("ComboboxField dengan opsi isDisabled", () => {
+  const OPTIONS = [
+    { value: "1", label: "Budi (Keyboard)" },
+    { value: "2", label: "Sinta", hint: "Terjadwal 07:30", isDisabled: true },
+  ];
+
+  test("opsi nonaktif ditandai, hint tampil, klik tidak memilih", async () => {
+    const picked: string[] = [];
+
+    render(
+      <ComboboxField
+        value=""
+        onValueChange={(value) => picked.push(value)}
+        options={OPTIONS}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Buka pilihan" }));
+
+    const disabled = await screen.findByRole("option", { name: /Sinta/ });
+    expect(disabled.getAttribute("aria-disabled")).toBe("true");
+    expect(disabled.textContent).toBe("SintaTerjadwal 07:30");
+
+    fireEvent.click(disabled);
+    expect(picked).toEqual([]);
+  });
+
+  test("nilai tersimpan yang nonaktif tetap terbaca di input", () => {
+    render(
+      <ComboboxField value="2" onValueChange={() => {}} options={OPTIONS} />,
+    );
+
+    expect(screen.getByRole<HTMLInputElement>("combobox").value).toBe("Sinta");
+  });
+});
