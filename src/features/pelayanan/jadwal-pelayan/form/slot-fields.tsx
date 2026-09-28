@@ -93,7 +93,11 @@ export const SlotFields = (props: PropTypes) => {
           />
         </div>
 
-        <div className="ml-auto self-end">
+        <div className="ml-auto">
+          <span aria-hidden className="mb-1.5 block text-body select-none">
+            &nbsp;
+          </span>
+
           <RowOrderControls
             prefix={SLOT_PREFIX}
             noun="petugas"
