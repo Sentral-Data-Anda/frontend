@@ -87,15 +87,21 @@ export const RuangDetailScreen = (props: PropTypes) => {
           <div
             role="status"
             aria-busy="true"
-            className="grid grid-cols-[repeat(auto-fill,minmax(9rem,1fr))] gap-2 px-gutter pt-9"
+            className="flex flex-wrap items-start gap-x-6 gap-y-8 px-gutter pt-9"
           >
-            {Array.from({ length: 3 }, (_, index) => (
-              <span
-                key={index}
-                aria-hidden
-                className="bg-skeleton aspect-video animate-pulse rounded-control"
-              />
-            ))}
+            <span className="grid min-w-0 flex-[1_1_20rem] grid-cols-[repeat(auto-fill,minmax(9rem,1fr))] gap-2">
+              {Array.from({ length: 2 }, (_, index) => (
+                <span
+                  key={index}
+                  aria-hidden
+                  className="bg-skeleton aspect-video animate-pulse rounded-control"
+                />
+              ))}
+            </span>
+            <span
+              aria-hidden
+              className="bg-skeleton h-40 max-w-3xl flex-[999_1_32rem] animate-pulse rounded-lg"
+            />
             <span className="sr-only">Memuat ruang…</span>
           </div>
         )}
@@ -138,7 +144,7 @@ export const RuangDetailScreen = (props: PropTypes) => {
       <div className="flex flex-wrap items-start gap-x-6 gap-y-8 px-gutter">
         <section
           aria-labelledby="room-photos"
-          className="min-w-0 flex-[999_1_32rem]"
+          className="min-w-0 flex-[1_1_20rem]"
         >
           <h2 id="room-photos" className={HEADING}>
             Foto
@@ -155,7 +161,7 @@ export const RuangDetailScreen = (props: PropTypes) => {
 
         <Panel
           label="Pemakaian 30 hari ke depan"
-          className="flex-[1_1_20rem] px-gutter py-4"
+          className="max-w-3xl flex-[999_1_32rem] px-gutter py-4"
         >
           <h2 className={HEADING}>Pemakaian 30 hari ke depan</h2>
           <UsageList code={room.code} />

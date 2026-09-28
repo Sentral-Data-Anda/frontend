@@ -22,12 +22,18 @@ export const UsageRow = (props: PropTypes) => {
       {isLinked ? (
         <Link
           href={loanEditHref(usage.code)}
-          className="focus-visible:ring-ring -my-2 min-w-0 cursor-pointer truncate rounded-sm py-2 font-medium underline-offset-2 outline-none hover:underline focus-visible:ring-2"
+          title={usage.name}
+          className="focus-visible:ring-ring -mx-1 -my-2.5 block min-w-0 cursor-pointer rounded-sm px-1 py-2.5 font-medium underline-offset-2 outline-none hover:underline focus-visible:ring-2"
         >
-          {usage.name}
+          <span className="line-clamp-2 wrap-break-word">{usage.name}</span>
         </Link>
       ) : (
-        <span className="min-w-0 truncate font-medium">{usage.name}</span>
+        <span
+          className="line-clamp-2 min-w-0 font-medium wrap-break-word"
+          title={usage.name}
+        >
+          {usage.name}
+        </span>
       )}
 
       <span className="text-muted-foreground text-caption">
