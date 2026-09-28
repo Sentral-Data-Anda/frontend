@@ -351,6 +351,21 @@ describe("ubah", () => {
     });
   });
 
+  test("Batal sesudah mengubah jam menanyakan konfirmasi batal", async () => {
+    onMockApi();
+    await onRenderLoadedEdit();
+
+    onType("Jam selesai", "19:30");
+    fireEvent.click(screen.getByRole("button", { name: "Batal" }));
+
+    expect(
+      await screen.findByText(
+        "Apakah Anda ingin membatalkan? Perubahan yang belum disimpan akan hilang.",
+      ),
+    ).toBeTruthy();
+    expect(replaced).toEqual([]);
+  });
+
   test("409 nama ganda: galat di nama, fokus ke nama, tetap di form", async () => {
     onMockApi({
       save: {
