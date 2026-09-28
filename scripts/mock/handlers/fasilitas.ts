@@ -25,10 +25,10 @@ export const fasilitasMock: MockHandler = (ctx) => {
     const rows = roomDdl();
 
     return rows.length === 0 || process.env.MOCK_DDL_EMPTY
-      ? json({ status: 404, error: "Ruangan Tidak Ditemukan" }, 404)
+      ? json({ status: 404, error: "Ruang Tidak Ditemukan" }, 404)
       : json({
           status: 200,
-          message: "Berhasil Mendapatkan Semua Ruangan",
+          message: "Berhasil Mendapatkan Semua Ruang",
           data: rows,
         });
   }
@@ -39,8 +39,8 @@ export const fasilitasMock: MockHandler = (ctx) => {
     return list(
       listLoans(ctx.url.searchParams),
       ctx.url,
-      "Pemakaian Ruangan",
-      "Pemakaian Ruangan",
+      "Peminjaman",
+      "Peminjaman",
     );
   }
 
