@@ -18,6 +18,7 @@ import { IBADAH_LIST_PATH } from "../model";
 import type { IbadahDetail } from "../types";
 
 const actions: { current: MenuAction[] } = { current: [] };
+const jadwalActions: { current: MenuAction[] } = { current: [] };
 const search = { current: "" };
 const replaced: string[] = [];
 const pushed: string[] = [];
@@ -32,12 +33,17 @@ mock.module("next/navigation", () => ({
 }));
 
 mock.module("@/features/auth/use-menu-access", () => ({
-  useMenuAccess: () => ({
-    isCanView: actions.current.includes("VIEW"),
-    isCanCreate: actions.current.includes("CREATE"),
-    isCanUpdate: actions.current.includes("UPDATE"),
-    isCanDelete: actions.current.includes("DELETE"),
-  }),
+  useMenuAccess: (slug: string) => {
+    const granted =
+      slug === "JADWAL_PELAYAN" ? jadwalActions.current : actions.current;
+
+    return {
+      isCanView: granted.includes("VIEW"),
+      isCanCreate: granted.includes("CREATE"),
+      isCanUpdate: granted.includes("UPDATE"),
+      isCanDelete: granted.includes("DELETE"),
+    };
+  },
 }));
 
 const { IbadahFormScreen } = await import("./screen");
@@ -51,6 +57,8 @@ afterEach(() => {
   replaced.length = 0;
   pushed.length = 0;
   search.current = "";
+  jadwalActions.current = [];
+  rosters.failure = undefined;
   requested.length = 0;
   alamat.failure = undefined;
   alamat.gate = undefined;
@@ -79,6 +87,12 @@ const DETAIL: IbadahDetail = {
   address: null,
   hostKeluarga: null,
   zoneChurch: null,
+};
+
+const LEGACY: IbadahDetail = {
+  ...DETAIL,
+  code: "IBD_0001-2026-0002",
+  jadwalPelayan: { id: 12, code: "JDL_0001-2026-0012", name: "Jadwal lama" },
 };
 
 const HOME: IbadahDetail = {
@@ -151,6 +165,19 @@ const ADDRESSES: Record<string, unknown> = {
   "23": { id: 23, address: "Jl. Sembiring No. 23", zoneChurch: null },
 };
 
+const ROSTERS = [
+  { id: 7, code: "JDL_0001-2026-0007", name: "Pelayan Minggu I" },
+  { id: 8, code: "JDL_0002-2026-0008", name: "Persekutuan Pagi" },
+  { id: 9, code: "JDL_0002-2026-0009", name: "Ibadah Pemuda" },
+].map((roster, index) => ({
+  ...roster,
+  date: "2026-09-20T00:00:00.000Z",
+  startTime: ["07:30", "09:00", "17:00"][index],
+  endTime: ["10:00", "11:00", "19:00"][index],
+}));
+
+const rosters: { failure?: Failure } = {};
+
 const requested: string[] = [];
 const alamat: { failure?: Failure; gate?: Promise<void> } = {};
 
@@ -183,6 +210,13 @@ const onMockApi = (
       await alamat.gate;
 
       return alamat.failure ? fail(alamat.failure) : ok(ADDRESSES[address[1]]);
+    }
+    if (url.startsWith("/api/v1/ddl/jadwal-pelayan?date=")) {
+      if (rosters.failure) return fail(rosters.failure);
+
+      return url.endsWith("=2026-09-20")
+        ? ok(ROSTERS)
+        : fail({ status: 404, error: "Jadwal Pelayan Tidak Ditemukan" });
     }
     if (url === "/api/v1/ddl/type-ibadah") return ok(TYPES);
     if (url === "/api/v1/ddl/zone-church") return ok(ZONES);
@@ -221,6 +255,7 @@ const onMockApi = (
       return loadFailure ? fail(loadFailure) : ok(DETAIL);
     }
     if (url === `/api/v1/ibadah/${PADANG.code}`) return ok(PADANG);
+    if (url === `/api/v1/ibadah/${LEGACY.code}`) return ok(LEGACY);
     if (url === `/api/v1/ibadah/${HOME.code}`) return ok(HOME);
     if (url === `/api/v1/ibadah/${VILLA.code}`) return ok(VILLA);
 
@@ -818,5 +853,227 @@ describe("tempat", () => {
       (screen.getByLabelText(/^Alamat/) as HTMLTextAreaElement).value,
     ).toBe("Jl. Raya Ciater KM 12");
     expect(zoneText()).toContain("Pilih wilayah");
+  });
+});
+
+describe("jadwal pelayan", () => {
+  const JADWAL_FIELD = "Jadwal pelayan";
+  const CLEARED =
+    "Jadwal pelayan dikosongkan karena tidak sesuai dengan tanggal atau jam baru.";
+
+  const trigger = () => screen.getByLabelText(JADWAL_FIELD);
+
+  const optionTexts = async () => {
+    fireEvent.click(trigger());
+    await screen.findByRole("option", { name: /Tanpa jadwal pelayan/ });
+
+    return screen.getAllByRole("option").map((option) => option.textContent);
+  };
+
+  const onPickRoster = async (name: string) => {
+    fireEvent.click(trigger());
+    const option = await screen.findByRole("option", {
+      name: new RegExp(name),
+    });
+    fireEvent.pointerDown(option);
+    fireEvent.click(option);
+    await waitFor(() => expect(trigger().textContent).toContain(name));
+  };
+
+  const onRenderLinked = async (code = CODE) => {
+    onMockApi();
+    onRenderForm(["VIEW", "UPDATE"], code);
+    await waitFor(() => expect(trigger().textContent).toContain("Pelayan"));
+  };
+
+  const setTime = (label: string, value: string) =>
+    fireEvent.change(screen.getByLabelText(label), { target: { value } });
+
+  test("tambah: terkunci sampai tanggal dan jam terisi; hari tanpa jadwal → pesan kosong", async () => {
+    onMockApi();
+    onRenderForm(["VIEW", "CREATE"]);
+
+    expect(trigger().textContent).toContain("Isi tanggal dan jam dulu");
+    expect(trigger().hasAttribute("data-disabled")).toBe(true);
+
+    const date = screen.getByLabelText("Tanggal");
+    fireEvent.change(date, { target: { value: "27/09/2026" } });
+    fireEvent.blur(date);
+    expect(trigger().hasAttribute("data-disabled")).toBe(true);
+
+    setTime("Jam mulai", "08:00");
+    await waitFor(() =>
+      expect(trigger().hasAttribute("data-disabled")).toBe(false),
+    );
+    await waitFor(() =>
+      expect(requested).toContain("/api/v1/ddl/jadwal-pelayan?date=2026-09-27"),
+    );
+    fireEvent.click(trigger());
+    expect(
+      await screen.findByText(
+        "Belum ada jadwal pelayan yang jamnya sesuai dengan ibadah ini.",
+      ),
+    ).toBeTruthy();
+  });
+
+  test("ubah: opsi hanya yang bersinggungan; tautan baca hanya dengan VIEW Jadwal Pelayan", async () => {
+    jadwalActions.current = ["VIEW"];
+    await onRenderLinked();
+
+    expect(trigger().textContent).toContain("Pelayan Minggu I");
+    expect(
+      screen
+        .getByRole("link", { name: /Lihat petugas jadwal ini/ })
+        .getAttribute("href"),
+    ).toBe("/pelayanan/jadwal-pelayan/JDL_0001-2026-0007");
+    expect(await optionTexts()).toEqual([
+      "Tanpa jadwal pelayan",
+      "Pelayan Minggu I07:30–10:00",
+      "Persekutuan Pagi09:00–11:00",
+    ]);
+
+    cleanup();
+    jadwalActions.current = [];
+    await onRenderLinked();
+    expect(screen.queryByRole("link", { name: /Lihat petugas/ })).toBeNull();
+  });
+
+  test("tautan baca dengan isian berubah minta konfirmasi dulu", async () => {
+    jadwalActions.current = ["VIEW"];
+    await onRenderLinked();
+    onDirty();
+
+    fireEvent.click(screen.getByRole("link", { name: /Lihat petugas/ }));
+    fireEvent.click(await screen.findByRole("button", { name: "Ya" }));
+
+    await waitFor(() =>
+      expect(pushed).toEqual(["/pelayanan/jadwal-pelayan/JDL_0001-2026-0007"]),
+    );
+  });
+
+  test("jadwal tersimpan di luar opsi tetap tampil dan terkirim", async () => {
+    const calls = onMockApi();
+    onRenderForm(["VIEW", "UPDATE"], LEGACY.code);
+    await waitFor(() => expect(trigger().textContent).toContain("Jadwal lama"));
+
+    fireEvent.click(screen.getByRole("button", { name: "Simpan" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Ya" }));
+
+    await waitFor(() => expect(calls).toHaveLength(1));
+    expect(calls[0]).toMatchObject({ body: { jadwalPelayanId: 12 } });
+  });
+
+  test("jam digeser tapi masih bersinggungan: tautan tetap", async () => {
+    await onRenderLinked();
+
+    setTime("Jam selesai", "10:30");
+
+    expect(trigger().textContent).toContain("Pelayan Minggu I");
+    expect(screen.queryByText(CLEARED)).toBeNull();
+  });
+
+  test("jam digeser keluar: dikosongkan, status, tautan baca hilang", async () => {
+    jadwalActions.current = ["VIEW"];
+    await onRenderLinked();
+
+    setTime("Jam selesai", "19:30");
+    setTime("Jam mulai", "18:00");
+
+    const status = await screen.findByText(CLEARED);
+    expect(status.getAttribute("role")).toBe("status");
+    expect(trigger().textContent).toContain("Pilih jadwal pelayan");
+    expect(screen.queryByText("Lihat petugas jadwal ini")).toBeNull();
+  });
+
+  test("memilih lagi sesudah dikosongkan: status hilang, PUT membawa jadwal baru", async () => {
+    const calls = onMockApi();
+    onRenderForm(["VIEW", "UPDATE"], CODE);
+    await waitFor(() =>
+      expect(trigger().textContent).toContain("Pelayan Minggu I"),
+    );
+
+    setTime("Jam selesai", "19:30");
+    setTime("Jam mulai", "18:00");
+    await screen.findByText(CLEARED);
+
+    await onPickRoster("Ibadah Pemuda");
+    await waitFor(() => expect(screen.queryByText(CLEARED)).toBeNull());
+
+    fireEvent.click(screen.getByRole("button", { name: "Simpan" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Ya" }));
+
+    await waitFor(() => expect(calls).toHaveLength(1));
+    expect(calls[0]).toMatchObject({
+      body: { startTime: "18:00", endTime: "19:30", jadwalPelayanId: 9 },
+    });
+  });
+
+  test("tanggal diganti: dikosongkan, PUT mengirim null", async () => {
+    const calls = onMockApi();
+    onRenderForm(["VIEW", "UPDATE"], CODE);
+    await waitFor(() =>
+      expect(trigger().textContent).toContain("Pelayan Minggu I"),
+    );
+
+    const date = screen.getByLabelText("Tanggal");
+    fireEvent.change(date, { target: { value: "27/09/2026" } });
+    fireEvent.blur(date);
+
+    expect(await screen.findByText(CLEARED)).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: "Simpan" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Ya" }));
+
+    await waitFor(() => expect(calls).toHaveLength(1));
+    expect(calls[0]).toMatchObject({
+      body: { date: "2026-09-27", jadwalPelayanId: null },
+    });
+  });
+
+  test("400 tidak sesuai → pesan di field jadwal pelayan, fokus ke sana", async () => {
+    const error =
+      "Jadwal Pelayan Tersebut Tidak Sesuai Dengan Tanggal atau Jam Ibadah";
+    onMockApi({
+      save: {
+        status: 400,
+        error,
+        issues: [{ path: "jadwalPelayanId", message: error }],
+      },
+    });
+    onRenderForm(["VIEW", "UPDATE"], CODE);
+    await waitFor(() =>
+      expect(trigger().textContent).toContain("Pelayan Minggu I"),
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Simpan" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Ya" }));
+
+    await waitFor(() =>
+      expect(document.activeElement?.id).toBe("jadwalPelayanId"),
+    );
+    expect(
+      screen.getByText(
+        "Jadwal pelayan ini tidak sesuai dengan tanggal atau jam ibadah. Pilih jadwal lain.",
+      ),
+    ).toBeTruthy();
+    expect(replaced).toEqual([]);
+  });
+
+  test("daftar jadwal gagal dimuat: pesan dan Coba lagi", async () => {
+    rosters.failure = { status: 500, error: "Kesalahan server." };
+    onMockApi();
+    onRenderForm(["VIEW", "UPDATE"], CODE);
+
+    const retry = await screen.findByRole("button", { name: "Coba lagi" });
+    expect(retry.parentElement?.textContent).toContain(
+      "Jadwal pelayan gagal dimuat.",
+    );
+
+    rosters.failure = undefined;
+    fireEvent.click(retry);
+
+    await waitFor(() =>
+      expect(document.body.textContent).not.toContain("gagal dimuat"),
+    );
   });
 });

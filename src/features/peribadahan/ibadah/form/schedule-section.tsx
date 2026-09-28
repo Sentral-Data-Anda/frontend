@@ -5,15 +5,20 @@ import { ControlField, FormSection } from "@/components/common/form";
 import { useDdlOptions } from "@/hooks/use-ddl-options";
 import { endOfYearIso } from "@/lib/date";
 
+import type { IbadahDetail } from "../types";
+
 import { type IbadahForm } from "./form-options";
+import { JadwalPelayanField } from "./jadwal-pelayan-field";
 
 interface PropTypes {
   form: IbadahForm;
   isDisabled: boolean;
+  saved?: IbadahDetail;
+  onOpenJadwal: (href: string) => void;
 }
 
 export const ScheduleSection = (props: PropTypes) => {
-  const { form, isDisabled } = props;
+  const { form, isDisabled, saved, onOpenJadwal } = props;
 
   const savedTypeId = form.formState.defaultValues?.typeIbadahId ?? "";
   const types = useDdlOptions("type-ibadah", "id", savedTypeId);
@@ -65,6 +70,13 @@ export const ScheduleSection = (props: PropTypes) => {
       >
         {(field) => <Input {...field} type="time" />}
       </ControlField>
+
+      <JadwalPelayanField
+        form={form}
+        isDisabled={isDisabled}
+        saved={saved?.jadwalPelayan}
+        onOpenJadwal={onOpenJadwal}
+      />
     </FormSection>
   );
 };

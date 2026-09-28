@@ -145,12 +145,14 @@ export const IbadahFormScreen = (props: PropTypes) => {
     confirm.onBack(isDirty)(event);
   };
 
+  const onLeaveTo = (href: string) => {
+    setPickLeaveHref(href);
+    confirm.onCancel(isDirty, () => router.push(href));
+  };
+
   const onCopy = (event: MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
-    if (isLocked) return;
-
-    setPickLeaveHref(copyHref);
-    confirm.onCancel(isDirty, () => router.push(copyHref));
+    if (!isLocked) onLeaveTo(copyHref);
   };
 
   const onInvalid = () => setRejectedField(FIRST_INVALID);
@@ -395,7 +397,12 @@ export const IbadahFormScreen = (props: PropTypes) => {
       ) : null}
 
       <div className={isHidden ? "hidden" : undefined}>
-        <ScheduleSection form={form} isDisabled={isBusy} />
+        <ScheduleSection
+          form={form}
+          isDisabled={isBusy}
+          saved={isEdit ? detail.data : undefined}
+          onOpenJadwal={onLeaveTo}
+        />
         <ConductSection
           form={form}
           isDisabled={isBusy}
