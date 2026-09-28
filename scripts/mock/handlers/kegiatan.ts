@@ -1,9 +1,7 @@
 /**
  * Bagian bersama grup Kegiatan milik TL (docs/design/kegiatan/README.md §4a):
- * berkas `/media/*`, `GET /ddl/event` (bentuk sesudah B3), dan cadangan
- * `GET /event` + `GET /public/announcement` dari `kegiatan-store.ts` untuk
- * Beranda. Terdaftar SESUDAH handler fitur, jadi `event.ts` (F1) yang menjawab
- * `/event` begitu ada; cadangan ini dibuang pasca-merge F1.
+ * berkas `/media/*`, `GET /ddl/event` (bentuk sesudah B3), dan
+ * `GET /public/announcement` dari `kegiatan-store.ts`.
  *
  *   MOCK_DDL_EMPTY=1 → `/ddl/event` 404
  */
@@ -12,11 +10,10 @@ import {
   EVENT,
   holdersOf,
   isLive,
-  listEvents,
   publicAnnouncements,
   TODAY,
 } from "../kegiatan-store";
-import { denied, json, list, paging, type MockHandler } from "../kit";
+import { denied, json, paging, type MockHandler } from "../kit";
 import { serveMedia } from "../media";
 
 export const ddlEvents = (url: URL) => {
@@ -80,12 +77,6 @@ export const kegiatanMock: MockHandler = (ctx) => {
           message: "Berhasil Mendapatkan Semua Event",
           data: rows,
         });
-  }
-
-  if (ctx.path === "/event") {
-    if (!ctx.can(MENU.EVENT, "VIEW")) return denied();
-
-    return list(listEvents(ctx.url.searchParams), ctx.url, "Event", "Event");
   }
 
   if (ctx.path === "/public/announcement") {

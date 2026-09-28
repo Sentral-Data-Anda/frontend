@@ -11,7 +11,6 @@ import {
   readStatusOf,
   REGISTRATION,
   SEAT_GRACE_MS,
-  TODAY,
 } from "../kegiatan-store";
 import { multerRejection } from "../media";
 
@@ -122,30 +121,6 @@ describe("GET /ddl/event", () => {
         (row: { name: string }) => row.name === "Latihan Paduan Suara",
       ),
     ).toMatchObject({ isOpen: false, registeredCount: 3, capacity: 3 });
-  });
-});
-
-describe("GET /event (cadangan Beranda)", () => {
-  test("rentang bersinggungan: event yang sedang berlangsung ikut", async () => {
-    const body = await (
-      await call(`/event?startDate=${TODAY}&endDate=${TODAY}&isPublish=1`)
-    ).json();
-
-    expect(body.data.map((row: { name: string }) => row.name)).toEqual([
-      "Sekolah Minggu Kreatif",
-    ]);
-  });
-
-  test("isPublish=1 membuang draf", async () => {
-    const body = await (await call("/event?isPublish=1&limit=100")).json();
-
-    expect(
-      body.data.some((row: { isPublish: boolean }) => !row.isPublish),
-    ).toBe(false);
-  });
-
-  test("tanpa EVENT: 403", async () => {
-    expect((await call("/event", [])).status).toBe(403);
   });
 });
 
