@@ -112,6 +112,20 @@ describe("seed store mematuhi aturan simpan be-sada (R3)", () => {
     }
   });
 
+  test("aturan 6: tidak ada jemaat dua kali dalam satu jadwal, perorangan maupun lewat kelompok", () => {
+    for (const jadwal of JADWAL_PELAYAN) {
+      const jemaatIds = jadwal.detail.flatMap((slot) => [
+        ...PELAYAN.filter((row) => row.id === slot.pelayanId).map(
+          (row) => row.jemaatId,
+        ),
+        ...(GROUP_PELAYAN.find((row) => row.id === slot.groupPelayanId)
+          ?.memberIds ?? []),
+      ]);
+
+      expect(new Set(jemaatIds).size).toBe(jemaatIds.length);
+    }
+  });
+
   test("template memakai tugas yang ada; Debora (pelayan 4) tidak terjadwal", () => {
     expect(TEMPLATE_JADWAL.every((row) => row.detail.length > 0)).toBe(true);
     expect(

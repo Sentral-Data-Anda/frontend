@@ -12,6 +12,9 @@ import { cn } from "@/lib/utils";
 import {
   FIELD_HINT,
   FIELD_ITEM,
+  FIELD_ITEM_HINTED,
+  FIELD_LABEL,
+  FIELD_LABELED,
   FIELD_POPUP,
   type SelectOption,
 } from "./select-field";
@@ -181,14 +184,17 @@ export const ComboboxField = (props: PropTypes) => {
                         key={option.value}
                         value={option}
                         disabled={option.isDisabled}
-                        className={cn(FIELD_ITEM)}
+                        className={cn(
+                          FIELD_ITEM,
+                          option.hint && FIELD_ITEM_HINTED,
+                        )}
                       >
                         <Combobox.ItemIndicator className="col-start-1">
                           <Check className="size-3.5" aria-hidden />
                         </Combobox.ItemIndicator>
                         {option.hint ? (
-                          <span className="col-start-2 flex min-w-0 items-baseline gap-2">
-                            <span className="truncate">{option.label}</span>
+                          <span className={FIELD_LABELED}>
+                            <span className={FIELD_LABEL}>{option.label}</span>
                             <span className={FIELD_HINT}>{option.hint}</span>
                           </span>
                         ) : (

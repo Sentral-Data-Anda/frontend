@@ -26,7 +26,7 @@ function ToastList() {
     <Toast.Root
       key={toast.id}
       toast={toast}
-      className="bg-card ring-hairline flex items-start gap-3 rounded-lg p-3 shadow-lg ring-1 transition-[opacity,translate] duration-200 data-ending-style:translate-y-2 data-ending-style:opacity-0 data-limited:opacity-0 data-starting-style:translate-y-2 data-starting-style:opacity-0"
+      className="bg-card ring-hairline data-[type=error]:bg-destructive/10 data-[type=error]:ring-destructive/40 data-[type=warning]:bg-warning-100 data-[type=warning]:ring-warning-400 flex items-start gap-3 rounded-lg p-3 shadow-lg ring-1 transition-[opacity,translate] duration-200 data-ending-style:translate-y-2 data-ending-style:opacity-0 data-limited:opacity-0 data-starting-style:translate-y-2 data-starting-style:opacity-0"
     >
       <Toast.Content className="min-w-0 flex-1">
         <Toast.Title className="text-body font-medium" />
