@@ -6,6 +6,7 @@ import { ddlKeys } from "@/hooks/use-ddl-options";
 import type { ListState } from "@/hooks/use-list-params";
 import { useListQuery } from "@/hooks/use-list-query";
 import { fetchList, fetchOne } from "@/lib/api/fetcher";
+import { MEDIA_REFETCH_MS } from "@/lib/attachment";
 
 import {
   toEventApiFilters,
@@ -32,6 +33,7 @@ export function useEventList(params: ListState) {
       status: "",
       apiFilters: toEventApiFilters(params.filters, params.status),
     },
+    refetchInterval: MEDIA_REFETCH_MS,
   });
 }
 
@@ -41,6 +43,7 @@ export function useEventDetail(code: string | undefined) {
     queryFn: () => fetchOne<ChurchEvent>(pathOf(code)),
     enabled: Boolean(code),
     staleTime: 0,
+    refetchInterval: MEDIA_REFETCH_MS,
     select: (response) => response.data,
   });
 }

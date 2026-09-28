@@ -44,17 +44,6 @@ const findEvent = (code: string) =>
     (row) => isLive(row) && row.code.toLowerCase() === code.toLowerCase(),
   );
 
-// Seed store memberi Konser Natal kode yang sama dengan Latihan Paduan Suara.
-EVENT.forEach((row, index) => {
-  const earlier = EVENT.slice(0, index).filter(
-    (other) => other.bapelId === row.bapelId,
-  );
-
-  if (earlier.some((other) => other.code === row.code)) {
-    row.code = eventCodeOf(row.bapelId, earlier.length + 1);
-  }
-});
-
 type Parsed = Omit<EventRow, "id" | "publicId" | "code" | "deletedAt">;
 
 function parseEvent(

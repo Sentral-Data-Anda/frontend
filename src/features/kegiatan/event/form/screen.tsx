@@ -160,7 +160,9 @@ export const EventFormScreen = (props: PropTypes) => {
   const onRetryDetail = () => void detail.refetch();
 
   useEffect(() => {
-    if (detail.data) form.reset(toEventForm(detail.data));
+    if (detail.data) {
+      form.reset(toEventForm(detail.data), { keepDirtyValues: true });
+    }
   }, [detail.data, form]);
 
   useEffect(() => {

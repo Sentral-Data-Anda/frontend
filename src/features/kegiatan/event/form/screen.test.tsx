@@ -187,6 +187,19 @@ describe("form ubah berpendaftar", () => {
     expect(screen.getByText("3 dari 40 kursi terisi")).toBeTruthy();
   });
 
+  test("refetch berkala tidak menimpa isian yang sudah diubah", async () => {
+    onMockApi();
+    const queryClient = await onRenderRetret();
+    const name = screen.getByLabelText("Nama") as HTMLInputElement;
+
+    fireEvent.change(name, { target: { value: "Retret Pemuda Akbar" } });
+    await queryClient.refetchQueries({
+      queryKey: ["event", "detail", RETRET],
+    });
+
+    await waitFor(() => expect(name.value).toBe("Retret Pemuda Akbar"));
+  });
+
   test("simpan: PUT multipart tanpa foto, sorot baris, kembali, invalidasi daftar", async () => {
     const listUrl = `${EVENT_LIST_PATH}?status=terbit`;
     window.sessionStorage.setItem(`list-return:${EVENT_LIST_PATH}`, listUrl);
