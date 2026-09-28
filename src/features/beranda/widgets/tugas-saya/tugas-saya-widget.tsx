@@ -32,7 +32,7 @@ export const TugasSayaWidget = () => {
           4 pekan ke depan
         </span>
       }
-      actionLabel={access.isCanView ? "Buka jadwal pelayan" : undefined}
+      actionLabel={access.isCanView ? "Semua jadwal" : undefined}
       actionHref={
         access.isCanView
           ? menuHref(MENU.PELAYANAN, MENU.JADWAL_PELAYAN)
@@ -42,17 +42,25 @@ export const TugasSayaWidget = () => {
       minHeight="min-h-32"
     >
       {rows.length === 0 ? (
-        <EmptyState
-          isCompact
-          title="Tidak ada tugas pelayanan dalam 4 pekan ke depan"
-        />
+        <EmptyState isCompact title="Tidak ada tugas pelayanan" />
       ) : (
         <>
           <DashboardList label={TITLE}>
             {rows.slice(0, MAX_TASKS).map((row) => (
               <DashboardRow
                 key={row.key}
-                title={row.title}
+                title={
+                  row.group ? (
+                    <>
+                      {row.title}
+                      <Badge variant="secondary" className="ml-2 align-middle">
+                        {row.group}
+                      </Badge>
+                    </>
+                  ) : (
+                    row.title
+                  )
+                }
                 meta={
                   <>
                     <span className="block truncate" title={row.when}>
@@ -63,16 +71,7 @@ export const TugasSayaWidget = () => {
                     </span>
                   </>
                 }
-                trailing={
-                  row.group || row.isToday ? (
-                    <>
-                      {row.group ? (
-                        <Badge variant="secondary">{row.group}</Badge>
-                      ) : null}
-                      {row.isToday ? <Badge>Hari ini</Badge> : null}
-                    </>
-                  ) : undefined
-                }
+                trailing={row.isToday ? <Badge>Hari ini</Badge> : undefined}
                 href={row.href}
               />
             ))}

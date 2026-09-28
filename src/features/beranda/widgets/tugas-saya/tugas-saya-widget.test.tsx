@@ -1,33 +1,22 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, render, screen } from "@testing-library/react";
-import { afterEach, expect, test } from "bun:test";
-
-import { MENU } from "@/config/menu";
-import { SessionProvider } from "@/features/auth";
-import type { MenuNode } from "@/types/menu";
+import { afterEach, expect, mock, test } from "bun:test";
 
 import { tugasSayaKey, type TugasSayaItem } from "../../api";
 import { toDateKey } from "../../model";
 
-import { TugasSayaWidget } from "./tugas-saya-widget";
+const access = { isCanView: false };
 
-afterEach(cleanup);
+mock.module("@/features/auth/use-menu-access", () => ({
+  useMenuAccess: () => ({ ...access }),
+}));
 
-const node = (slug: string, action: MenuNode["action"]): MenuNode => ({
-  publicId: slug,
-  slug,
-  name: slug,
-  order: 1,
-  action,
-  children: [],
+const { TugasSayaWidget } = await import("./tugas-saya-widget");
+
+afterEach(() => {
+  cleanup();
+  access.isCanView = false;
 });
-
-const JADWAL_VIEW = [
-  {
-    ...node(MENU.PELAYANAN, []),
-    children: [node(MENU.JADWAL_PELAYAN, ["VIEW"])],
-  },
-];
 
 const task = (index: number): TugasSayaItem => ({
   date: "2026-10-04T00:00:00.000Z",
@@ -41,7 +30,7 @@ const task = (index: number): TugasSayaItem => ({
   ibadah: [],
 });
 
-const renderWidget = (items: TugasSayaItem[], menu: MenuNode[] = []) => {
+const renderWidget = (items: TugasSayaItem[]) => {
   const client = new QueryClient({
     defaultOptions: { queries: { staleTime: Infinity, retry: false } },
   });
@@ -49,18 +38,7 @@ const renderWidget = (items: TugasSayaItem[], menu: MenuNode[] = []) => {
 
   return render(
     <QueryClientProvider client={client}>
-      <SessionProvider
-        session={{
-          code: "U1",
-          username: "u1",
-          status: "ACTIVE",
-          roleUser: { name: "Peran", isAdmin: false },
-          jemaat: { name: "Andreas" },
-          menu,
-        }}
-      >
-        <TugasSayaWidget />
-      </SessionProvider>
+      <TugasSayaWidget />
     </QueryClientProvider>,
   );
 };
@@ -69,9 +47,8 @@ test("kosong: satu baris penjelasan, kartu tetap tampil", () => {
   renderWidget([]);
 
   expect(screen.getByText("Tugas saya")).toBeDefined();
-  expect(
-    screen.getByText("Tidak ada tugas pelayanan dalam 4 pekan ke depan"),
-  ).toBeDefined();
+  expect(screen.getByText("4 pekan ke depan")).toBeDefined();
+  expect(screen.getByText("Tidak ada tugas pelayanan")).toBeDefined();
 });
 
 test("maks 6 baris, sisanya diringkas", () => {
@@ -88,14 +65,13 @@ test("tanpa VIEW Jadwal Pelayan: baris dan aksi kartu bukan tautan", () => {
 });
 
 test("dengan VIEW Jadwal Pelayan: baris ke halaman baca, aksi ke daftar", () => {
-  renderWidget([task(1)], JADWAL_VIEW);
+  access.isCanView = true;
+  renderWidget([task(1)]);
 
   expect(
     screen.getByRole("link", { name: "Tugas 1" }).getAttribute("href"),
   ).toBe("/pelayanan/jadwal-pelayan/JDL-1");
   expect(
-    screen
-      .getByRole("link", { name: "Buka jadwal pelayan" })
-      .getAttribute("href"),
+    screen.getByRole("link", { name: "Semua jadwal" }).getAttribute("href"),
   ).toBe("/pelayanan/jadwal-pelayan");
 });
