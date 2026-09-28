@@ -63,10 +63,14 @@ describe("buildContentSecurityPolicy", () => {
     expect(directive("frame-ancestors", false)).toBe("frame-ancestors 'none'");
   });
 
-  test("upgrade-insecure-requests terpasang", () => {
+  test("upgrade-insecure-requests terpasang di production", () => {
     expect(directive("upgrade-insecure-requests")).toBe(
       "upgrade-insecure-requests",
     );
+  });
+
+  test("development tanpa upgrade-insecure-requests (media dev:mock http)", () => {
+    expect(directive("upgrade-insecure-requests", true)).toBeUndefined();
   });
 
   test("img-src hanya origin sendiri bila MEDIA_ORIGIN kosong", () => {

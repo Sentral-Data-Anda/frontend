@@ -45,7 +45,8 @@ export function buildContentSecurityPolicy({
 
     `frame-ancestors ${isDev ? "'self'" : "'none'"}`,
 
-    `upgrade-insecure-requests`,
+    // Di development media dev:mock ada di http://localhost port lain; upgrade memutusnya.
+    ...(isDev ? [] : ["upgrade-insecure-requests"]),
   ];
 
   return directives.join("; ");
