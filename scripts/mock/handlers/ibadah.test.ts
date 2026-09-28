@@ -230,20 +230,32 @@ describe("PUT dan DELETE /ibadah/:code", () => {
     );
   });
 
-  test("jadwal pelayan tersimpan tetap tertaut walau jam digeser", async () => {
+  test("jadwal pelayan tetap tertaut: jam digeser diperiksa ulang (B7c)", async () => {
     const linked = await findOn(lastWeekday(0), 1);
-    expect(linked.jadwalPelayan?.id).toBe(1);
+    expect(linked.jadwalPelayan).toMatchObject({
+      id: 1,
+      code: "JDL_0001-" + lastWeekday(0).slice(0, 4) + "-0001",
+    });
 
-    const { status } = await onCall("PUT", `/ibadah/${linked.code}`, {
-      ...BODY,
-      typeIbadahId: 1,
+    const moved = { ...BODY, typeIbadahId: 1, jadwalPelayanId: 1 };
+    const out = await onCall("PUT", `/ibadah/${linked.code}`, {
+      ...moved,
       date: linked.date.slice(0, 10),
       startTime: "11:00",
       endTime: null,
-      jadwalPelayanId: 1,
     });
+    expect(out.status).toBe(400);
+    expect(out.body.error).toBe(
+      "Jadwal Pelayan Tersebut Tidak Sesuai Dengan Tanggal atau Jam Ibadah",
+    );
 
-    expect(status).toBe(200);
+    const inside = await onCall("PUT", `/ibadah/${linked.code}`, {
+      ...moved,
+      date: linked.date.slice(0, 10),
+      startTime: "09:00",
+      endTime: "09:30",
+    });
+    expect(inside.status).toBe(200);
     expect((await findOn(lastWeekday(0), 1)).jadwalPelayan?.id).toBe(1);
   });
 

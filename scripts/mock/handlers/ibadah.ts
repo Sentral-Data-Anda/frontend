@@ -41,6 +41,7 @@ import {
   type MockAction,
   type MockHandler,
 } from "../kit";
+import { JADWAL_PELAYAN, type JadwalPelayanRow } from "../pelayanan-store";
 
 import { findKeluarga, keluargaRows } from "./keluarga";
 import { findTipeIbadah } from "./tipe-ibadah";
@@ -141,16 +142,9 @@ const SPECIAL = {
   voidOffering: { date: lastWeekday(3, 1), typeIbadahId: DOA },
 };
 
-const JADWAL_ROWS = [
-  {
-    id: 1,
-    code: "JDP-0001",
-    name: "Pelayan Ibadah Minggu I",
-    date: iso(SPECIAL.withJadwal.date),
-    startTime: "07:30",
-    endTime: "10:00",
-  },
-];
+const SEEDED_JADWAL = JADWAL_PELAYAN.find(
+  (row) => row.date === SPECIAL.withJadwal.date,
+);
 
 const isSpecial = (
   seed: Pick<Row, "date" | "typeIbadahId">,
@@ -336,7 +330,7 @@ const withSpecials = (seed: Seed): Seed => {
   }
   if (isSpecial(seed, SPECIAL.longTheme)) return { ...seed, theme: LONG_THEME };
   if (isSpecial(seed, SPECIAL.withJadwal)) {
-    return { ...seed, jadwalPelayanId: JADWAL_ROWS[0].id };
+    return { ...seed, jadwalPelayanId: SEEDED_JADWAL?.id ?? null };
   }
 
   return seed;
@@ -476,7 +470,7 @@ const present = (row: Row) => {
     typeIbadah: typeRelationOf(typeIbadahId),
     room: relationOf(ROOM_ROWS, roomId),
     bapel: relationOf(BAPEL_ROWS, bapelId),
-    jadwalPelayan: relationOf(JADWAL_ROWS, jadwalPelayanId),
+    jadwalPelayan: relationOf(JADWAL_PELAYAN, jadwalPelayanId),
     hostKeluarga: hostRelationOf(hostKeluargaId),
     zoneChurch: zoneRelationOf(zoneChurchId),
   };
@@ -650,6 +644,17 @@ const notFound = () => failure(404, "Ibadah Tidak Ditemukan");
 
 const isLive = (row: Row) => row.deletedAt === null;
 
+export const ibadahLinkedTo = (jadwalId: number) =>
+  allRows()
+    .filter((row) => isLive(row) && row.jadwalPelayanId === jadwalId)
+    .map((row) => ({
+      code: row.code,
+      date: row.date,
+      startTime: row.startTime,
+      endTime: row.endTime,
+      typeIbadah: { name: findTipeIbadah(row.typeIbadahId)?.name ?? "" },
+    }));
+
 const findByCode = (code: string) =>
   allRows().find(
     (row) => isLive(row) && row.code.toLowerCase() === code.toLowerCase(),
@@ -698,7 +703,7 @@ const listRows = (params: URLSearchParams) => {
 };
 
 const scheduleCovers = (
-  schedule: (typeof JADWAL_ROWS)[number],
+  schedule: JadwalPelayanRow,
   service: { date: string; startTime: string; endTime: string | null },
 ) =>
   schedule.date.slice(0, 10) === service.date.slice(0, 10) &&
@@ -729,9 +734,17 @@ const checkRelations = (input: IbadahInput, current?: Row): Response | null => {
     return failure(404, "Bapel Tidak Ditemukan", "bapelId");
   }
 
-  const jadwalId = movingTo("jadwalPelayanId");
+  const isSlotMoved =
+    current !== undefined &&
+    (input.date.slice(0, 10) !== current.date.slice(0, 10) ||
+      input.startTime !== current.startTime ||
+      input.endTime !== current.endTime);
+  const jadwalId =
+    movingTo("jadwalPelayanId") ?? (isSlotMoved ? input.jadwalPelayanId : null);
   if (jadwalId !== null) {
-    const jadwal = JADWAL_ROWS.find((row) => row.id === jadwalId);
+    const jadwal = JADWAL_PELAYAN.find(
+      (row) => row.id === jadwalId && row.deletedAt === null,
+    );
 
     if (!jadwal) {
       return failure(404, "Jadwal Pelayan Tidak Ditemukan", "jadwalPelayanId");
