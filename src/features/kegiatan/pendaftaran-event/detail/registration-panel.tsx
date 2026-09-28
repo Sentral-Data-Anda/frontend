@@ -15,7 +15,7 @@ import type { RegistrationDetail } from "../types";
 import { RegistrationStatus } from "../ui";
 
 const LINK =
-  "text-primary cursor-pointer underline-offset-4 hover:underline focus-visible:underline";
+  "text-primary cursor-pointer underline decoration-primary/30 underline-offset-4 transition-colors hover:decoration-primary";
 
 interface PropTypes {
   registration: RegistrationDetail;

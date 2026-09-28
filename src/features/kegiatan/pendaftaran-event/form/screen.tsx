@@ -214,7 +214,11 @@ export const PendaftaranFormScreen = () => {
       {rootError ? (
         <div className="px-gutter pb-4">
           <FormAlert
-            title="Data belum tersimpan. Coba simpan lagi."
+            title={
+              rootError.startsWith("Kuota")
+                ? "Peserta belum terdaftar. Pilih event lain."
+                : "Data belum tersimpan. Coba simpan lagi."
+            }
             message={rootError}
           />
         </div>

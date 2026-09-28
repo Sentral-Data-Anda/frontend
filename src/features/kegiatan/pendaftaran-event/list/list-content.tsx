@@ -57,7 +57,7 @@ export const PendaftaranListContent = () => {
           {
             key: "status",
             label: "Status",
-            kind: "choice",
+            kind: "select",
             options: STATUS_OPTIONS,
           },
         ]}

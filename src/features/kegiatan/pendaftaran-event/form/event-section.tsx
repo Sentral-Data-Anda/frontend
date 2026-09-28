@@ -63,7 +63,7 @@ export const EventSection = (props: PropTypes) => {
                 Buka Event
               </Link>
             ) : (
-              "Minta panitia menerbitkan event lebih dulu."
+              "Event yang sudah terbit dan belum mulai akan muncul di sini."
             )}
           </p>
         ) : null}
