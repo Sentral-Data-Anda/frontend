@@ -88,6 +88,9 @@ export const EMPTY_PELAYAN_FORM: PelayanFormValues = {
   members: [],
 };
 
+export const isPemusikRole = (name: string | undefined) =>
+  name?.trim().toLowerCase() === "pemusik";
+
 export const toDigits = (value: string) =>
   value.replace(/\D/g, "").slice(0, 12);
 
