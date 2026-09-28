@@ -1,5 +1,7 @@
 import { describe, expect, test } from "bun:test";
 
+import { TODAY } from "../kegiatan-store";
+
 import { eventMock } from "./event";
 
 const call = async (method: string, path: string, body?: FormData) => {
@@ -53,6 +55,25 @@ describe("mock /event", () => {
     const codes = body.data.map((row: { code: string }) => row.code);
 
     expect(new Set(codes).size).toBe(codes.length);
+  });
+
+  test("rentang bersinggungan: event yang sedang berlangsung ikut (Beranda)", async () => {
+    const { body } = await call(
+      "GET",
+      `/event?startDate=${TODAY}&endDate=${TODAY}&isPublish=1`,
+    );
+
+    expect(body.data.map((row: { name: string }) => row.name)).toEqual([
+      "Sekolah Minggu Kreatif",
+    ]);
+  });
+
+  test("isPublish=1 membuang draf", async () => {
+    const { body } = await call("GET", "/event?isPublish=1&limit=100");
+
+    expect(
+      body.data.some((row: { isPublish: boolean }) => !row.isPublish),
+    ).toBe(false);
   });
 
   test("POST tanpa foto: issue image", async () => {
