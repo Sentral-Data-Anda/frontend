@@ -6,6 +6,10 @@ const capitalizeWord = (word: string) =>
         (_, before: string, letter: string) => before + letter.toUpperCase(),
       );
 
+// Harus identik dengan collapseSpaces be-sada (common/utils/name.ts): tanpa mengubah huruf.
+export const collapseSpaces = (text: string): string =>
+  text.trim().replace(/\s+/g, " ");
+
 // Harus identik dengan normalisasi nama master di be-sada (docs/design/kejemaatan/master-tambah-baru.md).
 export const normalizeName = (text: string): string =>
   text.trim().split(/\s+/).map(capitalizeWord).join(" ");
