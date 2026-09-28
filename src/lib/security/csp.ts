@@ -1,11 +1,25 @@
 type CspOptions = {
   nonce: string;
   isDev: boolean;
+  mediaOrigin?: string;
+};
+
+export const toMediaSource = (value: string | undefined): string => {
+  if (!value) return "";
+
+  try {
+    const { origin, protocol } = new URL(value);
+
+    return protocol === "https:" || protocol === "http:" ? ` ${origin}` : "";
+  } catch {
+    return "";
+  }
 };
 
 export function buildContentSecurityPolicy({
   nonce,
   isDev,
+  mediaOrigin,
 }: CspOptions): string {
   const directives = [
     `default-src 'self'`,
@@ -14,7 +28,7 @@ export function buildContentSecurityPolicy({
 
     `style-src 'self' 'unsafe-inline'`,
 
-    `img-src 'self' blob: data:`,
+    `img-src 'self' blob: data:${toMediaSource(mediaOrigin)}`,
 
     `font-src 'self'`,
 

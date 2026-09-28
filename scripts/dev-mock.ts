@@ -897,6 +897,7 @@ if (!process.env.MOCK_API_ONLY) {
       ...process.env,
       API_BASE_URL: `http://localhost:${API_PORT}/api`,
       NEXT_PUBLIC_SITE_URL: `http://localhost:${WEB_PORT}`,
+      MEDIA_ORIGIN: `http://localhost:${API_PORT}`,
     },
   });
 
