@@ -280,7 +280,7 @@ describe("tambah", () => {
     onRenderForm(["VIEW", "CREATE"]);
 
     fireEvent.change(screen.getByLabelText("Nama alat"), {
-      target: { value: "  saksofon  " },
+      target: { value: "  saksofon   alto " },
     });
     fireEvent.click(screen.getByRole("button", { name: "Simpan" }));
     await waitFor(() =>
@@ -291,7 +291,9 @@ describe("tambah", () => {
     fireEvent.click(screen.getByRole("button", { name: "Ya" }));
 
     await waitFor(() => expect(replaced).toEqual([SKILL_MUSIK_LIST_PATH]));
-    expect(calls).toEqual([{ method: "POST", body: { name: "Saksofon" } }]);
+    expect(calls).toEqual([
+      { method: "POST", body: { name: "saksofon alto" } },
+    ]);
     expect(
       window.sessionStorage.getItem(`list-focus:${SKILL_MUSIK_LIST_PATH}`),
     ).toBe("6");

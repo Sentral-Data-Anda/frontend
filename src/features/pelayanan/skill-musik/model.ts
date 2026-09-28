@@ -1,9 +1,10 @@
 import { z } from "zod";
 
 import { MENU, menuHref } from "@/config/menu";
-import { normalizeName } from "@/lib/name";
 
 import type { SkillMusik, SkillMusikPayload } from "./types";
+
+const normalizeName = (name: string) => name.trim().replace(/\s+/g, " ");
 
 export const SKILL_MUSIK_LIST_PATH = menuHref(MENU.PELAYANAN, MENU.SKILL_MUSIK);
 

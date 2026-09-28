@@ -37,9 +37,9 @@ describe("skillMusikFormSchema", () => {
 });
 
 describe("form ↔ payload", () => {
-  test("payload mengirim nama yang sudah dinormalisasi", () => {
+  test("payload: trim + spasi ganda dilebur, huruf tidak diubah", () => {
     expect(toSkillMusikPayload({ name: "  biola   listrik " })).toEqual({
-      name: "Biola Listrik",
+      name: "biola listrik",
     });
     expect(toSkillMusikPayload({ name: "GITAR" })).toEqual({ name: "GITAR" });
   });
