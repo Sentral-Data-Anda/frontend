@@ -74,9 +74,12 @@ describe("kode", () => {
 
     expect(TYPE_ITEM.some((row) => row.code === typeCode)).toBe(false);
     expect(UNIT.some((row) => row.code === unitCode)).toBe(false);
-    expect(typeCode).toBe(
-      `TYP_ITM-${String(TYPE_ITEM.length + 1).padStart(4, "0")}`,
-    );
+    const serialOf = (code: string) => Number(code.slice(-4));
+    const lastSerial = (rows: readonly { code: string }[]) =>
+      Math.max(...rows.map((row) => serialOf(row.code)));
+
+    expect(serialOf(typeCode)).toBeGreaterThan(lastSerial(TYPE_ITEM));
+    expect(serialOf(unitCode)).toBeGreaterThan(lastSerial(UNIT));
   });
 });
 
