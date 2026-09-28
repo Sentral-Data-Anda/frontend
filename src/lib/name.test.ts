@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { findSimilar, normalizeName } from "./name";
+import { collapseSpaces, findSimilar, normalizeName } from "./name";
 
 describe("normalizeName (identik dengan be-sada)", () => {
   test.each([
@@ -62,5 +62,13 @@ describe("findSimilar", () => {
 
   test("teks kosong tidak menyarankan apa pun", () => {
     expect(labelsOf("  ")).toEqual([]);
+  });
+});
+
+describe("collapseSpaces (identik dengan be-sada)", () => {
+  test("trim dan lebur spasi tanpa mengubah huruf", () => {
+    expect(collapseSpaces("  tv   led\t32 inch ")).toBe("tv led 32 inch");
+    expect(collapseSpaces("ATK")).toBe("ATK");
+    expect(collapseSpaces("   ")).toBe("");
   });
 });
