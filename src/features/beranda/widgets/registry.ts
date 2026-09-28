@@ -38,6 +38,7 @@ import { ZonesWidget } from "./office/zones-widget";
 import { KpiPayables } from "./payables/kpi-payables";
 import { PayablesWidget } from "./payables/payables-widget";
 import { AnnouncementsWidget } from "./personal/announcements-widget";
+import { TugasSayaWidget } from "./tugas-saya/tugas-saya-widget";
 
 export type WidgetSlot = "kpi" | "main" | "side";
 
@@ -233,6 +234,12 @@ export const WIDGETS: readonly Widget[] = [
     slot: "side",
     gate: [view(MENU.REPORT_JEMAAT)],
     Component: BirthdaysWidget,
+  },
+  {
+    id: "tugas-saya",
+    slot: "side",
+    gate: [],
+    Component: TugasSayaWidget,
   },
   {
     id: "announcements",
