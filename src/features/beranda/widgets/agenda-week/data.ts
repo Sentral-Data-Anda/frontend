@@ -48,7 +48,7 @@ export function buildAgenda(
             {
               key: `event-${item.code}`,
               day: first,
-              time: null,
+              time: first === dayOf(item.startDate) ? item.startTime : null,
               name: item.name,
               room: item.room?.name ?? item.location ?? "—",
               href: EVENT_HREF,

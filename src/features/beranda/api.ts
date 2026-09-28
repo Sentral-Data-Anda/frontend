@@ -74,6 +74,7 @@ export type EventItem = {
   name: string;
   startDate: string;
   endDate: string;
+  startTime: string | null;
   location: string | null;
   room: { name: string } | null;
   bapel: { name: string };

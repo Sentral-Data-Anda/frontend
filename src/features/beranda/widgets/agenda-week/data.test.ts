@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import type { IbadahWeekItem } from "../../api";
+import type { EventItem, IbadahWeekItem } from "../../api";
 
 import { buildAgenda } from "./data";
 
@@ -48,5 +48,25 @@ describe("agenda pekan", () => {
       "Rumah Keluarga Sitanggang",
       "Villa Ciater",
     ]);
+  });
+
+  test("event: jam mulai di hari pertama, sepanjang hari bila berlanjut atau jam kosong", () => {
+    const event: EventItem = {
+      code: "EVN_0001-2026-0001",
+      name: "Retret Pemuda",
+      startDate: "2026-09-28T00:00:00.000Z",
+      endDate: "2026-09-30T00:00:00.000Z",
+      startTime: "07:00",
+      location: "Parapat",
+      room: null,
+      bapel: { name: "Komisi Pemuda" },
+    };
+
+    const time = (days: string[], item: EventItem) =>
+      buildAgenda([], [item], days)[0]?.time;
+
+    expect(time(["2026-09-28", "2026-09-29"], event)).toBe("07:00");
+    expect(time(["2026-09-29", "2026-09-30"], event)).toBeNull();
+    expect(time(["2026-09-28"], { ...event, startTime: null })).toBeNull();
   });
 });
