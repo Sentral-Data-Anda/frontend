@@ -3,7 +3,12 @@ import { z } from "zod";
 import { MENU, menuHref } from "@/config/menu";
 import { APP_TIMEZONE } from "@/config/site";
 import { FetchError } from "@/lib/api/fetcher";
-import { monthRange, toDateInput, todayJakarta, weeklyDates } from "@/lib/date";
+import {
+  monthRange,
+  toDateInput,
+  todayJakarta,
+  weekdayDates,
+} from "@/lib/date";
 import { formatDateShort, formatTimeRange } from "@/lib/format";
 
 import {
@@ -102,6 +107,7 @@ export const loanFormSchema = z
     bapelId: z.string(),
     jemaatId: z.string().min(1, "Pilih peminjam"),
     repeat: z.enum(["ONCE", "WEEKLY"]),
+    weekdays: z.array(z.string()),
     until: z.string(),
   })
   .superRefine((values, ctx) => {
@@ -115,6 +121,9 @@ export const loanFormSchema = z
     )
       issue("endTime", "Jam selesai harus setelah jam mulai");
     if (values.repeat !== "WEEKLY") return;
+    if (values.weekdays.length === 0) {
+      issue("weekdays", "Pilih minimal satu hari");
+    }
     if (!values.until) {
       issue("until", "Isi tanggal akhir");
     } else if (values.date && values.until <= values.date) {
@@ -135,16 +144,22 @@ export const EMPTY_LOAN_FORM: LoanFormValues = {
   bapelId: "",
   jemaatId: "",
   repeat: "ONCE",
+  weekdays: [],
   until: "",
 };
 
 export function repeatDatesOf(
-  values: Pick<LoanFormValues, "repeat" | "date" | "until">,
+  values: Pick<LoanFormValues, "repeat" | "date" | "until" | "weekdays">,
 ): string[] {
   if (values.repeat !== "WEEKLY" || !values.date || values.until <= values.date)
     return [];
 
-  return weeklyDates(values.date, values.until, REPEAT_MAX + 1);
+  return weekdayDates(
+    values.date,
+    values.until,
+    values.weekdays.map(Number),
+    REPEAT_MAX + 1,
+  );
 }
 
 export const toLoanForm = (loan: LoanRoomDetail): LoanFormValues => ({

@@ -12,7 +12,7 @@ import {
   monthGrid,
   monthOptions,
   monthRange,
-  weeklyDates,
+  weekdayDates,
   parseDateInput,
   toInputText,
   toIsoDate,
@@ -247,24 +247,30 @@ describe("monthRange", () => {
   });
 });
 
-describe("weeklyDates", () => {
-  test("tiap tujuh hari sampai tanggal akhir inklusif", () => {
-    expect(weeklyDates("2026-10-01", "2026-10-15", 26)).toEqual([
+describe("weekdayDates", () => {
+  test("hari terpilih (0 = Senin) sampai tanggal akhir inklusif", () => {
+    expect(weekdayDates("2026-10-01", "2026-10-15", [3], 26)).toEqual([
       "2026-10-01",
       "2026-10-08",
       "2026-10-15",
     ]);
   });
 
-  test("berhenti di batas dan melewati akhir bulan", () => {
-    expect(weeklyDates("2026-12-24", "2027-12-31", 3)).toEqual([
+  test("beberapa hari per minggu, urut tanggal", () => {
+    expect(weekdayDates("2026-10-05", "2026-10-15", [1, 3], 26)).toEqual([
+      "2026-10-06",
+      "2026-10-08",
+      "2026-10-13",
+      "2026-10-15",
+    ]);
+  });
+
+  test("berhenti di batas, melewati akhir tahun; tanpa hari = kosong", () => {
+    expect(weekdayDates("2026-12-24", "2027-12-31", [3], 3)).toEqual([
       "2026-12-24",
       "2026-12-31",
       "2027-01-07",
     ]);
-  });
-
-  test("akhir sebelum mulai = kosong", () => {
-    expect(weeklyDates("2026-10-08", "2026-10-01", 26)).toEqual([]);
+    expect(weekdayDates("2026-10-01", "2026-10-15", [], 26)).toEqual([]);
   });
 });

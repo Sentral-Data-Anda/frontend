@@ -74,3 +74,13 @@ export const REPEAT_LABEL: Record<RepeatMode, string> = {
   ONCE: "Sekali",
   WEEKLY: "Tiap minggu",
 };
+
+export const WEEKDAY_LABEL: Record<string, string> = {
+  "0": "Senin",
+  "1": "Selasa",
+  "2": "Rabu",
+  "3": "Kamis",
+  "4": "Jumat",
+  "5": "Sabtu",
+  "6": "Minggu",
+};

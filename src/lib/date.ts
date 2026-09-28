@@ -206,15 +206,22 @@ export function monthRange(month: string): {
   return endDate ? { startDate, endDate } : { startDate: "", endDate: "" };
 }
 
-export function weeklyDates(start: string, until: string, max: number) {
+export function weekdayDates(
+  start: string,
+  until: string,
+  weekdays: readonly number[],
+  max: number,
+) {
   const dates: string[] = [];
+
+  if (weekdays.length === 0) return dates;
 
   for (
     let date = start;
     date && date <= until && dates.length < max;
-    date = addDays(date, 7)
+    date = addDays(date, 1)
   ) {
-    dates.push(date);
+    if (weekdays.includes(weekdayIndex(date))) dates.push(date);
   }
 
   return dates;

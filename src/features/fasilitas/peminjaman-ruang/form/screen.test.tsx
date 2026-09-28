@@ -371,14 +371,33 @@ describe("tambah tiap minggu", () => {
       (tick) => tick as HTMLInputElement,
     );
 
-  test("ringkasan menyebut hari, jam, rentang, dan jumlah", async () => {
+  test("hari terisi dari tanggal mulai; ringkasan menyebut hari, jam, rentang, dan jumlah", async () => {
     await onWeekly();
 
     const weekday = formatWeekday(START);
 
     expect(
+      (screen.getByRole("checkbox", { name: weekday }) as HTMLInputElement)
+        .checked,
+    ).toBe(true);
+    expect(
       screen.getByText(
         `Tiap ${weekday}, pukul 19.00–21.00, ${formatDate(START)} s.d. ${formatDate(addDays(START, 21))} · 4 kali.`,
+      ),
+    ).toBeTruthy();
+  });
+
+  test("tambah hari kedua: tanggal bertambah dan ringkasan menyebut keduanya", async () => {
+    await onWeekly();
+
+    const first = formatWeekday(START);
+    const second = formatWeekday(addDays(START, 2));
+
+    fireEvent.click(screen.getByRole("checkbox", { name: second }));
+
+    expect(
+      await screen.findByText(
+        `Tiap ${first} dan ${second}, pukul 19.00–21.00, ${formatDate(START)} s.d. ${formatDate(addDays(START, 21))} · 7 kali.`,
       ),
     ).toBeTruthy();
   });

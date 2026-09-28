@@ -59,9 +59,12 @@ describe("loanFormSchema", () => {
     });
   });
 
-  test("tiap minggu: sampai wajib, sesudah tanggal mulai, paling banyak 26", () => {
-    const weekly = { ...VALUES, repeat: "WEEKLY" as const };
+  test("tiap minggu: hari wajib; sampai wajib, sesudah tanggal mulai, paling banyak 26", () => {
+    const weekly = { ...VALUES, repeat: "WEEKLY" as const, weekdays: ["3"] };
 
+    expect(issuesOf({ ...weekly, weekdays: [], until: "2026-10-15" })).toEqual({
+      weekdays: "Pilih minimal satu hari",
+    });
     expect(issuesOf(weekly)).toEqual({ until: "Isi tanggal akhir" });
     expect(issuesOf({ ...weekly, until: "2026-10-01" })).toEqual({
       until: "Tanggal akhir harus sesudah tanggal mulai",
@@ -71,6 +74,15 @@ describe("loanFormSchema", () => {
     expect(issuesOf({ ...weekly, until: "2027-04-01" })).toEqual({
       until: "Paling banyak 26 tanggal. Majukan tanggal akhir.",
     });
+    expect(
+      repeatDatesOf({ ...weekly, weekdays: ["1", "3"], until: "2026-10-15" }),
+    ).toEqual([
+      "2026-10-01",
+      "2026-10-06",
+      "2026-10-08",
+      "2026-10-13",
+      "2026-10-15",
+    ]);
   });
 });
 

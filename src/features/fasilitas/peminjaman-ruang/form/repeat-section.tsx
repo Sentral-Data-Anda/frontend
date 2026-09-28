@@ -1,15 +1,20 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useWatch } from "react-hook-form";
+import { Controller, useWatch } from "react-hook-form";
 
-import { ChoiceField, DateField } from "@/components/common/control";
+import {
+  CheckboxGroupField,
+  ChoiceField,
+  DateField,
+  optionsOf,
+} from "@/components/common/control";
 import { ControlField, FormSection, FormWide } from "@/components/common/form";
-import { endOfYearIso, weeklyDates } from "@/lib/date";
-import { formatDate, formatTimeRange, formatWeekday } from "@/lib/format";
+import { endOfYearIso, weekdayIndex } from "@/lib/date";
+import { formatDate, formatTimeRange } from "@/lib/format";
 
-import { REPEAT_MAX } from "../model";
-import type { RepeatMode } from "../types";
+import { REPEAT_MAX, repeatDatesOf } from "../model";
+import { WEEKDAY_LABEL, type RepeatMode } from "../types";
 
 import { REPEAT_OPTIONS, type LoanForm } from "./form-options";
 
@@ -19,27 +24,41 @@ interface PropTypes {
   children: ReactNode;
 }
 
+const WEEKDAY_OPTIONS = optionsOf(WEEKDAY_LABEL);
+
+const joinDays = (names: string[]) =>
+  names.length <= 1
+    ? (names[0] ?? "")
+    : `${names.slice(0, -1).join(", ")} dan ${names.at(-1)}`;
+
 export const RepeatSection = (props: PropTypes) => {
   const { form, isDisabled, children } = props;
 
-  const [repeat, date, until, startTime, endTime] = useWatch({
+  const [repeat, date, until, startTime, endTime, weekdays] = useWatch({
     control: form.control,
-    name: ["repeat", "date", "until", "startTime", "endTime"],
+    name: ["repeat", "date", "until", "startTime", "endTime", "weekdays"],
   });
   const isWeekly = repeat === "WEEKLY";
   const dateMax = endOfYearIso(1);
-  const count =
-    date && until ? weeklyDates(date, until, REPEAT_MAX + 1).length : 0;
+  const count = repeatDatesOf({ repeat, date, until, weekdays }).length;
+  const dayNames = WEEKDAY_OPTIONS.filter((option) =>
+    weekdays.includes(option.value),
+  ).map((option) => option.label);
   const summary =
-    date && until && startTime && endTime && until >= date
-      ? `Tiap ${formatWeekday(date)}, pukul ${formatTimeRange(startTime, endTime)}, ${formatDate(date)} s.d. ${formatDate(until)} · ${Math.min(count, REPEAT_MAX)} kali${count > REPEAT_MAX ? ` (maks. ${REPEAT_MAX})` : ""}.`
-      : "Hari pengulangan mengikuti Tanggal mulai, jamnya mengikuti Jam mulai dan Jam selesai di atas.";
+    date && until && startTime && endTime && until > date && dayNames.length
+      ? `Tiap ${joinDays(dayNames)}, pukul ${formatTimeRange(startTime, endTime)}, ${formatDate(date)} s.d. ${formatDate(until)} · ${Math.min(count, REPEAT_MAX)} kali${count > REPEAT_MAX ? ` (maks. ${REPEAT_MAX})` : ""}.`
+      : "Pilih hari, lalu isi tanggal mulai, tanggal akhir, dan jam di atas.";
 
-  const onPickRepeat = (value: string) =>
+  const onPickRepeat = (value: string) => {
     form.setValue("repeat", value as RepeatMode, {
       shouldDirty: true,
       shouldValidate: form.formState.isSubmitted,
     });
+    if (value !== "WEEKLY" || weekdays.length || !date) return;
+    form.setValue("weekdays", [String(weekdayIndex(date))], {
+      shouldDirty: true,
+    });
+  };
 
   return (
     <FormSection legend="Ulangi" disabled={isDisabled}>
@@ -52,6 +71,27 @@ export const RepeatSection = (props: PropTypes) => {
         options={REPEAT_OPTIONS}
         disabled={isDisabled}
       />
+
+      {isWeekly ? (
+        <FormWide>
+          <Controller
+            control={form.control}
+            name="weekdays"
+            render={({ field, fieldState }) => (
+              <CheckboxGroupField
+                id="weekdays"
+                label="Hari"
+                value={field.value}
+                onValueChange={field.onChange}
+                options={WEEKDAY_OPTIONS}
+                error={fieldState.error?.message}
+                hint="Bisa lebih dari satu, mis. Selasa dan Kamis."
+                disabled={isDisabled}
+              />
+            )}
+          />
+        </FormWide>
+      ) : null}
 
       {isWeekly ? (
         <ControlField

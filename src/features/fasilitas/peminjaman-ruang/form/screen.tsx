@@ -114,14 +114,24 @@ export const LoanFormScreen = (props: PropTypes) => {
     defaultValues: EMPTY_LOAN_FORM,
   });
 
-  const [roomId, date, startTime, endTime, repeat, until] = useWatch({
+  const [roomId, date, startTime, endTime, repeat, until, weekdays] = useWatch({
     control: form.control,
-    name: ["roomId", "date", "startTime", "endTime", "repeat", "until"],
+    name: [
+      "roomId",
+      "date",
+      "startTime",
+      "endTime",
+      "repeat",
+      "until",
+      "weekdays",
+    ],
   });
   const { isDirty, isSubmitting, isSubmitted, submitCount } = form.formState;
   const rootError = form.formState.errors.root?.message;
   const isWeekly = !isEdit && repeat === "WEEKLY";
-  const dates = isWeekly ? repeatDatesOf({ repeat, date, until }) : [];
+  const dates = isWeekly
+    ? repeatDatesOf({ repeat, date, until, weekdays })
+    : [];
   const isOverMax = dates.length > REPEAT_MAX;
   const isCheckable =
     isWeekly &&
