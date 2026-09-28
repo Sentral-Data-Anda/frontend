@@ -15,6 +15,7 @@ import {
 } from "@/lib/attachment";
 import { todayJakarta, toDateInput } from "@/lib/date";
 import { toFormData } from "@/lib/form-data";
+import { collapseSpaces } from "@/lib/name";
 import type { AttachmentValue } from "@/types/attachment";
 
 import type {
@@ -92,7 +93,7 @@ export const MAINTENANCE_STATUS_LABEL: Record<MaintenanceStatus, string> = {
 
 export const STATUS_FILTER_LABEL: Record<string, string> = {
   aktif: "Aktif",
-  menunggu: "Menunggu pelepasan",
+  menunggu: "Menunggu",
   dilepas: "Dilepas",
 };
 
@@ -139,8 +140,6 @@ export const usefulLifeOf = (months: number) =>
 
 export const isWarrantyOver = (iso: string, today = todayJakarta()) =>
   toDateInput(iso) < today;
-
-const collapseSpaces = (text: string) => text.trim().replace(/\s+/g, " ");
 
 const AMOUNT = /^\d*(\.\d{1,2})?$/;
 

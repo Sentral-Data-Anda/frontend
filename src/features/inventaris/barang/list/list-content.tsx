@@ -30,7 +30,10 @@ const ALL = { value: "", label: "Semua" };
 
 const STATUS_OPTIONS = [ALL, ...optionsOf(STATUS_FILTER_LABEL)];
 
-const CONDITION_OPTIONS = [ALL, ...optionsOf(CONDITION_LABEL)];
+const CONDITION_OPTIONS = [
+  { value: "", label: "Semua kondisi" },
+  ...optionsOf(CONDITION_LABEL),
+];
 
 const SOURCE_OPTIONS = [ALL, ...optionsOf(SOURCE_LABEL)];
 
@@ -70,11 +73,15 @@ export const BarangListContent = () => {
             label: "Status",
             kind: "choice",
             options: STATUS_OPTIONS,
+            chipLabel: (label) =>
+              label === STATUS_FILTER_LABEL.menunggu
+                ? "Menunggu pelepasan"
+                : label,
           },
           {
             key: "kondisi",
             label: "Kondisi",
-            kind: "choice",
+            kind: "select",
             options: CONDITION_OPTIONS,
           },
           {
