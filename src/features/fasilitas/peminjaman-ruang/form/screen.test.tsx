@@ -10,6 +10,7 @@ import {
 import { afterEach, describe, expect, mock, test } from "bun:test";
 
 import { addDays, todayJakarta, toInputText } from "@/lib/date";
+import { formatDate, formatWeekday } from "@/lib/format";
 import type { MenuAction } from "@/types/menu";
 
 import { LOAN_LIST_PATH } from "../model";
@@ -369,6 +370,18 @@ describe("tambah tiap minggu", () => {
     [...document.querySelectorAll('input[id^="repeat-row-"]')].map(
       (tick) => tick as HTMLInputElement,
     );
+
+  test("ringkasan menyebut hari, jam, rentang, dan jumlah", async () => {
+    await onWeekly();
+
+    const weekday = formatWeekday(START);
+
+    expect(
+      screen.getByText(
+        `Tiap ${weekday}, pukul 19.00–21.00, ${formatDate(START)} s.d. ${formatDate(addDays(START, 21))} · 4 kali.`,
+      ),
+    ).toBeTruthy();
+  });
 
   test("bentrok tidak bisa dicentang; lepas centang; input berubah = dibuat ulang", async () => {
     await onWeekly();
