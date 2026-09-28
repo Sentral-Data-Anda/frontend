@@ -49,7 +49,9 @@ export const StatusActions = (props: PropTypes) => {
 
   return (
     <section aria-label="Aksi stok opname" className="space-y-3">
-      <p className="text-muted-foreground text-body">{LEAD[status]}</p>
+      {isCanUpdate ? (
+        <p className="text-muted-foreground text-body">{LEAD[status]}</p>
+      ) : null}
 
       {isWarned ? (
         <p className="border-warning bg-warning/10 flex w-fit max-w-full items-start gap-2 rounded-control border px-3 py-2 text-body">
