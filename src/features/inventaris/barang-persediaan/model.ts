@@ -10,7 +10,7 @@ import {
 } from "@/config/menu";
 import type { ListFilterSchema } from "@/hooks/use-list-params";
 import { formatNumber } from "@/lib/format";
-import { normalizeName } from "@/lib/name";
+import { collapseSpaces } from "@/lib/name";
 
 import type {
   ItemMovement,
@@ -129,7 +129,7 @@ const required = (message: string) => z.string().min(1, message);
 export const stockFormSchema = z.object({
   name: z
     .string()
-    .transform(normalizeName)
+    .transform(collapseSpaces)
     .pipe(
       z
         .string()
@@ -176,7 +176,7 @@ export const toStockPayload = (
   const description = values.description.trim();
 
   return {
-    name: normalizeName(values.name),
+    name: collapseSpaces(values.name),
     ...(description ? { description } : {}),
     typeId: Number(values.typeId),
     bapelId: Number(values.bapelId),

@@ -16,7 +16,7 @@ import {
 
 const VALID: StockFormValues = {
   ...EMPTY_STOCK_FORM,
-  name: "  Lilin   Altar ",
+  name: "  lilin   ALTAR ",
   typeId: "6",
   unitId: "1",
   roomId: "1",
@@ -67,7 +67,7 @@ describe("skema", () => {
 describe("payload", () => {
   test("tambah menyertakan openingQuantity; keterangan kosong tidak dikirim; batas kosong null", () => {
     expect(toStockPayload(VALID, false)).toEqual({
-      name: "Lilin Altar",
+      name: "lilin ALTAR",
       typeId: 6,
       bapelId: 1,
       roomId: 1,
