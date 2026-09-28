@@ -55,7 +55,7 @@ export const RowOrderControls = (props: PropTypes) => {
         variant="ghost"
         size="icon"
         aria-label={`Hapus ${noun} ${step}`}
-        className="text-destructive cursor-pointer disabled:cursor-not-allowed"
+        className="text-destructive hover:bg-destructive/10 hover:text-destructive cursor-pointer disabled:cursor-not-allowed"
         disabled={isDisabled || total === 1}
         onClick={() => onRemove(index)}
       >

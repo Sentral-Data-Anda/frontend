@@ -24,8 +24,16 @@ export const FIELD_POPUP = `${MENU_POPUP} max-h-[min(18rem,var(--available-heigh
 
 export const FIELD_ITEM = `${MENU_ITEM} group grid cursor-pointer grid-cols-[1rem_1fr] data-disabled:cursor-not-allowed data-disabled:text-muted-foreground data-disabled:data-highlighted:bg-muted data-disabled:data-highlighted:text-muted-foreground`;
 
+// Label dan hint satu baris bila muat; hint turun ke baris kedua bila tidak, label tidak dipersempit.
+export const FIELD_LABELED =
+  "col-start-2 flex min-w-0 flex-wrap items-baseline gap-x-2";
+
+export const FIELD_LABEL = "min-w-0 grow truncate";
+
+export const FIELD_ITEM_HINTED = "h-auto! min-h-control py-1.5";
+
 export const FIELD_HINT =
-  "text-muted-foreground group-data-highlighted:text-primary-foreground/80 group-data-disabled:group-data-highlighted:text-muted-foreground ms-auto shrink-0 text-caption font-normal whitespace-nowrap";
+  "text-muted-foreground group-data-highlighted:text-primary-foreground/80 group-data-disabled:group-data-highlighted:text-muted-foreground max-w-full truncate text-caption font-normal";
 
 interface PropTypes {
   id?: string;
@@ -100,14 +108,18 @@ export const SelectField = (props: PropTypes) => {
                     key={option.value}
                     value={option.value}
                     disabled={option.isDisabled}
-                    className={FIELD_ITEM}
+                    className={
+                      option.hint
+                        ? `${FIELD_ITEM} ${FIELD_ITEM_HINTED}`
+                        : FIELD_ITEM
+                    }
                   >
                     <Select.ItemIndicator className="col-start-1">
                       <Check className="size-3.5" aria-hidden />
                     </Select.ItemIndicator>
                     {option.hint ? (
-                      <span className="col-start-2 flex min-w-0 items-baseline gap-2">
-                        <Select.ItemText className="truncate">
+                      <span className={FIELD_LABELED}>
+                        <Select.ItemText className={FIELD_LABEL}>
                           {option.label}
                         </Select.ItemText>
                         <span className={FIELD_HINT}>{option.hint}</span>
