@@ -325,8 +325,9 @@ const plusHours = (time: string, hours: number) => {
   return `${String(Math.floor(minutes / 60)).padStart(2, "0")}:${String(minutes % 60).padStart(2, "0")}`;
 };
 
-// Sementara (B12/B16): ibadah tanpa jam selesai = 2 jam; event tanpa jam
-// selesai = sampai 23.59; event beberapa hari berlaku tiap hari.
+// Kontrak be-sada: ibadah tanpa jam selesai = 2 jam; event menerus dari
+// hari pertama `startTime` sampai hari terakhir `endTime` (kosong = 23.59),
+// hari di antaranya sehari penuh.
 export const occupancyOf = (roomId: number, date: string): Occupancy[] =>
   [
     ...LOAN.filter(
@@ -360,8 +361,8 @@ export const occupancyOf = (roomId: number, date: string): Occupancy[] =>
       kind: "EVENT" as const,
       code: row.code,
       name: row.name,
-      startTime: row.startTime,
-      endTime: row.endTime ?? "23:59",
+      startTime: row.startDate === date ? row.startTime : "00:00",
+      endTime: row.endDate === date ? (row.endTime ?? "23:59") : "23:59",
       bapel: null,
     })),
   ].sort((a, b) => a.startTime.localeCompare(b.startTime));
@@ -394,8 +395,16 @@ const KIND_LABEL: Record<OccupancyKind, string> = {
   EVENT: "Event",
 };
 
+const titleOf = (item: Occupancy) => {
+  const kind = KIND_LABEL[item.kind];
+
+  return item.name.toLowerCase().startsWith(kind.toLowerCase())
+    ? item.name
+    : `${kind} ${item.name}`;
+};
+
 export const clashMessage = (item: Occupancy) =>
-  `Ruang Sudah Dipakai ${KIND_LABEL[item.kind]} ${item.name} Pukul ${formatTimeRange(item.startTime, item.endTime)}`;
+  `Ruang Sudah Dipakai ${titleOf(item)} Pukul ${formatTimeRange(item.startTime, item.endTime)}`;
 
 export const roomUsageOf = (roomId: number, from: string, days: number) =>
   Array.from({ length: days }, (_, index) => addDays(from, index))
@@ -405,7 +414,7 @@ export const roomUsageOf = (roomId: number, from: string, days: number) =>
           kind,
           code,
           name,
-          date: iso(date),
+          date,
           startTime,
           endTime,
         }),

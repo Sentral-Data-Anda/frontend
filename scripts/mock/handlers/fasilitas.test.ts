@@ -223,5 +223,50 @@ describe("store", () => {
 
     expect(keys).toEqual([...keys].sort());
     expect(usage.some((row) => row.kind === "EVENT")).toBe(true);
+    expect(usage.every((row) => /^\d{4}-\d{2}-\d{2}$/.test(row.date))).toBe(
+      true,
+    );
+  });
+
+  test("event beberapa hari menerus: hari pertama dari jam mulai, tengah penuh, terakhir sampai jam selesai", () => {
+    const event = EVENT.find((row) => row.name === "Sekolah Minggu Kreatif")!;
+    const slotOn = (date: string) =>
+      occupancyOf(event.roomId!, date).find((row) => row.code === event.code);
+
+    expect(slotOn(event.startDate)).toMatchObject({
+      startTime: "09:00",
+      endTime: "23:59",
+    });
+    expect(slotOn(addDays(event.startDate, 1))).toMatchObject({
+      startTime: "00:00",
+      endTime: "23:59",
+    });
+    expect(slotOn(event.endDate)).toMatchObject({
+      startTime: "00:00",
+      endTime: "12:00",
+    });
+  });
+
+  test("pesan bentrok tidak mengulang jenis yang sudah ada di nama", () => {
+    expect(
+      clashMessage({
+        kind: "IBADAH",
+        code: "IBD-1",
+        name: "Ibadah Minggu I",
+        startTime: "08:00",
+        endTime: "09:30",
+        bapel: null,
+      }),
+    ).toBe("Ruang Sudah Dipakai Ibadah Minggu I Pukul 08.00–09.30");
+    expect(
+      clashMessage({
+        kind: "IBADAH",
+        code: "IBD-2",
+        name: "Persekutuan Doa",
+        startTime: "19:00",
+        endTime: "20:30",
+        bapel: null,
+      }),
+    ).toBe("Ruang Sudah Dipakai Ibadah Persekutuan Doa Pukul 19.00–20.30");
   });
 });

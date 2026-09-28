@@ -5,6 +5,7 @@ import {
   keptAttachments,
   newAttachments,
   rejectionOf,
+  withFreshUrls,
 } from "./attachment";
 
 const file = (name: string, type: string, size = 10) =>
@@ -67,4 +68,41 @@ describe("lampiran lama dan baru", () => {
       "n-1",
     ]);
   });
+});
+
+test("withFreshUrls: URL berkas lama diperbarui dari server, berkas baru tidak disentuh", () => {
+  const photo = new File([new Uint8Array(4)], "b.jpg", { type: "image/jpeg" });
+  const value = [
+    {
+      key: "p1",
+      name: "a",
+      mimeType: "image/jpeg",
+      url: "http://media/p1?lama",
+      showOnWebsite: false,
+      file: null,
+    },
+    {
+      key: "new",
+      name: "b",
+      mimeType: "image/jpeg",
+      url: "blob:b",
+      showOnWebsite: false,
+      file: photo,
+    },
+  ];
+  const server = [
+    {
+      publicId: "p1",
+      name: "a",
+      mimeType: "image/jpeg",
+      size: 1,
+      showOnWebsite: false,
+      url: "http://media/p1?baru",
+    },
+  ];
+
+  expect(withFreshUrls(value, server).map((item) => item.url)).toEqual([
+    "http://media/p1?baru",
+    "blob:b",
+  ]);
 });
