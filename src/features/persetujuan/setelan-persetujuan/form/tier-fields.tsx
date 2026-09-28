@@ -1,25 +1,22 @@
 "use client";
 
-import { ArrowDown, ArrowUp, Trash2 } from "lucide-react";
 import { useWatch } from "react-hook-form";
 
 import {
-  Button,
   ChoiceField,
   ComboboxField,
   DdlField,
 } from "@/components/common/control";
-import { ControlField } from "@/components/common/form";
+import {
+  ControlField,
+  RowOrderControls,
+  type RowButton,
+} from "@/components/common/form";
 
 import { useBapelOptions, useJabatanOptions, useRoleOptions } from "../api";
 import { withSavedJabatan } from "../model";
 
-import {
-  tierButtonId,
-  withEmptyOption,
-  type SetelanForm,
-  type TierButton,
-} from "./form-options";
+import { TIER_PREFIX, withEmptyOption, type SetelanForm } from "./form-options";
 
 const KIND_OPTIONS = [
   { value: "role", label: "Role sistem" },
@@ -34,7 +31,7 @@ interface PropTypes {
   total: number;
   isDisabled: boolean;
   isEditable: boolean;
-  onMove: (from: number, to: number, button: TierButton) => void;
+  onMove: (from: number, to: number, button: RowButton) => void;
   onRemove: (index: number) => void;
 }
 
@@ -84,46 +81,15 @@ export const TierFields = (props: PropTypes) => {
         </p>
 
         {isEditable ? (
-          <div className="flex gap-1">
-            <Button
-              id={tierButtonId(index, "up")}
-              type="button"
-              variant="ghost"
-              size="icon"
-              aria-label={`Naikkan tahap ${step}`}
-              className="cursor-pointer disabled:cursor-not-allowed"
-              disabled={isDisabled || index === 0}
-              onClick={() => onMove(index, index - 1, "up")}
-            >
-              <ArrowUp aria-hidden />
-            </Button>
-
-            <Button
-              id={tierButtonId(index, "down")}
-              type="button"
-              variant="ghost"
-              size="icon"
-              aria-label={`Turunkan tahap ${step}`}
-              className="cursor-pointer disabled:cursor-not-allowed"
-              disabled={isDisabled || index === total - 1}
-              onClick={() => onMove(index, index + 1, "down")}
-            >
-              <ArrowDown aria-hidden />
-            </Button>
-
-            <Button
-              id={tierButtonId(index, "remove")}
-              type="button"
-              variant="ghost"
-              size="icon"
-              aria-label={`Hapus tahap ${step}`}
-              className="text-destructive cursor-pointer disabled:cursor-not-allowed"
-              disabled={isDisabled || total === 1}
-              onClick={() => onRemove(index)}
-            >
-              <Trash2 aria-hidden />
-            </Button>
-          </div>
+          <RowOrderControls
+            prefix={TIER_PREFIX}
+            noun="tahap"
+            index={index}
+            total={total}
+            isDisabled={isDisabled}
+            onMove={onMove}
+            onRemove={onRemove}
+          />
         ) : null}
       </div>
 

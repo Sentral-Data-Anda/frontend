@@ -11,7 +11,4 @@ export const withEmptyOption = (
   options: readonly SelectOption[],
 ): SelectOption[] => [{ value: "", label }, ...options];
 
-export type TierButton = "up" | "down" | "remove";
-
-export const tierButtonId = (index: number, button: TierButton) =>
-  `tier-${index}-${button}`;
+export const TIER_PREFIX = "tier";

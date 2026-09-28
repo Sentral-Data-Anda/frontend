@@ -5,4 +5,6 @@ export * from "./form-field";
 export * from "./form-layout";
 export * from "./form-not-found";
 export * from "./no-form-access";
+export * from "./row-order-controls";
 export * from "./use-form-confirm";
+export * from "./use-ordered-rows";

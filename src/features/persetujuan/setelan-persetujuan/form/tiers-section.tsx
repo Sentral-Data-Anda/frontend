@@ -1,19 +1,17 @@
 "use client";
 
 import { Plus } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import { useFieldArray } from "react-hook-form";
 
 import { Button } from "@/components/common/control";
-import { FormSection, FormWide } from "@/components/common/form";
+import {
+  FormSection,
+  FormWide,
+  useOrderedRows,
+} from "@/components/common/form";
 
 import { EMPTY_TIER, MAX_TIERS } from "../model";
 
-import {
-  tierButtonId,
-  type SetelanForm,
-  type TierButton,
-} from "./form-options";
+import { TIER_PREFIX, type SetelanForm } from "./form-options";
 import { TierFields } from "./tier-fields";
 
 const NOTE =
@@ -33,45 +31,19 @@ interface PropTypes {
 export const TiersSection = (props: PropTypes) => {
   const { form, isDisabled, isEditable, isEdit } = props;
 
-  const rows = useFieldArray({ control: form.control, name: "tiers" });
-  const [announcement, setAnnouncement] = useState("");
-  const focusRef = useRef<string | null>(null);
+  const rows = useOrderedRows({
+    control: form.control,
+    name: "tiers",
+    prefix: TIER_PREFIX,
+    noun: "tahap",
+    addId: ADD_ID,
+    pickAddFocus: (index) => `input[name="tiers.${index}.kind"]:checked`,
+  });
 
-  const total = rows.fields.length;
+  const { total } = rows;
   const isFull = total >= MAX_TIERS;
   const tiersError = form.formState.errors.tiers;
   const listError = tiersError?.message ?? tiersError?.root?.message;
-
-  const onMove = (from: number, to: number, button: TierButton) => {
-    const isEdge = button === "up" ? to === 0 : to === total - 1;
-
-    rows.move(from, to);
-    setAnnouncement(`Tahap ${from + 1} dipindah ke posisi ${to + 1}`);
-    focusRef.current = `#${tierButtonId(to, isEdge ? (button === "up" ? "down" : "up") : button)}`;
-  };
-
-  const onRemove = (index: number) => {
-    const remaining = total - 1;
-
-    rows.remove(index);
-    setAnnouncement(`Tahap ${index + 1} dihapus`);
-    focusRef.current =
-      remaining > 1
-        ? `#${tierButtonId(Math.min(index, remaining - 1), "remove")}`
-        : `#${ADD_ID}`;
-  };
-
-  const onAdd = () => {
-    rows.append(EMPTY_TIER, { shouldFocus: false });
-    focusRef.current = `input[name="tiers.${total}.kind"]:checked`;
-  };
-
-  useEffect(() => {
-    if (!focusRef.current) return;
-
-    document.querySelector<HTMLElement>(focusRef.current)?.focus();
-    focusRef.current = null;
-  }, [rows.fields]);
 
   return (
     <FormSection
@@ -89,8 +61,8 @@ export const TiersSection = (props: PropTypes) => {
               total={total}
               isDisabled={isDisabled}
               isEditable={isEditable}
-              onMove={onMove}
-              onRemove={onRemove}
+              onMove={rows.onMove}
+              onRemove={rows.onRemove}
             />
           ))}
         </ol>
@@ -110,7 +82,7 @@ export const TiersSection = (props: PropTypes) => {
               className="w-full cursor-pointer disabled:cursor-not-allowed"
               disabled={isDisabled || isFull}
               aria-describedby={isFull ? `${ADD_ID}-hint` : undefined}
-              onClick={onAdd}
+              onClick={() => rows.onAdd(EMPTY_TIER)}
             >
               <Plus aria-hidden />
               Tambah tahap
@@ -128,7 +100,7 @@ export const TiersSection = (props: PropTypes) => {
         ) : null}
 
         <p aria-live="polite" className="sr-only">
-          {announcement}
+          {rows.announcement}
         </p>
       </FormWide>
     </FormSection>
