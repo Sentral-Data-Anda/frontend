@@ -85,6 +85,10 @@ type Call = { method: string; url: string; body?: FormData };
 type Failure = { status: number; error: string; issues?: unknown[] };
 
 const originalFetch = globalThis.fetch;
+const NATURAL_WIDTH = Object.getOwnPropertyDescriptor(
+  HTMLImageElement.prototype,
+  "naturalWidth",
+)!;
 let viewport: ReturnType<typeof onStubViewport>;
 
 beforeAll(() => {
@@ -98,7 +102,11 @@ afterEach(() => {
   globalThis.fetch = originalFetch;
   window.sessionStorage.clear();
   replaced.length = 0;
-  delete (HTMLImageElement.prototype as { naturalWidth?: number }).naturalWidth;
+  Object.defineProperty(
+    HTMLImageElement.prototype,
+    "naturalWidth",
+    NATURAL_WIDTH,
+  );
 });
 
 const onMockApi = (
