@@ -68,3 +68,8 @@ export const firstNameOf = (fullName: string): string => {
   const words = fullName.trim().split(/\s+/);
   return words.find((word) => !word.endsWith(".")) ?? words[0] ?? "";
 };
+
+export const formatClock = (time: string) => time.replace(":", ".");
+
+export const formatTimeRange = (start: string, end?: string | null) =>
+  end ? `${formatClock(start)}–${formatClock(end)}` : formatClock(start);
