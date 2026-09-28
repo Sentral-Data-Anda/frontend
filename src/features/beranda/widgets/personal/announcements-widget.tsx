@@ -8,20 +8,13 @@ import {
 import { EmptyState } from "@/components/common/feedback";
 import { MENU, menuHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
+import { categoryLabelOf } from "@/lib/announcement";
 
-import { usePublicAnnouncements } from "../../api";
+import { useAnnouncementFeed } from "../../api";
 import { formatDayMonth } from "../../model";
 
-const CATEGORY_LABEL: Record<string, string> = {
-  WARTA: "Warta",
-  PENGUMUMAN: "Pengumuman",
-  BERITA_DUKA: "Berita duka",
-  UCAPAN_SYUKUR: "Ucapan syukur",
-  KEGIATAN: "Kegiatan",
-};
-
 export const AnnouncementsWidget = () => {
-  const query = usePublicAnnouncements(4);
+  const query = useAnnouncementFeed(4);
   const access = useMenuAccess(MENU.PENGUMUMAN);
   const items = query.data ?? [];
 
@@ -41,11 +34,12 @@ export const AnnouncementsWidget = () => {
         <DashboardList label="Pengumuman terbaru">
           {items.map((item) => (
             <DashboardRow
-              key={item.id}
+              key={item.code}
               title={item.title}
               meta={[
                 item.isPinned ? "Disematkan" : null,
-                CATEGORY_LABEL[item.category] ?? item.category,
+                categoryLabelOf(item.category),
+                item.bapel?.name,
                 formatDayMonth(item.publishDate),
               ]
                 .filter(Boolean)
