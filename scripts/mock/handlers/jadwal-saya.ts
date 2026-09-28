@@ -1,6 +1,6 @@
 /**
  * Tiruan `GET /jadwal-pelayan/saya` (Beranda "Tugas saya"): tanpa guard menu,
- * subjek = jemaat persona, rentang hari ini s.d. +28 hari. Hanya membaca store.
+ * subjek = jemaat persona, rentang hari ini s.d. +27 hari. Hanya membaca store.
  *
  *   MOCK_TUGAS_SAYA_500=1 atau MOCK_500=1 → 500
  */
@@ -35,7 +35,7 @@ export const tasksOf = (jemaatName: string, today = todayJakarta()) => {
   const groupIds = GROUP_PELAYAN.filter((row) =>
     row.memberIds.includes(jemaat.id),
   ).map((row) => row.id);
-  const end = addDays(today, 28);
+  const end = addDays(today, 27);
 
   return JADWAL_PELAYAN.filter(
     (row) => row.deletedAt === null && row.date >= today && row.date <= end,

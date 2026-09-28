@@ -56,14 +56,14 @@ describe("GET /jadwal-pelayan/saya", () => {
     expect(tasksOf("Admin Sistem")).toEqual([]);
   });
 
-  test("rentang: hari ini s.d. +28 hari", () => {
+  test("rentang: hari ini s.d. +27 hari", () => {
     const datesFrom = (today: string) =>
       tasksOf("Andreas Sitanggang", today).map((row) => row.date.slice(0, 10));
 
     expect(JADWAL_PELAYAN[0].date < todayJakarta()).toBe(true);
     expect(datesFrom(addDays(NEXT_SUNDAY, 1))).toEqual([]);
-    expect(datesFrom(addDays(NEXT_SUNDAY, -28))).toContain(NEXT_SUNDAY);
-    expect(datesFrom(addDays(NEXT_SUNDAY, -29))).not.toContain(NEXT_SUNDAY);
+    expect(datesFrom(addDays(NEXT_SUNDAY, -27))).toContain(NEXT_SUNDAY);
+    expect(datesFrom(addDays(NEXT_SUNDAY, -28))).not.toContain(NEXT_SUNDAY);
   });
 
   test("tanpa guard menu; path lain milik handler lain", async () => {
