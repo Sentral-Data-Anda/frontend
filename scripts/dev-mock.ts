@@ -22,7 +22,7 @@
  *   MOCK_PERSONA=bendahara bun run dev:mock → Beranda per izin; persona:
  *                                         admin (bawaan, pohon menu lengkap) |
  *                                         sekretariat | bendahara | majelis | operator |
- *                                         koordinator.
+ *                                         koordinator | panitia.
  *                                         Lihat `scripts/mock-dashboard.ts`.
  *   MOCK_MAJELIS_NO_FINANCE=1           → majelis tanpa LAPORAN_KEUANGAN
  *   MOCK_NO_APPROVAL=1                  → antrean persetujuan kosong
@@ -45,6 +45,7 @@
  *                                         login pertama (PUT /auth/update/:code)
  *   MOCK_DDL_EMPTY=1                    → semua daftar pilihan form kosong (404)
  *   MOCK_DDL_MANY=1                     → daftar keluarga 400 baris (combobox panjang)
+ *   MOCK_MEDIA_EXPIRED=1                → semua gambar/lampiran Kegiatan 403 (tautan kedaluwarsa)
  *
  *   MOCK_NO_DELETE=1                    → sub menu Kejemaatan (selain Daftar Jemaat) tanpa
  *                                         DELETE untuk persona sekretariat
@@ -80,10 +81,8 @@ import {
   listPayments,
   listPayrolls,
   jemaatTypeGender,
-  listEvent,
   listLoanRoom,
   listMyOfferings,
-  listPublicAnnouncements,
   listWaitingApprovals,
   neraca,
   surplusDefisit,
@@ -714,11 +713,6 @@ Bun.serve({
       );
     }
 
-    if (path === "/event") {
-      // Pesan sukses be-sada memang salin-tempel: "…Semua Barang".
-      return list(listEvent(url.searchParams), url, "Barang", "Event");
-    }
-
     if (
       path === "/persetujuan" &&
       url.searchParams.get("menunggu") === "saya"
@@ -832,15 +826,6 @@ Bun.serve({
       });
     }
 
-    // Tanpa sesi, hanya `limit`, tanpa totalData/totalPage.
-    if (path === "/public/announcement") {
-      return json({
-        status: 200,
-        message: "Berhasil Mendapatkan Pengumuman",
-        data: listPublicAnnouncements(paging(url).limit),
-      });
-    }
-
     if (path === "/laporan-keuangan/neraca") {
       const date = url.searchParams.get("date");
       if (!date) {
@@ -897,6 +882,7 @@ if (!process.env.MOCK_API_ONLY) {
       ...process.env,
       API_BASE_URL: `http://localhost:${API_PORT}/api`,
       NEXT_PUBLIC_SITE_URL: `http://localhost:${WEB_PORT}`,
+      MEDIA_ORIGIN: `http://localhost:${API_PORT}`,
     },
   });
 

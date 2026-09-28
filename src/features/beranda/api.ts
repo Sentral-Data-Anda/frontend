@@ -80,7 +80,7 @@ export type EventItem = {
 };
 
 export function useEventRange(start: string, end: string, isEnabled: boolean) {
-  const query = `startDate=${start}&endDate=${end}&limit=100`;
+  const query = `startDate=${start}&endDate=${end}&isPublish=1&limit=100`;
 
   return useQuery({
     queryKey: ["event", "list", query],
@@ -91,18 +91,19 @@ export function useEventRange(start: string, end: string, isEnabled: boolean) {
 }
 
 export type AnnouncementItem = {
-  id: string;
+  code: string;
   category: string;
   title: string;
   publishDate: string;
   isPinned: boolean;
+  bapel: { name: string } | null;
 };
 
-export function usePublicAnnouncements(limit: number) {
+export function useAnnouncementFeed(limit: number) {
   return useQuery({
-    queryKey: ["public", "announcement", limit],
+    queryKey: ["pengumuman", "feed", limit],
     queryFn: () =>
-      fetchList<AnnouncementItem>(`/public/announcement?limit=${limit}`),
+      fetchList<AnnouncementItem>(`/pengumuman/feed?limit=${limit}`),
     select: (response) => response.data,
   });
 }

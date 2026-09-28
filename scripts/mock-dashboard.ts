@@ -5,7 +5,7 @@
  * FE di `src/features/beranda/dummy.ts`, bukan tiruan di sini.
  *
  *   MOCK_PERSONA=admin (bawaan) | sekretariat | bendahara | majelis | operator
- *                | koordinator
+ *                | koordinator | panitia
  *
  * `admin` = pohon menu lengkap dengan semua aksi (be-sada menyintesis aksi
  * untuk `isAdmin`) — dipakai untuk menilai sidebar 12 domain / 61 layar.
@@ -47,6 +47,11 @@ const KEJEMAATAN_ACTIONS: Action[] = [
   ...(process.env.MOCK_NO_DELETE ? [] : (["DELETE"] as Action[])),
 ];
 
+// be-sada PENDAFTARAN_EVENT tanpa UPDATE; MOCK_NO_CREATE/DELETE mencabut.
+const REGISTRATION_ACTIONS: Action[] = KEJEMAATAN_ACTIONS.filter(
+  (action) => action !== "UPDATE",
+);
+
 // Penanda tangan dan pengaju: be-sada hanya menjaga VIEW + UPDATE di menu ini.
 const APPROVAL_ACTIONS: Action[] = [
   "VIEW",
@@ -75,8 +80,10 @@ export const PERSONAS: Record<string, Persona> = {
       [MENU.DAFTAR_PELAYAN]: KEJEMAATAN_ACTIONS,
       [MENU.ROLE_PELAYAN]: KEJEMAATAN_ACTIONS,
       [MENU.SKILL_MUSIK]: KEJEMAATAN_ACTIONS,
-      [MENU.EVENT]: V,
-      [MENU.PENGUMUMAN]: VC,
+      [MENU.EVENT]: KEJEMAATAN_ACTIONS,
+      [MENU.PENDAFTARAN_EVENT]: REGISTRATION_ACTIONS,
+      [MENU.GALERI]: KEJEMAATAN_ACTIONS,
+      [MENU.PENGUMUMAN]: KEJEMAATAN_ACTIONS,
       [MENU.PEMINJAMAN_RUANG]: V,
     },
   },
@@ -147,6 +154,15 @@ export const PERSONAS: Record<string, Persona> = {
       [MENU.JADWAL_PELAYAN]: KEJEMAATAN_ACTIONS,
     },
   },
+  // Pendaftaran tanpa Event: membuktikan /ddl/event dan /ddl/jemaat (B3, B4).
+  panitia: {
+    roleName: "Panitia Kegiatan",
+    isAdmin: false,
+    jemaatName: "Hanna Simorangkir",
+    grants: {
+      [MENU.PENDAFTARAN_EVENT]: REGISTRATION_ACTIONS,
+    },
+  },
   admin: {
     roleName: "Administrator",
     isAdmin: true,
@@ -195,7 +211,6 @@ export const actionsOf = (persona: Persona, slug: string): Action[] =>
 
 /** Guard be-sada: `Authorization(MENU.X, "VIEW")`; admin melewatinya. */
 export const GUARD: Record<string, MenuSlug> = {
-  "/event": MENU.EVENT,
   "/persetujuan": MENU.PERMINTAAN_PERSETUJUAN,
   "/laporan-keuangan/neraca": MENU.LAPORAN_KEUANGAN,
   "/laporan-keuangan/surplus-defisit": MENU.LAPORAN_KEUANGAN,
@@ -249,57 +264,6 @@ export const ROOM_ROWS = [
   { id: 2, code: "RM-0002", name: "Aula Serbaguna" },
   { id: 3, code: "RM-0003", name: "Ruang Pemuda" },
 ];
-
-// ---------------------------------------------------------------------------
-// GET /event — `event.repository.ts:47-62`. Tanggal saja (tanpa jam);
-// `startDate` + `endDate` = CONTAINMENT (acara harus seluruhnya di dalam
-// rentang), urut `startDate asc`.
-
-const eventRow = (
-  id: number,
-  name: string,
-  from: number,
-  to: number,
-  bapel: string,
-  room: string | null,
-) => ({
-  id,
-  publicId: `00000000-0000-4000-9000-${String(id).padStart(12, "0")}`,
-  code: `EVT-${String(id).padStart(4, "0")}`,
-  name,
-  description: null,
-  isIndoor: room !== null,
-  location: room ? null : "Parapat",
-  capacity: 100,
-  isPaid: false,
-  price: null,
-  startDate: iso(addDays(today(), from)),
-  endDate: iso(addDays(today(), to)),
-  urlForm: null,
-  isPublish: true,
-  programId: null,
-  ...audit,
-  bapel: { id, code: `BPL-00${id}`, name: bapel },
-  room: room ? { id, code: `R-0${id}`, name: room } : null,
-  image: null,
-});
-
-export function listEvent(params: URLSearchParams) {
-  const rows = [
-    eventRow(1, "Rapat Majelis", 1, 1, "Majelis Jemaat", "Ruang Konsistori"),
-    eventRow(2, "Retret Pemuda", 2, 4, "Komisi Pemuda", null),
-    eventRow(3, "Latihan Paduan Suara", 3, 3, "Komisi Musik", "Aula"),
-    eventRow(4, "Bazar Natal", 5, 5, "Komisi Wanita", "Halaman Gereja"),
-  ];
-  const start = params.get("startDate");
-  const end = params.get("endDate");
-
-  if (!start || !end) return rows;
-
-  return rows.filter(
-    (row) => row.startDate >= iso(start) && row.endDate <= iso(end),
-  );
-}
 
 // ---------------------------------------------------------------------------
 // GET /persetujuan?menunggu=saya — `persetujuan.repository.ts:46-64, 114-165`.
@@ -400,32 +364,6 @@ export function listMyOfferings(params: URLSearchParams, jemaatName: string) {
       (!start || row.period.slice(0, 7) >= start.slice(0, 7)) &&
       (!end || row.period.slice(0, 7) <= end.slice(0, 7)),
   );
-}
-
-// ---------------------------------------------------------------------------
-// GET /public/announcement — `public.service.ts:8-16, 112-125`. Tanpa sesi,
-// hanya `limit`, tanpa totalData/totalPage, 200 `[]` bila kosong.
-
-export function listPublicAnnouncements(limit: number) {
-  const rows = [
-    ["Warta Jemaat Minggu Ini", "WARTA", 0, true],
-    ["Retret Pemuda 2026", "KEGIATAN", -2, false],
-    ["Perubahan jam Ibadah Minggu II", "PENGUMUMAN", -4, false],
-    ["Ucapan syukur Keluarga Manurung", "UCAPAN_SYUKUR", -6, false],
-    ["Berita duka: Bpk. Gideon Tampubolon", "BERITA_DUKA", -9, false],
-  ] as const;
-
-  return rows
-    .map(([title, category, days, isPinned], index) => ({
-      id: `00000000-0000-4000-b000-${String(index + 1).padStart(12, "0")}`,
-      category,
-      title,
-      content: "…",
-      publishDate: iso(addDays(today(), days)),
-      isPinned,
-      files: [],
-    }))
-    .slice(0, limit);
 }
 
 // ---------------------------------------------------------------------------

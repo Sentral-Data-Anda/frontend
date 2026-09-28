@@ -1,6 +1,10 @@
 import { describe, expect, test } from "bun:test";
 
-import { buildContentSecurityPolicy, generateNonce } from "./csp";
+import {
+  buildContentSecurityPolicy,
+  generateNonce,
+  toMediaSource,
+} from "./csp";
 
 const NONCE = "dGVzdC1ub25jZS12YWx1ZQ==";
 
@@ -59,10 +63,35 @@ describe("buildContentSecurityPolicy", () => {
     expect(directive("frame-ancestors", false)).toBe("frame-ancestors 'none'");
   });
 
-  test("upgrade-insecure-requests terpasang", () => {
+  test("upgrade-insecure-requests terpasang di production", () => {
     expect(directive("upgrade-insecure-requests")).toBe(
       "upgrade-insecure-requests",
     );
+  });
+
+  test("development tanpa upgrade-insecure-requests (media dev:mock http)", () => {
+    expect(directive("upgrade-insecure-requests", true)).toBeUndefined();
+  });
+
+  test("img-src hanya origin sendiri bila MEDIA_ORIGIN kosong", () => {
+    expect(directive("img-src")).toBe("img-src 'self' blob: data:");
+  });
+
+  test("img-src menambah origin media, tanpa path", () => {
+    const img = buildContentSecurityPolicy({
+      nonce: NONCE,
+      isDev: false,
+      mediaOrigin: "https://media.gereja.id/sada/",
+    })
+      .split("; ")
+      .find((d) => d.startsWith("img-src "));
+
+    expect(img).toBe("img-src 'self' blob: data: https://media.gereja.id");
+  });
+
+  test("MEDIA_ORIGIN yang bukan URL http(s) diabaikan", () => {
+    expect(toMediaSource("javascript:alert(1)")).toBe("");
+    expect(toMediaSource("'unsafe-inline'; script-src *")).toBe("");
   });
 
   test("tidak ada baris baru — header HTTP harus satu baris", () => {

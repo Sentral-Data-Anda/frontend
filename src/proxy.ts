@@ -99,6 +99,7 @@ const forwardRequest = (
     csp = buildContentSecurityPolicy({
       nonce,
       isDev: process.env.NODE_ENV === "development",
+      mediaOrigin: process.env.MEDIA_ORIGIN,
     });
 
     requestHeaders.set("x-nonce", nonce);
