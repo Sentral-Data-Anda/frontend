@@ -49,6 +49,10 @@
  *
  *   MOCK_NO_DELETE=1                    → sub menu Kejemaatan (selain Daftar Jemaat) tanpa
  *                                         DELETE untuk persona sekretariat
+ *   MOCK_PENYUSUTAN_NO_SETTING=1        → posting penyusutan ditolak: akun Setelan Akuntansi
+ *   MOCK_PENYUSUTAN_PERIOD_CLOSED=1     → posting penyusutan ditolak: periode fiskal
+ *   MOCK_DISPOSAL_NO_WORKFLOW=1         → ajukan pelepasan barang ditolak: belum ada alur
+ *                                         persetujuan (dibaca handler Siklus Aset)
  *
  * Tiruan tiap sub menu Kejemaatan tinggal di `scripts/mock/handlers/<sub-menu>.ts`,
  * didaftarkan di `scripts/mock/handlers/index.ts`, dan dipanggil sebelum handler
