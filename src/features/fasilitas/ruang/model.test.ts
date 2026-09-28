@@ -185,7 +185,7 @@ test("pemakaian dikelompokkan per tanggal kalender", () => {
 
   const days = groupUsage([
     row("2026-10-01", "07:00"),
-    row("2026-10-01T00:00:00.000Z", "19:00"),
+    row("2026-10-01", "19:00"),
     row("2026-10-02", "19:00"),
   ]);
 

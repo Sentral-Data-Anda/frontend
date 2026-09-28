@@ -41,7 +41,7 @@ export const RoomSection = (props: PropTypes) => {
             onChange={(event) => field.onChange(toDigits(event.target.value))}
             inputMode="numeric"
             autoComplete="off"
-            placeholder="0"
+            placeholder="mis. 120"
             className="tabular-nums"
           />
         )}

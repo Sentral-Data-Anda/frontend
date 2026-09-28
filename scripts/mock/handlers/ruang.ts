@@ -319,10 +319,7 @@ export const ruangMock: MockHandler = async ({
   if (sub === "usage") {
     if (process.env.MOCK_ROOM_USAGE_500) return serverError();
 
-    const rows = roomUsageOf(row.id, TODAY, 30).map((item) => ({
-      ...item,
-      date: item.date.slice(0, 10),
-    }));
+    const rows = roomUsageOf(row.id, TODAY, 30);
 
     return rows.length
       ? json({

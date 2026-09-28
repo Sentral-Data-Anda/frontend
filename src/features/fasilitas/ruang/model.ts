@@ -16,7 +16,7 @@ import {
 import { toFormData } from "@/lib/form-data";
 import { formatDateShort, formatWeekday } from "@/lib/format";
 import { normalizeName } from "@/lib/name";
-import type { AttachmentValue, ServerAttachment } from "@/types/attachment";
+import type { AttachmentValue } from "@/types/attachment";
 
 import type { Room, RoomDetail, RoomUsage } from "./types";
 
@@ -105,19 +105,6 @@ export const toRuangFormData = (values: RuangFormValues, isEdit: boolean) =>
     ],
   );
 
-export const withFreshUrls = (
-  value: readonly AttachmentValue[],
-  server: readonly ServerAttachment[],
-): AttachmentValue[] =>
-  value.map((item) => {
-    const fresh =
-      item.file === null
-        ? server.find((attachment) => attachment.publicId === item.key)
-        : undefined;
-
-    return fresh ? { ...item, url: fresh.url } : item;
-  });
-
 const SERVER_FIELD_ERROR: ReadonlyArray<[RegExp, string, string?]> = [
   [
     /sudah tersedia/i,
@@ -167,11 +154,10 @@ export type UsageDay = { date: string; rows: RoomUsage[] };
 
 export const groupUsage = (rows: readonly RoomUsage[]): UsageDay[] =>
   rows.reduce<UsageDay[]>((days, row) => {
-    const date = row.date.slice(0, 10);
     const last = days.at(-1);
 
-    if (last?.date === date) last.rows.push(row);
-    else days.push({ date, rows: [row] });
+    if (last?.date === row.date) last.rows.push(row);
+    else days.push({ date: row.date, rows: [row] });
 
     return days;
   }, []);
