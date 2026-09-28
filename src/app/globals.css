@@ -376,3 +376,15 @@
     }
   }
 }
+
+@media print {
+  @page {
+    margin: 8mm;
+  }
+
+  :root {
+    --canvas: #fff;
+    --canvas-aurora: none;
+    --canvas-grain: none;
+  }
+}
