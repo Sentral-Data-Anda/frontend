@@ -21,7 +21,8 @@
  *                                         `next start` hasil build di port lain)
  *   MOCK_PERSONA=bendahara bun run dev:mock → Beranda per izin; persona:
  *                                         admin (bawaan, pohon menu lengkap) |
- *                                         sekretariat | bendahara | majelis | operator.
+ *                                         sekretariat | bendahara | majelis | operator |
+ *                                         koordinator.
  *                                         Lihat `scripts/mock-dashboard.ts`.
  *   MOCK_MAJELIS_NO_FINANCE=1           → majelis tanpa LAPORAN_KEUANGAN
  *   MOCK_NO_APPROVAL=1                  → antrean persetujuan kosong

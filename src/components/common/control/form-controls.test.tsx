@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
 import {
@@ -91,6 +91,40 @@ describe("SelectField", () => {
     );
 
     expect(screen.getByRole("combobox").hasAttribute("disabled")).toBe(true);
+  });
+});
+
+describe("SelectField dengan hint dan isDisabled", () => {
+  const PICKS = [
+    { value: "1", label: "Budi" },
+    { value: "2", label: "Sinta", hint: "Tidak tersedia", isDisabled: true },
+  ];
+
+  test("item nonaktif membawa hint dan tidak bisa dipilih", async () => {
+    const picked: string[] = [];
+
+    render(
+      <SelectField
+        value=""
+        onValueChange={(value) => picked.push(value)}
+        options={PICKS}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("combobox"));
+
+    const disabled = await screen.findByRole("option", { name: /Sinta/ });
+    expect(disabled.getAttribute("aria-disabled")).toBe("true");
+    expect(disabled.textContent).toBe("SintaTidak tersedia");
+
+    fireEvent.click(disabled);
+    expect(picked).toEqual([]);
+  });
+
+  test("nilai tersimpan yang nonaktif tetap tampil sebagai label", () => {
+    render(<SelectField value="2" onValueChange={() => {}} options={PICKS} />);
+
+    expect(screen.getByRole("combobox").textContent).toContain("Sinta");
   });
 });
 

@@ -9,7 +9,12 @@ import { inputVariants } from "@/components/ui";
 import { normalizeName } from "@/lib/name";
 import { cn } from "@/lib/utils";
 
-import { FIELD_ITEM, FIELD_POPUP, type SelectOption } from "./select-field";
+import {
+  FIELD_HINT,
+  FIELD_ITEM,
+  FIELD_POPUP,
+  type SelectOption,
+} from "./select-field";
 
 const CREATE_VALUE = "\u0000create";
 
@@ -175,7 +180,8 @@ export const ComboboxField = (props: PropTypes) => {
                       <Combobox.Item
                         key={option.value}
                         value={option}
-                        className={cn(FIELD_ITEM, option.hint && "group")}
+                        disabled={option.isDisabled}
+                        className={cn(FIELD_ITEM)}
                       >
                         <Combobox.ItemIndicator className="col-start-1">
                           <Check className="size-3.5" aria-hidden />
@@ -183,9 +189,7 @@ export const ComboboxField = (props: PropTypes) => {
                         {option.hint ? (
                           <span className="col-start-2 flex min-w-0 items-baseline gap-2">
                             <span className="truncate">{option.label}</span>
-                            <span className="text-muted-foreground group-data-highlighted:text-primary-foreground/80 ms-auto shrink-0 text-caption font-normal whitespace-nowrap">
-                              {option.hint}
-                            </span>
+                            <span className={FIELD_HINT}>{option.hint}</span>
                           </span>
                         ) : (
                           <span className="col-start-2 truncate">

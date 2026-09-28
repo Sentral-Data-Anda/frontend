@@ -5,6 +5,7 @@
  * FE di `src/features/beranda/dummy.ts`, bukan tiruan di sini.
  *
  *   MOCK_PERSONA=admin (bawaan) | sekretariat | bendahara | majelis | operator
+ *                | koordinator
  *
  * `admin` = pohon menu lengkap dengan semua aksi (be-sada menyintesis aksi
  * untuk `isAdmin`) — dipakai untuk menilai sidebar 12 domain / 61 layar.
@@ -69,7 +70,11 @@ export const PERSONAS: Record<string, Persona> = {
       [MENU.REPORT_JEMAAT]: V,
       [MENU.IBADAH]: KEJEMAATAN_ACTIONS,
       [MENU.TIPE_IBADAH]: KEJEMAATAN_ACTIONS,
-      [MENU.JADWAL_PELAYAN]: V,
+      [MENU.JADWAL_PELAYAN]: KEJEMAATAN_ACTIONS,
+      [MENU.TEMPLATE_JADWAL]: KEJEMAATAN_ACTIONS,
+      [MENU.DAFTAR_PELAYAN]: KEJEMAATAN_ACTIONS,
+      [MENU.ROLE_PELAYAN]: KEJEMAATAN_ACTIONS,
+      [MENU.SKILL_MUSIK]: KEJEMAATAN_ACTIONS,
       [MENU.EVENT]: V,
       [MENU.PENGUMUMAN]: VC,
       [MENU.PEMINJAMAN_RUANG]: V,
@@ -130,6 +135,16 @@ export const PERSONAS: Record<string, Persona> = {
       [MENU.DAFTAR_JEMAAT]: V,
       [MENU.KELUARGA]: V,
       [MENU.SETELAN_PERSETUJUAN]: KEJEMAATAN_ACTIONS,
+    },
+  },
+  // Pelayanan tanpa master: membuktikan ddl yang dijaga menu pemakai (B1, B2).
+  koordinator: {
+    roleName: "Koordinator Pelayanan",
+    isAdmin: false,
+    jemaatName: "Christian Wijaya",
+    grants: {
+      [MENU.DAFTAR_PELAYAN]: KEJEMAATAN_ACTIONS,
+      [MENU.JADWAL_PELAYAN]: KEJEMAATAN_ACTIONS,
     },
   },
   admin: {
@@ -1131,7 +1146,7 @@ const VILLAGES: Record<
 
 /** Daftar untuk satu path `ddl`; `undefined` = endpoint tidak dikenal. */
 // `ddl/jemaat` (id, code, name) dan `ddl/bapel`, dipakai semua form Kejemaatan.
-const DDL_JEMAAT = [
+export const DDL_JEMAAT = [
   "Andreas Sitanggang",
   "Bethari Ayu Kusuma",
   "Christian Wijaya",
@@ -1159,7 +1174,7 @@ export const ROLE_USERS = [
   { id: 2, name: "Sekretariat" },
 ];
 
-const BAPEL_NAMES = [
+export const BAPEL_NAMES = [
   "Majelis Jemaat",
   "Komisi Pemuda",
   "Komisi Wanita",
