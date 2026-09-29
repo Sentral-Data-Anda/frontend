@@ -1188,9 +1188,26 @@ export const assetView = (row: AssetRow, isDetail = false) => {
       ? {
           id: row.id,
           detailImage: row.detailImage.map(assetPhotoView),
+          disposal: found
+            ? {
+                code: found.code,
+                method: found.method,
+                disposalDate: iso(found.disposalDate),
+                status: found.status,
+                approval: found.approval
+                  ? {
+                      publicId: found.approval.publicId,
+                      code: found.approval.code,
+                      status: found.status,
+                    }
+                  : null,
+              }
+            : null,
           depreciation: row.isDepreciable
             ? {
-                openingAccumulated: money(row.openingAccumulatedDepreciation),
+                openingAccumulated: money(
+                  row.openingAccumulatedDepreciation ?? 0,
+                ),
                 accumulated: money(accumulatedOf(row)),
                 bookValue: money(bookValueOf(row)),
                 lastPeriod: lastPeriodOf(row.id),

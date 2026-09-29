@@ -265,6 +265,21 @@ describe("pelepasan", () => {
     expect(names).toContain("Sound Portable Huper");
   });
 
+  test("detail barang: pelepasan membawa approval, akumulasi awal kosong = 0", () => {
+    const printer = assetView(assetNamed("Printer Canon G2010"), true);
+    const keyboard = assetView(assetNamed("Keyboard Yamaha PSR-SX700"), true);
+
+    expect(printer.disposal).toMatchObject({
+      status: "PENDING",
+      approval: { status: "PENDING" },
+    });
+    expect(printer.disposal?.approval?.publicId).toBeTruthy();
+    expect(
+      assetView(assetNamed("Printer Canon G2010")).disposal,
+    ).not.toHaveProperty("approval");
+    expect(keyboard.depreciation?.openingAccumulated).toBe("0.00");
+  });
+
   test("ajukan lalu tarik: barang kembali aktif", () => {
     const kamera = assetNamed("Kamera Canon EOS M50");
     const row = submitDisposal({
