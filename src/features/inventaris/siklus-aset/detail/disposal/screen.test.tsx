@@ -72,6 +72,19 @@ const onRender = (
   return renderWithClient(<DisposalDetailScreen code={code} />);
 };
 
+const otherPending = () => {
+  const row = submitDisposal({
+    assetId: assetIdOf("Genset Honda 5000 W"),
+    method: "LOST",
+    disposalDate: todayJakarta(),
+    reason: "Hilang",
+    proceeds: 0,
+  });
+  row.submittedBy = 12;
+
+  return row.code;
+};
+
 const ownPending = () =>
   submitDisposal({
     assetId: assetIdOf("Kamera Canon EOS M50"),
@@ -98,7 +111,7 @@ describe("halaman pelepasan", () => {
   });
 
   test("Menunggu tanpa DELETE: tanpa Tarik; tautan persetujuan hanya dengan VIEW-nya", async () => {
-    onRender(codeOf("PENDING"), ["VIEW"]);
+    onRender(otherPending(), ["VIEW"]);
 
     expect(await screen.findByText("Barang belum dilepas.")).toBeTruthy();
     expect(
@@ -107,7 +120,7 @@ describe("halaman pelepasan", () => {
     expect(screen.queryByRole("link", { name: /^PST-/ })).toBeNull();
     cleanup();
 
-    onRender(codeOf("PENDING"), ["VIEW"], ["VIEW"]);
+    onRender(otherPending(), ["VIEW"], ["VIEW"]);
     const link = await screen.findByRole("link", {
       name: /^PST-.* · Menunggu$/,
     });
@@ -117,7 +130,7 @@ describe("halaman pelepasan", () => {
   });
 
   test("tarik pengajuan orang lain → 403 tampil apa adanya", async () => {
-    onRender(codeOf("PENDING"), ["VIEW", "DELETE"]);
+    onRender(otherPending(), ["VIEW", "DELETE"]);
 
     fireEvent.click(
       await screen.findByRole("button", { name: "Tarik pengajuan" }),

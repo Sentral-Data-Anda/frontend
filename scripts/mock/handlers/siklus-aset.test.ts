@@ -8,6 +8,7 @@ import {
   TRANSFER,
   assetDdl,
   assetStatusOf,
+  submitDisposal,
 } from "../inventaris-store";
 import type { MockAction } from "../kit";
 
@@ -68,6 +69,20 @@ const onCall = async (
 const assetId = (name: string) =>
   ASSET.find((row) => row.name === name)?.id ?? 0;
 
+// Seed Printer bisa sudah diputus oleh test Permintaan Persetujuan di proses yang sama.
+const otherPending = () => {
+  const row = submitDisposal({
+    assetId: assetId("Genset Honda 5000 W"),
+    method: "LOST",
+    disposalDate: TODAY,
+    reason: "Hilang",
+    proceeds: 0,
+  });
+  row.submittedBy = 12;
+
+  return row;
+};
+
 describe("daftar dan baca", () => {
   test("filter status, cara, cari; kosong 404; ?assetId= dijawab", async () => {
     const done = await onCall("/siklus-aset/perawatan?status=DONE&limit=100");
@@ -85,8 +100,9 @@ describe("daftar dan baca", () => {
       404,
     );
 
+    otherPending();
     const history = await onCall(
-      `/siklus-aset/pelepasan?assetId=${assetId("Printer Canon G2010")}`,
+      `/siklus-aset/pelepasan?assetId=${assetId("Genset Honda 5000 W")}`,
     );
     expect(history.body.data[0].status).toBe("PENDING");
 
@@ -208,7 +224,7 @@ describe("pindah lokasi", () => {
     expect(
       (
         await onMove({
-          assetId: assetId("Printer Canon G2010"),
+          assetId: otherPending().assetId,
           toRoomId: 1,
           toBapelId: 1,
         })
@@ -292,9 +308,8 @@ describe("pelepasan", () => {
   });
 
   test("tarik pengajuan orang lain 403", async () => {
-    const printer = DISPOSAL.find((row) => row.status === "PENDING");
     const response = await onCall(
-      `/siklus-aset/pelepasan/${printer?.code}/tarik`,
+      `/siklus-aset/pelepasan/${otherPending().code}/tarik`,
       { method: "PUT" },
     );
 
