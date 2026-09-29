@@ -67,9 +67,11 @@ export function PageHeader({
 export function PageHeaderAdd({
   href,
   label,
+  text = "Tambah",
 }: {
   href: string;
   label: string;
+  text?: string;
 }) {
   return (
     <Link
@@ -81,7 +83,7 @@ export function PageHeaderAdd({
       )}
     >
       <Plus aria-hidden />
-      <span className="hidden lg:inline">Tambah</span>
+      <span className="hidden lg:inline">{text}</span>
     </Link>
   );
 }

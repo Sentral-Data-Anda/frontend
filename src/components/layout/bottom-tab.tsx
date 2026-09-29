@@ -52,7 +52,9 @@ export function getVisibleTabs(tabs: Tab[], menu: MenuNode[]): Tab[] {
 }
 
 export function isTabActive(href: string, pathname: string): boolean {
-  return href === "/" ? pathname === "/" : pathname.startsWith(href);
+  return href === "/"
+    ? pathname === "/"
+    : pathname === href || pathname.startsWith(`${href}/`);
 }
 
 export const BottomTab = () => {
