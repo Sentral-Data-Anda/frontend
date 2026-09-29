@@ -9,19 +9,15 @@ import { Button, ComboboxField } from "@/components/common/control";
 import { FormSection, FormWide } from "@/components/common/form";
 import { useBoolean } from "@/hooks/use-boolean";
 import { useDdlSearch } from "@/hooks/use-ddl-options";
-import { useIsTableWidth } from "@/hooks/use-media";
 import { FetchError } from "@/lib/api/fetcher";
 
-import { fetchStockItems, findCachedStockItem, stockItemDdlPath } from "../api";
+import { fetchStockItems, stockItemDdlPath } from "../api";
 import { stockItemHintOf, toCountLine } from "../model";
 import type { StockItemOption } from "../types";
 
 import { CountRow } from "./count-row";
 import { CountSummary } from "./count-summary";
 import type { OpnameForm } from "./form-options";
-
-const GRID =
-  "grid grid-cols-[minmax(0,2fr)_6rem_5rem_minmax(0,2fr)_2.25rem] gap-x-3";
 
 interface PropTypes {
   form: OpnameForm;
@@ -36,7 +32,6 @@ export const CountSection = (props: PropTypes) => {
   const queryClient = useQueryClient();
   const rows = useFieldArray({ control: form.control, name: "items" });
   const { errors } = useFormState({ control: form.control, name: "items" });
-  const isTable = useIsTableWidth() === true;
   const isLoadingItems = useBoolean();
   const [loadMessage, setLoadMessage] = useState<string | null>(null);
   const search = useDdlSearch<StockItemOption>(
@@ -83,7 +78,7 @@ export const CountSection = (props: PropTypes) => {
   };
 
   const onPick = (id: string) => {
-    const found = findCachedStockItem(queryClient, id);
+    const found = search.rows.find((row) => String(row.id) === id);
 
     if (!found || taken.has(id)) return;
 
@@ -96,7 +91,6 @@ export const CountSection = (props: PropTypes) => {
       key={row.id}
       form={form}
       index={index}
-      isTable={isTable}
       isDisabled={isDisabled}
       onRemove={rows.remove}
     />
@@ -113,27 +107,9 @@ export const CountSection = (props: PropTypes) => {
           <>
             <CountSummary form={form} />
 
-            {isTable ? (
-              <div className="border-border bg-card rounded-control border">
-                <div
-                  aria-hidden
-                  className={`${GRID} text-muted-foreground px-3 py-2 text-caption font-medium`}
-                >
-                  <span>Barang</span>
-                  <span className="text-right">Fisik</span>
-                  <span className="text-right">Selisih</span>
-                  <span>Catatan</span>
-                  <span />
-                </div>
-                <ol aria-label="Barang yang dihitung" className={GRID}>
-                  {items}
-                </ol>
-              </div>
-            ) : (
-              <ol aria-label="Barang yang dihitung" className="space-y-2">
-                {items}
-              </ol>
-            )}
+            <ol aria-label="Barang yang dihitung" className="space-y-2">
+              {items}
+            </ol>
           </>
         )}
 

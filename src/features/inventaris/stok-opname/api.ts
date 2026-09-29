@@ -11,7 +11,6 @@ import { ddlKeys } from "@/hooks/use-ddl-options";
 import type { ListState } from "@/hooks/use-list-params";
 import { useListQuery } from "@/hooks/use-list-query";
 import { fetchList, fetchOne } from "@/lib/api/fetcher";
-import type { ApiListResponse } from "@/types/api";
 
 import { toOpnameApiFilters } from "./model";
 import type {
@@ -67,15 +66,6 @@ export const fetchStockItems = (queryClient: QueryClient, roomId: string) => {
     })
     .then((response) => response.data);
 };
-
-export const findCachedStockItem = (queryClient: QueryClient, id: string) =>
-  queryClient
-    .getQueriesData<ApiListResponse<StockItemOption>>({
-      queryKey: ddlKeys.all,
-      predicate: (query) => isStockItemDdl(query.queryKey),
-    })
-    .flatMap(([, response]) => response?.data ?? [])
-    .find((row) => String(row.id) === id);
 
 export function useSaveOpname(code?: string) {
   const queryClient = useQueryClient();

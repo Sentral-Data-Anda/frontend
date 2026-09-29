@@ -8,7 +8,7 @@ import {
   type DataTableColumn,
   type DataTableConfig,
 } from "@/components/common/list";
-import { formatDate, formatNumber } from "@/lib/format";
+import { formatDate, formatDateShort, formatNumber } from "@/lib/format";
 import { saveListFocus } from "@/lib/list-return";
 import { cn } from "@/lib/utils";
 
@@ -93,7 +93,7 @@ const COLUMNS: Column[] = [
     width: "minmax(0,1fr)",
     cell: (opname) => (
       <span className="block truncate tabular-nums">
-        {formatDate(opname.opnameDate)}
+        {formatDateShort(opname.opnameDate)}
       </span>
     ),
   },
@@ -101,6 +101,7 @@ const COLUMNS: Column[] = [
     key: "code",
     header: "Kode",
     width: "minmax(0,1.2fr)",
+    isSecondary: true,
     cell: (opname) => (
       <span className="text-muted-foreground block truncate tabular-nums">
         {opname.code}

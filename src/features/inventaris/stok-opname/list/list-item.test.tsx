@@ -78,6 +78,11 @@ test("tabel: kolom pensil hanya dengan UPDATE; baris ke halaman", () => {
     "status",
   ]);
   expect(opnameTable(true).columns.at(-1)?.key).toBe("edit");
+  expect(
+    opnameTable(false)
+      .columns.filter((column) => column.isSecondary)
+      .map((column) => column.key),
+  ).toEqual(["code"]);
   expect(opnameTable(false).getRowHref?.(opname())).toBe(
     "/inventaris/stok-opname/OPN-2026-0005",
   );

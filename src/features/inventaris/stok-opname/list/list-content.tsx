@@ -59,8 +59,8 @@ export const OpnameListContent = () => {
           {
             key: "status",
             label: "Status",
-            kind: "choice",
-            options: [{ value: "", label: "Semua" }, ...STATUS_OPTIONS],
+            kind: "select",
+            options: [{ value: "", label: "Semua status" }, ...STATUS_OPTIONS],
           },
           {
             key: "ruang",
