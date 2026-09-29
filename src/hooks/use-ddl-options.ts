@@ -54,12 +54,15 @@ function useDdlQuery<T extends DdlOption>(
     enabled: path !== null,
     staleTime: 10 * 60_000,
     placeholderData: isKeepingPrevious ? keepPreviousData : undefined,
-    select: (response) =>
-      toDdlOptions(response.data, valueKey, keepValue, hintOf),
+    select: (response) => ({
+      rows: response.data,
+      options: toDdlOptions(response.data, valueKey, keepValue, hintOf),
+    }),
   });
 
   return {
-    options: query.data ?? [],
+    rows: query.data?.rows ?? [],
+    options: query.data?.options ?? [],
     isLoading: query.isFetching,
   };
 }
