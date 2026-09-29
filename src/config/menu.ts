@@ -394,6 +394,7 @@ export const FORM_SEGMENT = {
   end: "akhiri",
   reject: "tolak",
   rotation: "giliran",
+  label: "label",
 } as const;
 
 const FORM_SEGMENTS: readonly string[] = Object.values(FORM_SEGMENT);

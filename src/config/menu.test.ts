@@ -102,6 +102,7 @@ describe("rute layar isian", () => {
     expect(isFormRoute("/kejemaatan/pernikahan/abc/akhiri")).toBe(true);
     expect(isFormRoute("/kejemaatan/keluarga/KK-0001/anggota/baru")).toBe(true);
     expect(isFormRoute("/peribadahan/ibadah/giliran")).toBe(true);
+    expect(isFormRoute("/inventaris/barang/label")).toBe(true);
   });
 
   test("halaman tolak permintaan adalah layar isian", () => {
