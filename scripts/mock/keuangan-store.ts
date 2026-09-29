@@ -212,6 +212,13 @@ export const ACCOUNTING_SETTING: SettingRow[] = [
     updatedById: null,
   },
   {
+    key: "PENDAPATAN_EVENT",
+    description:
+      "Akun pendapatan yang dikredit saat pembayaran pendaftaran event diposting",
+    accountId: null,
+    updatedById: null,
+  },
+  {
     key: "PENYUSUTAN_BEBAN",
     description: "Akun beban yang didebit saat penyusutan bulanan diposting",
     accountId: null,
