@@ -2,7 +2,9 @@ import { describe, expect, test } from "bun:test";
 
 import {
   APPROVAL_DOCUMENT_LABEL,
+  APPROVAL_DOCUMENT_MENU,
   APPROVAL_DOCUMENT_TYPES,
+  approvalDocumentHref,
   amountUnitOf,
   formatApprovalAmount,
 } from "./persetujuan";
@@ -27,5 +29,28 @@ describe("jenis dokumen persetujuan", () => {
     expect(formatApprovalAmount("CASH_EXPENSE", "4500000")).toBe(
       "Rp 4.500.000",
     );
+  });
+});
+
+describe("tautan halaman dokumen", () => {
+  test("permintaan pembelian dan pelepasan barang punya halaman", () => {
+    expect(approvalDocumentHref("PURCHASE_REQUEST", "PRQ-2026-0001")).toBe(
+      "/pengadaan/permintaan-pembelian/PRQ-2026-0001",
+    );
+    expect(approvalDocumentHref("ASSET_DISPOSAL", "SKA-2026-0003")).toBe(
+      "/inventaris/siklus-aset/pelepasan/SKA-2026-0003",
+    );
+  });
+
+  test("dokumen tanpa layar tidak bertaut", () => {
+    expect(approvalDocumentHref("PURCHASE_RETURN", "RTR-2026-0001")).toBeNull();
+    expect(approvalDocumentHref("CASH_EXPENSE", "KK-2026-0001")).toBeNull();
+  });
+
+  test("setiap dokumen bertaut punya menu penjaga", () => {
+    for (const type of APPROVAL_DOCUMENT_TYPES) {
+      const href = approvalDocumentHref(type, "X");
+      expect(href === null).toBe(APPROVAL_DOCUMENT_MENU[type] === undefined);
+    }
   });
 });

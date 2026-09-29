@@ -1,3 +1,4 @@
+import { MENU, detailHref, menuHref, type MenuSlug } from "@/config/menu";
 import { formatRupiah } from "@/lib/format";
 
 export const APPROVAL_DOCUMENT_TYPES = [
@@ -58,3 +59,25 @@ export const formatApprovalAmount = (
   amountUnitOf(type) === "hari"
     ? `${dayFormat.format(Number(value))} hari`
     : formatRupiah(Number(value));
+
+export const APPROVAL_DOCUMENT_MENU: Partial<
+  Record<ApprovalDocumentType, MenuSlug>
+> = {
+  PURCHASE_REQUEST: MENU.PERMINTAAN_PEMBELIAN,
+  ASSET_DISPOSAL: MENU.SIKLUS_ASET,
+};
+
+export const approvalDocumentHref = (
+  type: ApprovalDocumentType,
+  code: string,
+): string | null => {
+  if (type === "PURCHASE_REQUEST") {
+    return detailHref(MENU.PENGADAAN, MENU.PERMINTAAN_PEMBELIAN, code);
+  }
+
+  if (type === "ASSET_DISPOSAL") {
+    return `${menuHref(MENU.INVENTARIS, MENU.SIKLUS_ASET)}/pelepasan/${encodeURIComponent(code)}`;
+  }
+
+  return null;
+};
