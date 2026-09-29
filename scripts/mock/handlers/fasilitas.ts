@@ -15,6 +15,7 @@ const ROOM_DDL_MENUS = [
   MENU.BARANG_PERSEDIAAN,
   MENU.STOK_OPNAME,
   MENU.SIKLUS_ASET,
+  MENU.PESANAN_PEMBELIAN,
 ] as const;
 
 export const fasilitasMock: MockHandler = (ctx) => {

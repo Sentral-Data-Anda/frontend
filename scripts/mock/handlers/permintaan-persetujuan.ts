@@ -9,7 +9,9 @@
  *   MOCK_APPROVAL_RACE=1          → aksi pertama menjawab 400 "… Sudah Selesai"
  *
  * Permintaan `ASSET_DISPOSAL` dibaca dari store Inventaris (pelepasan barang) dan
- * keputusan akhirnya ditulis balik lewat `decideDisposal`.
+ * `PURCHASE_REQUEST` dari store Pengadaan; keputusan akhirnya ditulis balik lewat
+ * `decideDisposal` / `decidePurchaseRequest`. Tahap permintaan pembelian: Bendahara,
+ * ditambah Majelis bila nominal di atas Rp10 juta.
  *
  * "Saya" = SESSION_USER_ID (satu akun untuk semua persona), jadi Pengajuan dan Riwayat
  * sama di semua persona; antrean dan hak tanda tangan berbeda lewat role dan jabatan.
@@ -37,6 +39,13 @@ import {
   type DisposalRow,
 } from "../inventaris-store";
 import { denied, json, list, readBody, type MockHandler } from "../kit";
+import {
+  PURCHASE_REQUEST,
+  decidePurchaseRequest,
+  requestTotalIdr,
+  type ApprovalRef,
+  type PurchaseRequestRow,
+} from "../pengadaan-store";
 
 type StepStatus = Exclude<ApprovalStatus, "CANCELLED">;
 
@@ -250,14 +259,6 @@ const seed = (): Row[] => [
     tiers: [MAJELIS],
     title: "Rina Situmorang · Cuti Tahunan · 3 hari",
   }),
-  makeRow(4, {
-    type: "PURCHASE_REQUEST",
-    amount: 2_750_000,
-    by: 14,
-    daysAgo: 1,
-    tiers: [MAJELIS],
-    title: "Komisi Anak · 6 barang",
-  }),
   makeRow(5, {
     type: "BUDGET_USAGE_REPORT",
     amount: 8_200_000,
@@ -343,14 +344,6 @@ const seed = (): Row[] => [
     tiers: [BENDAHARA],
     title: "Honor pemusik tamu Minggu Pemuda",
   }),
-  makeRow(14, {
-    type: "PURCHASE_REQUEST",
-    amount: 15_000_000,
-    by: 16,
-    daysAgo: 2,
-    tiers: [BENDAHARA, MAJELIS],
-    title: "Komisi Musik · 3 barang",
-  }),
   makeRow(15, {
     type: "PAYROLL_RUN",
     amount: 48_500_000,
@@ -383,7 +376,7 @@ const seed = (): Row[] => [
     title: "Kemah Sekolah Minggu",
   }),
   makeRow(19, {
-    type: "PURCHASE_REQUEST",
+    type: "CASH_EXPENSE",
     amount: 7_300_000,
     by: 16,
     daysAgo: 7,
@@ -397,7 +390,7 @@ const seed = (): Row[] => [
         note: "Kas komisi belum cukup bulan ini. Ajukan kembali awal bulan depan.",
       },
     ],
-    title: "Komisi Pemuda · 4 barang",
+    title: "Sewa tenda retret pemuda",
   }),
   makeRow(20, {
     type: "LEAVE_REQUEST",
@@ -488,6 +481,54 @@ const disposalRow = (
   };
 };
 
+const LARGE_PURCHASE = 10_000_000;
+
+const purchaseRequestRow = (
+  request: PurchaseRequestRow,
+  approval: ApprovalRef,
+): Row => {
+  const amount = requestTotalIdr(request);
+  const daysAgo = Math.max(
+    0,
+    Math.round(
+      (Date.parse(TODAY) - Date.parse(approval.submittedAt.slice(0, 10))) /
+        86_400_000,
+    ),
+  );
+  const bapel = BAPELS.find((item) => item.id === request.bapelId);
+  const tiers = amount > LARGE_PURCHASE ? [BENDAHARA, MAJELIS] : [BENDAHARA];
+  const acts: Act[] =
+    approval.status === "APPROVED"
+      ? tiers.map(() => ({ status: "APPROVED", by: 15 }))
+      : approval.status === "REJECTED"
+        ? [
+            {
+              status: "REJECTED",
+              by: 15,
+              note: approval.note ?? "Permintaan ditolak.",
+            },
+          ]
+        : [];
+  const title = `${bapel?.name ?? "-"} · ${request.purpose}`;
+  const row = makeRow(approval.id, {
+    type: "PURCHASE_REQUEST",
+    amount,
+    by: request.requestedBy,
+    daysAgo,
+    tiers,
+    acts,
+    title,
+    isCancelled: approval.status === "CANCELLED",
+  });
+
+  return {
+    ...row,
+    publicId: approval.publicId,
+    code: approval.code,
+    document: { publicId: request.publicId, code: request.code, title },
+  };
+};
+
 const many = (roleUserId: number): Row[] =>
   Array.from({ length: 150 }, (_, index) =>
     makeRow(100 + index, {
@@ -540,12 +581,34 @@ export const createPermintaanPersetujuanMock = (
     }
   };
 
-  const writeBack = (row: Row, note: string | null = null) => {
-    if (row.documentType !== "ASSET_DISPOSAL" || row.status === "PENDING") {
-      return;
+  const syncPurchaseRequests = () => {
+    for (const request of PURCHASE_REQUEST) {
+      for (const approval of request.approvals) {
+        const existing = rows.find((row) => row.publicId === approval.publicId);
+        if (!existing) {
+          rows.push(purchaseRequestRow(request, approval));
+          continue;
+        }
+        if (existing.status === "PENDING" && approval.status === "CANCELLED") {
+          const now = new Date().toISOString();
+          Object.assign(existing, {
+            status: "CANCELLED",
+            completedAt: now,
+            updatedAt: now,
+          });
+        }
+      }
     }
+  };
 
-    decideDisposal(row.publicId, row.status, note);
+  const writeBack = (row: Row, note: string | null = null) => {
+    if (row.status === "PENDING") return;
+    if (row.documentType === "ASSET_DISPOSAL") {
+      decideDisposal(row.publicId, row.status, note);
+    }
+    if (row.documentType === "PURCHASE_REQUEST") {
+      decidePurchaseRequest(row.publicId, row.status, note);
+    }
   };
 
   const normalise = (name: string) => name.trim().toLowerCase();
@@ -844,6 +907,7 @@ export const createPermintaanPersetujuanMock = (
     if (!match) return null;
 
     syncDisposals();
+    syncPurchaseRequests();
 
     const [, publicId, verb] = match;
 

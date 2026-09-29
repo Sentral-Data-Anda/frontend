@@ -17,7 +17,20 @@ type Live = { id: number; deletedAt: string | null };
 
 export type MasterRow = Live & { publicId: string; code: string; name: string };
 
-export type SupplierRow = { id: number; code: string; name: string };
+export type SupplierRow = Live & {
+  publicId: string;
+  code: string;
+  name: string;
+  contactPerson: string | null;
+  phone: string;
+  email: string | null;
+  address: string | null;
+  npwp: string | null;
+  bankName: string | null;
+  bankAccountNumber: string | null;
+  bankAccountName: string | null;
+  isActive: boolean;
+};
 
 export type AssetPhoto = {
   publicId: string;
@@ -300,16 +313,78 @@ export const UNIT = master(
   "Dus",
 );
 
+const supplier = (
+  id: number,
+  seed: Pick<SupplierRow, "name" | "phone"> & Partial<SupplierRow>,
+): SupplierRow => ({
+  id,
+  publicId: uuid("d800", id),
+  code: `SUP-${pad(id)}`,
+  contactPerson: null,
+  email: null,
+  address: null,
+  npwp: null,
+  bankName: null,
+  bankAccountNumber: null,
+  bankAccountName: null,
+  isActive: true,
+  deletedAt: null,
+  ...seed,
+});
+
 export const SUPPLIER: SupplierRow[] = [
-  "CV Sinar Teknik",
-  "Toko Musik Harmoni",
-  "PT Sejuk Selalu",
-  "Bengkel Jaya",
-].map((name, index) => ({
-  id: index + 1,
-  code: `SUP-${pad(index + 1)}`,
-  name,
-}));
+  supplier(1, {
+    name: "CV Sinar Teknik",
+    contactPerson: "Budi Hartono",
+    phone: "081263114520",
+    email: "sales@sinarteknik.co.id",
+    address: "Jl. Sisingamangaraja No. 88, Medan",
+    npwp: "01.234.567.8-121.000",
+    bankName: "BCA",
+    bankAccountNumber: "8200331145",
+    bankAccountName: "CV Sinar Teknik",
+  }),
+  supplier(2, {
+    name: "Toko Musik Harmoni",
+    contactPerson: "Yosef Tambunan",
+    phone: "082167550019",
+    address: "Jl. Gatot Subroto No. 12, Medan",
+  }),
+  supplier(3, {
+    name: "PT Sejuk Selalu",
+    contactPerson: "Linda Siregar",
+    phone: "0614512330",
+    email: "servis@sejukselalu.com",
+    bankName: "Mandiri",
+    bankAccountNumber: "1060007712345",
+    bankAccountName: "PT Sejuk Selalu",
+  }),
+  supplier(4, { name: "Bengkel Jaya", phone: "081370024411" }),
+  supplier(5, {
+    name: "Toko Buku Agape",
+    contactPerson: "Ibu Maria",
+    phone: "081396207781",
+    address: "Jl. Pemuda No. 5, Medan",
+    bankName: "BRI",
+    bankAccountNumber: "012301000456307",
+    bankAccountName: "Maria Situmorang",
+  }),
+  supplier(6, {
+    name: "Toko Mebel Sentosa",
+    contactPerson: "Andi",
+    phone: "085261447702",
+  }),
+  supplier(7, {
+    name: "CV Lama Jaya",
+    phone: "0614100221",
+    isActive: false,
+  }),
+  supplier(8, {
+    name: "Toko Serba Ada",
+    phone: "0614100999",
+    deletedAt: stamp(day(-120)),
+  }),
+];
 
 const TYPE = {
   ELEKTRONIK: 1,
@@ -329,7 +404,8 @@ export const typeItemOf = (id: number) =>
 export const unitOf = (id: number) =>
   UNIT.find((row) => row.id === id && isLive(row));
 
-export const supplierOf = (id: number) => SUPPLIER.find((row) => row.id === id);
+export const supplierOf = (id: number) =>
+  SUPPLIER.find((row) => row.id === id && isLive(row));
 
 export const roomRowOf = (id: number) => ROOM.find((row) => row.id === id);
 
@@ -1439,10 +1515,10 @@ const SEED_MOVEMENTS: [
   [ROTI, -53, "OUT", "USAGE", 2, "Perjamuan Kudus"],
   [TISU, -50, "OUT", "TRANSFER", 10, "Dipindah ke gudang lama"],
   [LILIN, -46, "OUT", "USAGE", 8, "Ibadah Minggu"],
-  [KERTAS, -45, "IN", "GOODS_RECEIPT", 10, "Penerimaan PNR-2026-0004"],
-  [KIDUNG, -45, "IN", "GOODS_RECEIPT", 20, "Penerimaan PNR-2026-0004"],
+  [KERTAS, -45, "IN", "GOODS_RECEIPT", 10, `Penerimaan GRN-${YEAR}-0001`],
+  [KIDUNG, -45, "IN", "GOODS_RECEIPT", 20, `Penerimaan GRN-${YEAR}-0001`],
   [KERTAS, -44, "OUT", "PURCHASE_RETURN", 2, "Retur 2 rim basah"],
-  [LILIN, -40, "IN", "GOODS_RECEIPT", 24, "Penerimaan PNR-2026-0006"],
+  [LILIN, -40, "IN", "GOODS_RECEIPT", 24, `Penerimaan GRN-${YEAR}-0002`],
   [ROTI, -39, "OUT", "USAGE", 2, "Perjamuan Kudus"],
   [ANGGUR, -39, "OUT", "USAGE", 2, "Perjamuan Kudus"],
   [SPIDOL, -35, "OUT", "USAGE", 5, "Kelas katekisasi"],
@@ -1692,7 +1768,7 @@ export const maintenanceView = (row: MaintenanceRow) => {
     asset: place(ASSET.find((item) => item.id === row.assetId)),
     supplier: supplier
       ? {
-          publicId: `supplier-${supplier.id}`,
+          publicId: supplier.publicId,
           code: supplier.code,
           name: supplier.name,
         }
@@ -1741,7 +1817,10 @@ export const unitDdl = () =>
     .sort(byName)
     .map(({ id, code, name }) => ({ id, code, name }));
 
-export const supplierDdl = () => [...SUPPLIER].sort(byName);
+export const supplierDdl = () =>
+  SUPPLIER.filter((row) => isLive(row) && row.isActive)
+    .sort(byName)
+    .map(({ id, code, name, phone }) => ({ id, code, name, phone }));
 
 export const assetDdl = (params: { filter: string; limit: number | null }) => {
   const rows = ASSET.filter(
@@ -1790,7 +1869,7 @@ export const stockItemDdl = (params: {
         code: row.code,
         name: row.name,
         quantity: row.quantity,
-        unit: unit ? { name: unit.name } : null,
+        unit: unit ? { id: unit.id, name: unit.name } : null,
         room: room ? { id: room.id, name: room.name } : null,
       };
     });

@@ -11,4 +11,5 @@ export * from "./password-input";
 export * from "./search-input";
 export * from "./select-field";
 export * from "./textarea";
+export * from "./amount-input";
 export * from "./attachment-field";

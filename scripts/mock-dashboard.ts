@@ -98,6 +98,11 @@ export const PERSONAS: Record<string, Persona> = {
       [MENU.MUTASI_STOK]: LEDGER_ACTIONS,
       [MENU.STOK_OPNAME]: KEJEMAATAN_ACTIONS,
       [MENU.SIKLUS_ASET]: KEJEMAATAN_ACTIONS,
+      [MENU.SUPPLIER]: KEJEMAATAN_ACTIONS,
+      [MENU.PERMINTAAN_PEMBELIAN]: KEJEMAATAN_ACTIONS,
+      [MENU.PESANAN_PEMBELIAN]: KEJEMAATAN_ACTIONS,
+      [MENU.PENERIMAAN_BARANG]: LEDGER_ACTIONS,
+      [MENU.MATA_UANG]: V,
     },
   },
   // §3b, plus IBADAH/EVENT VIEW supaya Agenda dan "· 2 kebaktian" tampil, dan
@@ -122,6 +127,10 @@ export const PERSONAS: Record<string, Persona> = {
       [MENU.PERMINTAAN_PERSETUJUAN]: APPROVAL_ACTIONS,
       [MENU.PENYUSUTAN]: KEJEMAATAN_ACTIONS,
       [MENU.BARANG]: V,
+      [MENU.SUPPLIER]: V,
+      [MENU.PERMINTAAN_PEMBELIAN]: V,
+      [MENU.PESANAN_PEMBELIAN]: V,
+      [MENU.MATA_UANG]: KEJEMAATAN_ACTIONS,
     },
   },
   // §3c, dengan LAPORAN_KEUANGAN (keputusan admin; tanpanya grid merapat).
@@ -140,6 +149,7 @@ export const PERSONAS: Record<string, Persona> = {
       [MENU.IBADAH]: V,
       [MENU.EVENT]: V,
       [MENU.REPORT_JEMAAT]: V,
+      [MENU.PERMINTAAN_PEMBELIAN]: V,
     },
   },
   // Non-admin pemegang menu Pengaturan: be-sada menolak tambah akun dan

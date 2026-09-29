@@ -15,16 +15,21 @@ import { jadwalSayaMock } from "./jadwal-saya";
 import { kegiatanMock } from "./kegiatan";
 import { keluargaMock } from "./keluarga";
 import { masterJemaatMock } from "./master-jemaat";
+import { mataUangMock } from "./mata-uang";
 import { mutasiStokMock } from "./mutasi-stok";
 import { pelayanMock } from "./pelayan";
 import { pelayananDdlMock } from "./pelayanan-ddl";
 import { peminjamanRuangMock } from "./peminjaman-ruang";
 import { pendaftaranEventMock } from "./pendaftaran-event";
+import { penerimaanBarangMock } from "./penerimaan-barang";
+import { pengadaanMock } from "./pengadaan";
 import { pengumumanMock } from "./pengumuman";
 import { pengumumanFeedMock } from "./pengumuman-feed";
 import { penyusutanMock } from "./penyusutan";
+import { permintaanPembelianMock } from "./permintaan-pembelian";
 import { permintaanPersetujuanMock } from "./permintaan-persetujuan";
 import { pernikahanMock } from "./pernikahan";
+import { pesananPembelianMock } from "./pesanan-pembelian";
 import { reportJemaatMock } from "./report-jemaat";
 import { riwayatJemaatMock } from "./riwayat-jemaat";
 import { roleJemaatMock } from "./role-jemaat";
@@ -36,6 +41,7 @@ import { setelanPersetujuanMock } from "./setelan-persetujuan";
 import { siklusAsetMock } from "./siklus-aset";
 import { skillMusikMock } from "./skill-musik";
 import { stokOpnameMock } from "./stok-opname";
+import { supplierMock } from "./supplier";
 import { templateJadwalMock } from "./template-jadwal";
 import { tipeBarangMock } from "./tipe-barang";
 import { tipeIbadahMock } from "./tipe-ibadah";
@@ -84,5 +90,11 @@ export const MOCK_HANDLERS: MockHandler[] = [
   stokOpnameMock,
   siklusAsetMock,
   penyusutanMock,
+  supplierMock,
+  permintaanPembelianMock,
+  pesananPembelianMock,
+  penerimaanBarangMock,
+  mataUangMock,
+  pengadaanMock,
   inventarisMock,
 ];

@@ -53,6 +53,10 @@
  *   MOCK_PENYUSUTAN_PERIOD_CLOSED=1     → posting penyusutan ditolak: periode fiskal
  *   MOCK_DISPOSAL_NO_WORKFLOW=1         → ajukan pelepasan barang ditolak: belum ada alur
  *                                         persetujuan (dibaca handler Siklus Aset)
+ *   MOCK_PR_NO_WORKFLOW=1               → ajukan permintaan pembelian ditolak: belum ada alur
+ *                                         persetujuan (dibaca `submitPurchaseRequest`)
+ *   MOCK_RECEIPT_RACE=1                 → catat penerimaan barang ditolak: jumlah melebihi
+ *                                         pesanan (dibaca `receiveGoods`)
  *
  * Tiruan tiap sub menu Kejemaatan tinggal di `scripts/mock/handlers/<sub-menu>.ts`,
  * didaftarkan di `scripts/mock/handlers/index.ts`, dan dipanggil sebelum handler

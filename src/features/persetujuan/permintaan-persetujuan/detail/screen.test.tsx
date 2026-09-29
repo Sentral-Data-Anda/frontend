@@ -13,7 +13,7 @@ import { DETAIL_ID, approvalDetail } from "../fixtures";
 import { PERMINTAAN_LIST_PATH } from "../model";
 import type { ApprovalDetail } from "../types";
 
-const access = { isCanUpdate: true };
+const access = { isCanUpdate: true, hidden: new Set<string>() };
 const replaced: string[] = [];
 
 mock.module("next/navigation", () => ({
@@ -23,8 +23,8 @@ mock.module("next/navigation", () => ({
 }));
 
 mock.module("@/features/auth/use-menu-access", () => ({
-  useMenuAccess: () => ({
-    isCanView: true,
+  useMenuAccess: (slug: string) => ({
+    isCanView: !access.hidden.has(slug),
     isCanCreate: false,
     isCanUpdate: access.isCanUpdate,
     isCanDelete: false,
@@ -40,6 +40,7 @@ afterEach(() => {
   globalThis.fetch = originalFetch;
   replaced.length = 0;
   access.isCanUpdate = true;
+  access.hidden.clear();
   window.sessionStorage.clear();
 });
 
@@ -133,6 +134,50 @@ describe("gerbang aksi", () => {
       screen.getByRole("button", { name: "Tarik pengajuan" }),
     ).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Setujui" })).toBeNull();
+  });
+});
+
+describe("tautan dokumen", () => {
+  const purchaseRequest = () =>
+    approvalDetail({
+      documentType: "PURCHASE_REQUEST",
+      document: {
+        publicId: "prq-1",
+        code: "PRQ-2026-0004",
+        title: "Komisi Pemuda · Perlengkapan retret",
+      },
+    });
+
+  test("permintaan pembelian bertaut ke halamannya", async () => {
+    onMockApi(purchaseRequest());
+    onRender();
+    await onLoaded();
+
+    expect(
+      screen
+        .getByRole("link", { name: "Lihat permintaan pembelian" })
+        .getAttribute("href"),
+    ).toBe("/pengadaan/permintaan-pembelian/PRQ-2026-0004");
+  });
+
+  test("tanpa VIEW menu dokumen: tanpa tautan", async () => {
+    access.hidden.add("PERMINTAAN_PEMBELIAN");
+    onMockApi(purchaseRequest());
+    onRender();
+    await onLoaded();
+
+    expect(screen.getAllByText(/PRQ-2026-0004/).length).toBeGreaterThan(0);
+    expect(
+      screen.queryByRole("link", { name: "Lihat permintaan pembelian" }),
+    ).toBeNull();
+  });
+
+  test("dokumen tanpa layar: tanpa tautan", async () => {
+    onMockApi(approvalDetail());
+    onRender();
+    await onLoaded();
+
+    expect(screen.queryByRole("link", { name: /^Lihat / })).toBeNull();
   });
 });
 

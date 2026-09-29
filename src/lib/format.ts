@@ -71,6 +71,24 @@ export const formatRupiah = (
 
 export const formatNumber = (value: number) => rupiahFormat.format(value);
 
+const fractionDigitsOf = (currencyCode: string) =>
+  new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: currencyCode,
+  }).resolvedOptions().maximumFractionDigits ?? 2;
+
+export const formatMoney = (value: number, currencyCode: string) => {
+  if (currencyCode === "IDR") return formatRupiah(value);
+
+  const digits = fractionDigitsOf(currencyCode);
+  const amount = new Intl.NumberFormat("id-ID", {
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
+  }).format(Math.abs(value));
+
+  return `${value < 0 ? "−" : ""}${currencyCode} ${amount}`;
+};
+
 export const formatRupiahCompact = (value: number) =>
   `${value < 0 ? "−" : ""}Rp ${rupiahCompactFormat.format(Math.abs(value))}`;
 
