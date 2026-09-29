@@ -1869,7 +1869,7 @@ export const stockItemDdl = (params: {
         code: row.code,
         name: row.name,
         quantity: row.quantity,
-        unit: unit ? { name: unit.name } : null,
+        unit: unit ? { id: unit.id, name: unit.name } : null,
         room: room ? { id: room.id, name: room.name } : null,
       };
     });
