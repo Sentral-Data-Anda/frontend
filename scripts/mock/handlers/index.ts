@@ -46,6 +46,7 @@ import { rolePelayanMock } from "./role-pelayan";
 import { roleUserMock } from "./role-user";
 import { ruangMock } from "./ruang";
 import { satuanMock } from "./satuan";
+import { setelanAkuntansiMock } from "./setelan-akuntansi";
 import { setelanPersetujuanMock } from "./setelan-persetujuan";
 import { setoranMock } from "./setoran";
 import { siklusAsetMock } from "./siklus-aset";
@@ -55,6 +56,7 @@ import { supplierMock } from "./supplier";
 import { templateJadwalMock } from "./template-jadwal";
 import { tipeBarangMock } from "./tipe-barang";
 import { tipeIbadahMock } from "./tipe-ibadah";
+import { tipePersembahanMock } from "./tipe-persembahan";
 import { userMock } from "./user";
 import { wilayahMock } from "./wilayah";
 
@@ -106,6 +108,8 @@ export const MOCK_HANDLERS: MockHandler[] = [
   penerimaanBarangMock,
   mataUangMock,
   akunMock,
+  setelanAkuntansiMock,
+  tipePersembahanMock,
   periodeFiskalMock,
   jurnalMock,
   persembahanMock,
