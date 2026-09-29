@@ -6,7 +6,7 @@ import {
   type DataTableColumn,
   type DataTableConfig,
 } from "@/components/common/list";
-import { formatDate, formatNumber } from "@/lib/format";
+import { formatDate, formatDateShort, formatNumber } from "@/lib/format";
 
 import { TYPE_LABEL, sourceLabelOf, stockItemHref } from "../model";
 import type { Movement } from "../types";
@@ -56,7 +56,7 @@ const columnsOf = (isCanViewItem: boolean): Column[] => [
     width: "minmax(0,1fr)",
     cell: (movement) => (
       <span className="block truncate tabular-nums">
-        {formatDate(movement.movementDate)}
+        {formatDateShort(movement.movementDate)}
       </span>
     ),
   },
@@ -64,6 +64,7 @@ const columnsOf = (isCanViewItem: boolean): Column[] => [
     key: "item",
     header: "Barang",
     width: "minmax(0,2.5fr)",
+    narrowWidth: "minmax(0,2fr)",
     cell: (movement) => (
       <span className="block min-w-0">
         <span className="block truncate">
@@ -87,6 +88,7 @@ const columnsOf = (isCanViewItem: boolean): Column[] => [
     key: "source",
     header: "Sumber",
     width: "minmax(0,1.2fr)",
+    narrowWidth: "minmax(0,1.6fr)",
     cell: (movement) => (
       <span className="block truncate">{sourceLabelOf(movement)}</span>
     ),
