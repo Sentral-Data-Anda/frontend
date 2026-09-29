@@ -20,14 +20,14 @@ const badgeVariants = cva(
           "hover:bg-muted hover:text-muted-foreground dark:hover:bg-muted/50",
         link: "text-primary underline-offset-4 hover:underline",
         success:
-          "gap-1.5 px-0 text-body text-foreground before:size-1.5 before:rounded-full before:bg-success-900",
+          "gap-1.5 overflow-visible px-0 text-body text-foreground before:size-1.5 before:rounded-full before:bg-success-900",
         neutral:
-          "gap-1.5 px-0 text-body text-muted-foreground before:size-1.5 before:rounded-full before:bg-primary-300",
+          "gap-1.5 overflow-visible px-0 text-body text-muted-foreground before:size-1.5 before:rounded-full before:bg-primary-300",
         warning: "bg-warning-100 text-warning-foreground",
-        due: "gap-1.5 px-0 text-body text-destructive before:size-1.5 before:rounded-full before:bg-failed-700",
+        due: "gap-1.5 overflow-visible px-0 text-body text-destructive before:size-1.5 before:rounded-full before:bg-failed-700",
         draft:
-          "gap-1.5 px-0 text-body text-foreground before:size-1.5 before:rounded-full before:bg-warning-400",
-        wait: "gap-1.5 px-0 text-body text-secondary-foreground before:size-1.5 before:rounded-full before:bg-secondary-700",
+          "gap-1.5 overflow-visible px-0 text-body text-foreground before:size-1.5 before:rounded-full before:bg-warning-400",
+        wait: "gap-1.5 overflow-visible px-0 text-body text-secondary-foreground before:size-1.5 before:rounded-full before:bg-secondary-700",
         sample:
           "h-auto rounded-sm border-dashed border-border px-1.5 py-0 text-muted-foreground tracking-normal normal-case italic",
       },
