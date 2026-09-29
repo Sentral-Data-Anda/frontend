@@ -14,6 +14,7 @@ import { FetchError } from "@/lib/api/fetcher";
 import { cn } from "@/lib/utils";
 
 import { useAssetDetail } from "../api";
+import { LabelLink, labelHrefOf } from "../label";
 import { BARANG_LIST_PATH, barangEditHref, isActiveAsset } from "../model";
 
 import { CycleActions } from "./cycle-actions";
@@ -121,18 +122,21 @@ export const BarangDetailScreen = (props: PropTypes) => {
         backHref={listReturn}
         isBackPersistent
         action={
-          isCanUpdate && isActive ? (
-            <Link
-              href={barangEditHref(asset.code)}
-              className={cn(
-                buttonVariants({ variant: "outline" }),
-                "shrink-0 cursor-pointer",
-              )}
-            >
-              <Pencil aria-hidden />
-              Ubah
-            </Link>
-          ) : null
+          <>
+            <LabelLink href={labelHrefOf({ kode: asset.code })} isIconOnly />
+            {isCanUpdate && isActive ? (
+              <Link
+                href={barangEditHref(asset.code)}
+                className={cn(
+                  buttonVariants({ variant: "outline" }),
+                  "shrink-0 cursor-pointer",
+                )}
+              >
+                <Pencil aria-hidden />
+                Ubah
+              </Link>
+            ) : null}
+          </>
         }
       />
 
