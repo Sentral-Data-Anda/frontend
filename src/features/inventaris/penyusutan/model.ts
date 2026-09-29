@@ -8,6 +8,7 @@ import {
   RUN_STATUS_LABEL,
   type Run,
   type RunAction,
+  type RunDetail,
   type RunPayload,
 } from "./types";
 
@@ -28,7 +29,8 @@ const PERIOD_FORMAT = new Intl.DateTimeFormat("id-ID", {
 export const periodLabel = (year: number, month: number) =>
   PERIOD_FORMAT.format(new Date(Date.UTC(year, month - 1, 1)));
 
-export const formatAmount = (value: string) => formatRupiah(Number(value));
+export const formatAmount = (value: string) =>
+  formatRupiah(Number(value), { isCents: true });
 
 export const isCalculated = (run: Pick<Run, "updatedAt">) =>
   run.updatedAt !== null;
@@ -99,8 +101,16 @@ export const toRunPayload = (values: RunFormValues): RunPayload => ({
 export const recalculateText = (period: string) =>
   `Apakah Anda ingin menghitung ulang penyusutan ${period}? Hasil sebelumnya diganti dengan data barang terbaru.`;
 
-export const postText = (period: string, totalAmount: string) =>
-  `Apakah Anda ingin memposting penyusutan ${period} sebesar ${formatAmount(totalAmount)}? Jurnal dibuat otomatis dan tidak bisa dibatalkan.`;
+export const EMPTY_POST_NOTE =
+  "Periode tanpa barang disusutkan diposting tanpa jurnal.";
+
+export const postText = (
+  period: string,
+  run: Pick<RunDetail, "totalAmount" | "entries">,
+) =>
+  run.entries.length === 0
+    ? `Apakah Anda ingin memposting penyusutan ${period}? ${EMPTY_POST_NOTE}`
+    : `Apakah Anda ingin memposting penyusutan ${period} sebesar ${formatAmount(run.totalAmount)}? Jurnal dibuat otomatis dan tidak bisa dibatalkan.`;
 
 export const DELETE_TEXT =
   "Apakah Anda ingin menghapus periode ini? Periode bisa dibuka lagi.";

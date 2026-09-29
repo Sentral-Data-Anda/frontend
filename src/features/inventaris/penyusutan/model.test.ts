@@ -11,6 +11,7 @@ import {
   toRunPayload,
   yearOptions,
 } from "./model";
+import type { RunEntry } from "./types";
 
 const TODAY = "2026-09-29";
 
@@ -82,8 +83,16 @@ describe("status dan pesan", () => {
   });
 
   test("teks konfirmasi posting memuat periode dan total Rupiah", () => {
-    expect(postText("Agustus 2026", "1234567.5")).toBe(
-      "Apakah Anda ingin memposting penyusutan Agustus 2026 sebesar Rp 1.234.567,5? Jurnal dibuat otomatis dan tidak bisa dibatalkan.",
+    expect(
+      postText("Agustus 2026", {
+        totalAmount: "1234567.5",
+        entries: [{} as RunEntry],
+      }),
+    ).toBe(
+      "Apakah Anda ingin memposting penyusutan Agustus 2026 sebesar Rp 1.234.567,50? Jurnal dibuat otomatis dan tidak bisa dibatalkan.",
+    );
+    expect(postText("Agustus 2026", { totalAmount: "0.00", entries: [] })).toBe(
+      "Apakah Anda ingin memposting penyusutan Agustus 2026? Periode tanpa barang disusutkan diposting tanpa jurnal.",
     );
   });
 

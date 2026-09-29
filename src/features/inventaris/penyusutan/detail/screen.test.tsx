@@ -205,7 +205,7 @@ describe("aksi per status dan izin", () => {
     fireEvent.click(button("Posting") as HTMLElement);
     expect(
       await screen.findByText(
-        "Apakah Anda ingin memposting penyusutan Agustus 2026 sebesar Rp 1.312.500? Jurnal dibuat otomatis dan tidak bisa dibatalkan.",
+        "Apakah Anda ingin memposting penyusutan Agustus 2026 sebesar Rp 1.312.500,00? Jurnal dibuat otomatis dan tidak bisa dibatalkan.",
       ),
     ).toBeTruthy();
 
@@ -225,6 +225,21 @@ describe("aksi per status dan izin", () => {
 
     expect(await screen.findByText(error)).toBeTruthy();
     expect(screen.getByText(/Keuangan › Setelan Akuntansi/)).toBeTruthy();
+  });
+
+  test("0 baris: konfirmasi dan petunjuk menyebut posting tanpa jurnal", async () => {
+    onRender({ ...DONE, totalAmount: "0.00", entries: [] });
+    await onLoaded();
+
+    const note = "Periode tanpa barang disusutkan diposting tanpa jurnal.";
+    expect(screen.getByText(note)).toBeTruthy();
+
+    fireEvent.click(button("Posting") as HTMLElement);
+    expect(
+      await screen.findByText(
+        `Apakah Anda ingin memposting penyusutan Agustus 2026? ${note}`,
+      ),
+    ).toBeTruthy();
   });
 
   test("Hapus lewat dialog lalu kembali ke daftar", async () => {
@@ -273,10 +288,10 @@ describe("rincian", () => {
     onRender(DONE);
     await onLoaded();
 
-    expect(screen.getAllByText("Rp 312.500").length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/Nilai buku Rp 21\.000\.000/).length).toBe(1);
+    expect(screen.getAllByText("Rp 312.500,00").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Nilai buku Rp 21.000.000,00").length).toBe(1);
     expect(screen.getByText("Total penyusutan 2 barang")).toBeTruthy();
-    expect(screen.getAllByText("Rp 1.312.500").length).toBe(2);
+    expect(screen.getAllByText("Rp 1.312.500,00").length).toBe(2);
   });
 
   test("tautan barang hanya dengan BARANG VIEW", async () => {

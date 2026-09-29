@@ -214,7 +214,7 @@ export const PenyusutanDetailScreen = (props: PropTypes) => {
         descriptions={{
           update:
             pickAction === "post"
-              ? postText(period, run.totalAmount)
+              ? postText(period, run)
               : recalculateText(period),
           delete: DELETE_TEXT,
         }}

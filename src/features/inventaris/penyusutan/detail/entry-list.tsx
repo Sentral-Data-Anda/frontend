@@ -9,6 +9,7 @@ import {
   TABLE_ROW_LINK,
   type DataTableConfig,
 } from "@/components/common/list";
+import { useIsTableWidth } from "@/hooks/use-media";
 
 import { assetHref, formatAmount, isCalculated } from "../model";
 import type { RunDetail, RunEntry } from "../types";
@@ -84,6 +85,8 @@ interface PropTypes {
 export const EntryList = (props: PropTypes) => {
   const { run, isCanViewAsset, isCanUpdate } = props;
 
+  const isTableWidth = useIsTableWidth();
+
   return (
     <section aria-labelledby="run-entries" className="pt-6">
       <h2 id="run-entries" className="px-gutter pb-3 text-title font-semibold">
@@ -118,7 +121,7 @@ export const EntryList = (props: PropTypes) => {
                 entry.asset.name
               )
             }
-            meta={`Akumulasi ${formatAmount(entry.accumulatedAfter)} · Nilai buku ${formatAmount(entry.bookValueAfter)}`}
+            meta={`Nilai buku ${formatAmount(entry.bookValueAfter)}`}
             trailing={
               <span className="text-body font-medium tabular-nums">
                 {formatAmount(entry.amount)}
@@ -128,7 +131,7 @@ export const EntryList = (props: PropTypes) => {
         )}
       </DataList>
 
-      {run.entries.length > 0 ? (
+      {run.entries.length > 0 && isTableWidth === false ? (
         <div className="border-border mx-gutter flex items-baseline justify-between gap-4 border-t py-3">
           <span className="text-body font-semibold">
             Total penyusutan {run.entries.length} barang

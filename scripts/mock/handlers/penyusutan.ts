@@ -15,7 +15,6 @@ import {
   RUN,
   calculateRun,
   isLive,
-  nextRunPeriod,
   openRun,
   periodLabel,
   postRun,
@@ -66,8 +65,6 @@ const earlierDraftOf = (run: RunRow) =>
     (item) => item.status === "DRAFT" && indexOf(item) < indexOf(run),
   ).sort((a, b) => indexOf(a) - indexOf(b))[0];
 
-const hasPostedRun = () => RUN.some((run) => run.status === "POSTED");
-
 const parseOpen = (body: { year?: unknown; month?: unknown }) => {
   const issues: { path: string; message: string }[] = [];
   const { year, month } = body;
@@ -90,25 +87,6 @@ const parseOpen = (body: { year?: unknown; month?: unknown }) => {
   return issues.length
     ? { issues }
     : { value: { year: year as number, month: month as number } };
-};
-
-// Pembantu store belum membedakan bulan yang terlewat dari bulan yang sudah lalu.
-const openFailureOf = (year: number, month: number) => {
-  const failure = runOpenFailure(year, month);
-  const isDraftOpen = RUN.some((run) => run.status === "DRAFT");
-
-  if (failure?.path !== "month" || isDraftOpen || !hasPostedRun()) {
-    return failure;
-  }
-
-  const next = nextRunPeriod();
-
-  return indexOf({ year, month }) < indexOf(next)
-    ? {
-        ...failure,
-        message: `Penyusutan Berikutnya Adalah ${periodLabel(next.year, next.month)}`,
-      }
-    : failure;
 };
 
 const onList = (url: URL) => {
@@ -140,7 +118,7 @@ const onOpen = async (request: Request) => {
     );
   }
 
-  const failure = openFailureOf(parsed.value.year, parsed.value.month);
+  const failure = runOpenFailure(parsed.value.year, parsed.value.month);
   if (failure) return fail(failure.status, failure.message, failure.path);
 
   return json(

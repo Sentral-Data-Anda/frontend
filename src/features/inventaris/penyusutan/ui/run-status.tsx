@@ -12,10 +12,7 @@ export const RunStatus = (props: PropTypes) => {
   const { run, isCompact = false } = props;
 
   return (
-    <Badge
-      variant={run.status === "POSTED" ? "success" : "draft"}
-      className="pr-0.5"
-    >
+    <Badge variant={run.status === "POSTED" ? "success" : "draft"}>
       {isCompact ? RUN_STATUS_LABEL[run.status] : runStatusText(run)}
     </Badge>
   );

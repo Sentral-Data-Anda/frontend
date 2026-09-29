@@ -2,11 +2,11 @@
 
 import { Button } from "@/components/common/control";
 
-import { isCalculated } from "../model";
+import { EMPTY_POST_NOTE, isCalculated } from "../model";
 import type { RunAction, RunDetail } from "../types";
 
 interface PropTypes {
-  run: Pick<RunDetail, "status" | "updatedAt">;
+  run: Pick<RunDetail, "status" | "updatedAt" | "entries">;
   isCanUpdate: boolean;
   isCanDelete: boolean;
   pendingAction: RunAction | "delete" | null;
@@ -38,9 +38,11 @@ export const RunActions = (props: PropTypes) => {
     >
       {isCanUpdate ? (
         <p className="text-muted-foreground min-w-0 flex-[1_1_16rem] text-body">
-          {isDone
-            ? "Posting membuat jurnal dan mengunci periode ini."
-            : "Hitung dulu; Posting tersedia sesudah dihitung."}
+          {!isDone
+            ? "Hitung dulu; Posting tersedia sesudah dihitung."
+            : run.entries.length === 0
+              ? EMPTY_POST_NOTE
+              : "Posting membuat jurnal dan mengunci periode ini."}
         </p>
       ) : null}
 

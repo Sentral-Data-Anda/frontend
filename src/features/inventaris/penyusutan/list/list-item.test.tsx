@@ -24,7 +24,7 @@ describe("baris periode", () => {
     render(<PenyusutanListItemRow run={ROW} />);
 
     expect(screen.getByText("PNY-2026-0003 · 4 barang")).toBeTruthy();
-    expect(screen.getByText("Rp 1.234.567.890")).toBeTruthy();
+    expect(screen.getByText("Rp 1.234.567.890,00")).toBeTruthy();
     expect(screen.getByText("Diposting")).toBeTruthy();
     expect(
       screen

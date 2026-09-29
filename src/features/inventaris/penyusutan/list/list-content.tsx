@@ -36,6 +36,7 @@ export const PenyusutanListContent = () => {
             <PageHeaderAdd
               href={createHref(MENU.INVENTARIS, MENU.PENYUSUTAN)}
               label="Buka periode"
+              text="Buka periode"
             />
           ) : null
         }
