@@ -116,7 +116,12 @@ export async function fetchList<T>(
   if (!response.ok) {
     const failure = await readError(response);
 
-    throw new FetchError(response.status, failure.message, [], failure.code);
+    throw new FetchError(
+      response.status,
+      failure.message,
+      failure.issues,
+      failure.code,
+    );
   }
 
   return response.json() as Promise<ApiListResponse<T>>;

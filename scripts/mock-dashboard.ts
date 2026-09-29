@@ -25,7 +25,6 @@ export type Persona = {
 };
 
 const V: Action[] = ["VIEW"];
-const VC: Action[] = ["VIEW", "CREATE"];
 
 /**
  * Sekretariat memang boleh menambah DAN mengubah data jemaat
@@ -55,6 +54,26 @@ const REGISTRATION_ACTIONS: Action[] = KEJEMAATAN_ACTIONS.filter(
 // be-sada MUTASI_STOK tanpa UPDATE dan DELETE; MOCK_NO_CREATE mencabut.
 const LEDGER_ACTIONS: Action[] = KEJEMAATAN_ACTIONS.filter(
   (action) => action === "VIEW" || action === "CREATE",
+);
+
+// be-sada PERSEMBAHAN tanpa UPDATE: koreksi lewat void, yang dijaga DELETE.
+const PERSEMBAHAN_ACTIONS: Action[] = KEJEMAATAN_ACTIONS.filter(
+  (action) => action !== "UPDATE",
+);
+
+// be-sada PERIODE_FISKAL tanpa DELETE; tutup dan buka kembali sama-sama UPDATE.
+const PERIOD_ACTIONS: Action[] = KEJEMAATAN_ACTIONS.filter(
+  (action) => action !== "DELETE",
+);
+
+// be-sada SETORAN tanpa UPDATE: setoran final, koreksi lewat batal.
+const SETORAN_ACTIONS: Action[] = KEJEMAATAN_ACTIONS.filter(
+  (action) => action !== "UPDATE",
+);
+
+// be-sada SETELAN_AKUNTANSI hanya VIEW + UPDATE: kunci lahir dari sync.
+const SETTING_ACTIONS: Action[] = KEJEMAATAN_ACTIONS.filter(
+  (action) => action === "VIEW" || action === "UPDATE",
 );
 
 // Penanda tangan dan pengaju: be-sada hanya menjaga VIEW + UPDATE di menu ini.
@@ -112,12 +131,15 @@ export const PERSONAS: Record<string, Persona> = {
     isAdmin: false,
     jemaatName: "Maria Hutapea",
     grants: {
-      [MENU.PERSEMBAHAN]: VC,
-      [MENU.KAS_MASUK]: VC,
-      [MENU.KAS_KELUAR]: VC,
-      [MENU.JURNAL]: V,
-      [MENU.AKUN]: V,
-      [MENU.PERIODE_FISKAL]: V,
+      [MENU.PERSEMBAHAN]: PERSEMBAHAN_ACTIONS,
+      [MENU.KAS_MASUK]: KEJEMAATAN_ACTIONS,
+      [MENU.KAS_KELUAR]: KEJEMAATAN_ACTIONS,
+      [MENU.JURNAL]: KEJEMAATAN_ACTIONS,
+      [MENU.AKUN]: KEJEMAATAN_ACTIONS,
+      [MENU.PERIODE_FISKAL]: PERIOD_ACTIONS,
+      [MENU.TIPE_PERSEMBAHAN]: KEJEMAATAN_ACTIONS,
+      [MENU.SETELAN_AKUNTANSI]: SETTING_ACTIONS,
+      [MENU.SETORAN]: SETORAN_ACTIONS,
       [MENU.LAPORAN_KEUANGAN]: V,
       [MENU.FAKTUR_SUPPLIER]: V,
       [MENU.PEMBAYARAN]: V,
