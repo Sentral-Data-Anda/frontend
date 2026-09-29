@@ -27,7 +27,7 @@ const REQUEST = {
     {
       name: "Mikrofon wireless",
       quantity: 2,
-      estimatedUnitPrice: "3500000.00",
+      estimatedUnitPrice: "3500000",
     },
   ],
 };
@@ -142,7 +142,7 @@ describe("melebihi perkiraan (Rupiah)", () => {
       overEstimateOf({
         requestCode: "X",
         totalIDR: 5_000_000,
-        orderedTotalIDR: "3000000.00",
+        orderedTotalIDR: "3000000",
         totalEstimatedIDR: "8000000",
       }),
     ).toBeNull();
