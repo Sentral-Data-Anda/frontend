@@ -86,6 +86,15 @@ describe("isTabActive", () => {
     );
   });
 
+  test("slug saudara berawalan sama tidak ikut aktif", () => {
+    expect(
+      isTabActive("/inventaris/barang", "/inventaris/barang-persediaan/baru"),
+    ).toBe(false);
+    expect(isTabActive("/inventaris/barang", "/inventaris/barang/AST-1")).toBe(
+      true,
+    );
+  });
+
   test("'/' aktif tepat di '/'", () => {
     expect(isTabActive("/", "/")).toBe(true);
   });
