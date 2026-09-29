@@ -16,7 +16,6 @@ import {
   assetView,
   hasPostedDepreciation,
   isLive,
-  liveDisposalOf,
   nextId,
   roomRowOf,
   typeItemOf,
@@ -77,34 +76,6 @@ const findRow = (code: string) =>
   ASSET.find(
     (row) => isLive(row) && row.code.toLowerCase() === code.toLowerCase(),
   );
-
-const detailView = (row: AssetRow) => {
-  const view = assetView(row, true);
-  const found = liveDisposalOf(row.id);
-
-  return {
-    ...view,
-    disposal:
-      view.disposal && found
-        ? {
-            ...view.disposal,
-            approval: found.approval
-              ? {
-                  publicId: found.approval.publicId,
-                  code: found.approval.code,
-                  status: found.status,
-                }
-              : null,
-          }
-        : null,
-    depreciation: view.depreciation
-      ? {
-          ...view.depreciation,
-          openingAccumulated: view.depreciation.openingAccumulated ?? "0.00",
-        }
-      : null,
-  };
-};
 
 const savedView = (row: AssetRow) => {
   const { depreciation: _depreciation, ...view } = assetView(row, true);
@@ -588,7 +559,7 @@ export const barangMock: MockHandler = async ({
     return json({
       status: 200,
       message: "Berhasil Mendapatkan Barang",
-      data: detailView(row),
+      data: assetView(row, true),
     });
   }
 

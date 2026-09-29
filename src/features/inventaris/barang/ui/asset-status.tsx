@@ -12,7 +12,7 @@ const VARIANT = {
   RUSAK_RINGAN: "draft",
   RUSAK_BERAT: "due",
   HILANG: "neutral",
-  MENUNGGU_PELEPASAN: "draft",
+  MENUNGGU_PELEPASAN: "wait",
   DILEPAS: "neutral",
 } as const satisfies Record<AssetStatusKey, string>;
 

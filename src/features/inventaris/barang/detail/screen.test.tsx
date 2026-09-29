@@ -156,7 +156,9 @@ describe("halaman barang", () => {
       name: "Perolehan dan penyusutan",
     });
     expect(within(value).getByText("Harga perolehan")).toBeTruthy();
-    expect(within(value).getByText("Rp 1.666.666,7 per Mei 2026")).toBeTruthy();
+    expect(
+      within(value).getByText("Rp 1.666.666,70 per Mei 2026"),
+    ).toBeTruthy();
     expect(within(value).getByText("Rp 6.499.999,96")).toBeTruthy();
     expect(within(value).getByText("48 bulan (4 tahun)")).toBeTruthy();
     expect(within(value).getByText("Juli 2026")).toBeTruthy();
