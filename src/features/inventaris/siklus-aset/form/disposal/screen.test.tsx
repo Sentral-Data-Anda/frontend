@@ -88,6 +88,15 @@ const onSubmit = async () => {
 };
 
 describe("ajukan pelepasan", () => {
+  test("tanpa VIEW: keadaan tanpa akses, bukan pesan peran", () => {
+    onRender([]);
+
+    expect(
+      screen.getByText("Anda tidak memiliki akses ke Siklus Aset"),
+    ).toBeTruthy();
+    expect(screen.queryByText(/Peran Anda/)).toBeNull();
+  });
+
   test("tanpa DELETE: tidak merender form", () => {
     onRender(["VIEW", "CREATE"]);
 

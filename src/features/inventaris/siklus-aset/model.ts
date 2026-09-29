@@ -107,7 +107,7 @@ export const DISPOSAL_STATUS_LABEL: Record<DisposalStatus, string> = {
 };
 
 export const DISPOSAL_STATUS_VARIANT: Record<DisposalStatus, BadgeVariant> = {
-  PENDING: "draft",
+  PENDING: "wait",
   APPROVED: "success",
   REJECTED: "due",
   CANCELLED: "neutral",

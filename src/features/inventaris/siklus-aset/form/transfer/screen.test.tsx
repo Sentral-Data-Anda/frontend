@@ -73,6 +73,15 @@ const onSaveConfirmed = async () => {
 };
 
 describe("pindahkan barang", () => {
+  test("tanpa VIEW: keadaan tanpa akses, bukan pesan peran", () => {
+    onRender([]);
+
+    expect(
+      screen.getByText("Anda tidak memiliki akses ke Siklus Aset"),
+    ).toBeTruthy();
+    expect(screen.queryByText(/Peran Anda/)).toBeNull();
+  });
+
   test("tanpa CREATE: tidak merender form", () => {
     onRender(["VIEW"]);
 

@@ -37,6 +37,7 @@ import {
   toDisposalPayload,
   type DisposalFormValues,
 } from "../../model";
+import { NoCycleAccess } from "../../no-cycle-access";
 import type { AssetOption } from "../../types";
 
 import { DisposalSection } from "./disposal-section";
@@ -48,7 +49,7 @@ const LINK =
 export const DisposalFormScreen = () => {
   const router = useRouter();
   const toast = useToast();
-  const { isCanDelete } = useMenuAccess(MENU.SIKLUS_ASET);
+  const { isCanView, isCanDelete } = useMenuAccess(MENU.SIKLUS_ASET);
   const { isCanView: isCanViewSetting } = useMenuAccess(
     MENU.SETELAN_PERSETUJUAN,
   );
@@ -122,6 +123,8 @@ export const DisposalFormScreen = () => {
     if (rejectedField === "root") saveRef.current?.focus();
     else revealField(rejectedField);
   }, [isSubmitting, submitCount, rejectedField]);
+
+  if (!isCanView) return <NoCycleAccess />;
 
   if (!isCanDelete) {
     return (

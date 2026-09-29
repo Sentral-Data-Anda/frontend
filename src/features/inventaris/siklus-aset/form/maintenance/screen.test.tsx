@@ -86,6 +86,16 @@ const onConfirmed = async (button: string) => {
 };
 
 describe("catat perawatan", () => {
+  test("tanpa VIEW: keadaan tanpa akses, bukan pesan peran", () => {
+    onRender([], "SKA-2026-0005");
+
+    expect(
+      screen.getByText("Anda tidak memiliki akses ke Siklus Aset"),
+    ).toBeTruthy();
+    expect(screen.queryByText(/Peran Anda/)).toBeNull();
+    expect(calls).toEqual([]);
+  });
+
   test("tanpa CREATE / UPDATE: tidak merender form", () => {
     onRender(["VIEW"]);
     expect(screen.getByText("Tidak bisa mencatat perawatan")).toBeTruthy();

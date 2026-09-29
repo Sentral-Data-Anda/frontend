@@ -5,12 +5,13 @@ import type { ReactNode } from "react";
 
 import { Button } from "@/components/common/control";
 import { DescriptionSkeleton, Panel } from "@/components/common/display";
-import { EmptyState } from "@/components/common/feedback";
 import { FormNotFound } from "@/components/common/form";
 import { PageHeader } from "@/components/layout";
-import { MENU, domainHref } from "@/config/menu";
+import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { FetchError } from "@/lib/api/fetcher";
+
+import { NoCycleAccess } from "./no-cycle-access";
 
 interface PropTypes {
   noun: string;
@@ -35,20 +36,7 @@ export const DetailFrame = (props: PropTypes) => {
     <PageHeader title="Siklus Aset" backHref={backHref} isBackPersistent />
   );
 
-  if (!isCanView) {
-    return (
-      <div className="pb-8">
-        <PageHeader
-          title="Siklus Aset"
-          backHref={domainHref(MENU.INVENTARIS)}
-        />
-        <EmptyState
-          title="Anda tidak memiliki akses ke Siklus Aset"
-          description="Hubungi administrator bila Anda memang seharusnya memegang akses ini."
-        />
-      </div>
-    );
-  }
+  if (!isCanView) return <NoCycleAccess />;
 
   if (isNotFound) {
     return (

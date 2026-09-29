@@ -42,6 +42,7 @@ import {
   toMaintenancePayload,
   type MaintenanceFormValues,
 } from "../../model";
+import { NoCycleAccess } from "../../no-cycle-access";
 
 import { MaintenanceSection } from "./maintenance-section";
 import { VendorSection } from "./vendor-section";
@@ -56,7 +57,7 @@ export const MaintenanceFormScreen = (props: PropTypes) => {
   const router = useRouter();
   const toast = useToast();
   const isEdit = Boolean(code);
-  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+  const { isCanView, isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
     MENU.SIKLUS_ASET,
   );
   const listReturn = kindReturnHref(
@@ -64,7 +65,7 @@ export const MaintenanceFormScreen = (props: PropTypes) => {
     "perawatan",
   );
   const [rejectedField, setRejectedField] = useState<string | null>(null);
-  const detail = useMaintenanceDetail(code);
+  const detail = useMaintenanceDetail(isCanView ? code : undefined);
   const saveMaintenance = useSaveMaintenance(code);
   const deleteMaintenance = useDeleteMaintenance(code);
   const confirm = useFormConfirm();
@@ -160,6 +161,8 @@ export const MaintenanceFormScreen = (props: PropTypes) => {
   useEffect(() => {
     if (deleteMaintenance.isError) deleteRef.current?.focus();
   }, [deleteMaintenance.isError]);
+
+  if (!isCanView) return <NoCycleAccess />;
 
   if (!(isEdit ? isCanUpdate : isCanCreate)) {
     return (

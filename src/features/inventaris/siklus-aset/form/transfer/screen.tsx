@@ -33,6 +33,7 @@ import {
   transferFormSchema,
   type TransferFormValues,
 } from "../../model";
+import { NoCycleAccess } from "../../no-cycle-access";
 import type { AssetOption } from "../../types";
 
 import { SAVE_DESCRIPTIONS } from "./form-options";
@@ -41,7 +42,7 @@ import { TransferSection } from "./transfer-section";
 export const TransferFormScreen = () => {
   const router = useRouter();
   const toast = useToast();
-  const { isCanCreate } = useMenuAccess(MENU.SIKLUS_ASET);
+  const { isCanView, isCanCreate } = useMenuAccess(MENU.SIKLUS_ASET);
   const listReturn = kindReturnHref(useListReturn(CYCLE_LIST_PATH), "pindah");
   const [rejectedField, setRejectedField] = useState<string | null>(null);
   const [pickAsset, setPickAsset] = useState<AssetOption>();
@@ -107,6 +108,8 @@ export const TransferFormScreen = () => {
     if (rejectedField === "root") saveRef.current?.focus();
     else revealField(rejectedField);
   }, [isSubmitting, submitCount, rejectedField]);
+
+  if (!isCanView) return <NoCycleAccess />;
 
   if (!isCanCreate) {
     return (

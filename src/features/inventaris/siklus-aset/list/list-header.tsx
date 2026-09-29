@@ -45,6 +45,7 @@ export const ListHeader = (props: PropTypes) => {
             <PageHeaderAdd
               href={cycleCreateHref(kind)}
               label={ADD_LABEL[kind]}
+              text={ADD_LABEL[kind]}
             />
           ) : null
         }
