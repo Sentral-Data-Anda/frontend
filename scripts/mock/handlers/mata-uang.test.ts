@@ -166,6 +166,24 @@ describe("mock /mata-uang/kurs", () => {
     expect(none?.body.error).toBe("Kurs Tidak Ditemukan");
   });
 
+  test("kurs: batas angka dan desimal", async () => {
+    const messageOf = async (rate: string) =>
+      (
+        await onCall("POST", "/mata-uang/kurs", {
+          currencyCode: "USD",
+          rateDate: TODAY,
+          rate,
+        })
+      )?.body.issues?.[0]?.message;
+
+    expect(await messageOf("1000000000000")).toBe(
+      "Kurs tidak boleh lebih dari 999.999.999.999",
+    );
+    expect(await messageOf("15800.1234567")).toBe(
+      "Kurs maksimal 6 angka di belakang koma",
+    );
+  });
+
   test("tambah: masa depan, IDR, mata uang tidak ada, ganda", async () => {
     const future = await onCall("POST", "/mata-uang/kurs", {
       currencyCode: "USD",

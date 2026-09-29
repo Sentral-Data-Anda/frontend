@@ -15,9 +15,9 @@ import {
   TODAY,
   currencyInUse,
   currencyOf,
-  currencyView as storeCurrencyView,
+  currencyView,
   isLive,
-  rateView as storeRateView,
+  rateView,
   type CurrencyRow,
   type RateRow,
 } from "../pengadaan-store";
@@ -34,28 +34,7 @@ const notFound = (error: string) => json({ status: 404, error }, 404);
 const serverError = () =>
   json({ status: 500, error: "Kesalahan server." }, 500);
 
-// be-sada mengirim Decimal sebagai string terpendek tanpa nol di belakang.
-const shortest = (value: string) => String(Number(value));
-
-const currencyView = (row: CurrencyRow) => {
-  const view = storeCurrencyView(row);
-
-  return view.latestRate
-    ? {
-        ...view,
-        latestRate: {
-          ...view.latestRate,
-          rate: shortest(view.latestRate.rate),
-        },
-      }
-    : view;
-};
-
-const rateView = (row: RateRow) => {
-  const view = storeRateView(row);
-
-  return { ...view, rate: shortest(view.rate) };
-};
+const MAX_RATE = 999_999_999_999;
 
 const nextId = (rows: readonly { id: number }[]) =>
   Math.max(0, ...rows.map((row) => row.id)) + 1;
@@ -133,6 +112,16 @@ const parseRate = (body: Body) => {
     issues.push({ path: "rate", message: "Mohon Lengkapi Kurs" });
   } else if (rate <= 0) {
     issues.push({ path: "rate", message: "Kurs harus lebih dari 0" });
+  } else if (rate > MAX_RATE) {
+    issues.push({
+      path: "rate",
+      message: "Kurs tidak boleh lebih dari 999.999.999.999",
+    });
+  } else if ((String(body.rate).split(".")[1] ?? "").length > 6) {
+    issues.push({
+      path: "rate",
+      message: "Kurs maksimal 6 angka di belakang koma",
+    });
   }
 
   if (source !== "MANUAL" && source !== "AUTO") {

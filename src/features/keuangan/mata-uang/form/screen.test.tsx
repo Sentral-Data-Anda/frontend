@@ -102,15 +102,15 @@ const ok =
   () =>
     Response.json({ status: 200, message, data });
 
-const onRender = (granted: MenuAction[], node: ReactNode) => {
+const onRender = (
+  granted: MenuAction[],
+  node: ReactNode,
+  client = new QueryClient({ defaultOptions: { queries: { retry: false } } }),
+) => {
   actions.current = granted;
 
   return render(
-    <QueryClientProvider
-      client={
-        new QueryClient({ defaultOptions: { queries: { retry: false } } })
-      }
-    >
+    <QueryClientProvider client={client}>
       <Toast.Provider>{node}</Toast.Provider>
     </QueryClientProvider>,
   );
@@ -272,5 +272,107 @@ describe("form kurs", () => {
     onRender(["VIEW", "CREATE"], <RateFormScreen code="USD" id="4" />);
 
     expect(screen.getByText("Tidak bisa mengubah kurs")).toBeTruthy();
+  });
+});
+
+const IN_USE =
+  "Mata Uang Ini Masih Dipakai Oleh Permintaan, Pesanan, Faktur Atau Kurs";
+
+describe("hapus di form ubah", () => {
+  test("mata uang dipakai: galat di form, tetap di form", async () => {
+    onMockApi({
+      "GET /api/v1/mata-uang/USD": ok(USD),
+      "DELETE /api/v1/mata-uang/USD": () =>
+        Response.json({ status: 400, error: IN_USE }, { status: 400 }),
+    });
+    onRender(["VIEW", "UPDATE", "DELETE"], <CurrencyFormScreen code="USD" />);
+
+    fireEvent.click(await screen.findByRole("button", { name: "Hapus" }));
+    expect(
+      screen.getByText(
+        "Apakah Anda ingin menghapus mata uang USD (Dolar Amerika)?",
+      ),
+    ).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Ya" }));
+
+    expect(await screen.findByText("Mata uang belum terhapus.")).toBeTruthy();
+    expect(screen.getByText(IN_USE)).toBeTruthy();
+    expect(replaced).toEqual([]);
+  });
+
+  test("IDR dan tanpa DELETE: tanpa Hapus", async () => {
+    onMockApi({ "GET /api/v1/mata-uang/IDR": ok(IDR) });
+    onRender(["VIEW", "UPDATE", "DELETE"], <CurrencyFormScreen code="IDR" />);
+    await waitFor(() =>
+      expect((screen.getByLabelText("Nama") as HTMLInputElement).value).toBe(
+        "Rupiah",
+      ),
+    );
+    expect(screen.queryByRole("button", { name: "Hapus" })).toBeNull();
+
+    cleanup();
+    onMockApi({ "GET /api/v1/mata-uang/USD": ok(USD) });
+    onRender(["VIEW", "UPDATE"], <CurrencyFormScreen code="USD" />);
+    await screen.findByDisplayValue("Dolar Amerika");
+    expect(screen.queryByRole("button", { name: "Hapus" })).toBeNull();
+  });
+
+  test("kurs: teks khusus, hapus lalu kembali ke halaman mata uang", async () => {
+    const calls = onMockApi({
+      "GET /api/v1/mata-uang/USD": ok(USD),
+      "GET /api/v1/mata-uang/kurs/4": ok(RATE),
+      "DELETE /api/v1/mata-uang/kurs/4": ok(RATE, "Berhasil Menghapus Kurs"),
+    });
+    onRender(
+      ["VIEW", "UPDATE", "DELETE"],
+      <RateFormScreen code="USD" id="4" />,
+    );
+
+    await screen.findByDisplayValue("15.800,5");
+    fireEvent.click(screen.getByRole("button", { name: "Hapus" }));
+    expect(
+      screen.getByText(
+        "Apakah Anda ingin menghapus kurs USD tanggal 27 September 2026? Pesanan yang sudah memakainya tidak berubah.",
+      ),
+    ).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Ya" }));
+
+    await waitFor(() => expect(replaced).toEqual(["/keuangan/mata-uang/USD"]));
+    expect(calls.some((call) => call.method === "DELETE")).toBe(true);
+  });
+
+  test("form tambah kurs tanpa Hapus", async () => {
+    onMockApi({ "GET /api/v1/mata-uang/USD": ok(USD) });
+    onRender(["VIEW", "CREATE", "DELETE"], <RateFormScreen code="USD" />);
+
+    await screen.findByText("USD — Dolar Amerika");
+    expect(screen.queryByRole("button", { name: "Hapus" })).toBeNull();
+  });
+});
+
+describe("refetch tidak membuang isian", () => {
+  test("kurs yang sedang diketik bertahan saat detail dimuat ulang", async () => {
+    let reads = 0;
+    onMockApi({
+      "GET /api/v1/mata-uang/USD": ok(USD),
+      "GET /api/v1/mata-uang/kurs/4": () => {
+        reads += 1;
+        return ok(reads === 1 ? RATE : { ...RATE, rate: "15900" })();
+      },
+    });
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+    onRender(["VIEW", "UPDATE"], <RateFormScreen code="USD" id="4" />, client);
+
+    const input = (await screen.findByDisplayValue(
+      "15.800,5",
+    )) as HTMLInputElement;
+    fireEvent.change(input, { target: { value: "16.100" } });
+    await client.refetchQueries();
+
+    await waitFor(() => expect(reads).toBe(2));
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(input.value).toBe("16.100");
   });
 });

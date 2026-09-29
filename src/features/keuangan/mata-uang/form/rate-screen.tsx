@@ -25,12 +25,18 @@ import { FetchError } from "@/lib/api/fetcher";
 import { applyServerError, FIRST_INVALID, revealField } from "@/lib/form-error";
 import { saveListFocus } from "@/lib/list-return";
 
-import { useCurrencyDetail, useRateDetail, useSaveRate } from "../api";
+import {
+  useCurrencyDetail,
+  useDeleteRate,
+  useRateDetail,
+  useSaveRate,
+} from "../api";
 import {
   MATA_UANG_LIST_PATH,
   NO_VIEW,
   currencyDetailHref,
   emptyRateForm,
+  rateDeleteText,
   rateFormSchema,
   rateServerError,
   toRateForm,
@@ -51,7 +57,9 @@ export const RateFormScreen = (props: PropTypes) => {
   const router = useRouter();
   const toast = useToast();
   const isEdit = Boolean(id);
-  const { isCanView, isCanCreate, isCanUpdate } = useMenuAccess(MENU.MATA_UANG);
+  const { isCanView, isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+    MENU.MATA_UANG,
+  );
   const isAllowed = isEdit ? isCanUpdate : isCanCreate;
   const currencyCode = code.toUpperCase();
   const backHref = currencyDetailHref(currencyCode);
@@ -59,8 +67,10 @@ export const RateFormScreen = (props: PropTypes) => {
   const currency = useCurrencyDetail(isAllowed ? code : undefined);
   const detail = useRateDetail(isAllowed ? id : undefined);
   const saveRate = useSaveRate(id);
+  const deleteRate = useDeleteRate(id);
   const confirm = useFormConfirm();
   const saveRef = useRef<HTMLButtonElement>(null);
+  const deleteRef = useRef<HTMLButtonElement>(null);
   const rate = detail.data;
   const isForeignRate =
     rate !== undefined && rate.currencyCode.toUpperCase() !== currencyCode;
@@ -84,6 +94,7 @@ export const RateFormScreen = (props: PropTypes) => {
     form.formState.errors.root?.message ??
     currency.error?.message ??
     detail.error?.message;
+  const isBusy = isSubmitting || deleteRate.isPending;
 
   const onLeave = () => router.replace(backHref);
 
@@ -101,6 +112,7 @@ export const RateFormScreen = (props: PropTypes) => {
 
   const onSave = form.handleSubmit(async (values) => {
     form.clearErrors("root");
+    deleteRate.reset();
     setRejectedField(null);
 
     try {
@@ -116,8 +128,18 @@ export const RateFormScreen = (props: PropTypes) => {
     }
   }, onInvalid);
 
+  const onDelete = () => {
+    form.clearErrors("root");
+    deleteRate.mutate(undefined, {
+      onSuccess: (deleted) => {
+        toast.add({ title: deleted.message });
+        router.replace(backHref);
+      },
+    });
+  };
+
   useEffect(() => {
-    if (rate) form.reset(toRateForm(rate));
+    if (rate) form.reset(toRateForm(rate), { keepDirtyValues: true });
   }, [rate, form]);
 
   useEffect(() => {
@@ -137,6 +159,10 @@ export const RateFormScreen = (props: PropTypes) => {
     if (rejectedField === "root") saveRef.current?.focus();
     else revealField(rejectedField);
   }, [isSubmitting, submitCount, rejectedField]);
+
+  useEffect(() => {
+    if (deleteRate.isError) deleteRef.current?.focus();
+  }, [deleteRate.isError]);
 
   if (!isAllowed) {
     return (
@@ -192,20 +218,28 @@ export const RateFormScreen = (props: PropTypes) => {
       onSubmit={onConfirm}
       actions={
         <FormActions>
+          {isEdit && isCanDelete ? (
+            <Button
+              ref={deleteRef}
+              type="button"
+              variant="destructive"
+              disabled={isBusy || isLoading}
+              onClick={() => confirm.onOpen("delete")}
+            >
+              {deleteRate.isPending ? "Menghapus…" : "Hapus"}
+            </Button>
+          ) : null}
+
           <Button
             type="button"
             variant="outline"
-            disabled={isSubmitting}
+            disabled={isBusy}
             onClick={() => confirm.onCancel(isDirty, onLeave)}
           >
             Batal
           </Button>
 
-          <Button
-            ref={saveRef}
-            type="submit"
-            disabled={isSubmitting || isLoading}
-          >
+          <Button ref={saveRef} type="submit" disabled={isBusy || isLoading}>
             {isSubmitting ? "Menyimpan…" : "Simpan"}
           </Button>
         </FormActions>
@@ -230,25 +264,38 @@ export const RateFormScreen = (props: PropTypes) => {
         <RateSection
           form={form}
           currencyCode={currencyCode}
-          isDisabled={isSubmitting}
+          isDisabled={isBusy}
           isEdit={isEdit}
         />
       </div>
 
-      {rootError ? (
-        <div className="px-gutter pb-4">
+      <div className="space-y-3 px-gutter pb-4 empty:hidden">
+        {rootError ? (
           <FormAlert
             title="Data belum tersimpan. Coba simpan lagi."
             message={rootError}
           />
-        </div>
-      ) : null}
+        ) : null}
+
+        {deleteRate.error ? (
+          <FormAlert
+            title="Kurs belum terhapus."
+            message={deleteRate.error.message}
+          />
+        ) : null}
+      </div>
 
       <FormConfirmDialog
         confirm={confirm}
         noun="kurs"
+        descriptions={
+          rate
+            ? { delete: rateDeleteText(currencyCode, rate.rateDate) }
+            : undefined
+        }
         onSave={() => void onSave()}
         onLeave={onLeave}
+        onDelete={onDelete}
       />
     </FormLayout>
   );

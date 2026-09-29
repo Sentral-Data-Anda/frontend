@@ -2,17 +2,11 @@
 
 import { Pencil } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 
 import { Button, buttonVariants } from "@/components/common/control";
 import { DescriptionSkeleton, Panel } from "@/components/common/display";
-import { EmptyState, useToast } from "@/components/common/feedback";
-import {
-  FormAlert,
-  FormConfirmDialog,
-  FormNotFound,
-  useFormConfirm,
-} from "@/components/common/form";
+import { EmptyState } from "@/components/common/feedback";
+import { FormNotFound } from "@/components/common/form";
 import { PageHeader } from "@/components/layout";
 import { MENU, domainHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
@@ -20,12 +14,8 @@ import { useListReturn } from "@/hooks/use-list-return";
 import { FetchError } from "@/lib/api/fetcher";
 import { cn } from "@/lib/utils";
 
-import { useCurrencyDetail, useDeleteCurrency } from "../api";
-import {
-  MATA_UANG_LIST_PATH,
-  currencyDeleteText,
-  currencyEditHref,
-} from "../model";
+import { useCurrencyDetail } from "../api";
+import { MATA_UANG_LIST_PATH, currencyEditHref } from "../model";
 
 import { RateList } from "./rate-list";
 import { SummaryPanel } from "./summary-panel";
@@ -39,26 +29,12 @@ interface PropTypes {
 export const CurrencyDetailScreen = (props: PropTypes) => {
   const { code } = props;
 
-  const router = useRouter();
-  const toast = useToast();
-  const { isCanView, isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
-    MENU.MATA_UANG,
-  );
+  const { isCanView, isCanCreate, isCanUpdate } = useMenuAccess(MENU.MATA_UANG);
   const listReturn = useListReturn(MATA_UANG_LIST_PATH);
   const detail = useCurrencyDetail(isCanView ? code : undefined);
-  const deleteCurrency = useDeleteCurrency(code);
-  const confirm = useFormConfirm();
   const currency = detail.data;
   const isNotFound =
     detail.error instanceof FetchError && detail.error.status === 404;
-
-  const onDelete = () =>
-    deleteCurrency.mutate(undefined, {
-      onSuccess: (deleted) => {
-        toast.add({ title: deleted.message });
-        router.replace(listReturn);
-      },
-    });
 
   if (!isCanView) {
     return (
@@ -117,8 +93,6 @@ export const CurrencyDetailScreen = (props: PropTypes) => {
     );
   }
 
-  const isDeletable = isCanDelete && !currency.isBase;
-
   return (
     <div className="pb-8">
       <PageHeader
@@ -127,61 +101,28 @@ export const CurrencyDetailScreen = (props: PropTypes) => {
         backHref={listReturn}
         isBackPersistent
         action={
-          isCanUpdate || isDeletable ? (
-            <div className="flex shrink-0 gap-2">
-              {isDeletable ? (
-                <Button
-                  type="button"
-                  variant="destructive"
-                  disabled={deleteCurrency.isPending}
-                  onClick={() => confirm.onOpen("delete")}
-                >
-                  {deleteCurrency.isPending ? "Menghapus…" : "Hapus"}
-                </Button>
-              ) : null}
-
-              {isCanUpdate ? (
-                <Link
-                  href={currencyEditHref(currency.code)}
-                  className={cn(
-                    buttonVariants({ variant: "outline" }),
-                    "cursor-pointer",
-                  )}
-                >
-                  <Pencil aria-hidden />
-                  Ubah
-                </Link>
-              ) : null}
-            </div>
+          isCanUpdate ? (
+            <Link
+              href={currencyEditHref(currency.code)}
+              className={cn(
+                buttonVariants({ variant: "outline" }),
+                "shrink-0 cursor-pointer",
+              )}
+            >
+              <Pencil aria-hidden />
+              Ubah
+            </Link>
           ) : null
         }
       />
 
-      <div className="space-y-4 px-gutter">
-        {deleteCurrency.error ? (
-          <FormAlert
-            title="Mata uang belum terhapus."
-            message={deleteCurrency.error.message}
-          />
-        ) : null}
-
+      <div className="px-gutter">
         <SummaryPanel currency={currency} isCanCreate={isCanCreate} />
       </div>
 
       {currency.isBase ? null : (
-        <RateList
-          currencyCode={currency.code}
-          isCanUpdate={isCanUpdate}
-          isCanDelete={isCanDelete}
-        />
+        <RateList currencyCode={currency.code} isCanUpdate={isCanUpdate} />
       )}
-
-      <FormConfirmDialog
-        confirm={confirm}
-        noun="mata uang"
-        descriptions={{ delete: currencyDeleteText(currency) }}
-        onDelete={onDelete}
-      />
     </div>
   );
 };

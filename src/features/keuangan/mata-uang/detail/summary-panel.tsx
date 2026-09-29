@@ -7,6 +7,7 @@ import {
   DescriptionList,
   Panel,
 } from "@/components/common/display";
+import { FormAlert } from "@/components/common/form";
 import { formatDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -28,6 +29,7 @@ export const SummaryPanel = (props: PropTypes) => {
 
   const { latestRate } = currency;
   const age = latestRate ? rateAgeOf(latestRate.rateDate) : 0;
+  const isStale = latestRate !== null && age > STALE_RATE_DAYS;
 
   return (
     <Panel label="Ringkasan mata uang">
@@ -54,21 +56,12 @@ export const SummaryPanel = (props: PropTypes) => {
             </p>
           )}
 
-          <p
-            className={cn(
-              "mt-1 text-body",
-              age > STALE_RATE_DAYS
-                ? "text-warning-foreground font-medium"
-                : "text-muted-foreground",
-            )}
-          >
+          <p className="text-muted-foreground mt-1 text-body">
             {currency.isBase
               ? "Rupiah adalah mata uang dasar, jadi tidak punya kurs."
-              : !latestRate
-                ? `Pesanan dalam ${currency.code} belum bisa disimpan sebelum kurs diisi.`
-                : age > STALE_RATE_DAYS
-                  ? `Kurs tanggal ${formatDate(latestRate.rateDate)}, ${age} hari lalu. Perbarui bila sudah berubah.`
-                  : `Kurs tanggal ${formatDate(latestRate.rateDate)}`}
+              : latestRate
+                ? `Kurs tanggal ${formatDate(latestRate.rateDate)}`
+                : `Pesanan dalam ${currency.code} belum bisa disimpan sebelum kurs diisi.`}
           </p>
         </div>
 
@@ -82,6 +75,16 @@ export const SummaryPanel = (props: PropTypes) => {
           </Link>
         ) : null}
       </div>
+
+      {isStale ? (
+        <div className="px-gutter pt-4">
+          <FormAlert
+            tone="warning"
+            title={`Kurs sudah ${age} hari`}
+            message={`Pesanan memakai kurs terakhir sebelum tanggal pesanan. Tambah kurs baru bila ${currency.code} sudah berubah.`}
+          />
+        </div>
+      ) : null}
 
       <DescriptionList className="px-gutter pt-2 pb-2">
         <DescriptionItem label="Kode">{currency.code}</DescriptionItem>

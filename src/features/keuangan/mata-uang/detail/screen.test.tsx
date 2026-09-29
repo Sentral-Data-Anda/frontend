@@ -1,12 +1,6 @@
 import { Toast } from "@base-ui/react/toast";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import {
-  cleanup,
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from "@testing-library/react";
+import { cleanup, render, screen } from "@testing-library/react";
 import {
   afterAll,
   afterEach,
@@ -86,7 +80,7 @@ const RATE: Rate = {
   currency: { publicId: "c-2", code: "USD", name: "Dolar Amerika" },
 };
 
-const onMockApi = (currency: Currency, isDeleteRejected = false) => {
+const onMockApi = (currency: Currency) => {
   const calls: string[] = [];
 
   globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -94,14 +88,6 @@ const onMockApi = (currency: Currency, isDeleteRejected = false) => {
     const method = init?.method ?? "GET";
     calls.push(`${method} ${url}`);
 
-    if (method === "DELETE" && isDeleteRejected) {
-      const error =
-        "Mata Uang Ini Masih Dipakai Oleh Permintaan, Pesanan, Faktur Atau Kurs";
-      return Response.json({ status: 400, error }, { status: 400 });
-    }
-    if (method === "DELETE") {
-      return Response.json({ status: 200, message: "Berhasil Menghapus" });
-    }
     if (url.startsWith("/api/v1/mata-uang/kurs?")) {
       return Response.json({
         status: 200,
@@ -166,40 +152,27 @@ describe("halaman mata uang", () => {
     expect(screen.queryByRole("button", { name: /Hapus/ })).toBeNull();
   });
 
-  test("hapus mata uang yang dipakai: pesan server tampil, tetap di halaman", async () => {
-    onMockApi(USD, true);
-    onRender(["VIEW", "DELETE"], "USD");
+  test("hapus tidak ada di halaman baca; baris kurs hanya pensil", async () => {
+    onMockApi(USD);
+    onRender(["VIEW", "UPDATE", "DELETE"], "USD");
 
-    fireEvent.click(await screen.findByRole("button", { name: "Hapus" }));
-    expect(
-      screen.getByText(
-        "Apakah Anda ingin menghapus mata uang USD (Dolar Amerika)?",
-      ),
-    ).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: "Ya" }));
-
-    expect(await screen.findByText("Mata uang belum terhapus.")).toBeTruthy();
-    expect(replaced).toEqual([]);
+    const edit = await screen.findByRole("link", {
+      name: "Ubah kurs 27 September 2026",
+    });
+    expect(edit.getAttribute("href")).toBe(
+      "/keuangan/mata-uang/USD/kurs/4/ubah",
+    );
+    expect(screen.queryByRole("button", { name: /Hapus/ })).toBeNull();
+    expect(screen.getByRole("link", { name: "Ubah" })).toBeTruthy();
   });
 
-  test("hapus kurs memakai teks konfirmasi khusus", async () => {
-    const calls = onMockApi(USD);
-    onRender(["VIEW", "DELETE"], "USD");
+  test("kurs lebih dari 7 hari: peringatan", async () => {
+    onMockApi({
+      ...USD,
+      latestRate: { rate: "15800", rateDate: "2020-01-01T00:00:00.000Z" },
+    });
+    onRender(["VIEW"], "USD");
 
-    fireEvent.click(
-      await screen.findByRole("button", {
-        name: "Hapus kurs 27 September 2026",
-      }),
-    );
-    expect(
-      screen.getByText(
-        "Apakah Anda ingin menghapus kurs USD tanggal 27 September 2026? Pesanan yang sudah memakainya tidak berubah.",
-      ),
-    ).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: "Ya" }));
-
-    await waitFor(() =>
-      expect(calls).toContain("DELETE /api/v1/mata-uang/kurs/4"),
-    );
+    expect(await screen.findByText(/^Kurs sudah \d+ hari$/)).toBeTruthy();
   });
 });

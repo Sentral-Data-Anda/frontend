@@ -10,6 +10,7 @@ import {
 import type { ListFilterSchema } from "@/hooks/use-list-params";
 import { daysSince, monthRange, todayJakarta } from "@/lib/date";
 import { formatDate, formatDateShort } from "@/lib/format";
+import { saveListFocus } from "@/lib/list-return";
 import { collapseSpaces } from "@/lib/name";
 
 import type {
@@ -35,6 +36,12 @@ export const rateCreateHref = (code: string) =>
 
 export const rateEditHref = (code: string, id: number) =>
   `${currencyDetailHref(code)}/kurs/${id}/ubah`;
+
+export const rateLabelOf = (rate: Pick<Rate, "rateDate">) =>
+  `Ubah kurs ${formatDate(rate.rateDate)}`;
+
+export const saveRateFocus = (rate: Pick<Rate, "id" | "currencyCode">) =>
+  saveListFocus(currencyDetailHref(rate.currencyCode), String(rate.id));
 
 export const STALE_RATE_DAYS = 7;
 

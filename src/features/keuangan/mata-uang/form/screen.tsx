@@ -25,11 +25,12 @@ import { FetchError } from "@/lib/api/fetcher";
 import { applyServerError, FIRST_INVALID, revealField } from "@/lib/form-error";
 import { saveListFocus } from "@/lib/list-return";
 
-import { useCurrencyDetail, useSaveCurrency } from "../api";
+import { useCurrencyDetail, useDeleteCurrency, useSaveCurrency } from "../api";
 import {
   EMPTY_CURRENCY_FORM,
   MATA_UANG_LIST_PATH,
   NO_VIEW,
+  currencyDeleteText,
   currencyDetailHref,
   currencyFormSchema,
   currencyServerError,
@@ -50,14 +51,18 @@ export const CurrencyFormScreen = (props: PropTypes) => {
   const router = useRouter();
   const toast = useToast();
   const isEdit = Boolean(code);
-  const { isCanView, isCanCreate, isCanUpdate } = useMenuAccess(MENU.MATA_UANG);
+  const { isCanView, isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+    MENU.MATA_UANG,
+  );
   const listReturn = useListReturn(MATA_UANG_LIST_PATH);
   const leaveHref = code ? currencyDetailHref(code) : listReturn;
   const [rejectedField, setRejectedField] = useState<string | null>(null);
   const saveCurrency = useSaveCurrency(code);
+  const deleteCurrency = useDeleteCurrency(code);
   const detail = useCurrencyDetail(isCanUpdate ? code : undefined);
   const confirm = useFormConfirm();
   const saveRef = useRef<HTMLButtonElement>(null);
+  const deleteRef = useRef<HTMLButtonElement>(null);
 
   const form = useForm<CurrencyFormValues>({
     resolver: zodResolver(currencyFormSchema),
@@ -69,6 +74,8 @@ export const CurrencyFormScreen = (props: PropTypes) => {
 
   const { isDirty, isSubmitting, submitCount } = form.formState;
   const rootError = form.formState.errors.root?.message;
+  const isBusy = isSubmitting || deleteCurrency.isPending;
+  const isDeletable = isEdit && isCanDelete && detail.data?.isBase === false;
 
   const onLeave = () => router.replace(leaveHref);
 
@@ -86,6 +93,7 @@ export const CurrencyFormScreen = (props: PropTypes) => {
 
   const onSave = form.handleSubmit(async (values) => {
     form.clearErrors("root");
+    deleteCurrency.reset();
     setRejectedField(null);
 
     try {
@@ -101,8 +109,20 @@ export const CurrencyFormScreen = (props: PropTypes) => {
     }
   }, onInvalid);
 
+  const onDelete = () => {
+    form.clearErrors("root");
+    deleteCurrency.mutate(undefined, {
+      onSuccess: (deleted) => {
+        toast.add({ title: deleted.message });
+        router.replace(listReturn);
+      },
+    });
+  };
+
   useEffect(() => {
-    if (detail.data) form.reset(toCurrencyForm(detail.data));
+    if (detail.data) {
+      form.reset(toCurrencyForm(detail.data), { keepDirtyValues: true });
+    }
   }, [detail.data, form]);
 
   useEffect(() => {
@@ -122,6 +142,10 @@ export const CurrencyFormScreen = (props: PropTypes) => {
     if (rejectedField === "root") saveRef.current?.focus();
     else revealField(rejectedField);
   }, [isSubmitting, submitCount, rejectedField]);
+
+  useEffect(() => {
+    if (deleteCurrency.isError) deleteRef.current?.focus();
+  }, [deleteCurrency.isError]);
 
   if (!(isEdit ? isCanUpdate : isCanCreate)) {
     return (
@@ -155,10 +179,22 @@ export const CurrencyFormScreen = (props: PropTypes) => {
       onSubmit={onConfirm}
       actions={
         <FormActions>
+          {isDeletable ? (
+            <Button
+              ref={deleteRef}
+              type="button"
+              variant="destructive"
+              disabled={isBusy}
+              onClick={() => confirm.onOpen("delete")}
+            >
+              {deleteCurrency.isPending ? "Menghapus…" : "Hapus"}
+            </Button>
+          ) : null}
+
           <Button
             type="button"
             variant="outline"
-            disabled={isSubmitting}
+            disabled={isBusy}
             onClick={() => confirm.onCancel(isDirty, onLeave)}
           >
             Batal
@@ -167,7 +203,7 @@ export const CurrencyFormScreen = (props: PropTypes) => {
           <Button
             ref={saveRef}
             type="submit"
-            disabled={isSubmitting || detail.isLoading}
+            disabled={isBusy || detail.isLoading}
           >
             {isSubmitting ? "Menyimpan…" : "Simpan"}
           </Button>
@@ -190,27 +226,34 @@ export const CurrencyFormScreen = (props: PropTypes) => {
       ) : null}
 
       <div className={detail.isLoading ? "hidden" : undefined}>
-        <CurrencySection
-          form={form}
-          isDisabled={isSubmitting}
-          isEdit={isEdit}
-        />
+        <CurrencySection form={form} isDisabled={isBusy} isEdit={isEdit} />
       </div>
 
-      {rootError ? (
-        <div className="px-gutter pb-4">
+      <div className="space-y-3 px-gutter pb-4 empty:hidden">
+        {rootError ? (
           <FormAlert
             title="Data belum tersimpan. Coba simpan lagi."
             message={rootError}
           />
-        </div>
-      ) : null}
+        ) : null}
+
+        {deleteCurrency.error ? (
+          <FormAlert
+            title="Mata uang belum terhapus."
+            message={deleteCurrency.error.message}
+          />
+        ) : null}
+      </div>
 
       <FormConfirmDialog
         confirm={confirm}
         noun="mata uang"
+        descriptions={
+          detail.data ? { delete: currencyDeleteText(detail.data) } : undefined
+        }
         onSave={() => void onSave()}
         onLeave={onLeave}
+        onDelete={onDelete}
       />
     </FormLayout>
   );

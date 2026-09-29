@@ -111,7 +111,7 @@ export function useSaveCurrency(code?: string) {
   });
 }
 
-export function useDeleteCurrency(code: string) {
+export function useDeleteCurrency(code: string | undefined) {
   const onInvalidate = useInvalidateCurrency(false);
 
   return useMutation({
@@ -134,12 +134,11 @@ export function useSaveRate(id?: string) {
   });
 }
 
-export function useDeleteRate() {
+export function useDeleteRate(id: string | undefined) {
   const onInvalidate = useInvalidateCurrency(true);
 
   return useMutation({
-    mutationFn: (id: number) =>
-      fetchOne<unknown>(ratePath(id), { method: "DELETE" }),
+    mutationFn: () => fetchOne<unknown>(ratePath(id), { method: "DELETE" }),
     onSuccess: onInvalidate,
   });
 }
