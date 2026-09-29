@@ -243,8 +243,6 @@ export const GUARD: Record<string, MenuSlug> = {
   "/faktur-supplier": MENU.FAKTUR_SUPPLIER,
   "/pembayaran": MENU.PEMBAYARAN,
   "/payroll": MENU.PAYROLL,
-  "/periode-fiskal": MENU.PERIODE_FISKAL,
-  "/jurnal": MENU.JURNAL,
   "/jemaat": MENU.DAFTAR_JEMAAT,
 };
 
@@ -746,85 +744,6 @@ export function listPayrolls(params: URLSearchParams) {
   const status = params.get("status");
 
   return status ? rows.filter((row) => row.status === status) : rows;
-}
-
-// ---------------------------------------------------------------------------
-// GET /periode-fiskal — `periode_fiskal.service.ts:74-99`: `id` = publicId,
-// `label` "September 2026", tanpa `code`/`name`. Urut tahun menurun, bulan naik.
-
-const MONTH_LABEL = [
-  "Januari",
-  "Februari",
-  "Maret",
-  "April",
-  "Mei",
-  "Juni",
-  "Juli",
-  "Agustus",
-  "September",
-  "Oktober",
-  "November",
-  "Desember",
-];
-
-export function listFiscalPeriods(params: URLSearchParams) {
-  const year = Number(today().slice(0, 4));
-  const month = Number(today().slice(5, 7));
-  const rows = Array.from({ length: 12 }, (_, index) => {
-    const m = index + 1;
-    return {
-      id: `fp-${year}-${m}`,
-      year,
-      month: m,
-      label: `${MONTH_LABEL[index]} ${year}`,
-      status: m < month ? "CLOSED" : "OPEN",
-      startDate: iso(`${year}-${String(m).padStart(2, "0")}-01`),
-      endDate: iso(`${year}-${String(m).padStart(2, "0")}-28`),
-      closedBy: m < month ? 1 : null,
-      closedAt:
-        m < month ? iso(`${year}-${String(m).padStart(2, "0")}-28`) : null,
-      reopenedBy: null,
-      reopenedAt: null,
-      reopenReason: null,
-    };
-  });
-  const status = params.get("status");
-
-  return ["OPEN", "CLOSED"].includes(status ?? "")
-    ? rows.filter((row) => row.status === status)
-    : rows;
-}
-
-// ---------------------------------------------------------------------------
-// GET /jurnal — `jurnal.repository.ts:6-68`. Total dihitung dari `lines`.
-
-export function listJournals(params: URLSearchParams) {
-  const rows = [1, 2].map((index) => ({
-    id: 20 + index,
-    publicId: `jrn-${index}`,
-    code: `JRN-2026-00${20 + index}`,
-    entryDate: iso(addDays(today(), -index * 2)),
-    description: index === 1 ? "Biaya listrik September" : "Koreksi kas kecil",
-    status: "DRAFT",
-    sourceType: "MANUAL",
-    sourceId: null,
-    fiscalPeriodId: 9,
-    reversalOfId: null,
-    postedBy: null,
-    postedAt: null,
-    ...audit,
-    fiscalPeriod: {
-      year: Number(today().slice(0, 4)),
-      month: Number(today().slice(5, 7)),
-      status: "OPEN",
-    },
-    lines: [],
-  }));
-  const status = params.get("status");
-
-  return ["DRAFT", "POSTED", "REVERSED"].includes(status ?? "")
-    ? rows.filter((row) => row.status === status)
-    : rows;
 }
 
 // ---------------------------------------------------------------------------

@@ -83,9 +83,7 @@ import {
   guardSlugOf,
   listBirthdays,
   listCashExpense,
-  listFiscalPeriods,
   listInvoices,
-  listJournals,
   listPayments,
   listPayrolls,
   jemaatTypeGender,
@@ -770,19 +768,6 @@ Bun.serve({
         "Penggajian",
         "Berhasil Mendapatkan Penggajian",
       );
-    }
-
-    if (path === "/periode-fiskal") {
-      return list(
-        listFiscalPeriods(url.searchParams),
-        url,
-        "Periode Fiskal",
-        "Periode Fiskal",
-      );
-    }
-
-    if (path === "/jurnal") {
-      return list(listJournals(url.searchParams), url, "Jurnal", "Jurnal");
     }
 
     // Tanpa paginasi; 200 [] bila kosong.

@@ -41,7 +41,7 @@ export const SummaryPanel = (props: PropTypes) => {
   );
   const documentHref =
     document && documentMenu && isCanViewDocument
-      ? approvalDocumentHref(request.documentType, document.code)
+      ? approvalDocumentHref(request.documentType, document)
       : null;
 
   return (
