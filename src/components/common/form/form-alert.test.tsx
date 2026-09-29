@@ -25,4 +25,19 @@ describe("FormAlert", () => {
       "text-foreground",
     );
   });
+
+  test("tone warning: role status, bingkai warning", () => {
+    render(
+      <FormAlert
+        tone="warning"
+        title="Melebihi perkiraan"
+        message="Tetap bisa disimpan."
+      />,
+    );
+
+    const status = screen.getByRole("status");
+    expect(status.className).toContain("border-warning");
+    expect(status.className).not.toContain("destructive");
+    expect(screen.queryByRole("alert")).toBeNull();
+  });
 });

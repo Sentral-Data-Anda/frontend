@@ -6,6 +6,7 @@ import { MENU, type MenuSlug } from "../../../src/config/menu";
 import { denied, json, type MockContext, type MockHandler } from "../kit";
 import {
   currencyDdl,
+  currencyOf,
   kursPreview,
   noRateMessage,
   purchaseOrderDdl,
@@ -37,6 +38,7 @@ const DDL: Record<
         filter: params.get("filter") ?? "",
         isOpen: params.get("terbuka") === "1",
         supplierId: Number(params.get("supplierId")) || null,
+        limit: Number(params.get("limit")) || null,
       }),
   },
   currency: {
@@ -62,17 +64,38 @@ const ddl = (ctx: MockContext, name: string) => {
     : json({ status: 200, message: "Berhasil Mendapatkan Data", data: rows });
 };
 
+const fieldFail = (status: number, path: string, message: string) =>
+  json({ status, error: message, issues: [{ path, message }] }, status);
+
+const kursQueryIssue = (code: string, date: string) => {
+  if (!code)
+    return { path: "currencyCode", message: "Mohon Lengkapi Mata Uang" };
+  if (code.length !== 3) {
+    return { path: "currencyCode", message: "Kode Mata Uang harus 3 huruf" };
+  }
+  if (!date) return { path: "date", message: "Mohon Lengkapi Tanggal" };
+
+  return null;
+};
+
 const kurs = (ctx: MockContext) => {
   if (!KURS_MENUS.some((slug) => ctx.can(slug, "VIEW"))) return denied();
 
   const params = ctx.url.searchParams;
-  const code = params.get("currencyCode") ?? "";
-  const date = params.get("date") ?? "";
-  const found = code && date ? kursPreview(code, date.slice(0, 10)) : null;
+  const code = (params.get("currencyCode") ?? "").trim();
+  const date = (params.get("date") ?? "").slice(0, 10);
+  const issue = kursQueryIssue(code, date);
+
+  if (issue) return fieldFail(400, issue.path, issue.message);
+  if (!currencyOf(code)) {
+    return fieldFail(404, "currencyCode", "Mata Uang Tidak Ditemukan");
+  }
+
+  const found = kursPreview(code, date);
 
   return found
     ? json({ status: 200, message: "Berhasil Mendapatkan Kurs", data: found })
-    : json({ status: 404, error: noRateMessage(code || "-") }, 404);
+    : fieldFail(404, "currencyCode", noRateMessage(code));
 };
 
 export const pengadaanMock: MockHandler = (ctx) => {

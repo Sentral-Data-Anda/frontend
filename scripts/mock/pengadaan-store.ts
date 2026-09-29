@@ -21,7 +21,6 @@ import {
   assetPhotoView,
   codeOf,
   isLive,
-  money,
   roomRowOf,
   stockItemOf,
   supplierOf,
@@ -34,7 +33,7 @@ import {
 } from "./inventaris-store";
 import { seedImage, seedPdf } from "./media";
 
-export { SUPPLIER, TODAY, codeOf, isLive, money };
+export { SUPPLIER, TODAY, codeOf, isLive };
 
 type Live = { id: number; deletedAt: string | null };
 
@@ -49,6 +48,7 @@ export type ApprovalRef = {
   status: ApprovalState;
   note: string | null;
   submittedAt: string;
+  submittedBy: number;
 };
 
 export type PurchaseRequestStatus =
@@ -170,6 +170,12 @@ const round2 = (value: number) => Math.round(value * 100) / 100;
 
 const round4 = (value: number) => Math.round(value * 10_000) / 10_000;
 
+// be-sada: Decimal Prisma = string desimal terpendek, tanpa nol di belakang.
+export const decimal = (value: number, places = 2) =>
+  String(Number(value.toFixed(places)));
+
+export const money = (value: number) => decimal(value, 2);
+
 const PERIOD_DAY = new Intl.DateTimeFormat("id-ID", {
   day: "numeric",
   month: "long",
@@ -263,7 +269,7 @@ export const kursPreview = (code: string, date: string) => {
   return found
     ? {
         currencyCode: code.toUpperCase(),
-        rate: found.rate.toFixed(6),
+        rate: decimal(found.rate, 6),
         rateDate: iso(found.rateDate),
         source: found.source,
       }
@@ -271,7 +277,11 @@ export const kursPreview = (code: string, date: string) => {
 };
 
 export const currencyView = (row: CurrencyRow) => {
-  const latest = row.isBase ? null : rateOn(row.code, TODAY);
+  const latest = row.isBase
+    ? undefined
+    : EXCHANGE_RATE.filter((rate) => rate.currencyCode === row.code).sort(
+        (a, b) => b.rateDate.localeCompare(a.rateDate) || b.id - a.id,
+      )[0];
 
   return {
     id: row.id,
@@ -281,7 +291,7 @@ export const currencyView = (row: CurrencyRow) => {
     symbol: row.symbol,
     isBase: row.isBase,
     latestRate: latest
-      ? { rate: latest.rate.toFixed(6), rateDate: iso(latest.rateDate) }
+      ? { rate: decimal(latest.rate, 6), rateDate: iso(latest.rateDate) }
       : null,
   };
 };
@@ -294,7 +304,7 @@ export const rateView = (row: RateRow) => {
     publicId: row.publicId,
     currencyCode: row.currencyCode,
     rateDate: iso(row.rateDate),
-    rate: row.rate.toFixed(6),
+    rate: decimal(row.rate, 6),
     source: row.source,
     currency: currency
       ? {
@@ -332,7 +342,7 @@ export const seedAttachment = (
   return {
     publicId: uuid("e300", attachmentCount),
     path,
-    name: `${label}.${extension}`,
+    name: label,
     mimeType: options.isPdf ? "application/pdf" : "image/jpeg",
     size: options.isPdf
       ? seedPdf(path)
@@ -349,6 +359,7 @@ let approvalCount = 0;
 const newApproval = (
   status: ApprovalState,
   submittedAt: string,
+  submittedBy: number,
   note: string | null = null,
 ): ApprovalRef => {
   approvalCount += 1;
@@ -358,6 +369,7 @@ const newApproval = (
     status,
     note,
     submittedAt,
+    submittedBy,
   };
 };
 
@@ -412,6 +424,7 @@ const request = (
             stamp(
               addDays(seed.createdAt.slice(0, 10), approval.daysAfter ?? 1),
             ),
+            seed.requestedBy,
             approval.note ?? null,
           ),
         ]
@@ -919,6 +932,7 @@ export const purchaseRequestView = (
           code: approval.code,
           status: approval.status,
           note: approval.note,
+          isSubmittedByViewer: approval.submittedBy === SESSION_USER_ID,
         }
       : null,
     createdAt: row.createdAt,
@@ -936,7 +950,9 @@ export const purchaseRequestView = (
       currencyCode: "IDR",
     })),
     orderedTotalIDR: money(orderedTotalOf(row.id)),
-    orders: liveOrdersOf(row.id).map((orderRow) => ({
+    orders: PURCHASE_ORDER.filter(
+      (orderRow) => isLive(orderRow) && orderRow.purchaseRequestId === row.id,
+    ).map((orderRow) => ({
       code: orderRow.code,
       status: orderRow.status,
       totalIDR: money(idrTotalOf(orderRow)),
@@ -966,15 +982,6 @@ export const copyPurchaseRequest = (code: string) => {
 export const submitPurchaseRequest = (
   row: PurchaseRequestRow,
 ): { row: PurchaseRequestRow } | { failure: Failure } => {
-  if (latestApprovalOf(row)?.status === "PENDING") {
-    return {
-      failure: {
-        status: 400,
-        message:
-          "Permintaan Pembelian Ini Sedang Menunggu Persetujuan. Tarik Pengajuannya Terlebih Dahulu",
-      },
-    };
-  }
   if (row.status === "REJECTED") {
     return {
       failure: {
@@ -1001,7 +1008,9 @@ export const submitPurchaseRequest = (
     };
   }
 
-  row.approvals.push(newApproval("PENDING", new Date().toISOString()));
+  row.approvals.push(
+    newApproval("PENDING", new Date().toISOString(), SESSION_USER_ID),
+  );
   row.status = "PENDING_APPROVAL";
 
   return { row };
@@ -1093,11 +1102,10 @@ export const purchaseOrderView = (row: PurchaseOrderRow, isDetail = false) => {
     supplier: named(supplier, "d800", row.supplierId),
     currencyCode: row.currencyCode,
     currency: currencyRef(row.currencyCode),
-    exchangeRate: row.exchangeRate.toFixed(6),
+    exchangeRate: decimal(row.exchangeRate, 6),
     rateSource: row.rateSource,
-    totalForeignCurrency: round4(foreignTotalOf(row)).toFixed(4),
+    totalForeignCurrency: decimal(foreignTotalOf(row), 4),
     totalIDR: money(idrTotalOf(row)),
-    receivedTotalIDR: money(receivedTotal),
     closedShort: isClosedShort(row),
     purchaseRequestId: row.purchaseRequestId,
     purchaseRequest: requestRow
@@ -1107,16 +1115,22 @@ export const purchaseOrderView = (row: PurchaseOrderRow, isDetail = false) => {
           purpose: requestRow.purpose,
           bapel: bapel ? { name: bapel.name } : null,
           totalEstimatedIDR: money(requestTotalOf(requestRow)),
-          orderedTotalIDR: money(orderedTotalOf(requestRow.id, row.id)),
         }
       : null,
-    createdAt: row.createdAt,
   };
 
   if (!isDetail) return { ...base, itemCount: row.items.length };
 
   return {
     ...base,
+    purchaseRequest:
+      base.purchaseRequest && requestRow
+        ? {
+            ...base.purchaseRequest,
+            orderedTotalIDR: money(orderedTotalOf(requestRow.id, row.id)),
+          }
+        : null,
+    receivedTotalIDR: money(receivedTotal),
     items: row.items.map((item) => {
       const received = receivedQuantityOf(item.id);
 
@@ -1126,7 +1140,7 @@ export const purchaseOrderView = (row: PurchaseOrderRow, isDetail = false) => {
         name: item.name,
         description: item.description,
         quantity: item.quantity,
-        unitPrice: item.unitPrice.toFixed(4),
+        unitPrice: decimal(item.unitPrice, 4),
         typeId: item.typeId,
         roomId: item.roomId,
         unitId: item.unitId,
@@ -1139,10 +1153,12 @@ export const purchaseOrderView = (row: PurchaseOrderRow, isDetail = false) => {
     }),
     receipts: GOODS_RECEIPT.filter(
       (receipt) => receipt.purchaseOrderId === row.id,
-    ).map((receipt) => ({
-      code: receipt.code,
-      receivedDate: iso(receipt.receivedDate),
-    })),
+    )
+      .sort((a, b) => a.receivedDate.localeCompare(b.receivedDate))
+      .map((receipt) => ({
+        code: receipt.code,
+        receivedDate: iso(receipt.receivedDate),
+      })),
   };
 };
 
@@ -1150,8 +1166,9 @@ export const purchaseOrderDdl = (params: {
   filter: string;
   isOpen: boolean;
   supplierId: number | null;
-}) =>
-  PURCHASE_ORDER.filter(
+  limit?: number | null;
+}) => {
+  const rows = PURCHASE_ORDER.filter(
     (row) =>
       isLive(row) &&
       (!params.isOpen ||
@@ -1174,6 +1191,9 @@ export const purchaseOrderDdl = (params: {
       };
     });
 
+  return params.limit ? rows.slice(0, params.limit) : rows;
+};
+
 export const goodsReceiptView = (row: GoodsReceiptRow, isDetail = false) => {
   const orderRow = PURCHASE_ORDER.find(
     (item) => item.id === row.purchaseOrderId,
@@ -1182,6 +1202,7 @@ export const goodsReceiptView = (row: GoodsReceiptRow, isDetail = false) => {
     ? SUPPLIER.find((item) => item.id === orderRow.supplierId)
     : undefined;
   const base = {
+    id: row.id,
     publicId: row.publicId,
     code: row.code,
     receivedDate: iso(row.receivedDate),
@@ -1193,13 +1214,17 @@ export const goodsReceiptView = (row: GoodsReceiptRow, isDetail = false) => {
           code: orderRow.code,
           status: orderRow.status,
           currencyCode: orderRow.currencyCode,
+          exchangeRate: decimal(orderRow.exchangeRate, 6),
           supplier: named(supplier, "d800", orderRow.supplierId),
         }
       : null,
-    createdAt: row.createdAt,
   };
 
-  if (!isDetail) return { ...base, itemCount: row.items.length };
+  if (!isDetail) {
+    const lines = new Set(row.items.map((item) => item.purchaseOrderItemId));
+
+    return { ...base, itemCount: lines.size };
+  }
 
   return {
     ...base,
@@ -1230,12 +1255,16 @@ export const goodsReceiptView = (row: GoodsReceiptRow, isDetail = false) => {
               quantity: line.quantity,
             }
           : null,
-        unitPrice: line ? line.unitPrice.toFixed(4) : null,
+        unitPrice: line ? decimal(line.unitPrice, 4) : null,
         unitPriceIDR:
           line && orderRow ? money(unitPriceIdr(orderRow, line)) : null,
         unit: line ? named(unitOf(line.unitId), "d200", line.unitId) : null,
-        asset: asset ? { code: asset.code, name: asset.name } : null,
-        stockItem: stock ? { code: stock.code, name: stock.name } : null,
+        asset: asset
+          ? { publicId: asset.publicId, code: asset.code, name: asset.name }
+          : null,
+        stockItem: stock
+          ? { publicId: stock.publicId, code: stock.code, name: stock.name }
+          : null,
       };
     }),
     attachments: row.attachments.map(attachmentView),
@@ -1355,7 +1384,14 @@ export const receiveGoods = (input: {
         "Maksimal 50 Barang Per Baris",
       );
     }
-    if (item.target === "STOCK" && item.stockItemId !== null) {
+  }
+
+  for (const [index, item] of input.items.entries()) {
+    const line = orderRow.items.find(
+      (one) => one.id === item.purchaseOrderItemId,
+    );
+
+    if (line && item.target === "STOCK" && item.stockItemId !== null) {
       const stock = stockItemOf(item.stockItemId);
       if (!stock) {
         return lineFailure(

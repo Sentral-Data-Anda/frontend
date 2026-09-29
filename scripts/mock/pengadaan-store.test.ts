@@ -12,7 +12,11 @@ import {
   PURCHASE_REQUEST,
   TODAY,
   copyPurchaseRequest,
+  CURRENCY,
   currencyDdl,
+  currencyView,
+  decimal,
+  goodsReceiptView,
   decidePurchaseRequest,
   kursPreview,
   orderStatusOf,
@@ -102,7 +106,7 @@ describe("kurs", () => {
     expect(rateOn("usd", TODAY)?.rate).toBe(15_800);
     expect(rateOn("EUR", TODAY)).toBeNull();
     expect(kursPreview("EUR", TODAY)).toBeNull();
-    expect(kursPreview("SGD", TODAY)?.rate).toBe("12100.000000");
+    expect(kursPreview("SGD", TODAY)?.rate).toBe("12100");
   });
 
   test("ddl mata uang: dasar dulu", () => {
@@ -115,14 +119,59 @@ describe("kurs", () => {
   });
 });
 
+describe("format be-sada", () => {
+  test("desimal terpendek tanpa nol di belakang", () => {
+    expect(decimal(15_800, 6)).toBe("15800");
+    expect(decimal(15_800.1234564, 6)).toBe("15800.123456");
+    expect(decimal(300.55556, 4)).toBe("300.5556");
+    expect(decimal(4_748_814.009)).toBe("4748814.01");
+    expect(decimal(0)).toBe("0");
+  });
+
+  test("daftar vs detail pesanan; penerimaan menghitung baris pesanan", () => {
+    const partial = PURCHASE_ORDER.find(
+      (row) => row.status === "PARTIALLY_RECEIVED",
+    );
+    if (!partial) throw new Error("seed");
+    const row = purchaseOrderView(partial);
+
+    expect(row).not.toHaveProperty("receivedTotalIDR");
+    expect(row.purchaseRequest).not.toHaveProperty("orderedTotalIDR");
+
+    const first = GOODS_RECEIPT[0];
+    if (!first) throw new Error("seed");
+
+    expect(goodsReceiptView(first)).toMatchObject({
+      id: first.id,
+      itemCount: 2,
+    });
+  });
+
+  test("kurs terbaru apa pun tanggalnya; pengaju persetujuan", () => {
+    const usd = CURRENCY.find((row) => row.code === "USD");
+    if (!usd) throw new Error("seed");
+
+    expect(currencyView(usd).latestRate?.rate).toBe("15800");
+    expect(
+      purchaseRequestView(
+        requestBy("Proyektor portabel untuk persekutuan pemuda"),
+      ).approval?.isSubmittedByViewer,
+    ).toBe(true);
+    expect(
+      purchaseRequestView(requestBy("Perlengkapan dapur persekutuan kaum ibu"))
+        .approval?.isSubmittedByViewer,
+    ).toBe(false);
+  });
+});
+
 describe("tampilan pesanan", () => {
   test("pesanan USD: total Rupiah = total asing × kurs yang dibekukan", () => {
     const usd = orderBy((_, currency) => currency === "USD");
     const view = purchaseOrderView(usd, true);
 
-    expect(view.totalForeignCurrency).toBe("1041.0000");
-    expect(view.exchangeRate).toBe("15750.000000");
-    expect(view.totalIDR).toBe("16395750.00");
+    expect(view.totalForeignCurrency).toBe("1041");
+    expect(view.exchangeRate).toBe("15750");
+    expect(view.totalIDR).toBe("16395750");
     expect(view.rateDate).not.toBe(view.orderDate);
   });
 
@@ -134,7 +183,7 @@ describe("tampilan pesanan", () => {
     const view = purchaseOrderView(partial, true);
     if (!("items" in view)) throw new Error("bukan detail");
 
-    expect(view.purchaseRequest?.orderedTotalIDR).toBe("0.00");
+    expect(view.purchaseRequest?.orderedTotalIDR).toBe("0");
     expect(view.items.map((item) => item.remainingQuantity)).toEqual([1, 20]);
     expect(view.receipts).toHaveLength(1);
   });
@@ -190,6 +239,12 @@ describe("persetujuan permintaan", () => {
       "Permintaan Pembelian Ini Sudah Ditolak. Ajukan Ulang Sebagai Permintaan Baru",
     );
     expect(copyPurchaseRequest(draft.code)?.items).toHaveLength(3);
+
+    const pending = requestBy("Perlengkapan dapur persekutuan kaum ibu");
+    const twice = submitPurchaseRequest(pending);
+    expect("failure" in twice && twice.failure.message).toBe(
+      "Permintaan Pembelian Ini Sudah Diajukan",
+    );
   });
 
   test("salin hanya untuk yang ditolak", () => {
@@ -258,6 +313,40 @@ describe("receiveGoods", () => {
       "Satuan Barang Persediaan Berbeda Dengan Pesanan (Rim / Buah)",
     );
     expect(GOODS_RECEIPT).toHaveLength(receipts);
+  });
+
+  test("urutan cek: semua baris dulu (#4), baru barang persediaan (#5)", () => {
+    const partial = PURCHASE_ORDER.find(
+      (row) => row.status === "PARTIALLY_RECEIVED",
+    );
+    const lilin = STOCK_ITEM.find((row) => row.name === "Lilin Altar");
+    if (!partial || !lilin) throw new Error("seed");
+    const [proyektor, kertas] = partial.items;
+
+    const result = receiveGoods({
+      purchaseOrderId: partial.id,
+      receivedDate: TODAY,
+      note: null,
+      attachments: [],
+      items: [
+        {
+          purchaseOrderItemId: kertas?.id ?? 0,
+          quantityReceived: 5,
+          target: "STOCK",
+          stockItemId: lilin.id,
+        },
+        {
+          purchaseOrderItemId: proyektor?.id ?? 0,
+          quantityReceived: 2,
+          target: "ASSET",
+          stockItemId: null,
+        },
+      ],
+    });
+
+    expect("failure" in result && result.failure.path).toBe(
+      "items.1.quantityReceived",
+    );
   });
 
   test("persediaan baru: mutasi masuk + harga beli terakhir", () => {

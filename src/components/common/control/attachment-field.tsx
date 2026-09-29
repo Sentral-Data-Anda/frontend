@@ -236,7 +236,7 @@ export const AttachmentField = (props: PropTypes) => {
               <li key={item.key} className="flex min-w-0 flex-col gap-1">
                 <div className="relative">
                   {isPdf(item.mimeType) ? (
-                    <span className="bg-muted text-muted-foreground flex aspect-square w-full flex-col items-center justify-center gap-1 rounded-control">
+                    <span className="border-border bg-card text-muted-foreground flex aspect-square w-full flex-col items-center justify-center gap-1 rounded-control border">
                       <FileText aria-hidden className="size-6" />
                       <span className="text-caption font-medium">PDF</span>
                     </span>

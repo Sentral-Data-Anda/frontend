@@ -97,12 +97,30 @@ describe("ddl pengadaan", () => {
     expect(rowsOf(currency?.body ?? { status: 0 })[0]?.code).toBe("IDR");
     expect(usd?.body.data).toMatchObject({
       currencyCode: "USD",
-      rate: "15800.000000",
+      rate: "15800",
     });
     expect(eur?.status).toBe(404);
-    expect(eur?.body.error).toBe(
-      "Belum Ada Kurs EUR Untuk Tanggal Tersebut. Isi Kursnya Terlebih Dahulu",
+    expect(eur?.body).toMatchObject({
+      error:
+        "Belum Ada Kurs EUR Untuk Tanggal Tersebut. Isi Kursnya Terlebih Dahulu",
+      issues: [{ path: "currencyCode" }],
+    });
+
+    const unknown = await call(
+      pengadaanMock,
+      `/ddl/kurs?currencyCode=XYZ&date=${TODAY}`,
+      grants,
     );
+    const missing = await call(
+      pengadaanMock,
+      "/ddl/kurs?currencyCode=USD",
+      grants,
+    );
+
+    expect(unknown?.status).toBe(404);
+    expect(unknown?.body.error).toBe("Mata Uang Tidak Ditemukan");
+    expect(missing?.status).toBe(400);
+    expect(missing?.body.error).toBe("Mohon Lengkapi Tanggal");
   });
 
   test("guard ddl Inventaris diperluas untuk form Pengadaan", async () => {
