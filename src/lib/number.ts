@@ -9,12 +9,23 @@ export const toDecimal = (
   maxInteger: number,
   maxFraction: number,
 ) => {
-  const [head, ...rest] = value.replace(/[^\d.,]/g, "").split(/[.,]/);
+  const [head, ...rest] = value.replace(/[^\d,]/g, "").split(",");
   const integer = toDigits(head ?? "", maxInteger);
 
   if (rest.length === 0 || maxFraction === 0) return integer;
 
-  const fraction = rest.join("").slice(0, maxFraction);
+  return `${integer || "0"}.${rest.join("").slice(0, maxFraction)}`;
+};
 
-  return `${integer || "0"}.${fraction}`;
+export const groupAmount = (value: string) => {
+  const [integer = "", fraction] = value.split(".");
+  const grouped = integer.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+
+  return fraction === undefined ? grouped : `${grouped},${fraction}`;
+};
+
+export const lineAmount = (quantity: string, price: string) => {
+  const amount = Number(quantity) * Number(price);
+
+  return quantity && price && amount > 0 ? amount : null;
 };

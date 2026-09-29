@@ -38,7 +38,7 @@ export const LineItemCard = (props: PropTypes) => {
   return (
     <li
       data-invalid={isInvalid || undefined}
-      className="border-border bg-card data-invalid:border-destructive/50 rounded-control border p-3"
+      className="@container/line border-border bg-card data-invalid:border-destructive/50 rounded-control border p-3"
     >
       <div className="flex min-h-control items-center gap-3">
         <span
@@ -72,12 +72,12 @@ export const LineItemCard = (props: PropTypes) => {
         ) : null}
       </div>
 
-      <div className="mt-3 flex flex-wrap items-end gap-x-4 gap-y-3 sm:pl-8">
+      <div className="mt-3 flex flex-wrap items-end gap-x-4 gap-y-3 @min-[28rem]/line:pl-8">
         {children}
       </div>
 
       {isInvalid ? (
-        <div className="mt-2 space-y-0.5 sm:pl-8">
+        <div className="mt-2 space-y-0.5 @min-[28rem]/line:pl-8">
           {messages.map(({ id, message }) => (
             <p
               key={id}
