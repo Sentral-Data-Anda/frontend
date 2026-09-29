@@ -239,6 +239,12 @@ describe("persetujuan permintaan", () => {
       "Permintaan Pembelian Ini Sudah Ditolak. Ajukan Ulang Sebagai Permintaan Baru",
     );
     expect(copyPurchaseRequest(draft.code)?.items).toHaveLength(3);
+
+    const pending = requestBy("Perlengkapan dapur persekutuan kaum ibu");
+    const twice = submitPurchaseRequest(pending);
+    expect("failure" in twice && twice.failure.message).toBe(
+      "Permintaan Pembelian Ini Sudah Diajukan",
+    );
   });
 
   test("salin hanya untuk yang ditolak", () => {

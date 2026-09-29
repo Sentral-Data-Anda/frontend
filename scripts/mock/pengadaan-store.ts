@@ -982,15 +982,6 @@ export const copyPurchaseRequest = (code: string) => {
 export const submitPurchaseRequest = (
   row: PurchaseRequestRow,
 ): { row: PurchaseRequestRow } | { failure: Failure } => {
-  if (latestApprovalOf(row)?.status === "PENDING") {
-    return {
-      failure: {
-        status: 400,
-        message:
-          "Permintaan Pembelian Ini Sedang Menunggu Persetujuan. Tarik Pengajuannya Terlebih Dahulu",
-      },
-    };
-  }
   if (row.status === "REJECTED") {
     return {
       failure: {
