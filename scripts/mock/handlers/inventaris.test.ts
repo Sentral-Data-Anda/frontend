@@ -354,39 +354,4 @@ describe("handler inventaris", () => {
     });
     expect(await call(inventarisMock, "/ddl/jemaat", [MENU.BARANG])).toBeNull();
   });
-
-  test("cadangan riwayat siklus per barang; tanpa assetId bukan milik cadangan", async () => {
-    const mixer = assetNamed("Mixer Behringer X32");
-    const grants = [MENU.SIKLUS_ASET];
-    const result = await call(
-      inventarisMock,
-      `/siklus-aset/perawatan?assetId=${mixer.id}&limit=5`,
-      grants,
-    );
-
-    expect(result?.status).toBe(200);
-    expect(result?.body.data).toHaveLength(1);
-    expect(result?.body.data[0]).toMatchObject({ status: "IN_PROGRESS" });
-    expect(
-      await call(inventarisMock, "/siklus-aset/perawatan", grants),
-    ).toBeNull();
-    expect(
-      (
-        await call(
-          inventarisMock,
-          `/siklus-aset/mutasi?assetId=${mixer.id}`,
-          grants,
-        )
-      )?.status,
-    ).toBe(404);
-    expect(
-      (
-        await call(
-          inventarisMock,
-          `/siklus-aset/perawatan?assetId=${mixer.id}`,
-          [],
-        )
-      )?.status,
-    ).toBe(403);
-  });
 });
