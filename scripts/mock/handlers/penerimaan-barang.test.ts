@@ -120,7 +120,10 @@ describe("GET", () => {
     const found = await call("GET", "/penerimaan-barang/grn-2026-0001");
 
     expect(found.status).toBe(200);
-    expect(found.body.data.attachments).toHaveLength(2);
+    expect(
+      found.body.data.attachments.map((item: { name: string }) => item.name),
+    ).toEqual(["Nota Toko Buku Agape", "Surat jalan"]);
+    expect(found.body.data.items[0].unitPriceIDR).toBe("55000");
     expect(
       (await call("GET", "/penerimaan-barang/GRN-2026-9999")).body.error,
     ).toBe("Penerimaan Barang Tidak Ditemukan");
@@ -261,6 +264,32 @@ describe("POST", () => {
     expect(STOCK_MOVEMENT.at(-1)?.note).toBe(
       `Penerimaan ${created.body.data.code}`,
     );
+  });
+
+  test("urutan: semua baris dicek dulu, baru persediaan", async () => {
+    const order = orderOf("PO-2026-0003");
+    const [projector, paper] = order.items;
+    const otherUnit = STOCK_ITEM.find((row) => row.unitId !== paper?.unitId);
+    const { body } = await call(
+      "POST",
+      "/penerimaan-barang",
+      formOf({ purchaseOrderId: String(order.id), receivedDate: TODAY }, [
+        {
+          purchaseOrderItemId: paper?.id,
+          quantityReceived: 1,
+          target: "STOCK",
+          stockItemId: otherUnit?.id,
+        },
+        {
+          purchaseOrderItemId: projector?.id,
+          quantityReceived: 5,
+          target: "ASSET",
+        },
+      ]),
+    );
+
+    expect(body.issues[0].path).toBe("items.1.quantityReceived");
+    expect(body.error).toContain("Melebihi Jumlah Yang Dipesan");
   });
 
   test("tanpa CREATE 403; MOCK_GR_SAVE_ERROR 500", async () => {

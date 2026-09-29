@@ -181,13 +181,6 @@ const orderRefOf = (orderId: number) => {
   };
 };
 
-const orderLineCountOf = (receiptId: number) =>
-  new Set(
-    GOODS_RECEIPT.find((row) => row.id === receiptId)?.items.map(
-      (item) => item.purchaseOrderItemId,
-    ),
-  ).size;
-
 const listRows = (url: URL) => {
   const params = url.searchParams;
   const orderId = Number(params.get("purchaseOrderId")) || null;
@@ -214,10 +207,7 @@ const listRows = (url: URL) => {
         b.receivedDate.localeCompare(a.receivedDate) ||
         b.createdAt.localeCompare(a.createdAt),
     )
-    .map((row) => ({
-      ...goodsReceiptView(row),
-      itemCount: orderLineCountOf(row.id),
-    }));
+    .map((row) => goodsReceiptView(row));
 };
 
 export const penerimaanBarangMock: MockHandler = async ({

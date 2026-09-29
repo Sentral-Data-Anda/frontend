@@ -10,12 +10,12 @@ import {
   type ReceiptGroup,
 } from "../model";
 
-const LINK =
+export const CODE_LINK =
   "text-primary decoration-primary/40 hover:decoration-primary relative cursor-pointer rounded-sm tabular-nums underline underline-offset-2 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none";
 
 const codeLink = (code: string, href: string, isLinked: boolean) =>
   isLinked ? (
-    <Link href={href} className={LINK}>
+    <Link href={href} className={CODE_LINK}>
       {code}
     </Link>
   ) : (

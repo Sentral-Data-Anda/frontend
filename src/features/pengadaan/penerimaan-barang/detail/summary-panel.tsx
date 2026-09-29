@@ -11,6 +11,8 @@ import { formatDate } from "@/lib/format";
 import { orderHref, supplierNameOf } from "../model";
 import { ORDER_STATUS_LABEL, type ReceiptDetail } from "../types";
 
+import { CODE_LINK } from "./target-links";
+
 interface PropTypes {
   receipt: ReceiptDetail;
   isOrderLinked: boolean;
@@ -26,10 +28,7 @@ export const SummaryPanel = (props: PropTypes) => {
         <DescriptionItem label="Pesanan">
           <span className="tabular-nums">
             {isOrderLinked ? (
-              <Link
-                href={orderHref(order.code)}
-                className="text-primary cursor-pointer rounded-sm underline-offset-2 hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
-              >
+              <Link href={orderHref(order.code)} className={CODE_LINK}>
                 {order.code}
               </Link>
             ) : (
