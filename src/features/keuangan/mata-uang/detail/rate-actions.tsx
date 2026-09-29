@@ -26,7 +26,7 @@ export const RateActions = (props: PropTypes) => {
     saveListFocus(currencyDetailHref(rate.currencyCode), String(rate.id));
 
   return (
-    <span className="relative flex items-center gap-1">
+    <span className="relative flex items-center gap-2">
       {isCanUpdate ? (
         <Link
           href={rateEditHref(rate.currencyCode, rate.id)}

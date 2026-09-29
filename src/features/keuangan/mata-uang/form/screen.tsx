@@ -29,6 +29,7 @@ import { useCurrencyDetail, useSaveCurrency } from "../api";
 import {
   EMPTY_CURRENCY_FORM,
   MATA_UANG_LIST_PATH,
+  NO_VIEW,
   currencyDetailHref,
   currencyFormSchema,
   currencyServerError,
@@ -49,7 +50,7 @@ export const CurrencyFormScreen = (props: PropTypes) => {
   const router = useRouter();
   const toast = useToast();
   const isEdit = Boolean(code);
-  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.MATA_UANG);
+  const { isCanView, isCanCreate, isCanUpdate } = useMenuAccess(MENU.MATA_UANG);
   const listReturn = useListReturn(MATA_UANG_LIST_PATH);
   const leaveHref = code ? currencyDetailHref(code) : listReturn;
   const [rejectedField, setRejectedField] = useState<string | null>(null);
@@ -130,7 +131,9 @@ export const CurrencyFormScreen = (props: PropTypes) => {
             ? "Tidak bisa mengubah mata uang"
             : "Tidak bisa menambah mata uang"
         }
-        description="Peran Anda hanya bisa melihat data mata uang."
+        description={
+          isCanView ? "Peran Anda hanya bisa melihat data mata uang." : NO_VIEW
+        }
         backHref={leaveHref}
         backLabel="Kembali ke Mata Uang"
       />

@@ -28,6 +28,7 @@ import { saveListFocus } from "@/lib/list-return";
 import { useCurrencyDetail, useRateDetail, useSaveRate } from "../api";
 import {
   MATA_UANG_LIST_PATH,
+  NO_VIEW,
   currencyDetailHref,
   emptyRateForm,
   rateFormSchema,
@@ -50,7 +51,7 @@ export const RateFormScreen = (props: PropTypes) => {
   const router = useRouter();
   const toast = useToast();
   const isEdit = Boolean(id);
-  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.MATA_UANG);
+  const { isCanView, isCanCreate, isCanUpdate } = useMenuAccess(MENU.MATA_UANG);
   const isAllowed = isEdit ? isCanUpdate : isCanCreate;
   const currencyCode = code.toUpperCase();
   const backHref = currencyDetailHref(currencyCode);
@@ -141,7 +142,9 @@ export const RateFormScreen = (props: PropTypes) => {
     return (
       <NoFormAccess
         title={isEdit ? "Tidak bisa mengubah kurs" : "Tidak bisa menambah kurs"}
-        description="Peran Anda hanya bisa melihat kurs."
+        description={
+          isCanView ? "Peran Anda hanya bisa melihat kurs." : NO_VIEW
+        }
         backHref={backHref}
         backLabel={`Kembali ke ${currencyCode}`}
       />

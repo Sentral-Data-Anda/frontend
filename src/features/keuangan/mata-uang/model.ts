@@ -38,6 +38,8 @@ export const rateEditHref = (code: string, id: number) =>
 
 export const STALE_RATE_DAYS = 7;
 
+export const NO_VIEW = "Peran Anda tidak memiliki akses ke Mata Uang.";
+
 export const RATE_SOURCE_LABEL: Record<RateSource, string> = {
   MANUAL: "Manual",
   AUTO: "Otomatis",
