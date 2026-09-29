@@ -9,6 +9,7 @@ import { useDdlOptions } from "@/hooks/use-ddl-options";
 import { useListParams, type ListFilterSchema } from "@/hooks/use-list-params";
 
 import { useAssetList } from "../api";
+import { LabelLink, labelHrefOf } from "../label";
 import {
   BARANG_CREATE_PATH,
   CONDITION_LABEL,
@@ -57,9 +58,18 @@ export const BarangListContent = () => {
         }
         backHref={domainHref(MENU.INVENTARIS)}
         action={
-          isCanCreate ? (
-            <PageHeaderAdd href={BARANG_CREATE_PATH} label="Tambah barang" />
-          ) : null
+          <>
+            <LabelLink
+              href={labelHrefOf({
+                search: listParams.search,
+                status: listParams.status,
+                ...listParams.filters,
+              })}
+            />
+            {isCanCreate ? (
+              <PageHeaderAdd href={BARANG_CREATE_PATH} label="Tambah barang" />
+            ) : null}
+          </>
         }
       />
 
