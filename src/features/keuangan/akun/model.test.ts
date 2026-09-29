@@ -1,5 +1,7 @@
 import { describe, expect, test } from "bun:test";
 
+import { FetchError } from "@/lib/api/fetcher";
+
 import {
   accountFormSchema,
   accountRows,
@@ -150,17 +152,31 @@ describe("pesan server", () => {
     expect(accountServerError("Akun Tidak Ditemukan")).toBeNull();
   });
 
-  test("Nonaktifkan hanya ditawarkan untuk penolakan karena jurnal", () => {
+  test("Nonaktifkan dicabangkan pada kode, bukan prosa", () => {
+    const inUse = new FetchError(
+      400,
+      "Akun Tidak Dapat Dihapus Karena Sudah Dipakai Baris Jurnal, Setelan Akuntansi. Nonaktifkan Saja",
+      [],
+      "ACCOUNT_IN_USE",
+    );
+    const hasChildren = new FetchError(
+      400,
+      "Akun Tidak Dapat Dihapus Karena Masih Memiliki Akun Turunan",
+      [],
+      "ACCOUNT_HAS_CHILDREN",
+    );
+
+    expect(isDeactivateOffered(inUse)).toBe(true);
+    expect(isDeactivateOffered(hasChildren)).toBe(false);
+  });
+
+  test("kalimat yang menyebut jurnal tanpa kode tidak menawarkan Nonaktifkan", () => {
     expect(
       isDeactivateOffered(
-        "Akun Tidak Dapat Dihapus Karena Sudah Dipakai Jurnal. Nonaktifkan Saja",
-      ),
-    ).toBe(true);
-    expect(
-      isDeactivateOffered(
-        "Akun Tidak Dapat Dihapus Karena Masih Memiliki Sub Akun",
+        new FetchError(400, "Sudah Dipakai Baris Jurnal", [], null),
       ),
     ).toBe(false);
+    expect(isDeactivateOffered(new Error("gagal"))).toBe(false);
   });
 });
 

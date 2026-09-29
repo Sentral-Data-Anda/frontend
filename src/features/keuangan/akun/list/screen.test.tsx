@@ -63,7 +63,10 @@ const account = (
   name,
   type: "ASSET",
   parentAccountId,
-  parent: null,
+  parent:
+    parentAccountId === null
+      ? null
+      : { id: parentAccountId, code: "1", name: "Aset", type: "ASSET" },
   isActive: true,
   childCount: 0,
   ...extra,
@@ -145,6 +148,21 @@ describe("pohon akun", () => {
 
     await screen.findByLabelText("Lihat akun 1-100 Kas");
     expect(orderOf()).toEqual(["1-100", "1", "1-110"]);
+  });
+
+  test("baris yang diratakan tetap menyebut induknya di meta", async () => {
+    query.current = "search=kas";
+    onRender(["VIEW"]);
+
+    await screen.findByLabelText("Lihat akun 1-100 Kas");
+    expect(screen.getAllByText(/Induk 1/).length).toBeGreaterThan(0);
+  });
+
+  test("anak yang bersarang tidak mengulang induknya di meta", async () => {
+    onRender(["VIEW"]);
+
+    await screen.findByLabelText("Lihat akun 1-100 Kas");
+    expect(screen.queryByText(/Induk 1/)).toBeNull();
   });
 
   test("pensil ubah hanya dengan UPDATE", async () => {

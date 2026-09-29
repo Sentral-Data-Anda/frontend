@@ -34,7 +34,13 @@ const viewLabelOf = (account: AccountTreeRow) =>
   `Lihat akun ${account.code} ${account.name}`;
 
 const metaOf = (account: AccountTreeRow) =>
-  [ACCOUNT_TYPE_LABEL[account.type], childCountLabel(account.childCount)]
+  [
+    ACCOUNT_TYPE_LABEL[account.type],
+    childCountLabel(account.childCount),
+    account.depth === 0 && account.parent
+      ? `Induk ${account.parent.code}`
+      : null,
+  ]
     .filter(Boolean)
     .join(" · ");
 

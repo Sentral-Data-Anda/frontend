@@ -9,6 +9,7 @@ import { akunMock } from "./akun";
 type Json = {
   status: number;
   error?: string;
+  code?: string;
   message?: string;
   issues?: { path: string; message: string }[];
   data?: unknown;
@@ -75,6 +76,17 @@ describe("mock /account", () => {
     const inactive = await onCall("GET", "/account?isActive=false&limit=100");
     expect(codesOf(inactive?.body)).toEqual(["5-900"]);
 
+    // `1`/`0` dan huruf besar sama sahnya; tak terbaca = tidak menyaring.
+    expect(
+      codesOf((await onCall("GET", "/account?isActive=0&limit=100"))?.body),
+    ).toEqual(["5-900"]);
+    expect(
+      codesOf((await onCall("GET", "/account?isActive=TRUE&limit=100"))?.body),
+    ).not.toContain("5-900");
+    expect(
+      codesOf((await onCall("GET", "/account?isActive=yes&limit=100"))?.body),
+    ).toContain("5-900");
+
     const children = await onCall("GET", "/account?parentAccountId=13");
     expect(codesOf(children?.body)).toEqual(["3-100"]);
   });
@@ -124,7 +136,43 @@ describe("mock /account", () => {
     expect(wrongType?.body.error).toBe("Akun Induk Harus Bertipe Sama");
   });
 
-  test("tipe tidak bisa diubah bila akun sudah dipakai jurnal", async () => {
+  test("induk = diri sendiri dan siklus adalah dua galat berbeda", async () => {
+    const self = await onCall("PUT", "/account/1", {
+      code: "1",
+      name: "Aset",
+      type: "ASSET",
+      parentAccountId: 1,
+      isActive: true,
+    });
+    expect(self?.body.error).toBe("Akun Induk Tidak Boleh Akun Itu Sendiri");
+
+    const cycle = await onCall("PUT", "/account/1", {
+      code: "1",
+      name: "Aset",
+      type: "ASSET",
+      parentAccountId: 2,
+      isActive: true,
+    });
+    expect(cycle?.body.error).toBe("Akun Induk Tidak Boleh Membentuk Siklus");
+  });
+
+  test("bacaan membawa induk lengkap; detail menambah hasJournalLines", async () => {
+    const detail = await onCall("GET", "/account/1-100");
+    const data = detail?.body.data as {
+      parent: { id: number; code: string; name: string; type: string };
+      hasJournalLines: boolean;
+    };
+
+    expect(data.parent).toEqual({
+      id: 1,
+      code: "1",
+      name: "Aset",
+      type: "ASSET",
+    });
+    expect(data.hasJournalLines).toBe(true);
+  });
+
+  test("tipe tidak bisa diubah bila akun sudah punya baris jurnal", async () => {
     const refused = await onCall("PUT", "/account/1-100", {
       code: "1-100",
       name: "Kas",
@@ -134,34 +182,33 @@ describe("mock /account", () => {
     });
 
     expect(refused?.status).toBe(400);
+    expect(refused?.body.code).toBe("ACCOUNT_TYPE_LOCKED");
     expect(refused?.body.issues?.[0]?.path).toBe("type");
   });
 
-  test("induk tidak boleh diri sendiri atau turunannya", async () => {
-    const refused = await onCall("PUT", "/account/1", {
-      code: "1",
-      name: "Aset",
-      type: "ASSET",
-      parentAccountId: 2,
-      isActive: true,
-    });
-
-    expect(refused?.status).toBe(400);
-    expect(refused?.body.issues?.[0]?.path).toBe("parentAccountId");
-  });
-
-  test("hapus ditolak karena sub akun, lalu karena jurnal; sisanya soft delete", async () => {
+  test("hapus: turunan dan dipakai adalah kode berbeda; sisanya soft delete", async () => {
     const hasChildren = await onCall("DELETE", "/account/1");
     expect(hasChildren?.status).toBe(400);
-    expect(hasChildren?.body.error).toContain("Sub Akun");
+    expect(hasChildren?.body.code).toBe("ACCOUNT_HAS_CHILDREN");
+    expect(hasChildren?.body.issues).toBeUndefined();
 
-    const hasJournal = await onCall("DELETE", "/account/1-100");
-    expect(hasJournal?.status).toBe(400);
-    expect(hasJournal?.body.error).toContain("Nonaktifkan Saja");
+    const inUse = await onCall("DELETE", "/account/1-100");
+    expect(inUse?.status).toBe(400);
+    expect(inUse?.body.code).toBe("ACCOUNT_IN_USE");
+    expect(inUse?.body.error).toContain("Nonaktifkan Saja");
 
     const removed = await onCall("DELETE", "/account/1-110");
     expect(removed?.status).toBe(200);
     expect((await onCall("GET", "/account/1-110"))?.status).toBe(404);
+  });
+
+  test("pesan hapus menyebut setiap sumber yang menghalangi", async () => {
+    // Akun 2 = Kas: baris jurnal DAN kunci setelan PERSEMBAHAN_KAS.
+    const refused = await onCall("DELETE", "/account/1-100");
+
+    expect(refused?.body.error).toBe(
+      "Akun Tidak Dapat Dihapus Karena Sudah Dipakai Baris Jurnal, Setelan Akuntansi. Nonaktifkan Saja",
+    );
   });
 
   test("buat lalu baca kembali dengan kode huruf besar", async () => {

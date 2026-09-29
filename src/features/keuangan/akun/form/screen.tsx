@@ -253,7 +253,12 @@ export const AccountFormScreen = (props: PropTypes) => {
       ) : null}
 
       <div className={isHidden ? "hidden" : undefined}>
-        <AccountSection form={form} isDisabled={isBusy} isEdit={isEdit} />
+        <AccountSection
+          form={form}
+          isDisabled={isBusy}
+          isEdit={isEdit}
+          isTypeLocked={detail.data?.hasJournalLines === true}
+        />
       </div>
 
       <div className="space-y-3 px-gutter pb-4 empty:hidden">
@@ -271,7 +276,7 @@ export const AccountFormScreen = (props: PropTypes) => {
               message={deleteError.message}
             />
 
-            {isDeactivateOffered(deleteError.message) && status === "true" ? (
+            {isDeactivateOffered(deleteError) && status === "true" ? (
               <Button type="button" variant="outline" onClick={onDeactivate}>
                 Nonaktifkan
               </Button>

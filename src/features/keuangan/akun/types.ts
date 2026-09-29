@@ -8,10 +8,12 @@ export type Account = {
   name: string;
   type: AccountType;
   parentAccountId: number | null;
-  parent: { code: string; name: string } | null;
+  parent: { id: number; code: string; name: string; type: AccountType } | null;
   isActive: boolean;
   childCount: number;
 };
+
+export type AccountDetail = Account & { hasJournalLines: boolean };
 
 export type AccountPayload = {
   code: string;

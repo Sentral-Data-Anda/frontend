@@ -11,6 +11,8 @@ import { collapseSpaces } from "../../../src/lib/name";
 import { ACCOUNT_TYPES } from "../../../src/types/keuangan";
 import {
   ACCOUNT,
+  ACCOUNTING_SETTING,
+  TYPE_PERSEMBAHAN,
   accountOf,
   accountView,
   isLive,
@@ -22,6 +24,42 @@ import { denied, json, list, readBody, type MockHandler } from "../kit";
 const NOT_FOUND = "Akun Tidak Ditemukan";
 const MAX_DEPTH = 4;
 
+const IN_USE_SOURCES: [string, (row: AccountRow) => boolean][] = [
+  ["Baris Jurnal", (row) => row.hasJournal],
+  [
+    "Setelan Akuntansi",
+    (row) => ACCOUNTING_SETTING.some((item) => item.accountId === row.id),
+  ],
+  [
+    "Tipe Persembahan",
+    (row) => TYPE_PERSEMBAHAN.some((item) => item.accountId === row.id),
+  ],
+];
+
+const view = (row: AccountRow) => {
+  const parent = accountOf(row.parentAccountId);
+
+  return {
+    ...accountView(row),
+    parent: parent
+      ? {
+          id: parent.id,
+          code: parent.code,
+          name: parent.name,
+          type: parent.type,
+        }
+      : null,
+  };
+};
+
+const detailView = (row: AccountRow) => ({
+  ...view(row),
+  hasJournalLines: row.hasJournal,
+});
+
+const usedBy = (row: AccountRow) =>
+  IN_USE_SOURCES.filter(([, isUsed]) => isUsed(row)).map(([label]) => label);
+
 type Body = {
   code?: unknown;
   name?: unknown;
@@ -30,8 +68,16 @@ type Body = {
   isActive?: unknown;
 };
 
-const fieldError = (status: number, path: string, message: string) =>
-  json({ status, error: message, issues: [{ path, message }] }, status);
+const fieldError = (
+  status: number,
+  path: string,
+  message: string,
+  code?: string,
+) =>
+  json({ status, error: message, code, issues: [{ path, message }] }, status);
+
+const refusal = (code: string, message: string) =>
+  json({ status: 400, error: message, code }, 400);
 
 const notFound = () => json({ status: 404, error: NOT_FOUND }, 404);
 
@@ -120,11 +166,19 @@ function parentFailure(
     return fieldError(404, "parentAccountId", "Akun Induk Tidak Ditemukan");
   }
 
+  if (selfId !== null && parent.id === selfId) {
+    return fieldError(
+      400,
+      "parentAccountId",
+      "Akun Induk Tidak Boleh Akun Itu Sendiri",
+    );
+  }
+
   if (selfId !== null && isDescendant(parent.id, selfId)) {
     return fieldError(
       400,
       "parentAccountId",
-      "Akun Induk Tidak Boleh Akun Itu Sendiri atau Turunannya",
+      "Akun Induk Tidak Boleh Membentuk Siklus",
     );
   }
 
@@ -136,7 +190,7 @@ function parentFailure(
     return fieldError(
       400,
       "parentAccountId",
-      `Akun Tidak Boleh Lebih Dalam dari ${MAX_DEPTH} Tingkat`,
+      `Akun Tidak Boleh Lebih Dari ${MAX_DEPTH} Tingkat`,
     );
   }
 
@@ -145,6 +199,16 @@ function parentFailure(
 
 const hasChildren = (id: number) =>
   ACCOUNT.some((row) => isLive(row) && row.parentAccountId === id);
+
+// `1`/`true`/`0`/`false` bebas huruf besar-kecil; tidak terbaca = tidak menyaring.
+const boolParam = (value: string | null) => {
+  const text = (value ?? "").toLowerCase();
+
+  if (text === "1" || text === "true") return true;
+  if (text === "0" || text === "false") return false;
+
+  return null;
+};
 
 const actionOf = (method: string) =>
   method === "POST"
@@ -179,7 +243,7 @@ export const akunMock: MockHandler = async ({
 
     const filter = (url.searchParams.get("filter") ?? "").toLowerCase();
     const type = url.searchParams.get("type");
-    const isActive = url.searchParams.get("isActive");
+    const isActive = boolParam(url.searchParams.get("isActive"));
     const parentAccountId = url.searchParams.get("parentAccountId");
     const rows = process.env.MOCK_NO_ACCOUNTS
       ? []
@@ -190,12 +254,12 @@ export const akunMock: MockHandler = async ({
               row.code.toLowerCase().includes(filter) ||
               row.name.toLowerCase().includes(filter)) &&
             (!type || row.type === type) &&
-            (!isActive || row.isActive === (isActive === "true")) &&
+            (isActive === null || row.isActive === isActive) &&
             (!parentAccountId ||
               row.parentAccountId === Number(parentAccountId)),
         )
           .sort((a, b) => a.code.localeCompare(b.code, "id"))
-          .map(accountView);
+          .map(view);
 
     return list(rows, url, "Akun", "Akun");
   }
@@ -225,7 +289,7 @@ export const akunMock: MockHandler = async ({
     ACCOUNT.push(row);
 
     return json(
-      { status: 201, message: "Berhasil Membuat Akun", data: accountView(row) },
+      { status: 201, message: "Berhasil Membuat Akun", data: detailView(row) },
       201,
     );
   }
@@ -251,7 +315,8 @@ export const akunMock: MockHandler = async ({
       return fieldError(
         400,
         "type",
-        "Tipe Akun Tidak Dapat Diubah Karena Sudah Dipakai Jurnal",
+        "Tipe Akun Tidak Dapat Diubah Karena Sudah Memiliki Baris Jurnal",
+        "ACCOUNT_TYPE_LOCKED",
       );
     }
 
@@ -263,7 +328,7 @@ export const akunMock: MockHandler = async ({
     return json({
       status: 200,
       message: "Berhasil Memperbarui Akun",
-      data: accountView(row),
+      data: detailView(row),
     });
   }
 
@@ -274,29 +339,24 @@ export const akunMock: MockHandler = async ({
     return json({
       status: 200,
       message: "Berhasil Mendapatkan Akun",
-      data: accountView(row),
+      data: detailView(row),
     });
   }
 
   if (method === "DELETE") {
     if (hasChildren(row.id)) {
-      return json(
-        {
-          status: 400,
-          error: "Akun Tidak Dapat Dihapus Karena Masih Memiliki Sub Akun",
-        },
-        400,
+      return refusal(
+        "ACCOUNT_HAS_CHILDREN",
+        "Akun Tidak Dapat Dihapus Karena Masih Memiliki Akun Turunan",
       );
     }
 
-    if (row.hasJournal) {
-      return json(
-        {
-          status: 400,
-          error:
-            "Akun Tidak Dapat Dihapus Karena Sudah Dipakai Jurnal. Nonaktifkan Saja",
-        },
-        400,
+    const sources = usedBy(row);
+
+    if (sources.length > 0) {
+      return refusal(
+        "ACCOUNT_IN_USE",
+        `Akun Tidak Dapat Dihapus Karena Sudah Dipakai ${sources.join(", ")}. Nonaktifkan Saja`,
       );
     }
 
@@ -305,7 +365,7 @@ export const akunMock: MockHandler = async ({
     return json({
       status: 200,
       message: "Berhasil Menghapus Akun",
-      data: accountView(row),
+      data: detailView(row),
     });
   }
 

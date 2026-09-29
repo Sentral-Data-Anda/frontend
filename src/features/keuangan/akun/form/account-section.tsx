@@ -6,7 +6,7 @@ import { AccountField, ChoiceField, Input } from "@/components/common/control";
 import { ControlField, FormSection, FormWide } from "@/components/common/form";
 import type { AccountType } from "@/types/keuangan";
 
-import { PARENT_NOTE, toAccountCode } from "../model";
+import { ACCOUNT_TYPE_LOCKED_HINT, PARENT_NOTE, toAccountCode } from "../model";
 import { ACCOUNT_STATUS_OPTIONS, ACCOUNT_TYPE_OPTIONS } from "../types";
 
 import { type AccountForm } from "./form-options";
@@ -15,10 +15,11 @@ interface PropTypes {
   form: AccountForm;
   isDisabled: boolean;
   isEdit: boolean;
+  isTypeLocked: boolean;
 }
 
 export const AccountSection = (props: PropTypes) => {
-  const { form, isDisabled, isEdit } = props;
+  const { form, isDisabled, isEdit, isTypeLocked } = props;
 
   const type = useWatch({ control: form.control, name: "type" });
 
@@ -79,7 +80,7 @@ export const AccountSection = (props: PropTypes) => {
                 value={field.value}
                 onValueChange={(value) => onPickType(value, field.onChange)}
                 options={ACCOUNT_TYPE_OPTIONS}
-                disabled={isDisabled}
+                disabled={isDisabled || isTypeLocked}
               />
 
               <p
@@ -90,7 +91,9 @@ export const AccountSection = (props: PropTypes) => {
                 }
               >
                 {fieldState.error?.message ??
-                  "Tipe menentukan laporan tempat akun ini muncul."}
+                  (isTypeLocked
+                    ? ACCOUNT_TYPE_LOCKED_HINT
+                    : "Tipe menentukan laporan tempat akun ini muncul.")}
               </p>
             </div>
           )}

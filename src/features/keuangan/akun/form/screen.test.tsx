@@ -12,7 +12,7 @@ import { afterEach, describe, expect, mock, test } from "bun:test";
 import type { MenuAction } from "@/types/menu";
 
 import { AKUN_LIST_PATH } from "../model";
-import type { Account } from "../types";
+import type { AccountDetail } from "../types";
 
 const actions: { current: MenuAction[] } = { current: [] };
 const replaced: string[] = [];
@@ -43,16 +43,17 @@ afterEach(() => {
   replaced.length = 0;
 });
 
-const DETAIL: Account = {
+const DETAIL: AccountDetail = {
   id: 2,
   publicId: "acc-2",
   code: "1-100",
   name: "Kas",
   type: "ASSET",
   parentAccountId: 1,
-  parent: { code: "1", name: "Aset" },
+  parent: { id: 1, code: "1", name: "Aset", type: "ASSET" },
   isActive: true,
   childCount: 0,
+  hasJournalLines: false,
 };
 
 const DDL = [
@@ -63,6 +64,7 @@ const DDL = [
 type Failure = {
   status: number;
   error: string;
+  code?: string;
   issues?: { path: string; message: string }[];
 };
 
@@ -285,10 +287,12 @@ describe("ubah", () => {
   });
 
   test("tipe ditolak server (400) jatuh ke field tipe", async () => {
-    const message = "Tipe Akun Tidak Dapat Diubah Karena Sudah Dipakai Jurnal";
+    const message =
+      "Tipe Akun Tidak Dapat Diubah Karena Sudah Memiliki Baris Jurnal";
     onMockApi({
       status: 400,
       error: message,
+      code: "ACCOUNT_TYPE_LOCKED",
       issues: [{ path: "type", message }],
     });
     await onRenderLoadedEdit();
@@ -302,10 +306,50 @@ describe("ubah", () => {
   });
 });
 
+// Pesan #10 menyebut sumber yang menghalangi dan boleh berubah; kodenya tidak.
 const IN_USE =
-  "Akun Tidak Dapat Dihapus Karena Sudah Dipakai Jurnal. Nonaktifkan Saja";
+  "Akun Tidak Dapat Dihapus Karena Sudah Dipakai Baris Jurnal, Setelan Akuntansi. Nonaktifkan Saja";
 
-const HAS_CHILDREN = "Akun Tidak Dapat Dihapus Karena Masih Memiliki Sub Akun";
+const HAS_CHILDREN =
+  "Akun Tidak Dapat Dihapus Karena Masih Memiliki Akun Turunan";
+
+describe("tipe terkunci oleh hasJournalLines", () => {
+  test("akun berbaris jurnal: field Tipe mati dengan alasannya", async () => {
+    globalThis.fetch = (async (input: RequestInfo | URL) =>
+      String(input).startsWith("/api/v1/ddl/account")
+        ? Response.json({ status: 200, totalData: 0, totalPage: 0, data: [] })
+        : Response.json({
+            status: 200,
+            message: "OK",
+            data: { ...DETAIL, hasJournalLines: true },
+          })) as typeof fetch;
+
+    actions.current = ["VIEW", "UPDATE"];
+    onRenderForm(["VIEW", "UPDATE"], "1-100");
+
+    await waitFor(() =>
+      expect(
+        (screen.getByRole("radio", { name: "Beban" }) as HTMLInputElement)
+          .disabled,
+      ).toBe(true),
+    );
+    expect(
+      screen.getByText(
+        "Tipe tidak dapat diubah karena akun sudah dipakai jurnal.",
+      ),
+    ).toBeTruthy();
+  });
+
+  test("akun tanpa baris jurnal: field Tipe tetap hidup", async () => {
+    onMockApi();
+    await onRenderLoadedEdit();
+
+    expect(
+      (screen.getByRole("radio", { name: "Beban" }) as HTMLInputElement)
+        .disabled,
+    ).toBe(false);
+  });
+});
 
 describe("hapus", () => {
   test("Hapus hanya di form ubah dengan DELETE", async () => {
@@ -323,7 +367,7 @@ describe("hapus", () => {
   });
 
   test("berjurnal (400): pesan server + Nonaktifkan mengisi status dan mengotori form", async () => {
-    onMockApi({ status: 400, error: IN_USE });
+    onMockApi({ status: 400, error: IN_USE, code: "ACCOUNT_IN_USE" });
     await onRenderLoadedEdit(["UPDATE", "DELETE"]);
 
     fireEvent.click(screen.getByRole("button", { name: "Hapus" }));
@@ -341,7 +385,11 @@ describe("hapus", () => {
   });
 
   test("punya sub akun (400): Nonaktifkan tidak ditawarkan", async () => {
-    onMockApi({ status: 400, error: HAS_CHILDREN });
+    onMockApi({
+      status: 400,
+      error: HAS_CHILDREN,
+      code: "ACCOUNT_HAS_CHILDREN",
+    });
     await onRenderLoadedEdit(["UPDATE", "DELETE"]);
 
     fireEvent.click(screen.getByRole("button", { name: "Hapus" }));

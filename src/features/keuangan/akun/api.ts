@@ -7,7 +7,7 @@ import type { ListFilterSchema, ListState } from "@/hooks/use-list-params";
 import { useListQuery } from "@/hooks/use-list-query";
 import { fetchList, fetchOne } from "@/lib/api/fetcher";
 
-import type { Account, AccountPayload } from "./types";
+import type { Account, AccountDetail, AccountPayload } from "./types";
 
 export const accountKeys = {
   all: ["account"] as const,
@@ -38,7 +38,7 @@ export function useAccountList(params: ListState) {
 export function useAccountDetail(code: string | undefined) {
   return useQuery({
     queryKey: accountKeys.detail(code ?? ""),
-    queryFn: () => fetchOne<Account>(accountPath(code)),
+    queryFn: () => fetchOne<AccountDetail>(accountPath(code)),
     enabled: Boolean(code),
     staleTime: 0,
     select: (response) => response.data,

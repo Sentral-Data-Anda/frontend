@@ -7,6 +7,7 @@ import {
   editHref,
   menuHref,
 } from "@/config/menu";
+import { FetchError } from "@/lib/api/fetcher";
 import { collapseSpaces } from "@/lib/name";
 import { ACCOUNT_TYPES } from "@/types/keuangan";
 
@@ -73,10 +74,15 @@ export const childCountLabel = (count: number) =>
   count > 0 ? `${count} sub akun` : null;
 
 export const accountDeleteText = (account: Pick<Account, "code" | "name">) =>
-  `Apakah Anda ingin menghapus akun ${account.code} — ${account.name}? Akun yang sudah dipakai jurnal tidak bisa dihapus, hanya dinonaktifkan.`;
+  `Apakah Anda ingin menghapus akun ${account.code} — ${account.name}? Akun yang sudah dipakai tidak bisa dihapus, hanya dinonaktifkan.`;
 
-export const isDeactivateOffered = (message: string) =>
-  /nonaktifkan|jurnal/i.test(message);
+export const ACCOUNT_IN_USE = "ACCOUNT_IN_USE";
+
+export const ACCOUNT_TYPE_LOCKED_HINT =
+  "Tipe tidak dapat diubah karena akun sudah dipakai jurnal.";
+
+export const isDeactivateOffered = (error: unknown) =>
+  error instanceof FetchError && error.code === ACCOUNT_IN_USE;
 
 export const accountFormSchema = z.object({
   code: z

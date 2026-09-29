@@ -73,7 +73,7 @@ const CHILD: Account = {
   name: "Kas",
   type: "ASSET",
   parentAccountId: 1,
-  parent: { code: "1", name: "Aset" },
+  parent: { id: 1, code: "1", name: "Aset", type: "ASSET" },
   isActive: false,
   childCount: 0,
 };
