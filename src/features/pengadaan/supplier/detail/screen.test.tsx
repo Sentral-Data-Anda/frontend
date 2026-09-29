@@ -1,27 +1,19 @@
-import { Toast } from "@base-ui/react/toast";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import {
-  cleanup,
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from "@testing-library/react";
+import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, mock, test } from "bun:test";
 
 import { MENU, type MenuSlug } from "@/config/menu";
 import type { MenuAction } from "@/types/menu";
 
-import { SUPPLIER_LIST_PATH, supplierEditHref } from "../model";
+import { supplierEditHref } from "../model";
 import type { Supplier } from "../types";
 
 const grants: { current: Partial<Record<MenuSlug, MenuAction[]>> } = {
   current: {},
 };
-const replaced: string[] = [];
 
 mock.module("next/navigation", () => ({
-  useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
+  useRouter: () => ({ replace: () => {} }),
   usePathname: () => "/pengadaan/supplier/SUP-0001",
   useSearchParams: () => new URLSearchParams(),
 }));
@@ -47,7 +39,6 @@ const CODE = "SUP-0001";
 afterEach(() => {
   cleanup();
   globalThis.fetch = originalFetch;
-  replaced.length = 0;
 });
 
 const SUPPLIER: Supplier = {
@@ -66,29 +57,12 @@ const SUPPLIER: Supplier = {
   isActive: true,
 };
 
-const IN_USE =
-  "Supplier Tidak Dapat Dihapus Karena Terhubung dengan Data Pengadaan. Nonaktifkan Saja";
-
-const onRender = (
-  granted: Partial<Record<MenuSlug, MenuAction[]>>,
-  options: { remove?: 200 | 400 } = {},
-) => {
+const onRender = (granted: Partial<Record<MenuSlug, MenuAction[]>>) => {
   const calls: string[] = [];
 
   grants.current = granted;
   globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
-    const method = init?.method ?? "GET";
-    calls.push(`${method} ${String(input)}`);
-
-    if (method === "DELETE") {
-      return options.remove === 400
-        ? Response.json({ status: 400, error: IN_USE }, { status: 400 })
-        : Response.json({
-            status: 200,
-            message: "Berhasil Menghapus Supplier",
-            data: SUPPLIER,
-          });
-    }
+    calls.push(`${init?.method ?? "GET"} ${String(input)}`);
 
     return Response.json({ status: 200, data: SUPPLIER });
   }) as typeof fetch;
@@ -99,9 +73,7 @@ const onRender = (
         new QueryClient({ defaultOptions: { queries: { retry: false } } })
       }
     >
-      <Toast.Provider>
-        <SupplierDetailScreen code={CODE} />
-      </Toast.Provider>
+      <SupplierDetailScreen code={CODE} />
     </QueryClientProvider>,
   );
 
@@ -136,15 +108,15 @@ describe("halaman supplier", () => {
       screen.getByText("BCA · 8200331145 a.n. CV Sinar Teknik"),
     ).toBeTruthy();
     expect(screen.queryByRole("link", { name: "Ubah" })).toBeNull();
-    expect(screen.queryByRole("button", { name: "Hapus supplier" })).toBeNull();
+    expect(screen.queryByRole("button", { name: /Hapus/ })).toBeNull();
     expect(
       screen.queryByRole("link", { name: "Lihat pesanan supplier ini" }),
     ).toBeNull();
   });
 
-  test("tautan pesanan hanya dengan PESANAN_PEMBELIAN VIEW", async () => {
+  test("tautan pesanan hanya dengan PESANAN_PEMBELIAN VIEW; hapus tidak di halaman ini", async () => {
     onRender({
-      [MENU.SUPPLIER]: ["VIEW", "UPDATE"],
+      [MENU.SUPPLIER]: ["VIEW", "UPDATE", "DELETE"],
       [MENU.PESANAN_PEMBELIAN]: ["VIEW"],
     });
 
@@ -156,39 +128,6 @@ describe("halaman supplier", () => {
     expect(
       screen.getByRole("link", { name: "Ubah" }).getAttribute("href"),
     ).toBe(supplierEditHref(CODE));
-  });
-
-  test("hapus: konfirmasi preset, Ya menghapus lalu kembali ke daftar", async () => {
-    const calls = onRender({ [MENU.SUPPLIER]: ["VIEW", "DELETE"] });
-
-    fireEvent.click(
-      await screen.findByRole("button", { name: "Hapus supplier" }),
-    );
-    expect(
-      await screen.findByText("Apakah Anda ingin menghapus supplier ini?"),
-    ).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: "Ya" }));
-
-    await waitFor(() => expect(replaced).toEqual([SUPPLIER_LIST_PATH]));
-    expect(calls).toContain(`DELETE /api/v1/supplier/${CODE}`);
-  });
-
-  test("hapus dipakai (400): FormAlert pesan server + Nonaktifkan membuka form ubah", async () => {
-    onRender(
-      { [MENU.SUPPLIER]: ["VIEW", "UPDATE", "DELETE"] },
-      { remove: 400 },
-    );
-
-    fireEvent.click(
-      await screen.findByRole("button", { name: "Hapus supplier" }),
-    );
-    fireEvent.click(await screen.findByRole("button", { name: "Ya" }));
-
-    expect(await screen.findByText(IN_USE)).toBeTruthy();
-    expect(screen.getByText("Supplier belum terhapus.")).toBeTruthy();
-    expect(
-      screen.getByRole("link", { name: "Nonaktifkan" }).getAttribute("href"),
-    ).toBe(supplierEditHref(CODE));
-    expect(replaced).toEqual([]);
+    expect(screen.queryByRole("button", { name: /Hapus/ })).toBeNull();
   });
 });

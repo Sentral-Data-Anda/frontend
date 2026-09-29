@@ -2,16 +2,11 @@
 
 import { Pencil } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 
 import { Button, buttonVariants } from "@/components/common/control";
 import { DescriptionSkeleton, Panel } from "@/components/common/display";
-import { EmptyState, useToast } from "@/components/common/feedback";
-import {
-  FormConfirmDialog,
-  FormNotFound,
-  useFormConfirm,
-} from "@/components/common/form";
+import { EmptyState } from "@/components/common/feedback";
+import { FormNotFound } from "@/components/common/form";
 import { PageHeader } from "@/components/layout";
 import { MENU, domainHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
@@ -19,10 +14,9 @@ import { useListReturn } from "@/hooks/use-list-return";
 import { FetchError } from "@/lib/api/fetcher";
 import { cn } from "@/lib/utils";
 
-import { useDeleteSupplier, useSupplierDetail } from "../api";
+import { useSupplierDetail } from "../api";
 import { SUPPLIER_LIST_PATH, supplierEditHref } from "../model";
 
-import { DeleteAction } from "./delete-action";
 import { OrdersPanel } from "./orders-panel";
 import { ProfilePanel } from "./profile-panel";
 
@@ -35,28 +29,13 @@ interface PropTypes {
 export const SupplierDetailScreen = (props: PropTypes) => {
   const { code } = props;
 
-  const router = useRouter();
-  const toast = useToast();
-  const { isCanView, isCanUpdate, isCanDelete } = useMenuAccess(MENU.SUPPLIER);
+  const { isCanView, isCanUpdate } = useMenuAccess(MENU.SUPPLIER);
   const orderAccess = useMenuAccess(MENU.PESANAN_PEMBELIAN);
   const listReturn = useListReturn(SUPPLIER_LIST_PATH);
   const detail = useSupplierDetail(isCanView ? code : undefined);
-  const deleteSupplier = useDeleteSupplier(code);
-  const confirm = useFormConfirm();
   const supplier = detail.data;
   const isNotFound =
     detail.error instanceof FetchError && detail.error.status === 404;
-  const deleteError = deleteSupplier.error;
-  const isInUse =
-    deleteError instanceof FetchError && deleteError.status === 400;
-
-  const onDelete = () =>
-    deleteSupplier.mutate(undefined, {
-      onSuccess: (deleted) => {
-        toast.add({ title: deleted.message });
-        router.replace(listReturn);
-      },
-    });
 
   if (!isCanView) {
     return (
@@ -141,19 +120,6 @@ export const SupplierDetailScreen = (props: PropTypes) => {
       <div className="flex flex-wrap items-start gap-4 px-gutter">
         <div className="min-w-0 flex-[999_1_32rem]">
           <ProfilePanel supplier={supplier} />
-
-          {isCanDelete ? (
-            <DeleteAction
-              isDeleting={deleteSupplier.isPending}
-              error={deleteError?.message ?? null}
-              deactivateHref={
-                isInUse && isCanUpdate && supplier.isActive
-                  ? supplierEditHref(supplier.code)
-                  : null
-              }
-              onDelete={() => confirm.onOpen("delete")}
-            />
-          ) : null}
         </div>
 
         {orderAccess.isCanView ? (
@@ -162,15 +128,6 @@ export const SupplierDetailScreen = (props: PropTypes) => {
           </div>
         ) : null}
       </div>
-
-      <FormConfirmDialog
-        confirm={confirm}
-        noun="supplier"
-        descriptions={{
-          delete: "Apakah Anda ingin menghapus supplier ini?",
-        }}
-        onDelete={onDelete}
-      />
     </div>
   );
 };

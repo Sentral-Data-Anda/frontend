@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 
 import { Button } from "@/components/common/control";
 import { useToast } from "@/components/common/feedback";
@@ -25,7 +25,7 @@ import { FetchError } from "@/lib/api/fetcher";
 import { applyServerError, FIRST_INVALID, revealField } from "@/lib/form-error";
 import { saveListFocus } from "@/lib/list-return";
 
-import { useSaveSupplier, useSupplierDetail } from "../api";
+import { useDeleteSupplier, useSaveSupplier, useSupplierDetail } from "../api";
 import {
   EMPTY_SUPPLIER_FORM,
   SUPPLIER_LIST_PATH,
@@ -50,13 +50,17 @@ export const SupplierFormScreen = (props: PropTypes) => {
   const router = useRouter();
   const toast = useToast();
   const isEdit = Boolean(code);
-  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.SUPPLIER);
+  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+    MENU.SUPPLIER,
+  );
   const listReturn = useListReturn(SUPPLIER_LIST_PATH);
   const [rejectedField, setRejectedField] = useState<string | null>(null);
   const saveSupplier = useSaveSupplier(code);
+  const deleteSupplier = useDeleteSupplier(code);
   const detail = useSupplierDetail(isCanUpdate ? code : undefined);
   const confirm = useFormConfirm();
   const saveRef = useRef<HTMLButtonElement>(null);
+  const deleteRef = useRef<HTMLButtonElement>(null);
 
   const form = useForm<SupplierFormValues>({
     resolver: zodResolver(supplierFormSchema),
@@ -66,12 +70,17 @@ export const SupplierFormScreen = (props: PropTypes) => {
     defaultValues: EMPTY_SUPPLIER_FORM,
   });
 
+  const status = useWatch({ control: form.control, name: "isActive" });
   const { isDirty, isSubmitting, submitCount } = form.formState;
   const rootError = form.formState.errors.root?.message;
+  const isBusy = isSubmitting || deleteSupplier.isPending;
   const isHidden = isEdit && !detail.data;
-  const isLocked = isSubmitting || isHidden;
+  const isLocked = isBusy || isHidden;
   const isNotFound =
     detail.error instanceof FetchError && detail.error.status === 404;
+  const deleteError = deleteSupplier.error;
+  const isInUse =
+    deleteError instanceof FetchError && deleteError.status === 400;
 
   const onLeave = () => router.replace(listReturn);
 
@@ -89,6 +98,7 @@ export const SupplierFormScreen = (props: PropTypes) => {
 
   const onSave = form.handleSubmit(async (values) => {
     form.clearErrors("root");
+    deleteSupplier.reset();
     setRejectedField(null);
 
     try {
@@ -103,6 +113,25 @@ export const SupplierFormScreen = (props: PropTypes) => {
       );
     }
   }, onInvalid);
+
+  const onDelete = () => {
+    form.clearErrors("root");
+    deleteSupplier.mutate(undefined, {
+      onSuccess: (deleted) => {
+        toast.add({ title: deleted.message });
+        router.replace(listReturn);
+      },
+    });
+  };
+
+  const onDeactivate = () => {
+    form.setValue("isActive", "false", { shouldDirty: true });
+    revealField("isActive");
+    // Fieldset tidak bisa difokus, dan tombol ini hilang sesudah diklik.
+    document
+      .querySelector<HTMLInputElement>('input[name="isActive"][value="false"]')
+      ?.focus({ preventScroll: true });
+  };
 
   const onRetryDetail = () => void detail.refetch();
 
@@ -129,6 +158,10 @@ export const SupplierFormScreen = (props: PropTypes) => {
     if (rejectedField === "root") saveRef.current?.focus();
     else revealField(rejectedField);
   }, [isSubmitting, submitCount, rejectedField]);
+
+  useEffect(() => {
+    if (deleteSupplier.isError) deleteRef.current?.focus();
+  }, [deleteSupplier.isError]);
 
   if (!(isEdit ? isCanUpdate : isCanCreate)) {
     return (
@@ -160,10 +193,22 @@ export const SupplierFormScreen = (props: PropTypes) => {
       onSubmit={onConfirm}
       actions={
         <FormActions>
+          {isEdit && isCanDelete ? (
+            <Button
+              ref={deleteRef}
+              type="button"
+              variant="destructive"
+              disabled={isLocked}
+              onClick={() => confirm.onOpen("delete")}
+            >
+              {deleteSupplier.isPending ? "Menghapus…" : "Hapus"}
+            </Button>
+          ) : null}
+
           <Button
             type="button"
             variant="outline"
-            disabled={isSubmitting}
+            disabled={isBusy}
             onClick={() => confirm.onCancel(isDirty, onLeave)}
           >
             Batal
@@ -206,25 +251,41 @@ export const SupplierFormScreen = (props: PropTypes) => {
       ) : null}
 
       <div className={isHidden ? "hidden" : undefined}>
-        <IdentitySection form={form} isDisabled={isSubmitting} />
-        <TaxSection form={form} isDisabled={isSubmitting} />
-        <BankSection form={form} isDisabled={isSubmitting} />
+        <IdentitySection form={form} isDisabled={isBusy} />
+        <TaxSection form={form} isDisabled={isBusy} />
+        <BankSection form={form} isDisabled={isBusy} />
       </div>
 
-      {rootError ? (
-        <div className="px-gutter pb-4">
+      <div className="space-y-3 px-gutter pb-4 empty:hidden">
+        {rootError ? (
           <FormAlert
             title="Data belum tersimpan. Coba simpan lagi."
             message={rootError}
           />
-        </div>
-      ) : null}
+        ) : null}
+
+        {deleteError ? (
+          <div className="flex flex-col items-start gap-2">
+            <FormAlert
+              title="Supplier belum terhapus."
+              message={deleteError.message}
+            />
+            {isInUse && status === "true" ? (
+              <Button type="button" variant="outline" onClick={onDeactivate}>
+                Nonaktifkan
+              </Button>
+            ) : null}
+          </div>
+        ) : null}
+      </div>
 
       <FormConfirmDialog
         confirm={confirm}
         noun="supplier"
+        descriptions={{ delete: "Apakah Anda ingin menghapus supplier ini?" }}
         onSave={() => void onSave()}
         onLeave={onLeave}
+        onDelete={onDelete}
       />
     </FormLayout>
   );

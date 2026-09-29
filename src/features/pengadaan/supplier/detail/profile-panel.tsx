@@ -20,6 +20,8 @@ interface PropTypes {
 export const ProfilePanel = (props: PropTypes) => {
   const { supplier } = props;
 
+  const bankAccount = bankAccountOf(supplier);
+
   return (
     <Panel label="Data supplier">
       <DescriptionList className="px-gutter py-2">
@@ -55,8 +57,8 @@ export const ProfilePanel = (props: PropTypes) => {
           </span>
         </DescriptionItem>
         <DescriptionItem label="Rekening" isWide>
-          {bankAccountOf(supplier) ? (
-            <span className="tabular-nums">{bankAccountOf(supplier)}</span>
+          {bankAccount ? (
+            <span className="tabular-nums">{bankAccount}</span>
           ) : (
             <OptionalText empty="Tanpa rekening" />
           )}

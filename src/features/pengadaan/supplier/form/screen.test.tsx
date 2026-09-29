@@ -81,6 +81,18 @@ const onMockApi = (failure?: Failure) => {
           );
     }
 
+    if (method === "DELETE") {
+      calls.push({ method });
+
+      return failure
+        ? Response.json(failure, { status: failure.status })
+        : Response.json({
+            status: 200,
+            message: "Berhasil Menghapus Supplier",
+            data: DETAIL,
+          });
+    }
+
     calls.push({ method, body: JSON.parse(String(init?.body)) });
 
     if (failure) return Response.json(failure, { status: failure.status });
@@ -117,8 +129,8 @@ const onRenderForm = (granted: MenuAction[], code?: string) => {
   );
 };
 
-const onRenderLoadedEdit = async () => {
-  onRenderForm(["VIEW", "UPDATE"], "SUP-0005");
+const onRenderLoadedEdit = async (granted: MenuAction[] = ["UPDATE"]) => {
+  onRenderForm(["VIEW", ...granted], "SUP-0005");
 
   await waitFor(() =>
     expect((screen.getByLabelText("Nama") as HTMLInputElement).value).toBe(
@@ -280,5 +292,66 @@ describe("ubah", () => {
       await screen.findByText("Data supplier tidak ditemukan"),
     ).toBeTruthy();
     expect(screen.queryByLabelText("Nama")).toBeNull();
+  });
+});
+
+const IN_USE =
+  "Supplier Tidak Dapat Dihapus Karena Terhubung dengan Data Pengadaan. Nonaktifkan Saja";
+
+const isChecked = (label: string) =>
+  (screen.getByRole("radio", { name: label }) as HTMLInputElement).checked;
+
+describe("hapus", () => {
+  test("Hapus hanya di form ubah dengan DELETE", async () => {
+    onMockApi();
+    onRenderForm(["VIEW", "CREATE", "DELETE"]);
+    expect(screen.queryByRole("button", { name: "Hapus" })).toBeNull();
+
+    cleanup();
+    await onRenderLoadedEdit();
+    expect(screen.queryByRole("button", { name: "Hapus" })).toBeNull();
+
+    cleanup();
+    await onRenderLoadedEdit(["UPDATE", "DELETE"]);
+    expect(screen.getByRole("button", { name: "Hapus" })).toBeTruthy();
+  });
+
+  test("Ya menghapus lalu kembali ke daftar", async () => {
+    const calls = onMockApi();
+    await onRenderLoadedEdit(["UPDATE", "DELETE"]);
+
+    fireEvent.click(screen.getByRole("button", { name: "Hapus" }));
+    expect(
+      await screen.findByText("Apakah Anda ingin menghapus supplier ini?"),
+    ).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Ya" }));
+
+    await waitFor(() => expect(replaced).toEqual([SUPPLIER_LIST_PATH]));
+    expect(calls).toEqual([{ method: "DELETE" }]);
+  });
+
+  test("dipakai (400): pesan server + Nonaktifkan mengisi status dan membuat form kotor", async () => {
+    onMockApi({ status: 400, error: IN_USE });
+    await onRenderLoadedEdit(["UPDATE", "DELETE"]);
+
+    fireEvent.click(screen.getByRole("button", { name: "Hapus" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Ya" }));
+
+    expect(await screen.findByText(IN_USE)).toBeTruthy();
+    expect(screen.getByText("Supplier belum terhapus.")).toBeTruthy();
+    expect(replaced).toEqual([]);
+    expect(isChecked("Aktif")).toBe(true);
+
+    fireEvent.click(screen.getByRole("button", { name: "Nonaktifkan" }));
+
+    await waitFor(() => expect(isChecked("Nonaktif")).toBe(true));
+    expect(screen.queryByRole("button", { name: "Nonaktifkan" })).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: "Batal" }));
+    expect(
+      await screen.findByText(
+        "Apakah Anda ingin membatalkan? Perubahan yang belum disimpan akan hilang.",
+      ),
+    ).toBeTruthy();
   });
 });
