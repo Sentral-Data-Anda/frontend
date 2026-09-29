@@ -54,23 +54,8 @@ const invalid = (issues: Issue[], status = 400) =>
 
 const serverError = () => failure(500, "Internal Server Error");
 
-// Store belum mencatat pengaju persetujuan; di mock pengaju = peminta.
-const viewOf = (row: PurchaseRequestRow, isDetail = false) => {
-  const view = purchaseRequestView(row, isDetail);
-
-  return {
-    ...view,
-    approval: view.approval
-      ? {
-          ...view.approval,
-          isSubmittedByViewer: row.requestedBy === SESSION_USER_ID,
-        }
-      : null,
-  };
-};
-
 const ok = (message: string, row: PurchaseRequestRow, status = 200) =>
-  json({ status, message, data: viewOf(row, true) }, status);
+  json({ status, message, data: purchaseRequestView(row, true) }, status);
 
 const text = (form: FormData, key: string) => {
   const value = form.get(key);
@@ -343,10 +328,6 @@ const onDelete = (code: string) => {
 };
 
 const onSubmit = (row: PurchaseRequestRow) => {
-  if (row.status === "PENDING_APPROVAL") {
-    return failure(400, "Permintaan Pembelian Ini Sudah Diajukan");
-  }
-
   const result = submitPurchaseRequest(row);
   if ("failure" in result) {
     return failure(result.failure.status, result.failure.message);
@@ -374,7 +355,7 @@ const onWithdraw = (row: PurchaseRequestRow) => {
   if (latestApprovalOf(row)?.status !== "PENDING") {
     return failure(400, "Permintaan Persetujuan Ini Sudah Selesai");
   }
-  if (row.requestedBy !== SESSION_USER_ID) {
+  if (latestApprovalOf(row)?.submittedBy !== SESSION_USER_ID) {
     return failure(403, "Hanya Pengaju Yang Dapat Menarik Permintaan Ini");
   }
 
@@ -414,7 +395,7 @@ const listRows = (url: URL) => {
         ),
     )
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt) || b.id - a.id)
-    .map((row) => viewOf(row));
+    .map((row) => purchaseRequestView(row));
 };
 
 export const permintaanPembelianMock: MockHandler = async (ctx) => {

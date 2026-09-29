@@ -51,6 +51,9 @@ export const SummaryPanel = (props: PropTypes) => {
   return (
     <Panel label="Ringkasan permintaan">
       <DescriptionList className="px-gutter py-2">
+        <DescriptionItem label="Keperluan" isWide isStacked>
+          <span className="wrap-break-word">{request.purpose}</span>
+        </DescriptionItem>
         <DescriptionItem label="Badan pelayanan">
           {request.bapel?.name ?? "—"}
         </DescriptionItem>

@@ -95,7 +95,15 @@ describe("daftar dan detail", () => {
     const detail = await onCall(`/permintaan-pembelian/${code.toLowerCase()}`);
 
     expect(detail.body.data.code).toBe(code);
-    expect(Array.isArray(detail.body.data.attachments)).toBe(true);
+    expect(
+      (detail.body.data.attachments as unknown as { name: string }[]).map(
+        (item) => item.name,
+      ),
+    ).toEqual(["Penawaran Toko Musik"]);
+    expect(
+      (detail.body.data.items as unknown as { estimatedUnitPrice: string }[])[0]
+        ?.estimatedUnitPrice,
+    ).toBe("1250000");
     expect(
       (await onCall(`/permintaan-pembelian/${code}`, {}, () => false)).status,
     ).toBe(403);
@@ -112,8 +120,12 @@ describe("simpan", () => {
     expect(saved.status).toBe(201);
     expect(saved.body.data.status).toBe("DRAFT");
     expect(saved.body.data.purpose).toBe("Perlengkapan retret");
-    expect(saved.body.data.totalEstimatedIDR).toBe("170000.00");
-    expect(saved.body.data.attachments).toHaveLength(1);
+    expect(saved.body.data.totalEstimatedIDR).toBe("170000");
+    expect(
+      (saved.body.data.attachments as unknown as { name: string }[]).map(
+        (item) => item.name,
+      ),
+    ).toEqual(["penawaran"]);
   });
 
   test("galat zod memakai path items.<i>.<field>", async () => {
@@ -225,6 +237,18 @@ describe("ajukan dan tarik", () => {
 
     expect(submitted.body.error).toBe(
       "Belum Ada Alur Persetujuan Untuk Dokumen Dengan Nominal Ini",
+    );
+  });
+
+  test("ajukan permintaan Menunggu → Sudah Diajukan", async () => {
+    const submitted = await onCall(
+      `/permintaan-pembelian/${codeOfStatus("PENDING_APPROVAL")}/pengajuan`,
+      { method: "POST" },
+    );
+
+    expect(submitted.status).toBe(400);
+    expect(submitted.body.error).toBe(
+      "Permintaan Pembelian Ini Sudah Diajukan",
     );
   });
 

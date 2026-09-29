@@ -74,7 +74,7 @@ const DETAIL: PurchaseRequestDetail = {
       publicId: "i1",
       name: "Kaos",
       quantity: 30,
-      estimatedUnitPrice: "95000.00",
+      estimatedUnitPrice: "95000",
     },
   ],
   orderedTotalIDR: "0",

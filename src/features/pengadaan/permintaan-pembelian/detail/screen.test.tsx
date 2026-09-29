@@ -187,6 +187,11 @@ describe("aksi per status", () => {
       screen.getByRole("link", { name: "Ajukan ulang" }).getAttribute("href"),
     ).toBe(`/pengadaan/permintaan-pembelian/baru?salin=${row.code}`);
     expect(screen.getByText(/Catatan penolak: Kas komisi/)).toBeTruthy();
+    expect(
+      within(
+        screen.getByRole("region", { name: "Ringkasan permintaan" }),
+      ).getByText(row.purpose),
+    ).toBeTruthy();
   });
 
   test("Disetujui: Buat pesanan hanya dengan PESANAN CREATE", async () => {
