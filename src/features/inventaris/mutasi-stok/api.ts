@@ -6,7 +6,6 @@ import { ddlKeys, ddlSearchPath } from "@/hooks/use-ddl-options";
 import type { ListState } from "@/hooks/use-list-params";
 import { useListQuery } from "@/hooks/use-list-query";
 import { fetchList, fetchOne } from "@/lib/api/fetcher";
-import type { ApiListResponse } from "@/types/api";
 
 import { toMutasiApiFilters } from "./model";
 import type { Movement, MovementPayload, StockOption } from "./types";
@@ -42,21 +41,6 @@ export function usePresetStock(code: string) {
         (row) => row.code.toLowerCase() === code.toLowerCase(),
       ) ?? null,
   });
-}
-
-// Baris ddl mentah (stok, satuan) dibaca dari cache pencarian `useDdlSearch`.
-export function useStockRow(id: string) {
-  const queryClient = useQueryClient();
-
-  if (!id) return undefined;
-
-  return queryClient
-    .getQueriesData<ApiListResponse<StockOption>>({
-      queryKey: ddlKeys.all,
-      predicate: (query) => isStockDdl(query.queryKey),
-    })
-    .flatMap(([, response]) => response?.data ?? [])
-    .find((row) => String(row.id) === id);
 }
 
 export function useCreateMutasi() {

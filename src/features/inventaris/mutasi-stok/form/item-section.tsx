@@ -15,12 +15,16 @@ interface PropTypes {
   isDisabled: boolean;
   pinned: SelectOption | null;
   picked: StockOption | undefined;
+  onPickStock: (row: StockOption | null) => void;
 }
 
 export const ItemSection = (props: PropTypes) => {
-  const { form, isDisabled, pinned, picked } = props;
+  const { form, isDisabled, pinned, picked, onPickStock } = props;
 
   const stock = useDdlSearch<StockOption>(STOCK_DDL, "id", pinned, stockHintOf);
+
+  const onPick = (value: string) =>
+    onPickStock(stock.rows.find((row) => String(row.id) === value) ?? null);
 
   return (
     <FormSection legend="Barang" disabled={isDisabled}>
@@ -33,7 +37,10 @@ export const ItemSection = (props: PropTypes) => {
         {(field) => (
           <ComboboxField
             value={field.value}
-            onValueChange={field.onChange}
+            onValueChange={(value) => {
+              field.onChange(value);
+              onPick(value);
+            }}
             options={stock.options}
             isLoading={stock.isLoading}
             onSearch={stock.onSearch}

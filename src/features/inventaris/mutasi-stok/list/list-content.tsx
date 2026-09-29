@@ -37,7 +37,11 @@ export const MutasiListContent = () => {
         backHref={domainHref(MENU.INVENTARIS)}
         action={
           isCanCreate ? (
-            <PageHeaderAdd href={MUTASI_CREATE_PATH} label="Catat mutasi" />
+            <PageHeaderAdd
+              href={MUTASI_CREATE_PATH}
+              label="Catat mutasi"
+              text="Catat mutasi"
+            />
           ) : null
         }
       />

@@ -22,7 +22,7 @@ import { useListReturn } from "@/hooks/use-list-return";
 import { applyServerError, FIRST_INVALID, revealField } from "@/lib/form-error";
 import { saveListFocus } from "@/lib/list-return";
 
-import { useCreateMutasi, usePresetStock, useStockRow } from "../api";
+import { useCreateMutasi, usePresetStock } from "../api";
 import {
   MUTASI_LIST_PATH,
   emptyMovementForm,
@@ -33,6 +33,7 @@ import {
   toMovementPayload,
   type MovementFormValues,
 } from "../model";
+import type { StockOption } from "../types";
 
 import { ItemSection } from "./item-section";
 import { MovementSection } from "./movement-section";
@@ -64,8 +65,12 @@ export const MutasiFormScreen = () => {
   const { isDirty, isSubmitting, submitCount } = form.formState;
   const rootError = form.formState.errors.root?.message;
   const stockItemId = useWatch({ control: form.control, name: "stockItemId" });
-  const stock = useStockRow(stockItemId);
+  const [pickedRow, setPickedRow] = useState<StockOption | null>(null);
   const presetRow = preset.data;
+  const stock =
+    [pickedRow, presetRow].find(
+      (row) => row && String(row.id) === stockItemId,
+    ) ?? undefined;
   const pinned = presetRow
     ? {
         value: String(presetRow.id),
@@ -184,6 +189,7 @@ export const MutasiFormScreen = () => {
         isDisabled={isSubmitting}
         pinned={pinned}
         picked={stock}
+        onPickStock={setPickedRow}
       />
       <MovementSection form={form} isDisabled={isSubmitting} stock={stock} />
 
