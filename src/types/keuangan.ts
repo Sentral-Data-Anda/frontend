@@ -110,16 +110,9 @@ export const ACCOUNTING_SETTING_KEYS = [
   "PERSEMBAHAN_KAS",
   "PERSEMBAHAN_BANK",
   "PERSEMBAHAN_GATEWAY",
+  "PENDAPATAN_EVENT",
   "PENYUSUTAN_BEBAN",
   "PENYUSUTAN_AKUMULASI",
 ] as const;
 
 export type AccountingSettingKey = (typeof ACCOUNTING_SETTING_KEYS)[number];
-
-export const ACCOUNTING_SETTING_LABEL: Record<AccountingSettingKey, string> = {
-  PERSEMBAHAN_KAS: "Kas persembahan tunai",
-  PERSEMBAHAN_BANK: "Bank persembahan transfer",
-  PERSEMBAHAN_GATEWAY: "Kas di payment gateway",
-  PENYUSUTAN_BEBAN: "Beban penyusutan",
-  PENYUSUTAN_AKUMULASI: "Akumulasi penyusutan",
-};
