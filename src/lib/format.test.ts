@@ -49,6 +49,11 @@ describe("formatRupiah", () => {
     expect(formatRupiah(-0.5)).toBe("−Rp 0,50");
   });
 
+  test("isCents: selalu dua desimal supaya kolom angka sejajar", () => {
+    expect(formatRupiah(200_000, { isCents: true })).toBe("Rp 200.000,00");
+    expect(formatRupiah(0, { isCents: true })).toBe("Rp 0,00");
+  });
+
   test("ringkas: jt / M", () => {
     expect(formatRupiahCompact(86_400_000)).toBe("Rp 86,4\u00a0jt");
     expect(formatRupiahCompact(1_250_000_000)).toBe("Rp 1,3\u00a0M");
