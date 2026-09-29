@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { toDigits } from "./number";
+import { toDecimal, toDigits } from "./number";
 
 describe("toDigits", () => {
   test("membuang selain angka", () => {
@@ -19,5 +19,34 @@ describe("toDigits", () => {
 
   test("kosong tetap kosong", () => {
     expect(toDigits("abc", 6)).toBe("");
+  });
+});
+
+describe("toDecimal", () => {
+  test("koma dan titik jadi titik", () => {
+    expect(toDecimal("15800,50", 12, 6)).toBe("15800.50");
+    expect(toDecimal("15800.5", 12, 6)).toBe("15800.5");
+  });
+
+  test("hanya satu pemisah, pecahan dipotong", () => {
+    expect(toDecimal("1.2.3456", 11, 2)).toBe("1.23");
+  });
+
+  test("pemisah di ujung dipertahankan saat mengetik", () => {
+    expect(toDecimal("12,", 11, 2)).toBe("12.");
+    expect(toDecimal(",5", 11, 2)).toBe("0.5");
+  });
+
+  test("bilangan bulat dipotong dan nol depan dibuang", () => {
+    expect(toDecimal("00123456", 4, 2)).toBe("1234");
+    expect(toDecimal("US$ 1250", 11, 2)).toBe("1250");
+  });
+
+  test("tanpa pecahan membuang pemisah", () => {
+    expect(toDecimal("12,5", 11, 0)).toBe("12");
+  });
+
+  test("kosong tetap kosong", () => {
+    expect(toDecimal("abc", 11, 2)).toBe("");
   });
 });

@@ -4,6 +4,7 @@ import {
   formatDate,
   firstNameOf,
   formatDateTime,
+  formatMoney,
   formatNumber,
   formatRupiah,
   formatRupiahCompact,
@@ -88,5 +89,18 @@ describe("formatNumber", () => {
   test("memakai pemisah ribuan titik", () => {
     expect(formatNumber(1250)).toBe("1.250");
     expect(formatNumber(0)).toBe("0");
+  });
+});
+
+describe("formatMoney", () => {
+  test("rupiah memakai formatRupiah", () => {
+    expect(formatMoney(19_750_000, "IDR")).toBe("Rp 19.750.000");
+  });
+
+  test("valas: kode, spasi, desimal sesuai mata uang", () => {
+    expect(formatMoney(1_250, "USD")).toBe("USD 1.250,00");
+    expect(formatMoney(1_250.5, "SGD")).toBe("SGD 1.250,50");
+    expect(formatMoney(-12.345, "EUR")).toBe("−EUR 12,35");
+    expect(formatMoney(1_250.4, "JPY")).toBe("JPY 1.250");
   });
 });
