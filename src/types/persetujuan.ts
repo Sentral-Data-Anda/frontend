@@ -65,18 +65,26 @@ export const APPROVAL_DOCUMENT_MENU: Partial<
 > = {
   PURCHASE_REQUEST: MENU.PERMINTAAN_PEMBELIAN,
   ASSET_DISPOSAL: MENU.SIKLUS_ASET,
+  CASH_EXPENSE: MENU.KAS_KELUAR,
 };
 
+export type ApprovalDocumentRef = { publicId: string; code: string };
+
+// Kunci rute berbeda per modul be-sada: Kas Keluar memakai publicId, dua lainnya kode.
 export const approvalDocumentHref = (
   type: ApprovalDocumentType,
-  code: string,
+  document: ApprovalDocumentRef,
 ): string | null => {
   if (type === "PURCHASE_REQUEST") {
-    return detailHref(MENU.PENGADAAN, MENU.PERMINTAAN_PEMBELIAN, code);
+    return detailHref(MENU.PENGADAAN, MENU.PERMINTAAN_PEMBELIAN, document.code);
   }
 
   if (type === "ASSET_DISPOSAL") {
-    return `${menuHref(MENU.INVENTARIS, MENU.SIKLUS_ASET)}/pelepasan/${encodeURIComponent(code)}`;
+    return `${menuHref(MENU.INVENTARIS, MENU.SIKLUS_ASET)}/pelepasan/${encodeURIComponent(document.code)}`;
+  }
+
+  if (type === "CASH_EXPENSE") {
+    return detailHref(MENU.KEUANGAN, MENU.KAS_KELUAR, document.publicId);
   }
 
   return null;

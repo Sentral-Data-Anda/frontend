@@ -1,6 +1,13 @@
 import { describe, expect, test } from "bun:test";
 
-import { groupAmount, lineAmount, toDecimal, toDigits } from "./number";
+import {
+  balanceOf,
+  groupAmount,
+  lineAmount,
+  sumAmounts,
+  toDecimal,
+  toDigits,
+} from "./number";
 
 describe("toDigits", () => {
   test("membuang selain angka", () => {
@@ -77,5 +84,100 @@ describe("lineAmount", () => {
     expect(lineAmount("", "185000")).toBeNull();
     expect(lineAmount("2", "")).toBeNull();
     expect(lineAmount("0", "185000")).toBeNull();
+  });
+});
+
+describe("balanceOf", () => {
+  const line = (debit: string, credit: string) => ({ debit, credit });
+
+  test("entri seimbang", () => {
+    const result = balanceOf([line("1500000", ""), line("", "1500000")]);
+
+    expect(result).toEqual({
+      debit: "1500000",
+      credit: "1500000",
+      difference: "0",
+      shortSide: null,
+      isBalanced: true,
+    });
+  });
+
+  test("debit lebih besar: yang kurang adalah kredit", () => {
+    const result = balanceOf([line("1550000", ""), line("", "1500000")]);
+
+    expect(result.difference).toBe("50000");
+    expect(result.shortSide).toBe("credit");
+    expect(result.isBalanced).toBe(false);
+  });
+
+  test("kredit lebih besar: yang kurang adalah debit", () => {
+    const result = balanceOf([line("1000", ""), line("", "2500")]);
+
+    expect(result.difference).toBe("1500");
+    expect(result.shortSide).toBe("debit");
+  });
+
+  test("satu sisi masih kosong: sisi itu yang kurang, sebesar penuh", () => {
+    const only = balanceOf([line("500000", "")]);
+
+    expect(only.shortSide).toBe("credit");
+    expect(only.difference).toBe("500000");
+  });
+
+  test("desimal dijumlahkan sebagai sen, bukan float", () => {
+    const result = balanceOf([
+      line("0.1", ""),
+      line("0.2", ""),
+      line("", "0.3"),
+    ]);
+
+    expect(result.debit).toBe("0.30");
+    expect(result.isBalanced).toBe(true);
+  });
+
+  test("pembulatan dua desimal tidak menyembunyikan selisih", () => {
+    const result = balanceOf([
+      line("", "0.005"),
+      line("", "0.005"),
+      line("0.01", ""),
+    ]);
+
+    expect(result.credit).toBe("0");
+    expect(result.shortSide).toBe("credit");
+    expect(result.isBalanced).toBe(false);
+  });
+
+  test("entri kosong tidak seimbang dan tidak menuduh sisi mana pun", () => {
+    expect(balanceOf([]).isBalanced).toBe(false);
+    expect(balanceOf([]).shortSide).toBeNull();
+    expect(balanceOf([line("", ""), line("", "")]).shortSide).toBeNull();
+  });
+
+  test("nominal besar tetap tepat", () => {
+    const result = balanceOf([
+      line("9999999999999.99", ""),
+      line("", "9999999999999.99"),
+    ]);
+
+    expect(result.isBalanced).toBe(true);
+    expect(result.debit).toBe("9999999999999.99");
+  });
+
+  test("ribuan bertitik dari tampilan diabaikan", () => {
+    expect(balanceOf([line("1.500", "")]).debit).toBe("1.50");
+  });
+});
+
+describe("sumAmounts", () => {
+  test("menjumlah baris kas", () => {
+    expect(sumAmounts(["450000", "1250000", ""])).toBe("1700000");
+  });
+
+  test("menjaga dua desimal", () => {
+    expect(sumAmounts(["0.05", "0.05"])).toBe("0.10");
+  });
+
+  test("tanpa baris menghasilkan nol", () => {
+    expect(sumAmounts([])).toBe("0");
   });
 });

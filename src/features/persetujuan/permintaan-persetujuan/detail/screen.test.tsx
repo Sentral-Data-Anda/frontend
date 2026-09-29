@@ -173,11 +173,32 @@ describe("tautan dokumen", () => {
   });
 
   test("dokumen tanpa layar: tanpa tautan", async () => {
-    onMockApi(approvalDetail());
+    onMockApi(approvalDetail({ documentType: "PURCHASE_RETURN" }));
     onRender();
     await onLoaded();
 
     expect(screen.queryByRole("link", { name: /^Lihat / })).toBeNull();
+  });
+
+  test("kas keluar bertaut lewat publicId dokumen", async () => {
+    onMockApi(approvalDetail());
+    onRender();
+    await onLoaded();
+
+    expect(
+      screen
+        .getByRole("link", { name: "Lihat kas keluar" })
+        .getAttribute("href"),
+    ).toBe("/keuangan/kas-keluar/doc-1");
+  });
+
+  test("tanpa VIEW kas keluar: tanpa tautan", async () => {
+    access.hidden.add("KAS_KELUAR");
+    onMockApi(approvalDetail());
+    onRender();
+    await onLoaded();
+
+    expect(screen.queryByRole("link", { name: "Lihat kas keluar" })).toBeNull();
   });
 });
 

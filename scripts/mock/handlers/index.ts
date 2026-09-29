@@ -12,8 +12,10 @@ import { ibadahMock } from "./ibadah";
 import { inventarisMock } from "./inventaris";
 import { jadwalPelayanMock } from "./jadwal-pelayan";
 import { jadwalSayaMock } from "./jadwal-saya";
+import { jurnalMock } from "./jurnal";
 import { kegiatanMock } from "./kegiatan";
 import { keluargaMock } from "./keluarga";
+import { keuanganMock } from "./keuangan";
 import { masterJemaatMock } from "./master-jemaat";
 import { mataUangMock } from "./mata-uang";
 import { mutasiStokMock } from "./mutasi-stok";
@@ -26,6 +28,7 @@ import { pengadaanMock } from "./pengadaan";
 import { pengumumanMock } from "./pengumuman";
 import { pengumumanFeedMock } from "./pengumuman-feed";
 import { penyusutanMock } from "./penyusutan";
+import { periodeFiskalMock } from "./periode-fiskal";
 import { permintaanPembelianMock } from "./permintaan-pembelian";
 import { permintaanPersetujuanMock } from "./permintaan-persetujuan";
 import { pernikahanMock } from "./pernikahan";
@@ -95,6 +98,9 @@ export const MOCK_HANDLERS: MockHandler[] = [
   pesananPembelianMock,
   penerimaanBarangMock,
   mataUangMock,
+  periodeFiskalMock,
+  jurnalMock,
   pengadaanMock,
   inventarisMock,
+  keuanganMock,
 ];
