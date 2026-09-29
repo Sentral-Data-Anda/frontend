@@ -6,7 +6,7 @@ export type OfferingTypeAccount = {
   code: string;
   name: string;
   type: AccountType;
-  isActive?: boolean;
+  isActive: boolean;
 };
 
 export type OfferingType = {

@@ -1,11 +1,6 @@
 import { z } from "zod";
 
 import { MENU, editHref, menuHref } from "@/config/menu";
-import {
-  ACCOUNTING_SETTING_KEYS,
-  ACCOUNTING_SETTING_LABEL,
-  type AccountingSettingKey,
-} from "@/types/keuangan";
 
 import type { AccountingSetting, AccountingSettingPayload } from "./types";
 
@@ -20,11 +15,6 @@ export const settingEditHref = (key: string) =>
   editHref(MENU.KEUANGAN, MENU.SETELAN_AKUNTANSI, key);
 
 export const NO_VIEW = "Peran Anda tidak memiliki akses ke Setelan Akuntansi.";
-
-export const SETTING_COUNT = ACCOUNTING_SETTING_KEYS.length;
-
-export const settingLabelOf = (key: string) =>
-  ACCOUNTING_SETTING_LABEL[key as AccountingSettingKey] ?? key;
 
 export const accountLabelOf = (setting: AccountingSetting) =>
   setting.account ? `${setting.account.code} — ${setting.account.name}` : null;
@@ -50,7 +40,7 @@ export const filledCountOf = (settings: AccountingSetting[]) =>
   settings.filter((setting) => setting.account).length;
 
 export const readinessSubtitle = (settings: AccountingSetting[]) =>
-  `${filledCountOf(settings)} dari ${SETTING_COUNT} setelan sudah diisi`;
+  `${filledCountOf(settings)} dari ${settings.length} setelan sudah diisi`;
 
 const BLOCKED = "Posting jurnal akan ditolak selama setelan ini belum lengkap.";
 
@@ -64,7 +54,7 @@ export const readinessAlertOf = (settings: AccountingSetting[]) => {
 
   if (!inactive) {
     return {
-      title: `${unset} dari ${SETTING_COUNT} setelan belum diisi.`,
+      title: `${unset} dari ${settings.length} setelan belum diisi.`,
       message: BLOCKED,
     };
   }
@@ -90,8 +80,8 @@ export const updatedByLabel = (updatedBy: AccountingSetting["updatedBy"]) => {
     : null;
 };
 
-export const clearSettingText = (key: string) =>
-  `Setelan ${settingLabelOf(key)} akan dikosongkan. Posting yang memakainya akan ditolak sampai diisi lagi.`;
+export const clearSettingText = (label: string) =>
+  `Setelan ${label} akan dikosongkan. Posting yang memakainya akan ditolak sampai diisi lagi.`;
 
 export const settingFormSchema = z.object({
   accountId: z.string().min(1, "Pilih akun untuk setelan ini"),

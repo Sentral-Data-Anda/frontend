@@ -44,7 +44,7 @@ export const accountIssueOf = (
 
   if (!account) return { label: "Belum ada akun", variant: "warning" };
 
-  if (account.isActive === false) {
+  if (!account.isActive) {
     return { label: "Akun nonaktif", variant: "destructive" };
   }
 

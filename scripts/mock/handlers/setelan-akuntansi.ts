@@ -1,11 +1,13 @@
 /**
  * Tiruan `/api/v1/setelan-akuntansi` (be-sada `modules/accounting_setting`).
- * Kunci lahir dari `sync:accounting`, jadi POST dan DELETE tidak ada: 404.
+ * Kunci, label, dan keterangan lahir dari `sync:accounting`, jadi POST dan
+ * DELETE tidak ada: 404. Daftar selalu 200, tanpa paginasi.
  *
- *   MOCK_SETTING_EMPTY=1 → kelima kunci tanpa akun
+ *   MOCK_SETTING_EMPTY=1 → seluruh kunci tanpa akun
  *   MOCK_500=1           → daftar menjawab 500
  */
 import { MENU } from "../../../src/config/menu";
+import type { AccountingSettingKey } from "../../../src/types/keuangan";
 import { SESSION_USER_ID } from "../../mock-dashboard";
 import {
   ACCOUNTING_SETTING,
@@ -13,9 +15,23 @@ import {
   isLive,
   settingView,
 } from "../keuangan-store";
-import { denied, json, list, readBody, type MockHandler } from "../kit";
+import { denied, json, readBody, type MockHandler } from "../kit";
 
 const NOT_FOUND = "Setelan Akuntansi Tidak Ditemukan";
+
+const LABEL: Record<AccountingSettingKey, string> = {
+  PERSEMBAHAN_KAS: "Kas persembahan tunai",
+  PERSEMBAHAN_BANK: "Bank persembahan transfer",
+  PERSEMBAHAN_GATEWAY: "Kas di payment gateway",
+  PENDAPATAN_EVENT: "Pendapatan pendaftaran event",
+  PENYUSUTAN_BEBAN: "Beban penyusutan",
+  PENYUSUTAN_AKUMULASI: "Akumulasi penyusutan",
+};
+
+const view = (row: (typeof ACCOUNTING_SETTING)[number]) => ({
+  ...settingView(row),
+  label: LABEL[row.key],
+});
 
 const issue = (status: number, message: string) =>
   json(
@@ -31,7 +47,6 @@ const blank = <T extends { accountId: number | null }>(row: T) => ({
 
 export const setelanAkuntansiMock: MockHandler = async ({
   request,
-  url,
   path,
   method,
   can,
@@ -62,12 +77,11 @@ export const setelanAkuntansiMock: MockHandler = async ({
       ? ACCOUNTING_SETTING.map(blank)
       : ACCOUNTING_SETTING;
 
-    return list(
-      rows.map(settingView),
-      url,
-      "Setelan Akuntansi",
-      "Setelan Akuntansi",
-    );
+    return json({
+      status: 200,
+      message: "Berhasil Mendapatkan Semua Setelan Akuntansi",
+      data: rows.map(view),
+    });
   }
 
   if (!key || method !== "PUT") return null;
@@ -96,6 +110,6 @@ export const setelanAkuntansiMock: MockHandler = async ({
     message: accountId
       ? "Berhasil Memperbarui Setelan Akuntansi"
       : "Berhasil Mengosongkan Setelan Akuntansi",
-    data: settingView(row),
+    data: view(row),
   });
 };

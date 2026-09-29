@@ -8,6 +8,8 @@ import { setelanAkuntansiMock } from "./setelan-akuntansi";
 
 type Json = {
   status: number;
+  totalData?: number;
+  totalPage?: number;
   error?: string;
   message?: string;
   issues?: { path: string; message: string }[];
@@ -51,20 +53,38 @@ const onCall = async (
   return { status: response.status, body: (await response.json()) as Json };
 };
 
-type Row = { key: string; account: { id: number } | null };
+type Row = { key: string; label: string; account: { id: number } | null };
 
 const rowsOf = (body: Json | undefined) => (body?.data ?? []) as Row[];
 
 describe("mock /setelan-akuntansi", () => {
-  test("daftar membawa kelima kunci termasuk yang kosong", async () => {
+  test("daftar selalu 200, membawa seluruh kunci termasuk yang kosong", async () => {
     const all = await onCall("GET", "/setelan-akuntansi");
 
     expect(all?.status).toBe(200);
-    expect(rowsOf(all?.body).length).toBe(5);
-    expect(rowsOf(all?.body).filter((row) => !row.account).length).toBe(3);
+    expect(rowsOf(all?.body).length).toBe(6);
+    expect(rowsOf(all?.body).filter((row) => !row.account).length).toBe(4);
+    expect(rowsOf(all?.body).map((row) => row.key)).toContain(
+      "PENDAPATAN_EVENT",
+    );
   });
 
-  test("MOCK_SETTING_EMPTY mengosongkan kelimanya tanpa mengubah store", async () => {
+  test("setiap baris membawa label dari server", async () => {
+    const all = await onCall("GET", "/setelan-akuntansi");
+
+    expect(rowsOf(all?.body).every((row) => Boolean(row.label))).toBe(true);
+    expect(rowsOf(all?.body)[0].label).toBe("Kas persembahan tunai");
+  });
+
+  test("daftar tidak berpaginasi", async () => {
+    const all = await onCall("GET", "/setelan-akuntansi?page=2&limit=1");
+
+    expect(all?.body.totalData).toBeUndefined();
+    expect(all?.body.totalPage).toBeUndefined();
+    expect(rowsOf(all?.body).length).toBe(6);
+  });
+
+  test("MOCK_SETTING_EMPTY mengosongkan semuanya tanpa mengubah store", async () => {
     process.env.MOCK_SETTING_EMPTY = "1";
 
     const all = await onCall("GET", "/setelan-akuntansi");

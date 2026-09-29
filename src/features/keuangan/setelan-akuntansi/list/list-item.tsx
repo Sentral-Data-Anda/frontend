@@ -14,7 +14,6 @@ import {
   accountLabelOf,
   settingEditHref,
   settingIssueOf,
-  settingLabelOf,
 } from "../model";
 import type { AccountingSetting } from "../types";
 
@@ -24,7 +23,7 @@ const saveFocus = (setting: AccountingSetting) =>
   saveListFocus(SETELAN_AKUNTANSI_LIST_PATH, setting.key);
 
 const labelOf = (setting: AccountingSetting) =>
-  `Pilih akun untuk ${settingLabelOf(setting.key)}`;
+  `Pilih akun untuk ${setting.label}`;
 
 const accountCell = (setting: AccountingSetting) => {
   const issue = settingIssueOf(setting);
@@ -70,10 +69,10 @@ export const SettingListItemRow = (props: PropTypes) => {
             aria-label={labelOf(setting)}
             className={TABLE_ROW_LINK}
           >
-            {settingLabelOf(setting.key)}
+            {setting.label}
           </Link>
         ) : (
-          settingLabelOf(setting.key)
+          setting.label
         )
       }
       meta={setting.description}
@@ -92,9 +91,7 @@ export function settingTable(
         header: "Setelan",
         width: "minmax(0,2fr)",
         cell: (setting) => (
-          <span className="block truncate font-medium">
-            {settingLabelOf(setting.key)}
-          </span>
+          <span className="block truncate font-medium">{setting.label}</span>
         ),
       },
       {

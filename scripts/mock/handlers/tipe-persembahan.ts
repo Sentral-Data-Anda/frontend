@@ -29,6 +29,8 @@ type Body = {
   accountId?: unknown;
 };
 
+const isTruthy = (value: string) => value === "1" || value === "true";
+
 const issue = (status: number, path: string, message: string) =>
   json({ status, error: message, issues: [{ path, message }] }, status);
 
@@ -143,7 +145,7 @@ export const tipePersembahanMock: MockHandler = async ({
         (row) =>
           isLive(row) &&
           row.name.toLowerCase().includes(filter) &&
-          (!isActive || row.isActive === (isActive === "true")),
+          (!isActive || row.isActive === isTruthy(isActive)),
       )
         .sort((a, b) => a.name.localeCompare(b.name, "id"))
         .map(typePersembahanView),

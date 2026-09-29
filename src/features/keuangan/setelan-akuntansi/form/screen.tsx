@@ -31,7 +31,6 @@ import {
   clearSettingText,
   serverFieldError,
   settingFormSchema,
-  settingLabelOf,
   toSettingForm,
   toSettingPayload,
   type SettingFormValues,
@@ -205,7 +204,7 @@ export const SettingFormScreen = (props: PropTypes) => {
       }
       header={
         <PageHeader
-          title={settingLabelOf(settingKey)}
+          title={setting?.label ?? "Setelan Akuntansi"}
           backHref={SETELAN_AKUNTANSI_LIST_PATH}
           isBackPersistent
           onBack={confirm.onBack(isDirty)}
@@ -246,7 +245,7 @@ export const SettingFormScreen = (props: PropTypes) => {
       <FormConfirmDialog
         confirm={confirm}
         noun="setelan"
-        descriptions={{ delete: clearSettingText(settingKey) }}
+        descriptions={{ delete: clearSettingText(setting?.label ?? "ini") }}
         onSave={() => void onSave()}
         onLeave={onLeave}
         onDelete={onClear}

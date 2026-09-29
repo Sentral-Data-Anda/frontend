@@ -57,9 +57,14 @@ type Failure = {
   issues?: { path: string; message: string }[];
 };
 
+const LABEL: Record<string, string> = {
+  PERSEMBAHAN_KAS: "Kas persembahan tunai",
+};
+
 const onRows = (accountId: number | null) =>
   ACCOUNTING_SETTING_KEYS.map((key) => ({
     key,
+    label: LABEL[key] ?? `Label ${key}`,
     description: `Keterangan ${key}`,
     account: key === "PERSEMBAHAN_KAS" && accountId ? ACCOUNT : null,
     updatedBy: null,
@@ -94,8 +99,6 @@ const onMockApi = (
     return Response.json({
       status: 200,
       message: "OK",
-      totalData: 5,
-      totalPage: 1,
       data: onRows(accountId),
     });
   }) as typeof fetch;

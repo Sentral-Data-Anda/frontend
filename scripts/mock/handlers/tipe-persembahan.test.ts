@@ -8,6 +8,7 @@ import { tipePersembahanMock } from "./tipe-persembahan";
 
 type Json = {
   status: number;
+  totalData?: number;
   error?: string;
   message?: string;
   issues?: { path: string; message: string }[];
@@ -67,6 +68,21 @@ describe("mock /type-persembahan", () => {
 
     const off = await onCall("GET", "/type-persembahan?isActive=false");
     expect(off?.status).toBe(404);
+  });
+
+  test("isActive menerima 1/true dan 0/false", async () => {
+    const one = await onCall("GET", "/type-persembahan?isActive=1&limit=100");
+    const truthy = await onCall(
+      "GET",
+      "/type-persembahan?isActive=true&limit=100",
+    );
+
+    expect(one?.body.totalData).toBe(truthy?.body.totalData);
+    expect(one?.body.totalData).toBe(SEED.length);
+
+    expect((await onCall("GET", "/type-persembahan?isActive=0"))?.status).toBe(
+      404,
+    );
   });
 
   test("guard per aksi", async () => {

@@ -7,7 +7,6 @@ import {
   readinessSubtitle,
   serverFieldError,
   settingIssueOf,
-  settingLabelOf,
   toSettingPayload,
   updatedByLabel,
 } from "./model";
@@ -19,6 +18,7 @@ const setting = (
   isActive = true,
 ): AccountingSetting => ({
   key,
+  label: `Label ${key}`,
   description: "Keterangan",
   account: accountId
     ? {
@@ -34,18 +34,18 @@ const setting = (
 const ALL_EMPTY = ACCOUNTING_SETTING_KEYS.map((key) => setting(key, null));
 
 describe("kesiapan", () => {
-  test("basis data baru: nol dari lima, peringatan menyebut yang diblokir", () => {
-    expect(readinessSubtitle(ALL_EMPTY)).toBe("0 dari 5 setelan sudah diisi");
+  test("basis data baru: nol dari enam, peringatan menyebut yang diblokir", () => {
+    expect(readinessSubtitle(ALL_EMPTY)).toBe("0 dari 6 setelan sudah diisi");
     expect(readinessAlertOf(ALL_EMPTY)).toEqual({
-      title: "5 dari 5 setelan belum diisi.",
+      title: "6 dari 6 setelan belum diisi.",
       message: "Posting jurnal akan ditolak selama setelan ini belum lengkap.",
     });
   });
 
-  test("lima terisi dan aktif: tanpa peringatan", () => {
+  test("semua terisi dan aktif: tanpa peringatan", () => {
     const filled = ACCOUNTING_SETTING_KEYS.map((key) => setting(key, 2));
 
-    expect(readinessSubtitle(filled)).toBe("5 dari 5 setelan sudah diisi");
+    expect(readinessSubtitle(filled)).toBe("6 dari 6 setelan sudah diisi");
     expect(readinessAlertOf(filled)).toBeNull();
   });
 
@@ -54,7 +54,7 @@ describe("kesiapan", () => {
       setting(key, 2, index > 0),
     );
 
-    expect(readinessSubtitle(rows)).toBe("5 dari 5 setelan sudah diisi");
+    expect(readinessSubtitle(rows)).toBe("6 dari 6 setelan sudah diisi");
     expect(readinessAlertOf(rows)?.title).toBe(
       "1 setelan menunjuk akun nonaktif.",
     );
@@ -65,6 +65,7 @@ describe("kesiapan", () => {
       setting("PERSEMBAHAN_KAS", null),
       setting("PERSEMBAHAN_BANK", 2, false),
       setting("PERSEMBAHAN_GATEWAY", 4),
+      setting("PENDAPATAN_EVENT", 4),
       setting("PENYUSUTAN_BEBAN", 4),
       setting("PENYUSUTAN_AKUMULASI", 4),
     ];
@@ -95,15 +96,12 @@ describe("penanda baris", () => {
   });
 });
 
-describe("label kunci", () => {
-  test("kelima kunci punya label layar", () => {
-    for (const key of ACCOUNTING_SETTING_KEYS) {
-      expect(settingLabelOf(key)).not.toBe(key);
-    }
-  });
+describe("jumlah setelan mengikuti bacaan", () => {
+  test("kunci yang ditambah be-sada ikut terhitung tanpa perubahan kode", () => {
+    const rows = [...ALL_EMPTY, setting("KUNCI_BARU", null)];
 
-  test("kunci tak dikenal jatuh ke kuncinya sendiri", () => {
-    expect(settingLabelOf("KUNCI_BARU")).toBe("KUNCI_BARU");
+    expect(readinessSubtitle(rows)).toBe("0 dari 7 setelan sudah diisi");
+    expect(readinessAlertOf(rows)?.title).toBe("7 dari 7 setelan belum diisi.");
   });
 });
 
