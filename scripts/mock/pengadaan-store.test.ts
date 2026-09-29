@@ -309,6 +309,40 @@ describe("receiveGoods", () => {
     expect(GOODS_RECEIPT).toHaveLength(receipts);
   });
 
+  test("urutan cek: semua baris dulu (#4), baru barang persediaan (#5)", () => {
+    const partial = PURCHASE_ORDER.find(
+      (row) => row.status === "PARTIALLY_RECEIVED",
+    );
+    const lilin = STOCK_ITEM.find((row) => row.name === "Lilin Altar");
+    if (!partial || !lilin) throw new Error("seed");
+    const [proyektor, kertas] = partial.items;
+
+    const result = receiveGoods({
+      purchaseOrderId: partial.id,
+      receivedDate: TODAY,
+      note: null,
+      attachments: [],
+      items: [
+        {
+          purchaseOrderItemId: kertas?.id ?? 0,
+          quantityReceived: 5,
+          target: "STOCK",
+          stockItemId: lilin.id,
+        },
+        {
+          purchaseOrderItemId: proyektor?.id ?? 0,
+          quantityReceived: 2,
+          target: "ASSET",
+          stockItemId: null,
+        },
+      ],
+    });
+
+    expect("failure" in result && result.failure.path).toBe(
+      "items.1.quantityReceived",
+    );
+  });
+
   test("persediaan baru: mutasi masuk + harga beli terakhir", () => {
     const kursi = PURCHASE_ORDER.find(
       (row) => row.status === "ISSUED" && row.currencyCode === "IDR",

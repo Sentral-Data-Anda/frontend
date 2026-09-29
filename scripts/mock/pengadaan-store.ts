@@ -342,7 +342,7 @@ export const seedAttachment = (
   return {
     publicId: uuid("e300", attachmentCount),
     path,
-    name: `${label}.${extension}`,
+    name: label,
     mimeType: options.isPdf ? "application/pdf" : "image/jpeg",
     size: options.isPdf
       ? seedPdf(path)
@@ -1393,7 +1393,14 @@ export const receiveGoods = (input: {
         "Maksimal 50 Barang Per Baris",
       );
     }
-    if (item.target === "STOCK" && item.stockItemId !== null) {
+  }
+
+  for (const [index, item] of input.items.entries()) {
+    const line = orderRow.items.find(
+      (one) => one.id === item.purchaseOrderItemId,
+    );
+
+    if (line && item.target === "STOCK" && item.stockItemId !== null) {
       const stock = stockItemOf(item.stockItemId);
       if (!stock) {
         return lineFailure(
