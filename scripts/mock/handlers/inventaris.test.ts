@@ -21,6 +21,7 @@ import {
   codeOf,
   decideDisposal,
   openRun,
+  postRun,
   roomHoldsInventory,
   runOpenFailure,
   stockItemDdl,
@@ -74,9 +75,12 @@ describe("kode", () => {
 
     expect(TYPE_ITEM.some((row) => row.code === typeCode)).toBe(false);
     expect(UNIT.some((row) => row.code === unitCode)).toBe(false);
-    expect(typeCode).toBe(
-      `TYP_ITM-${String(TYPE_ITEM.length + 1).padStart(4, "0")}`,
-    );
+    const serialOf = (code: string) => Number(code.slice(-4));
+    const lastSerial = (rows: readonly { code: string }[]) =>
+      Math.max(...rows.map((row) => serialOf(row.code)));
+
+    expect(serialOf(typeCode)).toBeGreaterThan(lastSerial(TYPE_ITEM));
+    expect(serialOf(unitCode)).toBeGreaterThan(lastSerial(UNIT));
   });
 });
 
@@ -181,6 +185,32 @@ describe("penyusutan", () => {
     expect(failure?.message).toContain(String(draft.year));
   });
 
+  test("tanpa draf: bulan sesudah posting terakhir boleh, bulan lebih awal = penyusutan berikutnya", () => {
+    const draft = RUN[2];
+    const first = RUN[0];
+    const earlier =
+      first.month === 1
+        ? { year: first.year - 1, month: 12 }
+        : { year: first.year, month: first.month - 1 };
+
+    postRun(draft);
+    const results = [
+      runOpenFailure(first.year, first.month),
+      runOpenFailure(Number(TODAY.slice(0, 4)), Number(TODAY.slice(5, 7))),
+      runOpenFailure(earlier.year, earlier.month),
+    ];
+    Object.assign(draft, {
+      status: "DRAFT",
+      postedAt: null,
+      journalCode: null,
+    });
+
+    expect(results[0]?.status).toBe(409);
+    expect(results[1]).toBeNull();
+    expect(results[2]).toMatchObject({ status: 400, path: "month" });
+    expect(results[2]?.message).toStartWith("Penyusutan Berikutnya Adalah ");
+  });
+
   test("barang lama habis: nilai buku = residu, tidak ada entri di draf", () => {
     const innova = assetNamed("Toyota Innova Pelayanan");
 
@@ -233,6 +263,21 @@ describe("pelepasan", () => {
     expect(names).not.toContain("Piano Yamaha U1");
     expect(names).not.toContain("Printer Canon G2010");
     expect(names).toContain("Sound Portable Huper");
+  });
+
+  test("detail barang: pelepasan membawa approval, akumulasi awal kosong = 0", () => {
+    const printer = assetView(assetNamed("Printer Canon G2010"), true);
+    const keyboard = assetView(assetNamed("Keyboard Yamaha PSR-SX700"), true);
+
+    expect(printer.disposal).toMatchObject({
+      status: "PENDING",
+      approval: { status: "PENDING" },
+    });
+    expect(printer.disposal?.approval?.publicId).toBeTruthy();
+    expect(
+      assetView(assetNamed("Printer Canon G2010")).disposal,
+    ).not.toHaveProperty("approval");
+    expect(keyboard.depreciation?.openingAccumulated).toBe("0.00");
   });
 
   test("ajukan lalu tarik: barang kembali aktif", () => {
