@@ -1,6 +1,7 @@
 import type { MockHandler } from "../kit";
 
 import { activityLogMock } from "./activity-log";
+import { akunMock } from "./akun";
 import { bapelMock } from "./bapel";
 import { barangMock } from "./barang";
 import { barangPersediaanMock } from "./barang-persediaan";
@@ -104,6 +105,7 @@ export const MOCK_HANDLERS: MockHandler[] = [
   pesananPembelianMock,
   penerimaanBarangMock,
   mataUangMock,
+  akunMock,
   periodeFiskalMock,
   jurnalMock,
   persembahanMock,
