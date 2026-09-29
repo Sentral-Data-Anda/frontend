@@ -18,22 +18,23 @@ import {
   test,
 } from "bun:test";
 
+import { MENU, type MenuSlug } from "@/config/menu";
 import type { MenuAction } from "@/types/menu";
 
 import { inventarisMock } from "../../../../../scripts/mock/handlers/inventaris";
 import { penerimaanBarangMock } from "../../../../../scripts/mock/handlers/penerimaan-barang";
 import { pengadaanMock } from "../../../../../scripts/mock/handlers/pengadaan";
+import { pesananPembelianMock } from "../../../../../scripts/mock/handlers/pesanan-pembelian";
 import {
   ASSET,
   STOCK_ITEM,
   STOCK_MOVEMENT,
 } from "../../../../../scripts/mock/inventaris-store";
-import type { MockContext, MockHandler } from "../../../../../scripts/mock/kit";
+import type { MockContext } from "../../../../../scripts/mock/kit";
 import {
   GOODS_RECEIPT,
   PURCHASE_ORDER,
   purchaseOrderByCode,
-  purchaseOrderView,
 } from "../../../../../scripts/mock/pengadaan-store";
 
 const actions: { current: MenuAction[] } = { current: [] };
@@ -60,19 +61,6 @@ mock.module("@/features/auth/use-menu-access", () => ({
 
 const { ReceiptFormScreen } = await import("./screen");
 
-const orderDetailMock: MockHandler = ({ path, method }) => {
-  const match = /^\/pesanan-pembelian\/([^/]+)$/.exec(path);
-  if (!match || method !== "GET") return null;
-
-  orderFetches.push(match[1] ?? "");
-  const row = purchaseOrderByCode(match[1] ?? "");
-
-  return Response.json({
-    status: 200,
-    data: row && purchaseOrderView(row, true),
-  });
-};
-
 const snapshot = <T extends object>(rows: T[]) => {
   const copy = rows.map((row) => structuredClone(row));
 
@@ -84,7 +72,7 @@ const snapshot = <T extends object>(rows: T[]) => {
 
 const HANDLERS = [
   penerimaanBarangMock,
-  orderDetailMock,
+  pesananPembelianMock,
   pengadaanMock,
   inventarisMock,
 ];
@@ -98,6 +86,7 @@ const restores = [
 ].map((rows) => snapshot<object>(rows));
 const posts: FormData[] = [];
 const orderFetches: string[] = [];
+const serverMenus: { current: MenuSlug[] | null } = { current: null };
 
 beforeAll(() => {
   globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -105,6 +94,9 @@ beforeAll(() => {
     const path = url.pathname.replace(/^\/api\/v1/, "");
     const method = init?.method ?? "GET";
     const request = new Request(url, { method });
+    const orderMatch = /^\/pesanan-pembelian\/([^/]+)$/.exec(path);
+
+    if (orderMatch) orderFetches.push(orderMatch[1] ?? "");
 
     if (init?.body instanceof FormData) {
       const body = init.body;
@@ -119,8 +111,8 @@ beforeAll(() => {
       url,
       path,
       method,
-      can: () => true,
-      isAdmin: true,
+      can: (slug) => serverMenus.current?.includes(slug) ?? true,
+      isAdmin: serverMenus.current === null,
       sessionCode: "test",
     };
 
@@ -146,6 +138,7 @@ afterEach(() => {
   for (const restore of restores) restore();
   posts.length = 0;
   orderFetches.length = 0;
+  serverMenus.current = null;
   replaced.length = 0;
   search.current = "";
   delete process.env.MOCK_RECEIPT_RACE;
@@ -251,6 +244,14 @@ describe("muat baris", () => {
       ).toBeTruthy(),
     );
     expect(cards()).toHaveLength(1);
+  });
+
+  test("peran hanya penerimaan (tanpa PESANAN_PEMBELIAN) tetap memuat baris pesanan", async () => {
+    serverMenus.current = [MENU.PENERIMAAN_BARANG];
+    await onOpenPrefilled("PO-2026-0003", 2);
+
+    expect(orderFetches).toEqual(["PO-2026-0003"]);
+    expect(quantityOf(1).value).toBe("20");
   });
 
   test("tanpa CREATE: keadaan tidak bisa mencatat", () => {
