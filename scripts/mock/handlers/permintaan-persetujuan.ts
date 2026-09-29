@@ -513,7 +513,7 @@ const purchaseRequestRow = (
   const row = makeRow(approval.id, {
     type: "PURCHASE_REQUEST",
     amount,
-    by: request.requestedBy,
+    by: approval.submittedBy,
     daysAgo,
     tiers,
     acts,
