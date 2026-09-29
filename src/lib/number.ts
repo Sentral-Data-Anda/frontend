@@ -53,17 +53,22 @@ const fromCents = (cents: bigint) => {
 
 export type BalanceLine = { debit: string; credit: string };
 
+export type BalanceSide = "debit" | "credit";
+
 export const balanceOf = (lines: readonly BalanceLine[]) => {
   const sum = (pick: (line: BalanceLine) => string) =>
     lines.reduce((total, line) => total + toCents(pick(line)), ZERO);
   const debit = sum((line) => line.debit);
   const credit = sum((line) => line.credit);
   const difference = debit - credit;
+  const shortSide: BalanceSide | null =
+    difference === ZERO ? null : difference > ZERO ? "credit" : "debit";
 
   return {
     debit: fromCents(debit),
     credit: fromCents(credit),
     difference: fromCents(difference < ZERO ? -difference : difference),
+    shortSide,
     isBalanced: difference === ZERO && debit > ZERO,
   };
 };

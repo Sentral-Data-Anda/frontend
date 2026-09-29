@@ -50,6 +50,7 @@ describe("BalanceSummary", () => {
         debit="1500000"
         credit="1500000"
         difference="0"
+        shortSide={null}
         isBalanced
       />,
     );
@@ -57,26 +58,50 @@ describe("BalanceSummary", () => {
     expect(screen.getByText("Seimbang")).toBeDefined();
   });
 
-  test("tidak seimbang menyebut nominal selisihnya", () => {
+  test("kredit kurang: menyebut sisi yang kurang, bukan hanya nominal", () => {
     render(
       <BalanceSummary
         debit="1550000"
         credit="1500000"
         difference="50000"
+        shortSide="credit"
         isBalanced={false}
       />,
     );
 
-    expect(screen.getByText(/Selisih/).textContent).toContain("50.000");
+    const verdict = screen.getByText(/kurang/);
+
+    expect(verdict.textContent).toContain("Kredit kurang");
+    expect(verdict.textContent).toContain("50.000");
+  });
+
+  test("debit kurang: sisi yang disebut ikut berbalik", () => {
+    render(
+      <BalanceSummary
+        debit="1000"
+        credit="2500"
+        difference="1500"
+        shortSide="debit"
+        isBalanced={false}
+      />,
+    );
+
+    expect(screen.getByText(/kurang/).textContent).toContain("Debit kurang");
   });
 
   test("form kosong tidak memberi peringatan", () => {
     render(
-      <BalanceSummary debit="0" credit="0" difference="0" isBalanced={false} />,
+      <BalanceSummary
+        debit="0"
+        credit="0"
+        difference="0"
+        shortSide={null}
+        isBalanced={false}
+      />,
     );
 
     expect(screen.getByText("Belum ada nominal")).toBeDefined();
-    expect(screen.queryByText(/Selisih/)).toBeNull();
+    expect(screen.queryByText(/kurang/)).toBeNull();
   });
 });
 
@@ -128,7 +153,16 @@ describe("JournalLineList", () => {
       target: { value: "1500" },
     });
 
-    expect(screen.getByText(/Selisih/)).toBeDefined();
+    expect(screen.getByText(/kurang/).textContent).toContain("Kredit kurang");
+  });
+
+  test("satu baris terisi sebelah: ringkasan menunjuk sisi yang belum diisi", () => {
+    onRender([
+      { accountId: "", debit: "500000", credit: "", description: "" },
+      blank(),
+    ]);
+
+    expect(screen.getByText(/kurang/).textContent).toContain("Kredit kurang");
   });
 
   test("tombol tambah menambah baris", () => {

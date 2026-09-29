@@ -97,21 +97,31 @@ describe("balanceOf", () => {
       debit: "1500000",
       credit: "1500000",
       difference: "0",
+      shortSide: null,
       isBalanced: true,
     });
   });
 
-  test("selisih dilaporkan tanpa tanda minus", () => {
+  test("debit lebih besar: yang kurang adalah kredit", () => {
     const result = balanceOf([line("1550000", ""), line("", "1500000")]);
 
     expect(result.difference).toBe("50000");
+    expect(result.shortSide).toBe("credit");
     expect(result.isBalanced).toBe(false);
   });
 
-  test("kredit lebih besar tetap memberi selisih positif", () => {
-    expect(balanceOf([line("1000", ""), line("", "2500")]).difference).toBe(
-      "1500",
-    );
+  test("kredit lebih besar: yang kurang adalah debit", () => {
+    const result = balanceOf([line("1000", ""), line("", "2500")]);
+
+    expect(result.difference).toBe("1500");
+    expect(result.shortSide).toBe("debit");
+  });
+
+  test("satu sisi masih kosong: sisi itu yang kurang, sebesar penuh", () => {
+    const only = balanceOf([line("500000", "")]);
+
+    expect(only.shortSide).toBe("credit");
+    expect(only.difference).toBe("500000");
   });
 
   test("desimal dijumlahkan sebagai sen, bukan float", () => {
@@ -133,12 +143,14 @@ describe("balanceOf", () => {
     ]);
 
     expect(result.credit).toBe("0");
+    expect(result.shortSide).toBe("credit");
     expect(result.isBalanced).toBe(false);
   });
 
-  test("entri kosong tidak dianggap seimbang", () => {
+  test("entri kosong tidak seimbang dan tidak menuduh sisi mana pun", () => {
     expect(balanceOf([]).isBalanced).toBe(false);
-    expect(balanceOf([line("", ""), line("", "")]).isBalanced).toBe(false);
+    expect(balanceOf([]).shortSide).toBeNull();
+    expect(balanceOf([line("", ""), line("", "")]).shortSide).toBeNull();
   });
 
   test("nominal besar tetap tepat", () => {

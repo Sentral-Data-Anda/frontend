@@ -3,19 +3,26 @@
 import { Check, TriangleAlert } from "lucide-react";
 
 import { formatRupiah } from "@/lib/format";
+import type { BalanceSide } from "@/lib/number";
 import { cn } from "@/lib/utils";
 
 interface PropTypes {
   debit: string;
   credit: string;
   difference: string;
+  shortSide: BalanceSide | null;
   isBalanced: boolean;
 }
 
 const FIGURE = "text-muted-foreground font-normal";
 
+const SHORT_LABEL: Record<BalanceSide, string> = {
+  debit: "Debit kurang",
+  credit: "Kredit kurang",
+};
+
 export const BalanceSummary = (props: PropTypes) => {
-  const { debit, credit, difference, isBalanced } = props;
+  const { debit, credit, difference, shortSide, isBalanced } = props;
 
   const isEmpty = debit === "0" && credit === "0";
 
@@ -35,9 +42,9 @@ export const BalanceSummary = (props: PropTypes) => {
           ) : (
             <TriangleAlert aria-hidden className="size-4 shrink-0" />
           )}
-          {isBalanced
+          {isBalanced || shortSide === null
             ? "Seimbang"
-            : `Selisih ${formatRupiah(Number(difference))}`}
+            : `${SHORT_LABEL[shortSide]} ${formatRupiah(Number(difference))}`}
         </span>
       )}
 
