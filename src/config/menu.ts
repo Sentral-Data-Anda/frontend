@@ -397,6 +397,7 @@ export const FORM_SEGMENT = {
   end: "akhiri",
   reject: "tolak",
   rotation: "giliran",
+  kolekte: "kolekte",
   label: "label",
 } as const;
 
