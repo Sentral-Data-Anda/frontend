@@ -1,7 +1,12 @@
 import { afterEach, describe, expect, test } from "bun:test";
 
 import { MENU } from "../../../src/config/menu";
-import { ACCOUNT, JOURNAL_ENTRY, TODAY } from "../keuangan-store";
+import {
+  ACCOUNT,
+  JOURNAL_ENTRY,
+  TODAY,
+  journalOfSource,
+} from "../keuangan-store";
 import type { MockAction } from "../kit";
 
 import { CASH_TRANSFER, setoranMock } from "./setoran";
@@ -163,17 +168,26 @@ describe("mock /setoran catat", () => {
 
 describe("mock /setoran setor", () => {
   test("menulis entri D akun tujuan / K akun asal, sumber CASH_TRANSFER", async () => {
-    const code = draftCode();
-    const posted = await onCall("PUT", `/setoran/${code}/setor`);
-    const entry = JOURNAL_ENTRY.at(-1);
+    const row = CASH_TRANSFER.find((item) => item.status === "DRAFT");
+    const posted = await onCall("PUT", `/setoran/${row?.code}/setor`);
+    const entry = journalOfSource("CASH_TRANSFER", row?.id ?? 0);
 
     expect(posted?.status).toBe(200);
     expect(viewOf(posted?.body)?.status).toBe("PAID");
-    expect(entry?.sourceType).toBe("CASH_TRANSFER");
     expect(entry?.lines).toEqual([
       expect.objectContaining({ accountId: 4, debit: "6420000", credit: "0" }),
       expect.objectContaining({ accountId: 2, debit: "0", credit: "6420000" }),
     ]);
+  });
+
+  test("entri yang diklaim dokumen benar bisa dibuka dari Jurnal", async () => {
+    const row = CASH_TRANSFER.find((item) => item.status === "DRAFT");
+    const posted = await onCall("PUT", `/setoran/${row?.code}/setor`);
+    const claimed = (viewOf(posted?.body)?.journal as { code: string }).code;
+    const codes = JOURNAL_ENTRY.map((entry) => entry.code);
+
+    expect(codes).toContain(claimed);
+    expect(new Set(codes).size).toBe(codes.length);
   });
 
   test("setor dua kali ditolak", async () => {

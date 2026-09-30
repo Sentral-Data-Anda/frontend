@@ -1,6 +1,6 @@
 /**
  * Tiruan `/api/v1/setoran` (kontrak Keuangan §12). Larik `CASH_TRANSFER` milik
- * handler ini; `setor` dan `batal` menulis entri jurnal utuh — D akun tujuan /
+ * handler ini; jurnalnya ditulis store lewat satu pintu — D akun tujuan /
  * K akun asal — dengan `sourceType: "CASH_TRANSFER"`.
  *
  *   MOCK_EMPTY=1           → daftar kosong (404)
@@ -9,18 +9,15 @@
  */
 import { MENU } from "../../../src/config/menu";
 import type { AccountType, CashStatus } from "../../../src/types/keuangan";
-import { SESSION_USER_ID } from "../../mock-dashboard";
 import {
-  JOURNAL_ENTRY,
   TODAY,
   accountOf,
   accountRef,
   codeOf,
   isLive,
-  monthLabel,
-  periodOf,
-  type JournalEntryRow,
-  type JournalLineRow,
+  journalRefOfSource,
+  postDocumentEntry,
+  reverseDocumentEntry,
 } from "../keuangan-store";
 import {
   denied,
@@ -43,14 +40,13 @@ type TransferRow = {
   description: string;
   reference: string | null;
   status: CashStatus;
-  journalId: number | null;
 };
 
 type Issue = { path: string; message: string };
 
 const NOT_FOUND = "Setoran Tidak Ditemukan";
 
-const YEAR = TODAY.slice(0, 4);
+const SOURCE_TYPE = "CASH_TRANSFER";
 
 const pad = (value: number) => String(value).padStart(4, "0");
 
@@ -76,7 +72,6 @@ const transfer = (
   description,
   reference: null,
   status: "DRAFT",
-  journalId: null,
   ...extra,
 });
 
@@ -106,83 +101,33 @@ export const CASH_TRANSFER: TransferRow[] = [
   }),
 ];
 
-const nextLineId = () =>
-  Math.max(
-    0,
-    ...JOURNAL_ENTRY.flatMap((entry) => entry.lines.map((row) => row.id)),
-  ) + 1;
+const entryDescriptionOf = (row: TransferRow) => `Setoran ${row.code}`;
 
-const journalLines = (
-  debitAccountId: number,
-  creditAccountId: number,
-  amount: string,
-): JournalLineRow[] => {
-  const id = nextLineId();
+const reversalDescriptionOf = (row: TransferRow) =>
+  `Pembalikan setoran ${row.code}`;
 
-  return [
-    {
-      id,
-      accountId: debitAccountId,
-      debit: amount,
-      credit: "0",
-      description: null,
-    },
-    {
-      id: id + 1,
-      accountId: creditAccountId,
-      debit: "0",
-      credit: amount,
-      description: null,
-    },
-  ];
-};
+// D akun tujuan / K akun asal: uang berpindah, tidak bertambah atau berkurang.
+const entryLinesOf = (row: TransferRow) => [
+  { accountId: row.toAccountId, debit: row.amount, credit: "0" },
+  { accountId: row.fromAccountId, debit: "0", credit: row.amount },
+];
 
-// Entri ditulis utuh; be-sada memakai fungsi bersama `journalWrite`.
-function writeJournal(row: TransferRow, isReversal: boolean) {
-  const id = nextIdOf(JOURNAL_ENTRY);
-  const entry: JournalEntryRow = {
-    id,
-    publicId: `jrn-${pad(id)}`,
-    code: `JRN-${YEAR}-${pad(JOURNAL_ENTRY.length + 1)}`,
-    entryDate: isReversal ? TODAY : row.transferDate,
-    description: isReversal
-      ? `Pembalikan setoran ${row.code}`
-      : `Setoran ${row.code}`,
-    status: "POSTED",
-    sourceType: isReversal ? "MANUAL" : "CASH_TRANSFER",
-    sourceId: isReversal ? null : row.id,
-    reversalOfId: isReversal ? row.journalId : null,
-    postedById: SESSION_USER_ID,
-    postedAt: new Date().toISOString(),
-    lines: isReversal
-      ? journalLines(row.fromAccountId, row.toAccountId, row.amount)
-      : journalLines(row.toAccountId, row.fromAccountId, row.amount),
-  };
-
-  JOURNAL_ENTRY.push(entry);
-
-  return entry;
-}
-
-function applyCancel(row: TransferRow) {
-  const original = JOURNAL_ENTRY.find((entry) => entry.id === row.journalId);
-
-  if (original) original.status = "REVERSED";
-  writeJournal(row, true);
-  row.status = "CANCELLED";
-}
+const postEntry = (row: TransferRow) =>
+  postDocumentEntry({
+    sourceType: SOURCE_TYPE,
+    sourceId: row.id,
+    entryDate: row.transferDate,
+    description: entryDescriptionOf(row),
+    lines: entryLinesOf(row),
+  });
 
 // Setoran batal selalu lahir dari yang sudah disetor: pembukuannya ikut lahir.
 for (const row of CASH_TRANSFER.filter((item) => item.status !== "DRAFT")) {
-  row.journalId = writeJournal(row, false).id;
-  if (row.status === "CANCELLED") applyCancel(row);
+  postEntry(row);
+  if (row.status === "CANCELLED") {
+    reverseDocumentEntry(SOURCE_TYPE, row.id, reversalDescriptionOf(row));
+  }
 }
-
-const journalRefOf = (journalId: number | null) => {
-  const entry = JOURNAL_ENTRY.find((row) => row.id === journalId);
-
-  return entry ? { code: entry.code, status: entry.status } : null;
-};
 
 export const cashTransferView = (row: TransferRow) => ({
   id: row.id,
@@ -199,7 +144,7 @@ export const cashTransferView = (row: TransferRow) => ({
   bapel: null,
   status: row.status,
   method: null,
-  journal: journalRefOf(row.journalId),
+  journal: journalRefOfSource(SOURCE_TYPE, row.id),
 });
 
 const failure = (status: number, error: string, code?: string) =>
@@ -324,28 +269,6 @@ function accountFailure(parsed: Parsed): Response | null {
   return null;
 }
 
-function periodFailure(date: string): Response | null {
-  const period = periodOf(date);
-  const month = monthLabel(Number(date.slice(0, 4)), Number(date.slice(5, 7)));
-
-  if (!period) {
-    return failure(
-      400,
-      `Periode Fiskal ${month} Belum Dibuka`,
-      "PERIOD_NOT_OPEN",
-    );
-  }
-  if (period.status === "CLOSED" || process.env.MOCK_PERIOD_CLOSED) {
-    return failure(
-      400,
-      `Periode Fiskal ${month} Sudah Ditutup`,
-      "PERIOD_CLOSED",
-    );
-  }
-
-  return null;
-}
-
 const onCreate = async (ctx: MockContext) => {
   const parsed = parse(await readBody<Record<string, unknown>>(ctx.request));
   if (Array.isArray(parsed)) return invalid(parsed);
@@ -378,11 +301,13 @@ export function postTransfer(row: TransferRow) {
   const rejectedAccount = accountFailure(row);
   if (rejectedAccount) return rejectedAccount;
 
-  const rejectedPeriod = periodFailure(row.transferDate);
-  if (rejectedPeriod) return rejectedPeriod;
+  const posted = postEntry(row);
+
+  if ("failure" in posted) {
+    return failure(400, posted.failure.message, posted.failure.code);
+  }
 
   row.status = "PAID";
-  row.journalId = writeJournal(row, false).id;
 
   return ok("Berhasil Menyetor Setoran", row);
 }
@@ -401,10 +326,17 @@ const onCancel = async (ctx: MockContext, row: TransferRow) => {
     return invalid([{ path: "reason", message: "Mohon Lengkapi Alasan" }]);
   }
 
-  const rejectedPeriod = periodFailure(TODAY);
-  if (rejectedPeriod) return rejectedPeriod;
+  const reversed = reverseDocumentEntry(
+    SOURCE_TYPE,
+    row.id,
+    reversalDescriptionOf(row),
+  );
 
-  applyCancel(row);
+  if (reversed && "failure" in reversed) {
+    return failure(400, reversed.failure.message, reversed.failure.code);
+  }
+
+  row.status = "CANCELLED";
 
   return ok("Berhasil Membatalkan Setoran", row);
 };
