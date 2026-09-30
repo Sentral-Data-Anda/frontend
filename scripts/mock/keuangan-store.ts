@@ -1055,8 +1055,8 @@ export type PersembahanRow = {
 };
 
 // ---------------------------------------------------------------------------
-// Ibadah untuk pemilih di form kolekte. `/ddl/ibadah` belum ada di kontrak
-// maupun di mock bersama; bentuknya mengikuti pilihan ddl lain.
+// Ibadah untuk pemilih di form kolekte. `/ddl/ibadah` sudah ada di be-sada
+// dengan bentuk { id, code, name, date } — sama dengan yang ditiru di sini.
 
 const SUNDAY = 0;
 
