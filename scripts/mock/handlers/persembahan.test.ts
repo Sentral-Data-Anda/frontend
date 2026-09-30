@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 
 import { MENU, type MenuSlug } from "../../../src/config/menu";
-import { PERSEMBAHAN } from "../keuangan-store";
+import { PERSEMBAHAN, TODAY } from "../keuangan-store";
 import type { MockAction, MockHandler } from "../kit";
 
 import { persembahanMock } from "./persembahan";
@@ -42,7 +42,7 @@ const batch = (items: unknown[], extra: Record<string, unknown> = {}) =>
   call("/persembahan/batch", [MENU.PERSEMBAHAN], {
     method: "POST",
     body: JSON.stringify({
-      receivedDate: PERSEMBAHAN[0]?.receivedDate,
+      receivedDate: TODAY,
       receiveMethod: "TUNAI",
       items,
       ...extra,

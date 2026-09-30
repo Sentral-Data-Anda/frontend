@@ -134,6 +134,12 @@ const lastWeekday = (weekday: number, weeksBack = 0) => {
   return addDays(TODAY, -back - weeksBack * 7);
 };
 
+const nextWeekday = (weekday: number, weeksAhead = 0) => {
+  const ahead = (weekday - weekdayOf(TODAY) + 7) % 7 || 7;
+
+  return addDays(TODAY, ahead + weeksAhead * 7);
+};
+
 const SPECIAL = {
   notCounted: { date: lastWeekday(3), typeIbadahId: DOA },
   longTheme: { date: lastWeekday(0, 2), typeIbadahId: MINGGU_II },
@@ -273,7 +279,11 @@ const zoneSeeds = (): Seed[] =>
     const rotation = eligibleHosts(zoneChurchId).slice(0, -1);
 
     return Array.from({ length: 8 }, (_, week) => {
-      const date = addDays(lastWeekday(4, 5), week * 7);
+      // Dihitung dari dua sisi, bukan satu deret 8 pekan: kalau hari ini Kamis,
+      // deret itu mendarat tepat di hari ini dan merusak "hari ini selalu dua
+      // ibadah Minggu".
+      const date =
+        week < 6 ? lastWeekday(4, 5 - week) : nextWeekday(4, week - 6);
 
       return homeSeed(
         date,

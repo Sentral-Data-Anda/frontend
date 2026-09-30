@@ -26,12 +26,23 @@ import {
   STOCK_ITEM,
   STOCK_MOVEMENT,
 } from "../../../../../scripts/mock/inventaris-store";
+import { SESSION_USER_ID } from "../../../../../scripts/mock-dashboard";
+
+const DRAFT = OPNAME.find((row) => row.status === "DRAFT")!.code;
+const POSTED = OPNAME.find((row) => row.status === "POSTED")!.code;
+const CANCELLED = OPNAME.find((row) => row.status === "CANCELLED")!.code;
+const COMPLETED_BY_VIEWER = OPNAME.find(
+  (row) => row.status === "COMPLETED" && row.completedById === SESSION_USER_ID,
+)!.code;
+const COMPLETED = OPNAME.find(
+  (row) => row.status === "COMPLETED" && row.completedById !== SESSION_USER_ID,
+)!.code;
 
 const actions: { current: MenuAction[] } = { current: [] };
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: () => undefined, push: () => undefined }),
-  usePathname: () => "/inventaris/stok-opname/OPN-2026-0004",
+  usePathname: () => `/inventaris/stok-opname/${COMPLETED_BY_VIEWER}`,
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -127,7 +138,7 @@ const onConfirm = async (label: string) => {
 
 describe("aksi per status × izin", () => {
   test("Draf: Batalkan, Selesai dihitung, Ubah", async () => {
-    onRender(ALL, "OPN-2026-0005");
+    onRender(ALL, DRAFT);
 
     expect(await actionNames()).toEqual([
       "Batalkan",
@@ -137,31 +148,31 @@ describe("aksi per status × izin", () => {
   });
 
   test("Selesai dihitung: Batalkan dan Posting; tanpa UPDATE hanya Batalkan", async () => {
-    onRender(ALL, "OPN-2026-0003");
+    onRender(ALL, COMPLETED);
 
     expect(await actionNames()).toEqual(["Batalkan", "Posting"]);
     cleanup();
-    onRender(["VIEW", "DELETE"], "OPN-2026-0003");
+    onRender(["VIEW", "DELETE"], COMPLETED);
 
     expect(await actionNames()).toEqual(["Batalkan"]);
   });
 
   test("Draf tanpa DELETE: tanpa Batalkan", async () => {
-    onRender(["VIEW", "UPDATE"], "OPN-2026-0005");
+    onRender(["VIEW", "UPDATE"], DRAFT);
 
     expect(await actionNames()).toEqual(["Selesai dihitung", "Ubah"]);
   });
 
   test("Diposting dan Dibatalkan: tanpa aksi", async () => {
-    onRender(ALL, "OPN-2026-0001");
+    onRender(ALL, POSTED);
     expect(await actionNames()).toEqual([]);
     cleanup();
-    onRender(ALL, "OPN-2026-0002");
+    onRender(ALL, CANCELLED);
     expect(await actionNames()).toEqual([]);
   });
 
   test("tanpa VIEW: keadaan tanpa akses", async () => {
-    onRender([], "OPN-2026-0001");
+    onRender([], POSTED);
 
     expect(
       await screen.findByText("Anda tidak memiliki akses ke Stok Opname"),
@@ -171,7 +182,7 @@ describe("aksi per status × izin", () => {
 
 describe("konfirmasi dan galat", () => {
   test("selesai: teks konfirmasi; baris selisih tanpa catatan ditandai", async () => {
-    onRender(ALL, "OPN-2026-0005");
+    onRender(ALL, DRAFT);
 
     expect(await onConfirm("Selesai dihitung")).toContain(
       "Apakah Anda ingin menandai stok opname ini selesai dihitung? Hitungan tidak bisa diubah lagi.",
@@ -185,7 +196,7 @@ describe("konfirmasi dan galat", () => {
   });
 
   test("posting oleh penyelesai: peringatan di atas tombol dan di dialog; sukses meng-invalidate stok", async () => {
-    const queryClient = onRender(ALL, "OPN-2026-0004");
+    const queryClient = onRender(ALL, COMPLETED_BY_VIEWER);
     const invalidated: unknown[] = [];
     const original = queryClient.invalidateQueries.bind(queryClient);
 
@@ -211,7 +222,7 @@ describe("konfirmasi dan galat", () => {
   });
 
   test("posting 409 → FormAlert dan penjelasan ulangi", async () => {
-    onRender(ALL, "OPN-2026-0003");
+    onRender(ALL, COMPLETED);
     await onConfirm("Posting");
 
     expect(await screen.findByText("Hitungan perlu diulang.")).toBeTruthy();
@@ -224,7 +235,7 @@ describe("konfirmasi dan galat", () => {
   });
 
   test("batalkan: teks konfirmasi hapus, status berubah", async () => {
-    onRender(ALL, "OPN-2026-0005");
+    onRender(ALL, DRAFT);
 
     expect(await onConfirm("Batalkan")).toContain(
       "Apakah Anda ingin membatalkan stok opname ini? Hitungannya tetap tersimpan sebagai riwayat.",

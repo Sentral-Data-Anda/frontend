@@ -23,10 +23,19 @@ import {
   GOODS_RECEIPT,
   PURCHASE_ORDER,
   TODAY,
-  purchaseOrderByCode,
   receiveGoods,
 } from "../../../../../scripts/mock/pengadaan-store";
 import { onStubViewport } from "../../../../../tests/viewport";
+
+const KERTAS_RECEIPT = GOODS_RECEIPT.find(
+  (row) => row.note === "Dus kertas agak basah di satu sisi.",
+)!;
+const KERTAS_ORDER = PURCHASE_ORDER.find(
+  (row) => row.id === KERTAS_RECEIPT.purchaseOrderId,
+)!;
+const KURSI_ORDER = PURCHASE_ORDER.find(
+  (row) => row.status === "ISSUED" && row.items[0]?.name.startsWith("Kursi"),
+);
 
 const grants: { current: Partial<Record<MenuSlug, MenuAction[]>> } = {
   current: {},
@@ -34,7 +43,7 @@ const grants: { current: Partial<Record<MenuSlug, MenuAction[]>> } = {
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: () => undefined }),
-  usePathname: () => "/pengadaan/penerimaan-barang/GRN-2026-0001",
+  usePathname: () => `/pengadaan/penerimaan-barang/${KERTAS_RECEIPT.code}`,
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -121,15 +130,14 @@ const onRender = (
 };
 
 const receiveChairs = (quantity: number) => {
-  const order = purchaseOrderByCode("PO-2026-0006");
   const result = receiveGoods({
-    purchaseOrderId: order?.id ?? 0,
+    purchaseOrderId: KURSI_ORDER?.id ?? 0,
     receivedDate: TODAY,
     note: null,
     attachments: [],
     items: [
       {
-        purchaseOrderItemId: order?.items[0]?.id ?? 0,
+        purchaseOrderItemId: KURSI_ORDER?.items[0]?.id ?? 0,
         quantityReceived: quantity,
         target: "ASSET",
         stockItemId: null,
@@ -143,7 +151,7 @@ const receiveChairs = (quantity: number) => {
 
 describe("halaman penerimaan", () => {
   test("tanpa VIEW: keadaan tanpa akses", () => {
-    onRender("GRN-2026-0001", {});
+    onRender(KERTAS_RECEIPT.code, {});
 
     expect(
       screen.getByText("Anda tidak memiliki akses ke Penerimaan Barang"),
@@ -178,13 +186,13 @@ describe("halaman penerimaan", () => {
   });
 
   test("tanpa VIEW Barang/Persediaan: kode tanpa tautan; lampiran tampil", async () => {
-    onRender("GRN-2026-0001", { PENERIMAAN_BARANG: ["VIEW"] });
+    onRender(KERTAS_RECEIPT.code, { PENERIMAAN_BARANG: ["VIEW"] });
 
     expect(
       await screen.findByText("Dus kertas agak basah di satu sisi."),
     ).toBeTruthy();
     expect(screen.queryByRole("link", { name: "BRP-0004" })).toBeNull();
-    expect(screen.queryByRole("link", { name: "PO-2026-0001" })).toBeNull();
+    expect(screen.queryByRole("link", { name: KERTAS_ORDER.code })).toBeNull();
     expect(
       within(
         screen.getByRole("list", { name: "Nota dan surat jalan" }),

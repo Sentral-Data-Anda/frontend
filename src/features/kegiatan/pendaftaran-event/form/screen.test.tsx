@@ -13,7 +13,10 @@ import type { MenuAction } from "@/types/menu";
 
 import { kegiatanMock } from "../../../../../scripts/mock/handlers/kegiatan";
 import { pendaftaranEventMock } from "../../../../../scripts/mock/handlers/pendaftaran-event";
-import { REGISTRATION } from "../../../../../scripts/mock/kegiatan-store";
+import {
+  REGISTRATION,
+  registrationCodeOf,
+} from "../../../../../scripts/mock/kegiatan-store";
 import { DDL_JEMAAT } from "../../../../../scripts/mock-dashboard";
 import { PENDAFTARAN_LIST_PATH } from "../model";
 
@@ -40,6 +43,7 @@ const { PendaftaranFormScreen } = await import("./screen");
 
 const originalFetch = globalThis.fetch;
 const SNAPSHOT = structuredClone(REGISTRATION);
+const NEW_CODE = registrationCodeOf(SNAPSHOT.length + 1);
 const posted: unknown[] = [];
 const ddlCalls: string[] = [];
 
@@ -141,7 +145,7 @@ describe("daftarkan peserta", () => {
     expect(replaced[0]).toBe(`${PENDAFTARAN_LIST_PATH}?event=4`);
     expect(
       window.sessionStorage.getItem(`list-focus:${PENDAFTARAN_LIST_PATH}`),
-    ).toBe("REG-2026-0015");
+    ).toBe(NEW_CODE);
   });
 
   test("jemaat tanpa telepon: field Telepon muncul, kirim ulang membawanya", async () => {
@@ -213,7 +217,7 @@ describe("daftarkan peserta", () => {
     await onSaveConfirmed();
 
     await waitFor(() => expect(replaced).toHaveLength(1));
-    expect(replaced[0]).toBe(`${PENDAFTARAN_LIST_PATH}/REG-2026-0015`);
+    expect(replaced[0]).toBe(`${PENDAFTARAN_LIST_PATH}/${NEW_CODE}`);
   });
 
   test("tamu: nama dan telepon diketik, jemaatId null", async () => {

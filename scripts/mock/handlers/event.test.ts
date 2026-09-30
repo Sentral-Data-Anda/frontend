@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { TODAY } from "../kegiatan-store";
+import { TODAY, eventCodeOf } from "../kegiatan-store";
 
 import { eventMock } from "./event";
 
@@ -33,6 +33,8 @@ const formOf = (fields: Record<string, string>) => {
   for (const [key, value] of Object.entries(fields)) form.append(key, value);
   return form;
 };
+
+const RETRET_CODE = eventCodeOf(2, 1);
 
 const RETRET = {
   name: "Retret Pemuda",
@@ -89,17 +91,17 @@ describe("mock /event", () => {
   test("PUT ubah harga saat berpendaftar: 400 isPaid; nilai sama lolos", async () => {
     const changed = await call(
       "PUT",
-      "/event/evn_0002-2026-0001",
+      `/event/${RETRET_CODE.toLowerCase()}`,
       formOf({ ...RETRET, price: "300000" }),
     );
 
     expect(changed.status).toBe(400);
     expect(changed.body.issues[0].path).toBe("isPaid");
 
-    const { body: saved } = await call("GET", "/event/EVN_0002-2026-0001");
+    const { body: saved } = await call("GET", `/event/${RETRET_CODE}`);
     const same = await call(
       "PUT",
-      "/event/EVN_0002-2026-0001",
+      `/event/${RETRET_CODE}`,
       formOf({
         ...RETRET,
         startDate: saved.data.startDate.slice(0, 10),
@@ -111,13 +113,13 @@ describe("mock /event", () => {
     );
 
     expect(same.status).toBe(200);
-    expect(same.body.data.code).toBe("EVN_0002-2026-0001");
+    expect(same.body.data.code).toBe(RETRET_CODE);
   });
 
   test("PUT kapasitas di bawah pendaftar: 400 capacity", async () => {
     const { status, body } = await call(
       "PUT",
-      "/event/EVN_0002-2026-0001",
+      `/event/${RETRET_CODE}`,
       formOf({ ...RETRET, capacity: "2" }),
     );
 
@@ -131,7 +133,7 @@ describe("mock /event", () => {
   test("jam selesai hanya diperiksa di hari yang sama", async () => {
     const sameDay = await call(
       "PUT",
-      "/event/EVN_0002-2026-0001",
+      `/event/${RETRET_CODE}`,
       formOf({ ...RETRET, endDate: "2026-10-12", endTime: "06:00" }),
     );
 
@@ -139,7 +141,7 @@ describe("mock /event", () => {
   });
 
   test("DELETE berpendaftar ditolak", async () => {
-    const { status, body } = await call("DELETE", "/event/EVN_0002-2026-0001");
+    const { status, body } = await call("DELETE", `/event/${RETRET_CODE}`);
 
     expect(status).toBe(400);
     expect(body.error).toBe(

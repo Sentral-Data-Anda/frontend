@@ -10,6 +10,7 @@ import {
   test,
 } from "bun:test";
 
+import { todayJakarta } from "@/lib/date";
 import type { MenuAction } from "@/types/menu";
 
 import { stokOpnameMock } from "../../../../../scripts/mock/handlers/stok-opname";
@@ -107,8 +108,17 @@ describe("daftar", () => {
   });
 
   test("filter URL → query be-sada", async () => {
+    // Satu-satunya DRAFT di seed bertanggal hari ini, jadi bulannya ikut hari
+    // ini — bukan bulan yang dipatok.
+    const month = todayJakarta().slice(0, 7);
+    const lastDay = new Date(
+      Date.UTC(Number(month.slice(0, 4)), Number(month.slice(5, 7)), 0),
+    )
+      .toISOString()
+      .slice(0, 10);
+
     search.current = new URLSearchParams(
-      "bulan=2026-09&status=DRAFT&ruang=2&search=OPN",
+      `bulan=${month}&status=DRAFT&ruang=2&search=OPN`,
     );
     onRenderList(["VIEW", "CREATE"]);
 
@@ -120,8 +130,8 @@ describe("daftar", () => {
       filter: "OPN",
       status: "DRAFT",
       roomId: "2",
-      startDate: "2026-09-01",
-      endDate: "2026-09-30",
+      startDate: `${month}-01`,
+      endDate: lastDay,
     });
     expect(
       screen.getByRole("link", { name: "Tambah stok opname" }),

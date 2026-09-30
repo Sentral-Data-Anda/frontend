@@ -12,6 +12,7 @@ import { afterEach, describe, expect, mock, test } from "bun:test";
 import type { MenuAction } from "@/types/menu";
 
 import { eventMock } from "../../../../../scripts/mock/handlers/event";
+import { EVENT } from "../../../../../scripts/mock/kegiatan-store";
 import { EVENT_LIST_PATH } from "../model";
 
 const actions: { current: MenuAction[] } = { current: [] };
@@ -45,7 +46,7 @@ mock.module("@/features/auth/use-menu-access", () => ({
 
 const { EventFormScreen } = await import("./screen");
 
-const RETRET = "EVN_0002-2026-0001";
+const RETRET = EVENT.find((row) => row.name === "Retret Pemuda")!.code;
 const originalFetch = globalThis.fetch;
 
 type Sent = { method: string; url: string; body: FormData };

@@ -109,11 +109,12 @@ describe("daftar penerimaan", () => {
   });
 
   test("CREATE: tombol catat; cari + bulan → filter, startDate, endDate", async () => {
-    const month =
-      GOODS_RECEIPT.find(
-        (row) => row.code === "GRN-2026-0001",
-      )?.receivedDate.slice(0, 7) ?? "";
-    search.current = new URLSearchParams(`bulan=${month}&search=GRN-2026-0001`);
+    const receipt = GOODS_RECEIPT[0];
+    const month = receipt.receivedDate.slice(0, 7);
+
+    search.current = new URLSearchParams(
+      `bulan=${month}&search=${receipt.code}`,
+    );
     onRenderList(["VIEW", "CREATE"]);
 
     expect(await screen.findByText("1 penerimaan")).toBeTruthy();
@@ -127,7 +128,7 @@ describe("daftar penerimaan", () => {
     expect(
       Object.fromEntries(new URLSearchParams(listCall?.split("?")[1])),
     ).toMatchObject({
-      filter: "GRN-2026-0001",
+      filter: receipt.code,
       startDate: `${month}-01`,
     });
   });

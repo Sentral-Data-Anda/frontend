@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 
 import { MENU, type MenuSlug } from "../../../src/config/menu";
+import { todayJakarta } from "../../../src/lib/date";
 import type { MockAction, MockHandler } from "../kit";
 
 import { jurnalMock } from "./jurnal";
@@ -47,7 +48,7 @@ describe("kontrak Beranda tetap sesudah pindah dari dev-mock", () => {
     expect(Object.keys(rows[0] ?? {})).toEqual(
       expect.arrayContaining(["year", "month", "label", "status"]),
     );
-    expect(rows[0]?.label).toBe(`Januari ${new Date().getFullYear()}`);
+    expect(rows[0]?.label).toBe(`Januari ${todayJakarta().slice(0, 4)}`);
     expect(["OPEN", "CLOSED"]).toContain(rows[0]?.status as string);
   });
 

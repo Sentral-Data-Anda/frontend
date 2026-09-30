@@ -126,10 +126,12 @@ describe("bentrok", () => {
   });
 
   test("ibadah tanpa jam selesai dianggap 2 jam", () => {
+    // Mulai dari besok, bukan hari ini: seed ibadah menimpa HARI INI dengan
+    // dua ibadah Minggu, jadi jendela yang memuat hari ini kehilangan satu
+    // hari dalam sepekan — pas hari itu yang dicari.
     const open = [...Array(7).keys()]
-      .flatMap((offset) =>
-        ibadahInRoom(3, addDays(TODAY, offset), addDays(TODAY, offset)),
-      )
+      .map((offset) => addDays(TODAY, offset + 1))
+      .flatMap((date) => ibadahInRoom(3, date, date))
       .find((row) => row.endTime === null)!;
     const item = occupancyOf(3, open.date).find(
       (row) => row.kind === "IBADAH",

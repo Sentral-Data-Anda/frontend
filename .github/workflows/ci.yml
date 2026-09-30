@@ -96,3 +96,38 @@ jobs:
           # Menstempel versi service worker (/sw.js?v=<id>) dan build id Next.
           # Commit SHA membuatnya stabil dan bisa ditelusuri balik ke kodenya.
           BUILD_ID: ${{ github.sha }}
+
+      # Suite yang sama, dijalankan ulang dengan kalender digeser.
+      #
+      # Seluruh seed mock bertanggal RELATIF terhadap hari ini, sementara
+      # sebagian test menilainya dengan patokan MUTLAK (bulan berjalan, hari
+      # Minggu, tahun 2026). Campuran itu lolos diam-diam selama suite hanya
+      # pernah dijalankan "hari ini", lalu pecah pada tanggal tertentu tanpa
+      # satu pun commit yang menyebabkannya: 1 Oktober 2026 menjatuhkan 8 test
+      # yang hijau sehari sebelumnya. Step `Test` di atas TIDAK BISA
+      # menangkapnya — ia hanya tahu tanggal saat CI kebetulan berjalan.
+      #
+      # Tanggalnya dipilih untuk mewakili kelas kegagalannya, bukan acak:
+      # 2026-11-01 (tanggal 1, sekaligus Minggu), 2026-12-31 (Kamis, hari
+      # terakhir bulan sekaligus tahun), 2027-06-19 (Sabtu, dan tahun yang
+      # BUKAN 2026 — kelas terbesar yang pernah ditemukan di sini adalah test
+      # yang mengeja tahun ke dalam kode dokumen). Ketiganya menutup Minggu,
+      # Kamis, Sabtu, awal bulan, akhir bulan, dan pergantian tahun.
+      # Mekanismenya ada di tests/setup.ts (MOCK_TODAY).
+      #
+      # Januari dan Februari SENGAJA tidak ada di daftar: FISCAL_PERIOD hanya
+      # dibangun untuk tahun berjalan dengan `month < MONTH - 1`, jadi pada
+      # dua bulan itu tidak ada satu pun periode berstatus CLOSED dan
+      # kas-masuk.test.ts ikut merah. Itu utang yang belum dibayar, bukan
+      # tanggal yang aman — lihat catatan di scripts/mock/keuangan-store.ts.
+      #
+      # Langkah ini tidak wajib hijau untuk menahan rilis — karena itu
+      # continue-on-error — tapi ia harus KELIHATAN, supaya kelas bug ini
+      # ketahuan saat ditulis dan bukan pada tanggal ia meledak.
+      - name: Test (kalender digeser)
+        run: bun run test:dates
+        continue-on-error: true
+        env:
+          API_BASE_URL: http://127.0.0.1:3001/api
+          NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3000
+          BUILD_ID: ${{ github.sha }}

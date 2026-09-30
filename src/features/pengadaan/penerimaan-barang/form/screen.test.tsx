@@ -34,8 +34,12 @@ import type { MockContext } from "../../../../../scripts/mock/kit";
 import {
   GOODS_RECEIPT,
   PURCHASE_ORDER,
-  purchaseOrderByCode,
 } from "../../../../../scripts/mock/pengadaan-store";
+
+const PO_SISA = PURCHASE_ORDER.find(
+  (row) => row.status === "PARTIALLY_RECEIVED",
+)!;
+const PO_USD = PURCHASE_ORDER.find((row) => row.currencyCode === "USD")!;
 
 const actions: { current: MenuAction[] } = { current: [] };
 const search = { current: "" };
@@ -200,7 +204,7 @@ const onOpenPrefilled = async (code: string, count: number) => {
 
 describe("muat baris", () => {
   test("?pesanan= memuat baris bersisa sekali, jumlah bawaan = sisa", async () => {
-    await onOpenPrefilled("PO-2026-0003", 2);
+    await onOpenPrefilled(PO_SISA.code, 2);
 
     expect(
       cardOf(0).getByText("Proyektor Epson EB-X51", { selector: "span[id]" }),
@@ -210,18 +214,18 @@ describe("muat baris", () => {
     expect(
       screen.getByText("2 baris · 0 barang baru · 0 baris persediaan"),
     ).toBeTruthy();
-    expect(orderFetches).toEqual(["PO-2026-0003"]);
+    expect(orderFetches).toEqual([PO_SISA.code]);
   });
 
   test("ganti pesanan sesudah baris diisi meminta konfirmasi", async () => {
-    await onOpenPrefilled("PO-2026-0003", 2);
+    await onOpenPrefilled(PO_SISA.code, 2);
     onPickTarget(0, "Barang");
 
     fireEvent.click(
       screen.getAllByRole("button", { name: "Buka pilihan" })[0] as HTMLElement,
     );
     fireEvent.click(
-      await screen.findByRole("option", { name: /PO-2026-0004/ }),
+      await screen.findByRole("option", { name: new RegExp(PO_USD.code) }),
     );
 
     expect(await dialogText()).toContain(
@@ -234,7 +238,7 @@ describe("muat baris", () => {
       screen.getAllByRole("button", { name: "Buka pilihan" })[0] as HTMLElement,
     );
     fireEvent.click(
-      await screen.findByRole("option", { name: /PO-2026-0004/ }),
+      await screen.findByRole("option", { name: new RegExp(PO_USD.code) }),
     );
     await onAnswer("Ya");
 
@@ -248,9 +252,9 @@ describe("muat baris", () => {
 
   test("peran hanya penerimaan (tanpa PESANAN_PEMBELIAN) tetap memuat baris pesanan", async () => {
     serverMenus.current = [MENU.PENERIMAAN_BARANG];
-    await onOpenPrefilled("PO-2026-0003", 2);
+    await onOpenPrefilled(PO_SISA.code, 2);
 
-    expect(orderFetches).toEqual(["PO-2026-0003"]);
+    expect(orderFetches).toEqual([PO_SISA.code]);
     expect(quantityOf(1).value).toBe("20");
   });
 
@@ -268,7 +272,7 @@ describe("muat baris", () => {
 
 describe("kartu", () => {
   test("jenis wajib dipilih; fokus ke jenis pertama; tanpa POST", async () => {
-    await onOpenPrefilled("PO-2026-0003", 2);
+    await onOpenPrefilled(PO_SISA.code, 2);
     onSave();
 
     await waitFor(() =>
@@ -281,7 +285,7 @@ describe("kartu", () => {
   });
 
   test("pesanan USD: hint harga perolehan dalam Rupiah", async () => {
-    await onOpenPrefilled("PO-2026-0004", 1);
+    await onOpenPrefilled(PO_USD.code, 1);
     onPickTarget(0, "Barang");
 
     expect(
@@ -290,7 +294,7 @@ describe("kartu", () => {
   });
 
   test("persediaan: opsi pertama baru di ruang pesanan, satuan lain nonaktif", async () => {
-    await onOpenPrefilled("PO-2026-0003", 2);
+    await onOpenPrefilled(PO_SISA.code, 2);
     onPickTarget(1, "Barang persediaan");
 
     fireEvent.click(cardOf(1).getByRole("button", { name: "Buka pilihan" }));
@@ -315,7 +319,7 @@ describe("kartu", () => {
 
 describe("simpan", () => {
   test("konfirmasi final, multipart, halaman penerimaan baru, invalidasi Inventaris", async () => {
-    const queryClient = await onOpenPrefilled("PO-2026-0003", 2);
+    const queryClient = await onOpenPrefilled(PO_SISA.code, 2);
     const invalidated: unknown[] = [];
     const original = queryClient.invalidateQueries.bind(queryClient);
 
@@ -337,17 +341,16 @@ describe("simpan", () => {
       expect(replaced[0]).toMatch(/^\/pengadaan\/penerimaan-barang\/GRN-/),
     );
     const [body] = posts;
-    const order = purchaseOrderByCode("PO-2026-0003");
 
     expect(body?.has("receivedBy")).toBe(false);
     expect(JSON.parse(String(body?.get("items")))).toEqual([
       {
-        purchaseOrderItemId: order?.items[0]?.id,
+        purchaseOrderItemId: PO_SISA.items[0]?.id,
         quantityReceived: 1,
         target: "ASSET",
       },
       {
-        purchaseOrderItemId: order?.items[1]?.id,
+        purchaseOrderItemId: PO_SISA.items[1]?.id,
         quantityReceived: 20,
         target: "STOCK",
         stockItemId: null,
@@ -366,7 +369,7 @@ describe("simpan", () => {
 
   test("galat server items.<i>.quantityReceived → kartu form yang benar + fokus", async () => {
     process.env.MOCK_RECEIPT_RACE = "1";
-    await onOpenPrefilled("PO-2026-0003", 2);
+    await onOpenPrefilled(PO_SISA.code, 2);
 
     fireEvent.click(
       cardOf(0).getByRole("button", {

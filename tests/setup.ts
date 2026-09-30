@@ -119,3 +119,57 @@ mock.module("@/lib/env", () => ({
     },
   },
 }));
+
+/**
+ * `MOCK_TODAY=YYYY-MM-DD bun test` menggeser kalender maju/mundur sejumlah
+ * hari penuh. Dipakai `bun run test:dates` (lihat package.json) untuk
+ * membuktikan suite tidak bergantung pada tanggal hari ini.
+ *
+ * KENAPA ADA: seluruh seed mock bertanggal RELATIF (`addDays(TODAY, -3)`,
+ * `day(-18)`, `lastWeekday(4)`), sementara sebagian test menilainya dengan
+ * patokan MUTLAK — bulan berjalan, hari Minggu, tahun 2026. Selama suite
+ * hanya dijalankan "hari ini", campuran itu lolos diam-diam dan baru pecah
+ * pada tanggal tertentu: 1 Oktober 2026 menjatuhkan 8 test yang hijau sehari
+ * sebelumnya, tanpa satu pun commit di antaranya.
+ *
+ * KENAPA BUKAN `setSystemTime` DARI `bun:test`: fungsi itu MEMBEKUKAN jam —
+ * `Date.now()` tidak lagi bertambah (terbukti: delta 0 setelah sleep 120ms).
+ * Test yang mengukur waktu berjalan sungguhan (kedaluwarsa step-up di
+ * `offering-section.test.tsx` memakai `expireMs: 50` lalu menunggu 80ms)
+ * jadi merah karena jamnya, bukan karena tanggalnya. Guard yang melaporkan
+ * kegagalan palsu akan dimatikan orang, jadi jamnya harus tetap berdetak:
+ * yang digeser hanya HARI, dengan jam-menit-detik dibiarkan apa adanya.
+ *
+ * Pergeseran dihitung terhadap `todayJakarta()` — zona yang sama yang
+ * dipakai seluruh aplikasi — supaya `MOCK_TODAY` berarti persis "hari ini
+ * menurut aplikasi", bukan menurut UTC.
+ */
+const mockToday = process.env.MOCK_TODAY;
+
+if (mockToday) {
+  const RealDate = Date;
+  const dayOf = (value: Date) =>
+    new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Asia/Jakarta",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).format(value);
+  const shift =
+    RealDate.parse(`${mockToday}T00:00:00Z`) -
+    RealDate.parse(`${dayOf(new RealDate())}T00:00:00Z`);
+
+  class ShiftedDate extends RealDate {
+    constructor(...args: unknown[]) {
+      super(
+        ...((args.length === 0 ? [RealDate.now() + shift] : args) as [number]),
+      );
+    }
+
+    static now() {
+      return RealDate.now() + shift;
+    }
+  }
+
+  globalThis.Date = ShiftedDate as DateConstructor;
+}

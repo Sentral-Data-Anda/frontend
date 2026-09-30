@@ -9,7 +9,7 @@ import {
 } from "@testing-library/react";
 import { afterEach, describe, expect, mock, test } from "bun:test";
 
-import { addDays, todayJakarta, toInputText } from "@/lib/date";
+import { addDays, todayJakarta, toInputText, weekdayIndex } from "@/lib/date";
 import { formatDate, formatWeekday } from "@/lib/format";
 import type { MenuAction } from "@/types/menu";
 
@@ -390,14 +390,20 @@ describe("tambah tiap minggu", () => {
   test("tambah hari kedua: tanggal bertambah dan ringkasan menyebut keduanya", async () => {
     await onWeekly();
 
-    const first = formatWeekday(START);
-    const second = formatWeekday(addDays(START, 2));
+    const other = addDays(START, 2);
+    const second = formatWeekday(other);
+    // Ringkasan mengurutkan hari menurut urutan pekan (Senin dulu), bukan
+    // urutan pilih — pasangan ini terbalik kalau START jatuh di akhir pekan.
+    const [early, late] =
+      weekdayIndex(START) < weekdayIndex(other)
+        ? [formatWeekday(START), second]
+        : [second, formatWeekday(START)];
 
     fireEvent.click(screen.getByRole("checkbox", { name: second }));
 
     expect(
       await screen.findByText(
-        `Tiap ${first} dan ${second}, pukul 19.00–21.00, ${formatDate(START)} s.d. ${formatDate(addDays(START, 21))} · 7 kali.`,
+        `Tiap ${early} dan ${late}, pukul 19.00–21.00, ${formatDate(START)} s.d. ${formatDate(addDays(START, 21))} · 7 kali.`,
       ),
     ).toBeTruthy();
   });
