@@ -377,16 +377,19 @@ describe("posting persembahan", () => {
   });
 
   test("entri batch ditulis lewat pintu bersama: satu entri per persembahan", async () => {
+    // Hanya entri yang dibuat tekan ini — seed boleh memuat persembahan yang
+    // sudah dibalik, dan itu bukan urusan test ini.
+    const before = new Set(JOURNAL_ENTRY.map((row) => row.id));
+
     await onCall("POST", "/jurnal/posting-persembahan", rangeOf());
 
-    const written = JOURNAL_ENTRY.filter(
-      (row) => row.sourceType === "PERSEMBAHAN" && row.sourceId !== null,
-    );
+    const written = JOURNAL_ENTRY.filter((row) => !before.has(row.id));
     const ids = written.map((row) => row.sourceId);
 
     expect(written.length).toBeGreaterThan(0);
     expect(new Set(ids).size).toBe(ids.length);
     for (const row of written) {
+      expect(row.sourceType).toBe("PERSEMBAHAN");
       expect(journalOfSource("PERSEMBAHAN", row.sourceId as number)).toBe(row);
       expect(row.status).toBe("POSTED");
       expect(row.lines).toHaveLength(2);
