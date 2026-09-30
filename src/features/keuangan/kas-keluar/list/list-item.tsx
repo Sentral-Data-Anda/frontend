@@ -17,6 +17,7 @@ import {
   expenseEditHref,
   expenseHref,
   isLocked,
+  rejectionMarkOf,
 } from "../model";
 import type { CashExpense } from "../types";
 import { ExpenseStateBadge } from "../ui";
@@ -35,6 +36,25 @@ const amountOf = (row: CashExpense) => formatRupiah(Number(row.totalAmount));
 
 const metaOf = (row: CashExpense) =>
   [row.code, accountOf(row), formatDateShort(row.expenseDate)].join(" · ");
+
+const REJECTED_MARK = "text-warning-foreground font-medium";
+
+// Ditolak mengembalikan dokumen ke Draf, jadi penandanya hidup di baris meta:
+// lencana kedua akan bersaing dengan status dan tidak ada yang tahu mana status.
+// Di HP baris meta hanya muat satu hal, jadi akun dan tanggal mengalah ke kode
+// plus alasannya — keduanya tetap lengkap di halaman baca.
+const metaNodeOf = (row: CashExpense) => {
+  const mark = rejectionMarkOf(row);
+
+  return mark ? (
+    <>
+      {`${row.code} · `}
+      <span className={REJECTED_MARK}>{mark}</span>
+    </>
+  ) : (
+    metaOf(row)
+  );
+};
 
 const isEditable = (row: CashExpense) =>
   row.status === "DRAFT" && !isLocked(row);
@@ -76,7 +96,7 @@ export const ExpenseListItem = (props: PropTypes) => {
           {row.payee}
         </Link>
       }
-      meta={metaOf(row)}
+      meta={metaNodeOf(row)}
       trailing={
         <>
           <span className="flex flex-col items-end">
@@ -120,11 +140,25 @@ const COLUMNS: Column[] = [
     key: "payee",
     header: "Kepada",
     width: "minmax(0,2fr)",
-    cell: (row) => (
-      <span className="block truncate font-medium" title={row.payee}>
-        {row.payee}
-      </span>
-    ),
+    cell: (row) => {
+      const mark = rejectionMarkOf(row);
+
+      return (
+        <span className="block min-w-0">
+          <span className="block truncate font-medium" title={row.payee}>
+            {row.payee}
+          </span>
+          {mark ? (
+            <span
+              className={`block truncate text-caption ${REJECTED_MARK}`}
+              title={mark}
+            >
+              {mark}
+            </span>
+          ) : null}
+        </span>
+      );
+    },
   },
   {
     key: "account",

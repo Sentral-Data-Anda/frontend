@@ -77,6 +77,11 @@ export const SummaryPanel = (props: PropTypes) => {
             )}
           </DescriptionItem>
         ) : null}
+        {expense.cancelReason ? (
+          <DescriptionItem label="Alasan pembatalan" isWide isStacked>
+            <span className="wrap-break-word">{expense.cancelReason}</span>
+          </DescriptionItem>
+        ) : null}
         <DescriptionItem label="Keterangan" isWide isStacked>
           <span className="wrap-break-word">{expense.description}</span>
         </DescriptionItem>

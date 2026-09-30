@@ -1,5 +1,11 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import {
+  cleanup,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import {
   afterAll,
   afterEach,
@@ -103,6 +109,27 @@ describe("daftar kas keluar", () => {
     expect(await screen.findByText("CV Tirta Nusantara")).toBeTruthy();
     expect(screen.getByText("Rp 3.200.000")).toBeTruthy();
     expect(screen.getByText("Menunggu persetujuan")).toBeTruthy();
+  });
+
+  test("ditolak: penanda di baris meta, status tetap Draf, tanpa lencana kedua", async () => {
+    onRender([
+      rowOf({
+        approval: expenseApproval({
+          status: "REJECTED",
+          note: "Kas komisi belum cukup bulan ini.",
+        }),
+      }),
+    ]);
+
+    const mark = await screen.findByText(
+      /Ditolak · Kas komisi belum cukup bulan ini\./,
+    );
+
+    const rows = within(screen.getByLabelText("Daftar kas keluar"));
+
+    expect(mark.className).toContain("text-warning-foreground");
+    expect(rows.getByText("Draf")).toBeTruthy();
+    expect(rows.queryByText("Ditolak")).toBeNull();
   });
 
   test("tanpa kata Debit atau Kredit", async () => {

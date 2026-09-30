@@ -5,6 +5,7 @@ import { todayJakarta } from "@/lib/date";
 
 import {
   ALL_MONTHS,
+  EXPENSE_STATE_VARIANT,
   currentMonth,
   emptyExpenseForm,
   errorFixOf,
@@ -13,6 +14,7 @@ import {
   isLocked,
   isRejected,
   toExpenseFormData,
+  rejectionMarkOf,
   toExpenseQuery,
   toFormError,
   type ExpenseFormValues,
@@ -73,6 +75,51 @@ describe("expenseStateOf", () => {
       expenseStateOf({ status: "PAID", approval: approval("APPROVED") }),
     ).toBe("PAID");
     expect(expenseStateOf({ status: "DRAFT", approval: null })).toBe("DRAFT");
+  });
+});
+
+describe("rejectionMarkOf", () => {
+  test("hanya dokumen yang ditolak yang bertanda", () => {
+    expect(
+      rejectionMarkOf({ status: "DRAFT", approval: approval("PENDING") }),
+    ).toBeNull();
+    expect(rejectionMarkOf({ status: "DRAFT", approval: null })).toBeNull();
+    expect(
+      rejectionMarkOf({ status: "PAID", approval: approval("APPROVED") }),
+    ).toBeNull();
+  });
+
+  test("membawa alasan singkat, dipotong bila panjang", () => {
+    expect(
+      rejectionMarkOf({ status: "DRAFT", approval: approval("REJECTED") }),
+    ).toBe("Ditolak · Kas komisi belum cukup.");
+
+    const long = {
+      status: "DRAFT" as const,
+      approval: {
+        ...approval("REJECTED"),
+        note: "Kas komisi belum cukup bulan ini, ajukan kembali awal bulan depan",
+      },
+    };
+
+    expect(rejectionMarkOf(long)).toBe(
+      "Ditolak · Kas komisi belum cukup bulan ini, ajukan…",
+    );
+  });
+
+  test("tanpa catatan tetap bertanda", () => {
+    expect(
+      rejectionMarkOf({
+        status: "DRAFT",
+        approval: { ...approval("REJECTED"), note: null },
+      }),
+    ).toBe("Ditolak");
+  });
+});
+
+describe("EXPENSE_STATE_VARIANT", () => {
+  test("dibatalkan memakai neutral, bukan nada merah", () => {
+    expect(EXPENSE_STATE_VARIANT.CANCELLED).toBe("neutral");
   });
 });
 

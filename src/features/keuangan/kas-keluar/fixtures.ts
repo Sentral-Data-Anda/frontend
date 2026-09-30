@@ -42,5 +42,6 @@ export const expenseDetail = (
   ],
   attachments: [],
   journal: null,
+  cancelReason: null,
   ...next,
 });

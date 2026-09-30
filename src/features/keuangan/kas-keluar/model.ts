@@ -72,8 +72,10 @@ export const EXPENSE_STATE_VARIANT: Record<ExpenseState, BadgeVariant> = {
   PENDING_APPROVAL: "draft",
   APPROVED: "wait",
   PAID: "success",
-  CANCELLED: "due",
+  CANCELLED: "neutral",
 };
+
+const REASON_MAX = 40;
 
 export const expenseStateOf = (expense: {
   status: CashExpenseDetail["status"];
@@ -87,6 +89,20 @@ export const isRejected = (expense: {
   status: CashExpenseDetail["status"];
   approval: CashExpenseDetail["approval"];
 }) => expense.status === "DRAFT" && expense.approval?.status === "REJECTED";
+
+export const rejectionMarkOf = (expense: {
+  status: CashExpenseDetail["status"];
+  approval: CashExpenseDetail["approval"];
+}): string | null => {
+  if (!isRejected(expense)) return null;
+
+  const reason = collapseSpaces(expense.approval?.note ?? "");
+  if (!reason) return "Ditolak";
+
+  return reason.length > REASON_MAX
+    ? `Ditolak · ${reason.slice(0, REASON_MAX).trimEnd()}…`
+    : `Ditolak · ${reason}`;
+};
 
 export const isLocked = (expense: {
   status: CashExpenseDetail["status"];

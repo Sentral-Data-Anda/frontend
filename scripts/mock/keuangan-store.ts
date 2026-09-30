@@ -13,10 +13,12 @@ import type {
   JournalStatus,
   PeriodStatus,
 } from "../../src/types/keuangan";
+import type { ApprovalStatus } from "../../src/types/persetujuan";
 import { DDL_JEMAAT, SESSION_USER_ID } from "../mock-dashboard";
 
 import { TODAY, isLive, nextId } from "./fasilitas-store";
 import { userNameOf } from "./inventaris-store";
+import { mediaUrl, seedImage, seedPdf } from "./media";
 import { bapelOf } from "./pelayanan-store";
 
 export { TODAY, isLive, nextId, userNameOf };
@@ -1297,3 +1299,414 @@ export const persembahanTotals = (rows: readonly PersembahanRow[]) =>
       .filter((item) => item.status === "ACTIVE")
       .reduce((total, item) => total + Number(item.amount), 0),
   );
+
+// ---------------------------------------------------------------------------
+// Kas Keluar. Pengeluaran yang lewat persetujuan: mengajukan tidak mengubah
+// status dokumen, yang berubah adalah adanya permintaan, jadi "Menunggu
+// persetujuan" diturunkan klien dari approval. Entri jurnalnya satu kredit dari
+// akun sumber sebesar total dan satu debit per baris.
+
+export const CASH_EXPENSE_SOURCE = "CASH_EXPENSE";
+
+export type CashExpenseLineRow = {
+  publicId: string;
+  accountId: number;
+  amount: string;
+  description: string | null;
+};
+
+export type CashExpenseNoteRow = {
+  publicId: string;
+  path: string;
+  name: string;
+  mimeType: string;
+  size: number;
+};
+
+export type CashExpenseApprovalRow = {
+  publicId: string;
+  code: string;
+  status: ApprovalStatus;
+  note: string | null;
+  submittedBy: number;
+};
+
+export type CashExpenseRow = {
+  id: number;
+  publicId: string;
+  code: string;
+  expenseDate: string;
+  description: string;
+  payee: string;
+  paidFromAccountId: number;
+  bapelId: number | null;
+  method: string | null;
+  reference: string | null;
+  status: CashStatus;
+  cancelReason: string | null;
+  approvals: CashExpenseApprovalRow[];
+  approvedById: number | null;
+  approvedAt: string | null;
+  deletedAt: string | null;
+  lines: CashExpenseLineRow[];
+  notes: CashExpenseNoteRow[];
+};
+
+let expenseLineId = 0;
+
+export const cashExpenseLine = (
+  accountId: number,
+  amount: string,
+  description: string | null = null,
+): CashExpenseLineRow => {
+  expenseLineId += 1;
+
+  return {
+    publicId: `bkkl-${pad(expenseLineId)}`,
+    accountId,
+    amount,
+    description,
+  };
+};
+
+let expenseNoteId = 0;
+
+export const cashExpenseNote = (
+  name: string,
+  kind: "image" | "pdf" = "image",
+): CashExpenseNoteRow => {
+  expenseNoteId += 1;
+  const isPdf = kind === "pdf";
+  const path = `cash-expense/seed-${expenseNoteId}.${isPdf ? "pdf" : "jpeg"}`;
+
+  return {
+    publicId: `bkkn-${pad(expenseNoteId)}`,
+    path,
+    name,
+    mimeType: isPdf ? "application/pdf" : "image/jpeg",
+    size: isPdf
+      ? seedPdf(path)
+      : seedImage(path, name, 25 + expenseNoteId * 40),
+  };
+};
+
+// publicId dokumen mengikuti `doc-<id>` di mock Permintaan Persetujuan supaya
+// tautan dua arah antara kedua layar hidup.
+export const cashExpenseApproval = (
+  id: number,
+  status: ApprovalStatus,
+  submittedBy: number,
+  note: string | null = null,
+): CashExpenseApprovalRow => ({
+  publicId: `0b5e7a00-0000-4000-a000-${pad(id, 12)}`,
+  code: `PST-${YEAR}-${pad(id)}`,
+  status,
+  note,
+  submittedBy,
+});
+
+export const cashExpenseTotal = (row: Pick<CashExpenseRow, "lines">) =>
+  sumAmounts(row.lines.map((line) => line.amount));
+
+export const cashExpenseOpenApproval = (row: CashExpenseRow) => {
+  const latest = row.approvals.at(-1);
+
+  return latest?.status === "PENDING" ? latest : null;
+};
+
+const expense = (
+  id: number,
+  expenseDate: string,
+  payee: string,
+  description: string,
+  paidFromAccountId: number,
+  lines: CashExpenseLineRow[],
+  extra: Partial<CashExpenseRow> = {},
+): CashExpenseRow => ({
+  id,
+  publicId: `bkk-${pad(id)}`,
+  code: `BKK-${YEAR}-${pad(id)}`,
+  expenseDate,
+  description,
+  payee,
+  paidFromAccountId,
+  bapelId: null,
+  method: null,
+  reference: null,
+  status: "DRAFT",
+  cancelReason: null,
+  approvals: [],
+  approvedById: null,
+  approvedAt: null,
+  deletedAt: null,
+  lines,
+  notes: [],
+  ...extra,
+});
+
+// Seed berjarak hari dari TODAY akan jatuh keluar bulan berjalan setiap tanggal
+// 1, dan daftar yang bawaannya bulan berjalan jadi tampak kosong. Tanggalnya
+// dijangkar ke bulan berjalan dan dipotong di hari ini.
+const thisMonth = (day: number) => {
+  const date = `${YEAR}-${pad(MONTH, 2)}-${pad(day, 2)}`;
+
+  return date > TODAY ? TODAY : date;
+};
+
+const closedMonthDate = () => {
+  const month = MONTH - 3;
+  const year = YEAR + Math.floor((month - 1) / 12);
+
+  return `${year}-${pad(((month - 1 + 12) % 12) + 1, 2)}-05`;
+};
+
+export const CASH_EXPENSE: CashExpenseRow[] = [
+  expense(
+    1,
+    thisMonth(29),
+    "CV Tirta Nusantara",
+    "Perbaikan pompa air gedung serbaguna",
+    4,
+    [cashExpenseLine(22, "3200000", "Servis dan penggantian impeler")],
+    {
+      publicId: "doc-7",
+      method: "Transfer",
+      reference: "PSN-2026-0012",
+      approvals: [cashExpenseApproval(7, "PENDING", SESSION_USER_ID)],
+    },
+  ),
+  expense(
+    2,
+    thisMonth(27),
+    "Katering Bunda Sari",
+    "Konsumsi rapat majelis Oktober",
+    2,
+    [
+      cashExpenseLine(23, "3000000", "Makan siang 60 porsi"),
+      cashExpenseLine(23, "1500000", "Snack dan minuman"),
+    ],
+    {
+      publicId: "doc-2",
+      bapelId: 1,
+      method: "Tunai",
+      approvals: [cashExpenseApproval(2, "PENDING", 12)],
+    },
+  ),
+  expense(
+    3,
+    thisMonth(20),
+    "Florist Anggrek Indah",
+    "Bunga dan dekorasi Minggu Syukur",
+    2,
+    [cashExpenseLine(23, "1250000", "Rangkaian altar dan mimbar")],
+    {
+      publicId: "doc-17",
+      bapelId: 3,
+      method: "Tunai",
+      reference: "NOTA/2026/1187",
+      status: "APPROVED",
+      approvals: [cashExpenseApproval(17, "APPROVED", 14)],
+      approvedById: 15,
+      approvedAt: `${thisMonth(21)}T03:20:00.000Z`,
+      notes: [cashExpenseNote("Nota florist")],
+    },
+  ),
+  expense(
+    4,
+    thisMonth(23),
+    "Sewa Tenda Barito",
+    "Sewa tenda retret pemuda",
+    4,
+    [
+      cashExpenseLine(23, "5800000", "Tenda 4 unit, 3 hari"),
+      cashExpenseLine(23, "1500000", "Kursi dan panggung"),
+    ],
+    {
+      publicId: "doc-19",
+      bapelId: 2,
+      method: "Transfer",
+      reference: "PSN-2026-0019",
+      approvals: [
+        cashExpenseApproval(
+          19,
+          "REJECTED",
+          16,
+          "Kas komisi belum cukup bulan ini. Ajukan kembali awal bulan depan.",
+        ),
+      ],
+    },
+  ),
+  expense(
+    5,
+    thisMonth(5),
+    "PT Adem Sejahtera",
+    "Servis pendingin ruang ibadah",
+    4,
+    [
+      cashExpenseLine(22, "2600000", "Servis 4 unit AC"),
+      cashExpenseLine(23, "1000000", "Penggantian filter"),
+    ],
+    {
+      publicId: "doc-22",
+      bapelId: 1,
+      method: "Transfer",
+      reference: "PSN-2026-0004",
+      status: "PAID",
+      approvals: [cashExpenseApproval(22, "APPROVED", 12)],
+      approvedById: 13,
+      approvedAt: `${thisMonth(6)}T02:00:00.000Z`,
+      notes: [cashExpenseNote("Invoice servis AC", "pdf")],
+    },
+  ),
+  expense(
+    6,
+    thisMonth(30),
+    "PLN UP3 Medan",
+    "Tagihan listrik gedung ibadah September",
+    2,
+    [
+      cashExpenseLine(22, "1850000", "Listrik September"),
+      cashExpenseLine(23, "12500", "Biaya admin"),
+    ],
+    {
+      method: "QRIS",
+      reference: "IDPEL 512300998877",
+      notes: [
+        cashExpenseNote("Struk PLN"),
+        cashExpenseNote("Rincian tagihan"),
+        cashExpenseNote("Bukti QRIS", "pdf"),
+      ],
+    },
+  ),
+  expense(
+    7,
+    closedMonthDate(),
+    "Samuel Lumbantobing",
+    "Honor pemusik tamu bulan lalu",
+    2,
+    [cashExpenseLine(23, "2100000", "Honor 3 kebaktian")],
+    {
+      bapelId: 5,
+      method: "Transfer",
+      status: "APPROVED",
+      approvals: [cashExpenseApproval(13, "APPROVED", 14)],
+      approvedById: 15,
+      approvedAt: `${closedMonthDate()}T04:00:00.000Z`,
+    },
+  ),
+  expense(
+    8,
+    thisMonth(12),
+    "Toko Buku Immanuel",
+    "Pembelian alat tulis sekretariat",
+    2,
+    [cashExpenseLine(23, "780000", "Kertas, tinta, dan map")],
+    {
+      method: "Tunai",
+      reference: "NOTA/2026/0904",
+      status: "CANCELLED",
+      cancelReason: "Nota ganda; sudah dibayar lewat kas kecil.",
+      approvals: [cashExpenseApproval(11, "APPROVED", SESSION_USER_ID)],
+      approvedById: 13,
+      approvedAt: `${thisMonth(13)}T02:00:00.000Z`,
+    },
+  ),
+];
+
+// Satu kredit dari akun sumber sebesar total, satu debit per baris.
+export const cashExpenseEntryLines = (row: CashExpenseRow): DocumentLine[] => [
+  ...row.lines.map((line) => ({
+    accountId: line.accountId,
+    debit: line.amount,
+    credit: "0",
+    description: line.description,
+  })),
+  {
+    accountId: row.paidFromAccountId,
+    debit: "0",
+    credit: cashExpenseTotal(row),
+    description: row.payee,
+  },
+];
+
+export const cashExpenseNoteView = (note: CashExpenseNoteRow) => ({
+  publicId: note.publicId,
+  name: note.name,
+  mimeType: note.mimeType,
+  size: note.size,
+  showOnWebsite: false,
+  url: mediaUrl(note.path),
+});
+
+export const cashExpenseView = (row: CashExpenseRow, isDetail = false) => {
+  const approval = row.approvals.at(-1) ?? null;
+
+  return {
+    id: row.id,
+    publicId: row.publicId,
+    code: row.code,
+    expenseDate: `${row.expenseDate}T00:00:00.000Z`,
+    description: row.description,
+    payee: row.payee,
+    paidFromAccountId: row.paidFromAccountId,
+    paidFromAccount: accountRef(row.paidFromAccountId),
+    bapelId: row.bapelId,
+    bapel: row.bapelId === null ? null : (bapelOf(row.bapelId) ?? null),
+    method: row.method,
+    reference: row.reference,
+    totalAmount: cashExpenseTotal(row),
+    status: row.status,
+    programId: null,
+    approval: approval
+      ? {
+          publicId: approval.publicId,
+          code: approval.code,
+          status: approval.status,
+          note: approval.note,
+          isSubmittedByViewer: approval.submittedBy === SESSION_USER_ID,
+        }
+      : null,
+    approvedBy: userNameOf(row.approvedById),
+    approvedAt: row.approvedAt,
+    ...(isDetail
+      ? {
+          lines: row.lines.map((line) => ({
+            publicId: line.publicId,
+            accountId: line.accountId,
+            account: {
+              code: accountOf(line.accountId)?.code ?? "",
+              name: accountOf(line.accountId)?.name ?? "",
+            },
+            amount: line.amount,
+            description: line.description,
+          })),
+          attachments: row.notes.map(cashExpenseNoteView),
+          journal: journalRefOfSource(CASH_EXPENSE_SOURCE, row.id),
+          cancelReason: row.cancelReason,
+        }
+      : { lineCount: row.lines.length }),
+  };
+};
+
+// Seed yang sudah Dibayar butuh entri sungguhan; yang dibatalkan sesudah dibayar
+// butuh entri dan pembalikannya, atau riwayat jurnalnya bohong.
+for (const row of CASH_EXPENSE) {
+  if (row.status !== "PAID" && row.status !== "CANCELLED") continue;
+  if (row.status === "CANCELLED" && row.approvedById === null) continue;
+
+  postDocumentEntry({
+    sourceType: CASH_EXPENSE_SOURCE,
+    sourceId: row.id,
+    entryDate: row.expenseDate,
+    description: row.description,
+    lines: cashExpenseEntryLines(row),
+  });
+
+  if (row.status === "CANCELLED") {
+    reverseDocumentEntry(
+      CASH_EXPENSE_SOURCE,
+      row.id,
+      `Pembalikan ${row.code} — ${row.cancelReason ?? "dibatalkan"}`,
+    );
+  }
+}
