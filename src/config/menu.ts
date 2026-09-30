@@ -402,6 +402,10 @@ export const FORM_SEGMENT = {
 
 const FORM_SEGMENTS: readonly string[] = Object.values(FORM_SEGMENT);
 
+// Layar posting batch: `posting-persembahan`, `posting-pembayaran`. Awalan,
+// bukan daftar, supaya batch berikutnya tidak perlu diingat.
+const FORM_PREFIXES: readonly string[] = ["posting-"];
+
 export const ACCOUNT_HREF = "/akun";
 
 export const ACCOUNT_PASSWORD_HREF = `${ACCOUNT_HREF}/password/${FORM_SEGMENT.edit}`;
@@ -411,8 +415,11 @@ export function isFormRoute(pathname: string): boolean {
   const last = segments.at(-1);
 
   // ≥ 3 segmen: layar be-sada `/<domain>/<layar>` yang kebetulan ber-slug `baru` bukan form.
+  if (segments.length < 3 || last === undefined) return false;
+
   return (
-    segments.length >= 3 && last !== undefined && FORM_SEGMENTS.includes(last)
+    FORM_SEGMENTS.includes(last) ||
+    FORM_PREFIXES.some((prefix) => last.startsWith(prefix))
   );
 }
 

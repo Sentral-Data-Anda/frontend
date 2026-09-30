@@ -110,7 +110,7 @@ function FormActionsBar({
   return (
     <div
       className={cn(
-        "border-border bg-card sticky bottom-0 z-30 border-t pb-[env(safe-area-inset-bottom)] print:hidden",
+        "border-border bg-card sticky bottom-0 z-50 border-t pb-[env(safe-area-inset-bottom)] print:hidden",
         mainInsetBleed,
       )}
     >
