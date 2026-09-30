@@ -1,10 +1,18 @@
 import { afterEach, describe, expect, test } from "bun:test";
 
 import { MENU } from "../../../src/config/menu";
-import { TODAY } from "../keuangan-store";
+import {
+  CASH_RECEIPT,
+  CASH_RECEIPT_SOURCE,
+  JOURNAL_ENTRY,
+  TODAY,
+  journalOfSource,
+  type CashReceiptRow,
+  type JournalEntryRow,
+} from "../keuangan-store";
 import type { MockAction } from "../kit";
 
-import { CASH_RECEIPT, kasMasukMock } from "./kas-masuk";
+import { kasMasukMock } from "./kas-masuk";
 
 type Json = {
   status: number;
@@ -15,17 +23,27 @@ type Json = {
   data?: Record<string, unknown>;
 };
 
-const SEED = CASH_RECEIPT.map((row) => ({ ...row, lines: [...row.lines] }));
+const SEED: CashReceiptRow[] = CASH_RECEIPT.map((row) => ({
+  ...row,
+  lines: [...row.lines],
+}));
 
-const onReset = () =>
+const JOURNAL_SEED: JournalEntryRow[] = JOURNAL_ENTRY.map((row) => ({
+  ...row,
+  lines: [...row.lines],
+}));
+
+afterEach(() => {
   CASH_RECEIPT.splice(
     0,
     CASH_RECEIPT.length,
     ...SEED.map((row) => ({ ...row, lines: [...row.lines] })),
   );
-
-afterEach(() => {
-  onReset();
+  JOURNAL_ENTRY.splice(
+    0,
+    JOURNAL_ENTRY.length,
+    ...JOURNAL_SEED.map((row) => ({ ...row, lines: [...row.lines] })),
+  );
   delete process.env.MOCK_PERIOD_CLOSED;
   delete process.env.MOCK_EMPTY;
 });
@@ -66,13 +84,16 @@ const VALID = {
   lines: [{ accountId: 20, amount: 3500000, description: "Sewa aula" }],
 };
 
-const draftId = () =>
+const draftRow = () =>
   CASH_RECEIPT.find(
     (row) => row.status === "DRAFT" && row.receiptDate >= TODAY.slice(0, 7),
-  )?.publicId ?? "";
+  );
 
-const paidId = () =>
-  CASH_RECEIPT.find((row) => row.status === "PAID")?.publicId ?? "";
+const draftId = () => draftRow()?.publicId ?? "";
+
+const paidRow = () => CASH_RECEIPT.find((row) => row.status === "PAID");
+
+const paidId = () => paidRow()?.publicId ?? "";
 
 const closedDraftId = () =>
   CASH_RECEIPT.find(
@@ -200,14 +221,39 @@ describe("simpan", () => {
 });
 
 describe("terima", () => {
-  test("mencatat jurnal dan menolak percobaan kedua", async () => {
-    const id = draftId();
-    const first = await onCall("PUT", `/kas-masuk/${id}/terima`);
-    const second = await onCall("PUT", `/kas-masuk/${id}/terima`);
+  test("menulis entri jurnal sungguhan dan menolak percobaan kedua", async () => {
+    const row = draftRow()!;
+    const first = await onCall("PUT", `/kas-masuk/${row.publicId}/terima`);
+    const second = await onCall("PUT", `/kas-masuk/${row.publicId}/terima`);
+    const entry = journalOfSource(CASH_RECEIPT_SOURCE, row.id);
 
     expect(first?.body.data?.status).toBe("PAID");
-    expect(first?.body.data?.journal).toMatchObject({ status: "POSTED" });
+    expect(entry).not.toBeNull();
+    expect(entry?.status).toBe("POSTED");
+    expect(first?.body.data?.journal).toMatchObject({
+      code: entry!.code,
+      status: "POSTED",
+    });
     expect(second?.status).toBe(400);
+  });
+
+  test("entrinya satu debit ke akun tujuan dan satu kredit per baris", async () => {
+    const row = draftRow()!;
+
+    await onCall("PUT", `/kas-masuk/${row.publicId}/terima`);
+
+    const entry = journalOfSource(CASH_RECEIPT_SOURCE, row.id)!;
+    const debits = entry.lines.filter((line) => Number(line.debit) > 0);
+    const credits = entry.lines.filter((line) => Number(line.credit) > 0);
+    const sum = (values: string[]) =>
+      values.reduce((total, value) => total + Number(value), 0);
+
+    expect(debits).toHaveLength(1);
+    expect(debits[0]?.accountId).toBe(row.intoAccountId);
+    expect(credits).toHaveLength(row.lines.length);
+    expect(sum(debits.map((line) => line.debit))).toBe(
+      sum(credits.map((line) => line.credit)),
+    );
   });
 
   test("bulan tertutup ditolak dengan code PERIOD_CLOSED", async () => {
@@ -246,13 +292,23 @@ describe("batal", () => {
     expect(response?.status).toBe(400);
   });
 
-  test("membatalkan yang sudah diterima", async () => {
-    const response = await onCall("PUT", `/kas-masuk/${paidId()}/batal`, {
+  test("membatalkan yang sudah diterima dan membalik entrinya", async () => {
+    const row = paidRow()!;
+    const before = journalOfSource(CASH_RECEIPT_SOURCE, row.id)!;
+    const response = await onCall("PUT", `/kas-masuk/${row.publicId}/batal`, {
       cancelReason: "Uang dikembalikan",
     });
+    const reversal = JOURNAL_ENTRY.find(
+      (entry) => entry.reversalOfId === before.id,
+    );
 
     expect(response?.body.data?.status).toBe("CANCELLED");
     expect(response?.body.data?.cancelReason).toBe("Uang dikembalikan");
+    expect(before.status).toBe("REVERSED");
+    expect(reversal?.sourceType).toBe("MANUAL");
+    expect(reversal?.sourceId).toBeNull();
+    expect(reversal?.entryDate).toBe(TODAY);
+    expect(reversal?.lines[0]?.credit).toBe(before.lines[0]!.debit);
   });
 });
 

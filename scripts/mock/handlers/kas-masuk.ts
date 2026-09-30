@@ -1,22 +1,25 @@
 /**
  * Tiruan `/api/v1/kas-masuk` (kontrak Keuangan §10). `:id` = publicId.
  * Total selalu diturunkan dari baris, `programId` di body diabaikan.
+ * Terima dan batal menulis jurnal lewat pintu bersama di store.
  *
  *   MOCK_EMPTY=1          → daftar kosong (404)
  *   MOCK_PERIOD_CLOSED=1  → terima selalu ditolak PERIOD_CLOSED
  *   MOCK_500=1            → daftar menjawab 500
  */
 import { MENU } from "../../../src/config/menu";
-import { addDays } from "../../../src/lib/date";
-import { sumAmounts } from "../../../src/lib/number";
-import type { CashStatus } from "../../../src/types/keuangan";
 import {
+  CASH_RECEIPT,
+  CASH_RECEIPT_SOURCE,
   TODAY,
   accountOf,
-  accountRef,
+  cashReceiptEntryLines,
+  cashReceiptLine,
+  cashReceiptView,
   isLive,
-  monthLabel,
-  periodOf,
+  postDocumentEntry,
+  reverseDocumentEntry,
+  type CashReceiptRow,
 } from "../keuangan-store";
 import {
   denied,
@@ -27,190 +30,15 @@ import {
   type MockContext,
   type MockHandler,
 } from "../kit";
-import { bapelOf } from "../pelayanan-store";
 
 type Issue = { path: string; message: string };
 
-type LineRow = {
-  publicId: string;
-  accountId: number;
-  amount: string;
-  description: string | null;
-};
-
-type Row = {
-  id: number;
-  publicId: string;
-  code: string;
-  receiptDate: string;
-  description: string;
-  payer: string;
-  intoAccountId: number;
-  bapelId: number | null;
-  method: string | null;
-  reference: string | null;
-  status: CashStatus;
-  journalCode: string | null;
-  cancelReason: string | null;
-  deletedAt: string | null;
-  lines: LineRow[];
-};
-
-const YEAR = Number(TODAY.slice(0, 4));
-
 const NOT_FOUND = "Kas Masuk Tidak Ditemukan";
-
-let rowId = 0;
-let lineId = 0;
-let journalNo = 100;
 
 const pad = (value: number) => String(value).padStart(4, "0");
 
-const nextCode = () => `BKM-${YEAR}-${pad(rowId)}`;
-
-const nextJournalCode = () => {
-  journalNo += 1;
-
-  return `JRN-${YEAR}-${pad(journalNo)}`;
-};
-
-const line = (
-  accountId: number,
-  amount: string,
-  description: string | null = null,
-): LineRow => {
-  lineId += 1;
-
-  return { publicId: `bkml-${pad(lineId)}`, accountId, amount, description };
-};
-
-const receipt = (
-  receiptDate: string,
-  payer: string,
-  description: string,
-  intoAccountId: number,
-  lines: LineRow[],
-  extra: Partial<Row> = {},
-): Row => {
-  rowId += 1;
-
-  return {
-    id: rowId,
-    publicId: `bkm-${pad(rowId)}`,
-    code: nextCode(),
-    receiptDate,
-    description,
-    payer,
-    intoAccountId,
-    bapelId: null,
-    method: null,
-    reference: null,
-    status: "DRAFT",
-    journalCode: null,
-    cancelReason: null,
-    deletedAt: null,
-    lines,
-    ...extra,
-  };
-};
-
-export const CASH_RECEIPT: Row[] = [
-  receipt(
-    addDays(TODAY, -1),
-    "Keluarga Santoso",
-    "Sewa gedung untuk resepsi pernikahan",
-    2,
-    [line(20, "3500000", "Sewa aula")],
-    { method: "Tunai", reference: "BA-07/IX/2026" },
-  ),
-  receipt(
-    addDays(TODAY, -5),
-    "Payment gateway",
-    "Pencairan persembahan online dari payment gateway",
-    4,
-    [
-      line(6, "4850000", "Persembahan online bruto"),
-      line(23, "72750", "Biaya administrasi payment gateway"),
-    ],
-    {
-      status: "PAID",
-      method: "Transfer",
-      reference: "XND-SETTLE-0918",
-      journalCode: `JRN-${YEAR}-0101`,
-    },
-  ),
-  receipt(
-    addDays(TODAY, -8),
-    "Toko Rejeki",
-    "Penjualan kalender gereja 2027",
-    2,
-    [line(20, "1250000", "120 kalender")],
-    { status: "PAID", method: "Tunai", journalCode: `JRN-${YEAR}-0102` },
-  ),
-  receipt(
-    addDays(TODAY, -11),
-    "Panitia Natal",
-    "Pengembalian dana panitia yang tidak terpakai",
-    3,
-    [line(20, "640000", null)],
-    { status: "CANCELLED", cancelReason: "Salah akun tujuan, dicatat ulang." },
-  ),
-  receipt(
-    addDays(TODAY, -3),
-    "Hitung fisik kolekte 21 September",
-    "Selisih lebih hasil hitung fisik kolekte",
-    2,
-    [line(7, "15000", "Selisih lebih")],
-    { reference: "BA-06/IX/2026" },
-  ),
-  receipt(
-    `${YEAR}-01-14`,
-    "Bapak Wibowo",
-    "Sumbangan non-persembahan untuk perbaikan atap",
-    2,
-    [line(20, "2000000", null)],
-    { method: "Transfer", bapelId: 1 },
-  ),
-];
-
-const totalOf = (row: Row) => sumAmounts(row.lines.map((item) => item.amount));
-
-const lineView = (item: LineRow) => ({
-  publicId: item.publicId,
-  accountId: item.accountId,
-  account: {
-    code: accountOf(item.accountId)?.code ?? "",
-    name: accountOf(item.accountId)?.name ?? "",
-  },
-  amount: item.amount,
-  description: item.description,
-});
-
-export const cashReceiptView = (row: Row, isDetail = false) => ({
-  id: row.id,
-  publicId: row.publicId,
-  code: row.code,
-  receiptDate: `${row.receiptDate}T00:00:00.000Z`,
-  description: row.description,
-  payer: row.payer,
-  intoAccountId: row.intoAccountId,
-  intoAccount: accountRef(row.intoAccountId),
-  bapel: row.bapelId === null ? null : (bapelOf(row.bapelId) ?? null),
-  method: row.method,
-  reference: row.reference,
-  totalAmount: totalOf(row),
-  status: row.status,
-  ...(isDetail
-    ? {
-        lines: row.lines.map(lineView),
-        journal:
-          row.journalCode === null
-            ? null
-            : { code: row.journalCode, status: "POSTED" },
-        cancelReason: row.cancelReason,
-      }
-    : {}),
-});
+const nextRowId = () =>
+  CASH_RECEIPT.reduce((highest, row) => Math.max(highest, row.id), 0) + 1;
 
 const failure = (status: number, error: string, code?: string) =>
   json(code ? { status, error, code } : { status, error }, status);
@@ -341,29 +169,7 @@ const parse = (body: Record<string, unknown>) => {
   return { issues, parsed };
 };
 
-const periodFailure = (date: string) => {
-  const period = periodOf(date);
-  const label = monthLabel(Number(date.slice(0, 4)), Number(date.slice(5, 7)));
-
-  if (!period) {
-    return failure(
-      400,
-      `Periode Fiskal ${label} Belum Dibuka`,
-      "PERIOD_NOT_OPEN",
-    );
-  }
-  if (period.status === "CLOSED" || process.env.MOCK_PERIOD_CLOSED) {
-    return failure(
-      400,
-      `Periode Fiskal ${label} Sudah Ditutup`,
-      "PERIOD_CLOSED",
-    );
-  }
-
-  return null;
-};
-
-const inactiveFailure = (row: Row) => {
+const inactiveFailure = (row: CashReceiptRow) => {
   const ids = [row.intoAccountId, ...row.lines.map((item) => item.accountId)];
   const stale = ids
     .map(accountOf)
@@ -374,7 +180,7 @@ const inactiveFailure = (row: Row) => {
     : null;
 };
 
-const ok = (message: string, row: Row, status = 200) =>
+const ok = (message: string, row: CashReceiptRow, status = 200) =>
   json({ status, message, data: cashReceiptView(row, true) }, status);
 
 const listRows = (ctx: MockContext) => {
@@ -403,26 +209,27 @@ const listRows = (ctx: MockContext) => {
 const guard = (ctx: MockContext, action: MockAction) =>
   ctx.can(MENU.KAS_MASUK, action) ? null : denied();
 
-const onWrite = async (ctx: MockContext, row?: Row) => {
+const onWrite = async (ctx: MockContext, row?: CashReceiptRow) => {
   const body = await readBody<Record<string, unknown>>(ctx.request);
   const { issues, parsed } = parse(body);
 
   if (issues.length > 0) return invalid(issues);
 
+  const lines = parsed.lines.map((item) =>
+    cashReceiptLine(item.accountId, item.amount, item.description),
+  );
+
   if (!row) {
-    rowId += 1;
-    const created: Row = {
-      id: rowId,
-      publicId: `bkm-${pad(rowId)}`,
-      code: nextCode(),
+    const id = nextRowId();
+    const created: CashReceiptRow = {
+      id,
+      publicId: `bkm-${pad(id)}`,
+      code: `BKM-${TODAY.slice(0, 4)}-${pad(id)}`,
       status: "DRAFT",
-      journalCode: null,
       cancelReason: null,
       deletedAt: null,
       ...parsed,
-      lines: parsed.lines.map((item) =>
-        line(item.accountId, item.amount, item.description),
-      ),
+      lines,
     };
 
     CASH_RECEIPT.push(created);
@@ -430,11 +237,7 @@ const onWrite = async (ctx: MockContext, row?: Row) => {
     return ok("Berhasil Menambahkan Kas Masuk", created, 201);
   }
 
-  Object.assign(row, parsed, {
-    lines: parsed.lines.map((item) =>
-      line(item.accountId, item.amount, item.description),
-    ),
-  });
+  Object.assign(row, parsed, { lines });
 
   return ok("Berhasil Memperbarui Kas Masuk", row);
 };
@@ -517,12 +320,23 @@ export const kasMasukMock: MockHandler = async (ctx) => {
       return failure(400, "Kas Masuk Ini Sudah Diterima");
     }
 
-    const blocked = periodFailure(row.receiptDate) ?? inactiveFailure(row);
+    const stale = inactiveFailure(row);
 
-    if (blocked) return blocked;
+    if (stale) return stale;
+
+    const posted = postDocumentEntry({
+      sourceType: CASH_RECEIPT_SOURCE,
+      sourceId: row.id,
+      entryDate: row.receiptDate,
+      description: row.description,
+      lines: cashReceiptEntryLines(row),
+    });
+
+    if ("failure" in posted) {
+      return failure(400, posted.failure.message, posted.failure.code);
+    }
 
     row.status = "PAID";
-    row.journalCode = nextJournalCode();
 
     return ok("Berhasil Menerima Kas Masuk", row);
   }
@@ -548,9 +362,15 @@ export const kasMasukMock: MockHandler = async (ctx) => {
       ]);
     }
 
-    const blocked = periodFailure(TODAY);
+    const reversed = reverseDocumentEntry(
+      CASH_RECEIPT_SOURCE,
+      row.id,
+      `Pembalikan ${row.code} — ${reason}`,
+    );
 
-    if (blocked) return blocked;
+    if (reversed && "failure" in reversed) {
+      return failure(400, reversed.failure.message, reversed.failure.code);
+    }
 
     row.status = "CANCELLED";
     row.cancelReason = reason;

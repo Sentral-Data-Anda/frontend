@@ -81,7 +81,7 @@ export const STATUS_VARIANT = {
   DRAFT: "neutral",
   APPROVED: "wait",
   PAID: "success",
-  CANCELLED: "due",
+  CANCELLED: "neutral",
 } as const satisfies Record<CashStatus, string>;
 
 export const statusLabelOf = (status: CashStatus) =>
