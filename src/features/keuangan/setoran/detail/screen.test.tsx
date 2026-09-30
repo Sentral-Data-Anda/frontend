@@ -70,13 +70,13 @@ const DRAFT: Transfer = {
 const PAID: Transfer = {
   ...DRAFT,
   status: "PAID",
-  journal: { code: "JRN-2026-0007", status: "POSTED" },
+  journal: { publicId: "jrn-0007", code: "JRN-2026-0007", status: "POSTED" },
 };
 
 const CANCELLED: Transfer = {
   ...DRAFT,
   status: "CANCELLED",
-  journal: { code: "JRN-2026-0007", status: "REVERSED" },
+  journal: { publicId: "jrn-0007", code: "JRN-2026-0007", status: "REVERSED" },
 };
 
 type Call = { method: string; url: string; body?: unknown };
@@ -160,9 +160,7 @@ describe("ringkasan", () => {
 
     const link = await screen.findByRole("link", { name: "JRN-2026-0007" });
 
-    expect(link.getAttribute("href")).toBe(
-      "/keuangan/jurnal?search=JRN-2026-0007",
-    );
+    expect(link.getAttribute("href")).toBe("/keuangan/jurnal/jrn-0007");
   });
 
   test("tanpa akses Jurnal kodenya tampil tanpa tautan", async () => {

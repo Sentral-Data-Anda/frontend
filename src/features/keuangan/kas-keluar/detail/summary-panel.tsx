@@ -69,7 +69,10 @@ export const SummaryPanel = (props: PropTypes) => {
         {journal ? (
           <DescriptionItem label="Entri jurnal">
             {isCanViewJournal ? (
-              <Link href={journalHref(journal.code)} className={DETAIL_LINK}>
+              <Link
+                href={journalHref(journal.publicId)}
+                className={DETAIL_LINK}
+              >
                 {journal.code}
               </Link>
             ) : (

@@ -111,7 +111,11 @@ describe("ReceiptDetailScreen", () => {
       ["VIEW", "UPDATE", "DELETE"],
       detail({
         status: "PAID",
-        journal: { code: "JRN-2026-0101", status: "POSTED" },
+        journal: {
+          publicId: "jrn-0101",
+          code: "JRN-2026-0101",
+          status: "POSTED",
+        },
       }),
     );
 
@@ -126,7 +130,11 @@ describe("ReceiptDetailScreen", () => {
       ["VIEW"],
       detail({
         status: "PAID",
-        journal: { code: "JRN-2026-0101", status: "POSTED" },
+        journal: {
+          publicId: "jrn-0101",
+          code: "JRN-2026-0101",
+          status: "POSTED",
+        },
       }),
     );
 

@@ -9,7 +9,7 @@ import {
 import { formatDate, formatRupiah } from "@/lib/format";
 import { JOURNAL_STATUS_LABEL } from "@/types/keuangan";
 
-import { journalSearchHref } from "../model";
+import { journalHref } from "../model";
 import type { Transfer } from "../types";
 import { TransferStatusBadge } from "../ui";
 
@@ -67,7 +67,7 @@ export const SummaryPanel = (props: PropTypes) => {
           <DescriptionItem label="Entri jurnal">
             {isJournalLinked ? (
               <Link
-                href={journalSearchHref(journal.code)}
+                href={journalHref(journal.publicId)}
                 className="text-primary tabular-nums underline-offset-4 hover:underline"
               >
                 {journal.code}

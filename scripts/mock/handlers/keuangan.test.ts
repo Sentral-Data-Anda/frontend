@@ -85,8 +85,8 @@ describe("mock /periode-fiskal", () => {
 describe("mock /jurnal", () => {
   test("detail membawa baris dengan akun", async () => {
     const list = await onCall(jurnalMock, "/jurnal");
-    const first = (list?.body.data as { code: string }[])[0];
-    const detail = await onCall(jurnalMock, `/jurnal/${first?.code}`);
+    const first = (list?.body.data as { publicId: string }[])[0];
+    const detail = await onCall(jurnalMock, `/jurnal/${first?.publicId}`);
     const entry = detail?.body.data as {
       lines: { account: { code: string } | null }[];
     };
