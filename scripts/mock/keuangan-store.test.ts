@@ -1,7 +1,12 @@
 import { afterEach, describe, expect, test } from "bun:test";
 
 import {
+  ACCOUNT,
+  CASH_EXPENSE,
+  CASH_RECEIPT,
   FISCAL_PERIOD,
+  PERSEMBAHAN,
+  TYPE_PERSEMBAHAN,
   JOURNAL_ENTRY,
   TODAY,
   journalRefOfSource,
@@ -132,5 +137,27 @@ describe("reverseDocumentEntry", () => {
 
   test("dokumen yang belum diposting tidak membalik apa pun", () => {
     expect(reverseDocumentEntry("CASH_RECEIPT", 999, "x")).toBeNull();
+  });
+});
+
+// publicId yang kebetulan sama dengan kodenya membuat pencarian per kode
+// menerima publicId tanpa ada yang berniat begitu — persis cara tiga layar
+// menaut ke Jurnal lewat kunci yang salah dan lolos di mock.
+describe("publicId tidak pernah sama dengan kode", () => {
+  const rows: { publicId: string; code: string }[] = [
+    ...ACCOUNT,
+    ...TYPE_PERSEMBAHAN,
+    ...JOURNAL_ENTRY,
+    ...PERSEMBAHAN,
+    ...CASH_RECEIPT,
+    ...CASH_EXPENSE,
+  ];
+
+  test("tidak ada baris store yang kedua kuncinya bertabrakan", () => {
+    const clashing = rows
+      .filter((row) => row.publicId.toLowerCase() === row.code.toLowerCase())
+      .map((row) => row.code);
+
+    expect(clashing).toEqual([]);
   });
 });

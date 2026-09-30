@@ -24,7 +24,7 @@ export type Transfer = {
   bapel: { code: string; name: string } | null;
   status: CashStatus;
   method: string | null;
-  journal: { code: string; status: JournalStatus } | null;
+  journal: { publicId: string; code: string; status: JournalStatus } | null;
 };
 
 export type TransferPayload = {

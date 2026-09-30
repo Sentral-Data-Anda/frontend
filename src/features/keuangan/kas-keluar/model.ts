@@ -35,8 +35,9 @@ export const expenseEditHref = (publicId: string) =>
 export const approvalHref = (publicId: string) =>
   detailHref(MENU.PERSETUJUAN, MENU.PERMINTAAN_PERSETUJUAN, publicId);
 
-export const journalHref = (code: string) =>
-  detailHref(MENU.KEUANGAN, MENU.JURNAL, code);
+// Rute Jurnal hanya menerima publicId; kodenya untuk dibaca, bukan dirute.
+export const journalHref = (publicId: string) =>
+  detailHref(MENU.KEUANGAN, MENU.JURNAL, publicId);
 
 export const accountHref = (code: string) =>
   detailHref(MENU.KEUANGAN, MENU.AKUN, code);

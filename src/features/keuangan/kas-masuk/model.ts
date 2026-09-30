@@ -35,8 +35,9 @@ export const receiptHref = (publicId: string) =>
 export const receiptEditHref = (publicId: string) =>
   editHref(MENU.KEUANGAN, MENU.KAS_MASUK, publicId);
 
-export const journalHref = (code: string) =>
-  detailHref(MENU.KEUANGAN, MENU.JURNAL, code);
+// Rute Jurnal hanya menerima publicId; kodenya untuk dibaca, bukan dirute.
+export const journalHref = (publicId: string) =>
+  detailHref(MENU.KEUANGAN, MENU.JURNAL, publicId);
 
 export const TEXT_LINK =
   "text-primary cursor-pointer rounded-sm underline decoration-primary/30 underline-offset-4 transition-colors hover:decoration-primary focus-visible:decoration-primary";

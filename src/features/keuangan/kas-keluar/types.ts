@@ -42,7 +42,7 @@ export type CashExpense = {
 export type CashExpenseDetail = Omit<CashExpense, "lineCount"> & {
   lines: ExpenseLine[];
   attachments: ServerAttachment[];
-  journal: { code: string; status: JournalStatus } | null;
+  journal: { publicId: string; code: string; status: JournalStatus } | null;
   cancelReason: string | null;
 };
 

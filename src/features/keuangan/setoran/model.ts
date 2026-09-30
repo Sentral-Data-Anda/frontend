@@ -22,8 +22,9 @@ export const ACCOUNT_CREATE_PATH = createHref(MENU.KEUANGAN, MENU.AKUN);
 
 export const PERIOD_LIST_PATH = menuHref(MENU.KEUANGAN, MENU.PERIODE_FISKAL);
 
-export const journalSearchHref = (code: string) =>
-  `${menuHref(MENU.KEUANGAN, MENU.JURNAL)}?search=${encodeURIComponent(code)}`;
+// Rute Jurnal hanya menerima publicId; kodenya untuk dibaca, bukan dirute.
+export const journalHref = (publicId: string) =>
+  detailHref(MENU.KEUANGAN, MENU.JURNAL, publicId);
 
 export const TRANSFER_INFO =
   "Setoran memindahkan uang antar akun gereja sendiri. Uangnya tidak bertambah dan tidak berkurang, jadi setoran tidak pernah muncul sebagai pengeluaran di laporan.";

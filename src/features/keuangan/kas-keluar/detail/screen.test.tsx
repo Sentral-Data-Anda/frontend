@@ -82,7 +82,13 @@ const onRender = (
 describe("bahasa layar", () => {
   test("tidak pernah mengucapkan Debit atau Kredit", async () => {
     const { container } = onRender(
-      expenseDetail({ journal: { code: "JRN-2026-0031", status: "POSTED" } }),
+      expenseDetail({
+        journal: {
+          publicId: "jrn-0031",
+          code: "JRN-2026-0031",
+          status: "POSTED",
+        },
+      }),
     );
 
     await screen.findByText("Dibayarkan kepada");
@@ -220,7 +226,11 @@ describe("entri jurnal", () => {
     onRender(
       expenseDetail({
         status: "PAID",
-        journal: { code: "JRN-2026-0031", status: "POSTED" },
+        journal: {
+          publicId: "jrn-0031",
+          code: "JRN-2026-0031",
+          status: "POSTED",
+        },
       }),
       { [MENU.KAS_KELUAR]: FULL, [MENU.JURNAL]: ["VIEW"] },
     );
@@ -229,7 +239,7 @@ describe("entri jurnal", () => {
       (await screen.findByRole("link", { name: "JRN-2026-0031" })).getAttribute(
         "href",
       ),
-    ).toBe("/keuangan/jurnal/JRN-2026-0031");
+    ).toBe("/keuangan/jurnal/jrn-0031");
   });
 
   test("draf: tidak ada baris entri jurnal", async () => {

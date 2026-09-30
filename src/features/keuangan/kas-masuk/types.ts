@@ -26,7 +26,7 @@ export type CashReceipt = {
 
 export type CashReceiptDetail = CashReceipt & {
   lines: CashReceiptLine[];
-  journal: { code: string; status: JournalStatus } | null;
+  journal: { publicId: string; code: string; status: JournalStatus } | null;
 };
 
 export type CashReceiptPayload = {

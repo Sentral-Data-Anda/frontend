@@ -283,7 +283,9 @@ const offeringType = (
   extra: Partial<TypePersembahanRow> = {},
 ): TypePersembahanRow => ({
   id,
-  publicId: `tps-${pad(id)}`,
+  // publicId be-sada adalah uuid; di mock cukup bentuk yang tidak bisa
+  // sama dengan kodenya, supaya pencarian per kode tidak menerimanya.
+  publicId: `tps-a${pad(id)}`,
   code: `TPS-${pad(id)}`,
   name,
   isActive: true,
@@ -561,7 +563,9 @@ export const journalRef = (entryId: number | null) => {
       ? null
       : (JOURNAL_ENTRY.find((row) => row.id === entryId) ?? null);
 
-  return entry ? { code: entry.code, status: entry.status } : null;
+  return entry
+    ? { publicId: entry.publicId, code: entry.code, status: entry.status }
+    : null;
 };
 
 // Rute Jurnal berkunci publicId, jadi setiap rujukan entri membawanya — tanpa

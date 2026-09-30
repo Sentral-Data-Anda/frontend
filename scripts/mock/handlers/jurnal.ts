@@ -238,12 +238,11 @@ const accountFailure = (lines: JournalLineRow[]) => {
   return null;
 };
 
+// be-sada mencari entri hanya lewat publicId. Menerima kode juga membuat mock
+// lebih longgar daripada server, dan tautan yang salah kunci lolos di sini lalu
+// 404 di produksi.
 const find = (key: string) =>
-  JOURNAL_ENTRY.find(
-    (row) =>
-      row.publicId.toLowerCase() === key.toLowerCase() ||
-      row.code.toLowerCase() === key.toLowerCase(),
-  );
+  JOURNAL_ENTRY.find((row) => row.publicId.toLowerCase() === key.toLowerCase());
 
 const detail = (
   row: JournalEntryRow,

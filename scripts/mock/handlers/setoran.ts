@@ -156,9 +156,7 @@ const invalid = (issues: Issue[], status = 400, code?: string) =>
 const findRow = (code: string) => {
   const lower = decodeURIComponent(code).toLowerCase();
 
-  return CASH_TRANSFER.find(
-    (row) => row.code.toLowerCase() === lower || row.publicId === lower,
-  );
+  return CASH_TRANSFER.find((row) => row.code.toLowerCase() === lower);
 };
 
 const ok = (message: string, row: TransferRow, status = 200) =>
