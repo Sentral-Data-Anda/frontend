@@ -139,23 +139,32 @@ export const accountRef = (id: number | null) => {
     : null;
 };
 
-export const accountView = (row: AccountRow) => ({
+const parentRef = (parentAccountId: number | null) => {
+  const parent = accountOf(parentAccountId);
+
+  return parent
+    ? {
+        id: parent.id,
+        code: parent.code,
+        name: parent.name,
+        type: parent.type,
+      }
+    : null;
+};
+
+export const accountView = (row: AccountRow, isDetail = false) => ({
   id: row.id,
   publicId: row.publicId,
   code: row.code,
   name: row.name,
   type: row.type,
   parentAccountId: row.parentAccountId,
-  parent: row.parentAccountId
-    ? {
-        code: accountOf(row.parentAccountId)?.code ?? "",
-        name: accountOf(row.parentAccountId)?.name ?? "",
-      }
-    : null,
+  parent: parentRef(row.parentAccountId),
   isActive: row.isActive,
   childCount: ACCOUNT.filter(
     (child) => isLive(child) && child.parentAccountId === row.id,
   ).length,
+  ...(isDetail ? { hasJournalLines: row.hasJournal } : {}),
 });
 
 export const accountDdl = (params: URLSearchParams) => {
