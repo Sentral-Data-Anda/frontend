@@ -36,27 +36,6 @@ const IN_USE_SOURCES: [string, (row: AccountRow) => boolean][] = [
   ],
 ];
 
-const view = (row: AccountRow) => {
-  const parent = accountOf(row.parentAccountId);
-
-  return {
-    ...accountView(row),
-    parent: parent
-      ? {
-          id: parent.id,
-          code: parent.code,
-          name: parent.name,
-          type: parent.type,
-        }
-      : null,
-  };
-};
-
-const detailView = (row: AccountRow) => ({
-  ...view(row),
-  hasJournalLines: row.hasJournal,
-});
-
 const usedBy = (row: AccountRow) =>
   IN_USE_SOURCES.filter(([, isUsed]) => isUsed(row)).map(([label]) => label);
 
@@ -259,7 +238,7 @@ export const akunMock: MockHandler = async ({
               row.parentAccountId === Number(parentAccountId)),
         )
           .sort((a, b) => a.code.localeCompare(b.code, "id"))
-          .map(view);
+          .map((row) => accountView(row));
 
     return list(rows, url, "Akun", "Akun");
   }
@@ -289,7 +268,11 @@ export const akunMock: MockHandler = async ({
     ACCOUNT.push(row);
 
     return json(
-      { status: 201, message: "Berhasil Membuat Akun", data: detailView(row) },
+      {
+        status: 201,
+        message: "Berhasil Membuat Akun",
+        data: accountView(row, true),
+      },
       201,
     );
   }
@@ -328,7 +311,7 @@ export const akunMock: MockHandler = async ({
     return json({
       status: 200,
       message: "Berhasil Memperbarui Akun",
-      data: detailView(row),
+      data: accountView(row, true),
     });
   }
 
@@ -339,7 +322,7 @@ export const akunMock: MockHandler = async ({
     return json({
       status: 200,
       message: "Berhasil Mendapatkan Akun",
-      data: detailView(row),
+      data: accountView(row, true),
     });
   }
 
@@ -365,7 +348,7 @@ export const akunMock: MockHandler = async ({
     return json({
       status: 200,
       message: "Berhasil Menghapus Akun",
-      data: detailView(row),
+      data: accountView(row, true),
     });
   }
 
