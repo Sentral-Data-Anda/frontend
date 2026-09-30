@@ -6,6 +6,7 @@ import { useState, type FormEvent } from "react";
 import { Button, buttonVariants } from "@/components/common/control";
 import { useToast } from "@/components/common/feedback";
 import {
+  FormActions,
   FormAlert,
   FormConfirmDialog,
   FormLayout,
@@ -40,8 +41,6 @@ import { RangeSection } from "./range-section";
 import { RefusedList } from "./refused-list";
 
 const TITLE = "Posting Persembahan";
-
-const PREVIEW_HINT_ID = "posting-preview-required";
 
 type Outcome = {
   range: PostingRange;
@@ -111,6 +110,25 @@ export const PostingPersembahanScreen = () => {
   return (
     <FormLayout
       onSubmit={onConfirm}
+      actions={
+        <FormActions status={preview === null ? PREVIEW_REQUIRED : undefined}>
+          <Link
+            href={JURNAL_LIST_PATH}
+            className={cn(
+              buttonVariants({ variant: "outline" }),
+              "cursor-pointer",
+            )}
+          >
+            Kembali
+          </Link>
+
+          <Button type="submit" disabled={!isPostable}>
+            {posting.isPending && !posting.variables?.isDryRun
+              ? "Memposting…"
+              : "Posting"}
+          </Button>
+        </FormActions>
+      }
       header={
         <PageHeader
           title={TITLE}
@@ -165,36 +183,6 @@ export const PostingPersembahanScreen = () => {
       </div>
 
       {outcome ? <RefusedList refused={outcome.result.refused} /> : null}
-
-      <div className="space-y-2 px-gutter py-5">
-        {preview === null ? (
-          <p className="text-muted-foreground text-body" id={PREVIEW_HINT_ID}>
-            {PREVIEW_REQUIRED}
-          </p>
-        ) : null}
-
-        <div className="flex flex-wrap items-center gap-2">
-          <Button
-            type="submit"
-            disabled={!isPostable}
-            aria-describedby={preview === null ? PREVIEW_HINT_ID : undefined}
-          >
-            {posting.isPending && !posting.variables?.isDryRun
-              ? "Memposting…"
-              : "Posting"}
-          </Button>
-
-          <Link
-            href={JURNAL_LIST_PATH}
-            className={cn(
-              buttonVariants({ variant: "outline" }),
-              "cursor-pointer",
-            )}
-          >
-            Kembali ke Jurnal
-          </Link>
-        </div>
-      </div>
 
       <FormConfirmDialog
         confirm={confirm}

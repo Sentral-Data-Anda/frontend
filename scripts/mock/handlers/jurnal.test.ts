@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, test } from "bun:test";
 
 import { MENU } from "../../../src/config/menu";
-import { JOURNAL_ENTRY, TODAY } from "../keuangan-store";
+import { JOURNAL_ENTRY, TODAY, journalOfSource } from "../keuangan-store";
 import type { MockAction } from "../kit";
 
 import { jurnalMock } from "./jurnal";
@@ -374,6 +374,23 @@ describe("posting persembahan", () => {
 
     expect(data.posted).toBe(0);
     expect(data.skipped).toBeGreaterThan(0);
+  });
+
+  test("entri batch ditulis lewat pintu bersama: satu entri per persembahan", async () => {
+    await onCall("POST", "/jurnal/posting-persembahan", rangeOf());
+
+    const written = JOURNAL_ENTRY.filter(
+      (row) => row.sourceType === "PERSEMBAHAN" && row.sourceId !== null,
+    );
+    const ids = written.map((row) => row.sourceId);
+
+    expect(written.length).toBeGreaterThan(0);
+    expect(new Set(ids).size).toBe(ids.length);
+    for (const row of written) {
+      expect(journalOfSource("PERSEMBAHAN", row.sourceId as number)).toBe(row);
+      expect(row.status).toBe("POSTED");
+      expect(row.lines).toHaveLength(2);
+    }
   });
 
   test("dryRun yang tidak terbaca ditolak 400, tidak jadi posting sungguhan", async () => {

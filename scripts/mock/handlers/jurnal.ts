@@ -20,12 +20,15 @@ import {
   codeOf,
   isLive,
   journalList,
+  journalOfSource,
   journalView,
   monthLabel,
   periodOf,
+  postDocumentEntry,
   settingAccountOf,
   type JournalEntryRow,
   type JournalLineRow,
+  type PostFailure,
 } from "../keuangan-store";
 import {
   denied,
@@ -54,6 +57,8 @@ const MAX_LINES = 50;
 
 const MAX_RANGE_DAYS = 31;
 
+const PERSEMBAHAN_SOURCE = "PERSEMBAHAN";
+
 const ACTION: Record<string, MockAction> = {
   POST: "CREATE",
   PUT: "UPDATE",
@@ -79,60 +84,6 @@ const toCents = (value: string) => {
 
 const totalCentsOf = (lines: JournalLineRow[], side: "debit" | "credit") =>
   lines.reduce((total, row) => total + toCents(row[side]), 0);
-
-// `journalView` store belum membawa seluruh bentuk kontrak §7: sourceType,
-// source.id, isReversal, dan ref pembalikan ber-publicId ditambahkan di sini.
-const accountShapeOf = (accountId: number) => {
-  const account = accountOf(accountId);
-
-  return account
-    ? {
-        id: account.id,
-        code: account.code,
-        name: account.name,
-        type: account.type,
-      }
-    : null;
-};
-
-const refOf = (entryId: number | null) => {
-  const entry =
-    entryId === null
-      ? null
-      : (JOURNAL_ENTRY.find((other) => other.id === entryId) ?? null);
-
-  return entry
-    ? { publicId: entry.publicId, code: entry.code, entryDate: entry.entryDate }
-    : null;
-};
-
-const view = (row: JournalEntryRow, isDetail = false) => {
-  const reversedBy =
-    JOURNAL_ENTRY.find((other) => other.reversalOfId === row.id) ?? null;
-
-  return {
-    ...journalView(row, isDetail),
-    sourceType: row.sourceType,
-    source: { type: row.sourceType, id: row.sourceId },
-    reversalOfId: row.reversalOfId,
-    isReversal: row.reversalOfId !== null,
-    ...(isDetail
-      ? {
-          lines: row.lines.map((line) => ({
-            id: `jln-${line.id}`,
-            publicId: `jln-${line.id}`,
-            accountId: line.accountId,
-            account: accountShapeOf(line.accountId),
-            debit: line.debit,
-            credit: line.credit,
-            description: line.description,
-          })),
-          reversalOf: refOf(row.reversalOfId),
-          reversedBy: reversedBy ? refOf(reversedBy.id) : null,
-        }
-      : {}),
-  };
-};
 
 type BodyLine = {
   accountId?: unknown;
@@ -242,18 +193,32 @@ function parseBody(body: Body) {
   return { entryDate, description, lines };
 }
 
-const periodFailure = (date: string) => {
+// Cermin `postDocumentEntry`: dua cabang yang sama, satu tempat, supaya
+// pratinjau batch tidak pernah menjanjikan lebih dari yang ditulis.
+const periodFailureOf = (date: string): PostFailure | null => {
   const period = periodOf(date);
   const label = monthLabel(Number(date.slice(0, 4)), Number(date.slice(5, 7)));
 
   if (!period) {
-    return fail(400, `Periode Fiskal ${label} Belum Dibuka`, "PERIOD_NOT_OPEN");
+    return {
+      code: "PERIOD_NOT_OPEN",
+      message: `Periode Fiskal ${label} Belum Dibuka`,
+    };
   }
   if (period.status === "CLOSED" || process.env.MOCK_PERIOD_CLOSED) {
-    return fail(400, `Periode Fiskal ${label} Sudah Ditutup`, "PERIOD_CLOSED");
+    return {
+      code: "PERIOD_CLOSED",
+      message: `Periode Fiskal ${label} Sudah Ditutup`,
+    };
   }
 
   return null;
+};
+
+const periodFailure = (date: string) => {
+  const failure = periodFailureOf(date);
+
+  return failure ? fail(400, failure.message, failure.code) : null;
 };
 
 const accountFailure = (lines: JournalLineRow[]) => {
@@ -284,7 +249,7 @@ const detail = (
   row: JournalEntryRow,
   status = 200,
   message = "Berhasil Mendapatkan Jurnal",
-) => json({ status, message, data: view(row, true) }, status);
+) => json({ status, message, data: journalView(row, true) }, status);
 
 const onCreate = (parsed: ReturnType<typeof parseBody>) => {
   if (parsed.failure) return parsed.failure;
@@ -445,6 +410,7 @@ const onReverse = (row: JournalEntryRow, body: Body) => {
 // Pratinjau menjalankan pemeriksaan yang sama dengan posting sungguhan.
 
 type Gift = {
+  id: number;
   code: string;
   typeId: number;
   receiveMethod: "TUNAI" | "TRANSFER" | "PAYMENT_GATEWAY";
@@ -457,6 +423,9 @@ const SETTING_KEY = {
   TRANSFER: "PERSEMBAHAN_BANK",
   PAYMENT_GATEWAY: "PERSEMBAHAN_GATEWAY",
 } as const;
+
+const giftIdOf = (from: string, index: number) =>
+  (Number(from.slice(0, 4)) * 12 + Number(from.slice(5, 7))) * 100 + index;
 
 const giftsIn = (from: string, to: string): Gift[] => {
   const day = (offset: number) => {
@@ -471,6 +440,7 @@ const giftsIn = (from: string, to: string): Gift[] => {
 
   const gifts = TYPE_PERSEMBAHAN.filter((type) => isLive(type)).map(
     (type, index): Gift => ({
+      id: giftIdOf(from, index + 1),
       code: `PSB-${from.slice(0, 7).replace("-", "")}-${String(index + 1).padStart(3, "0")}`,
       typeId: type.id,
       receiveMethod: index % 3 === 1 ? "TRANSFER" : "TUNAI",
@@ -481,6 +451,7 @@ const giftsIn = (from: string, to: string): Gift[] => {
 
   if (process.env.MOCK_GATEWAY_GIFT) {
     gifts.push({
+      id: giftIdOf(from, 90),
       code: `PSB-${from.slice(0, 7).replace("-", "")}-900`,
       typeId: TYPE_PERSEMBAHAN[0].id,
       receiveMethod: "PAYMENT_GATEWAY",
@@ -492,13 +463,21 @@ const giftsIn = (from: string, to: string): Gift[] => {
   return gifts;
 };
 
-const refusalOf = (gift: Gift) => {
+type TypeRow = (typeof TYPE_PERSEMBAHAN)[number];
+
+// Penolakan khas persembahan: yang tidak bisa diketahui `postDocumentEntry`,
+// karena ia tidak tahu tipe persembahan maupun setelan akuntansi.
+const giftSetupOf = (
+  gift: Gift,
+): { failure: PostFailure } | { type: TypeRow; debitId: number } => {
   const type = TYPE_PERSEMBAHAN.find((row) => row.id === gift.typeId);
 
   if (!type || type.accountId === null) {
     return {
-      reason: `Tipe Persembahan ${type?.name ?? "Ini"} Belum Memiliki Akun. Lengkapi Terlebih Dahulu`,
-      reasonCode: "OFFERING_TYPE_NO_ACCOUNT",
+      failure: {
+        code: "OFFERING_TYPE_NO_ACCOUNT",
+        message: `Tipe Persembahan ${type?.name ?? "Ini"} Belum Memiliki Akun. Lengkapi Terlebih Dahulu`,
+      },
     };
   }
 
@@ -509,8 +488,10 @@ const refusalOf = (gift: Gift) => {
 
   if (settingAccountId === null) {
     return {
-      reason: `Setelan Akuntansi ${key} Belum Diisi. Tetapkan Akunnya Terlebih Dahulu`,
-      reasonCode: "SETTING_EMPTY",
+      failure: {
+        code: "SETTING_EMPTY",
+        message: `Setelan Akuntansi ${key} Belum Diisi. Tetapkan Akunnya Terlebih Dahulu`,
+      },
     };
   }
 
@@ -519,80 +500,30 @@ const refusalOf = (gift: Gift) => {
 
     if (!account || !isLive(account) || !account.isActive) {
       return {
-        reason: `Akun ${account?.code ?? accountId} Sudah Tidak Aktif`,
-        reasonCode: "ACCOUNT_INACTIVE",
+        failure: {
+          code: "ACCOUNT_INACTIVE",
+          message: `Akun ${account?.code ?? accountId} Sudah Tidak Aktif`,
+        },
       };
     }
   }
 
-  const label = monthLabel(
-    Number(gift.receivedDate.slice(0, 4)),
-    Number(gift.receivedDate.slice(5, 7)),
-  );
-  const period = periodOf(gift.receivedDate);
-
-  if (!period) {
-    return {
-      reason: `Periode Fiskal ${label} Belum Dibuka`,
-      reasonCode: "PERIOD_NOT_OPEN",
-    };
-  }
-  if (period.status === "CLOSED" || process.env.MOCK_PERIOD_CLOSED) {
-    return {
-      reason: `Periode Fiskal ${label} Sudah Ditutup`,
-      reasonCode: "PERIOD_CLOSED",
-    };
-  }
-
-  return null;
+  return { type, debitId: settingAccountId };
 };
 
-const sourceIdOf = (gift: Gift) =>
-  [...gift.code].reduce((hash, char) => hash * 31 + char.charCodeAt(0), 7) %
-  1_000_000_007;
+const giftLines = (gift: Gift, type: TypeRow, debitId: number) => [
+  { accountId: debitId, debit: gift.amount, credit: "0" },
+  { accountId: type.accountId as number, debit: "0", credit: gift.amount },
+];
 
-const isPosted = (gift: Gift) =>
-  JOURNAL_ENTRY.some(
-    (row) =>
-      row.sourceType === "PERSEMBAHAN" && row.sourceId === sourceIdOf(gift),
-  );
-
-const writeGift = (gift: Gift) => {
-  const type = TYPE_PERSEMBAHAN.find((row) => row.id === gift.typeId);
-  const debitId = settingAccountOf(SETTING_KEY[gift.receiveMethod]);
-
-  if (!type || type.accountId === null || debitId === null) return;
-
-  JOURNAL_ENTRY.push({
-    id: nextEntryId(),
-    publicId: `jrn-${crypto.randomUUID()}`,
-    code: codeOf("JRN", { yearly: true }),
+const giftEntry = (gift: Gift, type: TypeRow, debitId: number) =>
+  postDocumentEntry({
+    sourceType: PERSEMBAHAN_SOURCE,
+    sourceId: gift.id,
     entryDate: gift.receivedDate,
     description: `Persembahan ${type.name} ${gift.code}`,
-    status: "POSTED",
-    sourceType: "PERSEMBAHAN",
-    sourceId: sourceIdOf(gift),
-    reversalOfId: null,
-    postedById: SESSION_USER_ID,
-    postedAt: new Date().toISOString(),
-    lines: [
-      {
-        id: lineId(),
-        accountId: debitId,
-        debit: gift.amount,
-        credit: "0",
-        description: null,
-      },
-      {
-        id: lineId(),
-        accountId: type.accountId,
-        debit: "0",
-        credit: gift.amount,
-        description: null,
-      },
-    ],
+    lines: giftLines(gift, type, debitId),
   });
-};
 
 const daysBetween = (from: string, to: string) =>
   Math.round(
@@ -632,24 +563,52 @@ const onPostPersembahan = (
     return fieldError("to", `Rentang Maksimal ${MAX_RANGE_DAYS} Hari`);
   }
 
-  const gifts = giftsIn(from, to);
   const refused: { code: string; reason: string; reasonCode: string }[] = [];
-  const postable: Gift[] = [];
+  let posted = 0;
   let skipped = 0;
 
-  for (const gift of gifts) {
-    if (isPosted(gift)) {
+  const onRefused = (gift: Gift, failure: PostFailure) =>
+    refused.push({
+      code: gift.code,
+      reason: failure.message,
+      reasonCode: failure.code,
+    });
+
+  for (const gift of giftsIn(from, to)) {
+    const setup = giftSetupOf(gift);
+
+    if ("failure" in setup) {
+      onRefused(gift, setup.failure);
+      continue;
+    }
+
+    // Sudah dibukukan itu dilewati, bukan ditolak — bendahara memang sering
+    // memilih rentang yang bertumpuk dengan batch sebelumnya.
+    if (journalOfSource(PERSEMBAHAN_SOURCE, gift.id)) {
       skipped += 1;
       continue;
     }
 
-    const refusal = refusalOf(gift);
+    if (isDryRun) {
+      const failure = periodFailureOf(gift.receivedDate);
 
-    if (refusal) refused.push({ code: gift.code, ...refusal });
-    else postable.push(gift);
+      if (failure) onRefused(gift, failure);
+      else posted += 1;
+
+      continue;
+    }
+
+    const result = giftEntry(gift, setup.type, setup.debitId);
+
+    if ("failure" in result) {
+      if (result.failure.code === "ALREADY_POSTED") skipped += 1;
+      else onRefused(gift, result.failure);
+
+      continue;
+    }
+
+    posted += 1;
   }
-
-  if (!isDryRun) for (const gift of postable) writeGift(gift);
 
   return json(
     {
@@ -657,7 +616,7 @@ const onPostPersembahan = (
       message: isDryRun
         ? "Berhasil Memeriksa Posting Persembahan"
         : "Berhasil Memposting Persembahan Ke Jurnal",
-      data: { posted: postable.length, skipped, refused },
+      data: { posted, skipped, refused },
     },
     isDryRun ? 200 : 201,
   );
@@ -667,7 +626,7 @@ const onList = (url: URL) => {
   if (process.env.MOCK_500) return serverError();
 
   return list(
-    journalList(url.searchParams).map((row) => view(row)),
+    journalList(url.searchParams).map((row) => journalView(row)),
     url,
     "Jurnal",
     "Jurnal",
