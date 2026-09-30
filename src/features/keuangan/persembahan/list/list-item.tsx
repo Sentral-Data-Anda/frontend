@@ -50,7 +50,7 @@ const journalCell = (row: Persembahan, isLinked: boolean) => {
 
   return isLinked ? (
     <Link
-      href={journalHref(row.journal.code)}
+      href={journalHref(row.journal.publicId)}
       className={cn(LINK, "block truncate tabular-nums")}
     >
       {row.journal.code}

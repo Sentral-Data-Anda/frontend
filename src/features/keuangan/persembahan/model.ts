@@ -30,8 +30,9 @@ export const PERSEMBAHAN_CREATE_PATH = `${PERSEMBAHAN_LIST_PATH}/${FORM_SEGMENT.
 export const persembahanHref = (code: string) =>
   detailHref(MENU.KEUANGAN, MENU.PERSEMBAHAN, code);
 
-export const journalHref = (code: string) =>
-  detailHref(MENU.KEUANGAN, MENU.JURNAL, code);
+// Rute Jurnal hanya menerima publicId; kodenya untuk dibaca, bukan dirute.
+export const journalHref = (publicId: string) =>
+  detailHref(MENU.KEUANGAN, MENU.JURNAL, publicId);
 
 export const PERIODE_FISKAL_PATH = menuHref(MENU.KEUANGAN, MENU.PERIODE_FISKAL);
 

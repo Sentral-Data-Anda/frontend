@@ -56,6 +56,7 @@ describe("postDocumentEntry", () => {
     expect(result.entry.sourceType).toBe("CASH_RECEIPT");
     expect(JOURNAL_ENTRY.at(-1)?.code).toBe(result.entry.code);
     expect(journalRefOfSource("CASH_RECEIPT", 901)).toEqual({
+      publicId: result.entry.publicId,
       code: result.entry.code,
       status: "POSTED",
     });

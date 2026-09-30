@@ -26,7 +26,7 @@ import {
   JURNAL_LIST_PATH,
   NO_VIEW,
   POSTING_NOTE,
-  PREVIEW_REQUIRED,
+  postingStatusOf,
   RELOAD_ADVICE,
   isReloadAdvised,
   isSameRange,
@@ -63,7 +63,11 @@ export const PostingPersembahanScreen = () => {
     outcome && !outcome.isDone && isSameRange(outcome.range, range)
       ? outcome
       : null;
-  const isPostable = preview !== null && !posting.isPending;
+  // Pratinjau yang menolak semuanya tidak boleh menyisakan tombol aktif: ia
+  // hanya akan membukukan nol baris dan mengajari bendahara bahwa tombolnya
+  // kadang tidak melakukan apa-apa.
+  const isPostable =
+    preview !== null && preview.result.posted > 0 && !posting.isPending;
   const failure = posting.error;
   const failureCode = failure instanceof FetchError ? failure.code : null;
 
@@ -111,7 +115,7 @@ export const PostingPersembahanScreen = () => {
     <FormLayout
       onSubmit={onConfirm}
       actions={
-        <FormActions status={preview === null ? PREVIEW_REQUIRED : undefined}>
+        <FormActions status={postingStatusOf(preview)}>
           <Link
             href={JURNAL_LIST_PATH}
             className={cn(

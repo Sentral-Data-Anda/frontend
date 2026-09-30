@@ -8,6 +8,7 @@ import { addDays, startOfMonth } from "../../src/lib/date";
 import { balanceOf, sumAmounts } from "../../src/lib/number";
 import type {
   AccountType,
+  JournalRef,
   AccountingSettingKey,
   CashStatus,
   JournalStatus,
@@ -741,10 +742,15 @@ export const journalOfSource = (sourceType: string, sourceId: number) =>
     (row) => row.sourceType === sourceType && row.sourceId === sourceId,
   ) ?? null;
 
-export const journalRefOfSource = (sourceType: string, sourceId: number) => {
+export const journalRefOfSource = (
+  sourceType: string,
+  sourceId: number,
+): JournalRef | null => {
   const entry = journalOfSource(sourceType, sourceId);
 
-  return entry ? { code: entry.code, status: entry.status } : null;
+  return entry
+    ? { publicId: entry.publicId, code: entry.code, status: entry.status }
+    : null;
 };
 
 export const postDocumentEntry = (input: {

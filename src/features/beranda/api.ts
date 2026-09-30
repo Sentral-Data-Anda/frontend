@@ -258,8 +258,6 @@ export type PaymentItem = {
   amount: string;
   status: "FAILED" | "EXPIRED";
   createdAt: string;
-  jemaat: { name: string } | null;
-  donorName: string | null;
 };
 
 export function useFailedPayments(isEnabled: boolean) {

@@ -68,7 +68,7 @@ const ROW: Persembahan = {
   voidedAt: null,
   voidedBy: null,
   reversalJournal: null,
-  journal: { code: "JRN-2026-0002", status: "POSTED" },
+  journal: { publicId: "jrn-0002", code: "JRN-2026-0002", status: "POSTED" },
 };
 
 type Failure = { status: number; error: string; code?: string };
@@ -95,8 +95,16 @@ const onMockApi = (row: Persembahan = ROW, failure?: Failure) => {
       voidReason: "Terhitung dua kali.",
       voidedAt: "2026-09-30T04:00:00.000Z",
       voidedBy: { name: "Maria Hutapea" },
-      journal: { code: "JRN-2026-0002", status: "REVERSED" },
-      reversalJournal: { code: "JRN-2026-0007", status: "POSTED" },
+      journal: {
+        publicId: "jrn-0002",
+        code: "JRN-2026-0002",
+        status: "REVERSED",
+      },
+      reversalJournal: {
+        publicId: "jrn-0007",
+        code: "JRN-2026-0007",
+        status: "POSTED",
+      },
     };
 
     return Response.json({
@@ -172,7 +180,7 @@ describe("ringkasan", () => {
     expect(await screen.findByText("September 2026")).toBeTruthy();
     expect(
       screen.getByRole("link", { name: /JRN-2026-0002/ }).getAttribute("href"),
-    ).toBe("/keuangan/jurnal/JRN-2026-0002");
+    ).toBe("/keuangan/jurnal/jrn-0002");
   });
 
   test("pemberi anonim tampil Anonim, bukan sel kosong", async () => {
@@ -224,7 +232,7 @@ describe("batalkan", () => {
       screen
         .getByRole("link", { name: /entri pembalik JRN-2026-0007/ })
         .getAttribute("href"),
-    ).toBe("/keuangan/jurnal/JRN-2026-0007");
+    ).toBe("/keuangan/jurnal/jrn-0007");
   });
 
   test("tanpa JURNAL VIEW: pembatalan terbaca, tanpa tautan pembalik", async () => {
@@ -234,8 +242,16 @@ describe("batalkan", () => {
       voidReason: "Terhitung dua kali.",
       voidedAt: "2026-09-30T04:00:00.000Z",
       voidedBy: { name: "Maria Hutapea" },
-      journal: { code: "JRN-2026-0002", status: "REVERSED" },
-      reversalJournal: { code: "JRN-2026-0007", status: "POSTED" },
+      journal: {
+        publicId: "jrn-0002",
+        code: "JRN-2026-0002",
+        status: "REVERSED",
+      },
+      reversalJournal: {
+        publicId: "jrn-0007",
+        code: "JRN-2026-0007",
+        status: "POSTED",
+      },
     });
     onRender({ PERSEMBAHAN: ["VIEW", "DELETE"] });
 

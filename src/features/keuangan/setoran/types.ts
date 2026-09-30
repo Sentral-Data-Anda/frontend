@@ -1,4 +1,4 @@
-import type { AccountType, CashStatus, JournalStatus } from "@/types/keuangan";
+import type { AccountType, CashStatus, JournalRef } from "@/types/keuangan";
 
 export type TransferAccount = {
   id: number;
@@ -24,7 +24,7 @@ export type Transfer = {
   bapel: { code: string; name: string } | null;
   status: CashStatus;
   method: string | null;
-  journal: { publicId: string; code: string; status: JournalStatus } | null;
+  journal: JournalRef | null;
 };
 
 export type TransferPayload = {

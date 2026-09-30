@@ -67,6 +67,9 @@ export const NO_ACCOUNT_DESCRIPTION =
 export const POSTING_NOTE =
   "Persembahan diposting per baris: satu persembahan menjadi satu entri jurnal dengan dua baris.";
 
+export const NOTHING_TO_POST =
+  "Tidak ada persembahan yang bisa diposting di rentang ini.";
+
 export const PREVIEW_REQUIRED =
   "Jalankan pratinjau dulu. Tombol posting terbuka sesudah Anda melihat apa yang akan dibukukan.";
 
@@ -333,3 +336,11 @@ export const rangeOfMonth = (bulan: string): PostingRange | null => {
 
 export const isSameRange = (a: PostingRange | null, b: PostingRange | null) =>
   a !== null && b !== null && a.from === b.from && a.to === b.to;
+
+export const postingStatusOf = (
+  preview: { result: { posted: number } } | null,
+): string | undefined => {
+  if (preview === null) return PREVIEW_REQUIRED;
+
+  return preview.result.posted === 0 ? NOTHING_TO_POST : undefined;
+};
