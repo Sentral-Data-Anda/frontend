@@ -7,6 +7,7 @@ import {
   JOURNAL_ENTRY,
   TODAY,
   journalOfSource,
+  periodOf,
   type CashReceiptRow,
   type JournalEntryRow,
 } from "../keuangan-store";
@@ -86,7 +87,8 @@ const VALID = {
 
 const draftRow = () =>
   CASH_RECEIPT.find(
-    (row) => row.status === "DRAFT" && row.receiptDate >= TODAY.slice(0, 7),
+    (row) =>
+      row.status === "DRAFT" && periodOf(row.receiptDate)?.status === "OPEN",
   );
 
 const draftId = () => draftRow()?.publicId ?? "";
@@ -98,8 +100,7 @@ const paidId = () => paidRow()?.publicId ?? "";
 const closedDraftId = () =>
   CASH_RECEIPT.find(
     (row) =>
-      row.status === "DRAFT" &&
-      row.receiptDate.startsWith(`${TODAY.slice(0, 4)}-01`),
+      row.status === "DRAFT" && periodOf(row.receiptDate)?.status === "CLOSED",
   )?.publicId ?? "";
 
 describe("guard", () => {

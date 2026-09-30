@@ -47,6 +47,8 @@ const { PendaftaranDetailScreen } = await import("./screen");
 const originalFetch = globalThis.fetch;
 const SNAPSHOT = structuredClone(REGISTRATION);
 
+const codeOf = (id: number) => REGISTRATION.find((row) => row.id === id)!.code;
+
 beforeAll(() => {
   globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = new URL(String(input), "http://mock.test");
@@ -112,7 +114,7 @@ describe("halaman baca", () => {
       value: { writeText: async (text: string) => void copied.push(text) },
       configurable: true,
     });
-    onRender(ALL, "REG-2026-0001");
+    onRender(ALL, codeOf(1));
 
     const payment = await onPanel("Pembayaran");
 
@@ -137,7 +139,7 @@ describe("halaman baca", () => {
   });
 
   test("lunas dan kedaluwarsa: tanpa tautan, alasan tanpa tombol", async () => {
-    onRender(ALL, "REG-2026-0002");
+    onRender(ALL, codeOf(2));
 
     expect((await onPanel("Pembayaran")).textContent).toContain("Lunas");
     expect(screen.queryByRole("button", { name: "Salin tautan" })).toBeNull();
@@ -146,7 +148,7 @@ describe("halaman baca", () => {
     ).toBeTruthy();
 
     cleanup();
-    onRender(ALL, "REG-2026-0003");
+    onRender(ALL, codeOf(3));
 
     expect((await onPanel("Pembayaran")).textContent).toContain("Kedaluwarsa");
     expect(screen.getByText("Pendaftaran ini sudah tidak aktif.")).toBeTruthy();
@@ -154,7 +156,7 @@ describe("halaman baca", () => {
   });
 
   test("gratis terkonfirmasi: batalkan lewat konfirmasi → DELETE dan kembali ke daftar", async () => {
-    onRender(ALL, "REG-2026-0008");
+    onRender(ALL, codeOf(8));
 
     await onPanel("Pendaftaran");
     expect(screen.queryByRole("region", { name: "Pembayaran" })).toBeNull();
@@ -171,17 +173,17 @@ describe("halaman baca", () => {
     fireEvent.click(screen.getByRole("button", { name: "Ya" }));
 
     await waitFor(() => expect(replaced).toEqual([PENDAFTARAN_LIST_PATH]));
-    expect(requested).toContain("DELETE /pendaftaran-event/REG-2026-0008");
+    expect(requested).toContain(`DELETE /pendaftaran-event/${codeOf(8)}`);
   });
 
   test("tanpa DELETE: tombol batal hilang, alasan tetap tampil", async () => {
-    onRender(["VIEW"], "REG-2026-0008");
+    onRender(["VIEW"], codeOf(8));
 
     await onPanel("Pendaftaran");
     expect(screen.queryByRole("region", { name: "Pembatalan" })).toBeNull();
 
     cleanup();
-    onRender(["VIEW"], "REG-2026-0002");
+    onRender(["VIEW"], codeOf(2));
 
     await onPanel("Pembayaran");
     expect(
@@ -196,7 +198,7 @@ describe("halaman baca", () => {
     const late = REGISTRATION.find((row) => row.id === 3);
 
     if (late?.payment) late.payment.status = "PAID";
-    onRender(["VIEW"], "REG-2026-0003");
+    onRender(["VIEW"], codeOf(3));
 
     expect((await onPanel("Pembayaran")).textContent).toContain("Lunas");
     expect(screen.getByText("Kedaluwarsa")).toBeTruthy();
@@ -210,7 +212,7 @@ describe("halaman baca", () => {
 
     if (pending?.payment) pending.payment.invoiceUrl = null;
     process.env.MOCK_PENDAFTARAN_INVOICE_409 = "1";
-    onRender(ALL, "REG-2026-0001");
+    onRender(ALL, codeOf(1));
 
     fireEvent.click(
       await screen.findByRole("button", { name: "Buat ulang tagihan" }),
@@ -222,7 +224,7 @@ describe("halaman baca", () => {
     ).toBeTruthy();
     expect(
       requested.filter(
-        (line) => line === "GET /pendaftaran-event/REG-2026-0001",
+        (line) => line === `GET /pendaftaran-event/${codeOf(1)}`,
       ),
     ).toHaveLength(2);
     expect(
@@ -234,7 +236,7 @@ describe("halaman baca", () => {
     const pending = REGISTRATION.find((row) => row.id === 1);
 
     if (pending?.payment) pending.payment.invoiceUrl = null;
-    onRender(["VIEW"], "REG-2026-0001");
+    onRender(["VIEW"], codeOf(1));
 
     expect(await screen.findByText("Hubungi administrator.")).toBeTruthy();
     expect(
@@ -242,7 +244,7 @@ describe("halaman baca", () => {
     ).toBeNull();
 
     cleanup();
-    onRender(ALL, "REG-2026-0001");
+    onRender(ALL, codeOf(1));
 
     fireEvent.click(
       await screen.findByRole("button", { name: "Buat ulang tagihan" }),
@@ -252,9 +254,7 @@ describe("halaman baca", () => {
     expect(
       await screen.findByRole("button", { name: "Salin tautan" }),
     ).toBeTruthy();
-    expect(requested).toContain(
-      "POST /pendaftaran-event/REG-2026-0001/invoice",
-    );
+    expect(requested).toContain(`POST /pendaftaran-event/${codeOf(1)}/invoice`);
   });
 
   test("buat ulang tagihan, tagihan lama terbayar bersamaan: tampil lunas tanpa tombol", async () => {
@@ -262,7 +262,7 @@ describe("halaman baca", () => {
 
     if (pending?.payment) pending.payment.invoiceUrl = null;
     process.env.MOCK_PENDAFTARAN_INVOICE_PAID = "1";
-    onRender(ALL, "REG-2026-0001");
+    onRender(ALL, codeOf(1));
 
     fireEvent.click(
       await screen.findByRole("button", { name: "Buat ulang tagihan" }),
@@ -289,7 +289,7 @@ describe("halaman baca", () => {
 
     cleanup();
     requested.length = 0;
-    onRender([], "REG-2026-0001");
+    onRender([], codeOf(1));
     expect(
       screen.getByText("Anda tidak memiliki akses ke Pendaftaran Event"),
     ).toBeTruthy();

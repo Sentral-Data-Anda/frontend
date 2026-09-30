@@ -365,6 +365,33 @@ export const FISCAL_PERIOD: FiscalPeriodRow[] = Array.from(
   { length: 12 },
   (_, index) => {
     const month = index + 1;
+    // LUBANG YANG DIKETAHUI, BELUM DITAMBAL — butuh keputusan kontrak.
+    //
+    // Larik ini hanya berisi tahun berjalan, dan "tertutup" berarti lebih tua
+    // dari bulan lalu. Di bulan Januari (MONTH=1) dan Februari (MONTH=2)
+    // perbandingan di bawah tidak pernah benar, jadi TIDAK ADA satu pun
+    // periode berstatus CLOSED — padahal di bulan-bulan itu yang tertutup
+    // memang ada, cuma miliknya tahun lalu, dan tahun lalu tidak punya baris
+    // di sini sama sekali (periodOf mengembalikan null → PERIOD_NOT_OPEN,
+    // bukan PERIOD_CLOSED).
+    //
+    // Dua seed jatuh ke lubang ini, terukur dengan `MOCK_TODAY`:
+    //   - CASH_RECEIPT #6 (`${YEAR}-01-14`) → kas-masuk "bulan tertutup
+    //     ditolak", merah sepanjang Januari dan Februari
+    //   - closedMonthDate() (MONTH-3, menyeberang tahun) → kas-keluar "bayar >
+    //     bulan tertutup ditolak", merah Januari sampai Maret
+    //
+    // Menambalnya berarti menyeed tahun sebelumnya juga. Itu TIDAK bisa
+    // dilakukan diam-diam: GET /periode-fiskal hanya menyaring tahun bila
+    // parameternya ada, dan widget Beranda memanggilnya tanpa tahun
+    // (`/periode-fiskal?limit=24`, src/features/beranda/api.ts:309), jadi
+    // widget yang sudah di-review akan mulai menerima 24 baris lintas dua
+    // tahun. Jadi: seed tahun lalu + daftar berdefault ke tahun berjalan,
+    // sebagai satu perubahan sadar — bukan disisipkan di sini.
+    //
+    // Karena lubang ini, `bun run test:dates` tidak memakai tanggal di
+    // Januari/Februari; keduanya merah di sana, dan itu utang, bukan tanggal
+    // yang aman.
     const isClosed = month < MONTH - 1;
 
     return {
@@ -650,6 +677,29 @@ export const journalList = (params: URLSearchParams) => {
 
 export const openMonthStart = () => startOfMonth(TODAY);
 
+/**
+ * Tanggal seed mundur `back` hari, tetapi tidak pernah melewati awal bulan
+ * berjalan.
+ *
+ * Daftar dokumen (Kas Masuk dan kawan-kawannya) menyaring BULAN INI secara
+ * bawaan, sementara seed-nya bertanggal relatif terhadap hari ini. Keduanya
+ * hanya cocok di tengah bulan: pada tanggal 1, `addDays(TODAY, -3)` jatuh di
+ * bulan lalu dan dokumennya hilang dari layar bawaan — pada 1 Oktober 2026
+ * daftar Kas Masuk hanya menyisakan satu baris. Dijepit ke awal bulan,
+ * seed-nya tetap terlihat tanpa pernah bertanggal masa depan.
+ *
+ * `thisMonth(day)` di bagian Kas Keluar menjawab persoalan yang sama dengan
+ * parameter berbeda (tanggal dalam bulan, dijepit di hari ini). Sebaiknya
+ * disatukan ke yang ini — jaraknya antar seed tetap terjaga di tengah bulan —
+ * tapi jangan sekarang: CASH_EXPENSE baru saja dijangkar terpisah.
+ */
+export const dayInMonth = (back: number) => {
+  const date = addDays(TODAY, -back);
+  const start = startOfMonth(TODAY);
+
+  return date < start ? start : date;
+};
+
 // ---------------------------------------------------------------------------
 // Penulisan jurnal dari dokumen. Kas Masuk, Kas Keluar, Setoran, Persembahan,
 // dan Pembayaran semuanya lewat sini, supaya entri yang diklaim dokumen benar
@@ -907,7 +957,7 @@ const receipt = (
 export const CASH_RECEIPT: CashReceiptRow[] = [
   receipt(
     1,
-    addDays(TODAY, -1),
+    dayInMonth(1),
     "Keluarga Santoso",
     "Sewa gedung untuk resepsi pernikahan",
     2,
@@ -916,7 +966,7 @@ export const CASH_RECEIPT: CashReceiptRow[] = [
   ),
   receipt(
     2,
-    addDays(TODAY, -5),
+    dayInMonth(5),
     "Payment gateway",
     "Pencairan persembahan online dari payment gateway",
     4,
@@ -932,7 +982,7 @@ export const CASH_RECEIPT: CashReceiptRow[] = [
   ),
   receipt(
     3,
-    addDays(TODAY, -8),
+    dayInMonth(8),
     "Toko Rejeki",
     "Penjualan kalender gereja 2027",
     2,
@@ -941,7 +991,7 @@ export const CASH_RECEIPT: CashReceiptRow[] = [
   ),
   receipt(
     4,
-    addDays(TODAY, -11),
+    dayInMonth(11),
     "Panitia Natal",
     "Pengembalian dana panitia yang tidak terpakai",
     3,
@@ -950,7 +1000,7 @@ export const CASH_RECEIPT: CashReceiptRow[] = [
   ),
   receipt(
     5,
-    addDays(TODAY, -3),
+    dayInMonth(3),
     "Hitung fisik kolekte 21 September",
     "Selisih lebih hasil hitung fisik kolekte",
     2,

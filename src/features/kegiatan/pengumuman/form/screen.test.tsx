@@ -18,6 +18,7 @@ import {
   test,
 } from "bun:test";
 
+import { addDays, todayJakarta } from "@/lib/date";
 import type { MenuAction } from "@/types/menu";
 
 import { onStubViewport } from "../../../../../tests/viewport";
@@ -49,14 +50,20 @@ const { PengumumanFormScreen } = await import("./screen");
 
 const CODE = "PGM-2026-0002";
 
+// Pengumuman ini harus berstatus tayang saat test jalan. Tanggal mutlak
+// membuatnya kedaluwarsa sendiri begitu kalender lewat, dan layarnya berganti
+// bentuk tanpa ada yang mengubah kode.
+const PUBLISH_DATE = addDays(todayJakarta(), -5);
+const EXPIRY_DATE = addDays(todayJakarta(), 6);
+
 const DETAIL: Announcement = {
   publicId: "b2",
   code: CODE,
   category: "KEGIATAN",
   title: "Retret Pemuda 2026",
   content: "Baris satu\nBaris dua",
-  publishDate: "2026-09-26T00:00:00.000Z",
-  expiryDate: "2026-10-02T00:00:00.000Z",
+  publishDate: `${PUBLISH_DATE}T00:00:00.000Z`,
+  expiryDate: `${EXPIRY_DATE}T00:00:00.000Z`,
   isPublished: true,
   isPinned: false,
   bapel: null,
@@ -366,7 +373,7 @@ describe("simpan", () => {
     expect(JSON.parse(String(calls[0].body!.get("keepFiles")))).toEqual([
       { publicId: "p1", showOnWebsite: true },
     ]);
-    expect(calls[0].body!.get("expiryDate")).toBe("2026-10-02");
+    expect(calls[0].body!.get("expiryDate")).toBe(EXPIRY_DATE);
     expect(
       window.sessionStorage.getItem(`list-focus:${PENGUMUMAN_LIST_PATH}`),
     ).toBe(CODE);

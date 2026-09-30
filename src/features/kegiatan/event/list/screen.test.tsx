@@ -13,6 +13,7 @@ import {
 import type { MenuAction } from "@/types/menu";
 
 import { eventMock } from "../../../../../scripts/mock/handlers/event";
+import { EVENT } from "../../../../../scripts/mock/kegiatan-store";
 import { onStubViewport } from "../../../../../tests/viewport";
 
 const actions: { current: MenuAction[] } = { current: [] };
@@ -94,7 +95,16 @@ describe("daftar event", () => {
   });
 
   test("filter Bulan dan Status → rentang, isPublish, terbaru dulu", async () => {
-    search.current = "bulan=2026-10&status=draf";
+    // Bulannya diambil dari satu-satunya seed draf, bukan dipatok: seed itu
+    // bertanggal relatif, jadi bulan mutlak apa pun akan kosong suatu hari.
+    const month = EVENT.find((row) => !row.isPublish)!.startDate.slice(0, 7);
+    const lastDay = new Date(
+      Date.UTC(Number(month.slice(0, 4)), Number(month.slice(5, 7)), 0),
+    )
+      .toISOString()
+      .slice(0, 10);
+
+    search.current = `bulan=${month}&status=draf`;
     onRenderList(["VIEW"]);
 
     await screen.findByText(/\d+ event/);
@@ -102,8 +112,8 @@ describe("daftar event", () => {
     const listCall = requested.find((url) => url.startsWith("/api/v1/event?"));
     const query = new URLSearchParams(listCall?.split("?")[1]);
 
-    expect(query.get("startDate")).toBe("2026-10-01");
-    expect(query.get("endDate")).toBe("2026-10-31");
+    expect(query.get("startDate")).toBe(`${month}-01`);
+    expect(query.get("endDate")).toBe(lastDay);
     expect(query.get("isPublish")).toBe("0");
     expect(query.get("order")).toBe("desc");
     expect(query.has("status")).toBe(false);

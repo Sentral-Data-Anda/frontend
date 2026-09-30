@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, test } from "bun:test";
 
-import { REGISTRATION } from "../kegiatan-store";
+import { REGISTRATION, registrationCodeOf } from "../kegiatan-store";
 import type { MockAction } from "../kit";
 
 import { pendaftaranEventMock } from "./pendaftaran-event";
@@ -73,13 +73,15 @@ const onPost = (body: Record<string, unknown>) =>
 describe("daftar dan detail", () => {
   test("daftar: telepon tersamar, tanpa email dan tautan tagihan; detail utuh", async () => {
     const { body } = await onCall("/pendaftaran-event?eventId=2&limit=100");
-    const andreas = body.data.find((row) => row.code === "REG-2026-0001");
+    const andreas = body.data.find((row) => row.code === registrationCodeOf(1));
 
     expect(andreas?.participantPhone).toBe("0812****0001");
     expect(andreas && "participantEmail" in andreas).toBe(false);
     expect(andreas?.payment && "invoiceUrl" in andreas.payment).toBe(false);
 
-    const detail = await onCall("/pendaftaran-event/reg-2026-0001");
+    const detail = await onCall(
+      `/pendaftaran-event/${registrationCodeOf(1).toLowerCase()}`,
+    );
 
     expect(detail.body.data.participantPhone).toBe("081210000001");
     expect(detail.body.data.payment?.invoiceUrl).toContain("mock-1");
@@ -88,7 +90,9 @@ describe("daftar dan detail", () => {
   test("filter status dan cari; status asing 400; tanpa VIEW 403", async () => {
     const expired = await onCall("/pendaftaran-event?status=EXPIRED");
 
-    expect(expired.body.data.map((row) => row.code)).toEqual(["REG-2026-0003"]);
+    expect(expired.body.data.map((row) => row.code)).toEqual([
+      registrationCodeOf(3),
+    ]);
     expect(
       (await onCall("/pendaftaran-event?filter=0812998877")).body.data[0]
         .participantName,
@@ -106,7 +110,9 @@ describe("daftar dan detail", () => {
       row.payment.expiredAt = new Date(Date.now() - 6 * 60_000).toISOString();
     }
 
-    const { body } = await onCall("/pendaftaran-event/REG-2026-0001");
+    const { body } = await onCall(
+      `/pendaftaran-event/${registrationCodeOf(1)}`,
+    );
 
     expect(body.data.status).toBe("EXPIRED");
     expect(body.data.payment?.status).toBe("EXPIRED");
@@ -209,17 +215,17 @@ describe("batalkan dan buat ulang tagihan", () => {
     const onDelete = (code: string) =>
       onCall(`/pendaftaran-event/${code}`, { method: "DELETE" });
 
-    expect((await onDelete("REG-2026-0001")).body.error).toContain(
+    expect((await onDelete(registrationCodeOf(1))).body.error).toContain(
       "Masih Menunggu Pembayaran",
     );
-    expect((await onDelete("REG-2026-0002")).body.error).toContain(
+    expect((await onDelete(registrationCodeOf(2))).body.error).toContain(
       "Sudah Lunas",
     );
-    expect((await onDelete("REG-2026-0009")).body.error).toBe(
+    expect((await onDelete(registrationCodeOf(9))).body.error).toBe(
       "Pendaftaran Ini Sudah Tidak Aktif",
     );
 
-    const done = await onDelete("REG-2026-0008");
+    const done = await onDelete(registrationCodeOf(8));
 
     expect(done.status).toBe(200);
     expect(done.body.data.status).toBe("CANCELLED");
@@ -229,10 +235,10 @@ describe("batalkan dan buat ulang tagihan", () => {
     const onReissue = (code: string) =>
       onCall(`/pendaftaran-event/${code}/invoice`, { method: "POST" });
 
-    expect((await onReissue("REG-2026-0008")).body.error).toBe(
+    expect((await onReissue(registrationCodeOf(8))).body.error).toBe(
       "Event Ini Gratis, Pendaftarannya Tidak Memiliki Tagihan",
     );
-    expect((await onReissue("REG-2026-0001")).body.error).toBe(
+    expect((await onReissue(registrationCodeOf(1))).body.error).toBe(
       "Pendaftaran Ini Sudah Memiliki Tagihan",
     );
 

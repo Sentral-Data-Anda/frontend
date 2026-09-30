@@ -32,6 +32,9 @@ import type { MockContext } from "../../../../../scripts/mock/kit";
 import { onStubViewport } from "../../../../../tests/viewport";
 import { OPNAME_LIST_PATH } from "../model";
 
+const POSTED = OPNAME.find((row) => row.status === "POSTED")!.code;
+const DRAFT = OPNAME.find((row) => row.status === "DRAFT")!.code;
+
 const actions: { current: MenuAction[] } = { current: [] };
 const replaced: string[] = [];
 
@@ -169,7 +172,7 @@ describe("izin dan status", () => {
   });
 
   test("ubah opname Diposting: keadaan tidak bisa diubah", async () => {
-    onRender(["VIEW", "UPDATE"], "OPN-2026-0001");
+    onRender(["VIEW", "UPDATE"], POSTED);
 
     expect(
       await screen.findByText("Stok opname tidak bisa diubah"),
@@ -250,7 +253,7 @@ describe("tambah", () => {
 
 describe("ubah Draf Aula", () => {
   test("baris selisih tanpa catatan ditolak di FE", async () => {
-    onRender(["VIEW", "UPDATE"], "OPN-2026-0005");
+    onRender(["VIEW", "UPDATE"], DRAFT);
 
     await waitFor(() => expect(rowCount()).toBe(3));
     onSave();
@@ -276,7 +279,7 @@ describe("ubah Draf Aula", () => {
         },
         { status: 400 },
       );
-    onRender(["VIEW", "UPDATE"], "OPN-2026-0005");
+    onRender(["VIEW", "UPDATE"], DRAFT);
 
     await waitFor(() => expect(rowCount()).toBe(3));
     fireEvent.change(document.getElementById("items.1.note") as HTMLElement, {
@@ -300,7 +303,7 @@ describe("ubah Draf Aula", () => {
         { status: 500, error: "Internal Server Error" },
         { status: 500 },
       );
-    onRender(["VIEW", "UPDATE"], "OPN-2026-0005");
+    onRender(["VIEW", "UPDATE"], DRAFT);
 
     await waitFor(() => expect(rowCount()).toBe(3));
     fireEvent.change(document.getElementById("items.1.note") as HTMLElement, {

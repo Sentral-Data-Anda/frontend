@@ -13,6 +13,7 @@ import {
 import type { MenuAction } from "@/types/menu";
 
 import { siklusAsetMock } from "../../../../../scripts/mock/handlers/siklus-aset";
+import { DISPOSAL } from "../../../../../scripts/mock/inventaris-store";
 import { onStubViewport } from "../../../../../tests/viewport";
 import { CYCLE_LIST_PATH } from "../model";
 
@@ -90,9 +91,15 @@ const onRender = (granted: MenuAction[], query = "") => {
 
 describe("tab jenis", () => {
   test("jenis di URL memilih tab dan endpoint; bulan dan cara jadi query be-sada", async () => {
+    // Bulannya diambil dari seed SOLD+APPROVED satu-satunya, bukan dipatok:
+    // tanggalnya relatif terhadap hari ini.
+    const month = DISPOSAL.find(
+      (row) => row.method === "SOLD" && row.status === "APPROVED",
+    )!.disposalDate.slice(0, 7);
+
     onRender(
       ["VIEW"],
-      "jenis=pelepasan&bulan=2026-09&cara=SOLD&status=APPROVED",
+      `jenis=pelepasan&bulan=${month}&cara=SOLD&status=APPROVED`,
     );
 
     await screen.findByText(/\d+ pelepasan/);
@@ -104,7 +111,7 @@ describe("tab jenis", () => {
     expect(requested[0]).toContain("/siklus-aset/pelepasan?");
     expect(requested[0]).toContain("status=APPROVED");
     expect(requested[0]).toContain("method=SOLD");
-    expect(requested[0]).toContain("startDate=2026-09-01");
+    expect(requested[0]).toContain(`startDate=${month}-01`);
   });
 
   test("ganti tab mengosongkan status dan cara, halaman kembali ke 1", async () => {

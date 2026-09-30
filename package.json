@@ -16,6 +16,7 @@
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
     "test": "bun test",
+    "test:dates": "for d in ${MOCK_DATES:-2026-11-01 2026-12-31 2027-06-19}; do echo \"--- MOCK_TODAY=$d\"; MOCK_TODAY=$d bun test || exit 1; done",
     "audit": "bun audit --prod --audit-level=high",
     "prepare": "husky"
   },

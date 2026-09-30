@@ -50,19 +50,21 @@ const onCall = async (
 const idOf = (name: string) =>
   STOCK_ITEM.find((row) => row.name === name)?.id ?? 0;
 
+const codeOf = (id: number) => OPNAME.find((row) => row.id === id)?.code ?? "";
+
 const AULA = 2;
 
 describe("daftar dan detail", () => {
   test("daftar tanpa items, urut tanggal turun, filter status/ruang/kode", async () => {
     const all = await onCall("/stok-opname?limit=100");
 
-    expect(all.body.data[0].code).toBe("OPN-2026-0005");
+    expect(all.body.data[0].code).toBe(codeOf(5));
     expect("items" in all.body.data[0]).toBe(false);
     expect(all.body.data[0].itemCount).toBe(3);
 
     const drafts = await onCall(`/stok-opname?status=DRAFT&roomId=${AULA}`);
 
-    expect(drafts.body.data.map((row) => row.code)).toEqual(["OPN-2026-0005"]);
+    expect(drafts.body.data.map((row) => row.code)).toEqual([codeOf(5)]);
 
     const none = await onCall("/stok-opname?filter=zzz");
 
@@ -71,11 +73,11 @@ describe("daftar dan detail", () => {
   });
 
   test("detail tanpa peka huruf besar; tanpa VIEW 403", async () => {
-    const detail = await onCall("/stok-opname/opn-2026-0004");
+    const detail = await onCall(`/stok-opname/${codeOf(4).toLowerCase()}`);
 
     expect(detail.body.data.isCompletedByViewer).toBe(true);
     expect(
-      (await onCall("/stok-opname/OPN-2026-0004", {}, () => false)).status,
+      (await onCall(`/stok-opname/${codeOf(4)}`, {}, () => false)).status,
     ).toBe(403);
   });
 });
@@ -165,7 +167,7 @@ describe("simpan", () => {
   });
 
   test("ubah bukan Draf ditolak", async () => {
-    const posted = await onCall("/stok-opname/OPN-2026-0001", {
+    const posted = await onCall(`/stok-opname/${codeOf(1)}`, {
       method: "PUT",
       body: {
         opnameDate: TODAY,
@@ -181,7 +183,7 @@ describe("simpan", () => {
 
 describe("aksi", () => {
   test("selesai menolak baris selisih tanpa catatan", async () => {
-    const result = await onCall("/stok-opname/OPN-2026-0005/selesai", {
+    const result = await onCall(`/stok-opname/${codeOf(5)}/selesai`, {
       method: "PUT",
     });
 
@@ -192,7 +194,7 @@ describe("aksi", () => {
   });
 
   test("posting 409 bila ada mutasi sesudah tanggal opname", async () => {
-    const result = await onCall("/stok-opname/OPN-2026-0003/posting", {
+    const result = await onCall(`/stok-opname/${codeOf(3)}/posting`, {
       method: "PUT",
     });
 
@@ -204,7 +206,7 @@ describe("aksi", () => {
 
   test("posting menulis satu koreksi per barang selisih", async () => {
     const before = STOCK_MOVEMENT.length;
-    const result = await onCall("/stok-opname/OPN-2026-0004/posting", {
+    const result = await onCall(`/stok-opname/${codeOf(4)}/posting`, {
       method: "PUT",
     });
     const lilin = STOCK_ITEM.find((row) => row.name === "Lilin Altar");
@@ -215,21 +217,21 @@ describe("aksi", () => {
       type: "ADJUSTMENT",
       source: "STOCK_OPNAME",
       quantity: -2,
-      note: "Stok opname OPN-2026-0004",
+      note: `Stok opname ${codeOf(4)}`,
     });
     expect(lilin?.quantity).toBe(46);
   });
 
   test("batal: guard DELETE, sudah diposting ditolak", async () => {
     const noDelete = await onCall(
-      "/stok-opname/OPN-2026-0005/batal",
+      `/stok-opname/${codeOf(5)}/batal`,
       { method: "PUT" },
       (_slug, action) => action !== "DELETE",
     );
 
     expect(noDelete.status).toBe(403);
 
-    const posted = await onCall("/stok-opname/OPN-2026-0001/batal", {
+    const posted = await onCall(`/stok-opname/${codeOf(1)}/batal`, {
       method: "PUT",
     });
 
@@ -237,7 +239,7 @@ describe("aksi", () => {
       "Stok Opname Ini Sudah Diposting Dan Tidak Dapat Dibatalkan",
     );
 
-    const draft = await onCall("/stok-opname/OPN-2026-0005/batal", {
+    const draft = await onCall(`/stok-opname/${codeOf(5)}/batal`, {
       method: "PUT",
     });
 
@@ -248,7 +250,7 @@ describe("aksi", () => {
     process.env.MOCK_OPNAME_ACTION_500 = "1";
 
     expect(
-      (await onCall("/stok-opname/OPN-2026-0005/selesai", { method: "PUT" }))
+      (await onCall(`/stok-opname/${codeOf(5)}/selesai`, { method: "PUT" }))
         .status,
     ).toBe(500);
   });

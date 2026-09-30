@@ -14,6 +14,7 @@ import {
   accountOf,
   accountRef,
   codeOf,
+  dayInMonth,
   isLive,
   journalRefOfSource,
   postDocumentEntry,
@@ -75,18 +76,21 @@ const transfer = (
   ...extra,
 });
 
-const dayBefore = (days: number) =>
-  new Date(Date.parse(`${TODAY}T00:00:00Z`) - days * 86_400_000)
-    .toISOString()
-    .slice(0, 10);
-
 export const CASH_TRANSFER: TransferRow[] = [
-  transfer(1, dayBefore(1), 2, 4, "6420000", "Setoran kolekte Minggu ke bank", {
-    reference: "SLIP-0098",
-  }),
+  transfer(
+    1,
+    dayInMonth(1),
+    2,
+    4,
+    "6420000",
+    "Setoran kolekte Minggu ke bank",
+    {
+      reference: "SLIP-0098",
+    },
+  ),
   transfer(
     2,
-    dayBefore(4),
+    dayInMonth(4),
     4,
     3,
     "1500000",
@@ -95,7 +99,7 @@ export const CASH_TRANSFER: TransferRow[] = [
       status: "PAID",
     },
   ),
-  transfer(3, dayBefore(11), 2, 5, "2000000", "Setoran dana pembangunan", {
+  transfer(3, dayInMonth(11), 2, 5, "2000000", "Setoran dana pembangunan", {
     status: "CANCELLED",
     reference: "SLIP-0091",
   }),

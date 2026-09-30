@@ -74,7 +74,7 @@ describe("Calendar — kisi (§7.5)", () => {
     expect(screen.getByRole("columnheader", { name: "Sen" })).toBeTruthy();
   });
 
-  test("hari ini ditandai aria-current, terpilih ditandai aria-selected", () => {
+  test("terpilih ditandai aria-selected, hanya satu sel", () => {
     const cal = onRenderCalendar({ value: "2026-09-10" });
     const selected = cal
       .cells()
@@ -82,9 +82,6 @@ describe("Calendar — kisi (§7.5)", () => {
 
     expect(selected).toHaveLength(1);
     expect(selected[0].getAttribute("aria-label")).toBe("10 September 2026");
-    expect(
-      cal.cells().filter((c) => c.getAttribute("aria-current") === "date"),
-    ).toHaveLength(1);
   });
 
   test("hari di luar bulan ditandai data-outside dan tetap bisa dipilih", () => {
@@ -106,6 +103,9 @@ describe("Calendar — kisi (§7.5)", () => {
 
     expect(marked).toHaveLength(1);
     expect(marked[0].getAttribute("aria-current")).toBe("date");
+    expect(
+      cal.cells().filter((c) => c.getAttribute("aria-current") === "date"),
+    ).toHaveLength(1);
     expect(marked[0].getAttribute("aria-selected")).toBe("true");
   });
 
@@ -144,7 +144,11 @@ describe("Calendar — batas min/max (§7.10 no. 7)", () => {
     const byLabel = (label: string) =>
       cal.cells().find((c) => c.getAttribute("aria-label") === label)!;
     const disabled = byLabel("28 September 2026");
-    const outside = byLabel("1 Oktober 2026");
+    const outside = cal
+      .cells()
+      .find(
+        (c) => c.hasAttribute("data-outside") && !c.hasAttribute("data-today"),
+      )!;
 
     expect(disabled.hasAttribute("data-outside")).toBe(false);
     expect(disabled.className).toContain("line-through");

@@ -7,7 +7,7 @@ import {
   GOODS_RECEIPT,
   PURCHASE_ORDER,
   TODAY,
-  purchaseOrderByCode,
+  purchaseOrderOf,
 } from "../pengadaan-store";
 
 import { penerimaanBarangMock } from "./penerimaan-barang";
@@ -61,12 +61,15 @@ const call = async (
   return { status: response.status, body: await response.json() };
 };
 
-const orderOf = (code: string) => {
-  const row = purchaseOrderByCode(code);
-  if (!row) throw new Error(`pesanan ${code} tidak ada`);
+const orderOf = (id: number) => {
+  const row = purchaseOrderOf(id);
+  if (!row) throw new Error(`pesanan ${id} tidak ada`);
 
   return row;
 };
+
+const receiptCodeOf = (id: number) =>
+  GOODS_RECEIPT.find((row) => row.id === id)?.code ?? "";
 
 const formOf = (
   fields: Record<string, string>,
@@ -97,8 +100,8 @@ describe("GET", () => {
     expect(status).toBe(200);
     expect(body.message).toBe("Berhasil Mendapatkan Penerimaan Barang");
     expect(body.data.map((row: { code: string }) => row.code)).toEqual([
-      "GRN-2026-0002",
-      "GRN-2026-0001",
+      receiptCodeOf(2),
+      receiptCodeOf(1),
     ]);
     expect(body.data[1].itemCount).toBe(2);
     expect(body.data[1].items).toBeUndefined();
@@ -111,13 +114,22 @@ describe("GET", () => {
     process.env.MOCK_500 = "1";
     expect((await call("GET", "/penerimaan-barang")).status).toBe(500);
     expect(
-      (await call("GET", "/penerimaan-barang/GRN-2026-0001", undefined, []))
-        .status,
+      (
+        await call(
+          "GET",
+          `/penerimaan-barang/${receiptCodeOf(1)}`,
+          undefined,
+          [],
+        )
+      ).status,
     ).toBe(403);
   });
 
   test("detail tanpa peka huruf besar; tidak ada 404", async () => {
-    const found = await call("GET", "/penerimaan-barang/grn-2026-0001");
+    const found = await call(
+      "GET",
+      `/penerimaan-barang/${receiptCodeOf(1).toLowerCase()}`,
+    );
 
     expect(found.status).toBe(200);
     expect(
@@ -161,7 +173,7 @@ describe("POST", () => {
   });
 
   test("items bukan JSON; lampiran ke-4 dan ke-5", async () => {
-    const order = orderOf("PO-2026-0006");
+    const order = orderOf(6);
     const fields = { purchaseOrderId: String(order.id), receivedDate: TODAY };
 
     expect(
@@ -194,7 +206,7 @@ describe("POST", () => {
   });
 
   test("Barang jumlah 2 → 2 barang, receivedBy diabaikan, lampiran tersimpan", async () => {
-    const order = orderOf("PO-2026-0006");
+    const order = orderOf(6);
     const assets = ASSET.length;
     const form = formOf(
       {
@@ -232,7 +244,7 @@ describe("POST", () => {
   });
 
   test("persediaan: satuan beda ditolak di baris; persediaan baru dibuat", async () => {
-    const order = orderOf("PO-2026-0006");
+    const order = orderOf(6);
     const otherUnit = STOCK_ITEM.find(
       (row) => row.unitId !== order.items[0]?.unitId,
     );
@@ -267,7 +279,7 @@ describe("POST", () => {
   });
 
   test("urutan: semua baris dicek dulu, baru persediaan", async () => {
-    const order = orderOf("PO-2026-0003");
+    const order = orderOf(3);
     const [projector, paper] = order.items;
     const otherUnit = STOCK_ITEM.find((row) => row.unitId !== paper?.unitId);
     const { body } = await call(
