@@ -194,20 +194,22 @@ export type SettingRow = {
 export const ACCOUNTING_SETTING: SettingRow[] = [
   {
     key: "PERSEMBAHAN_KAS",
-    description: "Akun kas yang didebit saat persembahan tunai diposting",
+    description:
+      "Akun kas yang didebit saat persembahan tunai diposting ke jurnal",
     accountId: 2,
     updatedById: SESSION_USER_ID,
   },
   {
     key: "PERSEMBAHAN_BANK",
-    description: "Akun bank yang didebit saat persembahan transfer diposting",
+    description:
+      "Akun bank yang didebit saat persembahan transfer diposting ke jurnal",
     accountId: 4,
     updatedById: SESSION_USER_ID,
   },
   {
     key: "PERSEMBAHAN_GATEWAY",
     description:
-      "Akun penampung persembahan online yang belum cair dari payment gateway",
+      "Uang persembahan online yang belum cair dari payment gateway. Saat cair, catat di Kas Masuk ke rekening bank dan bebankan biayanya ke Beban Administrasi.",
     accountId: null,
     updatedById: null,
   },
@@ -220,14 +222,15 @@ export const ACCOUNTING_SETTING: SettingRow[] = [
   },
   {
     key: "PENYUSUTAN_BEBAN",
-    description: "Akun beban yang didebit saat penyusutan bulanan diposting",
+    description:
+      "Akun beban yang didebit saat penyusutan bulanan diposting ke jurnal",
     accountId: null,
     updatedById: null,
   },
   {
     key: "PENYUSUTAN_AKUMULASI",
     description:
-      "Akun akumulasi penyusutan yang dikredit saat penyusutan diposting",
+      "Akun akumulasi penyusutan yang dikredit saat penyusutan bulanan diposting ke jurnal",
     accountId: null,
     updatedById: null,
   },

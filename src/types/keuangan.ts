@@ -106,6 +106,7 @@ export const RECEIVE_METHOD_LABEL: Record<ReceiveMethod, string> = {
   PAYMENT_GATEWAY: "Pembayaran online",
 };
 
+// Label setiap kunci milik be-sada dan dibaca dari bacaan, bukan dari peta di sini.
 export const ACCOUNTING_SETTING_KEYS = [
   "PERSEMBAHAN_KAS",
   "PERSEMBAHAN_BANK",
