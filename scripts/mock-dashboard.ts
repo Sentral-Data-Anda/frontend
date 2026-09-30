@@ -4,7 +4,7 @@
  * berkas di tiap fungsi). Widget yang endpoint-nya belum ada memakai fixture
  * FE di `src/features/beranda/dummy.ts`, bukan tiruan di sini.
  *
- *   MOCK_PERSONA=admin (bawaan) | sekretariat | bendahara | majelis | operator
+ *   MOCK_PERSONA=admin (bawaan) | sekretariat | bendahara | bendahara2 | majelis | operator
  *                | koordinator | panitia
  *
  * `admin` = pohon menu lengkap dengan semua aksi (be-sada menyintesis aksi
@@ -158,6 +158,22 @@ export const PERSONAS: Record<string, Persona> = {
     },
   },
   // §3c, dengan LAPORAN_KEUANGAN (keputusan admin; tanpanya grid merapat).
+  // Bendahara II (BA §7): mengajukan Kas Keluar supaya bendahara bisa
+  // menandatanganinya — pengaju tidak pernah menandatangani permintaannya
+  // sendiri. Tanpa Laporan Keuangan, jadi Beranda-nya tetap strip umum.
+  bendahara2: {
+    roleName: "Bendahara II",
+    isAdmin: false,
+    jemaatName: "Ruth Simanjuntak",
+    grants: {
+      [MENU.KAS_KELUAR]: LEDGER_ACTIONS,
+      [MENU.KAS_MASUK]: LEDGER_ACTIONS,
+      [MENU.PERSEMBAHAN]: V,
+      [MENU.AKUN]: V,
+      [MENU.PERMINTAAN_PERSETUJUAN]: V,
+      [MENU.DAFTAR_JEMAAT]: V,
+    },
+  },
   majelis: {
     roleName: "Majelis Jemaat",
     isAdmin: false,

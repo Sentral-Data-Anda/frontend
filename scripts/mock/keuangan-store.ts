@@ -559,15 +559,24 @@ export const journalRef = (entryId: number | null) => {
   return entry ? { code: entry.code, status: entry.status } : null;
 };
 
+// Rute Jurnal berkunci publicId, jadi setiap rujukan entri membawanya — tanpa
+// itu tautan pembalikan tidak bisa dibangun.
+const entryRef = (entryId: number | null) => {
+  const entry =
+    entryId === null
+      ? null
+      : (JOURNAL_ENTRY.find((row) => row.id === entryId) ?? null);
+
+  return entry
+    ? { publicId: entry.publicId, code: entry.code, entryDate: entry.entryDate }
+    : null;
+};
+
 export const journalView = (row: JournalEntryRow, isDetail = false) => {
   const period = periodOf(row.entryDate);
   const reversedBy = JOURNAL_ENTRY.find(
     (other) => other.reversalOfId === row.id,
   );
-  const reversalOf =
-    row.reversalOfId === null
-      ? null
-      : (JOURNAL_ENTRY.find((other) => other.id === row.reversalOfId) ?? null);
 
   return {
     id: row.id,
@@ -579,10 +588,15 @@ export const journalView = (row: JournalEntryRow, isDetail = false) => {
     fiscalPeriod: period
       ? { year: period.year, month: period.month, status: period.status }
       : null,
+    sourceType: row.sourceType,
     source:
-      row.sourceType === "MANUAL" ? null : { type: row.sourceType, code: null },
-    reversalOf: reversalOf ? { code: reversalOf.code } : null,
-    reversedBy: reversedBy ? { code: reversedBy.code } : null,
+      row.sourceType === "MANUAL"
+        ? null
+        : { type: row.sourceType, id: row.sourceId, code: null },
+    reversalOfId: row.reversalOfId,
+    isReversal: row.reversalOfId !== null,
+    reversalOf: entryRef(row.reversalOfId),
+    reversedBy: reversedBy ? entryRef(reversedBy.id) : null,
     postedBy: userNameOf(row.postedById),
     postedAt: row.postedAt,
     lineCount: row.lines.length,
@@ -591,6 +605,8 @@ export const journalView = (row: JournalEntryRow, isDetail = false) => {
       ? {
           lines: row.lines.map((item) => ({
             id: item.id,
+            publicId: `jln-${item.id}`,
+            accountId: item.accountId,
             account: accountRef(item.accountId),
             debit: item.debit,
             credit: item.credit,

@@ -128,3 +128,20 @@ describe("rute layar isian", () => {
     expect(isFormRoute("/peribadahan/giliran")).toBe(false);
   });
 });
+
+describe("isFormRoute: layar posting batch", () => {
+  test("posting persembahan dan pembayaran menyembunyikan bottom tab", () => {
+    expect(isFormRoute("/keuangan/jurnal/posting-persembahan")).toBe(true);
+    expect(isFormRoute("/keuangan/pembayaran/posting-pembayaran")).toBe(true);
+  });
+
+  test("daftar dan halaman baca tetap memunculkannya", () => {
+    expect(isFormRoute("/keuangan/jurnal")).toBe(false);
+    expect(isFormRoute("/keuangan/jurnal/jrn-0003")).toBe(false);
+  });
+
+  test("segmen form lama tidak berubah", () => {
+    expect(isFormRoute("/keuangan/jurnal/baru")).toBe(true);
+    expect(isFormRoute("/keuangan/jurnal/jrn-0003/ubah")).toBe(true);
+  });
+});
