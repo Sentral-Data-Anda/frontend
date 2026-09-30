@@ -26,6 +26,15 @@ export const JOURNAL_STATUS_LABEL: Record<JournalStatus, string> = {
   REVERSED: "Dibalik",
 };
 
+// Rujukan entri jurnal dari sebuah dokumen. Satu tipe dipakai store mock dan
+// setiap fitur yang menautkannya: rute Jurnal hanya menerima publicId, jadi
+// menghilangkannya di salah satu sisi harus gagal di tsc, bukan di peramban.
+export type JournalRef = {
+  publicId: string;
+  code: string;
+  status: JournalStatus;
+};
+
 export const PERIOD_STATUSES = ["OPEN", "CLOSED"] as const;
 
 export type PeriodStatus = (typeof PERIOD_STATUSES)[number];

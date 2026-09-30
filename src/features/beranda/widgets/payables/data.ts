@@ -149,9 +149,10 @@ export function buildPayables(
     ...(sources.payments ?? []).map((row): Payable => ({
       key: `pay-${row.code}`,
       title: `${row.code} · ${row.purpose === "PERSEMBAHAN" ? "Persembahan online" : "Pendaftaran kegiatan"}`,
-      meta: ["Pembayaran", row.jemaat?.name ?? row.donorName]
-        .filter(Boolean)
-        .join(" · "),
+      // Nama pemberi tidak pernah muncul di widget (BA §8): kode dan nominal
+      // cukup untuk menindaklanjuti, dan Beranda terlihat lebih luas daripada
+      // layar Pembayaran.
+      meta: "Pembayaran",
       kind: "Pembayaran",
       amount: amountOf(row.amount),
       status:

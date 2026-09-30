@@ -1,4 +1,4 @@
-import type { CashStatus, JournalStatus } from "@/types/keuangan";
+import type { CashStatus, JournalRef } from "@/types/keuangan";
 
 export type CashReceiptLine = {
   publicId: string;
@@ -26,7 +26,7 @@ export type CashReceipt = {
 
 export type CashReceiptDetail = CashReceipt & {
   lines: CashReceiptLine[];
-  journal: { publicId: string; code: string; status: JournalStatus } | null;
+  journal: JournalRef | null;
 };
 
 export type CashReceiptPayload = {

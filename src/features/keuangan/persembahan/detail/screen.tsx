@@ -160,7 +160,7 @@ export const PersembahanDetailScreen = (props: PropTypes) => {
             />
             {row.reversalJournal && journalAccess.isCanView ? (
               <Link
-                href={journalHref(row.reversalJournal.code)}
+                href={journalHref(row.reversalJournal.publicId)}
                 className={LINK}
               >
                 Lihat entri pembalik {row.reversalJournal.code}

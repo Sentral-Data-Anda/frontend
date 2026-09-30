@@ -1,12 +1,10 @@
 import type {
-  JournalStatus,
+  JournalRef,
   PersembahanStatus,
   ReceiveMethod,
 } from "@/types/keuangan";
 
 export type Person = { name: string };
-
-export type JournalRef = { code: string; status: JournalStatus };
 
 export type Persembahan = {
   id: number;

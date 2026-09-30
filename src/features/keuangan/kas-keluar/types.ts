@@ -1,5 +1,5 @@
 import type { ServerAttachment } from "@/types/attachment";
-import type { CashStatus, JournalStatus } from "@/types/keuangan";
+import type { CashStatus, JournalRef } from "@/types/keuangan";
 import type { ApprovalStatus } from "@/types/persetujuan";
 
 export type ExpenseApproval = {
@@ -42,7 +42,7 @@ export type CashExpense = {
 export type CashExpenseDetail = Omit<CashExpense, "lineCount"> & {
   lines: ExpenseLine[];
   attachments: ServerAttachment[];
-  journal: { publicId: string; code: string; status: JournalStatus } | null;
+  journal: JournalRef | null;
   cancelReason: string | null;
 };
 

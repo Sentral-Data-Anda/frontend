@@ -15,6 +15,9 @@ import {
   toJournalApiFilters,
   toJournalPayload,
   type JournalFormValues,
+  NOTHING_TO_POST,
+  PREVIEW_REQUIRED,
+  postingStatusOf,
 } from "./model";
 import type { JournalEntryDetail, JournalLine } from "./types";
 
@@ -306,5 +309,19 @@ describe("rentang posting", () => {
 describe("DELETE_TEXT", () => {
   test("konfirmasi hapus draf berkata permanen", () => {
     expect(DELETE_TEXT).toContain("permanen");
+  });
+});
+
+describe("postingStatusOf", () => {
+  test("tanpa pratinjau: memintanya dulu", () => {
+    expect(postingStatusOf(null)).toBe(PREVIEW_REQUIRED);
+  });
+
+  test("pratinjau yang menolak semuanya: tombol tidak menjanjikan apa-apa", () => {
+    expect(postingStatusOf({ result: { posted: 0 } })).toBe(NOTHING_TO_POST);
+  });
+
+  test("ada yang bisa diposting: tanpa status", () => {
+    expect(postingStatusOf({ result: { posted: 3 } })).toBeUndefined();
   });
 });

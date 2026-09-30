@@ -83,7 +83,7 @@ export const SummaryPanel = (props: PropTypes) => {
         </DescriptionItem>
         <DescriptionItem label="Entri jurnal">
           {row.journal && journalText && journalAccess.isCanView ? (
-            <Link href={journalHref(row.journal.code)} className={LINK}>
+            <Link href={journalHref(row.journal.publicId)} className={LINK}>
               {journalText}
             </Link>
           ) : (

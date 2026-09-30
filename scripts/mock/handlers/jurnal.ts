@@ -656,6 +656,9 @@ export const jurnalMock: MockHandler = async (ctx) => {
 
   const [, key, step] = match as RegExpMatchArray;
 
+  // Milik handler Pembayaran; tanpa ini /jurnal/* menelannya dan menjawab 404.
+  if (key === "posting-pembayaran") return null;
+
   if (key === "posting-persembahan") {
     if (method !== "POST" || step) return null;
     if (process.env.MOCK_JURNAL_ACTION_500) return serverError();

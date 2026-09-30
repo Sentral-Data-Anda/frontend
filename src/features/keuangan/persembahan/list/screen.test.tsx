@@ -90,7 +90,9 @@ const rowOf = (extra: Partial<Persembahan> = {}): Persembahan => ({
 });
 
 const ROWS = [
-  rowOf({ journal: { code: "JRN-2026-0002", status: "POSTED" } }),
+  rowOf({
+    journal: { publicId: "jrn-0002", code: "JRN-2026-0002", status: "POSTED" },
+  }),
   rowOf({
     id: 2,
     publicId: "psb-0002",
@@ -226,7 +228,7 @@ describe("daftar", () => {
       (await screen.findByRole("link", { name: "JRN-2026-0002" })).getAttribute(
         "href",
       ),
-    ).toBe("/keuangan/jurnal/JRN-2026-0002");
+    ).toBe("/keuangan/jurnal/jrn-0002");
     expect(screen.getAllByText("—").length).toBeGreaterThan(0);
   });
 
