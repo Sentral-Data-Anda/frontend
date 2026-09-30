@@ -67,6 +67,7 @@ const ROW: Persembahan = {
   voidReason: null,
   voidedAt: null,
   voidedBy: null,
+  reversalJournal: null,
   journal: { code: "JRN-2026-0002", status: "POSTED" },
 };
 
@@ -94,6 +95,8 @@ const onMockApi = (row: Persembahan = ROW, failure?: Failure) => {
       voidReason: "Terhitung dua kali.",
       voidedAt: "2026-09-30T04:00:00.000Z",
       voidedBy: { name: "Maria Hutapea" },
+      journal: { code: "JRN-2026-0002", status: "REVERSED" },
+      reversalJournal: { code: "JRN-2026-0007", status: "POSTED" },
     };
 
     return Response.json({
@@ -196,7 +199,7 @@ describe("batalkan", () => {
 
   test("dengan alasan: konfirmasi menyebut pembalikan, lalu POST /void", async () => {
     const calls = onMockApi();
-    onRender({ PERSEMBAHAN: ["VIEW", "DELETE"] });
+    onRender({ PERSEMBAHAN: ["VIEW", "DELETE"], JURNAL: ["VIEW"] });
 
     await onVoid("Terhitung dua kali.");
 
@@ -217,6 +220,32 @@ describe("batalkan", () => {
       await screen.findByText(/Dibatalkan oleh Maria Hutapea/),
     ).toBeTruthy();
     expect(screen.getByText(/Terhitung dua kali./)).toBeTruthy();
+    expect(
+      screen
+        .getByRole("link", { name: /entri pembalik JRN-2026-0007/ })
+        .getAttribute("href"),
+    ).toBe("/keuangan/jurnal/JRN-2026-0007");
+  });
+
+  test("tanpa JURNAL VIEW: pembatalan terbaca, tanpa tautan pembalik", async () => {
+    onMockApi({
+      ...ROW,
+      status: "VOID",
+      voidReason: "Terhitung dua kali.",
+      voidedAt: "2026-09-30T04:00:00.000Z",
+      voidedBy: { name: "Maria Hutapea" },
+      journal: { code: "JRN-2026-0002", status: "REVERSED" },
+      reversalJournal: { code: "JRN-2026-0007", status: "POSTED" },
+    });
+    onRender({ PERSEMBAHAN: ["VIEW", "DELETE"] });
+
+    expect(
+      await screen.findByText(/Entri jurnalnya sudah dibalik/),
+    ).toBeTruthy();
+    expect(screen.queryByRole("link", { name: /entri pembalik/ })).toBeNull();
+    expect(
+      screen.queryByRole("button", { name: "Batalkan persembahan" }),
+    ).toBeNull();
   });
 
   test("bulan tertutup: ditolak, persembahan tetap Aktif, tautan periode", async () => {

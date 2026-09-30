@@ -1,9 +1,10 @@
 import { describe, expect, test } from "bun:test";
 
 import { MENU, type MenuSlug } from "../../../src/config/menu";
+import { PERSEMBAHAN } from "../keuangan-store";
 import type { MockAction, MockHandler } from "../kit";
 
-import { PERSEMBAHAN, persembahanMock } from "./persembahan";
+import { persembahanMock } from "./persembahan";
 
 const call = (
   path: string,

@@ -84,6 +84,7 @@ const rowOf = (extra: Partial<Persembahan> = {}): Persembahan => ({
   voidReason: null,
   voidedAt: null,
   voidedBy: null,
+  reversalJournal: null,
   journal: null,
   ...extra,
 });
@@ -186,7 +187,7 @@ describe("gerbang izin", () => {
 
     expect(
       screen.getByRole("link", { name: "Catat Kolekte" }).getAttribute("href"),
-    ).toBe("/keuangan/persembahan/kolekte/baru");
+    ).toBe("/keuangan/persembahan/kolekte");
     expect(
       screen
         .getByRole("link", { name: "Catat satu persembahan" })

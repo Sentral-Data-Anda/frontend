@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 
 import { Button } from "@/components/common/control";
@@ -23,6 +24,7 @@ import {
   NO_VIEW,
   PERSEMBAHAN_LIST_PATH,
   VOID_REASON_MAX,
+  journalHref,
   voidText,
 } from "../model";
 import { FixLink } from "../ui";
@@ -31,6 +33,9 @@ import { SummaryPanel } from "./summary-panel";
 import { VoidPanel } from "./void-panel";
 
 const TITLE = "Persembahan";
+
+const LINK =
+  "text-primary cursor-pointer underline decoration-primary/30 underline-offset-4 transition-colors hover:decoration-primary focus-visible:decoration-primary";
 
 interface PropTypes {
   code: string;
@@ -41,6 +46,7 @@ export const PersembahanDetailScreen = (props: PropTypes) => {
 
   const toast = useToast();
   const { isCanView, isCanDelete } = useMenuAccess(MENU.PERSEMBAHAN);
+  const journalAccess = useMenuAccess(MENU.JURNAL);
   const listReturn = useListReturn(PERSEMBAHAN_LIST_PATH);
   const detail = usePersembahanDetail(isCanView ? code : undefined);
   const voidPersembahan = useVoidPersembahan(code);
@@ -142,15 +148,25 @@ export const PersembahanDetailScreen = (props: PropTypes) => {
         <SummaryPanel row={row} />
 
         {row.status === "VOID" ? (
-          <FormAlert
-            tone="warning"
-            title={`Dibatalkan${row.voidedBy ? ` oleh ${row.voidedBy.name}` : ""}${row.voidedAt ? ` · ${formatDateTime(row.voidedAt)}` : ""}`}
-            message={
-              row.journal
-                ? `${row.voidReason ?? ""} Entri jurnalnya sudah dibalik.`.trim()
-                : (row.voidReason ?? "Tanpa alasan tercatat.")
-            }
-          />
+          <div className="space-y-2">
+            <FormAlert
+              tone="warning"
+              title={`Dibatalkan${row.voidedBy ? ` oleh ${row.voidedBy.name}` : ""}${row.voidedAt ? ` · ${formatDateTime(row.voidedAt)}` : ""}`}
+              message={
+                row.reversalJournal
+                  ? `${row.voidReason ?? ""} Entri jurnalnya sudah dibalik.`.trim()
+                  : (row.voidReason ?? "Tanpa alasan tercatat.")
+              }
+            />
+            {row.reversalJournal && journalAccess.isCanView ? (
+              <Link
+                href={journalHref(row.reversalJournal.code)}
+                className={LINK}
+              >
+                Lihat entri pembalik {row.reversalJournal.code}
+              </Link>
+            ) : null}
+          </div>
         ) : null}
 
         {failure ? (

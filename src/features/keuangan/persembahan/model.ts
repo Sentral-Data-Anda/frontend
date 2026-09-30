@@ -23,11 +23,7 @@ import type { OfferingTypeOption, PersembahanBatchPayload } from "./types";
 
 export const PERSEMBAHAN_LIST_PATH = menuHref(MENU.KEUANGAN, MENU.PERSEMBAHAN);
 
-/**
- * Berakhir di segmen form supaya `isFormRoute` mengenalinya dan tab bawah
- * menyingkir, seperti di setiap form lain.
- */
-export const KOLEKTE_PATH = `${PERSEMBAHAN_LIST_PATH}/kolekte/${FORM_SEGMENT.create}`;
+export const KOLEKTE_PATH = `${PERSEMBAHAN_LIST_PATH}/${FORM_SEGMENT.kolekte}`;
 
 export const PERSEMBAHAN_CREATE_PATH = `${PERSEMBAHAN_LIST_PATH}/${FORM_SEGMENT.create}`;
 

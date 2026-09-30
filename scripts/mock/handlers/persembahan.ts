@@ -2,9 +2,8 @@
  * Tiruan `/api/v1/persembahan` (be-sada `modules/persembahan`) + `/ddl/ibadah`.
  * Append-only: tanpa PUT, tanpa DELETE, hanya `POST /:code/void`.
  *
- * Larik dan pembantunya duduk di sini, bukan di keuangan-store, karena TL-3
- * belum membawanya; TL memindahkannya saat merge supaya posting persembahan
- * milik Jurnal bisa membacanya.
+ * Larik dan bentuk bacaannya tinggal di keuangan-store, karena posting batch
+ * Jurnal dan posting Pembayaran ikut membacanya.
  *
  *   MOCK_EMPTY=1           → daftar kosong (404)
  *   MOCK_PERIOD_CLOSED=1   → bulan tanggal terima tertutup: catat dan batal ditolak
@@ -12,59 +11,27 @@
  *   MOCK_500=1             → daftar menjawab 500
  */
 import { MENU } from "../../../src/config/menu";
-import { addDays, startOfMonth } from "../../../src/lib/date";
 import { collapseSpaces } from "../../../src/lib/name";
 import { DDL_JEMAAT } from "../../mock-dashboard";
 import {
+  IBADAH_OPTION,
+  JOURNAL_ENTRY,
+  PERSEMBAHAN,
   TODAY,
-  journalRef,
   monthLabel,
   periodOf,
+  persembahanList,
+  persembahanTotals,
+  persembahanView,
+  reverseDocumentEntry,
   typePersembahanOf,
+  type PersembahanRow,
 } from "../keuangan-store";
 import { denied, json, list, readBody, type MockHandler } from "../kit";
 
-type Row = {
-  id: number;
-  publicId: string;
-  code: string;
-  typePersembahanId: number;
-  jemaatId: number | null;
-  donorName: string | null;
-  period: string | null;
-  amount: string;
-  receiveMethod: "TUNAI" | "TRANSFER" | "PAYMENT_GATEWAY";
-  receivedDate: string;
-  receivedById: number | null;
-  ibadahId: number | null;
-  status: "ACTIVE" | "VOID";
-  voidReason: string | null;
-  voidedAt: string | null;
-  voidedById: number | null;
-  journalEntryId: number | null;
-};
+const PERSEMBAHAN_SOURCE = "PERSEMBAHAN";
 
 const pad = (value: number, size = 4) => String(value).padStart(size, "0");
-
-// ---------------------------------------------------------------------------
-// Ibadah untuk pemilih di form kolekte. `/ddl/ibadah` belum ada di kontrak
-// maupun di mock bersama; bentuknya mengikuti pilihan ddl lain.
-
-const SUNDAY = 0;
-
-const lastWeekday = (weekday: number, weeksBack: number) => {
-  const today = new Date(`${TODAY}T00:00:00Z`).getUTCDay();
-  const back = (today - weekday + 7) % 7;
-
-  return addDays(TODAY, -back - weeksBack * 7);
-};
-
-export const IBADAH_OPTION = Array.from({ length: 10 }, (_, index) => ({
-  id: index + 1,
-  code: `IBD-${pad(index + 1)}`,
-  name: index % 2 === 0 ? "Ibadah Minggu I" : "Ibadah Minggu II",
-  date: lastWeekday(SUNDAY, Math.floor(index / 2)),
-}));
 
 const ibadahOf = (id: number | null) =>
   id === null ? null : (IBADAH_OPTION.find((row) => row.id === id) ?? null);
@@ -72,38 +39,43 @@ const ibadahOf = (id: number | null) =>
 const jemaatOf = (id: number | null) =>
   id === null ? null : (DDL_JEMAAT.find((row) => row.id === id) ?? null);
 
-const personOf = (id: number | null) => {
-  const found = jemaatOf(id);
+/**
+ * Entri pembalik tidak tergantung di baris persembahan — ia ditemukan lewat
+ * entri asalnya, karena pembalikan selalu `sourceType: MANUAL`.
+ */
+const reversalRefOf = (item: PersembahanRow) => {
+  if (item.journalEntryId === null) return null;
 
-  return found ? { name: found.name } : null;
+  const reversal = JOURNAL_ENTRY.find(
+    (entry) => entry.reversalOfId === item.journalEntryId,
+  );
+
+  return reversal ? { code: reversal.code, status: reversal.status } : null;
 };
 
-// ---------------------------------------------------------------------------
-// Baris. Satu kolekte batch lengkap pada Minggu lalu, satu pembayaran online,
-// satu dibatalkan sesudah diposting, sisanya pengisi supaya paginasi terisi.
+const view = (item: PersembahanRow) => ({
+  ...persembahanView(item),
+  reversalJournal: reversalRefOf(item),
+});
 
-const KOLEKTE_DATE = lastWeekday(SUNDAY, 1);
-
-const GATEWAY_DATE = process.env.MOCK_GATEWAY_GIFT ? TODAY : addDays(TODAY, -4);
-
-let sequence = 0;
-
-const row = (
-  seed: Partial<Row> & Pick<Row, "typePersembahanId" | "amount">,
-): Row => {
-  sequence += 1;
+const nextRow = (
+  seed: Partial<PersembahanRow> &
+    Pick<PersembahanRow, "typePersembahanId" | "amount">,
+): PersembahanRow => {
+  const id =
+    PERSEMBAHAN.reduce((highest, row) => Math.max(highest, row.id), 0) + 1;
 
   return {
-    id: sequence,
-    publicId: `psb-${pad(sequence)}`,
-    code: `PSB-${TODAY.slice(0, 4)}-${pad(sequence)}`,
+    id,
+    publicId: `psb-${pad(id)}`,
+    code: `PSB-${TODAY.slice(0, 4)}-${pad(id)}`,
     jemaatId: null,
     donorName: null,
     period: null,
     receiveMethod: "TUNAI",
-    receivedDate: KOLEKTE_DATE,
-    receivedById: 4,
-    ibadahId: 3,
+    receivedDate: TODAY,
+    receivedById: null,
+    ibadahId: null,
     status: "ACTIVE",
     voidReason: null,
     voidedAt: null,
@@ -112,188 +84,6 @@ const row = (
     ...seed,
   };
 };
-
-const KOLEKTE_AMOUNTS = [
-  "1250000",
-  "480000",
-  "375000",
-  "2100000",
-  "150000",
-  "95000",
-  "640000",
-  "320000",
-  "55000",
-  "955000",
-];
-
-export const PERSEMBAHAN: Row[] = [
-  // Kolekte batch minggu lalu: satu header, sepuluh amplop, sudah diposting.
-  ...KOLEKTE_AMOUNTS.map((amount, index) =>
-    row({
-      typePersembahanId: 1,
-      amount,
-      donorName: index === 3 ? "Keluarga Sitompul" : null,
-      journalEntryId: index === 0 ? 2 : null,
-    }),
-  ),
-  // Perpuluhan bernama, wajib jemaat.
-  ...DDL_JEMAAT.slice(0, 8).map((jemaat, index) =>
-    row({
-      typePersembahanId: 2,
-      amount: String(500_000 + index * 125_000),
-      jemaatId: jemaat.id,
-      receiveMethod: index % 3 === 0 ? "TRANSFER" : "TUNAI",
-      receivedDate: addDays(TODAY, -2 - index),
-      ibadahId: null,
-    }),
-  ),
-  // Persembahan bulanan: wajib jemaat dan berperiode.
-  ...DDL_JEMAAT.slice(2, 8).map((jemaat, index) =>
-    row({
-      typePersembahanId: 3,
-      amount: String(250_000 + index * 50_000),
-      jemaatId: jemaat.id,
-      period: startOfMonth(addDays(TODAY, -20)),
-      receiveMethod: "TRANSFER",
-      receivedDate: addDays(TODAY, -12 - index),
-      ibadahId: null,
-    }),
-  ),
-  // Syukur, anonim dan bernama.
-  ...["3500000", "1750000", "250000", "80000"].map((amount, index) =>
-    row({
-      typePersembahanId: 4,
-      amount,
-      donorName: index === 1 ? "Ibu Tiur" : null,
-      receivedDate: addDays(TODAY, -6 - index * 3),
-      ibadahId: index === 0 ? 1 : null,
-    }),
-  ),
-  // Dana pembangunan.
-  ...["10000000", "4500000", "1200000"].map((amount, index) =>
-    row({
-      typePersembahanId: 5,
-      amount,
-      jemaatId: index === 0 ? 3 : null,
-      donorName: index === 1 ? "Hamba Tuhan" : null,
-      receiveMethod: "TRANSFER",
-      receivedDate: addDays(TODAY, -8 - index * 4),
-      ibadahId: null,
-    }),
-  ),
-  // Pembayaran online: ditulis webhook, tidak bisa diketik; tanpa tangan yang memegang.
-  row({
-    typePersembahanId: 4,
-    amount: "500000",
-    jemaatId: 3,
-    receiveMethod: "PAYMENT_GATEWAY",
-    receivedDate: GATEWAY_DATE,
-    receivedById: null,
-    ibadahId: null,
-  }),
-  // Dibatalkan sesudah diposting: entri jurnalnya sudah dibalik.
-  row({
-    typePersembahanId: 1,
-    amount: "620000",
-    receivedDate: addDays(TODAY, -15),
-    ibadahId: null,
-    status: "VOID",
-    voidReason: "Amplop terhitung dua kali saat penghitungan kolekte.",
-    voidedAt: `${addDays(TODAY, -14)}T04:30:00.000Z`,
-    voidedById: 6,
-    journalEntryId: 5,
-  }),
-  // Dibatalkan sebelum diposting: tanpa jurnal sama sekali.
-  row({
-    typePersembahanId: 2,
-    amount: "300000",
-    jemaatId: 5,
-    receivedDate: addDays(TODAY, -3),
-    ibadahId: null,
-    status: "VOID",
-    voidReason: "Jemaat keliru ditunjuk; dicatat ulang atas nama yang benar.",
-    voidedAt: `${addDays(TODAY, -3)}T09:15:00.000Z`,
-    voidedById: 4,
-  }),
-];
-
-const iso = (date: string | null) => (date ? `${date}T00:00:00.000Z` : null);
-
-export const persembahanView = (item: Row) => {
-  const type = typePersembahanOf(item.typePersembahanId);
-  const jemaat = jemaatOf(item.jemaatId);
-  const ibadah = ibadahOf(item.ibadahId);
-
-  return {
-    id: item.id,
-    publicId: item.publicId,
-    code: item.code,
-    typePersembahan: {
-      id: item.typePersembahanId,
-      code: type?.code ?? "",
-      name: type?.name ?? "",
-      hasPeriod: type?.hasPeriod ?? false,
-    },
-    jemaat: jemaat
-      ? { id: jemaat.id, code: jemaat.code, name: jemaat.name }
-      : null,
-    donorName: item.donorName,
-    period: iso(item.period),
-    amount: item.amount,
-    receiveMethod: item.receiveMethod,
-    receivedDate: iso(item.receivedDate),
-    receivedBy: personOf(item.receivedById),
-    ibadah: ibadah
-      ? { id: ibadah.id, code: ibadah.code, date: iso(ibadah.date) }
-      : null,
-    status: item.status,
-    voidReason: item.voidReason,
-    voidedAt: item.voidedAt,
-    voidedBy: personOf(item.voidedById),
-    journal: journalRef(item.journalEntryId),
-  };
-};
-
-const matches = (item: Row, params: URLSearchParams) => {
-  const filter = (params.get("filter") ?? "").toLowerCase();
-  const startDate = params.get("startDate");
-  const endDate = params.get("endDate");
-  const status = params.get("status");
-  const method = params.get("receiveMethod");
-  const typeId = Number(params.get("typePersembahanId")) || null;
-  const isPosted = params.get("isPosted");
-  const haystack = [
-    item.code,
-    jemaatOf(item.jemaatId)?.name ?? "",
-    item.donorName ?? "",
-  ]
-    .join(" ")
-    .toLowerCase();
-
-  return (
-    (!filter || haystack.includes(filter)) &&
-    (!startDate || item.receivedDate >= startDate) &&
-    (!endDate || item.receivedDate <= endDate) &&
-    (!status || item.status === status) &&
-    (!method || item.receiveMethod === method) &&
-    (!typeId || item.typePersembahanId === typeId) &&
-    (isPosted === null ||
-      !/^(1|0|true|false)$/i.test(isPosted) ||
-      /^(1|true)$/i.test(isPosted) === (item.journalEntryId !== null))
-  );
-};
-
-export const persembahanList = (params: URLSearchParams) =>
-  PERSEMBAHAN.filter((item) => matches(item, params)).sort(
-    (a, b) => b.receivedDate.localeCompare(a.receivedDate) || b.id - a.id,
-  );
-
-export const persembahanTotals = (rows: readonly Row[]) =>
-  String(
-    rows
-      .filter((item) => item.status === "ACTIVE")
-      .reduce((total, item) => total + Number(item.amount), 0),
-  );
 
 // ---------------------------------------------------------------------------
 // Tulis. Seluruh batch diperiksa sebelum apa pun ditulis: satu baris ditolak
@@ -461,8 +251,8 @@ const createBatch = async (request: Request) => {
 
   if (issues.length > 0) return failure(400, issues);
 
-  const saved = items.map((item) =>
-    row({
+  const saved = items.map((item) => {
+    const row = nextRow({
       typePersembahanId: Number(item.typePersembahanId),
       jemaatId: numberOf(item.jemaatId),
       period: textOf(item.period)?.slice(0, 10) ?? null,
@@ -472,22 +262,24 @@ const createBatch = async (request: Request) => {
       receivedDate,
       receivedById: numberOf(body.receivedBy),
       ibadahId,
-    }),
-  );
+    });
 
-  PERSEMBAHAN.push(...saved);
+    PERSEMBAHAN.push(row);
+
+    return row;
+  });
 
   return json(
     {
       status: 201,
       message: `Berhasil Mencatat ${saved.length} Persembahan`,
-      data: saved.map(persembahanView),
+      data: saved.map(view),
     },
     201,
   );
 };
 
-const voidOne = async (request: Request, item: Row) => {
+const voidOne = async (request: Request, item: PersembahanRow) => {
   const body = await readBody<{ voidReason?: unknown }>(request);
   const reason = textOf(body.voidReason);
 
@@ -501,11 +293,20 @@ const voidOne = async (request: Request, item: Row) => {
     return refusal(400, "Persembahan Ini Sudah Dibatalkan");
   }
 
-  // Pembalikan bertanggal hari ini, jadi bulan ini yang harus terbuka.
+  // Yang sudah diposting dibalik lebih dulu; bulan ini harus terbuka karena
+  // entri pembaliknya bertanggal hari ini. Ditolak berarti baris tetap ACTIVE.
   if (item.journalEntryId !== null) {
-    const period = periodRefusal(TODAY);
+    if (process.env.MOCK_PERIOD_CLOSED) {
+      const closed = periodRefusal(TODAY);
 
-    if (period) return period;
+      if (closed) return closed;
+    }
+
+    const reversed = reverseDocumentEntry(PERSEMBAHAN_SOURCE, item.id, reason);
+
+    if (reversed && "failure" in reversed) {
+      return refusal(400, reversed.failure.message, reversed.failure.code);
+    }
   }
 
   item.status = "VOID";
@@ -516,7 +317,7 @@ const voidOne = async (request: Request, item: Row) => {
   return json({
     status: 200,
     message: "Berhasil Membatalkan Persembahan",
-    data: persembahanView(item),
+    data: view(item),
   });
 };
 
@@ -563,12 +364,7 @@ export const persembahanMock: MockHandler = async (ctx) => {
     }
 
     const rows = persembahanList(url.searchParams);
-    const response = list(
-      rows.map(persembahanView),
-      url,
-      "Persembahan",
-      "Persembahan",
-    );
+    const response = list(rows.map(view), url, "Persembahan", "Persembahan");
 
     if (response.status !== 200) return response;
 
@@ -605,7 +401,7 @@ export const persembahanMock: MockHandler = async (ctx) => {
     return json({
       status: 200,
       message: "Berhasil Mendapatkan Persembahan",
-      data: persembahanView(item),
+      data: view(item),
     });
   }
 

@@ -6,6 +6,8 @@ import type {
 
 export type Person = { name: string };
 
+export type JournalRef = { code: string; status: JournalStatus };
+
 export type Persembahan = {
   id: number;
   publicId: string;
@@ -27,8 +29,9 @@ export type Persembahan = {
   status: PersembahanStatus;
   voidReason: string | null;
   voidedAt: string | null;
-  voidedBy?: Person | null;
-  journal: { code: string; status: JournalStatus } | null;
+  voidedBy: Person | null;
+  journal: JournalRef | null;
+  reversalJournal: JournalRef | null;
 };
 
 export type PersembahanTotals = { count: number; total: string };
