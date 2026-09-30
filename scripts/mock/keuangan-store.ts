@@ -5,10 +5,11 @@
  * data uji, bukan usulan ke gereja (E1 milik bendahara).
  */
 import { addDays, startOfMonth } from "../../src/lib/date";
-import { balanceOf } from "../../src/lib/number";
+import { balanceOf, sumAmounts } from "../../src/lib/number";
 import type {
   AccountType,
   AccountingSettingKey,
+  CashStatus,
   JournalStatus,
   PeriodStatus,
 } from "../../src/types/keuangan";
@@ -16,6 +17,7 @@ import { SESSION_USER_ID } from "../mock-dashboard";
 
 import { TODAY, isLive, nextId } from "./fasilitas-store";
 import { userNameOf } from "./inventaris-store";
+import { bapelOf } from "./pelayanan-store";
 
 export { TODAY, isLive, nextId, userNameOf };
 
@@ -817,3 +819,206 @@ export const reverseDocumentEntry = (
 
   return { entry };
 };
+
+// ---------------------------------------------------------------------------
+// Kas Masuk. Penerimaan di luar persembahan, termasuk pencairan persembahan
+// online. Entri jurnalnya satu debit ke akun tujuan sebesar total dan satu
+// kredit per baris, ditulis lewat postDocumentEntry seperti dokumen lain.
+
+export const CASH_RECEIPT_SOURCE = "CASH_RECEIPT";
+
+export type CashReceiptLineRow = {
+  publicId: string;
+  accountId: number;
+  amount: string;
+  description: string | null;
+};
+
+export type CashReceiptRow = {
+  id: number;
+  publicId: string;
+  code: string;
+  receiptDate: string;
+  description: string;
+  payer: string;
+  intoAccountId: number;
+  bapelId: number | null;
+  method: string | null;
+  reference: string | null;
+  status: CashStatus;
+  cancelReason: string | null;
+  deletedAt: string | null;
+  lines: CashReceiptLineRow[];
+};
+
+let receiptLineId = 0;
+
+export const cashReceiptLine = (
+  accountId: number,
+  amount: string,
+  description: string | null = null,
+): CashReceiptLineRow => {
+  receiptLineId += 1;
+
+  return {
+    publicId: `bkml-${pad(receiptLineId)}`,
+    accountId,
+    amount,
+    description,
+  };
+};
+
+export const cashReceiptTotal = (row: Pick<CashReceiptRow, "lines">) =>
+  sumAmounts(row.lines.map((line) => line.amount));
+
+const receipt = (
+  id: number,
+  receiptDate: string,
+  payer: string,
+  description: string,
+  intoAccountId: number,
+  lines: CashReceiptLineRow[],
+  extra: Partial<CashReceiptRow> = {},
+): CashReceiptRow => ({
+  id,
+  publicId: `bkm-${pad(id)}`,
+  code: `BKM-${YEAR}-${pad(id)}`,
+  receiptDate,
+  description,
+  payer,
+  intoAccountId,
+  bapelId: null,
+  method: null,
+  reference: null,
+  status: "DRAFT",
+  cancelReason: null,
+  deletedAt: null,
+  lines,
+  ...extra,
+});
+
+export const CASH_RECEIPT: CashReceiptRow[] = [
+  receipt(
+    1,
+    addDays(TODAY, -1),
+    "Keluarga Santoso",
+    "Sewa gedung untuk resepsi pernikahan",
+    2,
+    [cashReceiptLine(20, "3500000", "Sewa aula")],
+    { method: "Tunai", reference: "BA-07/IX/2026" },
+  ),
+  receipt(
+    2,
+    addDays(TODAY, -5),
+    "Payment gateway",
+    "Pencairan persembahan online dari payment gateway",
+    4,
+    [
+      cashReceiptLine(6, "4850000", "Persembahan online bruto"),
+      cashReceiptLine(23, "72750", "Biaya administrasi payment gateway"),
+    ],
+    {
+      status: "PAID",
+      method: "Transfer",
+      reference: "XND-SETTLE-0918",
+    },
+  ),
+  receipt(
+    3,
+    addDays(TODAY, -8),
+    "Toko Rejeki",
+    "Penjualan kalender gereja 2027",
+    2,
+    [cashReceiptLine(20, "1250000", "120 kalender")],
+    { status: "PAID", method: "Tunai" },
+  ),
+  receipt(
+    4,
+    addDays(TODAY, -11),
+    "Panitia Natal",
+    "Pengembalian dana panitia yang tidak terpakai",
+    3,
+    [cashReceiptLine(20, "640000", null)],
+    { status: "CANCELLED", cancelReason: "Salah akun tujuan, dicatat ulang." },
+  ),
+  receipt(
+    5,
+    addDays(TODAY, -3),
+    "Hitung fisik kolekte 21 September",
+    "Selisih lebih hasil hitung fisik kolekte",
+    2,
+    [cashReceiptLine(7, "15000", "Selisih lebih")],
+    { reference: "BA-06/IX/2026" },
+  ),
+  receipt(
+    6,
+    `${YEAR}-01-14`,
+    "Bapak Wibowo",
+    "Sumbangan non-persembahan untuk perbaikan atap",
+    2,
+    [cashReceiptLine(20, "2000000", null)],
+    { method: "Transfer", bapelId: 1 },
+  ),
+];
+
+// Satu debit ke akun tujuan sebesar total, satu kredit per baris.
+export const cashReceiptEntryLines = (row: CashReceiptRow): DocumentLine[] => [
+  {
+    accountId: row.intoAccountId,
+    debit: cashReceiptTotal(row),
+    credit: "0",
+    description: row.payer,
+  },
+  ...row.lines.map((line) => ({
+    accountId: line.accountId,
+    debit: "0",
+    credit: line.amount,
+    description: line.description,
+  })),
+];
+
+export const cashReceiptView = (row: CashReceiptRow, isDetail = false) => ({
+  id: row.id,
+  publicId: row.publicId,
+  code: row.code,
+  receiptDate: `${row.receiptDate}T00:00:00.000Z`,
+  description: row.description,
+  payer: row.payer,
+  intoAccountId: row.intoAccountId,
+  intoAccount: accountRef(row.intoAccountId),
+  bapel: row.bapelId === null ? null : (bapelOf(row.bapelId) ?? null),
+  method: row.method,
+  reference: row.reference,
+  totalAmount: cashReceiptTotal(row),
+  status: row.status,
+  ...(isDetail
+    ? {
+        lines: row.lines.map((line) => ({
+          publicId: line.publicId,
+          accountId: line.accountId,
+          account: {
+            code: accountOf(line.accountId)?.code ?? "",
+            name: accountOf(line.accountId)?.name ?? "",
+          },
+          amount: line.amount,
+          description: line.description,
+        })),
+        journal: journalRefOfSource(CASH_RECEIPT_SOURCE, row.id),
+        cancelReason: row.cancelReason,
+      }
+    : {}),
+});
+
+// Seed yang sudah Diterima harus punya entri sungguhan, atau tautan jurnalnya
+// menunjuk ke entri yang tidak ada.
+for (const row of CASH_RECEIPT) {
+  if (row.status === "PAID") {
+    postDocumentEntry({
+      sourceType: CASH_RECEIPT_SOURCE,
+      sourceId: row.id,
+      entryDate: row.receiptDate,
+      description: row.description,
+      lines: cashReceiptEntryLines(row),
+    });
+  }
+}
