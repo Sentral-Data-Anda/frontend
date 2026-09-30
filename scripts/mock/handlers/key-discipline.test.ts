@@ -14,6 +14,7 @@ import { akunMock } from "./akun";
 import { jurnalMock } from "./jurnal";
 import { kasKeluarMock } from "./kas-keluar";
 import { kasMasukMock } from "./kas-masuk";
+import { PAYMENT, pembayaranMock } from "./pembayaran";
 import { tipePersembahanMock } from "./tipe-persembahan";
 
 // Mock yang menerima lebih banyak kunci daripada be-sada tidak bisa menangkap
@@ -82,6 +83,14 @@ const CASES = [
     base: "/kas-keluar",
     right: () => live(CASH_EXPENSE).publicId,
     wrong: () => live(CASH_EXPENSE).code,
+    keyed: "publicId",
+  },
+  {
+    name: "pembayaran",
+    handler: pembayaranMock,
+    base: "/pembayaran",
+    right: () => PAYMENT[0]!.publicId,
+    wrong: () => PAYMENT[0]!.code,
     keyed: "publicId",
   },
 ] as const;
