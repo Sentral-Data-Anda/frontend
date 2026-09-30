@@ -5,6 +5,7 @@
  * data uji, bukan usulan ke gereja (E1 milik bendahara).
  */
 import { addDays, startOfMonth } from "../../src/lib/date";
+import { balanceOf } from "../../src/lib/number";
 import type {
   AccountType,
   AccountingSettingKey,
@@ -623,3 +624,180 @@ export const journalList = (params: URLSearchParams) => {
 };
 
 export const openMonthStart = () => startOfMonth(TODAY);
+
+// ---------------------------------------------------------------------------
+// Penulisan jurnal dari dokumen. Kas Masuk, Kas Keluar, Setoran, Persembahan,
+// dan Pembayaran semuanya lewat sini, supaya entri yang diklaim dokumen benar
+// ada di Jurnal, bisa dibuka dari tautannya, dan terbaca laporan.
+//
+// Cermin be-sada: periode diturunkan dari tanggal dan harus terbuka, debit
+// harus sama dengan kredit, total > 0, dan satu dokumen hanya boleh punya satu
+// entri (journal_entry_one_per_source) — membalik tidak membebaskannya.
+
+export type DocumentLine = {
+  accountId: number;
+  debit: string;
+  credit: string;
+  description?: string | null;
+};
+
+export type PostFailure = { code: string; message: string };
+
+const nextJournalNumber = () =>
+  JOURNAL_ENTRY.reduce(
+    (highest, row) => Math.max(highest, Number(row.code.slice(-4)) || 0),
+    0,
+  ) + 1;
+
+// Entri jurnal tidak punya deletedAt — ia tidak pernah dihapus lunak, hanya
+// dibalik — jadi id-nya tidak bisa lewat nextId().
+const nextEntryId = () =>
+  JOURNAL_ENTRY.reduce((highest, row) => Math.max(highest, row.id), 0) + 1;
+
+const nextLineId = () =>
+  JOURNAL_ENTRY.reduce(
+    (highest, row) =>
+      row.lines.reduce((inner, line) => Math.max(inner, line.id), highest),
+    0,
+  ) + 1;
+
+export const journalOfSource = (sourceType: string, sourceId: number) =>
+  JOURNAL_ENTRY.find(
+    (row) => row.sourceType === sourceType && row.sourceId === sourceId,
+  ) ?? null;
+
+export const journalRefOfSource = (sourceType: string, sourceId: number) => {
+  const entry = journalOfSource(sourceType, sourceId);
+
+  return entry ? { code: entry.code, status: entry.status } : null;
+};
+
+export const postDocumentEntry = (input: {
+  sourceType: string;
+  sourceId: number;
+  entryDate: string;
+  description: string;
+  lines: DocumentLine[];
+}): { entry: JournalEntryRow } | { failure: PostFailure } => {
+  const period = periodOf(input.entryDate);
+
+  if (!period) {
+    return {
+      failure: {
+        code: "PERIOD_NOT_OPEN",
+        message: `Periode Fiskal ${monthLabel(
+          Number(input.entryDate.slice(0, 4)),
+          Number(input.entryDate.slice(5, 7)),
+        )} Belum Dibuka`,
+      },
+    };
+  }
+
+  if (period.status === "CLOSED" || process.env.MOCK_PERIOD_CLOSED) {
+    return {
+      failure: {
+        code: "PERIOD_CLOSED",
+        message: `Periode Fiskal ${monthLabel(period.year, period.month)} Sudah Ditutup`,
+      },
+    };
+  }
+
+  if (journalOfSource(input.sourceType, input.sourceId)) {
+    return {
+      failure: {
+        code: "ALREADY_POSTED",
+        message: "Dokumen Ini Sudah Diposting Ke Jurnal",
+      },
+    };
+  }
+
+  const balance = balanceOf(input.lines);
+
+  if (!balance.isBalanced) {
+    return {
+      failure: {
+        code: "NOT_BALANCED",
+        message: "Debit Dan Kredit Tidak Seimbang",
+      },
+    };
+  }
+
+  let lineId = nextLineId();
+  const entry: JournalEntryRow = {
+    id: nextEntryId(),
+    publicId: `jrn-${pad(nextJournalNumber())}`,
+    code: `JRN-${YEAR}-${pad(nextJournalNumber())}`,
+    entryDate: input.entryDate,
+    description: input.description,
+    status: "POSTED",
+    sourceType: input.sourceType,
+    sourceId: input.sourceId,
+    reversalOfId: null,
+    postedById: SESSION_USER_ID,
+    postedAt: new Date().toISOString(),
+    lines: input.lines.map((line) => ({
+      id: lineId++,
+      accountId: line.accountId,
+      debit: line.debit || "0",
+      credit: line.credit || "0",
+      description: line.description ?? null,
+    })),
+  };
+
+  JOURNAL_ENTRY.push(entry);
+
+  return { entry };
+};
+
+// Pembalikan bertanggal hari ini dan tidak membawa sumber: dokumen yang sudah
+// diposting tetap terkunci, persis seperti be-sada.
+export const reverseDocumentEntry = (
+  sourceType: string,
+  sourceId: number,
+  description: string,
+): { entry: JournalEntryRow } | { failure: PostFailure } | null => {
+  const original = journalOfSource(sourceType, sourceId);
+
+  if (!original || original.status !== "POSTED") return null;
+
+  const period = periodOf(TODAY);
+
+  if (!period || period.status === "CLOSED") {
+    return {
+      failure: {
+        code: "PERIOD_CLOSED",
+        message: `Periode Fiskal ${monthLabel(
+          Number(TODAY.slice(0, 4)),
+          Number(TODAY.slice(5, 7)),
+        )} Sudah Ditutup`,
+      },
+    };
+  }
+
+  let lineId = nextLineId();
+  const entry: JournalEntryRow = {
+    id: nextEntryId(),
+    publicId: `jrn-${pad(nextJournalNumber())}`,
+    code: `JRN-${YEAR}-${pad(nextJournalNumber())}`,
+    entryDate: TODAY,
+    description,
+    status: "POSTED",
+    sourceType: "MANUAL",
+    sourceId: null,
+    reversalOfId: original.id,
+    postedById: SESSION_USER_ID,
+    postedAt: new Date().toISOString(),
+    lines: original.lines.map((line) => ({
+      id: lineId++,
+      accountId: line.accountId,
+      debit: line.credit,
+      credit: line.debit,
+      description: line.description,
+    })),
+  };
+
+  original.status = "REVERSED";
+  JOURNAL_ENTRY.push(entry);
+
+  return { entry };
+};

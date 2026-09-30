@@ -122,6 +122,8 @@ export const PERSONAS: Record<string, Persona> = {
       [MENU.PESANAN_PEMBELIAN]: KEJEMAATAN_ACTIONS,
       [MENU.PENERIMAAN_BARANG]: LEDGER_ACTIONS,
       [MENU.MATA_UANG]: V,
+      [MENU.PERSEMBAHAN]: LEDGER_ACTIONS,
+      [MENU.KAS_MASUK]: LEDGER_ACTIONS,
     },
   },
   // §3b, plus IBADAH/EVENT VIEW supaya Agenda dan "· 2 kebaktian" tampil, dan
