@@ -27,8 +27,8 @@ import {
   NO_VIEW,
   PAYMENT_LIST_PATH,
   POSTING_NOTE,
-  PREVIEW_REQUIRED,
   isSameRange,
+  postingStatusOf,
   rangeOfMonth,
 } from "../model";
 import type { PostingRange, PostingResult } from "../types";
@@ -61,7 +61,11 @@ export const PostingPembayaranScreen = () => {
     outcome && !outcome.isDone && isSameRange(outcome.range, range)
       ? outcome
       : null;
-  const isPostable = preview !== null && !posting.isPending;
+  // Pratinjau yang menolak semuanya tidak boleh menyisakan tombol aktif: ia
+  // hanya akan membukukan nol baris dan mengajari bendahara bahwa tombolnya
+  // kadang tidak melakukan apa-apa.
+  const isPostable =
+    preview !== null && preview.result.posted > 0 && !posting.isPending;
   const failure = posting.error;
   const failureCode = failure instanceof FetchError ? failure.code : null;
 
@@ -105,7 +109,7 @@ export const PostingPembayaranScreen = () => {
     <FormLayout
       onSubmit={onConfirm}
       actions={
-        <FormActions status={preview === null ? PREVIEW_REQUIRED : undefined}>
+        <FormActions status={postingStatusOf(preview)}>
           <Link
             href={PAYMENT_LIST_PATH}
             className={cn(

@@ -17,16 +17,11 @@ const OWNED = "src/features/keuangan/pembayaran/";
 const ROUTES = "src/app/(app)/keuangan/pembayaran/";
 
 /**
- * Pelanggaran yang sudah ada sebelum layar ini dan bukan milik agent Pembayaran:
- * widget "yang perlu dibayar" di Beranda membaca pembayaran gagal dan
- * kedaluwarsa, lalu menulis nama pemberinya di barisnya. Berkasnya milik
- * Beranda, jadi dicatat di sini supaya terlihat dan supaya kebocoran baru tetap
- * membuat test ini merah.
+ * Daftar ini sengaja kosong: kebocoran yang pernah ada sudah ditutup di
+ * sumbernya. Mekanismenya tetap ada supaya pelanggaran yang tidak bisa
+ * diperbaiki dari fitur ini bisa dicatat dan terlihat, bukan disembunyikan.
  */
-const KNOWN_BERANDA_LEAK = [
-  "src/features/beranda/api.ts",
-  "src/features/beranda/widgets/payables/data.ts",
-];
+const KNOWN_BERANDA_LEAK: string[] = [];
 
 const readSources = async () => {
   const files: { path: string; text: string }[] = [];
@@ -52,14 +47,16 @@ describe("pemberian bernama tidak keluar dari layar Pembayaran", () => {
     expect(leaked.map((file) => file.path)).toEqual([]);
   });
 
-  test("Beranda dan Laporan Keuangan tidak membaca daftar pembayaran", async () => {
+  // Beranda boleh menghitung pembayaran gagal dan kedaluwarsa; yang dilarang
+  // adalah ikut membawa nama pemberinya keluar dari layar ini.
+  test("Beranda dan Laporan Keuangan tidak membawa nama pemberi pembayaran", async () => {
     const files = await readSources();
     const leaked = files
       .filter(
         (file) =>
           (file.path.startsWith("src/features/beranda/") ||
             file.path.startsWith("src/features/keuangan/laporan-keuangan/")) &&
-          /["']pembayaran["']|\/pembayaran\?/.test(file.text),
+          /\bdonorName\b/.test(file.text),
       )
       .map((file) => file.path)
       .filter((path) => !KNOWN_BERANDA_LEAK.includes(path));

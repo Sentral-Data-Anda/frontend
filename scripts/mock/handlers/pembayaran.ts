@@ -26,6 +26,7 @@ import {
   dayInMonth,
   isLive,
   journalOfSource,
+  journalRefOfSource,
   monthLabel,
   periodOf,
   postDocumentEntry,
@@ -185,16 +186,6 @@ const jemaatOf = (id: number | null) =>
 const persembahanOf = (id: number | null) =>
   id === null ? null : (PERSEMBAHAN.find((row) => row.id === id) ?? null);
 
-// `journalRefOfSource` belum membawa publicId, sedangkan rute jurnal hanya
-// menerima publicId — jadi tautannya dibangun dari entrinya sendiri.
-const journalRefOf = (row: PaymentRow) => {
-  const entry = journalOfSource(SOURCE_TYPE, row.id);
-
-  return entry
-    ? { publicId: entry.publicId, code: entry.code, status: entry.status }
-    : null;
-};
-
 export const paymentView = (row: PaymentRow) => {
   const jemaat = jemaatOf(row.jemaatId);
   const type = typePersembahanOf(row.typePersembahanId);
@@ -222,7 +213,7 @@ export const paymentView = (row: PaymentRow) => {
     typePersembahan: type ? { code: type.code, name: type.name } : null,
     period: row.period ? `${row.period}T00:00:00.000Z` : null,
     persembahan: gift ? { code: gift.code } : null,
-    journal: journalRefOf(row),
+    journal: journalRefOfSource(SOURCE_TYPE, row.id),
   };
 };
 

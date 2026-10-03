@@ -65,7 +65,7 @@ afterEach(() => {
 const CLEAN: PostingResult = { posted: 2, skipped: 1, refused: [] };
 
 const REFUSED: PostingResult = {
-  posted: 0,
+  posted: 1,
   skipped: 0,
   refused: [
     {
@@ -84,6 +84,12 @@ const REFUSED: PostingResult = {
       reasonCode: "SOMETHING_NEW",
     },
   ],
+};
+
+const ALL_REFUSED: PostingResult = {
+  posted: 0,
+  skipped: 0,
+  refused: [REFUSED.refused[0]],
 };
 
 const onMockApi = (result: PostingResult) => {
@@ -189,6 +195,18 @@ describe("PostingPembayaranScreen", () => {
       screen.getByText(/sudah pernah diposting — bukan galat/),
     ).toBeTruthy();
     expect(screen.getByText("tidak ada yang ditolak")).toBeTruthy();
+  });
+
+  test("pratinjau yang menolak semuanya tetap mematikan posting, dengan alasannya", async () => {
+    onRenderPosting(FULL, ALL_REFUSED);
+
+    fireEvent.click(screen.getByRole("button", { name: /Lihat pratinjau/ }));
+    await screen.findByRole("region", { name: "Pratinjau posting" });
+
+    expect(postButton().disabled).toBe(true);
+    expect(
+      screen.getAllByText(/Tidak ada pembayaran yang bisa diposting/).length,
+    ).toBeGreaterThan(0);
   });
 
   test("mengubah rentang mengosongkan pratinjau dan mematikan posting lagi", async () => {

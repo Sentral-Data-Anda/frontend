@@ -8,7 +8,9 @@ import {
   giverOf,
   isSameRange,
   isStalePending,
+  NOTHING_TO_POST,
   paymentDateOf,
+  postingStatusOf,
   rangeOfMonth,
   toPaymentApiFilters,
 } from "./model";
@@ -160,5 +162,19 @@ describe("perbaikan dicabangkan lewat kode, bukan prosa", () => {
     ).toBeNull();
     expect(fixOfCode("Periode Fiskal September 2026 Sudah Ditutup")).toBeNull();
     expect(fixOfCode("Akun 1-300 Sudah Tidak Aktif")).toBeNull();
+  });
+});
+
+describe("status bilah aksi posting", () => {
+  test("tanpa pratinjau: pratinjau diminta dulu", () => {
+    expect(postingStatusOf(null)).toContain("Jalankan pratinjau dulu");
+  });
+
+  test("pratinjau tanpa baris yang bisa diposting: alasannya tertulis", () => {
+    expect(postingStatusOf({ result: { posted: 0 } })).toBe(NOTHING_TO_POST);
+  });
+
+  test("pratinjau dengan baris yang bisa diposting: tanpa status", () => {
+    expect(postingStatusOf({ result: { posted: 2 } })).toBeUndefined();
   });
 });

@@ -50,6 +50,9 @@ export const STALE_PENDING_NOTE = "Kedaluwarsa (belum diperbarui)";
 export const POSTING_NOTE =
   "Satu pembayaran pendaftaran event menjadi satu entri jurnal: masuk ke akun penampung gateway, keluar sebagai pendapatan event.";
 
+export const NOTHING_TO_POST =
+  "Tidak ada pembayaran yang bisa diposting di rentang ini.";
+
 export const PREVIEW_REQUIRED =
   "Jalankan pratinjau dulu. Tombol posting terbuka sesudah Anda melihat apa yang akan dibukukan.";
 
@@ -170,3 +173,11 @@ export const rangeOfMonth = (bulan: string): PostingRange | null => {
 
 export const isSameRange = (a: PostingRange | null, b: PostingRange | null) =>
   a !== null && b !== null && a.from === b.from && a.to === b.to;
+
+export const postingStatusOf = (
+  preview: { result: { posted: number } } | null,
+): string | undefined => {
+  if (preview === null) return PREVIEW_REQUIRED;
+
+  return preview.result.posted === 0 ? NOTHING_TO_POST : undefined;
+};
