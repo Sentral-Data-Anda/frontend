@@ -222,7 +222,7 @@ export const ACCOUNTING_SETTING: SettingRow[] = [
     updatedById: SESSION_USER_ID,
   },
   {
-    key: "PERSEMBAHAN_GATEWAY",
+    key: "KAS_GATEWAY",
     description:
       "Uang persembahan online yang belum cair dari payment gateway. Saat cair, catat di Kas Masuk ke rekening bank dan bebankan biayanya ke Beban Administrasi.",
     accountId: null,

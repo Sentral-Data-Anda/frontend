@@ -60,7 +60,7 @@ const ACCOUNT_DDL = [
 
 const SETTING_FILLED = [
   {
-    key: "PERSEMBAHAN_GATEWAY",
+    key: "KAS_GATEWAY",
     account: { id: 6, code: "1-300", name: "Kas di Payment Gateway" },
   },
 ];

@@ -61,7 +61,7 @@ const eventRow = () =>
   )!;
 
 afterEach(() => {
-  setSetting("PERSEMBAHAN_GATEWAY", null);
+  setSetting("KAS_GATEWAY", null);
   setSetting("PENDAPATAN_EVENT", null);
   delete process.env.MOCK_EMPTY;
   delete process.env.MOCK_500;
@@ -181,7 +181,7 @@ describe("posting pembayaran event", () => {
   });
 
   test("pratinjau tidak menulis apa pun ke jurnal", async () => {
-    setSetting("PERSEMBAHAN_GATEWAY", GATEWAY_ACCOUNT);
+    setSetting("KAS_GATEWAY", GATEWAY_ACCOUNT);
     setSetting("PENDAPATAN_EVENT", INCOME_ACCOUNT);
 
     const before = JOURNAL_ENTRY.length;
@@ -197,7 +197,7 @@ describe("posting pembayaran event", () => {
   });
 
   test("posting sungguhan menulis entri yang benar-benar ada, lalu dilewati", async () => {
-    setSetting("PERSEMBAHAN_GATEWAY", GATEWAY_ACCOUNT);
+    setSetting("KAS_GATEWAY", GATEWAY_ACCOUNT);
     setSetting("PENDAPATAN_EVENT", INCOME_ACCOUNT);
 
     const first = await bodyOf(

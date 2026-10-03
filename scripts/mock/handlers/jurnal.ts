@@ -420,7 +420,7 @@ type Gift = {
 const SETTING_KEY = {
   TUNAI: "PERSEMBAHAN_KAS",
   TRANSFER: "PERSEMBAHAN_BANK",
-  PAYMENT_GATEWAY: "PERSEMBAHAN_GATEWAY",
+  PAYMENT_GATEWAY: "KAS_GATEWAY",
 } as const;
 
 const giftIdOf = (from: string, index: number) =>
