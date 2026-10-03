@@ -65,7 +65,7 @@ export const GATEWAY_GROSS_DESCRIPTION = "Persembahan online bruto";
 
 export const GATEWAY_FEE_DESCRIPTION = "Biaya administrasi payment gateway";
 
-export const GATEWAY_SETTING_KEY = "PERSEMBAHAN_GATEWAY";
+export const GATEWAY_SETTING_KEY = "KAS_GATEWAY";
 
 export const MAX_LINES = 50;
 

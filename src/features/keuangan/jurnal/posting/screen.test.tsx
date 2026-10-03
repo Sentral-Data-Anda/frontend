@@ -70,7 +70,7 @@ const REFUSED: PostingResult = {
     },
     {
       code: "PSB-202603-002",
-      reason: "Setelan Akuntansi PERSEMBAHAN_GATEWAY Belum Diisi",
+      reason: "Setelan Akuntansi KAS_GATEWAY Belum Diisi",
       reasonCode: "SETTING_EMPTY",
     },
     {

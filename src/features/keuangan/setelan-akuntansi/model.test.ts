@@ -64,7 +64,7 @@ describe("kesiapan", () => {
     const rows = [
       setting("PERSEMBAHAN_KAS", null),
       setting("PERSEMBAHAN_BANK", 2, false),
-      setting("PERSEMBAHAN_GATEWAY", 4),
+      setting("KAS_GATEWAY", 4),
       setting("PENDAPATAN_EVENT", 4),
       setting("PENYUSUTAN_BEBAN", 4),
       setting("PENYUSUTAN_AKUMULASI", 4),

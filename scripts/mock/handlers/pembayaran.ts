@@ -40,7 +40,7 @@ const NOT_FOUND = "Pembayaran Tidak Ditemukan";
 
 const SOURCE_TYPE = "EVENT_REGISTRATION";
 
-const GATEWAY_KEY = "PERSEMBAHAN_GATEWAY";
+const GATEWAY_KEY = "KAS_GATEWAY";
 
 const INCOME_KEY = "PENDAPATAN_EVENT";
 
