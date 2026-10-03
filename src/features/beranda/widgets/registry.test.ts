@@ -237,9 +237,13 @@ describe("persona dev:mock", () => {
       "kpi-surplus-year",
       "kpi-payables",
     ]);
+    // `budget-use` masuk karena bendahara kini memegang PAGU_ANGGARAN
+    // (keputusan user: pagu milik majelis DAN bendahara). Widget-nya masih
+    // `isDummy`, jadi ia hanya tampil di luar production.
     expect(main).toEqual([
       "income-expense-chart",
       "payables",
+      "budget-use",
       "agenda-week",
       "approvals",
     ]);
@@ -252,7 +256,11 @@ describe("persona dev:mock", () => {
 
     const keuangan = picked("bendahara", true, "finance");
 
-    expect(keuangan.main).toEqual(["income-expense-chart", "payables"]);
+    expect(keuangan.main).toEqual([
+      "income-expense-chart",
+      "payables",
+      "budget-use",
+    ]);
     expect(keuangan.main).not.toContain("agenda-week");
     expect(keuangan.side).not.toContain("zones");
   });

@@ -2,6 +2,7 @@ import type { MockHandler } from "../kit";
 
 import { activityLogMock } from "./activity-log";
 import { akunMock } from "./akun";
+import { anggaranMock } from "./anggaran";
 import { bapelMock } from "./bapel";
 import { barangMock } from "./barang";
 import { barangPersediaanMock } from "./barang-persediaan";
@@ -19,10 +20,12 @@ import { kasMasukMock } from "./kas-masuk";
 import { kegiatanMock } from "./kegiatan";
 import { keluargaMock } from "./keluarga";
 import { keuanganMock } from "./keuangan";
+import { laporanBudgetMock } from "./laporan-budget";
 import { laporanKeuanganMock } from "./laporan-keuangan";
 import { masterJemaatMock } from "./master-jemaat";
 import { mataUangMock } from "./mata-uang";
 import { mutasiStokMock } from "./mutasi-stok";
+import { paguAnggaranMock } from "./pagu-anggaran";
 import { pelayanMock } from "./pelayan";
 import { pelayananDdlMock } from "./pelayanan-ddl";
 import { pembayaranMock } from "./pembayaran";
@@ -39,6 +42,7 @@ import { permintaanPersetujuanMock } from "./permintaan-persetujuan";
 import { pernikahanMock } from "./pernikahan";
 import { persembahanMock } from "./persembahan";
 import { pesananPembelianMock } from "./pesanan-pembelian";
+import { programMock } from "./program";
 import { reportJemaatMock } from "./report-jemaat";
 import { riwayatJemaatMock } from "./riwayat-jemaat";
 import { roleJemaatMock } from "./role-jemaat";
@@ -47,6 +51,7 @@ import { roleUserMock } from "./role-user";
 import { ruangMock } from "./ruang";
 import { satuanMock } from "./satuan";
 import { setelanAkuntansiMock } from "./setelan-akuntansi";
+import { setelanAnggaranMock } from "./setelan-anggaran";
 import { setelanPersetujuanMock } from "./setelan-persetujuan";
 import { setoranMock } from "./setoran";
 import { siklusAsetMock } from "./siklus-aset";
@@ -118,7 +123,12 @@ export const MOCK_HANDLERS: MockHandler[] = [
   setoranMock,
   pembayaranMock,
   laporanKeuanganMock,
+  setelanAnggaranMock,
+  paguAnggaranMock,
+  programMock,
+  laporanBudgetMock,
   pengadaanMock,
   inventarisMock,
   keuanganMock,
+  anggaranMock,
 ];

@@ -76,6 +76,16 @@ const SETTING_ACTIONS: Action[] = KEJEMAATAN_ACTIONS.filter(
   (action) => action === "VIEW" || action === "UPDATE",
 );
 
+// Dokumen beralur Anggaran: be-sada menjaga CRUD penuh, dan `/pengajuan` ikut
+// UPDATE (tidak ada aksi menu kedelapan).
+const BUDGET_DOC_ACTIONS: Action[] = KEJEMAATAN_ACTIONS;
+
+// Peran komisi di Kas Keluar: CREATE saja, JANGAN PERNAH UPDATE. Pembebasan
+// gerbang dijaga KAS_KELUAR UPDATE, jadi komisi yang memegangnya bisa
+// membebaskan blokirnya sendiri — dan gerbang yang penerimanya bisa membukanya
+// bukan gerbang.
+const KOMISI_EXPENSE_ACTIONS: Action[] = LEDGER_ACTIONS;
+
 // Penanda tangan dan pengaju: be-sada hanya menjaga VIEW + UPDATE di menu ini.
 const APPROVAL_ACTIONS: Action[] = [
   "VIEW",
@@ -110,6 +120,8 @@ export const PERSONAS: Record<string, Persona> = {
       [MENU.PENGUMUMAN]: KEJEMAATAN_ACTIONS,
       [MENU.PEMINJAMAN_RUANG]: KEJEMAATAN_ACTIONS,
       [MENU.RUANG]: KEJEMAATAN_ACTIONS,
+      [MENU.PROGRAM]: LEDGER_ACTIONS,
+      [MENU.LAPORAN_BUDGET]: V,
       [MENU.BARANG]: KEJEMAATAN_ACTIONS,
       [MENU.TIPE_BARANG]: KEJEMAATAN_ACTIONS,
       [MENU.SATUAN]: KEJEMAATAN_ACTIONS,
@@ -155,6 +167,25 @@ export const PERSONAS: Record<string, Persona> = {
       [MENU.PERMINTAAN_PEMBELIAN]: V,
       [MENU.PESANAN_PEMBELIAN]: V,
       [MENU.MATA_UANG]: KEJEMAATAN_ACTIONS,
+      [MENU.PAGU_ANGGARAN]: KEJEMAATAN_ACTIONS,
+      [MENU.PROGRAM]: V,
+      [MENU.LAPORAN_BUDGET]: V,
+    },
+  },
+  // Pengurus komisi: mengusulkan program dan mempertanggungjawabkan
+  // pemakaiannya. Tanpa PAGU_ANGGARAN (keputusan user: komisi tidak melihat
+  // alokasi komisi lain), dan Kas Keluar CREATE saja.
+  komisi: {
+    roleName: "Pengurus Komisi",
+    isAdmin: false,
+    jemaatName: "Daniel Panggabean",
+    grants: {
+      [MENU.PROGRAM]: BUDGET_DOC_ACTIONS,
+      [MENU.LAPORAN_BUDGET]: BUDGET_DOC_ACTIONS,
+      [MENU.KAS_KELUAR]: KOMISI_EXPENSE_ACTIONS,
+      [MENU.PERMINTAAN_PERSETUJUAN]: APPROVAL_ACTIONS,
+      [MENU.IBADAH]: V,
+      [MENU.EVENT]: V,
     },
   },
   // §3c, dengan LAPORAN_KEUANGAN (keputusan admin; tanpanya grid merapat).
@@ -183,7 +214,7 @@ export const PERSONAS: Record<string, Persona> = {
       [MENU.LAPORAN_KEUANGAN]: process.env.MOCK_MAJELIS_NO_FINANCE
         ? undefined
         : V,
-      [MENU.PAGU_ANGGARAN]: V,
+      [MENU.PAGU_ANGGARAN]: KEJEMAATAN_ACTIONS,
       [MENU.PROGRAM]: V,
       [MENU.LAPORAN_BUDGET]: V,
       [MENU.IBADAH]: V,
@@ -267,6 +298,7 @@ export const PERSONA_POSITIONS: Record<
   bendahara: [
     { name: "Bendahara", bapelId: 1, bapel: { name: "Majelis Jemaat" } },
   ],
+  komisi: [{ name: "Ketua", bapelId: 2, bapel: { name: "Komisi Pemuda" } }],
 };
 
 export const actionsOf = (persona: Persona, slug: string): Action[] =>
@@ -280,6 +312,10 @@ export const GUARD: Record<string, MenuSlug> = {
   "/laporan-keuangan/neraca": MENU.LAPORAN_KEUANGAN,
   "/laporan-keuangan/surplus-defisit": MENU.LAPORAN_KEUANGAN,
   "/kas-keluar": MENU.KAS_KELUAR,
+  "/pagu-anggaran": MENU.PAGU_ANGGARAN,
+  "/setelan-anggaran": MENU.PAGU_ANGGARAN,
+  "/program": MENU.PROGRAM,
+  "/laporan-budget": MENU.LAPORAN_BUDGET,
   "/faktur-supplier": MENU.FAKTUR_SUPPLIER,
   "/pembayaran": MENU.PEMBAYARAN,
   "/payroll": MENU.PAYROLL,
