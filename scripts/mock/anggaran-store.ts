@@ -16,6 +16,7 @@ import {
 } from "../../src/lib/date";
 import { lineAmount, sumAmounts } from "../../src/lib/number";
 import type {
+  BapelRef,
   BudgetReportStatus,
   BudgetYear,
   CeilingUsage,
@@ -41,6 +42,20 @@ import { bapelOf } from "./pelayanan-store";
 export { TODAY, isLive, nextId, userNameOf };
 
 const pad = (value: number, size = 2) => String(value).padStart(size, "0");
+
+/**
+ * Komisi dalam bentuk yang dikembalikan be-sada: `publicId`, bukan `id`.
+ * `bapelOf` milik store Pelayanan mengembalikan `id` karena ddl memang
+ * memakainya sebagai nilai pilihan; bacaan Anggaran tidak. Id numeriknya tetap
+ * ada di bacaan detail sebagai `bapelId`, untuk mengisi awal form.
+ */
+export const bapelRef = (id: number): BapelRef | null => {
+  const row = bapelOf(id);
+
+  return row
+    ? { publicId: `bpl-${pad(id, 4)}`, code: row.code, name: row.name }
+    : null;
+};
 
 // ---------------------------------------------------------------------------
 // Setelan tahun pelayanan. Satu baris, dan setiap label tahun membacanya.
@@ -375,7 +390,7 @@ export const gateFailureOf = (bapelId: number | null, expenseDate: string) => {
   return {
     code: "BUDGET_REPORT_PENDING" as const,
     message: `Komisi Ini Belum Menyelesaikan Laporan Pemakaian Budget Bulan ${monthLabel(`${year}-${pad(month)}`)}. Laporan Harus Disetujui Lengkap Sebelum Pencairan Bulan Berikutnya`,
-    bapel: bapelOf(bapelId),
+    bapel: bapelRef(bapelId),
     year,
     month,
   };
@@ -477,7 +492,7 @@ export const allocationView = (row: BudgetAllocationRow, isDetail = false) => ({
   year: row.year,
   budgetYear: budgetYearView(row.year),
   amount: row.amount,
-  bapel: bapelOf(row.bapelId),
+  bapel: bapelRef(row.bapelId),
   ...(isDetail ? { bapelId: row.bapelId } : {}),
   usage: ceilingUsage(row.bapelId, row.year),
 });
@@ -529,7 +544,7 @@ export const programView = (row: ProgramRow, isDetail = false) => {
     isUnplanned: row.isUnplanned,
     startDate: row.startDate,
     endDate: row.endDate,
-    bapel: bapelOf(row.bapelId),
+    bapel: bapelRef(row.bapelId),
     proposedAmount: total,
     budgetAmount: null,
     approval: approval ? approvalView(approval, total) : null,
@@ -580,7 +595,7 @@ export const reportView = (row: BudgetReportRow, isDetail = false) => {
   return {
     publicId: row.publicId,
     code: row.code,
-    bapel: bapelOf(row.bapelId),
+    bapel: bapelRef(row.bapelId),
     year: row.year,
     month: row.month,
     label: monthLabel(`${row.year}-${pad(row.month)}`),
@@ -607,7 +622,7 @@ export const complianceRows = (year: number, month: number) =>
     const paid = disbursementsIn(bapelId, year, month);
 
     return {
-      bapel: bapelOf(bapelId),
+      bapel: bapelRef(bapelId),
       state: complianceStateOf(bapelId, year, month),
       report: report ? { publicId: report.publicId, code: report.code } : null,
       disbursementCount: paid.length,

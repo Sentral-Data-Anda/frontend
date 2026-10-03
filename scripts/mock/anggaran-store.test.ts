@@ -4,6 +4,7 @@ import { addDays, addMonths, startOfMonth } from "../../src/lib/date";
 
 import {
   BUDGET_ALLOCATION,
+  bapelRef,
   BUDGET_SETTING,
   BUDGET_USAGE_REPORT,
   GATE_WAIVER,
@@ -295,5 +296,19 @@ describe("gerbang pencairan", () => {
     expect(typeof usage.untagged).toBe("string");
 
     dropSeeded(ids);
+  });
+});
+
+describe("bentuk komisi di bacaan", () => {
+  test("memakai publicId seperti be-sada, bukan id numerik", () => {
+    const ref = bapelRef(2);
+
+    expect(ref).not.toBeNull();
+    expect(ref).toHaveProperty("publicId");
+    expect(ref).not.toHaveProperty("id");
+  });
+
+  test("komisi yang tidak ada menjadi null, bukan undefined", () => {
+    expect(bapelRef(9999)).toBeNull();
   });
 });
