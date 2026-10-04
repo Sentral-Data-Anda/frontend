@@ -17,11 +17,11 @@ import {
   test,
 } from "bun:test";
 
-import type { CeilingUsage } from "@/types/anggaran";
+import type { BudgetSetting, CeilingUsage } from "@/types/anggaran";
 import type { MenuAction } from "@/types/menu";
 
 import { onStubViewport } from "../../../../../tests/viewport";
-import type { BudgetAllocation, BudgetSetting } from "../types";
+import type { BudgetAllocation } from "../types";
 
 const actions: { current: MenuAction[] } = { current: [] };
 const replaced: string[] = [];

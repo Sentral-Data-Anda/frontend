@@ -6,6 +6,7 @@
  *   MOCK_NO_BUDGET_SETTING=1    → gereja belum memilih (startMonth null)
  */
 import { MENU } from "../../../src/config/menu";
+import type { BudgetSetting } from "../../../src/types/anggaran";
 import {
   BUDGET_SETTING,
   PROGRAM,
@@ -37,7 +38,7 @@ const budgetYears = () => {
   return [-1, 0, 1, 2].map((offset) => budgetYearView(current + offset));
 };
 
-const data = () => ({
+const data = (): BudgetSetting => ({
   startMonth: isChosen ? BUDGET_SETTING.startMonth : null,
   budgetYear: budgetYearView(currentBudgetYear()),
   budgetYears: budgetYears(),

@@ -12,14 +12,13 @@ import type { ListFilterSchema } from "@/hooks/use-list-params";
 import { FetchError } from "@/lib/api/fetcher";
 import { addMonths, monthLabel, monthOptions } from "@/lib/date";
 import { formatRupiah } from "@/lib/format";
-import type { CeilingUsage } from "@/types/anggaran";
+import type { BudgetSetting, CeilingUsage } from "@/types/anggaran";
 
 import type {
   BudgetAllocation,
   BudgetAllocationBatchPayload,
   BudgetAllocationDetail,
   BudgetAllocationPayload,
-  BudgetSetting,
   YearProgram,
 } from "./types";
 
@@ -93,6 +92,15 @@ export const startMonthOptions = () =>
     }))
     .sort((left, right) => Number(left.value) - Number(right.value));
 
+/**
+ * Satu-satunya tempat klien menurunkan rentang tahun pelayanan sendiri, dan ia
+ * ada karena bulan yang BELUM DISIMPAN tidak punya label server: dialog
+ * memperlihatkan arti pilihan sebelum ada yang menyimpannya. Setiap rentang
+ * yang sudah tersimpan tetap dibaca dari `budgetYear` server.
+ *
+ * Karena ia rumus kedua, `model.test.ts` memakukannya ke rentang server untuk
+ * seluruh dua belas bulan mulai — bukan menghitung ulang rumus yang sama.
+ */
 export const budgetYearSentence = (year: number, startMonth: number) => {
   const from = `${year}-${String(startMonth).padStart(2, "0")}-01`;
   const to = addMonths(from, 11).slice(0, 7);

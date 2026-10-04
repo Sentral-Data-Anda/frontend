@@ -9,10 +9,10 @@ import {
 } from "@testing-library/react";
 import { afterEach, describe, expect, mock, test } from "bun:test";
 
-import type { CeilingUsage } from "@/types/anggaran";
+import type { BudgetSetting, CeilingUsage } from "@/types/anggaran";
 import type { MenuAction } from "@/types/menu";
 
-import type { BudgetAllocationDetail, BudgetSetting } from "../types";
+import type { BudgetAllocationDetail } from "../types";
 
 const actions: { current: MenuAction[] } = { current: [] };
 const replaced: string[] = [];

@@ -6,6 +6,7 @@ import { SelectField } from "@/components/common/control";
 import { ControlField, FormAlert } from "@/components/common/form";
 import { ConfirmDialog } from "@/components/common/overlay";
 import { applyServerError } from "@/lib/form-error";
+import type { BudgetSetting } from "@/types/anggaran";
 
 import { useSaveBudgetSetting } from "../api";
 import {
@@ -14,7 +15,6 @@ import {
   errorFixOf,
   startMonthOptions,
 } from "../model";
-import type { BudgetSetting } from "../types";
 
 const MONTH_OPTIONS = startMonthOptions();
 

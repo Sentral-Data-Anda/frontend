@@ -5,13 +5,13 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ListState } from "@/hooks/use-list-params";
 import { useListQuery } from "@/hooks/use-list-query";
 import { fetchList, fetchOne } from "@/lib/api/fetcher";
+import type { BudgetSetting } from "@/types/anggaran";
 
 import type {
   BudgetAllocation,
   BudgetAllocationBatchPayload,
   BudgetAllocationDetail,
   BudgetAllocationPayload,
-  BudgetSetting,
   BudgetSettingPayload,
   YearProgram,
 } from "./types";

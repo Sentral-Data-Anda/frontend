@@ -29,12 +29,6 @@ export type BudgetAllocationBatchPayload = {
   items: { bapelId: number; amount: string }[];
 };
 
-export type BudgetSetting = {
-  startMonth: number | null;
-  budgetYear: BudgetYear;
-  budgetYears: BudgetYear[];
-};
-
 export type BudgetSettingPayload = {
   startMonth: number;
 };

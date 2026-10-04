@@ -58,6 +58,16 @@ export type BudgetYear = {
   label: string;
 };
 
+// Amplop setelan tahun pelayanan, dipakai handler mock dan ketiga layar grup
+// ini. Tiap fitur yang mendeklarasikannya sendiri akan menurunkan arti
+// `startMonth: null` sendiri-sendiri, dan satu di antaranya akan lupa bahwa
+// null berarti "belum dipilih" dan bukan Januari.
+export type BudgetSetting = {
+  startMonth: number | null;
+  budgetYear: BudgetYear;
+  budgetYears: BudgetYear[];
+};
+
 // Satu bentuk untuk pagu terpakai, dipakai store mock dan layar. `ceiling`
 // null berarti penolakan, bukan tanpa batas. `untagged` tidak opsional:
 // field opsional adalah field yang akan dihilangkan dari tampilan, dan

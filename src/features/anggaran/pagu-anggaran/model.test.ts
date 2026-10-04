@@ -1,8 +1,13 @@
 import { describe, expect, test } from "bun:test";
 
 import { FetchError } from "@/lib/api/fetcher";
-import { addMonths, monthLabel, todayJakarta } from "@/lib/date";
-import type { CeilingUsage } from "@/types/anggaran";
+import { monthLabel, todayJakarta } from "@/lib/date";
+import type { BudgetSetting, CeilingUsage } from "@/types/anggaran";
+
+import {
+  BUDGET_SETTING,
+  budgetYearView,
+} from "../../../../scripts/mock/anggaran-store";
 
 import {
   allocationDeleteText,
@@ -23,7 +28,7 @@ import {
   yearSelectOptions,
   yearTabOptions,
 } from "./model";
-import type { BudgetAllocation, BudgetSetting } from "./types";
+import type { BudgetAllocation } from "./types";
 
 const usage = (next: Partial<CeilingUsage> = {}): CeilingUsage => ({
   year: 2026,
@@ -247,17 +252,30 @@ describe("label tahun milik server", () => {
     expect(pickYear("", undefined)).toBe("");
   });
 
-  test("kalimat dialog dihitung dari bulan yang dipilih", () => {
-    const sentenceOf = (startMonth: number) => {
-      const from = `${serverYear}-${String(startMonth).padStart(2, "0")}-01`;
+  // Kalimat pratinjau adalah rumus kedua untuk rentang tahun pelayanan — satu
+  // pengecualian yang disengaja, karena bulan yang belum disimpan tidak punya
+  // label server. Dipakukan ke rentang server untuk SELURUH dua belas bulan
+  // mulai: menghitung ulang rumus yang sama di sini akan setuju dengan dirinya
+  // sendiri walaupun keduanya salah.
+  test("kalimat pratinjau sepakat dengan rentang server di tiap bulan mulai", () => {
+    const saved = BUDGET_SETTING.startMonth;
 
-      return `${monthLabel(from.slice(0, 7))} sampai ${monthLabel(
-        addMonths(from, 11).slice(0, 7),
-      )}`;
-    };
+    try {
+      for (let startMonth = 1; startMonth <= 12; startMonth += 1) {
+        BUDGET_SETTING.startMonth = startMonth;
 
-    expect(budgetYearSentence(serverYear, 1)).toContain(sentenceOf(1));
-    expect(budgetYearSentence(serverYear, 7)).toContain(sentenceOf(7));
+        const view = budgetYearView(serverYear);
+        const sentence = budgetYearSentence(serverYear, startMonth);
+
+        expect(sentence).toContain(monthLabel(view.from.slice(0, 7)));
+        expect(sentence).toContain(monthLabel(view.to.slice(0, 7)));
+      }
+    } finally {
+      BUDGET_SETTING.startMonth = saved;
+    }
+  });
+
+  test("kalimat pratinjau berubah mengikuti pilihan yang belum disimpan", () => {
     expect(budgetYearSentence(serverYear, 7)).not.toBe(
       budgetYearSentence(serverYear, 1),
     );
