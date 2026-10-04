@@ -2,9 +2,11 @@
  * Tiruan `/api/v1/setelan-anggaran` (kontrak Anggaran §2). Satu baris, tanpa
  * `:id`. Setiap label tahun pelayanan di grup ini membacanya.
  *
- *   MOCK_BUDGET_START_JULY=1 → bulan mulai Juli (bukan Januari)
+ *   MOCK_BUDGET_START_JULY=1    → bulan mulai Juli (bukan Januari)
+ *   MOCK_NO_BUDGET_SETTING=1    → gereja belum memilih (startMonth null)
  */
 import { MENU } from "../../../src/config/menu";
+import type { BudgetSetting } from "../../../src/types/anggaran";
 import {
   BUDGET_SETTING,
   PROGRAM,
@@ -20,14 +22,33 @@ const failure = (
   extra: { issues?: { path: string; message: string }[]; code?: string } = {},
 ) => json({ status, error, ...extra }, status);
 
+// Barisnya belum ada sampai PUT pertama, dan nilai bawaan kolom tidak bisa
+// dibedakan dari seseorang yang sengaja memilih Januari. Yang dibedakan adalah
+// ketiadaan barisnya: `startMonth` null adalah keadaan "belum dipilih",
+// sementara `budgetYear` tetap terisi dengan jatuh ke kalender supaya tidak ada
+// layar yang harus merakit label sendiri.
+let isChosen = !process.env.MOCK_NO_BUDGET_SETTING;
+
+// Jendela kerja empat tahun pelayanan. Labelnya lahir di sini bersama
+// rentangnya, karena label adalah satu-satunya bagian yang dua lapis bisa
+// berbeda pendapat tentangnya.
+const budgetYears = () => {
+  const current = currentBudgetYear();
+
+  return [-1, 0, 1, 2].map((offset) => budgetYearView(current + offset));
+};
+
+const data = (): BudgetSetting => ({
+  startMonth: isChosen ? BUDGET_SETTING.startMonth : null,
+  budgetYear: budgetYearView(currentBudgetYear()),
+  budgetYears: budgetYears(),
+});
+
 const view = () =>
   json({
     status: 200,
     message: "Berhasil Mendapatkan Setelan Anggaran",
-    data: {
-      startMonth: BUDGET_SETTING.startMonth,
-      budgetYear: budgetYearView(currentBudgetYear()),
-    },
+    data: data(),
   });
 
 const onUpdate = async (request: Request) => {
@@ -67,14 +88,12 @@ const onUpdate = async (request: Request) => {
   }
 
   BUDGET_SETTING.startMonth = startMonth;
+  isChosen = true;
 
   return json({
     status: 200,
     message: "Berhasil Mengubah Setelan Anggaran",
-    data: {
-      startMonth: BUDGET_SETTING.startMonth,
-      budgetYear: budgetYearView(currentBudgetYear()),
-    },
+    data: data(),
   });
 };
 
