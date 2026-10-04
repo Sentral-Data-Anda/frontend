@@ -181,6 +181,11 @@ const monthFormat = new Intl.DateTimeFormat("id-ID", {
   timeZone: "UTC",
 });
 
+export const monthLabel = (month: string): string =>
+  /^\d{4}-\d{2}$/.test(month)
+    ? monthFormat.format(new Date(`${month}-01T00:00:00Z`))
+    : "";
+
 export function monthOptions(
   today: string = todayJakarta(),
 ): { value: string; label: string }[] {

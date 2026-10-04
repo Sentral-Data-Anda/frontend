@@ -69,3 +69,31 @@ describe("kas keluar bertaut lewat publicId", () => {
     ).toBe("/keuangan/kas-keluar/ce-9f2a");
   });
 });
+
+describe("dokumen anggaran bertaut lewat publicId", () => {
+  const cases = [
+    ["PROGRAM", "/anggaran/program/prg-7c11", "PRG-2026-0004"],
+    ["PROGRAM_MENDADAK", "/anggaran/program/prg-7c11", "PRG-2026-0004"],
+    [
+      "BUDGET_USAGE_REPORT",
+      "/anggaran/laporan-budget/prg-7c11",
+      "LPB-2026-0002",
+    ],
+  ] as const;
+
+  test("ketiganya memakai publicId dan tidak pernah kode", () => {
+    for (const [type, href, code] of cases) {
+      expect(approvalDocumentHref(type, { publicId: "prg-7c11", code })).toBe(
+        href,
+      );
+    }
+  });
+
+  test("program mendadak menuju layar Program yang sama", () => {
+    const ref = { publicId: "prg-7c11", code: "PRG-2026-0004" };
+
+    expect(approvalDocumentHref("PROGRAM_MENDADAK", ref)).toBe(
+      approvalDocumentHref("PROGRAM", ref),
+    );
+  });
+});
