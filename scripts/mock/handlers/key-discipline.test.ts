@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 
 import type { MenuSlug } from "../../../src/config/menu";
+import { BUDGET_ALLOCATION } from "../anggaran-store";
 import {
   ACCOUNT,
   CASH_EXPENSE,
@@ -14,6 +15,7 @@ import { akunMock } from "./akun";
 import { jurnalMock } from "./jurnal";
 import { kasKeluarMock } from "./kas-keluar";
 import { kasMasukMock } from "./kas-masuk";
+import { paguAnggaranMock } from "./pagu-anggaran";
 import { PAYMENT, pembayaranMock } from "./pembayaran";
 import { tipePersembahanMock } from "./tipe-persembahan";
 
@@ -83,6 +85,14 @@ const CASES = [
     base: "/kas-keluar",
     right: () => live(CASH_EXPENSE).publicId,
     wrong: () => live(CASH_EXPENSE).code,
+    keyed: "publicId",
+  },
+  {
+    name: "pagu anggaran",
+    handler: paguAnggaranMock,
+    base: "/pagu-anggaran",
+    right: () => BUDGET_ALLOCATION[0]!.publicId,
+    wrong: () => String(BUDGET_ALLOCATION[0]!.id),
     keyed: "publicId",
   },
   {
