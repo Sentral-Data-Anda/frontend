@@ -4,7 +4,7 @@
  * Bentuk respons = be-sada sesudah gap §7a. Chart of accounts di sini adalah
  * data uji, bukan usulan ke gereja (E1 milik bendahara).
  */
-import { addDays, startOfMonth } from "../../src/lib/date";
+import { addDays, addMonths, startOfMonth } from "../../src/lib/date";
 import { balanceOf, sumAmounts } from "../../src/lib/number";
 import type {
   AccountType,
@@ -1513,6 +1513,22 @@ const thisMonth = (day: number) => {
   return date > TODAY ? TODAY : date;
 };
 
+/**
+ * Tanggal di bulan LALU, dihitung dari TODAY — bukan dari tahun/bulan tetap.
+ *
+ * Gerbang pencairan Anggaran, daftar Belum lapor, dan prefill LPJ semuanya
+ * membaca bulan M−1, jadi harus ada Kas Keluar yang benar-benar jatuh di sana
+ * di tanggal berapa pun mock dijalankan — termasuk 1 Januari, saat M−1 adalah
+ * Desember tahun sebelumnya.
+ */
+const lastMonth = (day: number) => {
+  const start = addMonths(startOfMonth(TODAY), -1);
+  const last = addDays(addMonths(start, 1), -1);
+  const date = `${start.slice(0, 7)}-${pad(day, 2)}`;
+
+  return date > last ? last : date;
+};
+
 const closedMonthDate = () => {
   const month = MONTH - 3;
   const year = YEAR + Math.floor((month - 1) / 12);
@@ -1669,6 +1685,83 @@ export const CASH_EXPENSE: CashExpenseRow[] = [
       approvals: [cashExpenseApproval(11, "APPROVED", SESSION_USER_ID)],
       approvedById: 13,
       approvedAt: `${thisMonth(13)}T02:00:00.000Z`,
+    },
+  ),
+  // --- Biaya gereja sendiri: DIBAYAR, TANPA KOMISI. ---------------------
+  //
+  // Baris inilah yang membuat "Pengeluaran tanpa komisi" bukan nol. Tanpa
+  // keduanya, aturan yang user jadikan mengikat — angka per komisi tidak
+  // pernah tampil tanpa sisa tak-bertandanya — tidak bisa dilihat siapa pun di
+  // peramban, dan argumen TaggedTotal tidak bisa dibuktikan.
+  expense(
+    9,
+    thisMonth(3),
+    "PDAM Tirtanadi",
+    "Tagihan air gedung gereja",
+    4,
+    [cashExpenseLine(22, "640000", "Pemakaian air")],
+    {
+      bapelId: null,
+      method: "Transfer",
+      status: "PAID",
+      approvals: [cashExpenseApproval(31, "APPROVED", 12)],
+      approvedById: 13,
+      approvedAt: `${thisMonth(4)}T02:00:00.000Z`,
+    },
+  ),
+  expense(
+    10,
+    thisMonth(7),
+    "Koperasi Kebersihan Sejahtera",
+    "Jasa kebersihan dan keamanan",
+    4,
+    [
+      cashExpenseLine(22, "4200000", "Kebersihan"),
+      cashExpenseLine(23, "3100000", "Keamanan"),
+    ],
+    {
+      bapelId: null,
+      method: "Transfer",
+      status: "PAID",
+      approvals: [cashExpenseApproval(32, "APPROVED", 12)],
+      approvedById: 13,
+      approvedAt: `${thisMonth(8)}T02:00:00.000Z`,
+    },
+  ),
+  // --- Pencairan komisi bulan LALU: yang dibaca gerbang dan prefill. -----
+  expense(
+    11,
+    lastMonth(8),
+    "Ketua Komisi Pemuda",
+    "Pencairan retret pemuda",
+    4,
+    [
+      cashExpenseLine(22, "3500000", "Sewa tempat"),
+      cashExpenseLine(23, "1750000", "Konsumsi"),
+    ],
+    {
+      bapelId: 2,
+      method: "Transfer",
+      status: "PAID",
+      approvals: [cashExpenseApproval(33, "APPROVED", 12)],
+      approvedById: 13,
+      approvedAt: `${lastMonth(9)}T02:00:00.000Z`,
+    },
+  ),
+  expense(
+    12,
+    lastMonth(19),
+    "Bendahara Komisi Sekolah Minggu",
+    "Pencairan perlengkapan Sekolah Minggu",
+    4,
+    [cashExpenseLine(23, "920000", "Alat peraga dan snack")],
+    {
+      bapelId: 4,
+      method: "Tunai",
+      status: "PAID",
+      approvals: [cashExpenseApproval(34, "APPROVED", 12)],
+      approvedById: 13,
+      approvedAt: `${lastMonth(20)}T02:00:00.000Z`,
     },
   ),
 ];

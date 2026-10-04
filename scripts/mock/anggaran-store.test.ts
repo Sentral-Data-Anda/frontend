@@ -13,6 +13,7 @@ import {
   budgetYearOf,
   budgetYearRange,
   budgetYearView,
+  disbursementsIn,
   ceilingUsage,
   complianceStateOf,
   gateFailureOf,
@@ -27,6 +28,11 @@ import {
 import { CASH_EXPENSE, cashExpenseLine } from "./keuangan-store";
 
 const BAPEL = 2;
+
+// Komisi yang tidak disentuh seed Kas Keluar mana pun. Kasus "tidak wajib
+// lapor" harus bergantung pada komisi yang memang sepi, bukan pada ketiadaan
+// seed — menambahkan satu pencairan nanti tidak boleh mematahkan test ini.
+const QUIET_BAPEL = 6;
 
 const monthKey = (date: string) => ({
   year: Number(date.slice(0, 4)),
@@ -212,10 +218,22 @@ describe("gerbang pencairan", () => {
   test("nol pencairan bulan lalu berarti tidak wajib lapor", () => {
     const previous = monthKey(addMonths(startOfMonth(TODAY), -1));
 
-    expect(complianceStateOf(BAPEL, previous.year, previous.month)).toBe(
+    expect(disbursementsIn(QUIET_BAPEL, previous.year, previous.month)).toEqual(
+      [],
+    );
+    expect(complianceStateOf(QUIET_BAPEL, previous.year, previous.month)).toBe(
       "NOT_DUE",
     );
-    expect(gateFailureOf(BAPEL, TODAY)).toBeNull();
+    expect(gateFailureOf(QUIET_BAPEL, TODAY)).toBeNull();
+  });
+
+  test("komisi yang mencairkan bulan lalu memang terutang laporan", () => {
+    const previous = monthKey(addMonths(startOfMonth(TODAY), -1));
+
+    expect(
+      disbursementsIn(BAPEL, previous.year, previous.month).length,
+    ).toBeGreaterThan(0);
+    expect(gateFailureOf(BAPEL, TODAY)?.code).toBe("BUDGET_REPORT_PENDING");
   });
 
   test("ada pencairan tanpa laporan memblokir, dengan code", () => {
@@ -389,5 +407,13 @@ describe("jabatan church-wide tidak melebarkan apa pun", () => {
 
     expect(ids.every((id) => typeof id === "number")).toBe(true);
     expect(ids).not.toContain(null as unknown as number);
+  });
+});
+
+describe("sisa tak-bertanda bisa dilihat, bukan hanya dihitung", () => {
+  test("seed punya Kas Keluar DIBAYAR tanpa komisi, jadi untagged bukan nol", () => {
+    const year = budgetYearOf(TODAY);
+
+    expect(Number(ceilingUsage(BAPEL, year).untagged)).toBeGreaterThan(0);
   });
 });
