@@ -25,7 +25,11 @@ import type {
   ProgramStatus,
 } from "../../src/types/anggaran";
 import type { ApprovalStatus } from "../../src/types/persetujuan";
-import { SESSION_USER_ID } from "../mock-dashboard";
+import {
+  PERSONA_KEY,
+  PERSONA_POSITIONS,
+  SESSION_USER_ID,
+} from "../mock-dashboard";
 
 import {
   CASH_EXPENSE,
@@ -56,6 +60,44 @@ export const bapelRef = (id: number): BapelRef | null => {
     ? { publicId: `bpl-${pad(id, 4)}`, code: row.code, name: row.name }
     : null;
 };
+
+// ---------------------------------------------------------------------------
+// Siapa melihat komisi mana.
+//
+// Tidak ada persona peran di kode — seed membuat satu role admin, sisanya
+// RoleMenuAccess saat runtime — dan `RoleJemaat.name` teks bebas tanpa enum.
+// Jadi "majelis dan bendahara melihat semuanya" tidak bisa diuji oleh kode apa
+// pun. Yang bisa: sebuah KAPABILITAS yang dibaca dari hibah menu, terlihat di
+// editor role. Polanya sama dengan `isTreasury` di handler Pembayaran.
+//
+// Menyempitkan lewat "punya RoleJemaat ber-bapelId" ditolak: itu akan
+// mempersempit setiap Majelis Pendamping ke satu komisi yang ia dampingi —
+// kebalikan dari maksud aturannya.
+
+export type KomisiScope =
+  { isAll: true } | { isAll: false; bapelIds: number[] };
+
+/** Jabatan hidup yang dipegang persona ini, sebagai id komisi. */
+export const myBapelIds = (): number[] => [
+  ...new Set((PERSONA_POSITIONS[PERSONA_KEY] ?? []).map((row) => row.bapelId)),
+];
+
+/**
+ * `isCanViewPagu` = `ctx.can(MENU.PAGU_ANGGARAN, "VIEW")`.
+ *
+ * Tanpa kapabilitas itu dan tanpa jabatan, hasilnya himpunan kosong — **gagal
+ * tertutup**, bukan terbuka.
+ */
+export const komisiScopeOf = (
+  isAdmin: boolean,
+  isCanViewPagu: boolean,
+): KomisiScope =>
+  isAdmin || isCanViewPagu
+    ? { isAll: true }
+    : { isAll: false, bapelIds: myBapelIds() };
+
+export const isVisibleBapel = (scope: KomisiScope, bapelId: number) =>
+  scope.isAll || scope.bapelIds.includes(bapelId);
 
 // ---------------------------------------------------------------------------
 // Setelan tahun pelayanan. Satu baris, dan setiap label tahun membacanya.
@@ -616,20 +658,28 @@ export const reportView = (row: BudgetReportRow, isDetail = false) => {
   };
 };
 
-export const complianceRows = (year: number, month: number) =>
-  bapelIds().map((bapelId) => {
-    const report = reportOf(bapelId, year, month);
-    const paid = disbursementsIn(bapelId, year, month);
+export const complianceRows = (
+  year: number,
+  month: number,
+  scope: KomisiScope = { isAll: true },
+) =>
+  bapelIds()
+    .filter((bapelId) => isVisibleBapel(scope, bapelId))
+    .map((bapelId) => {
+      const report = reportOf(bapelId, year, month);
+      const paid = disbursementsIn(bapelId, year, month);
 
-    return {
-      bapel: bapelRef(bapelId),
-      state: complianceStateOf(bapelId, year, month),
-      report: report ? { publicId: report.publicId, code: report.code } : null,
-      disbursementCount: paid.length,
-      disbursementTotal: sumAmounts(paid.map((row) => cashExpenseTotal(row))),
-      waiver: waiverView(waiverOf(bapelId, year, month)),
-    };
-  });
+      return {
+        bapel: bapelRef(bapelId),
+        state: complianceStateOf(bapelId, year, month),
+        report: report
+          ? { publicId: report.publicId, code: report.code }
+          : null,
+        disbursementCount: paid.length,
+        disbursementTotal: sumAmounts(paid.map((row) => cashExpenseTotal(row))),
+        waiver: waiverView(waiverOf(bapelId, year, month)),
+      };
+    });
 
 /** Baris LPJ yang diisi awal dari Kas Keluar yang sudah dibayar bulan itu. */
 export const prefillLines = (bapelId: number, year: number, month: number) => {

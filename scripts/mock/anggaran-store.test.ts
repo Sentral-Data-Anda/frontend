@@ -16,7 +16,10 @@ import {
   ceilingUsage,
   complianceStateOf,
   gateFailureOf,
+  isVisibleBapel,
   isWithinCeiling,
+  komisiScopeOf,
+  myBapelIds,
   previousMonth,
   programItem,
   remainingFor,
@@ -343,5 +346,39 @@ describe("kunci bulan mulai", () => {
 
     expect(after.ceiling).toBe(before.ceiling);
     expect(after.committed).toBe(before.committed);
+  });
+});
+
+describe("lingkup komisi", () => {
+  test("kapabilitas PAGU_ANGGARAN VIEW melihat semua komisi", () => {
+    expect(komisiScopeOf(false, true)).toEqual({ isAll: true });
+    expect(isVisibleBapel(komisiScopeOf(false, true), 9999)).toBe(true);
+  });
+
+  test("admin melihat semua komisi", () => {
+    expect(komisiScopeOf(true, false)).toEqual({ isAll: true });
+  });
+
+  test("tanpa kapabilitas, sempit ke jabatan yang dipegang", () => {
+    const scope = komisiScopeOf(false, false);
+
+    expect(scope.isAll).toBe(false);
+    if (!scope.isAll) {
+      expect(scope.bapelIds).toEqual(myBapelIds());
+    }
+  });
+
+  test("tanpa kapabilitas dan tanpa jabatan: GAGAL TERTUTUP, bukan terbuka", () => {
+    const scope = { isAll: false as const, bapelIds: [] };
+
+    expect(isVisibleBapel(scope, 1)).toBe(false);
+    expect(isVisibleBapel(scope, 2)).toBe(false);
+  });
+
+  test("komisi lain tidak terlihat tanpa kapabilitas", () => {
+    const scope = { isAll: false as const, bapelIds: [2] };
+
+    expect(isVisibleBapel(scope, 2)).toBe(true);
+    expect(isVisibleBapel(scope, 3)).toBe(false);
   });
 });

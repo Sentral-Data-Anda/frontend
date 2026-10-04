@@ -122,6 +122,11 @@ export const PERSONAS: Record<string, Persona> = {
       [MENU.RUANG]: KEJEMAATAN_ACTIONS,
       [MENU.PROGRAM]: LEDGER_ACTIONS,
       [MENU.LAPORAN_BUDGET]: V,
+      // Biaya yang diterima user bersama scoping: tanpa PAGU_ANGGARAN VIEW,
+      // sekretariat tidak bisa menemukan usulan yang ia ketikkan untuk komisi
+      // yang belum memakai aplikasi. Hibah itu sekaligus memperlihatkan
+      // alokasi setiap komisi kepadanya.
+      [MENU.PAGU_ANGGARAN]: V,
       [MENU.BARANG]: KEJEMAATAN_ACTIONS,
       [MENU.TIPE_BARANG]: KEJEMAATAN_ACTIONS,
       [MENU.SATUAN]: KEJEMAATAN_ACTIONS,

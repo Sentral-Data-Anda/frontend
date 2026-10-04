@@ -14,12 +14,15 @@
 import { MENU } from "../../../src/config/menu";
 import {
   PROGRAM,
+  isVisibleBapel,
+  komisiScopeOf,
   heldBy,
   isLive,
   isWithinCeiling,
   programOpenApproval,
   programView,
   remainingFor,
+  type KomisiScope,
 } from "../anggaran-store";
 import { denied, json, list, type MockAction, type MockHandler } from "../kit";
 
@@ -93,7 +96,7 @@ export const submitFailureOf = (row: {
   return null;
 };
 
-const listRows = (url: URL) => {
+const listRows = (url: URL, scope: KomisiScope) => {
   const year = Number(url.searchParams.get("year")) || 0;
   const bapelId = Number(url.searchParams.get("bapelId")) || 0;
   const status = url.searchParams.get("status") ?? "";
@@ -102,6 +105,7 @@ const listRows = (url: URL) => {
 
   return PROGRAM.filter((row) => {
     if (!isLive(row)) return false;
+    if (!isVisibleBapel(scope, row.bapelId)) return false;
     if (year && row.year !== year) return false;
     if (bapelId && row.bapelId !== bapelId) return false;
     if (status && row.status !== status) return false;
@@ -129,6 +133,7 @@ export const programMock: MockHandler = (ctx) => {
 
   const [, id] = match;
   const can = (action: MockAction) => ctx.can(MENU.PROGRAM, action);
+  const scope = komisiScopeOf(ctx.isAdmin, ctx.can(MENU.PAGU_ANGGARAN, "VIEW"));
 
   if (ctx.method === "GET") {
     if (!can("VIEW")) return denied();
@@ -138,10 +143,17 @@ export const programMock: MockHandler = (ctx) => {
         return programFailure(500, "Internal Server Error");
       }
 
-      return list(listRows(ctx.url), ctx.url, "Program", "Program");
+      return list(listRows(ctx.url, scope), ctx.url, "Program", "Program");
     }
 
-    const row = PROGRAM.find((item) => isLive(item) && item.publicId === id);
+    // Di luar lingkup komisi dijawab 404, sama dengan tidak ada — bentuk yang
+    // sama dengan Permintaan Persetujuan, dan sengaja tidak dibedakan.
+    const row = PROGRAM.find(
+      (item) =>
+        isLive(item) &&
+        item.publicId === id &&
+        isVisibleBapel(scope, item.bapelId),
+    );
 
     return row
       ? json({

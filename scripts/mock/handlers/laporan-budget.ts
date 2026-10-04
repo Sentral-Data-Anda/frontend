@@ -20,8 +20,11 @@ import {
   currentBudgetYear,
   isLive,
   prefillLines,
+  isVisibleBapel,
+  komisiScopeOf,
   reportOpenApproval,
   reportView,
+  type KomisiScope,
 } from "../anggaran-store";
 import { denied, json, list, type MockAction, type MockHandler } from "../kit";
 
@@ -35,7 +38,7 @@ export const reportFailure = (
   extra: { issues?: Issue[]; code?: string } = {},
 ) => json({ status, error, ...extra }, status);
 
-const listRows = (url: URL) => {
+const listRows = (url: URL, scope: KomisiScope) => {
   const year = Number(url.searchParams.get("year")) || 0;
   const month = Number(url.searchParams.get("month")) || 0;
   const bapelId = Number(url.searchParams.get("bapelId")) || 0;
@@ -44,6 +47,7 @@ const listRows = (url: URL) => {
 
   return BUDGET_USAGE_REPORT.filter((row) => {
     if (!isLive(row)) return false;
+    if (!isVisibleBapel(scope, row.bapelId)) return false;
     if (year && row.year !== year) return false;
     if (month && row.month !== month) return false;
     if (bapelId && row.bapelId !== bapelId) return false;
@@ -88,19 +92,23 @@ const monthParams = (url: URL) => {
   };
 };
 
-const compliance = (url: URL) => {
+const compliance = (url: URL, scope: KomisiScope) => {
   const { year, month } = monthParams(url);
 
   return json({
     status: 200,
     message: "Berhasil Mendapatkan Kepatuhan Laporan",
-    data: complianceRows(year, month),
+    data: complianceRows(year, month, scope),
   });
 };
 
-const prefill = (url: URL) => {
+const prefill = (url: URL, scope: KomisiScope) => {
   const { year, month } = monthParams(url);
   const bapelId = Number(url.searchParams.get("bapelId")) || 0;
+
+  if (bapelId && !isVisibleBapel(scope, bapelId)) {
+    return reportFailure(404, NOT_FOUND);
+  }
 
   if (!bapelId) {
     return reportFailure(400, "Komisi tidak valid", {
@@ -125,12 +133,13 @@ export const laporanBudgetMock: MockHandler = (ctx) => {
 
   const [, segment] = match;
   const can = (action: MockAction) => ctx.can(MENU.LAPORAN_BUDGET, action);
+  const scope = komisiScopeOf(ctx.isAdmin, ctx.can(MENU.PAGU_ANGGARAN, "VIEW"));
 
   if (ctx.method !== "GET") return null;
   if (!can("VIEW")) return denied();
 
-  if (segment === "belum-lapor") return compliance(ctx.url);
-  if (segment === "prefill") return prefill(ctx.url);
+  if (segment === "belum-lapor") return compliance(ctx.url, scope);
+  if (segment === "prefill") return prefill(ctx.url, scope);
 
   if (!segment) {
     if (process.env.MOCK_500) {
@@ -138,15 +147,20 @@ export const laporanBudgetMock: MockHandler = (ctx) => {
     }
 
     return list(
-      listRows(ctx.url),
+      listRows(ctx.url, scope),
       ctx.url,
       "Laporan Pemakaian Budget",
       "Laporan Pemakaian Budget",
     );
   }
 
+  // Kwitansi LPJ adalah berkas paling sensitif di grup ini; di luar lingkup
+  // komisi dijawab 404, sama dengan tidak ada.
   const row = BUDGET_USAGE_REPORT.find(
-    (item) => isLive(item) && item.publicId === segment,
+    (item) =>
+      isLive(item) &&
+      item.publicId === segment &&
+      isVisibleBapel(scope, item.bapelId),
   );
 
   return row
