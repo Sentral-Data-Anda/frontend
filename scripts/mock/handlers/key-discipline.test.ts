@@ -1,7 +1,13 @@
 import { describe, expect, test } from "bun:test";
 
 import type { MenuSlug } from "../../../src/config/menu";
-import { BUDGET_ALLOCATION } from "../anggaran-store";
+import {
+  BUDGET_ALLOCATION,
+  PROGRAM,
+  currentBudgetYear,
+  programItem,
+  type ProgramRow,
+} from "../anggaran-store";
 import {
   ACCOUNT,
   CASH_EXPENSE,
@@ -17,6 +23,7 @@ import { kasKeluarMock } from "./kas-keluar";
 import { kasMasukMock } from "./kas-masuk";
 import { paguAnggaranMock } from "./pagu-anggaran";
 import { PAYMENT, pembayaranMock } from "./pembayaran";
+import { programMock } from "./program";
 import { tipePersembahanMock } from "./tipe-persembahan";
 
 // Mock yang menerima lebih banyak kunci daripada be-sada tidak bisa menangkap
@@ -45,6 +52,41 @@ const onGet = async (handler: MockHandler, path: string) => {
 
 const live = <T extends { deletedAt?: string | null }>(rows: readonly T[]) =>
   rows.find((row) => row.deletedAt === null || row.deletedAt === undefined)!;
+
+// Larik grup Anggaran dikosongkan oleh afterEach `anggaran-store.test.ts`,
+// jadi barisnya dibuat di sini bila sudah tidak ada — bukan dibaca dari seed
+// handler, yang urutan jalannya tidak bisa diandalkan.
+const keyedProgram = (): ProgramRow => {
+  const existing = PROGRAM.find((row) => row.deletedAt === null);
+  if (existing) return existing;
+
+  const id = PROGRAM.length + 1;
+  const row: ProgramRow = {
+    id,
+    publicId: `prg-kunci-${id}`,
+    code: `PRG-${currentBudgetYear()}-9${String(id).padStart(3, "0")}`,
+    name: "Uji kunci rute",
+    year: currentBudgetYear(),
+    bapelId: 2,
+    status: "DRAFT",
+    isUnplanned: false,
+    startDate: null,
+    endDate: null,
+    description: null,
+    cancelReason: null,
+    cancelledById: null,
+    cancelledAt: null,
+    approvedById: null,
+    approvedAt: null,
+    deletedAt: null,
+    items: [programItem(23, "Konsumsi", "1", "1000000")],
+    approvals: [],
+  };
+
+  PROGRAM.push(row);
+
+  return row;
+};
 
 const CASES = [
   {
@@ -93,6 +135,14 @@ const CASES = [
     base: "/pagu-anggaran",
     right: () => BUDGET_ALLOCATION[0]!.publicId,
     wrong: () => String(BUDGET_ALLOCATION[0]!.id),
+    keyed: "publicId",
+  },
+  {
+    name: "program",
+    handler: programMock,
+    base: "/program",
+    right: () => keyedProgram().publicId,
+    wrong: () => keyedProgram().code,
     keyed: "publicId",
   },
   {
