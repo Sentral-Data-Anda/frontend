@@ -6,10 +6,11 @@
  */
 import { MENU } from "../../../src/config/menu";
 import {
-  BUDGET_ALLOCATION,
   BUDGET_SETTING,
+  PROGRAM,
   budgetYearView,
   currentBudgetYear,
+  isLive,
 } from "../anggaran-store";
 import { denied, json, readBody, type MockHandler } from "../kit";
 
@@ -39,15 +40,20 @@ const onUpdate = async (request: Request) => {
     });
   }
 
-  // Mengubah bulan mulai menggeser arti setiap label tahun yang sudah
-  // tersimpan, jadi ia terkunci begitu ada satu baris pagu — bentuk yang sama
-  // dengan ACCOUNT_TYPE_LOCKED.
-  if (BUDGET_ALLOCATION.length > 0) {
-    const year = BUDGET_ALLOCATION[0]?.year ?? currentBudgetYear();
+  // Memindahkan bulan mulai adalah pelabelan ulang yang seragam: nilai `year`
+  // tersimpan tidak berubah dan setiap jumlah tetap sama. Yang tidak boleh
+  // bergeser adalah tahun yang sudah ditandatangani — sebuah program APPROVED
+  // disetujui terhadap pagu tahun tertentu. Sengaja BUKAN dikunci oleh LPJ:
+  // laporan bersumbu bulan kalender, dan menguncinya di sini akan menulis
+  // konflasi itu ke dalam kode.
+  const approved = PROGRAM.find(
+    (row) => isLive(row) && row.status === "APPROVED",
+  );
 
+  if (approved) {
     return failure(
       400,
-      `Bulan Mulai Tahun Pelayanan Tidak Dapat Diubah Karena Sudah Ada Pagu Anggaran Tahun ${year}`,
+      `Bulan Mulai Tahun Pelayanan Tidak Dapat Diubah Karena Sudah Ada Program Disetujui Untuk Tahun ${approved.year}`,
       {
         code: "BUDGET_YEAR_LOCKED",
         issues: [

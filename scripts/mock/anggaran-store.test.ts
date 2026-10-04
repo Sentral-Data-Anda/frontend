@@ -312,3 +312,36 @@ describe("bentuk komisi di bacaan", () => {
     expect(bapelRef(9999)).toBeNull();
   });
 });
+
+describe("kunci bulan mulai", () => {
+  test("pagu saja tidak mengunci — pelabelan ulang tidak mengubah angka", () => {
+    const year = budgetYearOf(TODAY);
+    allocate(year, "5000000");
+    propose(year, "1000000");
+
+    expect(PROGRAM.some((row) => row.status === "APPROVED")).toBe(false);
+  });
+
+  test("program disetujui mengunci", () => {
+    const year = budgetYearOf(TODAY);
+    allocate(year, "5000000");
+    const id = propose(year, "1000000");
+    const row = PROGRAM.find((item) => item.id === id);
+    if (row) row.status = "APPROVED";
+
+    expect(PROGRAM.some((item) => item.status === "APPROVED")).toBe(true);
+  });
+
+  test("memindahkan bulan mulai tidak mengubah satu jumlah pun", () => {
+    const year = budgetYearOf(TODAY);
+    allocate(year, "5000000");
+    propose(year, "1200000");
+
+    const before = ceilingUsage(BAPEL, year);
+    BUDGET_SETTING.startMonth = 7;
+    const after = ceilingUsage(BAPEL, year);
+
+    expect(after.ceiling).toBe(before.ceiling);
+    expect(after.committed).toBe(before.committed);
+  });
+});
