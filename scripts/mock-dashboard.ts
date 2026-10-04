@@ -292,9 +292,14 @@ export const currentPersona = (): Persona => {
 export const SESSION_USER_ID = 1;
 
 // Jabatan Role Jemaat yang dipegang persona hari ini; bapelId = id `ddl/bapel`.
+/**
+ * `bapelId` null = jabatan church-wide (mis. Ketua Majelis Jemaat). Ia **tidak
+ * melebarkan lingkup komisi apa pun** — cermin `scopeOf` be-sada, yang menyaring
+ * null sebelum membangun `bapelIds`.
+ */
 export const PERSONA_POSITIONS: Record<
   string,
-  { name: string; bapelId: number; bapel: { name: string } }[]
+  { name: string; bapelId: number | null; bapel: { name: string } }[]
 > = {
   majelis: [{ name: "Ketua", bapelId: 1, bapel: { name: "Majelis Jemaat" } }],
   sekretariat: [

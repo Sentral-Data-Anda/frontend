@@ -952,6 +952,11 @@ const persona = currentPersona();
 export const permintaanPersetujuanMock = createPermintaanPersetujuanMock({
   roleUserId:
     ROLE_USERS.find((role) => role.name === persona.roleName)?.id ?? 0,
-  positions: PERSONA_POSITIONS[PERSONA_KEY] ?? [],
+  // Tahap berbasis jabatan selalu menunjuk sebuah bapel, jadi jabatan
+  // church-wide (`bapelId` null) tidak ikut mencocokkan satu tahap pun.
+  positions: (PERSONA_POSITIONS[PERSONA_KEY] ?? []).filter(
+    (row): row is { name: string; bapelId: number; bapel: { name: string } } =>
+      row.bapelId !== null,
+  ),
   jemaatName: persona.jemaatName,
 });

@@ -382,3 +382,12 @@ describe("lingkup komisi", () => {
     expect(isVisibleBapel(scope, 3)).toBe(false);
   });
 });
+
+describe("jabatan church-wide tidak melebarkan apa pun", () => {
+  test("bapelId null disaring dari lingkup", () => {
+    const ids = myBapelIds();
+
+    expect(ids.every((id) => typeof id === "number")).toBe(true);
+    expect(ids).not.toContain(null as unknown as number);
+  });
+});

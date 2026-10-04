@@ -77,9 +77,18 @@ export const bapelRef = (id: number): BapelRef | null => {
 export type KomisiScope =
   { isAll: true } | { isAll: false; bapelIds: number[] };
 
-/** Jabatan hidup yang dipegang persona ini, sebagai id komisi. */
+/**
+ * Jabatan hidup yang dipegang persona ini, sebagai id komisi.
+ *
+ * Jabatan church-wide (`bapelId` null) disaring: ia tidak melebarkan apa pun.
+ * Cermin `scopeOf` be-sada baris demi baris.
+ */
 export const myBapelIds = (): number[] => [
-  ...new Set((PERSONA_POSITIONS[PERSONA_KEY] ?? []).map((row) => row.bapelId)),
+  ...new Set(
+    (PERSONA_POSITIONS[PERSONA_KEY] ?? [])
+      .map((row) => row.bapelId)
+      .filter((id): id is number => id !== null),
+  ),
 ];
 
 /**
