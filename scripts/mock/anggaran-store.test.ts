@@ -39,12 +39,38 @@ const monthKey = (date: string) => ({
   month: Number(date.slice(5, 7)),
 });
 
+// Setiap larik dikembalikan ke isi awalnya, bukan dikosongkan. Ketiga larik ini
+// milik agent lain; mengosongkannya membuat berkas test ini mendikte keadaan
+// awal berkas lain, dan suite-nya lulus karena urutan muat.
+const SEEDS = {
+  allocation: BUDGET_ALLOCATION.map((row) => ({ ...row })),
+  program: PROGRAM.map((row) => ({ ...row })),
+  report: BUDGET_USAGE_REPORT.map((row) => ({ ...row })),
+  waiver: GATE_WAIVER.map((row) => ({ ...row })),
+};
+
 const reset = () => {
   BUDGET_SETTING.startMonth = 1;
-  BUDGET_ALLOCATION.length = 0;
-  PROGRAM.length = 0;
-  BUDGET_USAGE_REPORT.length = 0;
-  GATE_WAIVER.length = 0;
+  BUDGET_ALLOCATION.splice(
+    0,
+    BUDGET_ALLOCATION.length,
+    ...SEEDS.allocation.map((row) => ({ ...row })),
+  );
+  PROGRAM.splice(
+    0,
+    PROGRAM.length,
+    ...SEEDS.program.map((row) => ({ ...row })),
+  );
+  BUDGET_USAGE_REPORT.splice(
+    0,
+    BUDGET_USAGE_REPORT.length,
+    ...SEEDS.report.map((row) => ({ ...row })),
+  );
+  GATE_WAIVER.splice(
+    0,
+    GATE_WAIVER.length,
+    ...SEEDS.waiver.map((row) => ({ ...row })),
+  );
 };
 
 afterEach(reset);

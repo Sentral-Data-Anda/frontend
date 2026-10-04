@@ -1,7 +1,8 @@
 import { Fragment } from "react";
 
+import { QrCode } from "@/components/common/display";
+
 import { codePartsOf, type LabelAsset } from "./model";
-import { QrCode } from "./qr-code";
 
 interface PropTypes {
   asset: LabelAsset;

@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, mock, test } from "bun:test";
 
-import { QrCode } from "./qr-code";
+import { QrCode } from "@/components/common/display";
 
 const isCanView: { current: boolean } = { current: true };
 const search: { current: string } = { current: "" };

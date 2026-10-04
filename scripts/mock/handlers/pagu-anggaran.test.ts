@@ -43,13 +43,19 @@ const SEED = BUDGET_ALLOCATION.map((row) => ({ ...row }));
 
 const YEAR = currentBudgetYear();
 
+// Larik dikembalikan ke isi awalnya, bukan dikosongkan: `PROGRAM` milik agent
+// lain, dan mengosongkannya membuat suite ini lulus karena urutan muat, bukan
+// karena desain. Begitu berkas test lain memuat lebih dulu dan mengisi
+// `PROGRAM`, penjaga hapus pagu di sini akan melihat program nyata.
+const PROGRAM_SEED = PROGRAM.map((row) => ({ ...row }));
+
 afterEach(() => {
   BUDGET_ALLOCATION.splice(
     0,
     BUDGET_ALLOCATION.length,
     ...SEED.map((row) => ({ ...row })),
   );
-  PROGRAM.splice(0, PROGRAM.length);
+  PROGRAM.splice(0, PROGRAM.length, ...PROGRAM_SEED.map((row) => ({ ...row })));
 });
 
 const onCall = async (
