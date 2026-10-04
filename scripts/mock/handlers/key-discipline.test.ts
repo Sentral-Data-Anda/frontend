@@ -3,14 +3,18 @@ import { describe, expect, test } from "bun:test";
 import type { MenuSlug } from "../../../src/config/menu";
 import {
   BUDGET_ALLOCATION,
+  BUDGET_USAGE_REPORT,
   PROGRAM,
   currentBudgetYear,
   programItem,
+  reportLine,
+  type BudgetReportRow,
   type ProgramRow,
 } from "../anggaran-store";
 import {
   ACCOUNT,
   CASH_EXPENSE,
+  TODAY,
   CASH_RECEIPT,
   JOURNAL_ENTRY,
   TYPE_PERSEMBAHAN,
@@ -21,6 +25,7 @@ import { akunMock } from "./akun";
 import { jurnalMock } from "./jurnal";
 import { kasKeluarMock } from "./kas-keluar";
 import { kasMasukMock } from "./kas-masuk";
+import { laporanBudgetMock } from "./laporan-budget";
 import { paguAnggaranMock } from "./pagu-anggaran";
 import { PAYMENT, pembayaranMock } from "./pembayaran";
 import { programMock } from "./program";
@@ -88,6 +93,33 @@ const keyedProgram = (): ProgramRow => {
   return row;
 };
 
+const keyedReport = (): BudgetReportRow => {
+  const existing = BUDGET_USAGE_REPORT.find((row) => row.deletedAt === null);
+  if (existing) return existing;
+
+  const id = BUDGET_USAGE_REPORT.length + 1;
+  const row: BudgetReportRow = {
+    id,
+    publicId: `lpb-kunci-${id}`,
+    code: `LPB-${currentBudgetYear()}-9${String(id).padStart(3, "0")}`,
+    bapelId: 2,
+    year: Number(TODAY.slice(0, 4)),
+    month: Number(TODAY.slice(5, 7)),
+    status: "DRAFT",
+    note: null,
+    approvedById: null,
+    approvedAt: null,
+    deletedAt: null,
+    lines: [reportLine(23, TODAY, "Uji kunci rute", "100000")],
+    receipts: [],
+    approvals: [],
+  };
+
+  BUDGET_USAGE_REPORT.push(row);
+
+  return row;
+};
+
 const CASES = [
   {
     name: "akun",
@@ -143,6 +175,14 @@ const CASES = [
     base: "/program",
     right: () => keyedProgram().publicId,
     wrong: () => keyedProgram().code,
+    keyed: "publicId",
+  },
+  {
+    name: "laporan budget",
+    handler: laporanBudgetMock,
+    base: "/laporan-budget",
+    right: () => keyedReport().publicId,
+    wrong: () => keyedReport().code,
     keyed: "publicId",
   },
   {

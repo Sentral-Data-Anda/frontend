@@ -196,14 +196,46 @@ describe("mock /setelan-anggaran", () => {
     }
   });
 
-  test("PUT tanpa UPDATE: 403; GET tanpa VIEW: 403", async () => {
-    const without =
-      (blocked: MockAction) => (slug: string, action: MockAction) =>
-        !(slug === MENU.PAGU_ANGGARAN && action === blocked);
+  // Guard BACA any-of: memegang PROGRAM atau LAPORAN_BUDGET VIEW sudah cukup,
+  // karena `budgetYears` adalah satu-satunya sumber pilihan tahun dan komisi
+  // sengaja tidak memegang PAGU_ANGGARAN. Tulis tetap PAGU_ANGGARAN UPDATE.
+  test("PUT tanpa UPDATE: 403; GET tanpa satu pun VIEW: 403", async () => {
+    const readMenus: string[] = [
+      MENU.PAGU_ANGGARAN,
+      MENU.PROGRAM,
+      MENU.LAPORAN_BUDGET,
+    ];
 
     expect(
-      (await onCall("PUT", { startMonth: 7 }, without("UPDATE")))?.status,
+      (
+        await onCall(
+          "PUT",
+          { startMonth: 7 },
+          (slug: string, action: MockAction) =>
+            !(slug === MENU.PAGU_ANGGARAN && action === "UPDATE"),
+        )
+      )?.status,
     ).toBe(403);
-    expect((await onCall("GET", undefined, without("VIEW")))?.status).toBe(403);
+    expect(
+      (
+        await onCall(
+          "GET",
+          undefined,
+          (slug: string, action: MockAction) =>
+            !(readMenus.includes(slug) && action === "VIEW"),
+        )
+      )?.status,
+    ).toBe(403);
+  });
+
+  test("GET dengan LAPORAN_BUDGET VIEW saja tetap 200", async () => {
+    const response = await onCall(
+      "GET",
+      undefined,
+      (slug: string, action: MockAction) =>
+        slug === MENU.LAPORAN_BUDGET && action === "VIEW",
+    );
+
+    expect(response?.status).toBe(200);
   });
 });
