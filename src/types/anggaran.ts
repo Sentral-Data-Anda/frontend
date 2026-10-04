@@ -90,13 +90,13 @@ export type GateWaiver = {
   createdAt: string;
 };
 
-// `NO_WORKFLOW` dan `NO_POSITION_HOLDER` sengaja TIDAK ada di sini: penolakan
-// itu datang dari mesin persetujuan, yang dipakai delapan tipe dokumen dan di
-// luar lingkup fase ini, jadi be-sada tidak mengirim `code` untuk keduanya.
-// Mencantumkannya akan membuat layar bercabang ke tautan yang tidak pernah
-// menyala di produksi — persis galat berantai yang tabel §2.9 ada untuk
-// menutup. Tautan ke Setelan Alur Persetujuan datang dari spanduk kesiapan
-// (§2.8), bukan dari penolakannya.
+// `NO_WORKFLOW` dan `NO_POSITION_HOLDER` ADA di sini karena be-sada
+// benar-benar mengirimnya: empat titik emit di `persetujuan.service.ts`, dan
+// `anggaranCodes.ts` mendaftarkannya sehingga arch test memeriksanya dua arah —
+// kalimat penolakan yang kehilangan kodenya menggagalkan test, bukan diam-diam
+// lolos. Keduanya adalah keadaan BAWAAN instalasi baru (tidak ada alur yang
+// di-seed untuk PROGRAM/PROGRAM_MENDADAK), jadi layar harus bisa mengenalinya
+// tanpa mencocokkan prosa.
 export const ANGGARAN_ERROR_CODES = [
   "BUDGET_YEAR_LOCKED",
   "CEILING_IN_USE",
@@ -104,6 +104,8 @@ export const ANGGARAN_ERROR_CODES = [
   "CEILING_EXCEEDED",
   "ACCOUNT_INACTIVE",
   "PROGRAM_FOREIGN_BAPEL",
+  "NO_WORKFLOW",
+  "NO_POSITION_HOLDER",
   "UNDER_APPROVAL",
   "ALREADY_APPROVED",
   "BUDGET_REPORT_PENDING",
