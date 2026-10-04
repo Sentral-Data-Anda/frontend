@@ -90,6 +90,13 @@ export type GateWaiver = {
   createdAt: string;
 };
 
+// `NO_WORKFLOW` dan `NO_POSITION_HOLDER` sengaja TIDAK ada di sini: penolakan
+// itu datang dari mesin persetujuan, yang dipakai delapan tipe dokumen dan di
+// luar lingkup fase ini, jadi be-sada tidak mengirim `code` untuk keduanya.
+// Mencantumkannya akan membuat layar bercabang ke tautan yang tidak pernah
+// menyala di produksi — persis galat berantai yang tabel §2.9 ada untuk
+// menutup. Tautan ke Setelan Alur Persetujuan datang dari spanduk kesiapan
+// (§2.8), bukan dari penolakannya.
 export const ANGGARAN_ERROR_CODES = [
   "BUDGET_YEAR_LOCKED",
   "CEILING_IN_USE",
@@ -97,8 +104,6 @@ export const ANGGARAN_ERROR_CODES = [
   "CEILING_EXCEEDED",
   "ACCOUNT_INACTIVE",
   "PROGRAM_FOREIGN_BAPEL",
-  "NO_WORKFLOW",
-  "NO_POSITION_HOLDER",
   "UNDER_APPROVAL",
   "ALREADY_APPROVED",
   "BUDGET_REPORT_PENDING",
