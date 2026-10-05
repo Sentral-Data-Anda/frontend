@@ -89,6 +89,20 @@ export const bapelKey = (bapelId: number) => String(bapelId).padStart(4, "0");
 
 export const jemaatOf = (id: number) => DDL_JEMAAT.find((row) => row.id === id);
 
+/**
+ * Komisi dengan id ini, atau `undefined` kalau tidak ada.
+ *
+ * **Ini menjawab "komisinya ada?", BUKAN "pemanggil boleh memakainya?".**
+ * Di call site `if (!bapelOf(input.bapelId))` terbaca seperti penjaga, dan
+ * sekali ia dipakai sebagai penjaga di jalur tulis LPJ — membiarkan orang
+ * memindahkan laporannya ke nama komisi lain, dengan akibat uang. Tiga pembaca
+ * manusia melewatkannya.
+ *
+ * Untuk pertanyaan izin, pakai `isVisibleBapel(scope, id)` di
+ * `scripts/mock/anggaran-store.ts`. Modul tanpa lingkup komisi (Keuangan,
+ * Inventaris, Kegiatan, Pelayanan) memang hanya butuh pemeriksaan keberadaan —
+ * di sana fungsi ini sudah jawaban yang lengkap.
+ */
 export const bapelOf = (id: number) => {
   const name = BAPEL_NAMES[id - 1];
 
