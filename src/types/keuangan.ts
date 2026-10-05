@@ -62,6 +62,18 @@ export const CASH_STATUSES = [
 
 export type CashStatus = (typeof CASH_STATUSES)[number];
 
+// Jawaban pertanyaan "belanja komisi?" di Kas Keluar. Satu bentuk untuk dua
+// lapis, alasan yang sama dengan `CashStatus`: store mock dan layar sama-sama
+// mengimpornya, jadi menambah anggota ketiga harus gagal di tsc dan di parse
+// payload sekaligus — bukan lolos di salah satunya.
+//
+// `null` BUKAN anggota union ini: ia berarti baris yang ditulis sebelum
+// pertanyaannya ada, dan tiap pemakai menuliskannya sendiri (`BapelChoice |
+// null`) supaya "belum pernah ditanya" tidak pernah terbaca sebagai jawaban.
+export const BAPEL_CHOICES = ["komisi", "bukan-komisi"] as const;
+
+export type BapelChoice = (typeof BAPEL_CHOICES)[number];
+
 export const CASH_RECEIPT_STATUS_LABEL: Record<CashStatus, string> = {
   DRAFT: "Draf",
   APPROVED: "Disetujui",
