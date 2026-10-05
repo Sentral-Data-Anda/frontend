@@ -98,6 +98,7 @@ const formOf = (extra: Record<string, string> = {}, files: File[] = []) => {
     payee: "PLN UP3 Medan",
     description: "Tagihan listrik",
     paidFromAccountId: "2",
+    bapelChoice: "bukan-komisi",
     lines: JSON.stringify([{ accountId: 22, amount: 1850000 }]),
     ...extra,
   };
@@ -201,6 +202,78 @@ describe("daftar", () => {
     expect(data.status).toBe("DRAFT");
     expect(data.approval.status).toBe("PENDING");
     expect(data.approval.isSubmittedByViewer).toBe(false);
+  });
+});
+
+describe("kolom komisi dijawab eksplisit", () => {
+  test("payload tanpa jawaban ditolak di kolomnya sendiri, tanpa code", async () => {
+    const rejected = await onCall(
+      "POST",
+      "/kas-keluar",
+      formOf({ bapelChoice: "" }),
+    );
+
+    expect(rejected?.status).toBe(400);
+    expect(rejected?.body.issues?.[0]?.path).toBe("bapelChoice");
+    expect(rejected?.body.code).toBeUndefined();
+  });
+
+  test("untuk komisi tanpa bapelId ditolak di bapelId", async () => {
+    const rejected = await onCall(
+      "POST",
+      "/kas-keluar",
+      formOf({ bapelChoice: "komisi" }),
+    );
+
+    expect(rejected?.status).toBe(400);
+    expect(rejected?.body.issues?.[0]?.path).toBe("bapelId");
+  });
+
+  test("bukan belanja komisi dengan bapelId terisi ditolak, tanpa code", async () => {
+    const rejected = await onCall(
+      "POST",
+      "/kas-keluar",
+      formOf({ bapelChoice: "bukan-komisi", bapelId: "3" }),
+    );
+
+    expect(rejected?.status).toBe(400);
+    expect(rejected?.body.issues?.[0]?.path).toBe("bapelId");
+    expect(rejected?.body.code).toBeUndefined();
+  });
+
+  test("ubah ikut menuntut jawaban, bukan hanya tambah", async () => {
+    const rejected = await onCall(
+      "PUT",
+      `/kas-keluar/${REJECTED}`,
+      formOf({ bapelChoice: "" }),
+    );
+
+    expect(rejected?.status).toBe(400);
+    expect(rejected?.body.issues?.[0]?.path).toBe("bapelChoice");
+  });
+
+  test("jawabannya disimpan dan dibacakan kembali, dua arah", async () => {
+    const stated = await onCall("POST", "/kas-keluar", formOf());
+    const komisi = await onCall(
+      "POST",
+      "/kas-keluar",
+      formOf({ bapelChoice: "komisi", bapelId: "3" }),
+    );
+
+    expect((stated?.body.data as { bapelChoice: string }).bapelChoice).toBe(
+      "bukan-komisi",
+    );
+    expect((komisi?.body.data as { bapelChoice: string }).bapelChoice).toBe(
+      "komisi",
+    );
+  });
+
+  test("baris lama terbaca tanpa jawaban, dan tidak dikarang jadi bukan-komisi", async () => {
+    const legacy = CASH_EXPENSE.find((row) => row.bapelChoice === null);
+    const read = await onCall("GET", `/kas-keluar/${legacy!.publicId}`);
+
+    expect(legacy?.bapelId).toBeNull();
+    expect((read?.body.data as { bapelChoice: null }).bapelChoice).toBeNull();
   });
 });
 

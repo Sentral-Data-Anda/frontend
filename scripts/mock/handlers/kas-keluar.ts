@@ -79,11 +79,14 @@ type ParsedLine = {
   description: string | null;
 };
 
+type BapelChoice = "komisi" | "bukan-komisi";
+
 type Parsed = {
   expenseDate: string;
   payee: string;
   description: string;
   paidFromAccountId: number;
+  bapelChoice: BapelChoice;
   bapelId: number | null;
   method: string | null;
   reference: string | null;
@@ -160,6 +163,7 @@ const parse = (form: FormData, isUpdate: boolean): Parsed | Issue[] => {
   const payee = text(form, "payee");
   const description = text(form, "description");
   const paidFromAccountId = Number(text(form, "paidFromAccountId")) || 0;
+  const bapelChoice = text(form, "bapelChoice");
   const bapelId = Number(text(form, "bapelId")) || null;
   const method = text(form, "method") || null;
   const reference = text(form, "reference") || null;
@@ -217,7 +221,22 @@ const parse = (form: FormData, isUpdate: boolean): Parsed | Issue[] => {
     });
   }
 
-  if (bapelId !== null && !bapelOf(bapelId)) {
+  // Kosong bukan lagi jawaban: payload yang belum dijawab ditolak di sini,
+  // persis seperti validator server, dan kesepakatan jawaban dengan `bapelId`
+  // dinyatakan lewat `issues[].path` — bukan lewat sebuah `code`.
+  if (bapelChoice !== "komisi" && bapelChoice !== "bukan-komisi") {
+    issues.push({
+      path: "bapelChoice",
+      message: "Mohon Pilih Untuk Komisi Atau Bukan Belanja Komisi",
+    });
+  } else if (bapelChoice === "komisi" && bapelId === null) {
+    issues.push({ path: "bapelId", message: "Mohon Lengkapi Komisi" });
+  } else if (bapelChoice === "bukan-komisi" && bapelId !== null) {
+    issues.push({
+      path: "bapelId",
+      message: "Bukan Belanja Komisi Tidak Boleh Membawa Komisi",
+    });
+  } else if (bapelId !== null && !bapelOf(bapelId)) {
     issues.push({
       path: "bapelId",
       message: "Badan Pelayanan Tidak Ditemukan",
@@ -251,6 +270,7 @@ const parse = (form: FormData, isUpdate: boolean): Parsed | Issue[] => {
     payee,
     description,
     paidFromAccountId,
+    bapelChoice: bapelChoice as BapelChoice,
     bapelId,
     method,
     reference,
@@ -316,6 +336,7 @@ const onCreate = async (request: Request) => {
     payee: parsed.payee,
     paidFromAccountId: parsed.paidFromAccountId,
     bapelId: parsed.bapelId,
+    bapelChoice: parsed.bapelChoice,
     method: parsed.method,
     reference: parsed.reference,
     status: "DRAFT",
@@ -349,6 +370,7 @@ const onUpdate = async (request: Request, row: CashExpenseRow) => {
     payee: parsed.payee,
     paidFromAccountId: parsed.paidFromAccountId,
     bapelId: parsed.bapelId,
+    bapelChoice: parsed.bapelChoice,
     method: parsed.method,
     reference: parsed.reference,
     lines: toLines(parsed.lines),

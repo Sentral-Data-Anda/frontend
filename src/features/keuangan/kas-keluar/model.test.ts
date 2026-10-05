@@ -3,6 +3,7 @@ import { describe, expect, test } from "bun:test";
 import { FetchError } from "@/lib/api/fetcher";
 import { todayJakarta } from "@/lib/date";
 
+import { expenseDetail } from "./fixtures";
 import {
   ALL_MONTHS,
   EXPENSE_STATE_VARIANT,
@@ -13,6 +14,7 @@ import {
   expenseStateOf,
   isLocked,
   isRejected,
+  toExpenseForm,
   toExpenseFormData,
   rejectionMarkOf,
   toExpenseQuery,
@@ -35,6 +37,7 @@ const values = (next: Partial<ExpenseFormValues> = {}): ExpenseFormValues => ({
   payee: "  PLN   UP3  Medan ",
   paidFromAccountId: "2",
   description: "Tagihan  listrik",
+  bapelChoice: "bukan-komisi",
   lines: [{ accountId: "22", amount: "1850000", description: "Listrik" }],
   ...next,
 });
@@ -241,6 +244,102 @@ describe("expenseFormSchema", () => {
 
   test("baris kosong ditolak", () => {
     expect(pathsOf(values({ lines: [] }))).toContain("lines");
+  });
+
+  test("kolom komisi belum dijawab ditolak di kolomnya sendiri", () => {
+    const paths = pathsOf(values({ bapelChoice: "", bapelId: "" }));
+
+    expect(paths).toContain("bapelChoice");
+    expect(paths).not.toContain("bapelId");
+  });
+
+  test("untuk komisi tanpa komisi terpilih ditolak di bapelId, bukan di form", () => {
+    const paths = pathsOf(values({ bapelChoice: "komisi", bapelId: "" }));
+
+    expect(paths).toEqual(["bapelId"]);
+  });
+
+  test("bukan belanja komisi lolos tanpa bapelId", () => {
+    expect(
+      pathsOf(values({ bapelChoice: "bukan-komisi", bapelId: "" })),
+    ).toEqual([]);
+  });
+});
+
+describe("kolom komisi", () => {
+  test("form baru tidak memilih salah satu jawaban", () => {
+    expect(emptyExpenseForm().bapelChoice).toBe("");
+  });
+
+  test("baris lama membuka form ubah dengan jawaban kosong, bukan bukan-komisi", () => {
+    const legacy = toExpenseForm(
+      expenseDetail({ bapelId: null, bapel: null, bapelChoice: null }),
+    );
+
+    expect(legacy.bapelChoice).toBe("");
+    expect(legacy.bapelId).toBe("");
+  });
+
+  test("baris baru membuka form ubah dengan jawabannya terbaca", () => {
+    const stated = toExpenseForm(
+      expenseDetail({
+        bapelId: null,
+        bapel: null,
+        bapelChoice: "bukan-komisi",
+      }),
+    );
+    const komisi = toExpenseForm(
+      expenseDetail({
+        bapelId: 3,
+        bapel: { code: "BPL-0003", name: "Komisi Pemuda" },
+        bapelChoice: "komisi",
+      }),
+    );
+
+    expect(stated.bapelChoice).toBe("bukan-komisi");
+    expect(komisi.bapelChoice).toBe("komisi");
+    expect(komisi.bapelId).toBe("3");
+  });
+
+  test("payload membawa jawaban DAN bapelId, tanpa representasi kedua", () => {
+    const body = toExpenseFormData(
+      values({ bapelChoice: "komisi", bapelId: "3" }),
+      false,
+    );
+
+    expect(body.get("bapelChoice")).toBe("komisi");
+    expect(body.get("bapelId")).toBe("3");
+    expect([...body.keys()].filter((key) => /bapel/i.test(key))).toEqual([
+      "bapelChoice",
+      "bapelId",
+    ]);
+  });
+
+  test("bukan belanja komisi mengirim jawabannya dan mengosongkan bapelId", () => {
+    const body = toExpenseFormData(
+      values({ bapelChoice: "bukan-komisi", bapelId: "" }),
+      false,
+    );
+
+    expect(body.get("bapelChoice")).toBe("bukan-komisi");
+    expect(body.get("bapelId")).toBeNull();
+  });
+
+  test("kontradiksi bukan galat ber-code: errorFixOf tidak menautkan apa pun", () => {
+    const contradiction = new FetchError(
+      400,
+      "Bukan Belanja Komisi Tidak Boleh Membawa Komisi",
+      [
+        {
+          path: "bapelId",
+          message: "Bukan Belanja Komisi Tidak Boleh Membawa Komisi",
+        },
+      ],
+    );
+
+    expect(contradiction.code).toBeNull();
+    expect(errorFixOf(contradiction)).toBeNull();
+    expect(toFormError(contradiction).issues[0]!.path).toBe("bapelId");
   });
 });
 

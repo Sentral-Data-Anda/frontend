@@ -10,6 +10,8 @@ export type ExpenseApproval = {
   isSubmittedByViewer: boolean;
 };
 
+export type BapelChoice = "komisi" | "bukan-komisi";
+
 export type ExpenseLine = {
   publicId: string;
   accountId: number;
@@ -29,6 +31,8 @@ export type CashExpense = {
   paidFromAccount: { id: number; code: string; name: string };
   bapelId: number | null;
   bapel: { code: string; name: string } | null;
+  // null hanya berarti baris lama: pertanyaannya belum ada saat ia ditulis.
+  bapelChoice: BapelChoice | null;
   method: string | null;
   reference: string | null;
   totalAmount: string;

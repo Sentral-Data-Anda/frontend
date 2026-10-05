@@ -24,6 +24,7 @@ export const expenseDetail = (
   paidFromAccount: { id: 4, code: "1-200", name: "Bank BCA" },
   bapelId: null,
   bapel: null,
+  bapelChoice: "bukan-komisi",
   method: "Transfer",
   reference: "PSN-2026-0012",
   totalAmount: "3200000",

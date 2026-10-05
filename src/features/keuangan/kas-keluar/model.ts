@@ -18,7 +18,7 @@ import { collapseSpaces } from "@/lib/name";
 import type { AttachmentValue } from "@/types/attachment";
 import { CASH_EXPENSE_STATUS_LABEL } from "@/types/keuangan";
 
-import type { CashExpenseDetail, ExpenseState } from "./types";
+import type { BapelChoice, CashExpenseDetail, ExpenseState } from "./types";
 
 type BadgeVariant = ComponentProps<typeof Badge>["variant"];
 
@@ -62,6 +62,14 @@ export const NOTE_HINT =
 
 export const REFERENCE_HINT =
   "Kode pesanan pembelian, nomor nota, atau dokumen lain.";
+
+export const BAPEL_CHOICE_OPTIONS = [
+  { value: "komisi", label: "Untuk komisi" },
+  { value: "bukan-komisi", label: "Bukan belanja komisi" },
+] as const satisfies ReadonlyArray<{ value: BapelChoice; label: string }>;
+
+export const BAPEL_CHOICE_HINT =
+  "Komisi yang menerima pencairan ini. Mengisinya berarti pencairan budget komisi, dan laporan pemakaian bulan sebelumnya harus sudah disetujui.";
 
 export const EXPENSE_STATE_LABEL: Record<ExpenseState, string> = {
   ...CASH_EXPENSE_STATUS_LABEL,
@@ -163,6 +171,7 @@ export const expenseFormSchema = z
     paidFromAccountId: z.string(),
     method: z.string(),
     reference: z.string(),
+    bapelChoice: z.string(),
     bapelId: z.string(),
     description: z.string(),
     lines: z.array(
@@ -191,6 +200,12 @@ export const expenseFormSchema = z
 
     if (!values.paidFromAccountId) {
       addIssue(["paidFromAccountId"], "Pilih akun sumber dana");
+    }
+
+    if (!values.bapelChoice) {
+      addIssue(["bapelChoice"], "Jawab dulu: untuk komisi, atau bukan");
+    } else if (values.bapelChoice === "komisi" && !values.bapelId) {
+      addIssue(["bapelId"], "Pilih komisi");
     }
 
     if (collapseSpaces(values.method).length > METHOD_MAX) {
@@ -242,6 +257,7 @@ export const emptyExpenseForm = (
   paidFromAccountId: "",
   method: "",
   reference: "",
+  bapelChoice: "",
   bapelId: "",
   description: "",
   lines: [emptyLine()],
@@ -256,6 +272,8 @@ export const toExpenseForm = (
   paidFromAccountId: String(detail.paidFromAccountId),
   method: detail.method ?? "",
   reference: detail.reference ?? "",
+  // Baris lama tidak punya jawaban; kolomnya dibiarkan kosong, tanpa backfill.
+  bapelChoice: detail.bapelChoice ?? "",
   bapelId: detail.bapelId === null ? "" : String(detail.bapelId),
   description: detail.description,
   lines: detail.lines.map((line) => ({
@@ -272,6 +290,7 @@ export const toExpenseFormData = (values: ExpenseFormValues, isEdit: boolean) =>
       expenseDate: values.expenseDate,
       payee: collapseSpaces(values.payee),
       paidFromAccountId: values.paidFromAccountId,
+      bapelChoice: values.bapelChoice,
       bapelId: values.bapelId,
       method: collapseSpaces(values.method),
       reference: collapseSpaces(values.reference),
