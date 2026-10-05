@@ -30,6 +30,17 @@ export type ReportApproval = {
   steps: ReportApprovalStep[];
 };
 
+// Pengeluaran yang LOLOS gerbang: Kas Keluar dibayar bulan itu tanpa komisi.
+// Dua populasi, bukan satu: `stated` memang dinyatakan bukan belanja komisi,
+// `inherited` ditulis sebelum pertanyaannya ada dan ambigu selamanya.
+export type UntaggedPart = { amount: string; count: number };
+
+export type UntaggedSpending = UntaggedPart & {
+  label: string;
+  stated: UntaggedPart;
+  inherited: UntaggedPart;
+};
+
 export type BudgetReport = {
   publicId: string;
   code: string;

@@ -7,6 +7,7 @@ import { useListQuery } from "@/hooks/use-list-query";
 import { fetchList, fetchOne } from "@/lib/api/fetcher";
 import { MEDIA_REFETCH_MS } from "@/lib/attachment";
 import type { BudgetSetting } from "@/types/anggaran";
+import type { ApiListResponse } from "@/types/api";
 
 import { toReportQuery } from "./model";
 import type {
@@ -15,6 +16,7 @@ import type {
   ComplianceRow,
   Prefill,
   ReportAction,
+  UntaggedSpending,
 } from "./types";
 
 export const reportKeys = {
@@ -106,9 +108,19 @@ export function useCompliance(month: string, isEnabled = true) {
   return useQuery({
     queryKey: reportKeys.compliance(month),
     queryFn: () =>
-      fetchList<ComplianceRow>(`${BASE}/belum-lapor?${monthQuery(month)}`),
+      fetchList<ComplianceRow>(
+        `${BASE}/belum-lapor?${monthQuery(month)}`,
+      ) as Promise<
+        ApiListResponse<ComplianceRow> & { untagged?: UntaggedSpending }
+      >,
     enabled: isEnabled && Boolean(month),
-    select: (response) => response.data,
+    // `untagged` datang DI SAMPING `data`, dan daftar kosong dijawab 200 —
+    // bukan 404 seperti ketiga daftar Anggaran — justru supaya angka ini tidak
+    // ikut terbuang bersama daftarnya.
+    select: (response) => ({
+      rows: response.data,
+      untagged: response.untagged ?? null,
+    }),
   });
 }
 

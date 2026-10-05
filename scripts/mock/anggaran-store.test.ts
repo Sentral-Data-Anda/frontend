@@ -26,6 +26,7 @@ import {
   previousMonth,
   programItem,
   remainingFor,
+  untaggedMonth,
 } from "./anggaran-store";
 import { CASH_EXPENSE, cashExpenseLine } from "./keuangan-store";
 
@@ -488,5 +489,93 @@ describe("sisa tak-bertanda bisa dilihat, bukan hanya dihitung", () => {
     const year = budgetYearOf(TODAY);
 
     expect(Number(ceilingUsage(BAPEL, year).untagged)).toBeGreaterThan(0);
+  });
+});
+
+// Sisa tak-bertanda per bulan. Dua asersi untuk satu baris, karena masing-masing
+// menangkap ARAH kesalahan yang berbeda: hilang dari baris sisanya, atau
+// terhitung milik komisi yang tidak mencairkannya.
+describe("pengeluaran tanpa komisi", () => {
+  const { year, month } = monthKey(startOfMonth(TODAY));
+
+  // `CASH_EXPENSE` milik keuangan-store, jadi `resetAnggaranStores` TIDAK
+  // memulihkannya: baris yang didorong di sini harus dicabut sendiri, atau ia
+  // bocor ke berkas test lain di proses yang sama. Dua berkas sempat merah
+  // karenanya — baris uji ini muncul di daftar Kas Keluar dan di key-discipline.
+  const pushed: number[] = [];
+
+  afterEach(() => {
+    for (const id of pushed.splice(0)) {
+      const index = CASH_EXPENSE.findIndex((row) => row.id === id);
+      if (index >= 0) CASH_EXPENSE.splice(index, 1);
+    }
+  });
+
+  const pushPaid = (bapelId: number | null, choice: "BUKAN_KOMISI" | null) => {
+    const id = 9500 + CASH_EXPENSE.length;
+
+    CASH_EXPENSE.push({
+      ...structuredClone(CASH_EXPENSE[0]!),
+      id,
+      publicId: `bkk-untagged-${id}`,
+      code: `BKK-UNTAGGED-${id}`,
+      expenseDate: `${year}-${String(month).padStart(2, "0")}-12`,
+      bapelId,
+      bapelChoice: bapelId === null ? choice : "KOMISI",
+      status: "PAID",
+      approvals: [],
+      deletedAt: null,
+      lines: [cashExpenseLine(22, "250000")],
+      notes: [],
+    });
+    pushed.push(id);
+
+    return id;
+  };
+
+  test("PAID tanpa komisi masuk baris sisa, DAN tidak masuk komisi mana pun", () => {
+    const before = untaggedMonth(year, month);
+    pushPaid(null, "BUKAN_KOMISI");
+    const after = untaggedMonth(year, month);
+
+    expect(after.count).toBe(before.count + 1);
+    expect(Number(after.amount)).toBe(Number(before.amount) + 250000);
+
+    // Arah kedua: ia tidak boleh muncul sebagai pencairan komisi mana pun.
+    for (const bapelId of [1, 2, 3, 4, 5]) {
+      expect(
+        disbursementsIn(bapelId, year, month).some((row) =>
+          row.publicId.startsWith("bkk-untagged-"),
+        ),
+      ).toBe(false);
+    }
+  });
+
+  test("dua populasi dipisah: dinyatakan vs warisan", () => {
+    const before = untaggedMonth(year, month);
+    pushPaid(null, "BUKAN_KOMISI");
+    pushPaid(null, null);
+    const after = untaggedMonth(year, month);
+
+    expect(after.stated.count).toBe(before.stated.count + 1);
+    expect(after.inherited.count).toBe(before.inherited.count + 1);
+    // Keseluruhannya tetap jumlah keduanya: angka §0.3 yang utuh.
+    expect(after.count).toBe(after.stated.count + after.inherited.count);
+  });
+
+  test("pencairan ber-komisi tidak pernah masuk baris sisa", () => {
+    const before = untaggedMonth(year, month);
+    pushPaid(2, null);
+
+    expect(untaggedMonth(year, month).count).toBe(before.count);
+  });
+
+  test("tetap dirender saat nol: bentuknya ada, bukan undefined", () => {
+    const empty = untaggedMonth(1900, 1);
+
+    expect(empty.count).toBe(0);
+    expect(empty.stated.count).toBe(0);
+    expect(empty.inherited.count).toBe(0);
+    expect(empty.label).toBeTruthy();
   });
 });

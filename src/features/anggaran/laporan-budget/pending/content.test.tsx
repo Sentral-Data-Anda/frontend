@@ -65,9 +65,18 @@ const row = (
   ...next,
 });
 
-const onRender = (rows: ComplianceRow[], isCanCreate = true) => {
+const onRender = (
+  rows: ComplianceRow[],
+  isCanCreate = true,
+  untagged?: unknown,
+) => {
   globalThis.fetch = (async (_input: RequestInfo | URL) =>
-    Response.json({ status: 200, message: "ok", data: rows })) as typeof fetch;
+    Response.json({
+      status: 200,
+      message: "ok",
+      data: rows,
+      untagged,
+    })) as typeof fetch;
 
   render(
     <QueryClientProvider
@@ -164,6 +173,66 @@ describe("kepatuhan laporan per komisi", () => {
 
     expect(
       await screen.findByText("Belum ada komisi untuk bulan ini."),
+    ).toBeTruthy();
+  });
+});
+
+const UNTAGGED = {
+  amount: "7500000",
+  count: 3,
+  label: "September 2026",
+  stated: { amount: "5000000", count: 2 },
+  inherited: { amount: "2500000", count: 1 },
+};
+
+describe("pengeluaran tanpa komisi", () => {
+  test("baris sisa tampil di kaki daftar, dengan jumlah dan cacah dokumennya", async () => {
+    onRender([row(4, "Komisi Anak", "MISSING")], true, UNTAGGED);
+
+    const strip = await screen.findByLabelText("Pengeluaran tanpa komisi");
+
+    expect(strip.textContent).toContain("September 2026");
+    expect(strip.textContent).toContain("Rp 7.500.000");
+    expect(strip.textContent).toContain("3 dokumen");
+  });
+
+  test("dua populasi tampil berdampingan, yang warisan tanpa nada menuduh", async () => {
+    onRender([row(4, "Komisi Anak", "MISSING")], true, UNTAGGED);
+
+    const strip = await screen.findByLabelText("Pengeluaran tanpa komisi");
+
+    expect(strip.textContent).toContain("Dinyatakan bukan belanja komisi");
+    expect(strip.textContent).toContain("Rp 5.000.000");
+    expect(strip.textContent).toContain("sebelum pertanyaannya ada");
+    expect(strip.textContent).toContain("Rp 2.500.000");
+
+    for (const blame of ["lupa", "lalai", "salah", "melanggar"]) {
+      expect(strip.textContent?.toLowerCase()).not.toContain(blame);
+    }
+  });
+
+  test("tetap dirender saat nol: nol adalah informasi", async () => {
+    onRender([row(4, "Komisi Anak", "MISSING")], true, {
+      ...UNTAGGED,
+      amount: "0",
+      count: 0,
+      stated: { amount: "0", count: 0 },
+      inherited: { amount: "0", count: 0 },
+    });
+
+    const strip = await screen.findByLabelText("Pengeluaran tanpa komisi");
+
+    expect(strip.textContent).toContain("Rp 0");
+    expect(strip.textContent).toContain("0 dokumen");
+  });
+
+  test("daftar komisi kosong tidak membuang angkanya", async () => {
+    // Bacaan ini menjawab 200 dengan `data: []`, bukan 404 seperti ketiga
+    // daftar Anggaran, justru supaya fakta kedua ini tidak ikut terbuang.
+    onRender([], true, UNTAGGED);
+
+    expect(
+      await screen.findByLabelText("Pengeluaran tanpa komisi"),
     ).toBeTruthy();
   });
 });
