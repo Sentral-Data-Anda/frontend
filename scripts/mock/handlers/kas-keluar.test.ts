@@ -248,8 +248,14 @@ describe("kolom komisi dijawab eksplisit", () => {
       expect(rejected?.body.issues?.[0]?.path).toBe("bapelChoice");
     }
 
-    // Yang lama memetakan apa pun yang tak dikenal ke "bukan komisi" — default
-    // diam yang kolom ini ada untuk mencegah. Tidak ada baris baru yang lolos.
+    // Ditolak, bukan diterjemahkan. Alasannya BUKAN bahwa pemetaan lama bisa
+    // salah menebak — reviewer BE membuktikan cabang else-nya tidak terjangkau,
+    // karena tipenya `z.infer` dari skemanya sendiri. Alasannya: satu ejaan di
+    // kedua arah. Bacaan server selalu memancarkan nama enum, jadi selama kebab
+    // juga diterima, klien yang mengirim balik apa yang baru saja ia baca
+    // ditolak oleh field tempat ia membacanya. Menerima keduanya juga memberi
+    // anggota enum ketiga sebuah pintu diam nanti.
+    // Dan tidak ada baris baru yang lolos lewat ejaan lama.
     expect(
       CASH_EXPENSE.some(
         (row) =>
