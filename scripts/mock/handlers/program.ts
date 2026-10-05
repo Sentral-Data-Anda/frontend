@@ -455,6 +455,15 @@ const onUpdate = async (request: Request, row: ProgramRow) => {
   const accountFail = accountFailure(parsed.items);
   if (accountFail) return accountFail;
 
+  // `bapelId` di sini sengaja hanya diperiksa keberadaannya, TIDAK dilingkupi —
+  // berbeda dengan LPJ, yang melingkupinya. Alasannya: membuat usulan di menu
+  // ini memang tidak di-scope (lihat onCreate), jadi siapa pun yang boleh
+  // mengubah sudah boleh menulis usulan DRAFT untuk komisi mana pun lewat
+  // CREATE. Melingkupi di sini tidak mencabut kemampuan apa pun, dan
+  // `lockFailure` di atas sudah menahan pemindahan baris yang sudah disetujui
+  // atau sedang menunggu persetujuan. Jangan menyalin penjaga LPJ ke sini tanpa
+  // mengubah keputusan onCreate lebih dulu: yang satu tanpa yang lain hanya
+  // memindahkan lubangnya.
   row.name = parsed.name;
   row.year = parsed.year;
   row.bapelId = parsed.bapelId;
