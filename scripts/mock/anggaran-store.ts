@@ -448,13 +448,17 @@ export const complianceStateOf = (
   year: number,
   month: number,
 ): ComplianceState => {
-  if (waiverOf(bapelId, year, month)) return "WAIVED";
-  if (disbursementsIn(bapelId, year, month).length === 0) return "NOT_DUE";
-
+  // Urutan jawabannya mengikat: APPROVED, NOT_DUE, WAIVED, DRAFT, MISSING.
+  // Laporan yang SUDAH disetujui mengalahkan pembebasan. Kalau WAIVED diperiksa
+  // lebih dulu, komisi yang sudah melapor lengkap tetap terbaca "dibebaskan
+  // bendahara" — riwayatnya kehilangan fakta bahwa ia benar-benar melapor, dan
+  // kolom itu dipakai orang untuk menilai komisi.
   const report = reportOf(bapelId, year, month);
-  if (!report) return "MISSING";
+  if (report?.status === "APPROVED") return "APPROVED";
+  if (disbursementsIn(bapelId, year, month).length === 0) return "NOT_DUE";
+  if (waiverOf(bapelId, year, month)) return "WAIVED";
 
-  return report.status === "APPROVED" ? "APPROVED" : "DRAFT";
+  return report ? "DRAFT" : "MISSING";
 };
 
 /** Penolakan gerbang untuk sebuah pencairan, atau null bila lolos. */

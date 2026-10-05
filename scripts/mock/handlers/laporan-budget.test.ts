@@ -2,9 +2,9 @@ import { afterEach, describe, expect, test } from "bun:test";
 
 import { MENU } from "../../../src/config/menu";
 import { addDays, addMonths, startOfMonth } from "../../../src/lib/date";
+import { resetAnggaranStores } from "../anggaran-reset";
 import {
   BUDGET_USAGE_REPORT,
-  GATE_WAIVER,
   PROGRAM,
   TODAY,
   previousMonth,
@@ -24,28 +24,7 @@ type Json = {
   data?: unknown;
 };
 
-// Larik dikembalikan ke isi awalnya, bukan dikosongkan: `BUDGET_USAGE_REPORT`
-// dibaca berkas test milik agent lain, dan mengosongkannya membuat suite ini
-// lulus karena urutan muat, bukan karena desain.
-const SEED = BUDGET_USAGE_REPORT.map((row) => ({ ...row }));
-
-const PROGRAM_SEED = PROGRAM.map((row) => ({ ...row }));
-
-const WAIVER_SEED = GATE_WAIVER.map((row) => ({ ...row }));
-
-afterEach(() => {
-  BUDGET_USAGE_REPORT.splice(
-    0,
-    BUDGET_USAGE_REPORT.length,
-    ...SEED.map((row) => ({ ...row })),
-  );
-  GATE_WAIVER.splice(
-    0,
-    GATE_WAIVER.length,
-    ...WAIVER_SEED.map((row) => ({ ...row })),
-  );
-  PROGRAM.splice(0, PROGRAM.length, ...PROGRAM_SEED.map((row) => ({ ...row })));
-});
+afterEach(resetAnggaranStores);
 
 const monthAt = (offset: number) => {
   const first = addMonths(startOfMonth(TODAY), offset);

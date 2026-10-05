@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, test } from "bun:test";
 
 import { MENU } from "../../../src/config/menu";
+import { resetAnggaranStores } from "../anggaran-reset";
 import {
   BUDGET_ALLOCATION,
   BUDGET_SETTING,
@@ -34,19 +35,7 @@ type Json = {
   };
 };
 
-const SEED_MONTH = BUDGET_SETTING.startMonth;
-
-const SEED_ALLOCATION = BUDGET_ALLOCATION.map((row) => ({ ...row }));
-
-afterEach(() => {
-  BUDGET_SETTING.startMonth = SEED_MONTH;
-  PROGRAM.splice(0, PROGRAM.length);
-  BUDGET_ALLOCATION.splice(
-    0,
-    BUDGET_ALLOCATION.length,
-    ...SEED_ALLOCATION.map((row) => ({ ...row })),
-  );
-});
+afterEach(resetAnggaranStores);
 
 const onCall = async (
   method: string,
@@ -74,10 +63,20 @@ const onCall = async (
   return { status: response.status, body: (await response.json()) as Json };
 };
 
+// Kuncinya global: SATU program disetujui di mana pun menahan `startMonth`.
+// Test yang menguji sisi "diterima" harus menyatakan prasyarat itu, bukan
+// mewarisi larik kosong dari urutan muat berkas. `afterEach` yang
+// mengembalikan benih membuat pembatalan di sini aman.
+const unlock = () => {
+  for (const row of PROGRAM) {
+    if (row.status === "APPROVED") row.status = "CANCELLED";
+  }
+};
+
 const approvedProgram = (year: number) => {
-  const row = {
-    id: 1,
-    publicId: "prg-1",
+  const row: ProgramRow = {
+    id: 9201,
+    publicId: "prg-setelan",
     code: `PRG-${year}-0001`,
     name: "Retret",
     year,
@@ -95,9 +94,11 @@ const approvedProgram = (year: number) => {
     deletedAt: null,
     items: [programItem(23, "Konsumsi", "1", "1000000")],
     approvals: [],
-  } satisfies ProgramRow;
+  };
 
   PROGRAM.push(row);
+
+  return row;
 };
 
 describe("mock /setelan-anggaran", () => {
@@ -126,20 +127,28 @@ describe("mock /setelan-anggaran", () => {
   });
 
   test("bulan mulai berpindah: rentang dan label ikut, tahun tersimpan tidak", async () => {
+    unlock();
+
+    // Bulan tujuannya dipilih relatif terhadap setelan yang sedang berjalan.
+    // Memaku 7 membuat test ini menguji "tidak ada perubahan" ketika mock
+    // dijalankan dengan MOCK_BUDGET_START_JULY, dan labelnya memang tidak
+    // berubah karena ia sudah Juli sejak awal.
+    const target = BUDGET_SETTING.startMonth === 7 ? 4 : 7;
     const before = await onCall("GET");
     const beforeYear = before?.body.data?.budgetYear;
 
-    const saved = await onCall("PUT", { startMonth: 7 });
+    const saved = await onCall("PUT", { startMonth: target });
     const after = saved?.body.data?.budgetYear;
 
     expect(saved?.status).toBe(200);
-    expect(saved?.body.data?.startMonth).toBe(7);
-    expect(after?.from.slice(5, 7)).toBe("07");
+    expect(saved?.body.data?.startMonth).toBe(target);
+    expect(after?.from.slice(5, 7)).toBe(String(target).padStart(2, "0"));
     expect(after?.label).not.toBe(beforeYear?.label);
     expect(after?.year).toBe(budgetYearOf(after!.from));
   });
 
   test("bulan sebelum bulan mulai masih milik tahun sebelumnya", async () => {
+    unlock();
     await onCall("PUT", { startMonth: 7 });
 
     const { from } = (await onCall("GET"))!.body.data!.budgetYear;
@@ -153,6 +162,7 @@ describe("mock /setelan-anggaran", () => {
   });
 
   test("ada pagu tapi nol program disetujui: PUT diterima", async () => {
+    unlock();
     BUDGET_ALLOCATION.push({
       id: 901,
       publicId: "pga-0901",
@@ -168,6 +178,8 @@ describe("mock /setelan-anggaran", () => {
   });
 
   test("ada program disetujui: 400 BUDGET_YEAR_LOCKED ke field startMonth", async () => {
+    const { startMonth } = BUDGET_SETTING;
+
     approvedProgram(currentBudgetYear());
 
     const rejected = await onCall("PUT", { startMonth: 7 });
@@ -175,15 +187,18 @@ describe("mock /setelan-anggaran", () => {
     expect(rejected?.status).toBe(400);
     expect(rejected?.body.code).toBe("BUDGET_YEAR_LOCKED");
     expect(rejected?.body.issues?.[0]?.path).toBe("startMonth");
-    expect(BUDGET_SETTING.startMonth).toBe(SEED_MONTH);
+    expect(BUDGET_SETTING.startMonth).toBe(startMonth);
   });
 
   test("program draf dan dibatalkan tidak mengunci", async () => {
-    approvedProgram(currentBudgetYear());
-    PROGRAM[0]!.status = "DRAFT";
+    unlock();
+
+    const row = approvedProgram(currentBudgetYear());
+
+    row.status = "DRAFT";
     expect((await onCall("PUT", { startMonth: 7 }))?.status).toBe(200);
 
-    PROGRAM[0]!.status = "CANCELLED";
+    row.status = "CANCELLED";
     expect((await onCall("PUT", { startMonth: 8 }))?.status).toBe(200);
   });
 

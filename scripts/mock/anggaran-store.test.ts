@@ -2,7 +2,9 @@ import { afterEach, describe, expect, test } from "bun:test";
 
 import { addDays, addMonths, startOfMonth } from "../../src/lib/date";
 
+import { resetAnggaranStores } from "./anggaran-reset";
 import {
+  type BudgetReportRow,
   BUDGET_ALLOCATION,
   bapelRef,
   BUDGET_SETTING,
@@ -34,46 +36,24 @@ const BAPEL = 2;
 // seed — menambahkan satu pencairan nanti tidak boleh mematahkan test ini.
 const QUIET_BAPEL = 6;
 
+// Komisi yang benihnya memang tinggalkan terutang laporan bulan lalu: ia
+// mencairkan, dan satu-satunya laporannya untuk bulan itu sudah dihapus.
+const OWING_BAPEL = 4;
+
+// Tahun pelayanan yang tidak disentuh seed mana pun. Aritmetika pagu di bawah
+// menguji rumus, bukan isi seed: menjalankannya di tahun berjalan membuatnya
+// bergantung pada larik yang kosong, dan larik itu hanya kosong selama tidak
+// ada berkas test lain yang memuat handler lebih dulu.
+const MATH_YEAR = budgetYearOf(TODAY) + 5;
+
 const monthKey = (date: string) => ({
   year: Number(date.slice(0, 4)),
   month: Number(date.slice(5, 7)),
 });
 
-// Setiap larik dikembalikan ke isi awalnya, bukan dikosongkan. Ketiga larik ini
-// milik agent lain; mengosongkannya membuat berkas test ini mendikte keadaan
-// awal berkas lain, dan suite-nya lulus karena urutan muat.
-const SEEDS = {
-  allocation: BUDGET_ALLOCATION.map((row) => ({ ...row })),
-  program: PROGRAM.map((row) => ({ ...row })),
-  report: BUDGET_USAGE_REPORT.map((row) => ({ ...row })),
-  waiver: GATE_WAIVER.map((row) => ({ ...row })),
-};
-
-const reset = () => {
-  BUDGET_SETTING.startMonth = 1;
-  BUDGET_ALLOCATION.splice(
-    0,
-    BUDGET_ALLOCATION.length,
-    ...SEEDS.allocation.map((row) => ({ ...row })),
-  );
-  PROGRAM.splice(
-    0,
-    PROGRAM.length,
-    ...SEEDS.program.map((row) => ({ ...row })),
-  );
-  BUDGET_USAGE_REPORT.splice(
-    0,
-    BUDGET_USAGE_REPORT.length,
-    ...SEEDS.report.map((row) => ({ ...row })),
-  );
-  GATE_WAIVER.splice(
-    0,
-    GATE_WAIVER.length,
-    ...SEEDS.waiver.map((row) => ({ ...row })),
-  );
-};
-
-afterEach(reset);
+// Dikembalikan ke benih milik modul store, bukan ke snapshot yang berkas ini
+// ambil sendiri: lihat alasannya di `anggaran-reset.ts`.
+afterEach(resetAnggaranStores);
 
 const allocate = (year: number, amount: string) => {
   BUDGET_ALLOCATION.push({
@@ -163,8 +143,9 @@ describe("previousMonth", () => {
 });
 
 describe("batas pagu inklusif", () => {
+  const year = MATH_YEAR;
+
   test("tepat di pagu diterima, satu rupiah di atasnya ditolak", () => {
-    const year = budgetYearOf(TODAY);
     allocate(year, "5000000");
 
     expect(isWithinCeiling(BAPEL, year, "5000000")).toBe(true);
@@ -172,15 +153,12 @@ describe("batas pagu inklusif", () => {
   });
 
   test("tanpa baris pagu adalah penolakan, bukan tanpa batas", () => {
-    const year = budgetYearOf(TODAY);
-
     expect(isWithinCeiling(BAPEL, year, "1")).toBe(false);
     expect(remainingFor(BAPEL, year)).toBeNull();
     expect(ceilingUsage(BAPEL, year).ceiling).toBeNull();
   });
 
   test("program dikecualikan dari komitmennya sendiri", () => {
-    const year = budgetYearOf(TODAY);
     allocate(year, "5000000");
     const id = propose(year, "5000000");
 
@@ -189,7 +167,6 @@ describe("batas pagu inklusif", () => {
   });
 
   test("program dibatalkan membebaskan pagunya", () => {
-    const year = budgetYearOf(TODAY);
     allocate(year, "5000000");
     const id = propose(year, "5000000");
 
@@ -253,24 +230,45 @@ describe("gerbang pencairan", () => {
     expect(gateFailureOf(QUIET_BAPEL, TODAY)).toBeNull();
   });
 
-  test("komisi yang mencairkan bulan lalu memang terutang laporan", () => {
+  // Dua arah pada benih apa adanya: komisi yang mencairkan lalu laporannya
+  // disetujui lolos, komisi yang mencairkan tapi tidak punya laporan hidup
+  // tertahan. Komisi kedua punya laporan yang DIHAPUS untuk bulan itu, jadi
+  // test ini sekalian menjaga bahwa hapus lunak tidak dihitung sebagai lapor.
+  // Kalau benihnya berubah sampai keduanya sama, test ini jatuh — dan itu
+  // memang maunya: gerbangnya kehilangan contoh yang membedakan.
+  test("benihnya memisahkan komisi yang lolos dari yang tertahan", () => {
     const previous = monthKey(addMonths(startOfMonth(TODAY), -1));
 
     expect(
       disbursementsIn(BAPEL, previous.year, previous.month).length,
     ).toBeGreaterThan(0);
-    expect(gateFailureOf(BAPEL, TODAY)?.code).toBe("BUDGET_REPORT_PENDING");
+    expect(complianceStateOf(BAPEL, previous.year, previous.month)).toBe(
+      "APPROVED",
+    );
+    expect(gateFailureOf(BAPEL, TODAY)).toBeNull();
+
+    expect(
+      disbursementsIn(OWING_BAPEL, previous.year, previous.month).length,
+    ).toBeGreaterThan(0);
+    expect(complianceStateOf(OWING_BAPEL, previous.year, previous.month)).toBe(
+      "MISSING",
+    );
+    expect(gateFailureOf(OWING_BAPEL, TODAY)?.code).toBe(
+      "BUDGET_REPORT_PENDING",
+    );
   });
 
   test("ada pencairan tanpa laporan memblokir, dengan code", () => {
     const previousStart = addMonths(startOfMonth(TODAY), -1);
     const previous = monthKey(previousStart);
-    const ids = [paid(previousStart, BAPEL)];
+    const ids = [paid(previousStart, QUIET_BAPEL)];
 
-    expect(complianceStateOf(BAPEL, previous.year, previous.month)).toBe(
+    expect(complianceStateOf(QUIET_BAPEL, previous.year, previous.month)).toBe(
       "MISSING",
     );
-    expect(gateFailureOf(BAPEL, TODAY)?.code).toBe("BUDGET_REPORT_PENDING");
+    expect(gateFailureOf(QUIET_BAPEL, TODAY)?.code).toBe(
+      "BUDGET_REPORT_PENDING",
+    );
 
     dropSeeded(ids);
   });
@@ -278,13 +276,13 @@ describe("gerbang pencairan", () => {
   test("laporan draf tetap memblokir; disetujui melepas", () => {
     const previousStart = addMonths(startOfMonth(TODAY), -1);
     const previous = monthKey(previousStart);
-    const ids = [paid(previousStart, BAPEL)];
+    const ids = [paid(previousStart, QUIET_BAPEL)];
 
-    BUDGET_USAGE_REPORT.push({
-      id: 1,
-      publicId: "lpb-1",
-      code: "LPB-1",
-      bapelId: BAPEL,
+    const report: BudgetReportRow = {
+      id: 4101,
+      publicId: "lpb-draft-then-approved",
+      code: "LPB-DA",
+      bapelId: QUIET_BAPEL,
       year: previous.year,
       month: previous.month,
       status: "DRAFT",
@@ -295,17 +293,20 @@ describe("gerbang pencairan", () => {
       lines: [],
       receipts: [],
       approvals: [],
-    });
+    };
 
-    expect(complianceStateOf(BAPEL, previous.year, previous.month)).toBe(
+    BUDGET_USAGE_REPORT.push(report);
+
+    expect(complianceStateOf(QUIET_BAPEL, previous.year, previous.month)).toBe(
       "DRAFT",
     );
-    expect(gateFailureOf(BAPEL, TODAY)).not.toBeNull();
+    expect(gateFailureOf(QUIET_BAPEL, TODAY)).not.toBeNull();
 
-    const report = BUDGET_USAGE_REPORT[0];
-    if (report) report.status = "APPROVED";
+    // Barisnya sendiri, bukan `BUDGET_USAGE_REPORT[0]`: indeks nol adalah baris
+    // milik siapa pun yang menyemai lebih dulu.
+    report.status = "APPROVED";
 
-    expect(gateFailureOf(BAPEL, TODAY)).toBeNull();
+    expect(gateFailureOf(QUIET_BAPEL, TODAY)).toBeNull();
 
     dropSeeded(ids);
   });
@@ -313,11 +314,11 @@ describe("gerbang pencairan", () => {
   test("pembebasan melepas tanpa laporan, dan menang atas MISSING", () => {
     const previousStart = addMonths(startOfMonth(TODAY), -1);
     const previous = monthKey(previousStart);
-    const ids = [paid(previousStart, BAPEL)];
+    const ids = [paid(previousStart, QUIET_BAPEL)];
 
     GATE_WAIVER.push({
-      id: 1,
-      bapelId: BAPEL,
+      id: 4100,
+      bapelId: QUIET_BAPEL,
       year: previous.year,
       month: previous.month,
       reason: "Pengurus baru belum dilantik",
@@ -326,10 +327,50 @@ describe("gerbang pencairan", () => {
       deletedAt: null,
     });
 
-    expect(complianceStateOf(BAPEL, previous.year, previous.month)).toBe(
+    expect(complianceStateOf(QUIET_BAPEL, previous.year, previous.month)).toBe(
       "WAIVED",
     );
-    expect(gateFailureOf(BAPEL, TODAY)).toBeNull();
+    expect(gateFailureOf(QUIET_BAPEL, TODAY)).toBeNull();
+
+    dropSeeded(ids);
+  });
+
+  test("laporan disetujui menang atas pembebasan di komisi yang sama", () => {
+    const previousStart = addMonths(startOfMonth(TODAY), -1);
+    const previous = monthKey(previousStart);
+    const ids = [paid(previousStart, QUIET_BAPEL)];
+
+    BUDGET_USAGE_REPORT.push({
+      id: 4102,
+      publicId: "lpb-approved-and-waived",
+      code: "LPB-AW",
+      bapelId: QUIET_BAPEL,
+      year: previous.year,
+      month: previous.month,
+      status: "APPROVED",
+      note: null,
+      approvedById: 13,
+      approvedAt: TODAY,
+      deletedAt: null,
+      lines: [],
+      receipts: [],
+      approvals: [],
+    });
+    GATE_WAIVER.push({
+      id: 4102,
+      bapelId: QUIET_BAPEL,
+      year: previous.year,
+      month: previous.month,
+      reason: "Dibebaskan sebelum laporannya masuk",
+      createdById: 1,
+      createdAt: TODAY,
+      deletedAt: null,
+    });
+
+    expect(complianceStateOf(QUIET_BAPEL, previous.year, previous.month)).toBe(
+      "APPROVED",
+    );
+    expect(gateFailureOf(QUIET_BAPEL, TODAY)).toBeNull();
 
     dropSeeded(ids);
   });
@@ -361,26 +402,31 @@ describe("bentuk komisi di bacaan", () => {
 });
 
 describe("kunci bulan mulai", () => {
+  const year = MATH_YEAR;
+
+  // Pertanyaannya "apa tahun INI terkunci", jadi hitungannya disempitkan ke
+  // tahun ujinya. `PROGRAM.some(...)` tanpa penyempitan menanyakan hal lain —
+  // apakah seluruh seed punya program disetujui — dan jawabannya ya.
+  const isLocked = (target: number) =>
+    PROGRAM.some((row) => row.year === target && row.status === "APPROVED");
+
   test("pagu saja tidak mengunci — pelabelan ulang tidak mengubah angka", () => {
-    const year = budgetYearOf(TODAY);
     allocate(year, "5000000");
     propose(year, "1000000");
 
-    expect(PROGRAM.some((row) => row.status === "APPROVED")).toBe(false);
+    expect(isLocked(year)).toBe(false);
   });
 
   test("program disetujui mengunci", () => {
-    const year = budgetYearOf(TODAY);
     allocate(year, "5000000");
     const id = propose(year, "1000000");
     const row = PROGRAM.find((item) => item.id === id);
     if (row) row.status = "APPROVED";
 
-    expect(PROGRAM.some((item) => item.status === "APPROVED")).toBe(true);
+    expect(isLocked(year)).toBe(true);
   });
 
   test("memindahkan bulan mulai tidak mengubah satu jumlah pun", () => {
-    const year = budgetYearOf(TODAY);
     allocate(year, "5000000");
     propose(year, "1200000");
 

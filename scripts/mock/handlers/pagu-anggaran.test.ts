@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, test } from "bun:test";
 
 import { MENU } from "../../../src/config/menu";
+import { resetAnggaranStores } from "../anggaran-reset";
 import {
   BUDGET_ALLOCATION,
   PROGRAM,
@@ -39,24 +40,9 @@ type Allocation = {
   };
 };
 
-const SEED = BUDGET_ALLOCATION.map((row) => ({ ...row }));
-
 const YEAR = currentBudgetYear();
 
-// Larik dikembalikan ke isi awalnya, bukan dikosongkan: `PROGRAM` milik agent
-// lain, dan mengosongkannya membuat suite ini lulus karena urutan muat, bukan
-// karena desain. Begitu berkas test lain memuat lebih dulu dan mengisi
-// `PROGRAM`, penjaga hapus pagu di sini akan melihat program nyata.
-const PROGRAM_SEED = PROGRAM.map((row) => ({ ...row }));
-
-afterEach(() => {
-  BUDGET_ALLOCATION.splice(
-    0,
-    BUDGET_ALLOCATION.length,
-    ...SEED.map((row) => ({ ...row })),
-  );
-  PROGRAM.splice(0, PROGRAM.length, ...PROGRAM_SEED.map((row) => ({ ...row })));
-});
+afterEach(resetAnggaranStores);
 
 const onCall = async (
   method: string,
@@ -90,6 +76,26 @@ const detailOf = (body?: Json) => body?.data as Allocation;
 
 const anyOf = (year: number): BudgetAllocationRow =>
   BUDGET_ALLOCATION.find((row) => row.year === year)!;
+
+// Pagu milik test ini sendiri, di tahun yang tidak dipakai program benih mana
+// pun. Penjaga hapus bertanya "apakah ada program hidup yang berkomitmen ke
+// pagu ini", jadi test sisi-diterima harus memegang pagu yang memang bersih —
+// bukan memegang pagu benih dan berharap `PROGRAM` kebetulan kosong.
+const CLEAN_YEAR = YEAR + 5;
+
+const cleanCeiling = () => {
+  const row: BudgetAllocationRow = {
+    id: 9400,
+    publicId: "pga-9400",
+    bapelId: 2,
+    year: CLEAN_YEAR,
+    amount: "9000000",
+  };
+
+  BUDGET_ALLOCATION.push(row);
+
+  return row;
+};
 
 const program = (bapelId: number, year: number, extra: Partial<ProgramRow>) => {
   const row = {
@@ -297,7 +303,7 @@ describe("mock /pagu-anggaran tulis", () => {
   });
 
   test("hapus diterima ketika semua programnya dibatalkan", async () => {
-    const row = anyOf(YEAR);
+    const row = cleanCeiling();
     program(row.bapelId, row.year, { status: "CANCELLED" });
 
     const deleted = await onCall("DELETE", `/pagu-anggaran/${row.publicId}`);
@@ -307,7 +313,7 @@ describe("mock /pagu-anggaran tulis", () => {
   });
 
   test("hapus tanpa program: 200", async () => {
-    const row = anyOf(YEAR);
+    const row = cleanCeiling();
 
     expect(
       (await onCall("DELETE", `/pagu-anggaran/${row.publicId}`))?.status,

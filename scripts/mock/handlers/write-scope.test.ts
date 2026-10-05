@@ -1,11 +1,14 @@
-import { describe, expect, test } from "bun:test";
+import { afterEach, describe, expect, test } from "bun:test";
 
 import { MENU } from "../../../src/config/menu";
 import { PERSONA_KEY, PERSONA_POSITIONS } from "../../mock-dashboard";
+import { resetAnggaranStores } from "../anggaran-reset";
 import { BUDGET_USAGE_REPORT, reportLine } from "../anggaran-store";
 
 import { laporanBudgetMock } from "./laporan-budget";
 import { programMock } from "./program";
+
+afterEach(resetAnggaranStores);
 
 /**
  * Jalur tulis yang menerima kunci pemilik dari payload harus MELINGKUPINYA,

@@ -1,6 +1,7 @@
-import { describe, expect, test } from "bun:test";
+import { afterEach, describe, expect, test } from "bun:test";
 
 import type { MenuSlug } from "../../../src/config/menu";
+import { resetAnggaranStores } from "../anggaran-reset";
 import {
   PROGRAM,
   allocationOf,
@@ -15,6 +16,8 @@ import type { MockAction } from "../kit";
 // aritmetika yang diuji di sini tidak punya batas untuk diukur.
 import "./pagu-anggaran";
 import { programMock } from "./program";
+
+afterEach(resetAnggaranStores);
 
 const YEAR = currentBudgetYear();
 
@@ -167,7 +170,13 @@ describe("mock program: bacaan", () => {
 
     expect(data.ceiling).toBeTruthy();
     expect(data.reportedUsage).toBeTruthy();
-    expect((data.reportedUsage as { untagged: string }).untagged).toBe("0");
+    // Bentuknya yang diuji di sini: `untagged` selalu ada dan selalu angka,
+    // tidak pernah undefined. Angkanya diuji di describe asimetri di bawah,
+    // dengan barisnya sendiri — mematoknya ke isi benih di sini membuat test
+    // bacaan ini jatuh setiap kali ada yang menambah satu LPJ.
+    expect((data.reportedUsage as { untagged: string }).untagged).toMatch(
+      /^\d+$/,
+    );
   });
 
   test("tanpa VIEW dijawab 403", async () => {
