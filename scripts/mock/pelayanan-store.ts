@@ -106,7 +106,7 @@ export const jemaatOf = (id: number) => DDL_JEMAAT.find((row) => row.id === id);
 export const bapelOf = (id: number) => {
   const name = BAPEL_NAMES[id - 1];
 
-  return name ? { id, code: `BPL-${id}`, name } : undefined;
+  return name ? { id, code: `BPL-${bapelKey(id)}`, name } : undefined;
 };
 
 const MAJELIS = 1;

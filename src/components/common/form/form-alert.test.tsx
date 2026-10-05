@@ -55,12 +55,13 @@ describe("FormAlert", () => {
 // yang bertekad. Pengukuran sebenarnya milik verifikasi peramban; lihat
 // pedoman §7.3.
 describe("FormAlert: teks pengguna yang tak terbatas", () => {
-  // Keluarga ejaannya, bukan satu literal: `break-words` adalah nama Tailwind
-  // v3 dan di v4 ia TIDAK menghasilkan aturan apa pun (diperiksa di CSS hasil
-  // build: hanya `.wrap-break-word{overflow-wrap:break-word}` yang terbit).
-  // Keduanya tetap diterima di sini supaya penjaga ini tidak jatuh kalau
-  // repo-nya kembali ke v3 — tapi hanya satu yang benar hari ini.
-  const WRAPPING = ["wrap-break-word", "break-words", "wrap-anywhere"];
+  // Keluarga ejaannya, tapi hanya ejaan yang BENAR-BENAR TERBIT. Diperiksa di
+  // CSS hasil build, bukan ditebak dari nama: `.wrap-break-word` dan
+  // `.break-all` punya aturan; `break-words` dipakai di empat berkas dan
+  // TIDAK menghasilkan aturan apa pun — ia nama Tailwind v3. Menerimanya di
+  // sini akan meloloskan komponen yang mengira membungkus padahal meluber,
+  // yaitu kegagalan yang penjaga ini ada untuk mencegah.
+  const WRAPPING = ["wrap-break-word", "break-all"];
 
   const isWrapping = (node: HTMLElement) => {
     for (let el: HTMLElement | null = node; el; el = el.parentElement) {
