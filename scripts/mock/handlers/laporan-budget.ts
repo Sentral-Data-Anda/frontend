@@ -21,6 +21,8 @@ import { addDays, addMonths, monthLabel } from "../../../src/lib/date";
 import { SESSION_USER_ID } from "../../mock-dashboard";
 import {
   BUDGET_USAGE_REPORT,
+  approvalStep,
+  receiptView,
   GATE_WAIVER,
   PROGRAM,
   TODAY,
@@ -46,8 +48,7 @@ import {
 } from "../anggaran-store";
 import { accountOf, cashExpenseTotal } from "../keuangan-store";
 import { denied, json, list, type MockAction, type MockHandler } from "../kit";
-import { filesOf, mediaUrl, putMedia, seedImage, seedPdf } from "../media";
-import { bapelOf } from "../pelayanan-store";
+import { filesOf, putMedia, seedImage, seedPdf } from "../media";
 
 type Issue = { path: string; message: string };
 
@@ -79,8 +80,6 @@ const APPROVAL_STEPS = [
 
 // Ukuran berkas tidak punya kolom di baris store, dan bentuk lampiran be-sada
 // membawanya. Dicatat di samping, bukan diam-diam dikirim nol.
-const RECEIPT_SIZE = new Map<string, number>();
-
 export const reportFailure = (
   status: number,
   error: string,
@@ -93,15 +92,6 @@ const invalid = (issues: Issue[], status = 400) =>
 const pad = (value: number) => String(value).padStart(2, "0");
 
 const monthKeyOf = (year: number, month: number) => `${year}-${pad(month)}`;
-
-const receiptView = (receipt: BudgetReportRow["receipts"][number]) => ({
-  publicId: receipt.publicId,
-  name: receipt.name,
-  mimeType: receipt.mimeType,
-  size: RECEIPT_SIZE.get(receipt.publicId) ?? 0,
-  showOnWebsite: false,
-  url: mediaUrl(receipt.path),
-});
 
 /**
  * Bentuk bersama store dipakai apa adanya, lalu ditambah empat hal yang
@@ -117,21 +107,10 @@ const detailView = (row: BudgetReportRow) => {
   return {
     ...view,
     bapelId: row.bapelId,
-    lines: row.lines.map((line) => ({
-      ...reportLineView(line),
-      programId: line.programId,
-    })),
+    lines: row.lines.map(reportLineView),
     listReceipt: row.receipts.map(receiptView),
     disbursementTotal: disbursedTotalOf(row),
-    approval: approval
-      ? {
-          ...approval,
-          steps: approval.steps.map((step) => ({
-            ...step,
-            publicId: `aps-${row.publicId}-${step.order}`,
-          })),
-        }
-      : null,
+    approval,
   };
 };
 
@@ -551,12 +530,11 @@ const storeReceipt = async (file: File) => {
   const publicId = crypto.randomUUID();
   const stored = await putMedia(file, "budget-usage-report");
 
-  RECEIPT_SIZE.set(publicId, stored.size);
-
   return {
     publicId,
     path: stored.path,
     name: stored.name,
+    size: stored.size,
     mimeType: stored.mimeType,
   };
 };
@@ -566,9 +544,6 @@ const onCreate = async (request: Request, scope: KomisiScope) => {
   const parsed = parse(form, false);
 
   if (Array.isArray(parsed)) return invalid(parsed);
-  if (!bapelOf(parsed.bapelId)) {
-    return reportFailure(404, "Komisi Tidak Ditemukan");
-  }
 
   // Membuat LPJ di-scope, dan jawabannya 404 — bukan 403. Baris LPJ unik per
   // komisi-bulan, jadi create yang tidak di-scope menempati satu-satunya slot
@@ -617,7 +592,11 @@ const onCreate = async (request: Request, scope: KomisiScope) => {
   );
 };
 
-const onUpdate = async (request: Request, row: BudgetReportRow) => {
+const onUpdate = async (
+  request: Request,
+  row: BudgetReportRow,
+  scope: KomisiScope,
+) => {
   const locked = lockFailure(row);
   if (locked) return locked;
 
@@ -625,8 +604,21 @@ const onUpdate = async (request: Request, row: BudgetReportRow) => {
   const parsed = parse(form, true);
 
   if (Array.isArray(parsed)) return invalid(parsed);
-  if (!bapelOf(parsed.bapelId)) {
-    return reportFailure(404, "Komisi Tidak Ditemukan");
+
+  // Pencarian row sudah berlingkup, jadi yang dijaga di sini BUKAN membaca
+  // laporan orang lain — melainkan MEMINDAHKAN laporan sendiri ke nama komisi
+  // lain. Itu punya akibat uang: LPJ yang disetujui membuka pencairan bulan
+  // berikutnya untuk komisi yang namanya tertulis. Dan tulisannya sekali
+  // jalan — sesudah mendarat, pencarian berlingkup tidak menemukannya lagi,
+  // jadi komisi yang berhak kehilangan laporannya sendiri tanpa jalan kembali.
+  //
+  // `bapelOf()` yang dulu di sini menjawab "komisinya ada atau tidak", BUKAN
+  // "pemanggil boleh memakainya" — di call site ia terbaca seperti penjaga.
+  // Bentuk dan kalimatnya kini sama persis dengan `onCreate`.
+  if (!isVisibleBapel(scope, parsed.bapelId)) {
+    return reportFailure(404, "Komisi Tidak Ditemukan", {
+      issues: [{ path: "bapelId", message: "Komisi tidak ditemukan" }],
+    });
   }
 
   const failure =
@@ -708,14 +700,9 @@ const onSubmit = (row: BudgetReportRow) => {
     status: "PENDING",
     currentOrder: 1,
     submittedById: SESSION_USER_ID,
-    steps: APPROVAL_STEPS.map((roleName, index) => ({
-      order: index + 1,
-      roleName,
-      status: "PENDING",
-      note: null,
-      actedAt: null,
-      actedById: null,
-    })),
+    steps: APPROVAL_STEPS.map((roleName, index) =>
+      approvalStep(index + 1, roleName, "PENDING"),
+    ),
   });
 
   return json({
@@ -816,7 +803,9 @@ export const laporanBudgetMock: MockHandler = (ctx) => {
   if (ctx.method === "PUT") {
     if (!can("UPDATE")) return denied();
 
-    return row ? onUpdate(ctx.request, row) : reportFailure(404, NOT_FOUND);
+    return row
+      ? onUpdate(ctx.request, row, scope)
+      : reportFailure(404, NOT_FOUND);
   }
 
   if (ctx.method === "DELETE") {
@@ -874,14 +863,14 @@ const receipt = (name: string, kind: "image" | "pdf" = "image") => {
   const publicId = `lpbr-${String(receiptId).padStart(4, "0")}`;
   const path = `budget-usage-report/seed-${receiptId}.${isPdf ? "pdf" : "jpeg"}`;
 
-  RECEIPT_SIZE.set(
-    publicId,
-    isPdf ? seedPdf(path) : seedImage(path, name, 18 + receiptId * 37),
-  );
+  const size = isPdf
+    ? seedPdf(path)
+    : seedImage(path, name, 18 + receiptId * 37);
 
   return {
     publicId,
     path,
+    size,
     name,
     mimeType: isPdf ? "application/pdf" : "image/jpeg",
   };
@@ -890,16 +879,8 @@ const receipt = (name: string, kind: "image" | "pdf" = "image") => {
 const step = (
   order: number,
   status: ProgramApprovalRow["steps"][number]["status"],
-  extra: Partial<ProgramApprovalRow["steps"][number]> = {},
-) => ({
-  order,
-  roleName: APPROVAL_STEPS[order - 1] ?? "",
-  status,
-  note: null,
-  actedAt: null,
-  actedById: null,
-  ...extra,
-});
+  extra: Partial<Omit<ProgramApprovalRow["steps"][number], "publicId">> = {},
+) => approvalStep(order, APPROVAL_STEPS[order - 1] ?? "", status, extra);
 
 const approval = (
   suffix: string,

@@ -16,6 +16,7 @@ import { sumAmounts } from "../../../src/lib/number";
 import { SESSION_USER_ID } from "../../mock-dashboard";
 import {
   BUDGET_USAGE_REPORT,
+  approvalStep,
   PROGRAM,
   TODAY,
   budgetYearRange,
@@ -481,14 +482,9 @@ const onSubmit = (row: ProgramRow) => {
     status: "PENDING",
     currentOrder: 1,
     submittedById: SESSION_USER_ID,
-    steps: APPROVAL_STEPS.map((roleName, index) => ({
-      order: index + 1,
-      roleName,
-      status: "PENDING",
-      note: null,
-      actedAt: null,
-      actedById: null,
-    })),
+    steps: APPROVAL_STEPS.map((roleName, index) =>
+      approvalStep(index + 1, roleName, "PENDING"),
+    ),
   });
 
   return json({
@@ -702,16 +698,8 @@ const step = (
   order: number,
   roleName: string,
   status: ProgramApprovalRow["steps"][number]["status"],
-  extra: Partial<ProgramApprovalRow["steps"][number]> = {},
-) => ({
-  order,
-  roleName,
-  status,
-  note: null,
-  actedAt: null,
-  actedById: null,
-  ...extra,
-});
+  extra: Partial<Omit<ProgramApprovalRow["steps"][number], "publicId">> = {},
+) => approvalStep(order, roleName, status, extra);
 
 const approval = (
   publicId: string,

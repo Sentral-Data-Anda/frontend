@@ -41,6 +41,7 @@ import {
   nextId,
   userNameOf,
 } from "./keuangan-store";
+import { mediaUrl } from "./media";
 import { bapelOf } from "./pelayanan-store";
 
 export { TODAY, isLive, nextId, userNameOf };
@@ -200,6 +201,7 @@ export type ProgramApprovalRow = {
   currentOrder: number;
   submittedById: number;
   steps: {
+    publicId: string;
     order: number;
     roleName: string;
     status: ApprovalStatus;
@@ -207,6 +209,36 @@ export type ProgramApprovalRow = {
     actedAt: string | null;
     actedById: number | null;
   }[];
+};
+
+let approvalStepId = 0;
+
+/**
+ * Satu tahap persetujuan, dengan `publicId`-nya.
+ *
+ * Dibuat di sini supaya tidak ada handler yang harus mengingatnya: bacaan
+ * `approval` sempat meringkas kunci ini hilang, dan QR verifikasi LPJ adalah
+ * pemakai pertama yang menyadarinya. Kunci yang lahir bersama barisnya tidak
+ * bisa lupa dibawa.
+ */
+export const approvalStep = (
+  order: number,
+  roleName: string,
+  status: ApprovalStatus,
+  extra: Partial<Omit<ProgramApprovalRow["steps"][number], "publicId">> = {},
+): ProgramApprovalRow["steps"][number] => {
+  approvalStepId += 1;
+
+  return {
+    publicId: `aps-${String(approvalStepId).padStart(4, "0")}`,
+    order,
+    roleName,
+    status,
+    note: null,
+    actedAt: null,
+    actedById: null,
+    ...extra,
+  };
 };
 
 export type ProgramRow = {
@@ -308,6 +340,7 @@ export type BudgetReportRow = {
     publicId: string;
     path: string;
     name: string;
+    size: number;
     mimeType: string;
   }[];
   approvals: ProgramApprovalRow[];
@@ -568,6 +601,10 @@ const approvalView = (row: ProgramApprovalRow, total: string) => ({
   amount: total,
   isSubmittedByViewer: row.submittedById === SESSION_USER_ID,
   steps: row.steps.map((step) => ({
+    // `ApprovalStep` kontrak Persetujuan punya `publicId`, dan bacaan ini
+    // sempat meringkasnya hilang. QR verifikasi LPJ adalah pemakai pertama yang
+    // menyadarinya — bentuk bacaan yang diklaim tapi tidak pernah benar.
+    publicId: step.publicId,
     order: step.order,
     approverRoleName: step.roleName,
     approverBapel: null,
@@ -615,6 +652,16 @@ export const programView = (row: ProgramRow, isDetail = false) => {
   };
 };
 
+/** Bentuk `Attachment` bertanda tangan — sama dengan Inventaris dan Pengadaan. */
+export const receiptView = (receipt: BudgetReportRow["receipts"][number]) => ({
+  publicId: receipt.publicId,
+  name: receipt.name,
+  mimeType: receipt.mimeType,
+  size: receipt.size,
+  showOnWebsite: false,
+  url: mediaUrl(receipt.path),
+});
+
 export const reportLineView = (line: ReportLineRow) => {
   const program = line.programId
     ? (PROGRAM.find((row) => row.id === line.programId) ?? null)
@@ -627,6 +674,9 @@ export const reportLineView = (line: ReportLineRow) => {
     publicId: line.publicId,
     accountId: line.accountId,
     account: accountRef(line.accountId),
+    // Form ubah mengisi awal pilihan Program dari sini; tanpa id mentahnya ia
+    // hanya punya nama dan tidak bisa mengembalikan pilihannya.
+    programId: line.programId,
     program: program
       ? { publicId: program.publicId, code: program.code, name: program.name }
       : null,
@@ -659,7 +709,7 @@ export const reportView = (row: BudgetReportRow, isDetail = false) => {
           bapelId: row.bapelId,
           note: row.note,
           lines: row.lines.map(reportLineView),
-          listReceipt: row.receipts,
+          listReceipt: row.receipts.map(receiptView),
           approvedBy: userNameOf(row.approvedById),
           approvedAt: row.approvedAt,
         }
@@ -680,6 +730,9 @@ export const complianceRows = (
 
       return {
         bapel: bapelRef(bapelId),
+        // Tombol Tambah di baris Belum lapor mengisi awal form dengan komisi
+        // ini; `bapel.publicId` bukan nilai yang diterima badan tulis.
+        bapelId,
         state: complianceStateOf(bapelId, year, month),
         report: report
           ? { publicId: report.publicId, code: report.code }
