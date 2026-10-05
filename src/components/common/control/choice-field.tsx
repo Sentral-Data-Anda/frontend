@@ -12,6 +12,11 @@ interface PropTypes {
   onValueChange: (value: string) => void;
   options: readonly SelectOption[];
   disabled?: boolean;
+  // Disuntikkan `FormField` lewat `cloneElement`. Tanpa menerimanya di sini,
+  // keduanya hilang: grup tidak pernah terbaca salah, dan `aria-describedby`
+  // menunjuk id pesan galat yang tidak terpasang ke apa pun.
+  "aria-invalid"?: boolean;
+  "aria-describedby"?: string;
 }
 
 export const ChoiceField = (props: PropTypes) => {
@@ -23,11 +28,13 @@ export const ChoiceField = (props: PropTypes) => {
     onValueChange,
     options,
     disabled,
+    "aria-invalid": isInvalid,
+    "aria-describedby": describedBy,
   } = props;
 
   return (
     <div className="@container">
-      <fieldset id={id}>
+      <fieldset id={id} aria-describedby={describedBy}>
         <legend
           className={cn(
             "mb-1.5 text-body font-medium",
@@ -37,11 +44,22 @@ export const ChoiceField = (props: PropTypes) => {
           {label}
         </legend>
 
-        <div className="bg-muted flex w-full gap-0.5 rounded-control p-0.5 @min-[48rem]:w-fit">
-          {options.map((option) => (
+        <div className={TRACK}>
+          {options.map((option, index) => (
             <label key={option.value} className={CHOICE}>
               <input
                 type="radio"
+                // `aria-invalid` ke pilihan PERTAMA saja, seperti
+                // `CheckboxGroupField`: di elemen non-form ia tidak diumumkan,
+                // dan di SETIAP pilihan ia menandai yang benar sebagai salah.
+                //
+                // `id` TETAP di fieldset-nya, TIDAK dipindah ke radio pertama
+                // seperti `CheckboxGroupField`. Bedanya: komponen itu merender
+                // pesannya sendiri, sedangkan ini dipakai di dalam `FormField`
+                // yang punya `<label for>` sendiri — radio dengan `id` itu jadi
+                // punya dua label, dan nama pilihannya ("Menunggu saya")
+                // tertimpa nama grupnya. Tesnya menangkap ini.
+                aria-invalid={index === 0 ? isInvalid : undefined}
                 name={id}
                 value={option.value}
                 checked={value === option.value}
@@ -57,6 +75,9 @@ export const ChoiceField = (props: PropTypes) => {
     </div>
   );
 };
+
+const TRACK =
+  "bg-muted has-aria-invalid:bg-destructive/10 has-aria-invalid:ring-destructive flex w-full gap-0.5 rounded-control p-0.5 has-aria-invalid:ring-1 @min-[48rem]:w-fit";
 
 const CHOICE =
   "text-muted-foreground hover:text-foreground has-checked:bg-card has-checked:text-foreground has-focus-visible:ring-ring has-disabled:hover:text-muted-foreground flex h-9 min-w-0 flex-1 cursor-pointer items-center justify-center rounded-[calc(var(--radius-control)-2px)] px-2 text-body font-medium whitespace-nowrap transition-colors select-none has-checked:shadow-sm has-focus-visible:ring-2 has-disabled:cursor-not-allowed has-disabled:opacity-50 @min-[48rem]:flex-none @min-[48rem]:px-4";
