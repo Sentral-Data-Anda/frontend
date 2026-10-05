@@ -2,15 +2,23 @@ import { afterEach, describe, expect, test } from "bun:test";
 
 import { MENU } from "../../../src/config/menu";
 import { SESSION_USER_ID } from "../../mock-dashboard";
+import { resetAnggaranStores } from "../anggaran-reset";
+import {
+  BUDGET_USAGE_REPORT,
+  GATE_WAIVER,
+  previousMonth,
+} from "../anggaran-store";
 import {
   CASH_EXPENSE,
   CASH_EXPENSE_SOURCE,
+  TODAY,
   JOURNAL_ENTRY,
   journalOfSource,
   type CashExpenseRow,
   type JournalEntryRow,
 } from "../keuangan-store";
 import type { MockAction } from "../kit";
+import { bapelOf } from "../pelayanan-store";
 
 import { kasKeluarMock } from "./kas-keluar";
 
@@ -21,6 +29,11 @@ type Json = {
   message?: string;
   issues?: { path: string; message: string }[];
   data?: unknown;
+  // Penolakan gerbang membawa komisi dan bulannya TERSTRUKTUR, bukan sebagai
+  // angka di dalam kalimat.
+  bapel?: { code: string; name: string };
+  year?: number;
+  month?: number;
 };
 
 const clone = (row: CashExpenseRow): CashExpenseRow => ({
@@ -40,6 +53,11 @@ const cloneEntry = (row: JournalEntryRow): JournalEntryRow => ({
 const JOURNAL_SEED = JOURNAL_ENTRY.map(cloneEntry);
 
 afterEach(() => {
+  // Larik Anggaran dipulihkan lewat SATU modul bersama (pedoman §7.2): berkas
+  // ini menulis `GATE_WAIVER` dan `BUDGET_USAGE_REPORT`, dan snapshot sendiri
+  // akan merekam apa pun yang berkas lain tinggalkan. `CASH_EXPENSE` milik
+  // keuangan-store, jadi ia tetap dipulihkan dari snapshot berkas ini.
+  resetAnggaranStores();
   CASH_EXPENSE.splice(0, CASH_EXPENSE.length, ...SEED.map(clone));
   JOURNAL_ENTRY.splice(
     0,
@@ -611,5 +629,240 @@ describe("bukan milik handler ini", () => {
   test("path lain dilewatkan", async () => {
     expect(await onCall("GET", "/kas-masuk")).toBeNull();
     expect(idOf(0)).toBe(PENDING_MINE);
+  });
+});
+
+// Gerbangnya diuji atas prasyarat yang DINYATAKAN di sini, bukan atas keadaan
+// benih: benihnya bergeser di tiap `MOCK_TODAY`, dan test yang menebak komisi
+// mana yang kebetulan belum melapor akan hijau di satu tanggal dan merah di
+// tanggal lain. Bulannya selalu dihitung dari TODAY, tidak pernah dituliskan.
+const GATE_BAPEL = 2;
+
+const THIS_MONTH = `${TODAY.slice(0, 7)}-15`;
+
+const gateMonth = () =>
+  previousMonth(Number(THIS_MONTH.slice(0, 4)), Number(THIS_MONTH.slice(5, 7)));
+
+const payableOf = (bapelId: number | null, expenseDate = THIS_MONTH) => {
+  const row: CashExpenseRow = {
+    ...clone(CASH_EXPENSE[0]!),
+    id: 9100 + CASH_EXPENSE.length,
+    publicId: `bkk-gate-${CASH_EXPENSE.length}`,
+    code: `BKK-GATE-${CASH_EXPENSE.length}`,
+    expenseDate,
+    bapelId,
+    bapelChoice: bapelId === null ? "BUKAN_KOMISI" : "KOMISI",
+    status: "APPROVED",
+    approvals: [],
+    deletedAt: null,
+  };
+  CASH_EXPENSE.push(row);
+
+  return row.publicId;
+};
+
+/** Komisi yang MENERIMA pencairan di M−1 dan belum punya laporan apa pun. */
+const onOweReport = (bapelId = GATE_BAPEL) => {
+  const { year, month } = gateMonth();
+  const live = BUDGET_USAGE_REPORT.filter(
+    (row) =>
+      row.bapelId === bapelId && row.year === year && row.month === month,
+  );
+  for (const row of live) row.deletedAt = new Date().toISOString();
+
+  payableOf(bapelId, `${year}-${String(month).padStart(2, "0")}-10`);
+  const drew = CASH_EXPENSE.at(-1)!;
+  drew.status = "PAID";
+};
+
+const reportFor = (status: "DRAFT" | "APPROVED", bapelId = GATE_BAPEL) => {
+  const { year, month } = gateMonth();
+
+  BUDGET_USAGE_REPORT.push({
+    ...structuredClone(BUDGET_USAGE_REPORT[0]!),
+    id: 9200 + BUDGET_USAGE_REPORT.length,
+    publicId: `lpb-gate-${BUDGET_USAGE_REPORT.length}`,
+    code: `LPB-GATE-${BUDGET_USAGE_REPORT.length}`,
+    bapelId,
+    year,
+    month,
+    status,
+    deletedAt: null,
+  });
+};
+
+describe("gerbang pencairan di bayar", () => {
+  test("laporan M-1 belum ada: ditolak dengan code dan bulan terstruktur", async () => {
+    onOweReport();
+    const id = payableOf(GATE_BAPEL);
+    const rejected = await onCall("PUT", `/kas-keluar/${id}/bayar`);
+    const { year, month } = gateMonth();
+
+    expect(rejected?.status).toBe(400);
+    expect(rejected?.body.code).toBe("BUDGET_REPORT_PENDING");
+    expect(rejected?.body.year).toBe(year);
+    expect(rejected?.body.month).toBe(month);
+    // Komisinya TERSTRUKTUR, bukan namanya di dalam kalimat: layar menautkan
+    // ke laporan komisi itu tanpa mengurai prosa.
+    expect(rejected?.body.bapel?.code).toBe(bapelOf(GATE_BAPEL)!.code);
+    expect(rejected?.body.bapel?.name).toBeTruthy();
+    expect(rejected?.body.error).not.toContain(String(month));
+  });
+
+  test("laporan M-1 masih DRAFT: ditolak", async () => {
+    onOweReport();
+    reportFor("DRAFT");
+    const id = payableOf(GATE_BAPEL);
+
+    expect((await onCall("PUT", `/kas-keluar/${id}/bayar`))?.body.code).toBe(
+      "BUDGET_REPORT_PENDING",
+    );
+  });
+
+  test("laporan M-1 APPROVED: LOLOS", async () => {
+    onOweReport();
+    reportFor("APPROVED");
+    const id = payableOf(GATE_BAPEL);
+
+    expect((await onCall("PUT", `/kas-keluar/${id}/bayar`))?.status).toBe(200);
+  });
+
+  test("nol pencairan di M-1: LOLOS, bukan ditolak", async () => {
+    // Tidak ada uang keluar bulan lalu, jadi tidak ada yang terutang — walaupun
+    // tidak ada laporan sama sekali. Blokir di sini akan salah secara faktual.
+    const { year, month } = gateMonth();
+    for (const row of CASH_EXPENSE) {
+      if (
+        row.bapelId === GATE_BAPEL &&
+        row.expenseDate.slice(0, 7) ===
+          `${year}-${String(month).padStart(2, "0")}`
+      ) {
+        row.deletedAt = new Date().toISOString();
+      }
+    }
+    const id = payableOf(GATE_BAPEL);
+
+    expect((await onCall("PUT", `/kas-keluar/${id}/bayar`))?.status).toBe(200);
+  });
+
+  test("sudah dibebaskan: LOLOS", async () => {
+    onOweReport();
+    const { year, month } = gateMonth();
+    GATE_WAIVER.push({
+      id: 1,
+      bapelId: GATE_BAPEL,
+      year,
+      month,
+      reason: "Pengurus baru dilantik.",
+      createdById: SESSION_USER_ID,
+      createdAt: new Date().toISOString(),
+      deletedAt: null,
+    });
+    const id = payableOf(GATE_BAPEL);
+
+    expect((await onCall("PUT", `/kas-keluar/${id}/bayar`))?.status).toBe(200);
+  });
+
+  test("tanpa komisi: gerbang tidak pernah masuk", async () => {
+    onOweReport();
+    const id = payableOf(null);
+
+    expect((await onCall("PUT", `/kas-keluar/${id}/bayar`))?.status).toBe(200);
+  });
+
+  test("1 Januari memakai Desember tahun SEBELUMNYA", async () => {
+    const year = Number(TODAY.slice(0, 4));
+    // Pencairan PAID di Desember tahun lalu, laporannya tidak ada.
+    const drewId = payableOf(GATE_BAPEL, `${year - 1}-12-10`);
+    CASH_EXPENSE.find((row) => row.publicId === drewId)!.status = "PAID";
+
+    const id = payableOf(GATE_BAPEL, `${year}-01-05`);
+    const rejected = await onCall("PUT", `/kas-keluar/${id}/bayar`);
+
+    expect(rejected?.body.code).toBe("BUDGET_REPORT_PENDING");
+    expect(rejected?.body.year).toBe(year - 1);
+    expect(rejected?.body.month).toBe(12);
+  });
+
+  test("simpan draf tetap diterima walaupun laporan M-1 draf", async () => {
+    onOweReport();
+    reportFor("DRAFT");
+    const created = await onCall(
+      "POST",
+      "/kas-keluar",
+      formOf({ bapelChoice: "KOMISI", bapelId: String(GATE_BAPEL) }),
+    );
+
+    expect(created?.status).toBe(201);
+  });
+});
+
+describe("pembebasan gerbang", () => {
+  const body = (next: Record<string, unknown> = {}) => {
+    const { year, month } = gateMonth();
+
+    return {
+      bapelId: GATE_BAPEL,
+      year,
+      month,
+      reason: "Pengurus baru.",
+      ...next,
+    };
+  };
+
+  test("tanpa KAS_KELUAR UPDATE: 403", async () => {
+    const rejected = await onCall(
+      "POST",
+      "/kas-keluar/pembebasan",
+      body(),
+      (_slug, action) => action !== "UPDATE",
+    );
+
+    expect(rejected?.status).toBe(403);
+  });
+
+  test("tanpa alasan: 400 di field reason", async () => {
+    const rejected = await onCall(
+      "POST",
+      "/kas-keluar/pembebasan",
+      body({ reason: "   " }),
+    );
+
+    expect(rejected?.status).toBe(400);
+    expect(rejected?.body.issues?.[0]?.path).toBe("reason");
+  });
+
+  test("dua kali untuk komisi dan bulan yang sama: 409", async () => {
+    expect(
+      (await onCall("POST", "/kas-keluar/pembebasan", body()))?.status,
+    ).toBe(201);
+    expect(
+      (await onCall("POST", "/kas-keluar/pembebasan", body()))?.status,
+    ).toBe(409);
+  });
+
+  test("membebaskan lalu bayar: lolos", async () => {
+    onOweReport();
+    reportFor("DRAFT");
+    const id = payableOf(GATE_BAPEL);
+
+    expect((await onCall("PUT", `/kas-keluar/${id}/bayar`))?.body.code).toBe(
+      "BUDGET_REPORT_PENDING",
+    );
+
+    await onCall("POST", "/kas-keluar/pembebasan", body());
+
+    expect((await onCall("PUT", `/kas-keluar/${id}/bayar`))?.status).toBe(200);
+  });
+
+  test("alasan dikembalikan utuh, tidak dipotong", async () => {
+    const reason = "A".repeat(250);
+    const created = await onCall(
+      "POST",
+      "/kas-keluar/pembebasan",
+      body({ reason }),
+    );
+
+    expect((created?.body.data as { reason: string }).reason).toBe(reason);
   });
 });

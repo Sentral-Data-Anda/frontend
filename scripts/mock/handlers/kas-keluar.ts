@@ -13,6 +13,12 @@ import { MENU } from "../../../src/config/menu";
 import { BAPEL_CHOICES, type BapelChoice } from "../../../src/types/keuangan";
 import { SESSION_USER_ID } from "../../mock-dashboard";
 import {
+  GATE_WAIVER,
+  gateFailureOf,
+  userNameOf,
+  waiverOf,
+} from "../anggaran-store";
+import {
   CASH_EXPENSE,
   CASH_EXPENSE_SOURCE,
   TODAY,
@@ -44,7 +50,13 @@ const MAX_AMOUNT = 9_999_999_999_999;
 const failure = (
   status: number,
   error: string,
-  extra: { issues?: Issue[]; code?: string } = {},
+  extra: {
+    issues?: Issue[];
+    code?: string;
+    bapel?: unknown;
+    year?: number;
+    month?: number;
+  } = {},
 ) => json({ status, error, ...extra }, status);
 
 const invalid = (issues: Issue[], status = 400) =>
@@ -453,6 +465,17 @@ const onPay = (row: CashExpenseRow) => {
     return failure(400, `${NAME} Ini Belum Disetujui`);
   }
 
+  // Gerbang pencairan, lewat pembantu bersama di store — gerbang, Belum lapor,
+  // dan prefill memakai fungsi yang sama. Pemicunya `bapelId` SAJA, dan ia
+  // berjalan di `bayar`: draf sah bulan M yang dibayar bulan M+2 lolos tanpa
+  // diperiksa ulang, dan `bayar` adalah saat uang bergerak.
+  const blocked = gateFailureOf(row.bapelId, row.expenseDate);
+  if (blocked) {
+    const { message, ...rest } = blocked;
+
+    return failure(400, message, rest);
+  }
+
   const posted = postDocumentEntry({
     sourceType: CASH_EXPENSE_SOURCE,
     sourceId: row.id,
@@ -537,6 +560,80 @@ const listRows = (url: URL) => {
     .map((row) => cashExpenseView(row));
 };
 
+// Pembebasan gerbang. TANPA `:id`: satu pembebasan = satu komisi, satu bulan,
+// bukan sakelar global dan bukan per dokumen. Dijaga KAS_KELUAR UPDATE —
+// aksi yang MEMBAYAR — karena pembebasan melepaskan sebuah pembayaran; peran
+// komisi hanya punya CREATE, jadi ia tidak bisa membebaskan blokirnya sendiri.
+const onWaive = async (request: Request) => {
+  type WaiveBody = {
+    bapelId?: number;
+    year?: number;
+    month?: number;
+    reason?: string;
+  };
+  const body = await readBody<WaiveBody>(request).catch(
+    () => ({}) as WaiveBody,
+  );
+
+  const bapelId = Number(body.bapelId) || 0;
+  const year = Number(body.year) || 0;
+  const month = Number(body.month) || 0;
+  const reason = collapse(String(body.reason ?? ""));
+
+  if (!reason) {
+    return invalid([{ path: "reason", message: "Mohon Lengkapi Alasan" }]);
+  }
+  if (reason.length > 250) {
+    return invalid([
+      { path: "reason", message: "Alasan tidak boleh lebih dari 250 karakter" },
+    ]);
+  }
+
+  const bapel = bapelOf(bapelId);
+  if (!bapel) {
+    return failure(404, "Badan Pelayanan Tidak Ditemukan", {
+      issues: [{ path: "bapelId", message: "Badan Pelayanan Tidak Ditemukan" }],
+    });
+  }
+  if (!year || month < 1 || month > 12) {
+    return invalid([{ path: "month", message: "Bulan Tidak Valid" }]);
+  }
+
+  // Unik di baris hidup — pola `budget_usage_report_period_key`.
+  if (waiverOf(bapelId, year, month)) {
+    return failure(409, "Pencairan Komisi Ini Bulan Itu Sudah Dibebaskan");
+  }
+
+  const row = {
+    id: nextId(GATE_WAIVER),
+    publicId: crypto.randomUUID(),
+    bapelId,
+    year,
+    month,
+    reason,
+    createdById: SESSION_USER_ID,
+    createdAt: new Date().toISOString(),
+    deletedAt: null,
+  };
+  GATE_WAIVER.push(row);
+
+  return json(
+    {
+      status: 201,
+      message: "Berhasil Membebaskan Pencairan",
+      data: {
+        bapel,
+        year,
+        month,
+        reason,
+        createdBy: userNameOf(row.createdById),
+        createdAt: row.createdAt,
+      },
+    },
+    201,
+  );
+};
+
 const ACTIONS = {
   pengajuan: { method: "POST", guard: "UPDATE" },
   tarik: { method: "PUT", guard: "UPDATE" },
@@ -545,6 +642,12 @@ const ACTIONS = {
 } as const;
 
 export const kasKeluarMock: MockHandler = async (ctx) => {
+  if (ctx.path === "/kas-keluar/pembebasan") {
+    if (ctx.method !== "POST") return null;
+
+    return ctx.can(MENU.KAS_KELUAR, "UPDATE") ? onWaive(ctx.request) : denied();
+  }
+
   const match = ctx.path.match(
     /^\/kas-keluar(?:\/([^/]+))?(?:\/(pengajuan|tarik|bayar|batal))?$/,
   );

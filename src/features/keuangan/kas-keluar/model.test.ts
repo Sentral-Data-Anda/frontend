@@ -14,8 +14,11 @@ import {
   expenseStateOf,
   isLocked,
   isRejected,
+  previousMonthOf,
   toExpenseForm,
   toExpenseFormData,
+  waiveSchema,
+  waiveText,
   rejectionMarkOf,
   toExpenseQuery,
   toFormError,
@@ -373,5 +376,90 @@ describe("toFormError", () => {
     ) as FetchError;
 
     expect(mapped.issues[0]!.path).toBe("attachments");
+  });
+});
+
+describe("errorFixOf: gerbang anggaran", () => {
+  test("BUDGET_REPORT_PENDING menautkan ke Laporan Budget, bukan ke Periode Fiskal", () => {
+    const fix = errorFixOf(
+      new FetchError(400, "apa saja", [], "BUDGET_REPORT_PENDING"),
+    );
+
+    expect(fix?.menu).toBe("LAPORAN_BUDGET");
+    expect(fix?.href).toContain("/anggaran/laporan-budget");
+  });
+
+  test("kata laporan atau budget TANPA code tidak pernah memicu tautannya", () => {
+    for (const message of [
+      "Komisi Ini Belum Menyelesaikan Laporan Pemakaian Budget Bulan Agustus",
+      "Laporan budget belum disetujui",
+      "budget",
+    ]) {
+      expect(errorFixOf(new FetchError(400, message))).toBeNull();
+    }
+  });
+
+  test("code tak dikenal dirender tanpa tautan", () => {
+    expect(
+      errorFixOf(new FetchError(400, "x", [], "BUDGET_REPORT_SOMETHING")),
+    ).toBeNull();
+  });
+
+  test("periode dan gerbang menghasilkan dua perbaikan BERBEDA, tidak digabung", () => {
+    const period = errorFixOf(new FetchError(400, "x", [], "PERIOD_CLOSED"));
+    const gate = errorFixOf(
+      new FetchError(400, "x", [], "BUDGET_REPORT_PENDING"),
+    );
+
+    expect(period?.href).not.toBe(gate?.href);
+    expect(period?.menu).not.toBe(gate?.menu);
+  });
+});
+
+describe("previousMonthOf", () => {
+  test("Januari mundur ke Desember tahun sebelumnya", () => {
+    expect(previousMonthOf("2027-01-05")).toEqual({ year: 2026, month: 12 });
+  });
+
+  test("bulan lain mundur satu di tahun yang sama", () => {
+    expect(previousMonthOf("2026-09-29")).toEqual({ year: 2026, month: 8 });
+    expect(previousMonthOf("2026-12-31")).toEqual({ year: 2026, month: 11 });
+  });
+
+  test("dihitung dari expenseDate, BUKAN dari hari ini", () => {
+    const today = todayJakarta();
+
+    expect(previousMonthOf("2026-03-15")).toEqual({ year: 2026, month: 2 });
+    expect(previousMonthOf("2026-03-15").year).not.toBe(
+      Number(today.slice(0, 4)) + 1,
+    );
+  });
+});
+
+describe("waiveSchema", () => {
+  const pathsOf = (reason: string) => {
+    const parsed = waiveSchema.safeParse({ reason });
+
+    return parsed.success
+      ? []
+      : parsed.error.issues.map((i) => i.path.join("."));
+  };
+
+  test("alasan wajib: kosong dan spasi saja ditolak", () => {
+    expect(pathsOf("")).toContain("reason");
+    expect(pathsOf("   ")).toContain("reason");
+  });
+
+  test("250 karakter diterima, 251 ditolak", () => {
+    expect(pathsOf("A".repeat(250))).toEqual([]);
+    expect(pathsOf("A".repeat(251))).toContain("reason");
+  });
+
+  test("teksnya menyebut komisi DAN bulannya", () => {
+    const text = waiveText("Komisi Pemuda", "Maret 2026");
+
+    expect(text).toContain("Komisi Pemuda");
+    expect(text).toContain("Maret 2026");
+    expect(text).toContain("tersimpan");
   });
 });

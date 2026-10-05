@@ -48,6 +48,33 @@ export const accountHref = (code: string) =>
 
 export const PERIOD_PATH = menuHref(MENU.KEUANGAN, MENU.PERIODE_FISKAL);
 
+const REPORT_PATH = menuHref(MENU.ANGGARAN, MENU.LAPORAN_BUDGET);
+
+/** M−1 dari `expenseDate`, dengan Januari mundur ke Desember tahun sebelumnya. */
+export const previousMonthOf = (expenseDate: string) => {
+  const year = Number(expenseDate.slice(0, 4));
+  const month = Number(expenseDate.slice(5, 7));
+
+  return month === 1
+    ? { year: year - 1, month: 12 }
+    : { year, month: month - 1 };
+};
+
+// Tautan ke LPJ bulan itu, tersaring komisi — bukan ke daftar penuh. Ketua
+// komisi yang ditolak tidak boleh disuruh mencari sendiri laporan mana.
+export const reportFilterHref = (
+  bapelId: number,
+  year: number,
+  month: number,
+) => `${REPORT_PATH}?komisi=${bapelId}&tahun=${year}&bulan=${month}`;
+
+export const reportCreateHref = (
+  bapelId: number,
+  year: number,
+  month: number,
+) =>
+  `${createHref(MENU.ANGGARAN, MENU.LAPORAN_BUDGET)}?komisi=${bapelId}&tahun=${year}&bulan=${month}`;
+
 export const ACCOUNT_PATH = menuHref(MENU.KEUANGAN, MENU.AKUN);
 
 export const NO_VIEW =
@@ -356,6 +383,24 @@ export function serverFieldError(message: string) {
   return null;
 }
 
+const REASON_MIN = 1;
+const REASON_LIMIT = 250;
+
+export const waiveSchema = z.object({
+  reason: z
+    .string()
+    .trim()
+    .min(REASON_MIN, "Tulis alasan pembebasannya")
+    .max(REASON_LIMIT, `Alasan maksimal ${REASON_LIMIT} karakter`),
+});
+
+export type WaiveValues = z.infer<typeof waiveSchema>;
+
+// Menyebut komisi DAN bulannya, supaya tidak ada yang salah kira pembebasan
+// ini global. Satu pembebasan = satu komisi, satu bulan.
+export const waiveText = (bapelName: string, label: string) =>
+  `Pencairan ${bapelName} bulan ${label} akan dibebaskan walaupun laporan pemakaiannya belum disetujui. Tulis alasannya — alasan ini tersimpan dan terlihat di laporan komisi.`;
+
 export type ErrorFix = { menu: MenuSlug; href: string; label: string };
 
 const ERROR_FIX: Record<string, ErrorFix> = {
@@ -378,6 +423,13 @@ const ERROR_FIX: Record<string, ErrorFix> = {
     menu: MENU.AKUN,
     href: ACCOUNT_PATH,
     label: "Lihat Akun",
+  },
+  // Tanpa tautan tetap: `errorFixOf` menggantinya dengan tautan tersaring
+  // komisi + bulan begitu pemanggilnya tahu dokumennya.
+  BUDGET_REPORT_PENDING: {
+    menu: MENU.LAPORAN_BUDGET,
+    href: REPORT_PATH,
+    label: "Lihat Laporan Budget",
   },
 };
 

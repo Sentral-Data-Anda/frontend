@@ -59,6 +59,7 @@ afterEach(() => {
   globalThis.fetch = originalFetch;
   actions.current = [];
   replaced.length = 0;
+  compliance.current = [];
 });
 
 const BAPEL_DDL = [
@@ -77,11 +78,21 @@ const ACCOUNT_DDL = [
   },
 ];
 
+const compliance: { current: unknown[] } = { current: [] };
+
 const onMockApi = (detail?: CashExpenseDetail) => {
   const sent: FormData[] = [];
 
   globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = String(input);
+
+    if (url.includes("belum-lapor")) {
+      return Response.json({
+        status: 200,
+        message: "ok",
+        data: compliance.current,
+      });
+    }
 
     if (url.includes("/ddl/")) {
       const type = new URL(url, "http://x").searchParams.get("type");
@@ -391,5 +402,122 @@ describe("kolom komisi harus dijawab", () => {
 
     expect(await screen.findByText("Komisi Pemuda")).toBeTruthy();
     expect(screen.queryByText("Tanpa badan pelayanan")).toBeNull();
+  });
+});
+
+const GATE_ROW = (state: string, waiver: unknown = null) => [
+  { bapelId: 2, state, report: null, waiver },
+];
+
+describe("spanduk gerbang di form", () => {
+  const onPickKomisi = async () => {
+    fireEvent.click(screen.getByRole("radio", { name: "Untuk komisi" }));
+    fireEvent.click(await screen.findByRole("combobox", { name: "Komisi" }));
+    fireEvent.click(await screen.findByRole("option", { name: /Komisi Anak/ }));
+  };
+
+  test("form kosong tidak memperingatkan apa pun", async () => {
+    compliance.current = GATE_ROW("MISSING");
+    onMockApi();
+    const { container } = onRenderForm(["VIEW", "CREATE"]);
+
+    await screen.findByLabelText("Dibayarkan kepada");
+    expect(container.textContent).not.toContain("Laporan pemakaian budget");
+  });
+
+  test("Bukan belanja komisi: pengeluaran gereja biasa tidak tersentuh", async () => {
+    compliance.current = GATE_ROW("MISSING");
+    onMockApi();
+    const { container } = onRenderForm(["VIEW", "CREATE"]);
+
+    fireEvent.click(
+      screen.getByRole("radio", { name: "Bukan belanja komisi" }),
+    );
+
+    await screen.findByLabelText("Dibayarkan kepada");
+    expect(container.textContent).not.toContain("Laporan pemakaian budget");
+  });
+
+  test("laporan M-1 belum ada: spanduk + tautan membuat laporannya", async () => {
+    compliance.current = GATE_ROW("MISSING");
+    onMockApi();
+    onRenderForm(["VIEW", "CREATE"]);
+    await onPickKomisi();
+
+    expect(await screen.findByText(/belum dibuat\./)).toBeTruthy();
+    const link = screen.getByRole("link", { name: "Buat laporannya" });
+    expect(link.getAttribute("href")).toContain("komisi=2");
+    expect(link.getAttribute("href")).toContain("/anggaran/laporan-budget");
+  });
+
+  test("laporan M-1 masih draf: spanduk + tautan melihatnya", async () => {
+    compliance.current = GATE_ROW("DRAFT");
+    onMockApi();
+    onRenderForm(["VIEW", "CREATE"]);
+    await onPickKomisi();
+
+    expect(await screen.findByText(/masih draf\./)).toBeTruthy();
+    expect(screen.getByRole("link", { name: "Lihat laporannya" })).toBeTruthy();
+  });
+
+  test("Simpan TETAP aktif saat spanduk tampil — FE tidak memblokir sendiri", async () => {
+    compliance.current = GATE_ROW("DRAFT");
+    onMockApi();
+    onRenderForm(["VIEW", "CREATE"]);
+    await onPickKomisi();
+
+    await screen.findByText(/masih draf\./);
+    expect(
+      (screen.getByRole("button", { name: "Simpan" }) as HTMLButtonElement)
+        .disabled,
+    ).toBe(false);
+  });
+
+  test("laporan M-1 APPROVED: tanpa spanduk", async () => {
+    compliance.current = GATE_ROW("APPROVED");
+    onMockApi();
+    const { container } = onRenderForm(["VIEW", "CREATE"]);
+    await onPickKomisi();
+
+    await screen.findByLabelText("Komisi");
+    expect(container.textContent).not.toContain("Laporan pemakaian budget");
+  });
+
+  test("nol pencairan di M-1: tanpa spanduk, bukan peringatan palsu", async () => {
+    compliance.current = GATE_ROW("NOT_DUE");
+    onMockApi();
+    const { container } = onRenderForm(["VIEW", "CREATE"]);
+    await onPickKomisi();
+
+    await screen.findByLabelText("Komisi");
+    expect(container.textContent).not.toContain("Laporan pemakaian budget");
+  });
+
+  test("dibebaskan: nada info, alasannya PENUH", async () => {
+    const reason = "B".repeat(250);
+    compliance.current = GATE_ROW("WAIVED", {
+      reason,
+      createdBy: { name: "Ibu Mariani" },
+      createdAt: "2026-09-02T03:00:00.000Z",
+    });
+    onMockApi();
+    onRenderForm(["VIEW", "CREATE"]);
+    await onPickKomisi();
+
+    expect(await screen.findByText(/dibebaskan oleh Ibu Mariani/)).toBeTruthy();
+    expect(screen.getByText(`Alasan: ${reason}`)).toBeTruthy();
+  });
+
+  test("spanduk dan tautannya terpisah: spanduk tidak bergantung pada izin", async () => {
+    compliance.current = GATE_ROW("DRAFT");
+    onMockApi();
+    onRenderForm(["VIEW", "CREATE"]);
+    await onPickKomisi();
+
+    // `useMenuAccess` di berkas ini mengabaikan slug-nya, jadi gerbang izin
+    // tautan LPJ diuji di `detail/screen.test.tsx` yang memakai peta per-slug.
+    // Yang dijaga di sini: spanduknya sendiri, dan bahwa ia bukan galat form.
+    expect(await screen.findByText(/masih draf\./)).toBeTruthy();
+    expect(screen.getByRole("link", { name: "Lihat laporannya" })).toBeTruthy();
   });
 });

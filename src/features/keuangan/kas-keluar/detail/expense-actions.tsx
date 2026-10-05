@@ -36,11 +36,13 @@ const LINK_BUSY =
 interface PropTypes {
   expense: CashExpenseDetail;
   pendingAction: ExpenseAction | null;
+  isWaivable: boolean;
   onPick: (action: ExpenseAction) => void;
+  onWaive: () => void;
 }
 
 export const ExpenseActions = (props: PropTypes) => {
-  const { expense, pendingAction, onPick } = props;
+  const { expense, pendingAction, isWaivable, onPick, onWaive } = props;
 
   const { isCanUpdate, isCanDelete } = useMenuAccess(MENU.KAS_KELUAR);
   const state = expenseStateOf(expense);
@@ -53,11 +55,14 @@ export const ExpenseActions = (props: PropTypes) => {
   const isPayable = expense.status === "APPROVED" && isCanUpdate;
   const isCancellable =
     (expense.status === "APPROVED" || expense.status === "PAID") && isCanDelete;
+  const isWaiveShown =
+    isWaivable && isCanUpdate && expense.status === "APPROVED";
   const isAnyAction =
     (isDraftOpen && (isCanUpdate || isCanDelete)) ||
     isWithdrawable ||
     isPayable ||
-    isCancellable;
+    isCancellable ||
+    isWaiveShown;
 
   const labelOf = (action: ExpenseAction, idle: string) =>
     pendingAction === action ? PENDING_LABEL[action] : idle;
@@ -119,6 +124,17 @@ export const ExpenseActions = (props: PropTypes) => {
             onClick={() => onPick("batal")}
           >
             {labelOf("batal", "Batalkan")}
+          </Button>
+        ) : null}
+
+        {isWaiveShown ? (
+          <Button
+            type="button"
+            variant="outline"
+            disabled={isBusy}
+            onClick={onWaive}
+          >
+            Bebaskan pencairan
           </Button>
         ) : null}
 

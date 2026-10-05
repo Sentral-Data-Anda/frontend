@@ -8,7 +8,13 @@ import { fetchList, fetchOne } from "@/lib/api/fetcher";
 import { MEDIA_REFETCH_MS } from "@/lib/attachment";
 
 import { toExpenseQuery } from "./model";
-import type { CashExpense, CashExpenseDetail, ExpenseAction } from "./types";
+import type {
+  CashExpense,
+  CashExpenseDetail,
+  ExpenseAction,
+  GateCompliance,
+  WaiveInput,
+} from "./types";
 
 export const expenseKeys = {
   all: ["cash-expense"] as const,
@@ -18,6 +24,10 @@ export const expenseKeys = {
 };
 
 const BASE = "/kas-keluar";
+
+// queryKey fitur Laporan Budget ditulis LITERAL: fitur tidak saling
+// mengimpor, dan ini satu-satunya dua tempat yang menyebutnya.
+const REPORT_KEY = ["budget-report"] as const;
 
 const pathOf = (publicId?: string) =>
   publicId ? `${BASE}/${encodeURIComponent(publicId)}` : BASE;
@@ -47,6 +57,44 @@ export function useExpenseDetail(
         ? MEDIA_REFETCH_MS
         : false,
     select: (response) => response.data,
+  });
+}
+
+// Kepatuhan M−1 komisi yang dipilih di form. Dibaca dari daftar Belum lapor
+// bulan itu supaya layar dan gerbang memakai sumber yang sama.
+export function useGateCompliance(
+  bapelId: string,
+  year: number,
+  month: number,
+) {
+  return useQuery({
+    queryKey: [...REPORT_KEY, "compliance", `${year}-${month}`],
+    queryFn: () =>
+      fetchList<GateCompliance>(
+        `/laporan-budget/belum-lapor?year=${year}&month=${month}`,
+      ),
+    enabled: Boolean(bapelId),
+    retry: false,
+    select: (response) =>
+      response.data.find((row) => String(row.bapelId) === bapelId) ?? null,
+  });
+}
+
+export function useWaiveGate() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (body: WaiveInput) =>
+      fetchOne<unknown>(`${BASE}/pembebasan`, {
+        method: "POST",
+        body: JSON.stringify(body),
+      }),
+    // Kas Keluar DAN Belum lapor: tab kepatuhan berubah seketika.
+    onSuccess: () =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: expenseKeys.all }),
+        queryClient.invalidateQueries({ queryKey: REPORT_KEY }),
+      ]),
   });
 }
 
