@@ -505,7 +505,14 @@ describe("spanduk gerbang di form", () => {
     await onPickKomisi();
 
     expect(await screen.findByText(/dibebaskan oleh Ibu Mariani/)).toBeTruthy();
-    expect(screen.getByText(`Alasan: ${reason}`)).toBeTruthy();
+
+    // Penuh, dan di elemen yang MEMBUNGKUS. Paragraf `message` milik FormAlert
+    // tidak punya aturan pembungkus, dan satu alasan 250 karakter tanpa spasi
+    // melebarkan halaman 390 menjadi ~2000px lewat sana (diukur di peramban:
+    // client 300, scroll 1953). Ditemukan di peramban, dijaga di sini.
+    const line = screen.getByText(`Alasan: ${reason}`);
+
+    expect(line.className).toContain("wrap-break-word");
   });
 
   test("spanduk dan tautannya terpisah: spanduk tidak bergantung pada izin", async () => {

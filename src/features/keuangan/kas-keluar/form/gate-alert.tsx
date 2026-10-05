@@ -33,12 +33,21 @@ export const GateAlert = (props: PropTypes) => {
   const label = monthLabel(`${year}-${String(month).padStart(2, "0")}`);
 
   if (row.waiver) {
+    // Alasannya TIDAK dilewatkan ke `message` FormAlert: paragraf itu tidak
+    // punya aturan pembungkus, jadi satu alasan 250 karakter tanpa spasi
+    // melebarkan halaman 390 menjadi ~2000px (diukur: client 300, scroll 1953).
+    // Teks pengguna yang tak terbatas panjangnya dirender di elemen sendiri
+    // yang membungkus — dan tetap PENUH, tidak pernah dipotong.
     return (
-      <FormAlert
-        tone="info"
-        title={`Pencairan ${bapelName} bulan ${label} dibebaskan oleh ${row.waiver.createdBy?.name ?? "bendahara"}.`}
-        message={`Alasan: ${row.waiver.reason}`}
-      />
+      <div className="space-y-2">
+        <FormAlert
+          tone="info"
+          title={`Pencairan ${bapelName} bulan ${label} dibebaskan oleh ${row.waiver.createdBy?.name ?? "bendahara"}.`}
+          message="Laporan pemakaian bulan itu tidak lagi menahan pencairan ini."
+        />
+
+        <p className="text-body wrap-break-word">Alasan: {row.waiver.reason}</p>
+      </div>
     );
   }
 
