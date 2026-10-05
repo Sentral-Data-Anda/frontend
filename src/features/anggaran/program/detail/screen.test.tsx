@@ -155,6 +155,7 @@ const program = (next: Partial<ProgramDetail> = {}): ProgramDetail => ({
         amount: "1200000",
       },
     ],
+    total: "1200000",
     untagged: "4000000",
   },
   approvedBy: null,
@@ -443,7 +444,9 @@ describe("halaman usulan: dua angka belanja", () => {
   });
 
   test("Tanpa program tetap dirender saat nol, dengan kelas sama dengan baris di atasnya", async () => {
-    onRender(program({ reportedUsage: { parts: [], untagged: "0" } }));
+    onRender(
+      program({ reportedUsage: { parts: [], total: "0", untagged: "0" } }),
+    );
 
     const untagged = await screen.findByText("Tanpa program");
     const row = untagged.closest("[data-untagged]");

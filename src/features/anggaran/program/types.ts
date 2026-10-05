@@ -61,6 +61,7 @@ export type ReportedPart = {
 
 export type ReportedUsage = {
   parts: ReportedPart[];
+  total: string;
   untagged: string;
 };
 

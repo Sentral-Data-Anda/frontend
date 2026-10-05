@@ -140,18 +140,18 @@ export const submitFailureOf = (row: {
  * tak-bertandanya, dan ia dikembalikan walaupun nol.
  */
 const reportedUsageOf = (row: ProgramRow) => {
-  const { from, to } = budgetYearRange(row.year);
-  const reports = BUDGET_USAGE_REPORT.filter(
+  const approved = BUDGET_USAGE_REPORT.filter(
     (report) =>
       isLive(report) &&
       report.bapelId === row.bapelId &&
-      report.status === "APPROVED" &&
-      report.lines.some(
-        (line) => line.spentDate >= from && line.spentDate <= to,
-      ),
+      report.status === "APPROVED",
   );
 
-  const parts = reports.flatMap((report) => {
+  // `parts` TIDAK difilter bulan. Ia menjawab "berapa yang sudah dilaporkan ke
+  // program ini", dan sebuah program berumur beberapa bulan — menyaring
+  // laporannya lebih dulu membuat uang yang dilaporkan terlambat MENGUAP dari
+  // jawabannya, yang persis dilarang kontrak §4.0a.
+  const parts = approved.flatMap((report) => {
     const amount = sumAmounts(
       report.lines
         .filter((line) => line.programId === row.id)
@@ -172,15 +172,32 @@ const reportedUsageOf = (row: ProgramRow) => {
         ];
   });
 
+  // `untagged` DIFILTER, dan per BARIS — bukan dengan membuang laporannya
+  // lebih dulu. Ia menjawab pertanyaan yang berbeda: berapa yang komisi ini
+  // belanjakan di dalam tahun pelayanan program ini tanpa menyebut program.
+  // Asimetri ini disengaja; menyamakan keduanya ke arah mana pun mengubah arti
+  // salah satu angka, dan keduanya tampil berdampingan di `TaggedTotal`.
+  const { from, to } = budgetYearRange(row.year);
   const untagged = sumAmounts(
-    reports.flatMap((report) =>
+    approved.flatMap((report) =>
       report.lines
-        .filter((line) => line.programId === null)
+        .filter(
+          (line) =>
+            line.programId === null &&
+            line.spentDate >= from &&
+            line.spentDate <= to,
+        )
         .map((line) => line.amount),
     ),
   );
 
-  return { parts, untagged };
+  // `total` dihitung di sini supaya tidak ada layar yang menjumlahkan `parts`
+  // sendiri — kontrak §4.0a mewajibkannya justru untuk itu.
+  return {
+    parts,
+    total: sumAmounts(parts.map((part) => part.amount)),
+    untagged,
+  };
 };
 
 const detailView = (row: ProgramRow) => ({

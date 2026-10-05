@@ -37,7 +37,6 @@ import {
   rejectedStepOf,
   rejectedTitleOf,
   remainingBeforeOf,
-  reportedTotalOf,
 } from "../model";
 import type { ProgramAction } from "../types";
 import { ProgramStatusBadge } from "../ui";
@@ -213,7 +212,7 @@ export const ProgramDetailScreen = (props: PropTypes) => {
             label="Dilaporkan ke program ini"
             icon={FileCheck}
             tone="success"
-            value={amountText(reportedTotalOf(program.reportedUsage))}
+            value={amountText(program.reportedUsage.total)}
             hint="Dari laporan yang sudah disetujui"
           />
         </KpiStrip>

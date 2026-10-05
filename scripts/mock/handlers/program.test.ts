@@ -1,10 +1,14 @@
 import { afterEach, describe, expect, test } from "bun:test";
 
 import type { MenuSlug } from "../../../src/config/menu";
+import { addDays } from "../../../src/lib/date";
 import { resetAnggaranStores } from "../anggaran-reset";
 import {
+  BUDGET_USAGE_REPORT,
   PROGRAM,
   allocationOf,
+  budgetYearRange,
+  reportLine,
   ceilingUsage,
   currentBudgetYear,
   isLive,
@@ -20,6 +24,12 @@ import { programMock } from "./program";
 afterEach(resetAnggaranStores);
 
 const YEAR = currentBudgetYear();
+
+type ReportedUsageShape = {
+  parts: { publicId: string; code: string; label: string; amount: string }[];
+  total: string;
+  untagged: string;
+};
 
 const call = async (
   method: string,
@@ -463,5 +473,89 @@ describe("mock program: aksi status", () => {
       (await call("DELETE", `/program/${draft.publicId}`, undefined, []))
         .status,
     ).toBe(403);
+  });
+});
+
+describe("reportedUsage: asimetri parts vs untagged", () => {
+  // Detektornya, bukan hanya perbaikannya. `reportedUsageOf` pernah menyaring
+  // LAPORANNYA lebih dulu dengan rentang tahun pelayanan, jadi LPJ yang
+  // menyebut program ini tapi seluruh barisnya di luar tahun itu hilang dari
+  // `parts` — "uang yang dilaporkan terlambat menguap", yang dilarang §4.0a.
+  const seedOutsideYear = (programId: number, bapelId: number) => {
+    const { to } = budgetYearRange(YEAR);
+    const after = addDays(to, 40);
+
+    BUDGET_USAGE_REPORT.push({
+      id: 9101,
+      publicId: "lpb-late",
+      code: "LPB-LATE",
+      bapelId,
+      year: Number(after.slice(0, 4)),
+      month: Number(after.slice(5, 7)),
+      status: "APPROVED",
+      note: null,
+      approvedById: 13,
+      approvedAt: `${after}T02:00:00.000Z`,
+      deletedAt: null,
+      lines: [
+        reportLine(22, after, "Dilaporkan terlambat", "750000", programId),
+        reportLine(22, after, "Tanpa program", "250000", null),
+      ],
+      receipts: [],
+      approvals: [],
+    });
+  };
+
+  test("LPJ yang seluruh barisnya di luar tahun pelayanan TETAP muncul di parts", async () => {
+    const program = PROGRAM.find((row) => isLive(row));
+
+    expect(program).toBeTruthy();
+    if (!program) return;
+
+    seedOutsideYear(program.id, program.bapelId);
+
+    const { body } = await call("GET", `/program/${program.publicId}`);
+    const usage = (body as { data: { reportedUsage: ReportedUsageShape } }).data
+      .reportedUsage;
+
+    expect(usage.parts.some((part) => part.code === "LPB-LATE")).toBe(true);
+    expect(Number(usage.total)).toBeGreaterThanOrEqual(750000);
+  });
+
+  test("untagged difilter per baris, jadi baris di luar tahun TIDAK ikut", async () => {
+    const program = PROGRAM.find((row) => isLive(row));
+
+    expect(program).toBeTruthy();
+    if (!program) return;
+
+    const before = await call("GET", `/program/${program.publicId}`);
+    const untaggedBefore = (
+      before.body as { data: { reportedUsage: ReportedUsageShape } }
+    ).data.reportedUsage.untagged;
+
+    seedOutsideYear(program.id, program.bapelId);
+
+    const after = await call("GET", `/program/${program.publicId}`);
+    const untaggedAfter = (
+      after.body as { data: { reportedUsage: ReportedUsageShape } }
+    ).data.reportedUsage.untagged;
+
+    expect(untaggedAfter).toBe(untaggedBefore);
+  });
+
+  test("total datang dari server, bukan dijumlahkan ulang", async () => {
+    const program = PROGRAM.find((row) => isLive(row));
+
+    expect(program).toBeTruthy();
+    if (!program) return;
+
+    const { body } = await call("GET", `/program/${program.publicId}`);
+    const usage = (body as { data: { reportedUsage: ReportedUsageShape } }).data
+      .reportedUsage;
+
+    expect(usage.total).toBeTruthy();
+    expect(Number(usage.total)).toBe(
+      usage.parts.reduce((sum, part) => sum + Number(part.amount), 0),
+    );
   });
 });

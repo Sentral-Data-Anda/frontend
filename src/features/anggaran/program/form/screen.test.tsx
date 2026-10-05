@@ -128,7 +128,7 @@ const DETAIL: ProgramDetail = {
     reported: "0",
     untagged: "0",
   },
-  reportedUsage: { parts: [], untagged: "0" },
+  reportedUsage: { parts: [], total: "0", untagged: "0" },
   approvedBy: null,
   approvedAt: null,
   cancelReason: null,

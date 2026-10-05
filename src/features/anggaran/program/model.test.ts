@@ -20,7 +20,6 @@ import {
   rejectedStepOf,
   rejectedTitleOf,
   remainingBeforeOf,
-  reportedTotalOf,
   toProgramPayload,
   toProgramQuery,
   yearSelectOptions,
@@ -351,33 +350,5 @@ describe("daftar", () => {
     expect(options).toEqual([
       { value: "2026", label: "2026/2027 (Juli 2026 – Juni 2027)" },
     ]);
-  });
-});
-
-describe("pemakaian yang dilaporkan", () => {
-  test("total dijumlahkan dari baris laporan, dan sisa tak-bertanda terpisah", () => {
-    expect(
-      reportedTotalOf({
-        parts: [
-          {
-            publicId: "lpb-1",
-            code: "LPB-1",
-            label: "Agustus",
-            amount: "1200000",
-          },
-          {
-            publicId: "lpb-2",
-            code: "LPB-2",
-            label: "September",
-            amount: "800000",
-          },
-        ],
-        untagged: "5000000",
-      }),
-    ).toBe("2000000");
-  });
-
-  test("nol baris tetap nol, bukan undefined", () => {
-    expect(reportedTotalOf({ parts: [], untagged: "0" })).toBe("0");
   });
 });

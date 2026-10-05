@@ -20,7 +20,6 @@ import type {
   ProgramApprovalStep,
   ProgramDetail,
   ProgramPayload,
-  ReportedUsage,
 } from "./types";
 
 export const PROGRAM_LIST_PATH = menuHref(MENU.ANGGARAN, MENU.PROGRAM);
@@ -210,9 +209,6 @@ export const cancelledTitleOf = (program: {
   ]
     .filter(Boolean)
     .join(" · ");
-
-export const reportedTotalOf = (usage: ReportedUsage) =>
-  sumAmounts(usage.parts.map((part) => part.amount));
 
 export const rejectedStepOf = (approval: ProgramApproval | null) =>
   approval?.status === "REJECTED"
