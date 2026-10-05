@@ -67,10 +67,17 @@ export type CashStatus = (typeof CASH_STATUSES)[number];
 // mengimpornya, jadi menambah anggota ketiga harus gagal di tsc dan di parse
 // payload sekaligus — bukan lolos di salah satunya.
 //
+// Ejaannya nama enum, bukan kebab, dan ia sama di tulis maupun baca. Server
+// SELALU memancarkan `BUKAN_KOMISI` pada bacaan; selama validatornya menerima
+// kebab dan sebuah ternary menerjemahkannya, klien yang mengirim balik apa yang
+// baru saja ia baca ditolak oleh field tempat ia membacanya. Ia juga
+// satu-satunya penyimpang dari sebelas `z.enum` di API ini — `status` di
+// endpoint yang sama memakai nama enum di kedua arah.
+//
 // `null` BUKAN anggota union ini: ia berarti baris yang ditulis sebelum
 // pertanyaannya ada, dan tiap pemakai menuliskannya sendiri (`BapelChoice |
 // null`) supaya "belum pernah ditanya" tidak pernah terbaca sebagai jawaban.
-export const BAPEL_CHOICES = ["komisi", "bukan-komisi"] as const;
+export const BAPEL_CHOICES = ["KOMISI", "BUKAN_KOMISI"] as const;
 
 export type BapelChoice = (typeof BAPEL_CHOICES)[number];
 
