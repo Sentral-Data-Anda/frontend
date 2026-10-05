@@ -339,7 +339,9 @@ describe("kolom komisi", () => {
 
     expect(contradiction.code).toBeNull();
     expect(errorFixOf(contradiction)).toBeNull();
-    expect(toFormError(contradiction).issues[0]!.path).toBe("bapelId");
+    expect((toFormError(contradiction) as FetchError).issues[0]!.path).toBe(
+      "bapelId",
+    );
   });
 });
 
