@@ -62,16 +62,23 @@ describe("kwitansi laporan tidak keluar dari layarnya", () => {
     expect(list).toContain("receiptCount");
   });
 
-  test("setiap bacaan handler menyaring lingkup komisi, tanpa kecuali", async () => {
-    const handler = await Bun.file(`${ROOT}${HANDLER}`).text();
-    const reads = [
-      ...handler.matchAll(/BUDGET_USAGE_REPORT\.(find|filter)\(/g),
-    ];
-    const scoped = [...handler.matchAll(/isVisibleBapel\(scope,/g)];
-
-    expect(reads.length).toBeGreaterThan(0);
-    expect(scoped.length).toBeGreaterThanOrEqual(reads.length);
-  });
+  // DIHAPUS: pin yang menghitung `BUDGET_USAGE_REPORT.(find|filter)(` lalu
+  // membandingkannya dengan jumlah `isVisibleBapel(scope,`. Ia bocor dua cara,
+  // dan keduanya terukur di berkas ini:
+  //
+  // 1. Hitungan pembilangnya dipenuhi panggilan di jalur TULIS. Saat `onUpdate`
+  //    dilingkupi, angkanya jadi 5 lawan 2 bacaan — tiga unit kelonggaran, jadi
+  //    bacaan BARU yang lupa lingkupnya tetap hijau. Memperkuat penjaga di satu
+  //    tempat MELEMAHKAN penjaga ini; itu arah ketergantungan yang salah.
+  // 2. `find|filter` satu ejaan dari satu keluarga: `.some(`, `.map(`,
+  //    `.flatMap(`, `.findIndex(` tidak terhitung sama sekali.
+  //
+  // Mencabut lingkup dari `belum-lapor` membuat pin ini TETAP HIJAU (7/0)
+  // sementara assertion perilakunya merah. Jadi yang menjaga keempat bacaan itu
+  // ada di `scripts/mock/handlers/laporan-budget.test.ts`, describe
+  // "lingkup komisi" — satu test per rute baca, dua arah. Jangan mengembalikan
+  // pin hitungan ini: langit-langit pin teks adalah "kecelakaan", dan di sini
+  // kecelakaannya pun lolos. Lihat pedoman §7.1 lapisan keempat.
 
   test("membuat laporan untuk komisi di luar lingkup dijawab tidak ditemukan", async () => {
     const handler = await Bun.file(`${ROOT}${HANDLER}`).text();

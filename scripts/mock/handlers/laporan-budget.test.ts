@@ -647,6 +647,35 @@ describe("lingkup komisi", () => {
     expect(response?.body.issues?.[0]?.path).toBe("bapelId");
   });
 
+  // Belum lapor adalah bacaan keempat, dan satu-satunya yang tadinya hanya
+  // dijaga penjaga teks: `privacy.test.ts` menghitung bacaan store dan
+  // membandingkannya dengan jumlah pemanggilan `isVisibleBapel(scope,`.
+  // Hitungan itu bisa dipenuhi panggilan di jalur TULIS — jadi bacaan baru yang
+  // lupa lingkupnya tetap hijau. Ini assertion perilakunya.
+  test("belum lapor hanya menyebut komisi sendiri", async () => {
+    const response = await onCall(
+      "GET",
+      `/laporan-budget/belum-lapor?year=${M1.year}&month=${M1.month}`,
+      undefined,
+      asKomisi,
+      false,
+    );
+    const rows = (response?.body.data ?? []) as { bapelId: number }[];
+    const wide = await onCall(
+      "GET",
+      `/laporan-budget/belum-lapor?year=${M1.year}&month=${M1.month}`,
+      undefined,
+      asPagu,
+      false,
+    );
+    const wideRows = (wide?.body.data ?? []) as { bapelId: number }[];
+
+    // Dua arah: yang berkapabilitas melihat lebih dari satu komisi, yang tidak
+    // melihat nol. Tanpa sisi pertama, test ini juga lulus kalau rutenya mati.
+    expect(new Set(wideRows.map((row) => row.bapelId)).size).toBeGreaterThan(1);
+    expect(rows).toEqual([]);
+  });
+
   test("prefill komisi lain menjawab kosong, bukan rinciannya", async () => {
     const response = await onCall(
       "GET",
