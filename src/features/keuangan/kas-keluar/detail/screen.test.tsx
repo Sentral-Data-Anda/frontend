@@ -461,8 +461,18 @@ describe("panel alasan pembebasan", () => {
 
     expect(panel.textContent).toContain(LONG);
     expect(panel.textContent).toContain("Ibu Mariani");
-    expect(panel.querySelector('[class*="line-clamp"]')).toBeNull();
-    expect(panel.querySelector('[class*="truncate"]')).toBeNull();
+
+    // Dua bentuk yang repo ini BENAR-BENAR tulis — dihitung lebih dulu, bukan
+    // ditebak: `truncate` 372 kali, `line-clamp` 11, `text-ellipsis` nol.
+    // `querySelectorAll` tidak mencocokkan akarnya, jadi panelnya sendiri ikut
+    // diperiksa: memotong di elemen terluar lolos dari pemeriksaan keturunan.
+    // Dikumpulkan sebagai STRING kelas, bukan sebagai simpul: membandingkan
+    // simpul membuat laporan gagalnya mencetak seluruh pohon DOM.
+    const clipped = [panel, ...panel.querySelectorAll("*")]
+      .map((node) => node.className?.toString() ?? "")
+      .filter((value) => /line-clamp|truncate/.test(value));
+
+    expect(clipped).toEqual([]);
   });
 });
 
