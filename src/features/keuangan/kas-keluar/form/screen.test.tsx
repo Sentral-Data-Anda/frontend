@@ -510,12 +510,14 @@ describe("spanduk gerbang di form", () => {
     // tidak punya aturan pembungkus, dan satu alasan 250 karakter tanpa spasi
     // melebarkan halaman 390 menjadi ~2000px lewat sana (diukur di peramban:
     // client 300, scroll 1953). Ditemukan di peramban, dijaga di sini.
-    // Ketiga ejaan pembungkus yang hidup di repo diterima — `wrap-break-word`
-    // 19, `break-words` 6, `break-all` 4 — supaya penjaga ini tidak merah hanya
-    // karena seseorang memilih ejaan sah yang lain.
+    // Hanya ejaan yang benar-benar MENGHASILKAN ATURAN di Tailwind v4:
+    // `wrap-break-word` dan `break-all`. `break-words` adalah nama v3 yang di
+    // v4 tidak menerbitkan aturan apa pun — menerimanya berarti meloloskan
+    // komponen yang mengira membungkus padahal meluber. Diperiksa di CSS hasil
+    // build, bukan dengan menghitung kemunculannya di sumber.
     const line = screen.getByText(`Alasan: ${reason}`);
 
-    expect(line.className).toMatch(/wrap-break-word|break-words|break-all/);
+    expect(line.className).toMatch(/wrap-break-word|break-all/);
   });
 
   test("spanduk dan tautannya terpisah: spanduk tidak bergantung pada izin", async () => {

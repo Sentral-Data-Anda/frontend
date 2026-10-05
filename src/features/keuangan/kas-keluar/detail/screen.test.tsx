@@ -483,11 +483,15 @@ describe("panel alasan pembebasan", () => {
     // Dan ia harus MEMBUNGKUS: satu alasan 250 karakter tanpa spasi melebarkan
     // halaman 390 menjadi ~2000px tanpa ini — ditemukan di peramban, bukan di
     // sini. Membungkus bukan memotong; teksnya tetap utuh di atas.
+    //
+    // `break-words` SENGAJA tidak diterima: itu nama Tailwind v3 dan di v4 ia
+    // tidak menghasilkan aturan apa pun. Penjaga yang menerima ejaan mati
+    // meloloskan komponen yang mengira membungkus padahal meluber — persis
+    // kegagalan yang penjaga ini ada untuk mencegah. Diperiksa di CSS hasil
+    // build, bukan di sumbernya.
     expect(
       [panel, ...panel.querySelectorAll("p")].some((node) =>
-        /wrap-break-word|break-words|break-all/.test(
-          node.className?.toString() ?? "",
-        ),
+        /wrap-break-word|break-all/.test(node.className?.toString() ?? ""),
       ),
     ).toBe(true);
   });

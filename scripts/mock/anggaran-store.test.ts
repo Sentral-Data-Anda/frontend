@@ -19,6 +19,7 @@ import {
   ceilingUsage,
   complianceStateOf,
   gateFailureOf,
+  isLive,
   isVisibleBapel,
   isWithinCeiling,
   komisiScopeOf,
@@ -577,5 +578,46 @@ describe("pengeluaran tanpa komisi", () => {
     expect(empty.stated.count).toBe(0);
     expect(empty.inherited.count).toBe(0);
     expect(empty.label).toBeTruthy();
+  });
+});
+
+// Benih yang dipakai MANUSIA, bukan baris yang disemai test.
+//
+// Perilaku gerbangnya sudah diuji dua arah lewat baris yang test ini semai
+// sendiri — dan itu lolos sambil `doc-24` diam-diam tidak menyalakan apa pun,
+// karena tidak satu test pun menyebutnya. Fiturnya terbukti; benihnya tidak.
+// Benih yang komentarnya menjanjikan "tertahan" lalu lolos lebih mahal
+// daripada tidak ada benihnya: pembaca berikutnya menyimpulkan gerbangnya
+// rusak lalu "memperbaiki" kode yang benar.
+describe("benih yang membuat gerbang terlihat di peramban", () => {
+  const approvedWithBapel = () =>
+    CASH_EXPENSE.filter(
+      (row) => isLive(row) && row.status === "APPROVED" && row.bapelId !== null,
+    );
+
+  test("doc-24 ADA, disetujui, berkomisi, dan gerbangnya MENAHAN", () => {
+    const row = CASH_EXPENSE.find((item) => item.publicId === "doc-24");
+
+    expect(row).toBeDefined();
+    expect(row!.status).toBe("APPROVED");
+    expect(row!.bapelId).not.toBeNull();
+    expect(row!.bapelChoice).toBe("KOMISI");
+    expect(gateFailureOf(row!.bapelId, row!.expenseDate)).not.toBeNull();
+  });
+
+  test("minimal satu baris siap bayar tertahan, atau pintu daruratnya tak terlihat", () => {
+    const held = approvedWithBapel().filter((row) =>
+      gateFailureOf(row.bapelId, row.expenseDate),
+    );
+
+    expect(held.length).toBeGreaterThan(0);
+  });
+
+  test("dan minimal satu LOLOS, supaya gerbangnya bukan blokir buta", () => {
+    const passed = approvedWithBapel().filter(
+      (row) => gateFailureOf(row.bapelId, row.expenseDate) === null,
+    );
+
+    expect(passed.length).toBeGreaterThan(0);
   });
 });

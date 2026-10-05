@@ -1598,16 +1598,25 @@ export const CASH_EXPENSE: CashExpenseRow[] = [
   // bisa dilihat di peramban. Tanpa ia, setiap dokumen siap bayar yang
   // berkomisi kebetulan lolos gerbang, dan tombol Bebaskan tidak pernah muncul
   // untuk dilihat siapa pun.
+  //
+  // KOMISINYA BAPEL 4, dan itu bukan pilihan bebas: laporan 2026-09 bapel 4
+  // dihapus lunak di benih, jadi ia satu-satunya komisi yang benar-benar
+  // MISSING di tanggal nyata. Bapel 2 punya LPJ September APPROVED, bapel 3
+  // dan 5 nol pencairan — ketiganya lolos gerbang. `benih doc-24 menyalakan
+  // gerbangnya` di anggaran-store.test.ts yang menahannya tetap begitu; benih
+  // yang menjanjikan tertahan lalu diam-diam lolos lebih mahal daripada tidak
+  // ada benihnya sama sekali, karena pembaca berikutnya akan menyimpulkan
+  // gerbangnya rusak lalu "memperbaiki" kode yang benar.
   expense(
     12,
     thisMonth(24),
-    "Ketua Komisi Pemuda",
-    "Panjar perlengkapan retret pemuda",
+    "Ketua Komisi Anak",
+    "Panjar perlengkapan sekolah minggu",
     4,
     [cashExpenseLine(23, "2400000", "Panjar perlengkapan")],
     {
       publicId: "doc-24",
-      bapelId: 2,
+      bapelId: 4,
       bapelChoice: "KOMISI",
       method: "Transfer",
       status: "APPROVED",
