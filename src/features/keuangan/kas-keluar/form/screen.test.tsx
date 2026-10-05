@@ -510,9 +510,12 @@ describe("spanduk gerbang di form", () => {
     // tidak punya aturan pembungkus, dan satu alasan 250 karakter tanpa spasi
     // melebarkan halaman 390 menjadi ~2000px lewat sana (diukur di peramban:
     // client 300, scroll 1953). Ditemukan di peramban, dijaga di sini.
+    // Ketiga ejaan pembungkus yang hidup di repo diterima — `wrap-break-word`
+    // 19, `break-words` 6, `break-all` 4 — supaya penjaga ini tidak merah hanya
+    // karena seseorang memilih ejaan sah yang lain.
     const line = screen.getByText(`Alasan: ${reason}`);
 
-    expect(line.className).toContain("wrap-break-word");
+    expect(line.className).toMatch(/wrap-break-word|break-words|break-all/);
   });
 
   test("spanduk dan tautannya terpisah: spanduk tidak bergantung pada izin", async () => {

@@ -462,15 +462,21 @@ describe("panel alasan pembebasan", () => {
     expect(panel.textContent).toContain(LONG);
     expect(panel.textContent).toContain("Ibu Mariani");
 
-    // Dua bentuk yang repo ini BENAR-BENAR tulis — dihitung lebih dulu, bukan
-    // ditebak: `truncate` 372 kali, `line-clamp` 11, `text-ellipsis` nol.
-    // `querySelectorAll` tidak mencocokkan akarnya, jadi panelnya sendiri ikut
-    // diperiksa: memotong di elemen terluar lolos dari pemeriksaan keturunan.
+    // SETIAP ejaan pemotong yang Tailwind izinkan, bukan hanya yang terbayang —
+    // dihitung dulu, bukan ditebak: `truncate` 373 di `src`, `line-clamp` 12,
+    // `text-ellipsis` 1. `querySelectorAll` tidak mencocokkan akarnya, jadi
+    // panelnya sendiri ikut diperiksa: memotong di elemen terluar lolos dari
+    // pemeriksaan keturunan.
+    //
+    // LANGIT-LANGITNYA, satu kalimat lalu berhenti: ini pin teks, karena test
+    // DOM tidak punya tata letak. Penjaga sebenarnya adalah pengukuran peramban
+    // (`scrollWidth` vs `clientWidth`) yang menemukan luberannya; pin ini kawat
+    // pemicunya, bukan buktinya.
     // Dikumpulkan sebagai STRING kelas, bukan sebagai simpul: membandingkan
     // simpul membuat laporan gagalnya mencetak seluruh pohon DOM.
     const clipped = [panel, ...panel.querySelectorAll("*")]
       .map((node) => node.className?.toString() ?? "")
-      .filter((value) => /line-clamp|truncate/.test(value));
+      .filter((value) => /line-clamp|truncate|text-ellipsis/.test(value));
 
     expect(clipped).toEqual([]);
 
@@ -479,7 +485,9 @@ describe("panel alasan pembebasan", () => {
     // sini. Membungkus bukan memotong; teksnya tetap utuh di atas.
     expect(
       [panel, ...panel.querySelectorAll("p")].some((node) =>
-        /wrap-break-word|break-words/.test(node.className?.toString() ?? ""),
+        /wrap-break-word|break-words|break-all/.test(
+          node.className?.toString() ?? "",
+        ),
       ),
     ).toBe(true);
   });
