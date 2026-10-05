@@ -116,10 +116,12 @@ describe("mock /setelan-anggaran", () => {
     const current = currentBudgetYear();
 
     expect(years.map((year) => year.year)).toEqual([
+      current - 4,
+      current - 3,
+      current - 2,
       current - 1,
       current,
       current + 1,
-      current + 2,
     ]);
     expect(
       years.every((year) => year.startMonth === BUDGET_SETTING.startMonth),

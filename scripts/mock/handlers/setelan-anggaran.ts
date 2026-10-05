@@ -31,13 +31,16 @@ const failure = (
 // layar yang harus merakit label sendiri.
 let isChosen = !process.env.MOCK_NO_BUDGET_SETTING;
 
-// Jendela kerja empat tahun pelayanan. Labelnya lahir di sini bersama
-// rentangnya, karena label adalah satu-satunya bagian yang dua lapis bisa
-// berbeda pendapat tentangnya.
+// Jendela kerja enam tahun pelayanan: empat ke belakang, tahun berjalan, dan
+// satu ke depan — sama persis dengan YEARS_BEHIND/YEARS_AHEAD di be-sada.
+// Labelnya lahir di sini bersama rentangnya, karena label adalah satu-satunya
+// bagian yang dua lapis bisa berbeda pendapat tentangnya.
 const budgetYears = () => {
   const current = currentBudgetYear();
 
-  return [-1, 0, 1, 2].map((offset) => budgetYearView(current + offset));
+  return [-4, -3, -2, -1, 0, 1].map((offset) =>
+    budgetYearView(current + offset),
+  );
 };
 
 const data = (): BudgetSetting => ({
