@@ -23,7 +23,7 @@ export const DescriptionItem = (props: PropTypes) => {
       <dt className="text-muted-foreground shrink-0 text-body">{label}</dt>
       <dd
         className={cn(
-          "min-w-0 text-body font-medium break-words",
+          "min-w-0 text-body font-medium wrap-break-word",
           !isStacked && "text-right @min-[30rem]/dl:text-left",
         )}
       >

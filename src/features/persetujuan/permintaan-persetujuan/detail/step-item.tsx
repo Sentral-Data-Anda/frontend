@@ -43,7 +43,7 @@ export const StepItem = (props: PropTypes) => {
 
       <div className="min-w-0 flex-1 pt-0.5">
         <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          <p className="min-w-0 text-body font-medium break-words">
+          <p className="min-w-0 text-body font-medium wrap-break-word">
             <span className="sr-only">Tahap {position}: </span>
             {approverLabel(step)}
           </p>
@@ -61,7 +61,7 @@ export const StepItem = (props: PropTypes) => {
         ) : null}
 
         {step.note ? (
-          <blockquote className="bg-muted mt-2 max-w-prose rounded-control px-3 py-2 text-body break-words">
+          <blockquote className="bg-muted mt-2 max-w-prose rounded-control px-3 py-2 text-body wrap-break-word">
             <span className="sr-only">Alasan penolakan: </span>
             {step.note}
           </blockquote>

@@ -50,7 +50,14 @@ export const FormAlert = (props: PropTypes) => {
     >
       <Icon className={cn("mt-0.5 size-4 shrink-0", style.icon)} aria-hidden />
 
-      <div className="min-w-0">
+      {/* `overflow-wrap` itu properti WARISAN, jadi satu kelas di sini cukup
+          untuk judul dan pesannya. Tanpa ia, teks pengguna tanpa spasi meluber
+          KELUAR dari kotaknya tanpa melebarkan kotaknya — `min-w-0` menahan
+          lebar flex item-nya — sehingga setiap pengukuran kotak melaporkan
+          lebar yang benar sementara halamannya menggulir mendatar. Yang
+          menangkapnya `scrollWidth` lawan `clientWidth`, bukan
+          `getBoundingClientRect`. */}
+      <div className="min-w-0 wrap-break-word">
         <p className={cn("text-body font-medium", style.text)}>{title}</p>
         <p className={cn("text-body", style.text)}>{message}</p>
       </div>

@@ -29,7 +29,7 @@ export const ChangeValue = (props: PropTypes) => {
     return (
       <span
         className={cn(
-          "block text-body break-words whitespace-pre-wrap",
+          "block text-body wrap-break-word whitespace-pre-wrap",
           tone,
           isAfter && "font-medium",
         )}

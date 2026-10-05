@@ -24,7 +24,10 @@ export const LabelCard = (props: PropTypes) => {
             </Fragment>
           ))}
         </p>
-        <p className="mt-[1.5mm] line-clamp-2 break-words" title={asset.name}>
+        <p
+          className="mt-[1.5mm] line-clamp-2 wrap-break-word"
+          title={asset.name}
+        >
           {asset.name}
         </p>
       </div>
