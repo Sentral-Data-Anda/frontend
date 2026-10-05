@@ -192,7 +192,7 @@ describe("gerbang pencairan", () => {
       payee: "Uji",
       paidFromAccountId: 4,
       bapelId,
-      bapelChoice: bapelId === null ? null : "komisi",
+      bapelChoice: bapelId === null ? null : "KOMISI",
       method: null,
       reference: null,
       status: "PAID",

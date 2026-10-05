@@ -16,9 +16,13 @@ import { monthRange, todayJakarta } from "@/lib/date";
 import { toFormData } from "@/lib/form-data";
 import { collapseSpaces } from "@/lib/name";
 import type { AttachmentValue } from "@/types/attachment";
-import { CASH_EXPENSE_STATUS_LABEL } from "@/types/keuangan";
+import {
+  BAPEL_CHOICES,
+  CASH_EXPENSE_STATUS_LABEL,
+  type BapelChoice,
+} from "@/types/keuangan";
 
-import type { BapelChoice, CashExpenseDetail, ExpenseState } from "./types";
+import type { CashExpenseDetail, ExpenseState } from "./types";
 
 type BadgeVariant = ComponentProps<typeof Badge>["variant"];
 
@@ -63,13 +67,20 @@ export const NOTE_HINT =
 export const REFERENCE_HINT =
   "Kode pesanan pembelian, nomor nota, atau dokumen lain.";
 
-export const BAPEL_CHOICE_OPTIONS = [
-  { value: "komisi", label: "Untuk komisi" },
-  { value: "bukan-komisi", label: "Bukan belanja komisi" },
-] as const satisfies ReadonlyArray<{ value: BapelChoice; label: string }>;
+const BAPEL_CHOICE_LABEL: Record<BapelChoice, string> = {
+  KOMISI: "Untuk komisi",
+  BUKAN_KOMISI: "Bukan belanja komisi",
+};
+
+export const BAPEL_CHOICE_OPTIONS = BAPEL_CHOICES.map((value) => ({
+  value,
+  label: BAPEL_CHOICE_LABEL[value],
+}));
 
 export const BAPEL_CHOICE_HINT =
-  "Komisi yang menerima pencairan ini. Mengisinya berarti pencairan budget komisi, dan laporan pemakaian bulan sebelumnya harus sudah disetujui.";
+  "Pilih 'Untuk komisi' bila uang ini milik anggaran komisi. Laporan pemakaian bulan sebelumnya harus sudah disetujui sebelum pencairannya bisa dibayar.";
+
+export const BAPEL_HINT = "Komisi yang menerima pencairan ini.";
 
 export const EXPENSE_STATE_LABEL: Record<ExpenseState, string> = {
   ...CASH_EXPENSE_STATUS_LABEL,
@@ -204,7 +215,7 @@ export const expenseFormSchema = z
 
     if (!values.bapelChoice) {
       addIssue(["bapelChoice"], "Jawab dulu: untuk komisi, atau bukan");
-    } else if (values.bapelChoice === "komisi" && !values.bapelId) {
+    } else if (values.bapelChoice === "KOMISI" && !values.bapelId) {
       addIssue(["bapelId"], "Pilih komisi");
     }
 

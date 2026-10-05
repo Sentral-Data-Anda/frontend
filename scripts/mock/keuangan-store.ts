@@ -8,6 +8,7 @@ import { addDays, addMonths, startOfMonth } from "../../src/lib/date";
 import { balanceOf, sumAmounts } from "../../src/lib/number";
 import type {
   AccountType,
+  BapelChoice,
   JournalRef,
   AccountingSettingKey,
   CashStatus,
@@ -1403,7 +1404,7 @@ export type CashExpenseRow = {
   // Nullable tanpa default: `null` berarti baris yang ditulis sebelum
   // pertanyaannya ada. Di server CHECK constraint yang menjaga ia sepakat
   // dengan `bapelId`; di sini benihnya yang menjaga.
-  bapelChoice: "komisi" | "bukan-komisi" | null;
+  bapelChoice: BapelChoice | null;
   method: string | null;
   reference: string | null;
   status: CashStatus;
@@ -1605,7 +1606,7 @@ export const CASH_EXPENSE: CashExpenseRow[] = [
     {
       publicId: "doc-19",
       bapelId: 2,
-      bapelChoice: "komisi",
+      bapelChoice: "KOMISI",
       method: "Transfer",
       reference: "PSN-2026-0019",
       approvals: [
@@ -1708,7 +1709,7 @@ export const CASH_EXPENSE: CashExpenseRow[] = [
     [cashExpenseLine(22, "640000", "Pemakaian air")],
     {
       bapelId: null,
-      bapelChoice: "bukan-komisi",
+      bapelChoice: "BUKAN_KOMISI",
       method: "Transfer",
       status: "PAID",
       approvals: [cashExpenseApproval(31, "APPROVED", 12)],

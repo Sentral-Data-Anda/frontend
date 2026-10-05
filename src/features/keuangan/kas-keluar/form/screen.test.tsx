@@ -340,7 +340,7 @@ describe("kolom komisi harus dijawab", () => {
       expenseDetail({
         bapelId: 3,
         bapel: { code: "BPL-0003", name: "Komisi Pemuda" },
-        bapelChoice: "komisi",
+        bapelChoice: "KOMISI",
       }),
     );
     onRenderForm(["VIEW", "UPDATE"], "doc-7");
@@ -357,7 +357,7 @@ describe("kolom komisi harus dijawab", () => {
 
     await waitFor(() => expect(sent).toHaveLength(1));
 
-    expect(sent[0]!.get("bapelChoice")).toBe("bukan-komisi");
+    expect(sent[0]!.get("bapelChoice")).toBe("BUKAN_KOMISI");
     expect(sent[0]!.get("bapelId")).toBeNull();
   });
 

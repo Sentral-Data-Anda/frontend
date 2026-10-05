@@ -10,6 +10,7 @@
  *   MOCK_MEDIA_EXPIRED=1    → nota 403 (media.ts)
  */
 import { MENU } from "../../../src/config/menu";
+import { BAPEL_CHOICES, type BapelChoice } from "../../../src/types/keuangan";
 import { SESSION_USER_ID } from "../../mock-dashboard";
 import {
   CASH_EXPENSE,
@@ -78,8 +79,6 @@ type ParsedLine = {
   amount: number;
   description: string | null;
 };
-
-type BapelChoice = "komisi" | "bukan-komisi";
 
 type Parsed = {
   expenseDate: string;
@@ -224,14 +223,14 @@ const parse = (form: FormData, isUpdate: boolean): Parsed | Issue[] => {
   // Kosong bukan lagi jawaban: payload yang belum dijawab ditolak di sini,
   // persis seperti validator server, dan kesepakatan jawaban dengan `bapelId`
   // dinyatakan lewat `issues[].path` — bukan lewat sebuah `code`.
-  if (bapelChoice !== "komisi" && bapelChoice !== "bukan-komisi") {
+  if (!(BAPEL_CHOICES as readonly string[]).includes(bapelChoice)) {
     issues.push({
       path: "bapelChoice",
       message: "Mohon Pilih Untuk Komisi Atau Bukan Belanja Komisi",
     });
-  } else if (bapelChoice === "komisi" && bapelId === null) {
+  } else if (bapelChoice === "KOMISI" && bapelId === null) {
     issues.push({ path: "bapelId", message: "Mohon Lengkapi Komisi" });
-  } else if (bapelChoice === "bukan-komisi" && bapelId !== null) {
+  } else if (bapelChoice === "BUKAN_KOMISI" && bapelId !== null) {
     issues.push({
       path: "bapelId",
       message: "Bukan Belanja Komisi Tidak Boleh Membawa Komisi",

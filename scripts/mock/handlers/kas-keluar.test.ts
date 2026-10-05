@@ -98,7 +98,7 @@ const formOf = (extra: Record<string, string> = {}, files: File[] = []) => {
     payee: "PLN UP3 Medan",
     description: "Tagihan listrik",
     paidFromAccountId: "2",
-    bapelChoice: "bukan-komisi",
+    bapelChoice: "BUKAN_KOMISI",
     lines: JSON.stringify([{ accountId: 22, amount: 1850000 }]),
     ...extra,
   };
@@ -218,11 +218,34 @@ describe("kolom komisi dijawab eksplisit", () => {
     expect(rejected?.body.code).toBeUndefined();
   });
 
+  test("ejaan kebab lama ditolak, bukan dipetakan", async () => {
+    for (const spelling of ["komisi", "bukan-komisi"]) {
+      const rejected = await onCall(
+        "POST",
+        "/kas-keluar",
+        formOf({ bapelChoice: spelling }),
+      );
+
+      expect(rejected?.status).toBe(400);
+      expect(rejected?.body.issues?.[0]?.path).toBe("bapelChoice");
+    }
+
+    // Yang lama memetakan apa pun yang tak dikenal ke "bukan komisi" — default
+    // diam yang kolom ini ada untuk mencegah. Tidak ada baris baru yang lolos.
+    expect(
+      CASH_EXPENSE.some(
+        (row) =>
+          row.payee === "PLN UP3 Medan" &&
+          row.description === "Tagihan listrik",
+      ),
+    ).toBe(false);
+  });
+
   test("untuk komisi tanpa bapelId ditolak di bapelId", async () => {
     const rejected = await onCall(
       "POST",
       "/kas-keluar",
-      formOf({ bapelChoice: "komisi" }),
+      formOf({ bapelChoice: "KOMISI" }),
     );
 
     expect(rejected?.status).toBe(400);
@@ -233,7 +256,7 @@ describe("kolom komisi dijawab eksplisit", () => {
     const rejected = await onCall(
       "POST",
       "/kas-keluar",
-      formOf({ bapelChoice: "bukan-komisi", bapelId: "3" }),
+      formOf({ bapelChoice: "BUKAN_KOMISI", bapelId: "3" }),
     );
 
     expect(rejected?.status).toBe(400);
@@ -257,14 +280,14 @@ describe("kolom komisi dijawab eksplisit", () => {
     const komisi = await onCall(
       "POST",
       "/kas-keluar",
-      formOf({ bapelChoice: "komisi", bapelId: "3" }),
+      formOf({ bapelChoice: "KOMISI", bapelId: "3" }),
     );
 
     expect((stated?.body.data as { bapelChoice: string }).bapelChoice).toBe(
-      "bukan-komisi",
+      "BUKAN_KOMISI",
     );
     expect((komisi?.body.data as { bapelChoice: string }).bapelChoice).toBe(
-      "komisi",
+      "KOMISI",
     );
   });
 

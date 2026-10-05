@@ -37,7 +37,7 @@ const values = (next: Partial<ExpenseFormValues> = {}): ExpenseFormValues => ({
   payee: "  PLN   UP3  Medan ",
   paidFromAccountId: "2",
   description: "Tagihan  listrik",
-  bapelChoice: "bukan-komisi",
+  bapelChoice: "BUKAN_KOMISI",
   lines: [{ accountId: "22", amount: "1850000", description: "Listrik" }],
   ...next,
 });
@@ -254,14 +254,14 @@ describe("expenseFormSchema", () => {
   });
 
   test("untuk komisi tanpa komisi terpilih ditolak di bapelId, bukan di form", () => {
-    const paths = pathsOf(values({ bapelChoice: "komisi", bapelId: "" }));
+    const paths = pathsOf(values({ bapelChoice: "KOMISI", bapelId: "" }));
 
     expect(paths).toEqual(["bapelId"]);
   });
 
   test("bukan belanja komisi lolos tanpa bapelId", () => {
     expect(
-      pathsOf(values({ bapelChoice: "bukan-komisi", bapelId: "" })),
+      pathsOf(values({ bapelChoice: "BUKAN_KOMISI", bapelId: "" })),
     ).toEqual([]);
   });
 });
@@ -285,29 +285,29 @@ describe("kolom komisi", () => {
       expenseDetail({
         bapelId: null,
         bapel: null,
-        bapelChoice: "bukan-komisi",
+        bapelChoice: "BUKAN_KOMISI",
       }),
     );
     const komisi = toExpenseForm(
       expenseDetail({
         bapelId: 3,
         bapel: { code: "BPL-0003", name: "Komisi Pemuda" },
-        bapelChoice: "komisi",
+        bapelChoice: "KOMISI",
       }),
     );
 
-    expect(stated.bapelChoice).toBe("bukan-komisi");
-    expect(komisi.bapelChoice).toBe("komisi");
+    expect(stated.bapelChoice).toBe("BUKAN_KOMISI");
+    expect(komisi.bapelChoice).toBe("KOMISI");
     expect(komisi.bapelId).toBe("3");
   });
 
   test("payload membawa jawaban DAN bapelId, tanpa representasi kedua", () => {
     const body = toExpenseFormData(
-      values({ bapelChoice: "komisi", bapelId: "3" }),
+      values({ bapelChoice: "KOMISI", bapelId: "3" }),
       false,
     );
 
-    expect(body.get("bapelChoice")).toBe("komisi");
+    expect(body.get("bapelChoice")).toBe("KOMISI");
     expect(body.get("bapelId")).toBe("3");
     expect([...body.keys()].filter((key) => /bapel/i.test(key))).toEqual([
       "bapelChoice",
@@ -317,11 +317,11 @@ describe("kolom komisi", () => {
 
   test("bukan belanja komisi mengirim jawabannya dan mengosongkan bapelId", () => {
     const body = toExpenseFormData(
-      values({ bapelChoice: "bukan-komisi", bapelId: "" }),
+      values({ bapelChoice: "BUKAN_KOMISI", bapelId: "" }),
       false,
     );
 
-    expect(body.get("bapelChoice")).toBe("bukan-komisi");
+    expect(body.get("bapelChoice")).toBe("BUKAN_KOMISI");
     expect(body.get("bapelId")).toBeNull();
   });
 

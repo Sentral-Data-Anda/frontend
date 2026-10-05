@@ -17,6 +17,7 @@ import { todayJakarta } from "@/lib/date";
 import {
   BAPEL_CHOICE_HINT,
   BAPEL_CHOICE_OPTIONS,
+  BAPEL_HINT,
   REFERENCE_HINT,
 } from "../model";
 
@@ -125,7 +126,7 @@ export const ExpenseSection = (props: PropTypes) => {
               field.onChange(value);
               // Jawaban dan `bapelId` dikirim keduanya, jadi nilai lama tidak
               // boleh tersangkut: server menolak keduanya yang tidak sepakat.
-              if (value !== "komisi") form.setValue("bapelId", "");
+              if (value !== "KOMISI") form.setValue("bapelId", "");
             }}
             options={BAPEL_CHOICE_OPTIONS}
             disabled={isDisabled}
@@ -133,8 +134,13 @@ export const ExpenseSection = (props: PropTypes) => {
         )}
       </ControlField>
 
-      {bapelChoice === "komisi" ? (
-        <ControlField control={form.control} name="bapelId" label="Komisi">
+      {bapelChoice === "KOMISI" ? (
+        <ControlField
+          control={form.control}
+          name="bapelId"
+          label="Komisi"
+          hint={BAPEL_HINT}
+        >
           {(field) => (
             <BapelField
               value={field.value}
