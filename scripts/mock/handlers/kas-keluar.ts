@@ -15,8 +15,10 @@ import { SESSION_USER_ID } from "../../mock-dashboard";
 import {
   GATE_WAIVER,
   gateFailureOf,
+  previousMonth,
   userNameOf,
   waiverOf,
+  waiverView,
 } from "../anggaran-store";
 import {
   CASH_EXPENSE,
@@ -64,8 +66,27 @@ const invalid = (issues: Issue[], status = 400) =>
 
 const serverError = () => failure(500, "Internal Server Error");
 
+// Pembebasan dilekatkan DI SINI, bukan di `cashExpenseView`: keuangan-store
+// tidak boleh mengimpor anggaran-store, yang sudah mengimpornya. Ia milik
+// komisi + bulan `expenseDate`, bukan milik dokumennya.
+const waiverFor = (row: CashExpenseRow) => {
+  if (row.bapelId === null) return null;
+
+  const { year, month } = previousMonth(
+    Number(row.expenseDate.slice(0, 4)),
+    Number(row.expenseDate.slice(5, 7)),
+  );
+
+  return waiverView(waiverOf(row.bapelId, year, month));
+};
+
+const expenseView = (row: CashExpenseRow, isDetail: boolean) => ({
+  ...cashExpenseView(row, isDetail),
+  ...(isDetail ? { waiver: waiverFor(row) } : {}),
+});
+
 const ok = (message: string, row: CashExpenseRow, status = 200) =>
-  json({ status, message, data: cashExpenseView(row, true) }, status);
+  json({ status, message, data: expenseView(row, true) }, status);
 
 const expenseOf = (publicId: string) =>
   CASH_EXPENSE.find((row) => isLive(row) && row.publicId === publicId);

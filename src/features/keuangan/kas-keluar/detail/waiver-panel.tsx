@@ -30,7 +30,15 @@ export const WaiverPanel = (props: PropTypes) => {
           {formatDateTime(waiver.createdAt)}
         </p>
 
-        <p className="text-body whitespace-pre-line">{waiver.reason}</p>
+        {/*
+          `wrap-break-word` seperti `cancelReason` di ringkasan fitur ini: satu
+          alasan 250 karakter tanpa spasi melebarkan halaman 390 menjadi ~2000px
+          tanpa ia. Membungkus BUKAN memotong — seluruh teksnya tetap terbaca,
+          dan itu yang dituntut aturan "tidak pernah dipotong".
+        */}
+        <p className="text-body whitespace-pre-line wrap-break-word">
+          {waiver.reason}
+        </p>
       </section>
     </Panel>
   );

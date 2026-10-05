@@ -1593,6 +1593,29 @@ export const CASH_EXPENSE: CashExpenseRow[] = [
       notes: [cashExpenseNote("Nota florist")],
     },
   ),
+  // Disetujui, berkomisi, dan komisinya BELUM menyelesaikan laporan M−1 — satu
+  // satunya baris benih yang membuat gerbang pencairan dan pintu daruratnya
+  // bisa dilihat di peramban. Tanpa ia, setiap dokumen siap bayar yang
+  // berkomisi kebetulan lolos gerbang, dan tombol Bebaskan tidak pernah muncul
+  // untuk dilihat siapa pun.
+  expense(
+    12,
+    thisMonth(24),
+    "Ketua Komisi Pemuda",
+    "Panjar perlengkapan retret pemuda",
+    4,
+    [cashExpenseLine(23, "2400000", "Panjar perlengkapan")],
+    {
+      publicId: "doc-24",
+      bapelId: 2,
+      bapelChoice: "KOMISI",
+      method: "Transfer",
+      status: "APPROVED",
+      approvals: [cashExpenseApproval(24, "APPROVED", 14)],
+      approvedById: 15,
+      approvedAt: `${thisMonth(25)}T03:20:00.000Z`,
+    },
+  ),
   expense(
     4,
     thisMonth(23),

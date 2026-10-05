@@ -473,6 +473,15 @@ describe("panel alasan pembebasan", () => {
       .filter((value) => /line-clamp|truncate/.test(value));
 
     expect(clipped).toEqual([]);
+
+    // Dan ia harus MEMBUNGKUS: satu alasan 250 karakter tanpa spasi melebarkan
+    // halaman 390 menjadi ~2000px tanpa ini — ditemukan di peramban, bukan di
+    // sini. Membungkus bukan memotong; teksnya tetap utuh di atas.
+    expect(
+      [panel, ...panel.querySelectorAll("p")].some((node) =>
+        /wrap-break-word|break-words/.test(node.className?.toString() ?? ""),
+      ),
+    ).toBe(true);
   });
 });
 

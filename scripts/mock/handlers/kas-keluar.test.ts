@@ -861,6 +861,38 @@ describe("pembebasan gerbang", () => {
     expect((await onCall("PUT", `/kas-keluar/${id}/bayar`))?.status).toBe(200);
   });
 
+  test("bacaan detail membawa alasannya, utuh", async () => {
+    onOweReport();
+    const id = payableOf(GATE_BAPEL);
+
+    expect(
+      (
+        (await onCall("GET", `/kas-keluar/${id}`))?.body.data as {
+          waiver: null;
+        }
+      ).waiver,
+    ).toBeNull();
+
+    const reason = "D".repeat(250);
+    await onCall("POST", "/kas-keluar/pembebasan", body({ reason }));
+
+    const read = (await onCall("GET", `/kas-keluar/${id}`))?.body.data as {
+      waiver: { reason: string; createdBy: { name: string } | null };
+    };
+
+    expect(read.waiver.reason).toBe(reason);
+    expect(read.waiver.createdBy).not.toBeUndefined();
+  });
+
+  test("dokumen tanpa komisi tidak pernah membawa pembebasan", async () => {
+    const id = payableOf(null);
+    const read = (await onCall("GET", `/kas-keluar/${id}`))?.body.data as {
+      waiver: null;
+    };
+
+    expect(read.waiver).toBeNull();
+  });
+
   test("alasan dikembalikan utuh, tidak dipotong", async () => {
     const reason = "A".repeat(250);
     const created = await onCall(
