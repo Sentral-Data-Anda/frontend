@@ -8,7 +8,12 @@ import {
   Input,
   SelectField,
 } from "@/components/common/control";
-import { ControlField, FormSection, FormWide } from "@/components/common/form";
+import {
+  ControlField,
+  FormSection,
+  FormWide,
+  LockedField,
+} from "@/components/common/form";
 import { useDdlOptions } from "@/hooks/use-ddl-options";
 
 import { toDigits, type PelayanFormValues } from "../model";
@@ -16,7 +21,6 @@ import { TYPE_PELAYAN_LABEL, type PelayanDetail } from "../types";
 
 import { STATUS_OPTIONS, TYPE_OPTIONS, type PelayanForm } from "./form-options";
 import { JemaatField } from "./jemaat-field";
-import { LockedField } from "./locked-field";
 
 const TYPE_BOUND = ["jemaatId", "name", "phone"] as const;
 

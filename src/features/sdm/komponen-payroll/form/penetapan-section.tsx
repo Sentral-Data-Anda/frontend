@@ -9,7 +9,12 @@ import {
   ComboboxField,
   DateField,
 } from "@/components/common/control";
-import { ControlField, FormSection, FormWide } from "@/components/common/form";
+import {
+  ControlField,
+  FormSection,
+  FormWide,
+  LockedField,
+} from "@/components/common/form";
 import { useDdlOptions } from "@/hooks/use-ddl-options";
 import { formatAmount } from "@/lib/format";
 
@@ -27,7 +32,6 @@ import {
   type KomponenPayrollOption,
   type PenetapanKomponen,
 } from "../types";
-import { LockedField } from "../ui";
 
 import { VALUE_MODE_OPTIONS, type PenetapanForm } from "./penetapan-options";
 

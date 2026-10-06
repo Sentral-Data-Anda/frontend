@@ -1,5 +1,6 @@
 /**
- * Tiruan `/api/v1/karyawan` (be-sada modul `karyawan`, gelombang 0 `65f07f6`).
+ * Tiruan `/api/v1/karyawan` (be-sada modul `karyawan`, gelombang 0 `65f07f6`)
+ * dan `GET /ddl/karyawan` (be-sada `dropdown_list`, `9b94577`).
  * Kunci path `code` (`KRY-0001`), cocok tanpa peduli huruf besar-kecil, dan
  * respons tulis berbentuk sama dengan respons baca — `include: { jemaat }` di
  * `create`/`updateById` sudah mendarat di be-sada, jadi di sini pun ikut.
@@ -13,6 +14,7 @@
  *                              =duplikat → 409 jemaat sudah punya karyawan aktif
  *                                          (bentuk permintaan BE S30; be-sada
  *                                          belum mengirimnya hari ini)
+ *   MOCK_DDL_EMPTY=1                → /ddl/karyawan kosong (404)
  *   MOCK_KARYAWAN_DELETE_ERROR=1    → hapus menjawab 409 masih dipakai
  *                                     (bentuk permintaan BE S20)
  *
@@ -87,7 +89,13 @@ const withJemaat = (id: number) => ({
   jemaat: jemaatOf(id),
 });
 
-const rows: Row[] = [
+/**
+ * Satu-satunya roster karyawan di mock, dan `/ddl/karyawan` di bawah
+ * menyajikannya: dulu berkas ini dan `komponen-payroll.ts` menyemai dua roster
+ * dengan id yang sama tapi orang yang berbeda, jadi KRY-0001 adalah orang yang
+ * berlainan tergantung menu mana yang dibuka.
+ */
+export const KARYAWAN: Row[] = [
   toRow(1, "Andreas Sitanggang", "Koster", "081234567801", "2019-03-01", {
     ...withJemaat(1),
     email: "andreas.sitanggang@gereja.or.id",
@@ -173,11 +181,11 @@ const rows: Row[] = [
   ),
 ];
 
-const SEED: Row[] = rows.map((row) => ({ ...row }));
+const SEED: Row[] = KARYAWAN.map((row) => ({ ...row }));
 
 /** Benih dimiliki modul yang menyemainya (pedoman §7.2), bukan berkas test. */
 export const resetKaryawanRows = () =>
-  rows.splice(0, rows.length, ...SEED.map((row) => ({ ...row })));
+  KARYAWAN.splice(0, KARYAWAN.length, ...SEED.map((row) => ({ ...row })));
 
 const invalid = (path: string, message: string) =>
   json({ status: 400, error: message, issues: [{ path, message }] }, 400);
@@ -311,6 +319,44 @@ const applyBody = (row: Row, body: Body) => {
 export const karyawanMock: MockHandler = async (ctx) => {
   const { request, url, path, method, can } = ctx;
 
+  if (path === "/ddl/karyawan" && method === "GET") {
+    // Any-of lima menu, sama seperti be-sada `dropdown_list.route.ts`: satu
+    // role boleh memegang CUTI CREATE tanpa KARYAWAN VIEW dan tetap harus bisa
+    // mengisi formnya.
+    const isAllowed = [
+      MENU.KARYAWAN,
+      MENU.CUTI,
+      MENU.KONTRAK_KARYAWAN,
+      MENU.ABSENSI_KARYAWAN,
+      MENU.KOMPONEN_PAYROLL,
+    ].some((slug) => can(slug, "VIEW"));
+
+    if (!isAllowed) return denied();
+    if (process.env.MOCK_DDL_EMPTY) {
+      return json({ status: 404, error: "Karyawan Tidak Ditemukan" }, 404);
+    }
+
+    const filter = (url.searchParams.get("filter") ?? "").toLowerCase();
+    const picked = KARYAWAN.filter(
+      (person) =>
+        person.status === "ACTIVE" &&
+        (person.name.toLowerCase().includes(filter) ||
+          person.code.toLowerCase().includes(filter)),
+    )
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .map(({ id, code, name, position }) => ({ id, code, name, position }));
+
+    if (!picked.length) {
+      return json({ status: 404, error: "Karyawan Tidak Ditemukan" }, 404);
+    }
+
+    return json({
+      status: 200,
+      message: "Berhasil Mendapatkan Semua Karyawan",
+      data: picked,
+    });
+  }
+
   if (path !== "/karyawan" && !path.startsWith("/karyawan/")) return null;
 
   const code = decodeURIComponent(path.slice("/karyawan/".length));
@@ -338,14 +384,12 @@ export const karyawanMock: MockHandler = async (ctx) => {
     const filter = (url.searchParams.get("filter") ?? "").toLowerCase();
 
     return list(
-      rows
-        .filter(
-          (row) =>
-            !filter ||
-            row.name.toLowerCase().includes(filter) ||
-            row.position.toLowerCase().includes(filter),
-        )
-        .sort((a, b) => a.name.localeCompare(b.name)),
+      KARYAWAN.filter(
+        (row) =>
+          !filter ||
+          row.name.toLowerCase().includes(filter) ||
+          row.position.toLowerCase().includes(filter),
+      ).sort((a, b) => a.name.localeCompare(b.name)),
       url,
       "Karyawan",
       "Karyawan",
@@ -360,9 +404,9 @@ export const karyawanMock: MockHandler = async (ctx) => {
     const rejected = validate(body);
     if (rejected) return rejected;
 
-    const id = Math.max(0, ...rows.map((row) => row.id)) + 1;
+    const id = Math.max(0, ...KARYAWAN.map((row) => row.id)) + 1;
     const created = applyBody(toRow(id, "", "", "", "2026-01-01"), body);
-    rows.push(created);
+    KARYAWAN.push(created);
 
     return json(
       { status: 201, message: "Berhasil Membuat Karyawan", data: created },
@@ -370,7 +414,7 @@ export const karyawanMock: MockHandler = async (ctx) => {
     );
   }
 
-  const row = rows.find(
+  const row = KARYAWAN.find(
     (item) => item.code.toLowerCase() === code.toLowerCase(),
   );
 
@@ -412,7 +456,7 @@ export const karyawanMock: MockHandler = async (ctx) => {
       );
     }
 
-    rows.splice(rows.indexOf(row), 1);
+    KARYAWAN.splice(KARYAWAN.indexOf(row), 1);
 
     return json({
       status: 200,

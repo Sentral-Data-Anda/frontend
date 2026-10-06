@@ -7,7 +7,7 @@
  *   MOCK_CUTI_OVERLAP=1       → simpan ditolak 409 tumpang-tindih
  *
  * Benih tipe cuti diimpor dari `tipe-cuti.ts` dan benih karyawan dari
- * `komponen-payroll.ts` (yang melayani `/ddl/karyawan`) — pedoman §7.2: benih
+ * `karyawan.ts` (yang melayani `/ddl/karyawan`) — pedoman §7.2: benih
  * dimiliki modul yang menyemainya, bukan berkas yang memakainya.
  *
  * Satu hal yang MENDAHULUI be-sada dan disengaja: `approval` ikut di jalur
@@ -21,7 +21,7 @@ import { addDays, todayJakarta } from "../../../src/lib/date";
 import { denied, json, list, readBody, type MockHandler } from "../kit";
 
 import { hariLiburMock } from "./hari-libur";
-import { KARYAWAN } from "./komponen-payroll";
+import { KARYAWAN } from "./karyawan";
 import { KARYAWAN_CONTRACT } from "./kontrak-karyawan";
 import { LEAVE_TYPE, isLiveLeaveType } from "./tipe-cuti";
 
@@ -109,7 +109,7 @@ const signed: ApprovalRow = {
       status: "APPROVED",
       note: null,
       actedAt: `${addDays(TODAY, -20)}T03:10:00.000Z`,
-      actor: { name: "Debora Manurung" },
+      actor: { name: "Josephine Tanuwijaya" },
     },
     {
       order: 2,
@@ -137,7 +137,7 @@ const refused: ApprovalRow = {
       status: "REJECTED",
       note: REFUSAL,
       actedAt: `${addDays(TODAY, -6)}T04:05:00.000Z`,
-      actor: { name: "Debora Manurung" },
+      actor: { name: "Josephine Tanuwijaya" },
     },
     {
       order: 2,

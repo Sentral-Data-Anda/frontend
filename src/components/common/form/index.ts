@@ -4,6 +4,7 @@ export * from "./form-confirm-dialog";
 export * from "./form-field";
 export * from "./form-layout";
 export * from "./form-not-found";
+export * from "./locked-field";
 export * from "./no-form-access";
 export * from "./row-order-controls";
 export * from "./use-form-confirm";

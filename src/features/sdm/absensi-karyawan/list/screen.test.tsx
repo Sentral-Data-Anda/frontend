@@ -18,6 +18,7 @@ import {
   absensiKaryawanMock,
   resetAttendanceRows,
 } from "../../../../../scripts/mock/handlers/absensi-karyawan";
+import { resetKaryawanRows } from "../../../../../scripts/mock/handlers/karyawan";
 import { onStubViewport } from "../../../../../tests/viewport";
 
 const search = { current: "" };
@@ -62,7 +63,7 @@ beforeAll(() => {
       return Response.json({
         status: 200,
         message: "OK",
-        data: [{ id: 1, code: "KRY-0001", name: "Ani Wijaya" }],
+        data: [{ id: 1, code: "KRY-0001", name: "Andreas Sitanggang" }],
       });
     }
 
@@ -83,7 +84,11 @@ afterAll(() => {
   globalThis.fetch = originalFetch;
 });
 
-beforeEach(resetAttendanceRows);
+// Pedoman §7.2: dua larik, dua reset milik modul penyemainya.
+beforeEach(() => {
+  resetAttendanceRows();
+  resetKaryawanRows();
+});
 
 afterEach(() => {
   cleanup();
@@ -107,7 +112,7 @@ const onRenderList = (granted: MenuAction[], query = "") => {
 
 const onLoaded = async () =>
   waitFor(() =>
-    expect(screen.getAllByText(/Ani Wijaya/).length).toBeGreaterThan(0),
+    expect(screen.getAllByText(/Andreas Sitanggang/).length).toBeGreaterThan(0),
   );
 
 describe("gerbang VIEW", () => {

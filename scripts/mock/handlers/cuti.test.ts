@@ -11,6 +11,7 @@ import {
   resetLeaveRequests,
 } from "./cuti";
 import { hariLiburMock } from "./hari-libur";
+import { resetKaryawanRows } from "./karyawan";
 import { resetKontrakKaryawan } from "./kontrak-karyawan";
 import { resetLeaveTypes } from "./tipe-cuti";
 
@@ -30,10 +31,12 @@ const FLAGS = [
   "MOCK_CUTI_OVERLAP",
 ] as const;
 
-// Tiga larik, tiga reset milik modul penyemainya masing-masing. Kontrak ikut
-// sejak mock menghitung libur mingguan dari sana.
+// Empat larik, empat reset milik modul penyemainya masing-masing. Kontrak ikut
+// sejak mock menghitung libur mingguan dari sana, dan roster karyawan ikut
+// sejak `karyawan.ts` memilikinya — layar Karyawan menulisinya.
 const onReset = () => {
   resetLeaveTypes();
+  resetKaryawanRows();
   resetKontrakKaryawan();
   resetLeaveRequests();
 };

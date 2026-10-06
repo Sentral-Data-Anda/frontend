@@ -3,14 +3,17 @@
 import { useWatch } from "react-hook-form";
 
 import { ComboboxField } from "@/components/common/control";
-import { ControlField, FormSection } from "@/components/common/form";
+import {
+  ControlField,
+  FormSection,
+  LockedField,
+} from "@/components/common/form";
 import { useDdlOptions } from "@/hooks/use-ddl-options";
 
 import { EMPLOYEE_NOTE } from "../model";
 import type { KontrakKaryawan } from "../types";
 
 import { type KontrakForm } from "./form-options";
-import { LockedField } from "./locked-field";
 
 interface PropTypes {
   form: KontrakForm;
