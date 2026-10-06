@@ -1,11 +1,13 @@
 /**
- * Tiruan `/api/v1/komponen-payroll` (katalog + penetapan per karyawan),
- * `GET /ddl/komponen-payroll`, dan — sementara, sampai handler Karyawan
- * mendarat — `GET /ddl/karyawan`.
+ * Tiruan `/api/v1/komponen-payroll` (katalog + penetapan per karyawan) dan
+ * `GET /ddl/komponen-payroll`.
+ *
+ * Roster karyawan dan `GET /ddl/karyawan` dimiliki `karyawan.ts` — pedoman
+ * §7.2, benih dimiliki modul yang menyemainya.
  *
  *   MOCK_EMPTY=1                      → kedua daftar kosong (404)
  *   MOCK_500=1                        → kedua daftar menjawab 500
- *   MOCK_DDL_EMPTY=1                  → /ddl/komponen-payroll dan /ddl/karyawan kosong (404)
+ *   MOCK_DDL_EMPTY=1                  → /ddl/komponen-payroll kosong (404)
  *   MOCK_KPY_SAVE_ERROR=500           → POST/PUT/DELETE menjawab 500
  *   MOCK_KPY_IN_USE=slip|penetapan    → hapus komponen ditolak dengan alasan itu
  */
@@ -13,6 +15,8 @@ import { MENU } from "../../../src/config/menu";
 import { collapseSpaces } from "../../../src/lib/name";
 import { TODAY, accountOf } from "../keuangan-store";
 import { denied, json, list, readBody, type MockHandler } from "../kit";
+
+import { KARYAWAN } from "./karyawan";
 
 const PPH21 = "PPH21";
 
@@ -32,14 +36,6 @@ type ComponentRow = {
   isActive: boolean;
   accountId: number | null;
   deletedAt: string | null;
-};
-
-type KaryawanRow = {
-  id: number;
-  publicId: string;
-  code: string;
-  name: string;
-  position: string;
 };
 
 type AssignmentRow = {
@@ -125,37 +121,6 @@ export const PAYROLL_COMPONENT: ComponentRow[] = [
   component(6, PPH21, "PPh21", "DEDUCTION", "FIXED", null, null, {
     isTaxable: false,
   }),
-];
-
-export const KARYAWAN: KaryawanRow[] = [
-  {
-    id: 1,
-    publicId: "kry-1",
-    code: "KRY-0001",
-    name: "Ani Wijaya",
-    position: "Sekretaris",
-  },
-  {
-    id: 2,
-    publicId: "kry-2",
-    code: "KRY-0002",
-    name: "Budi Santoso",
-    position: "Koster",
-  },
-  {
-    id: 3,
-    publicId: "kry-3",
-    code: "KRY-0003",
-    name: "Citra Halim",
-    position: "Bendahara Kantor",
-  },
-  {
-    id: 4,
-    publicId: "kry-4",
-    code: "KRY-0004",
-    name: "Dewi Pakpahan",
-    position: "Pengasuh Anak",
-  },
 ];
 
 export const KARYAWAN_PAYROLL_COMPONENT: AssignmentRow[] = [
@@ -526,33 +491,6 @@ const BASE = "/komponen-payroll";
 
 export const komponenPayrollMock: MockHandler = async (context) => {
   const { request, url, path, method, can } = context;
-
-  if (path === "/ddl/karyawan" && method === "GET") {
-    const isAllowed = [
-      MENU.KARYAWAN,
-      MENU.CUTI,
-      MENU.KONTRAK_KARYAWAN,
-      MENU.ABSENSI_KARYAWAN,
-      MENU.KOMPONEN_PAYROLL,
-    ].some((slug) => can(slug, "VIEW"));
-
-    if (!isAllowed) return denied();
-    if (process.env.MOCK_DDL_EMPTY) {
-      return json({ status: 404, error: "Karyawan Tidak Ditemukan" }, 404);
-    }
-
-    const filter = (url.searchParams.get("filter") ?? "").toLowerCase();
-
-    return json({
-      status: 200,
-      message: "Berhasil Mendapatkan Semua Karyawan",
-      data: KARYAWAN.filter(
-        (person) =>
-          person.name.toLowerCase().includes(filter) ||
-          person.code.toLowerCase().includes(filter),
-      ).map(({ id, code, name, position }) => ({ id, code, name, position })),
-    });
-  }
 
   if (path === "/ddl/komponen-payroll" && method === "GET") {
     if (!can(MENU.KOMPONEN_PAYROLL, "VIEW")) return denied();

@@ -5,6 +5,7 @@ import { addDays, todayJakarta } from "../../../src/lib/date";
 import type { MockAction } from "../kit";
 
 import { absensiKaryawanMock, resetAttendanceRows } from "./absensi-karyawan";
+import { resetKaryawanRows } from "./karyawan";
 
 const TODAY = todayJakarta();
 
@@ -61,7 +62,12 @@ const payload = (overrides: Record<string, unknown> = {}) => ({
   ...overrides,
 });
 
-beforeEach(resetAttendanceRows);
+// Pedoman §7.2: dua larik, dua reset milik modul penyemainya. Roster karyawan
+// dimiliki `karyawan.ts` dan layar Karyawan menulisinya.
+beforeEach(() => {
+  resetAttendanceRows();
+  resetKaryawanRows();
+});
 
 afterEach(() => {
   resetAttendanceRows();

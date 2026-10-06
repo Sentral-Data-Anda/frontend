@@ -9,10 +9,14 @@ import {
   Input,
   SelectField,
 } from "@/components/common/control";
-import { ControlField, FormSection, FormWide } from "@/components/common/form";
+import {
+  ControlField,
+  FormSection,
+  FormWide,
+  LockedField,
+} from "@/components/common/form";
 
 import { INACTIVE_NOTE, MAX_VALUE_DIGITS, calculationHint } from "../model";
-import { LockedField } from "../ui";
 
 import {
   CALCULATION_OPTIONS,

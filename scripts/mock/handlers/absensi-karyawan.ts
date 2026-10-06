@@ -24,7 +24,7 @@ import { addDays, todayJakarta } from "../../../src/lib/date";
 import { collapseSpaces } from "../../../src/lib/name";
 import { denied, json, list, readBody, type MockHandler } from "../kit";
 
-import { KARYAWAN } from "./komponen-payroll";
+import { KARYAWAN } from "./karyawan";
 
 const STATUSES = ["HADIR", "IZIN", "SAKIT", "CUTI", "ALPA", "LIBUR"] as const;
 
@@ -66,10 +66,10 @@ const row = (
 const SEED: readonly Row[] = [
   row(1, 1, 0, "HADIR", ["07:45", "16:30"]),
   row(2, 2, 0, "HADIR", ["06:30", "15:00"]),
-  row(3, 3, 0, "IZIN", null, "Mengurus administrasi bank gereja"),
+  row(3, 3, 0, "IZIN", null, "Mengurus perpanjangan surat izin kerja"),
   row(4, 4, 0, "SAKIT", null, "Surat dokter menyusul"),
   row(5, 1, -1, "HADIR", ["08:00", "17:00"]),
-  row(6, 2, -1, "LIBUR", null, "Libur mingguan koster"),
+  row(6, 2, -1, "LIBUR", null, "Libur mingguan sesuai kontrak"),
   row(7, 3, -1, "HADIR", ["08:10", "17:05"]),
   row(8, 4, -1, "ALPA", null, "Tidak ada kabar sampai sore"),
   row(9, 1, -2, "CUTI", null, "Cuti tahunan, dicatat manual"),

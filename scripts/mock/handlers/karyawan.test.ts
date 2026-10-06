@@ -5,6 +5,8 @@ import type { MockAction } from "../kit";
 
 import { karyawanMock, resetKaryawanRows } from "./karyawan";
 
+import { MOCK_HANDLERS } from "./index";
+
 type Json = {
   status: number;
   error?: string;
@@ -276,9 +278,131 @@ describe("mock /karyawan: tulis", () => {
   });
 });
 
+// `/ddl/karyawan` be-sada `9b94577`: any-of lima menu VIEW, hanya yang ACTIVE,
+// select `{id, code, name, position}`, kosong → 404.
+describe("mock /ddl/karyawan", () => {
+  const only = (allowed: MenuSlug) => (slug: MenuSlug, action: MockAction) =>
+    slug === allowed && action === "VIEW";
+
+  test("lima menu membukanya, menu di luar daftar tidak", async () => {
+    for (const slug of [
+      MENU.KARYAWAN,
+      MENU.CUTI,
+      MENU.KONTRAK_KARYAWAN,
+      MENU.ABSENSI_KARYAWAN,
+      MENU.KOMPONEN_PAYROLL,
+    ]) {
+      expect(
+        (await onCall("GET", "/ddl/karyawan", undefined, only(slug)))?.status,
+      ).toBe(200);
+    }
+
+    expect(
+      (await onCall("GET", "/ddl/karyawan", undefined, only(MENU.PAYROLL)))
+        ?.status,
+    ).toBe(403);
+  });
+
+  test("hanya karyawan ACTIVE, urut nama", async () => {
+    const result = await onCall("GET", "/ddl/karyawan");
+
+    expect(rowsOf(result?.body).map((row) => row.code)).toEqual([
+      "KRY-0001",
+      "KRY-0002",
+      "KRY-0008",
+      "KRY-0003",
+      "KRY-0004",
+      "KRY-0005",
+    ]);
+  });
+
+  test("baris membawa persis empat kolom pemilihnya", async () => {
+    const result = await onCall("GET", "/ddl/karyawan?filter=KRY-0001");
+
+    expect(result?.body.data).toEqual([
+      {
+        id: 1,
+        code: "KRY-0001",
+        name: "Andreas Sitanggang",
+        position: "Koster",
+      },
+    ]);
+  });
+
+  test("filter menyapu nama dan kode", async () => {
+    const byName = await onCall("GET", "/ddl/karyawan?filter=gideon");
+
+    expect(rowsOf(byName?.body).map((row) => row.code)).toEqual(["KRY-0003"]);
+  });
+
+  test("kosong jadi 404, baik karena flag maupun karena filter", async () => {
+    expect(
+      (await onCall("GET", "/ddl/karyawan?filter=tidakadaorangini"))?.status,
+    ).toBe(404);
+
+    process.env.MOCK_DDL_EMPTY = "1";
+    expect((await onCall("GET", "/ddl/karyawan"))?.status).toBe(404);
+    delete process.env.MOCK_DDL_EMPTY;
+  });
+});
+
+// Satu roster, dua menu: dulu `karyawan.ts` dan `komponen-payroll.ts` menyemai
+// roster masing-masing, jadi KRY-0001 adalah orang yang berlainan tergantung
+// menu mana yang dibuka. Dijalankan lewat rantai MOCK_HANDLERS yang sebenarnya,
+// bukan lewat satu handler — yang dijaga di sini justru "siapa yang menjawab".
+describe("satu pemilik roster karyawan", () => {
+  const onChain = async (input: string) => {
+    const url = new URL(`/api/v1${input}`, "http://mock.test");
+
+    for (const handle of MOCK_HANDLERS) {
+      const response = await handle({
+        request: new Request(url),
+        url,
+        path: input.split("?")[0],
+        method: "GET",
+        can: () => true,
+        isAdmin: true,
+        sessionCode: "test",
+      });
+
+      if (response) return (await response.json()) as Json;
+    }
+
+    return null;
+  };
+
+  test("KRY-0001 adalah orang yang sama di menu Karyawan dan di pemilihnya", async () => {
+    const onList = await onChain("/karyawan?limit=100");
+    const onPicker = await onChain("/ddl/karyawan");
+
+    const fromList = rowsOf(onList ?? undefined).find(
+      (row) => row.code === "KRY-0001",
+    );
+    const fromPicker = rowsOf(onPicker ?? undefined).find(
+      (row) => row.code === "KRY-0001",
+    );
+
+    expect(fromList?.name).toBe("Andreas Sitanggang");
+    expect(fromPicker?.name).toBe(fromList?.name);
+  });
+
+  test("seluruh pemilih adalah bagian dari daftar menu Karyawan", async () => {
+    const onList = await onChain("/karyawan?limit=100");
+    const onPicker = await onChain("/ddl/karyawan");
+
+    const listed = new Map(
+      rowsOf(onList ?? undefined).map((row) => [row.code, row.name]),
+    );
+
+    for (const row of rowsOf(onPicker ?? undefined)) {
+      expect(listed.get(row.code)).toBe(row.name);
+    }
+  });
+});
+
 describe("mock /karyawan: bukan jalurnya", () => {
   test("path lain dilewatkan ke handler berikutnya", async () => {
     expect(await onCall("GET", "/kontrak-karyawan")).toBeNull();
-    expect(await onCall("GET", "/ddl/karyawan")).toBeNull();
+    expect(await onCall("GET", "/ddl/komponen-payroll")).toBeNull();
   });
 });

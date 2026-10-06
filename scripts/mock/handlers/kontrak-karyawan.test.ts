@@ -3,6 +3,7 @@ import { afterEach, describe, expect, test } from "bun:test";
 import { MENU } from "../../../src/config/menu";
 import type { MockAction } from "../kit";
 
+import { resetKaryawanRows } from "./karyawan";
 import {
   KARYAWAN_CONTRACT,
   kontrakKaryawanMock,
@@ -20,6 +21,7 @@ type Json = {
 };
 
 afterEach(() => {
+  resetKaryawanRows();
   resetKontrakKaryawan();
   delete process.env.MOCK_EMPTY;
   delete process.env.MOCK_500;
@@ -100,12 +102,12 @@ describe("bentuk daftar", () => {
   });
 
   test("filter menyapu kode, jabatan, dan nama karyawan", async () => {
-    const byName = await onCall("GET", "/kontrak-karyawan?filter=budi");
+    const byName = await onCall("GET", "/kontrak-karyawan?filter=debora");
     const byPosition = await onCall("GET", "/kontrak-karyawan?filter=koster");
     const byCode = await onCall("GET", "/kontrak-karyawan?filter=ktr-0003");
 
     expect(codesOf(byName?.body)).toEqual(["KTR-0002"]);
-    expect(codesOf(byPosition?.body)).toEqual(["KTR-0002"]);
+    expect(codesOf(byPosition?.body)).toEqual(["KTR-0001"]);
     expect(codesOf(byCode?.body)).toEqual(["KTR-0003"]);
   });
 
@@ -393,7 +395,7 @@ describe("tumpang-tindih dan pemindahan", () => {
     const closed = await onCall("PUT", "/kontrak-karyawan/KTR-0002", {
       karyawanId: 2,
       contractType: "TETAP",
-      position: "Koster",
+      position: "Administrasi Kantor",
       basicSalary: 3200000,
       effectiveFrom: "2000-01-01",
       effectiveTo: "2039-12-31",
@@ -473,8 +475,10 @@ describe("hapus", () => {
 
     const result = await onCall("DELETE", "/kontrak-karyawan/KTR-0002");
 
-    expect(result?.status).toBe(400);
-    expect(result?.body.error).toMatch(/slip gaji/i);
+    expect(result?.status).toBe(409);
+    expect(result?.body.error).toBe(
+      "Kontrak Ini Sudah Dipakai Oleh Slip Gaji Dan Tidak Dapat Dihapus",
+    );
   });
 });
 

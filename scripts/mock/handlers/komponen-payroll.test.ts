@@ -3,6 +3,7 @@ import { afterEach, describe, expect, test } from "bun:test";
 import { MENU } from "../../../src/config/menu";
 import type { MockAction } from "../kit";
 
+import { resetKaryawanRows } from "./karyawan";
 import {
   KARYAWAN_PAYROLL_COMPONENT,
   PAYROLL_COMPONENT,
@@ -21,6 +22,9 @@ const COMPONENT_SEED = PAYROLL_COMPONENT.map((row) => ({ ...row }));
 const ASSIGNMENT_SEED = KARYAWAN_PAYROLL_COMPONENT.map((row) => ({ ...row }));
 
 afterEach(() => {
+  // Roster karyawan dimiliki `karyawan.ts` (pedoman §7.2) dan layar Karyawan
+  // menulisinya; penetapan di sini membacanya lewat relasi.
+  resetKaryawanRows();
   PAYROLL_COMPONENT.splice(
     0,
     PAYROLL_COMPONENT.length,
@@ -276,7 +280,7 @@ describe("mock penetapan", () => {
     };
 
     expect(created?.status).toBe(201);
-    expect(data.karyawan.name).toBe("Dewi Pakpahan");
+    expect(data.karyawan.name).toBe("Hanna Simorangkir");
     expect(data.payrollComponent.name).toBe("Tunjangan Transport");
   });
 
@@ -371,30 +375,12 @@ describe("mock pemilih", () => {
     process.env.MOCK_DDL_EMPTY = "1";
 
     expect((await onCall("GET", "/ddl/komponen-payroll"))?.status).toBe(404);
-    expect((await onCall("GET", "/ddl/karyawan"))?.status).toBe(404);
   });
 
-  test("/ddl/karyawan terbuka untuk lima menu, termasuk Komponen Payroll", async () => {
-    const only = (slug: string) => (candidate: string) => candidate === slug;
-
-    expect(
-      (
-        await onCall(
-          "GET",
-          "/ddl/karyawan",
-          undefined,
-          only(MENU.KOMPONEN_PAYROLL),
-        )
-      )?.status,
-    ).toBe(200);
-    expect(
-      (await onCall("GET", "/ddl/karyawan", undefined, only(MENU.CUTI)))
-        ?.status,
-    ).toBe(200);
-    expect(
-      (await onCall("GET", "/ddl/karyawan", undefined, only(MENU.PAYROLL)))
-        ?.status,
-    ).toBe(403);
+  // `/ddl/karyawan` dimiliki `karyawan.ts` bersama rosternya, dan diuji di
+  // `karyawan.test.ts`. Berkas ini hanya membuktikan ia tidak diklaim di sini.
+  test("/ddl/karyawan dilewatkan ke handler Karyawan", async () => {
+    expect(await onCall("GET", "/ddl/karyawan")).toBeNull();
   });
 });
 

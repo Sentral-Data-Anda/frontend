@@ -10,9 +10,8 @@
  *   MOCK_KTR_SAVE_ERROR=500         → simpan menjawab 500 (galat tingkat form)
  *                              =karyawan → 404 "Karyawan Tidak Ditemukan"
  *                              =tumpang  → 409 kontrak tumpang-tindih
- *   MOCK_KTR_DELETE_ERROR=1         → hapus menjawab 400 masih dipakai slip gaji
- *                                     (bentuk permintaan BE SN-B10; be-sada
- *                                     belum mengirimnya hari ini)
+ *   MOCK_KTR_DELETE_ERROR=1         → hapus menjawab 409 sudah dipakai slip gaji
+ *                                     (be-sada `bc20690`)
  *
  * Hibah step-up dev-mock hidup di `scripts/dev-mock.ts` dan tidak sampai ke
  * handler, jadi flag di atas hanya meniru "ditanya sekali per proses".
@@ -22,7 +21,7 @@ import { collapseSpaces } from "../../../src/lib/name";
 import { TODAY } from "../keuangan-store";
 import { denied, json, list, readBody, type MockHandler } from "../kit";
 
-import { KARYAWAN } from "./komponen-payroll";
+import { KARYAWAN } from "./karyawan";
 
 type ContractType = "TETAP" | "KONTRAK" | "PARUH_WAKTU" | "HONORER";
 
@@ -75,7 +74,7 @@ const seedRows = (): Row[] => [
     1,
     1,
     "TETAP",
-    "Sekretaris",
+    "Koster",
     "4500000.00",
     `${YEAR}-01-01`,
     null,
@@ -86,7 +85,7 @@ const seedRows = (): Row[] => [
     2,
     2,
     "TETAP",
-    "Koster",
+    "Administrasi Kantor",
     "3200000.00",
     `${YEAR}-01-01`,
     null,
@@ -96,7 +95,7 @@ const seedRows = (): Row[] => [
     3,
     3,
     "KONTRAK",
-    "Bendahara Kantor",
+    "Petugas Keamanan",
     "5750000.00",
     `${YEAR}-03-01`,
     `${YEAR}-12-31`,
@@ -108,7 +107,7 @@ const seedRows = (): Row[] => [
     4,
     4,
     "PARUH_WAKTU",
-    "Pengasuh Anak",
+    "Pengasuh Sekolah Minggu",
     "1800000.00",
     `${YEAR}-04-01`,
     null,
@@ -128,7 +127,7 @@ const seedRows = (): Row[] => [
     6,
     3,
     "TETAP",
-    "Bendahara Kantor",
+    "Petugas Keamanan",
     "6250000.00",
     `${YEAR + 1}-01-01`,
     null,
@@ -559,7 +558,7 @@ export const kontrakKaryawanMock: MockHandler = async (context) => {
   if (method === "DELETE") {
     if (process.env.MOCK_KTR_DELETE_ERROR) {
       return fail(
-        400,
+        409,
         "Kontrak Ini Sudah Dipakai Oleh Slip Gaji Dan Tidak Dapat Dihapus",
       );
     }
