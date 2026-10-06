@@ -172,7 +172,7 @@ describe("kepatuhan laporan per komisi", () => {
     onRender([]);
 
     expect(
-      await screen.findByText("Belum ada komisi untuk bulan ini."),
+      await screen.findByText("Belum ada badan pelayanan untuk bulan ini."),
     ).toBeTruthy();
   });
 });
@@ -189,7 +189,9 @@ describe("pengeluaran tanpa komisi", () => {
   test("baris sisa tampil di kaki daftar, dengan jumlah dan cacah dokumennya", async () => {
     onRender([row(4, "Komisi Anak", "MISSING")], true, UNTAGGED);
 
-    const strip = await screen.findByLabelText("Pengeluaran tanpa komisi");
+    const strip = await screen.findByLabelText(
+      "Pengeluaran tanpa badan pelayanan",
+    );
 
     expect(strip.textContent).toContain("September 2026");
     expect(strip.textContent).toContain("Rp 7.500.000");
@@ -199,9 +201,13 @@ describe("pengeluaran tanpa komisi", () => {
   test("dua populasi tampil berdampingan, yang warisan tanpa nada menuduh", async () => {
     onRender([row(4, "Komisi Anak", "MISSING")], true, UNTAGGED);
 
-    const strip = await screen.findByLabelText("Pengeluaran tanpa komisi");
+    const strip = await screen.findByLabelText(
+      "Pengeluaran tanpa badan pelayanan",
+    );
 
-    expect(strip.textContent).toContain("Dinyatakan bukan belanja komisi");
+    expect(strip.textContent).toContain(
+      "Dinyatakan bukan belanja badan pelayanan",
+    );
     expect(strip.textContent).toContain("Rp 5.000.000");
     expect(strip.textContent).toContain("sebelum pertanyaannya ada");
     expect(strip.textContent).toContain("Rp 2.500.000");
@@ -220,7 +226,9 @@ describe("pengeluaran tanpa komisi", () => {
       inherited: { amount: "0", count: 0 },
     });
 
-    const strip = await screen.findByLabelText("Pengeluaran tanpa komisi");
+    const strip = await screen.findByLabelText(
+      "Pengeluaran tanpa badan pelayanan",
+    );
 
     expect(strip.textContent).toContain("Rp 0");
     expect(strip.textContent).toContain("0 dokumen");
@@ -232,7 +240,7 @@ describe("pengeluaran tanpa komisi", () => {
     onRender([], true, UNTAGGED);
 
     expect(
-      await screen.findByLabelText("Pengeluaran tanpa komisi"),
+      await screen.findByLabelText("Pengeluaran tanpa badan pelayanan"),
     ).toBeTruthy();
   });
 });

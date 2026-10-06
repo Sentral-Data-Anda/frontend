@@ -202,7 +202,7 @@ export const ProgramDetailScreen = (props: PropTypes) => {
             hint={program.budgetYear.label}
           />
           <KpiCell
-            label="Dicairkan ke komisi"
+            label="Dicairkan ke badan pelayanan"
             icon={ArrowUpFromLine}
             tone="secondary"
             value={amountText(program.ceiling.disbursed)}

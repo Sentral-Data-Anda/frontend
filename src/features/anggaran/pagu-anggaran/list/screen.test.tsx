@@ -204,7 +204,7 @@ describe("daftar pagu anggaran", () => {
       name: /^Lihat pagu anggaran Komisi Pemuda/,
     });
 
-    const untagged = screen.getByText("Pengeluaran tanpa komisi");
+    const untagged = screen.getByText("Pengeluaran tanpa badan pelayanan");
     const row = untagged.closest("[data-untagged]");
     const partRow = row?.previousElementSibling;
 
@@ -242,7 +242,7 @@ describe("daftar pagu anggaran", () => {
       ),
     ).toBe("true");
     expect(
-      screen.getByText(`${YEAR - 1}/${YEAR} label server · 2 komisi`),
+      screen.getByText(`${YEAR - 1}/${YEAR} label server · 2 badan pelayanan`),
     ).toBeTruthy();
   });
 

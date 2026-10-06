@@ -38,7 +38,8 @@ export const ExpenseSection = (props: PropTypes) => {
   const expenseDate = useWatch({ control: form.control, name: "expenseDate" });
   const { rows } = useDdlOptions<DdlOption>("bapel");
   const bapelName =
-    rows.find((row) => String(row.id) === bapelId)?.name ?? "komisi ini";
+    rows.find((row) => String(row.id) === bapelId)?.name ??
+    "badan pelayanan ini";
 
   return (
     <FormSection legend="Pengeluaran" disabled={isDisabled}>
@@ -120,13 +121,13 @@ export const ExpenseSection = (props: PropTypes) => {
       <ControlField
         control={form.control}
         name="bapelChoice"
-        label="Belanja komisi"
+        label="Belanja badan pelayanan"
         hint={BAPEL_CHOICE_HINT}
       >
         {(field) => (
           <ChoiceField
             id="bapelChoice"
-            label="Belanja komisi"
+            label="Belanja badan pelayanan"
             isLabelVisible={false}
             value={field.value}
             onValueChange={(value) => {
@@ -145,7 +146,7 @@ export const ExpenseSection = (props: PropTypes) => {
         <ControlField
           control={form.control}
           name="bapelId"
-          label="Komisi"
+          label="Badan pelayanan"
           hint={BAPEL_HINT}
         >
           {(field) => (

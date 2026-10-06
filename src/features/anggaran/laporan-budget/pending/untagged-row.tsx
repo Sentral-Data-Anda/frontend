@@ -20,12 +20,12 @@ export const UntaggedRow = (props: PropTypes) => {
 
   return (
     <section
-      aria-label="Pengeluaran tanpa komisi"
+      aria-label="Pengeluaran tanpa badan pelayanan"
       className="border-border mx-gutter border-t py-3"
     >
       <div className="flex items-baseline justify-between gap-4">
         <p className="text-body font-medium">
-          Pengeluaran tanpa komisi bulan {untagged.label}
+          Pengeluaran tanpa badan pelayanan bulan {untagged.label}
         </p>
         <p className="text-body font-medium tabular-nums">
           {amount} ({count} dokumen)
@@ -33,7 +33,7 @@ export const UntaggedRow = (props: PropTypes) => {
       </div>
 
       <p className="text-muted-foreground mt-1 text-caption">
-        Dinyatakan bukan belanja komisi{" "}
+        Dinyatakan bukan belanja badan pelayanan{" "}
         {formatRupiah(Number(untagged.stated.amount))} (
         {formatNumber(untagged.stated.count)}) · dicatat sebelum pertanyaannya
         ada {formatRupiah(Number(untagged.inherited.amount))} (

@@ -54,7 +54,7 @@ export const NO_VIEW = "Peran Anda tidak memiliki akses ke Program.";
 export const EMPTY_TITLE = "Belum ada program";
 
 export const EMPTY_DESCRIPTION =
-  "Usulan program diukur terhadap pagu anggaran komisi.";
+  "Usulan program diukur terhadap pagu anggaran badan pelayanan.";
 
 export const YEAR_UNREADABLE_TITLE = "Tahun pelayanan belum bisa dibaca";
 
@@ -64,10 +64,11 @@ export const YEAR_UNREADABLE_MESSAGE =
 export const CEILING_NOTE =
   "Terpakai = total yang sudah dijanjikan ke program tahun ini, bukan uang yang sudah keluar.";
 
-export const CEILING_MISSING_TITLE = "Pagu anggaran komisi ini belum ada";
+export const CEILING_MISSING_TITLE =
+  "Pagu anggaran badan pelayanan ini belum ada";
 
 export const ceilingMissingMessage = (label: string) =>
-  `Majelis Jemaat belum menetapkan pagu anggaran komisi ini untuk tahun ${label}. Pengajuan akan ditolak.`;
+  `Majelis Jemaat belum menetapkan pagu anggaran badan pelayanan ini untuk tahun ${label}. Pengajuan akan ditolak.`;
 
 export const ceilingExceededMessage = (remaining: string) =>
   `Usulan ini melebihi sisa pagu ${formatRupiah(Number(remaining))}.`;
@@ -75,14 +76,14 @@ export const ceilingExceededMessage = (remaining: string) =>
 export const UNTAGGED_LABEL = "Tanpa program";
 
 export const UNTAGGED_HINT =
-  "Pemakaian yang dilaporkan komisi tanpa menyebut program — konsumsi rapat, fotokopi, dan belanja di luar program.";
+  "Pemakaian yang dilaporkan badan pelayanan tanpa menyebut program — konsumsi rapat, fotokopi, dan belanja di luar program.";
 
 export const REPORTED_PANEL_LABEL = "Dilaporkan ke program ini";
 
 export const REPORTED_EMPTY =
   "Belum ada pemakaian yang dilaporkan untuk program ini.";
 
-export const DISBURSED_LABEL = "Dicairkan ke komisi";
+export const DISBURSED_LABEL = "Dicairkan ke badan pelayanan";
 
 export const REJECTED_TITLE = "Ditolak. Perbaiki lalu ajukan lagi.";
 
@@ -238,7 +239,7 @@ export const ceilingBarMeta = (ceiling: CeilingUsage) =>
   `${formatRupiah(Number(ceiling.committed))} dari ${amountText(ceiling.ceiling)}`;
 
 export const ceilingBarTitle =
-  "Dijanjikan ke program tahun ini terhadap pagu anggaran komisi";
+  "Dijanjikan ke program tahun ini terhadap pagu anggaran badan pelayanan";
 
 export const programDeleteText = (program: Pick<ProgramDetail, "name">) =>
   `Apakah Anda ingin menghapus usulan ${program.name}? Usulan yang sudah diajukan tidak bisa dihapus.`;
@@ -250,7 +251,7 @@ export const programWithdrawText =
   "Apakah Anda ingin menarik pengajuan ini? Usulan kembali menjadi Draf dan bisa disunting.";
 
 export const cancelDialogText = (remaining: string) =>
-  `Pagu komisi sebesar ${formatRupiah(Number(remaining))} akan kembali tersedia untuk usulan lain.`;
+  `Pagu badan pelayanan sebesar ${formatRupiah(Number(remaining))} akan kembali tersedia untuk usulan lain.`;
 
 export type ErrorFix = { menu: MenuSlug; label: string; href: string };
 
@@ -342,7 +343,7 @@ export const programFormSchema = z
       addIssue(["name"], `Nama program maksimal ${NAME_MAX} karakter`);
     }
 
-    if (!values.bapelId) addIssue(["bapelId"], "Pilih komisi");
+    if (!values.bapelId) addIssue(["bapelId"], "Pilih badan pelayanan");
     if (!values.year) addIssue(["year"], "Pilih tahun pelayanan");
 
     if (

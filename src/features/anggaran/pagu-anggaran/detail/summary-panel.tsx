@@ -26,7 +26,7 @@ export const SummaryPanel = (props: PropTypes) => {
   const { allocation } = props;
 
   const { usage, budgetYear } = allocation;
-  const name = allocation.bapel?.name ?? "Komisi";
+  const name = allocation.bapel?.name ?? "Badan pelayanan";
   const range = `${formatDate(budgetYear.from)} – ${formatDate(budgetYear.to)}`;
 
   return (
@@ -77,7 +77,7 @@ export const SummaryPanel = (props: PropTypes) => {
         </div>
 
         <DescriptionList className="border-hairline border-t px-gutter py-2">
-          <DescriptionItem label="Komisi">{name}</DescriptionItem>
+          <DescriptionItem label="Badan pelayanan">{name}</DescriptionItem>
           <DescriptionItem label="Tahun pelayanan">
             {budgetYear.label}
           </DescriptionItem>

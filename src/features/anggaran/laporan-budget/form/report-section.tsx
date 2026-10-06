@@ -19,7 +19,11 @@ export const ReportSection = (props: PropTypes) => {
 
   return (
     <FormSection legend="Laporan" note={REPORT_NOTE} disabled={isDisabled}>
-      <ControlField control={form.control} name="bapelId" label="Komisi">
+      <ControlField
+        control={form.control}
+        name="bapelId"
+        label="Badan pelayanan"
+      >
         {(field) => (
           <BapelField
             id={field.name}

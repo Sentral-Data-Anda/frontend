@@ -105,7 +105,7 @@ const COLUMNS: Column[] = [
   },
   {
     key: "bapel",
-    header: "Komisi",
+    header: "Badan pelayanan",
     width: "minmax(0,2fr)",
     cell: (row) => (
       <span className="block truncate">{row.bapel?.name ?? "—"}</span>

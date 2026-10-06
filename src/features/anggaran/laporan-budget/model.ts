@@ -91,29 +91,29 @@ export const NO_VIEW =
 export const EMPTY_TITLE = "Belum ada laporan pemakaian budget";
 
 export const EMPTY_DESCRIPTION =
-  "Laporan menutup satu bulan belanja komisi, dan persetujuannya membuka pencairan bulan berikutnya.";
+  "Laporan menutup satu bulan belanja badan pelayanan, dan persetujuannya membuka pencairan bulan berikutnya.";
 
-export const PENDING_EMPTY = "Belum ada komisi untuk bulan ini.";
+export const PENDING_EMPTY = "Belum ada badan pelayanan untuk bulan ini.";
 
 export const RECEIPT_NOTE =
   "Foto atau PDF kwitansi. Penanda tangan melihatnya saat menyetujui.";
 
 export const RECEIPT_PRIVACY =
-  "Kwitansi hanya bisa dibuka pengurus komisi ini, Majelis, dan bendahara.";
+  "Kwitansi hanya bisa dibuka pengurus badan pelayanan ini, Majelis, dan bendahara.";
 
 export const REPORT_NOTE =
   "Laporan disimpan sebagai Draf. Bulan laporan memakai bulan kalender, bukan tahun pelayanan.";
 
 export const LINE_NOTE =
-  "Program boleh dikosongkan: konsumsi rapat, fotokopi, dan bensin memang di luar program. Mengganti komisi mengosongkan pilihan program di semua baris.";
+  "Program boleh dikosongkan: konsumsi rapat, fotokopi, dan bensin memang di luar program. Mengganti badan pelayanan mengosongkan pilihan program di semua baris.";
 
 export const PREFILL_EMPTY_TITLE = "Tidak ada Kas Keluar yang bisa diisi awal";
 
 export const PREFILL_EMPTY_MESSAGE =
-  "Tidak ada Kas Keluar yang dibayar untuk komisi ini di bulan tersebut. Tulis pemakaiannya manual.";
+  "Tidak ada Kas Keluar yang dibayar untuk badan pelayanan ini di bulan tersebut. Tulis pemakaiannya manual.";
 
 export const PREFILL_REFILL_TEXT =
-  "Isi ulang rincian dari Kas Keluar komisi dan bulan yang baru dipilih? Baris yang sekarang ada akan diganti.";
+  "Isi ulang rincian dari Kas Keluar badan pelayanan dan bulan yang baru dipilih? Baris yang sekarang ada akan diganti.";
 
 export const REJECTED_FALLBACK = "Penanda tangan tidak menuliskan catatan.";
 
@@ -250,10 +250,10 @@ export const varianceOf = (disbursed: string, reported: string): Variance => {
 };
 
 export const VARIANCE_NORMAL =
-  "Selisih sebesar ini normal: panjar, uang yang ditalangi pengurus, dan belanja yang dibayar komisi sendiri tidak lewat Kas Keluar.";
+  "Selisih sebesar ini normal: panjar, uang yang ditalangi pengurus, dan belanja yang dibayar badan pelayanan sendiri tidak lewat Kas Keluar.";
 
 export const VARIANCE_HINT =
-  "Kedua angka boleh berbeda. Selisihnya adalah uang yang dipegang komisi sendiri, bukan kesalahan.";
+  "Kedua angka boleh berbeda. Selisihnya adalah uang yang dipegang badan pelayanan sendiri, bukan kesalahan.";
 
 export const reportDeleteText = (report: Pick<BudgetReportDetail, "label">) =>
   `Apakah Anda ingin menghapus laporan ${report.label}? Laporan yang sudah disetujui tidak bisa dihapus.`;
@@ -328,7 +328,7 @@ export const reportFormSchema = z
     const addIssue = (path: (string | number)[], message: string) =>
       ctx.addIssue({ code: "custom", path, message });
 
-    if (!values.bapelId) addIssue(["bapelId"], "Pilih komisi");
+    if (!values.bapelId) addIssue(["bapelId"], "Pilih badan pelayanan");
 
     if (!values.month) addIssue(["month"], "Pilih bulan laporan");
     else if (values.month > currentMonthOf()) {

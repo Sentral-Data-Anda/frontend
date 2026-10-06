@@ -10,7 +10,7 @@ import { PendingItem } from "./pending-item";
 import { UntaggedRow } from "./untagged-row";
 
 const NOTE =
-  "Komisi yang tidak mencairkan apa pun bulan itu tidak wajib melapor, dan gerbang pencairan meloloskannya.";
+  "Badan pelayanan yang tidak mencairkan apa pun bulan itu tidak wajib melapor, dan gerbang pencairan meloloskannya.";
 
 interface PropTypes {
   month: string;
@@ -47,13 +47,13 @@ export const PendingContent = (props: PropTypes) => {
       <DataList
         items={compliance.data?.rows}
         getKey={(row) => row.bapel?.publicId ?? String(row.bapelId)}
-        label="Kepatuhan laporan per komisi"
+        label="Kepatuhan laporan per badan pelayanan"
         isLoading={compliance.isPending}
         isRefreshing={compliance.isFetching}
         error={compliance.error}
         onRetry={() => void compliance.refetch()}
         emptyTitle={PENDING_EMPTY}
-        itemNoun="komisi"
+        itemNoun="badan pelayanan"
       >
         {(row) => (
           <PendingItem row={row} month={month} isCanCreate={isCanCreate} />

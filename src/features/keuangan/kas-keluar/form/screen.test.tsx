@@ -302,7 +302,7 @@ describe("kolom komisi harus dijawab", () => {
       false,
       false,
     ]);
-    expect(screen.queryByLabelText("Komisi")).toBeNull();
+    expect(screen.queryByLabelText("Badan pelayanan")).toBeNull();
     expect(screen.queryByText("Tanpa badan pelayanan")).toBeNull();
   });
 
@@ -314,7 +314,7 @@ describe("kolom komisi harus dijawab", () => {
     fireEvent.click(screen.getByRole("button", { name: "Simpan" }));
 
     expect(
-      await screen.findByText("Jawab dulu: untuk komisi, atau bukan"),
+      await screen.findByText("Jawab dulu: untuk badan pelayanan, atau bukan"),
     ).toBeTruthy();
     expect(sent).toEqual([]);
   });
@@ -324,13 +324,15 @@ describe("kolom komisi harus dijawab", () => {
     onRenderForm(["VIEW", "CREATE"]);
     onFillRequired();
 
-    fireEvent.click(screen.getByRole("radio", { name: "Untuk komisi" }));
+    fireEvent.click(
+      screen.getByRole("radio", { name: "Untuk badan pelayanan" }),
+    );
 
-    expect(await screen.findByLabelText("Komisi")).toBeTruthy();
+    expect(await screen.findByLabelText("Badan pelayanan")).toBeTruthy();
 
     fireEvent.click(screen.getByRole("button", { name: "Simpan" }));
 
-    expect(await screen.findByText("Pilih komisi")).toBeTruthy();
+    expect(await screen.findByText("Pilih badan pelayanan")).toBeTruthy();
     expect(sent).toEqual([]);
   });
 
@@ -339,11 +341,13 @@ describe("kolom komisi harus dijawab", () => {
     onRenderForm(["VIEW", "CREATE"]);
 
     fireEvent.click(
-      screen.getByRole("radio", { name: "Bukan belanja komisi" }),
+      screen.getByRole("radio", { name: "Bukan belanja badan pelayanan" }),
     );
 
-    expect(screen.queryByLabelText("Komisi")).toBeNull();
-    expect(screen.queryByRole("combobox", { name: "Komisi" })).toBeNull();
+    expect(screen.queryByLabelText("Badan pelayanan")).toBeNull();
+    expect(
+      screen.queryByRole("combobox", { name: "Badan pelayanan" }),
+    ).toBeNull();
   });
 
   test("berganti jawaban tidak menyangkutkan komisi di payload", async () => {
@@ -356,12 +360,12 @@ describe("kolom komisi harus dijawab", () => {
     );
     onRenderForm(["VIEW", "UPDATE"], "doc-7");
 
-    await screen.findByLabelText("Komisi");
+    await screen.findByLabelText("Badan pelayanan");
     fireEvent.click(
-      screen.getByRole("radio", { name: "Bukan belanja komisi" }),
+      screen.getByRole("radio", { name: "Bukan belanja badan pelayanan" }),
     );
 
-    expect(screen.queryByLabelText("Komisi")).toBeNull();
+    expect(screen.queryByLabelText("Badan pelayanan")).toBeNull();
 
     fireEvent.click(screen.getByRole("button", { name: "Simpan" }));
     fireEvent.click(await screen.findByRole("button", { name: "Ya" }));
@@ -380,7 +384,7 @@ describe("kolom komisi harus dijawab", () => {
     const choices = screen.getAllByRole("radio") as HTMLInputElement[];
 
     expect(choices.map((node) => node.checked)).toEqual([false, false]);
-    expect(screen.queryByLabelText("Komisi")).toBeNull();
+    expect(screen.queryByLabelText("Badan pelayanan")).toBeNull();
   });
 
   test("baris baru membuka form ubah dengan jawabannya terbaca", async () => {
@@ -397,8 +401,12 @@ describe("kolom komisi harus dijawab", () => {
     onMockApi();
     onRenderForm(["VIEW", "CREATE"]);
 
-    fireEvent.click(screen.getByRole("radio", { name: "Untuk komisi" }));
-    fireEvent.click(await screen.findByRole("combobox", { name: "Komisi" }));
+    fireEvent.click(
+      screen.getByRole("radio", { name: "Untuk badan pelayanan" }),
+    );
+    fireEvent.click(
+      await screen.findByRole("combobox", { name: "Badan pelayanan" }),
+    );
 
     expect(await screen.findByText("Komisi Pemuda")).toBeTruthy();
     expect(screen.queryByText("Tanpa badan pelayanan")).toBeNull();
@@ -411,8 +419,12 @@ const GATE_ROW = (state: string, waiver: unknown = null) => [
 
 describe("spanduk gerbang di form", () => {
   const onPickKomisi = async () => {
-    fireEvent.click(screen.getByRole("radio", { name: "Untuk komisi" }));
-    fireEvent.click(await screen.findByRole("combobox", { name: "Komisi" }));
+    fireEvent.click(
+      screen.getByRole("radio", { name: "Untuk badan pelayanan" }),
+    );
+    fireEvent.click(
+      await screen.findByRole("combobox", { name: "Badan pelayanan" }),
+    );
     fireEvent.click(await screen.findByRole("option", { name: /Komisi Anak/ }));
   };
 
@@ -431,7 +443,7 @@ describe("spanduk gerbang di form", () => {
     const { container } = onRenderForm(["VIEW", "CREATE"]);
 
     fireEvent.click(
-      screen.getByRole("radio", { name: "Bukan belanja komisi" }),
+      screen.getByRole("radio", { name: "Bukan belanja badan pelayanan" }),
     );
 
     await screen.findByLabelText("Dibayarkan kepada");
@@ -479,7 +491,7 @@ describe("spanduk gerbang di form", () => {
     const { container } = onRenderForm(["VIEW", "CREATE"]);
     await onPickKomisi();
 
-    await screen.findByLabelText("Komisi");
+    await screen.findByLabelText("Badan pelayanan");
     expect(container.textContent).not.toContain("Laporan pemakaian budget");
   });
 
@@ -489,7 +501,7 @@ describe("spanduk gerbang di form", () => {
     const { container } = onRenderForm(["VIEW", "CREATE"]);
     await onPickKomisi();
 
-    await screen.findByLabelText("Komisi");
+    await screen.findByLabelText("Badan pelayanan");
     expect(container.textContent).not.toContain("Laporan pemakaian budget");
   });
 

@@ -267,7 +267,7 @@ const sourceMarks = () =>
 describe("form mengisi dirinya dari Kas Keluar", () => {
   test("memilih komisi mengisi baris dengan penanda kode Kas Keluarnya", async () => {
     onRender();
-    await onPick("Komisi", /Komisi Pemuda/);
+    await onPick("Badan pelayanan", /Komisi Pemuda/);
 
     await waitFor(() => expect(sourceMarks()).toHaveLength(2), {
       timeout: 4000,
@@ -277,7 +277,7 @@ describe("form mengisi dirinya dari Kas Keluar", () => {
 
   test("baris prefill bisa dihapus seperti baris lain", async () => {
     onRender();
-    await onPick("Komisi", /Komisi Pemuda/);
+    await onPick("Badan pelayanan", /Komisi Pemuda/);
     await waitFor(() => expect(sourceMarks()).toHaveLength(2), {
       timeout: 4000,
     });
@@ -289,7 +289,7 @@ describe("form mengisi dirinya dari Kas Keluar", () => {
 
   test("baris prefill bisa disunting", async () => {
     onRender();
-    await onPick("Komisi", /Komisi Pemuda/);
+    await onPick("Badan pelayanan", /Komisi Pemuda/);
     await waitFor(() => expect(sourceMarks()).toHaveLength(2), {
       timeout: 4000,
     });
@@ -305,11 +305,11 @@ describe("form mengisi dirinya dari Kas Keluar", () => {
 
   test("prefill kosong memberi satu baris kosong dan nada info, bukan galat", async () => {
     onRender(undefined, { lines: [], total: "0" });
-    await onPick("Komisi", /Komisi Pemuda/);
+    await onPick("Badan pelayanan", /Komisi Pemuda/);
 
     expect(
       await screen.findByText(
-        "Tidak ada Kas Keluar yang dibayar untuk komisi ini di bulan tersebut. Tulis pemakaiannya manual.",
+        "Tidak ada Kas Keluar yang dibayar untuk badan pelayanan ini di bulan tersebut. Tulis pemakaiannya manual.",
       ),
     ).toBeTruthy();
     expect(sourceMarks()).toHaveLength(0);
@@ -341,7 +341,7 @@ describe("strip selisih di form", () => {
 
   test("angka Kas Keluar datang dari prefill, bukan dihitung ulang", async () => {
     onRender();
-    await onPick("Komisi", /Komisi Pemuda/);
+    await onPick("Badan pelayanan", /Komisi Pemuda/);
 
     expect(
       await screen.findByText(
@@ -358,7 +358,7 @@ describe("komisi dan bulan terisi awal dari baris Belum lapor", () => {
 
     await waitFor(() =>
       expect(
-        screen.getByRole("combobox", { name: "Komisi" }).textContent,
+        screen.getByRole("combobox", { name: "Badan pelayanan" }).textContent,
       ).toContain("Komisi Pemuda"),
     );
     expect(

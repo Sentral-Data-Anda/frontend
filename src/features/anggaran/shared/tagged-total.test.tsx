@@ -15,7 +15,7 @@ const view = (untagged: string, parts: TaggedPart[] = PARTS) =>
     <TaggedTotal
       label="Belanja per komisi"
       parts={parts}
-      untaggedLabel="Pengeluaran tanpa komisi"
+      untaggedLabel="Pengeluaran tanpa badan pelayanan"
       untagged={untagged}
       untaggedHint="Tagihan gereja, gaji, dan yang belum ditandai."
     />,
@@ -28,7 +28,7 @@ describe("TaggedTotal", () => {
   test("sisa tak-bertanda tetap dirender saat nol", () => {
     view("0");
 
-    expect(screen.getByText("Pengeluaran tanpa komisi")).toBeTruthy();
+    expect(screen.getByText("Pengeluaran tanpa badan pelayanan")).toBeTruthy();
     expect(untaggedRow()?.textContent).toContain("Rp 0");
   });
 

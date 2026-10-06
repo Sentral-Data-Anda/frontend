@@ -28,7 +28,7 @@ export const PendingItem = (props: PropTypes) => {
       >
         <div className="min-w-0 flex-1">
           <p className="truncate text-body font-medium">
-            {row.bapel?.name ?? "Komisi tanpa nama"}
+            {row.bapel?.name ?? "Badan pelayanan tanpa nama"}
           </p>
           <p className="text-muted-foreground text-caption tabular-nums">
             {formatNumber(row.disbursementCount)} pencairan ·{" "}

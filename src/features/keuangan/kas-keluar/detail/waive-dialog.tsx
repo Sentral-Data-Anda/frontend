@@ -75,7 +75,7 @@ export const WaiveDialog = (props: PropTypes) => {
           control={form.control}
           name="reason"
           label="Alasan"
-          hint="Alasan ini tersimpan dan terlihat di laporan komisi."
+          hint="Alasan ini tersimpan dan terlihat di laporan badan pelayanan."
         >
           {(field) => (
             <Textarea

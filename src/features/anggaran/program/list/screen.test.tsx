@@ -246,10 +246,12 @@ describe("daftar program", () => {
 
     expect(await screen.findByText("Belum ada program")).toBeTruthy();
     expect(
-      screen.getByText("Usulan program diukur terhadap pagu anggaran komisi."),
+      screen.getByText(
+        "Usulan program diukur terhadap pagu anggaran badan pelayanan.",
+      ),
     ).toBeTruthy();
     expect(screen.queryByText(/di gereja ini/i)).toBeNull();
-    expect(screen.queryByText(/komisi lain/i)).toBeNull();
+    expect(screen.queryByText(/(komisi|badan pelayanan) lain/i)).toBeNull();
   });
 
   test("tanpa VIEW layar menolak tanpa memanggil API", async () => {

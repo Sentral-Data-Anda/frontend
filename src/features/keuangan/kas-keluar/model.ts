@@ -95,8 +95,8 @@ export const REFERENCE_HINT =
   "Kode pesanan pembelian, nomor nota, atau dokumen lain.";
 
 const BAPEL_CHOICE_LABEL: Record<BapelChoice, string> = {
-  KOMISI: "Untuk komisi",
-  BUKAN_KOMISI: "Bukan belanja komisi",
+  KOMISI: "Untuk badan pelayanan",
+  BUKAN_KOMISI: "Bukan belanja badan pelayanan",
 };
 
 export const BAPEL_CHOICE_OPTIONS = BAPEL_CHOICES.map((value) => ({
@@ -105,9 +105,9 @@ export const BAPEL_CHOICE_OPTIONS = BAPEL_CHOICES.map((value) => ({
 }));
 
 export const BAPEL_CHOICE_HINT =
-  "Pilih 'Untuk komisi' bila uang ini milik anggaran komisi. Laporan pemakaian bulan sebelumnya harus sudah disetujui sebelum pencairannya bisa dibayar.";
+  "Pilih 'Untuk badan pelayanan' bila uang ini milik anggaran badan pelayanan itu. Laporan pemakaian bulan sebelumnya harus sudah disetujui sebelum pencairannya bisa dibayar.";
 
-export const BAPEL_HINT = "Komisi yang menerima pencairan ini.";
+export const BAPEL_HINT = "Badan pelayanan yang menerima pencairan ini.";
 
 export const EXPENSE_STATE_LABEL: Record<ExpenseState, string> = {
   ...CASH_EXPENSE_STATUS_LABEL,
@@ -241,9 +241,12 @@ export const expenseFormSchema = z
     }
 
     if (!values.bapelChoice) {
-      addIssue(["bapelChoice"], "Jawab dulu: untuk komisi, atau bukan");
+      addIssue(
+        ["bapelChoice"],
+        "Jawab dulu: untuk badan pelayanan, atau bukan",
+      );
     } else if (values.bapelChoice === "KOMISI" && !values.bapelId) {
-      addIssue(["bapelId"], "Pilih komisi");
+      addIssue(["bapelId"], "Pilih badan pelayanan");
     }
 
     if (collapseSpaces(values.method).length > METHOD_MAX) {
@@ -399,7 +402,7 @@ export type WaiveValues = z.infer<typeof waiveSchema>;
 // Menyebut komisi DAN bulannya, supaya tidak ada yang salah kira pembebasan
 // ini global. Satu pembebasan = satu komisi, satu bulan.
 export const waiveText = (bapelName: string, label: string) =>
-  `Pencairan ${bapelName} bulan ${label} akan dibebaskan walaupun laporan pemakaiannya belum disetujui. Tulis alasannya — alasan ini tersimpan dan terlihat di laporan komisi.`;
+  `Pencairan ${bapelName} bulan ${label} akan dibebaskan walaupun laporan pemakaiannya belum disetujui. Tulis alasannya — alasan ini tersimpan dan terlihat di laporan badan pelayanan.`;
 
 export type ErrorFix = { menu: MenuSlug; href: string; label: string };
 

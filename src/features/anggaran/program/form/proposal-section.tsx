@@ -49,7 +49,11 @@ export const ProposalSection = (props: PropTypes) => {
         </ControlField>
       </FormWide>
 
-      <ControlField control={form.control} name="bapelId" label="Komisi">
+      <ControlField
+        control={form.control}
+        name="bapelId"
+        label="Badan pelayanan"
+      >
         {(field) => (
           <BapelField
             id={field.name}

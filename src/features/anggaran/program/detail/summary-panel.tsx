@@ -30,7 +30,7 @@ export const SummaryPanel = (props: PropTypes) => {
         <DescriptionItem label="Kode">
           <span className="tabular-nums">{program.code}</span>
         </DescriptionItem>
-        <DescriptionItem label="Komisi">
+        <DescriptionItem label="Badan pelayanan">
           {program.bapel?.name ?? "—"}
         </DescriptionItem>
         <DescriptionItem label="Tahun pelayanan">

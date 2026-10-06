@@ -217,7 +217,7 @@ describe("form pagu anggaran", () => {
     });
 
     await screen.findByLabelText("Pagu (Rp)");
-    fireEvent.click(screen.getByRole("combobox", { name: "Komisi" }));
+    fireEvent.click(screen.getByRole("combobox", { name: "Badan pelayanan" }));
     fireEvent.click(
       await screen.findByRole("option", { name: /Komisi Pemuda/ }),
     );
@@ -242,7 +242,7 @@ describe("form pagu anggaran", () => {
     });
 
     await screen.findByLabelText("Pagu (Rp)");
-    fireEvent.click(screen.getByRole("combobox", { name: "Komisi" }));
+    fireEvent.click(screen.getByRole("combobox", { name: "Badan pelayanan" }));
     fireEvent.click(
       await screen.findByRole("option", { name: /Komisi Pemuda/ }),
     );
@@ -356,7 +356,7 @@ describe("form pagu anggaran", () => {
     await screen.findByLabelText("Pagu (Rp)");
 
     expect(
-      screen.queryByRole("button", { name: "Beberapa komisi" }),
+      screen.queryByRole("button", { name: "Beberapa badan pelayanan" }),
     ).toBeNull();
   });
 });
@@ -364,7 +364,7 @@ describe("form pagu anggaran", () => {
 describe("mode batch", () => {
   const onOpenBatch = async () => {
     fireEvent.click(
-      await screen.findByRole("button", { name: "Beberapa komisi" }),
+      await screen.findByRole("button", { name: "Beberapa badan pelayanan" }),
     );
   };
 
@@ -375,7 +375,7 @@ describe("mode batch", () => {
     expect(
       screen.getByRole("list", { name: "Baris pagu anggaran" }),
     ).toBeTruthy();
-    expect(screen.getAllByLabelText(/^Komisi baris/)).toHaveLength(2);
+    expect(screen.getAllByLabelText(/^Badan pelayanan baris/)).toHaveLength(2);
     expect(screen.queryByLabelText("Pagu (Rp)")).toBeNull();
   });
 
@@ -383,7 +383,9 @@ describe("mode batch", () => {
     const calls = onRender(["VIEW", "CREATE"]);
     await onOpenBatch();
 
-    fireEvent.click(screen.getByRole("combobox", { name: /^Komisi baris 1/ }));
+    fireEvent.click(
+      screen.getByRole("combobox", { name: /^Badan pelayanan baris 1/ }),
+    );
     fireEvent.click(
       await screen.findByRole("option", { name: /Komisi Pemuda/ }),
     );
@@ -392,7 +394,7 @@ describe("mode batch", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: "Simpan" }));
 
-    expect(await screen.findByText("Pilih komisi")).toBeTruthy();
+    expect(await screen.findByText("Pilih badan pelayanan")).toBeTruthy();
     expect(screen.getByText("Isi pagu anggaran")).toBeTruthy();
     expect(calls.some((call) => call.method === "POST")).toBe(false);
   });
@@ -409,7 +411,9 @@ describe("mode batch", () => {
     await onOpenBatch();
 
     fireEvent.click(screen.getByRole("button", { name: "Hapus baris 2" }));
-    fireEvent.click(screen.getByRole("combobox", { name: /^Komisi baris 1/ }));
+    fireEvent.click(
+      screen.getByRole("combobox", { name: /^Badan pelayanan baris 1/ }),
+    );
     fireEvent.click(
       await screen.findByRole("option", { name: /Komisi Pemuda/ }),
     );

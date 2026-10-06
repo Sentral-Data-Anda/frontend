@@ -23,7 +23,11 @@ export const CeilingSection = (props: PropTypes) => {
 
   return (
     <FormSection legend="Pagu" note={FORM_NOTE} disabled={isDisabled}>
-      <ControlField control={form.control} name="bapelId" label="Komisi">
+      <ControlField
+        control={form.control}
+        name="bapelId"
+        label="Badan pelayanan"
+      >
         {(field) => (
           <BapelField
             id={field.name}

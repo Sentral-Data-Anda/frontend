@@ -25,7 +25,7 @@ import {
 } from "../model";
 import type { BudgetAllocation } from "../types";
 
-const nameOf = (row: BudgetAllocation) => row.bapel?.name ?? "Komisi";
+const nameOf = (row: BudgetAllocation) => row.bapel?.name ?? "Badan pelayanan";
 
 const saveFocus = (row: BudgetAllocation) =>
   saveListFocus(PAGU_LIST_PATH, row.publicId);
@@ -105,7 +105,7 @@ type Column = DataTableColumn<BudgetAllocation>;
 const COLUMNS: Column[] = [
   {
     key: "bapel",
-    header: "Komisi",
+    header: "Badan pelayanan",
     width: "minmax(0,2.2fr)",
     cell: (row) => (
       <span className="block min-w-0">

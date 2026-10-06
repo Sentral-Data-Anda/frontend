@@ -78,7 +78,7 @@ export const ReportListContent = () => {
           <ListToolbar
             listParams={listParams}
             searchLabel="Cari laporan"
-            searchPlaceholder="Cari kode atau nama komisi"
+            searchPlaceholder="Cari kode atau nama badan pelayanan"
             filters={[
               {
                 key: "status",
@@ -97,10 +97,10 @@ export const ReportListContent = () => {
               },
               {
                 key: "komisi",
-                label: "Komisi",
+                label: "Badan pelayanan",
                 kind: "select",
                 options: [
-                  { value: "", label: "Semua komisi" },
+                  { value: "", label: "Semua badan pelayanan" },
                   ...bapels.options,
                 ],
               },

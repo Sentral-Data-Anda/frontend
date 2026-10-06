@@ -50,10 +50,10 @@ export const BatchSection = (props: PropTypes) => {
         <LineItemList
           label="Baris pagu anggaran"
           count={rows.fields.length}
-          addLabel="Tambah komisi"
+          addLabel="Tambah badan pelayanan"
           isAddDisabled={isDisabled || rows.fields.length >= MAX_BATCH_ROWS}
           onAdd={() => rows.append(emptyBatchRow())}
-          empty="Belum ada komisi. Tambahkan komisi dan pagunya."
+          empty="Belum ada badan pelayanan. Tambahkan badan pelayanan dan pagunya."
           summary={`Total ${formatRupiah(Number(total))}`}
           error={error}
           errorId="items-error"

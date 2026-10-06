@@ -275,7 +275,7 @@ export const ExpenseDetailScreen = (props: PropTypes) => {
       {expense.bapelId !== null ? (
         <WaiveDialog
           bapelId={expense.bapelId}
-          bapelName={expense.bapel?.name ?? "komisi ini"}
+          bapelName={expense.bapel?.name ?? "badan pelayanan ini"}
           year={gateMonth.year}
           month={gateMonth.month}
           label={gateLabel}

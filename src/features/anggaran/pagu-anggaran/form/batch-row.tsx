@@ -37,7 +37,7 @@ export const BatchRow = (props: PropTypes) => {
   return (
     <LineItemCard
       index={index}
-      title={`Komisi ${index + 1}`}
+      title={`Badan pelayanan ${index + 1}`}
       meta={amount ? formatRupiah(Number(amount)) : undefined}
       removeLabel={`Hapus baris ${index + 1}`}
       isRemoveDisabled={isDisabled}
@@ -46,7 +46,7 @@ export const BatchRow = (props: PropTypes) => {
     >
       <div className="min-w-0 flex-[2_1_16rem]">
         <label htmlFor={errors.idOf("bapelId")} className={LABEL}>
-          Komisi
+          Badan pelayanan
           <span className="sr-only"> baris {index + 1}</span>
         </label>
 

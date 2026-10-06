@@ -107,7 +107,7 @@ describe("skema program", () => {
     const messages = messagesOf(values({ name: " ", bapelId: "", year: "" }));
 
     expect(messages).toContain("name:Isi nama program");
-    expect(messages).toContain("bapelId:Pilih komisi");
+    expect(messages).toContain("bapelId:Pilih badan pelayanan");
     expect(messages).toContain("year:Pilih tahun pelayanan");
   });
 

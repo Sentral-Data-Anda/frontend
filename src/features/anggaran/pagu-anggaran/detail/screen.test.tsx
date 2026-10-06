@@ -174,7 +174,7 @@ describe("halaman pagu anggaran", () => {
     const note = screen.getByText(/^Program disetujui = /);
 
     expect(note.textContent).toContain("Dicairkan = uang yang sudah keluar");
-    expect(note.textContent).toContain("Dilaporkan = yang komisi");
+    expect(note.textContent).toContain("Dilaporkan = yang badan pelayanan itu");
     expect(note.textContent).toContain("Ketiganya boleh berbeda");
   });
 

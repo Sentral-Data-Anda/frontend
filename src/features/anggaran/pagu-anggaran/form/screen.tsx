@@ -277,7 +277,9 @@ export const AllocationFormScreen = (props: PropTypes) => {
                 aria-pressed={isBatch.value}
                 onClick={isBatch.onToggle}
               >
-                {isBatch.value ? "Satu komisi" : "Beberapa komisi"}
+                {isBatch.value
+                  ? "Satu badan pelayanan"
+                  : "Beberapa badan pelayanan"}
               </Button>
             )
           }

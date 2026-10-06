@@ -264,7 +264,7 @@ describe("halaman usulan: pagu", () => {
     );
 
     expect(
-      await screen.findByText("Pagu anggaran komisi ini belum ada"),
+      await screen.findByText("Pagu anggaran badan pelayanan ini belum ada"),
     ).toBeTruthy();
     expect(
       screen
@@ -289,7 +289,7 @@ describe("halaman usulan: pagu", () => {
     );
 
     expect(
-      await screen.findByText("Pagu anggaran komisi ini belum ada"),
+      await screen.findByText("Pagu anggaran badan pelayanan ini belum ada"),
     ).toBeTruthy();
     expect(
       screen.queryByRole("link", { name: "Lihat Pagu Anggaran" }),
@@ -479,9 +479,9 @@ describe("halaman usulan: dua angka belanja", () => {
 
     await screen.findAllByText("Dilaporkan ke program ini");
 
-    expect(screen.getAllByText("Dicairkan ke komisi").length).toBeGreaterThan(
-      0,
-    );
+    expect(
+      screen.getAllByText("Dicairkan ke badan pelayanan").length,
+    ).toBeGreaterThan(0);
     expect(screen.queryByText(/^Realisasi$/)).toBeNull();
   });
 });
@@ -494,7 +494,7 @@ describe("halaman usulan: batalkan", () => {
 
     expect(
       await screen.findByText(
-        "Pagu komisi sebesar Rp 3.000.000 akan kembali tersedia untuk usulan lain.",
+        "Pagu badan pelayanan sebesar Rp 3.000.000 akan kembali tersedia untuk usulan lain.",
       ),
     ).toBeTruthy();
 
@@ -540,7 +540,7 @@ describe("halaman usulan: lingkup dan status mati", () => {
     );
 
     expect(screen.queryByText(/tidak punya akses ke program ini/i)).toBeNull();
-    expect(screen.queryByText(/komisi lain/i)).toBeNull();
+    expect(screen.queryByText(/(komisi|badan pelayanan) lain/i)).toBeNull();
   });
 
   test("ACTIVE dan COMPLETED tidak muncul sebagai label", async () => {

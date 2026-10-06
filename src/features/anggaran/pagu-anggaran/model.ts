@@ -50,18 +50,18 @@ export const EMPTY_DESCRIPTION =
 export const CEILING_UNSET = "Belum ditetapkan";
 
 export const SECTION_NOTE =
-  "Angka ini milik Majelis Jemaat. Komisi tidak bisa mengubahnya.";
+  "Angka ini milik Majelis Jemaat. Badan pelayanan yang menerimanya tidak bisa mengubahnya.";
 
 export const ANY_SOURCE_NOTE =
-  "Pagu membatasi seluruh belanja komisi tahun ini, termasuk uang yang dicari komisi sendiri dan dana khusus. Bila Majelis mengizinkan komisi membelanjakan lebih, Majelis menaikkan pagunya dalam keputusan yang sama.";
+  "Pagu membatasi seluruh belanja badan pelayanan ini tahun ini, termasuk uang yang dicarinya sendiri dan dana khusus. Bila Majelis mengizinkannya membelanjakan lebih, Majelis menaikkan pagunya dalam keputusan yang sama.";
 
-export const FORM_NOTE = `${ANY_SOURCE_NOTE} Angka ini milik Majelis Jemaat. Komisi tidak bisa mengubahnya.`;
+export const FORM_NOTE = `${ANY_SOURCE_NOTE} ${SECTION_NOTE}`;
 
 export const AMOUNT_HINT =
-  "Batas belanja komisi ini sepanjang tahun. Usulan yang jatuh tepat di batas tetap diterima.";
+  "Batas belanja badan pelayanan ini sepanjang tahun. Usulan yang jatuh tepat di batas tetap diterima.";
 
 export const THREE_NUMBERS_NOTE =
-  "Program disetujui = yang sudah dijanjikan ke program. Dicairkan = uang yang sudah keluar lewat Kas Keluar. Dilaporkan = yang komisi pertanggungjawabkan dan tiga orang tanda tangani. Ketiganya boleh berbeda.";
+  "Program disetujui = yang sudah dijanjikan ke program. Dicairkan = uang yang sudah keluar lewat Kas Keluar. Dilaporkan = yang badan pelayanan itu pertanggungjawabkan dan tiga orang tanda tangani. Ketiganya boleh berbeda.";
 
 export const SETTING_MISSING_TITLE =
   "Bulan mulai tahun pelayanan belum dipilih";
@@ -72,12 +72,12 @@ export const SETTING_MISSING_MESSAGE =
 export const SETTING_REVERSIBLE_HINT =
   "Masih bisa diubah selama belum ada program yang disetujui.";
 
-export const UNTAGGED_LABEL = "Pengeluaran tanpa komisi";
+export const UNTAGGED_LABEL = "Pengeluaran tanpa badan pelayanan";
 
 export const UNTAGGED_HINT =
-  "Kas Keluar yang sudah dibayar tanpa komisi — tagihan gereja, gaji, dan yang belum ditandai.";
+  "Kas Keluar yang sudah dibayar tanpa badan pelayanan — tagihan gereja, gaji, dan yang belum ditandai.";
 
-export const DISBURSED_PANEL_LABEL = "Dicairkan per komisi tahun ini";
+export const DISBURSED_PANEL_LABEL = "Dicairkan per badan pelayanan tahun ini";
 
 export const BAR_ALERT_ABOVE = 80;
 
@@ -165,7 +165,7 @@ export const untaggedOf = (rows: readonly BudgetAllocation[]) =>
 export const allocationDeleteText = (
   allocation: Pick<BudgetAllocationDetail, "bapel" | "budgetYear">,
 ) =>
-  `Apakah Anda ingin menghapus pagu anggaran ${allocation.bapel?.name ?? "komisi ini"} tahun ${allocation.budgetYear.label}? Baris ini dihapus permanen.`;
+  `Apakah Anda ingin menghapus pagu anggaran ${allocation.bapel?.name ?? "badan pelayanan ini"} tahun ${allocation.budgetYear.label}? Baris ini dihapus permanen.`;
 
 const ERROR_FIX: Record<string, string> = {
   CEILING_IN_USE: "Ubah nominalnya di form ini, jangan hapus barisnya.",
@@ -190,7 +190,7 @@ export const allocationFormSchema = z
     const addIssue = (path: (string | number)[], message: string) =>
       ctx.addIssue({ code: "custom", path, message });
 
-    if (!values.bapelId) addIssue(["bapelId"], "Pilih komisi");
+    if (!values.bapelId) addIssue(["bapelId"], "Pilih badan pelayanan");
     if (!values.year) addIssue(["year"], "Pilih tahun pelayanan");
 
     amountIssues(values.amount).forEach((message) =>
@@ -219,11 +219,12 @@ export const batchFormSchema = z
     const seen = new Set<string>();
 
     values.items.forEach((item, index) => {
-      if (!item.bapelId) addIssue(["items", index, "bapelId"], "Pilih komisi");
+      if (!item.bapelId)
+        addIssue(["items", index, "bapelId"], "Pilih badan pelayanan");
       else if (seen.has(item.bapelId)) {
         addIssue(
           ["items", index, "bapelId"],
-          "Komisi ini sudah ada di baris sebelumnya",
+          "Badan pelayanan ini sudah ada di baris sebelumnya",
         );
       } else seen.add(item.bapelId);
 

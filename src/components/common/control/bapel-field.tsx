@@ -20,7 +20,7 @@ export const BapelField = (props: PropTypes) => {
     value,
     onValueChange,
     disabled = false,
-    placeholder = "Pilih komisi",
+    placeholder = "Pilih badan pelayanan",
     ...aria
   } = props;
 
@@ -43,7 +43,7 @@ export const BapelField = (props: PropTypes) => {
       isLoading={isLoading}
       disabled={disabled}
       placeholder={placeholder}
-      emptyMessage="Belum ada komisi"
+      emptyMessage="Belum ada badan pelayanan"
     />
   );
 };

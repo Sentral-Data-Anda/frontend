@@ -99,7 +99,7 @@ export const CeilingPanel = (props: PropTypes) => {
         <DescriptionItem label="Pagu">
           {amountText(ceiling.ceiling)}
         </DescriptionItem>
-        <DescriptionItem label="Terpakai komisi ini">
+        <DescriptionItem label="Terpakai badan pelayanan ini">
           {amountText(ceiling.committed)}
         </DescriptionItem>
         <DescriptionItem label="Sisa setelah usulan ini">

@@ -232,7 +232,9 @@ describe("form program", () => {
     fireEvent.click(await screen.findByRole("button", { name: "Simpan" }));
 
     expect(await screen.findByText("Isi nama program")).toBeTruthy();
-    expect(screen.getAllByText("Pilih komisi").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Pilih badan pelayanan").length).toBeGreaterThan(
+      0,
+    );
     expect(screen.getAllByText("Pilih pos").length).toBeGreaterThan(0);
     expect(screen.getByText("Isi uraian")).toBeTruthy();
   });
@@ -262,14 +264,16 @@ describe("form program", () => {
   test("payload tanpa proposedAmount, tanpa amount per baris, tanpa status", async () => {
     const calls = onRender();
 
-    fireEvent.click(await screen.findByRole("combobox", { name: "Komisi" }));
+    fireEvent.click(
+      await screen.findByRole("combobox", { name: "Badan pelayanan" }),
+    );
     fireEvent.click(
       await screen.findByRole("option", { name: /Komisi Pemuda/ }),
     );
 
     await waitFor(() =>
       expect(
-        screen.getByRole("combobox", { name: "Komisi" }).textContent,
+        screen.getByRole("combobox", { name: "Badan pelayanan" }).textContent,
       ).toContain("Komisi Pemuda"),
     );
 

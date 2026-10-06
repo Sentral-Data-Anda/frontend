@@ -104,7 +104,7 @@ describe("kwitansi laporan tidak keluar dari layarnya", () => {
   test("teks kosong dan galat tidak pernah menyatakan cakupan", async () => {
     const screens = await readSources(`${OWNED}**/*.{ts,tsx}`, false);
     const telling = screens.filter((file) =>
-      /akses ke laporan ini|laporan komisi lain|milik komisi lain/i.test(
+      /akses ke laporan ini|laporan (komisi|badan pelayanan) lain|milik (komisi|badan pelayanan) lain/i.test(
         file.text,
       ),
     );

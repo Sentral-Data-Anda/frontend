@@ -73,7 +73,7 @@ export const AllocationListContent = () => {
         subtitle={
           allocationList.totalData === undefined
             ? yearLabel || undefined
-            : `${yearLabel} · ${allocationList.totalData} komisi`
+            : `${yearLabel} · ${allocationList.totalData} badan pelayanan`
         }
         backHref={domainHref(MENU.ANGGARAN)}
         action={
@@ -124,14 +124,17 @@ export const AllocationListContent = () => {
 
       <ListToolbar
         listParams={listParams}
-        searchLabel="Cari komisi"
-        searchPlaceholder="Cari nama komisi"
+        searchLabel="Cari badan pelayanan"
+        searchPlaceholder="Cari nama badan pelayanan"
         filters={[
           {
             key: "komisi",
-            label: "Komisi",
+            label: "Badan pelayanan",
             kind: "select",
-            options: [{ value: "", label: "Semua komisi" }, ...bapels.options],
+            options: [
+              { value: "", label: "Semua badan pelayanan" },
+              ...bapels.options,
+            ],
           },
         ]}
       />
@@ -166,7 +169,7 @@ export const AllocationListContent = () => {
           onClearFilter={isNarrowed ? onClearNarrow : undefined}
           pagination={allocationList.pagination}
           table={allocationTable(isCanUpdate)}
-          itemNoun="komisi"
+          itemNoun="badan pelayanan"
         >
           {(row) => <AllocationListItem row={row} isCanUpdate={isCanUpdate} />}
         </DataList>

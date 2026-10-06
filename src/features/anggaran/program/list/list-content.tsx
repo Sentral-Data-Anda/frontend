@@ -83,9 +83,12 @@ export const ProgramListContent = () => {
             : []),
           {
             key: "komisi",
-            label: "Komisi",
+            label: "Badan pelayanan",
             kind: "select",
-            options: [{ value: "", label: "Semua komisi" }, ...bapels.options],
+            options: [
+              { value: "", label: "Semua badan pelayanan" },
+              ...bapels.options,
+            ],
           },
         ]}
       />
