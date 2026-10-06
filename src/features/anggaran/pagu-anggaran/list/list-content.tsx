@@ -73,7 +73,7 @@ export const AllocationListContent = () => {
         subtitle={
           allocationList.totalData === undefined
             ? yearLabel || undefined
-            : `${yearLabel} · ${allocationList.totalData} badan pelayanan`
+            : `${yearLabel} · ${allocationList.totalData} pagu`
         }
         backHref={domainHref(MENU.ANGGARAN)}
         action={

@@ -242,7 +242,7 @@ describe("daftar pagu anggaran", () => {
       ),
     ).toBe("true");
     expect(
-      screen.getByText(`${YEAR - 1}/${YEAR} label server · 2 badan pelayanan`),
+      screen.getByText(`${YEAR - 1}/${YEAR} label server · 2 pagu`),
     ).toBeTruthy();
   });
 
