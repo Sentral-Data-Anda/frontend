@@ -23,6 +23,7 @@ import { kegiatanMock } from "./kegiatan";
 import { keluargaMock } from "./keluarga";
 import { keuanganMock } from "./keuangan";
 import { komponenPayrollMock } from "./komponen-payroll";
+import { kontrakKaryawanMock } from "./kontrak-karyawan";
 import { laporanBudgetMock } from "./laporan-budget";
 import { laporanKeuanganMock } from "./laporan-keuangan";
 import { masterJemaatMock } from "./master-jemaat";
@@ -135,6 +136,7 @@ export const MOCK_HANDLERS: MockHandler[] = [
   programMock,
   laporanBudgetMock,
   komponenPayrollMock,
+  kontrakKaryawanMock,
   pengadaanMock,
   inventarisMock,
   keuanganMock,
