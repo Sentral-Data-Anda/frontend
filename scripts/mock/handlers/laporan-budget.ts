@@ -28,6 +28,7 @@ import {
   TODAY,
   codeOf,
   complianceRows,
+  untaggedMonth,
   disbursementsIn,
   isLive,
   isVisibleBapel,
@@ -178,10 +179,15 @@ const compliance = (url: URL, scope: KomisiScope) => {
     label: monthLabel(monthKeyOf(year, month)),
   }));
 
+  // `untagged` di SAMPING `data`, seperti `totalData` pada bacaan berpaginasi,
+  // dan TANPA 404 pada daftar kosong — berbeda dari ketiga daftar Anggaran:
+  // respons ini membawa fakta kedua yang bukan bagian daftarnya, dan 404
+  // membuangnya. Tidak di-scope: sisa tak-bertanda bukan milik komisi mana pun.
   return json({
     status: 200,
     message: "Berhasil Mendapatkan Kepatuhan Laporan",
     data: rows,
+    untagged: untaggedMonth(year, month),
   });
 };
 

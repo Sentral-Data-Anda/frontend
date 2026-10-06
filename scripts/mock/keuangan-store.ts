@@ -8,6 +8,7 @@ import { addDays, addMonths, startOfMonth } from "../../src/lib/date";
 import { balanceOf, sumAmounts } from "../../src/lib/number";
 import type {
   AccountType,
+  BapelChoice,
   JournalRef,
   AccountingSettingKey,
   CashStatus,
@@ -1400,6 +1401,10 @@ export type CashExpenseRow = {
   payee: string;
   paidFromAccountId: number;
   bapelId: number | null;
+  // Nullable tanpa default: `null` berarti baris yang ditulis sebelum
+  // pertanyaannya ada. Di server CHECK constraint yang menjaga ia sepakat
+  // dengan `bapelId`; di sini benihnya yang menjaga.
+  bapelChoice: BapelChoice | null;
   method: string | null;
   reference: string | null;
   status: CashStatus;
@@ -1491,6 +1496,7 @@ const expense = (
   payee,
   paidFromAccountId,
   bapelId: null,
+  bapelChoice: null,
   method: null,
   reference: null,
   status: "DRAFT",
@@ -1587,6 +1593,38 @@ export const CASH_EXPENSE: CashExpenseRow[] = [
       notes: [cashExpenseNote("Nota florist")],
     },
   ),
+  // Disetujui, berkomisi, dan komisinya BELUM menyelesaikan laporan M−1 — satu
+  // satunya baris benih yang membuat gerbang pencairan dan pintu daruratnya
+  // bisa dilihat di peramban. Tanpa ia, setiap dokumen siap bayar yang
+  // berkomisi kebetulan lolos gerbang, dan tombol Bebaskan tidak pernah muncul
+  // untuk dilihat siapa pun.
+  //
+  // KOMISINYA BAPEL 4, dan itu bukan pilihan bebas: laporan 2026-09 bapel 4
+  // dihapus lunak di benih, jadi ia satu-satunya komisi yang benar-benar
+  // MISSING di tanggal nyata. Bapel 2 punya LPJ September APPROVED, bapel 3
+  // dan 5 nol pencairan — ketiganya lolos gerbang. `benih doc-24 menyalakan
+  // gerbangnya` di anggaran-store.test.ts yang menahannya tetap begitu; benih
+  // yang menjanjikan tertahan lalu diam-diam lolos lebih mahal daripada tidak
+  // ada benihnya sama sekali, karena pembaca berikutnya akan menyimpulkan
+  // gerbangnya rusak lalu "memperbaiki" kode yang benar.
+  expense(
+    13,
+    thisMonth(24),
+    "Ketua Komisi Anak",
+    "Panjar perlengkapan sekolah minggu",
+    4,
+    [cashExpenseLine(23, "2400000", "Panjar perlengkapan")],
+    {
+      publicId: "doc-24",
+      bapelId: 4,
+      bapelChoice: "KOMISI",
+      method: "Transfer",
+      status: "APPROVED",
+      approvals: [cashExpenseApproval(24, "APPROVED", 14)],
+      approvedById: 15,
+      approvedAt: `${thisMonth(25)}T03:20:00.000Z`,
+    },
+  ),
   expense(
     4,
     thisMonth(23),
@@ -1600,6 +1638,7 @@ export const CASH_EXPENSE: CashExpenseRow[] = [
     {
       publicId: "doc-19",
       bapelId: 2,
+      bapelChoice: "KOMISI",
       method: "Transfer",
       reference: "PSN-2026-0019",
       approvals: [
@@ -1702,6 +1741,7 @@ export const CASH_EXPENSE: CashExpenseRow[] = [
     [cashExpenseLine(22, "640000", "Pemakaian air")],
     {
       bapelId: null,
+      bapelChoice: "BUKAN_KOMISI",
       method: "Transfer",
       status: "PAID",
       approvals: [cashExpenseApproval(31, "APPROVED", 12)],
@@ -1805,6 +1845,7 @@ export const cashExpenseView = (row: CashExpenseRow, isDetail = false) => {
     paidFromAccount: accountRef(row.paidFromAccountId),
     bapelId: row.bapelId,
     bapel: row.bapelId === null ? null : (bapelOf(row.bapelId) ?? null),
+    bapelChoice: row.bapelChoice,
     method: row.method,
     reference: row.reference,
     totalAmount: cashExpenseTotal(row),

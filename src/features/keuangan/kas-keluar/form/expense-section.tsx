@@ -1,20 +1,29 @@
 "use client";
 
+import { useWatch } from "react-hook-form";
+
 import {
   AccountField,
+  BapelField,
+  ChoiceField,
   DateField,
-  DdlField,
   Input,
   MethodField,
   Textarea,
 } from "@/components/common/control";
 import { ControlField, FormSection, FormWide } from "@/components/common/form";
-import { useDdlOptions } from "@/hooks/use-ddl-options";
+import { useDdlOptions, type DdlOption } from "@/hooks/use-ddl-options";
 import { todayJakarta } from "@/lib/date";
 
-import { REFERENCE_HINT } from "../model";
+import {
+  BAPEL_CHOICE_HINT,
+  BAPEL_CHOICE_OPTIONS,
+  BAPEL_HINT,
+  REFERENCE_HINT,
+} from "../model";
 
 import type { ExpenseForm } from "./form-options";
+import { GateAlert } from "./gate-alert";
 
 interface PropTypes {
   form: ExpenseForm;
@@ -24,8 +33,12 @@ interface PropTypes {
 export const ExpenseSection = (props: PropTypes) => {
   const { form, isDisabled } = props;
 
-  const savedBapelId = form.formState.defaultValues?.bapelId ?? "";
-  const bapels = useDdlOptions("bapel", "id", savedBapelId);
+  const bapelChoice = useWatch({ control: form.control, name: "bapelChoice" });
+  const bapelId = useWatch({ control: form.control, name: "bapelId" });
+  const expenseDate = useWatch({ control: form.control, name: "expenseDate" });
+  const { rows } = useDdlOptions<DdlOption>("bapel");
+  const bapelName =
+    rows.find((row) => String(row.id) === bapelId)?.name ?? "komisi ini";
 
   return (
     <FormSection legend="Pengeluaran" disabled={isDisabled}>
@@ -106,25 +119,54 @@ export const ExpenseSection = (props: PropTypes) => {
 
       <ControlField
         control={form.control}
-        name="bapelId"
-        label="Badan pelayanan"
-        isOptional
+        name="bapelChoice"
+        label="Belanja komisi"
+        hint={BAPEL_CHOICE_HINT}
       >
         {(field) => (
-          <DdlField
+          <ChoiceField
+            id="bapelChoice"
+            label="Belanja komisi"
+            isLabelVisible={false}
             value={field.value}
-            onValueChange={field.onChange}
-            options={[
-              { value: "", label: "Tanpa badan pelayanan" },
-              ...bapels.options,
-            ]}
-            isLoading={bapels.isLoading}
+            onValueChange={(value) => {
+              field.onChange(value);
+              // Jawaban dan `bapelId` dikirim keduanya, jadi nilai lama tidak
+              // boleh tersangkut: server menolak keduanya yang tidak sepakat.
+              if (value !== "KOMISI") form.setValue("bapelId", "");
+            }}
+            options={BAPEL_CHOICE_OPTIONS}
             disabled={isDisabled}
-            placeholder="Pilih badan pelayanan"
-            emptyMessage="Belum ada data badan pelayanan"
           />
         )}
       </ControlField>
+
+      {bapelChoice === "KOMISI" ? (
+        <ControlField
+          control={form.control}
+          name="bapelId"
+          label="Komisi"
+          hint={BAPEL_HINT}
+        >
+          {(field) => (
+            <BapelField
+              value={field.value}
+              onValueChange={field.onChange}
+              disabled={isDisabled}
+            />
+          )}
+        </ControlField>
+      ) : null}
+
+      {bapelChoice === "KOMISI" && bapelId && expenseDate ? (
+        <FormWide>
+          <GateAlert
+            bapelId={bapelId}
+            bapelName={bapelName}
+            expenseDate={expenseDate}
+          />
+        </FormWide>
+      ) : null}
 
       <FormWide>
         <ControlField

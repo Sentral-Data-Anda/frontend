@@ -40,6 +40,7 @@ import {
   isLive,
   nextId,
   userNameOf,
+  type CashExpenseRow,
 } from "./keuangan-store";
 import { mediaUrl } from "./media";
 import { bapelOf } from "./pelayanan-store";
@@ -481,6 +482,43 @@ export const gateFailureOf = (bapelId: number | null, expenseDate: string) => {
     bapel: bapelRef(bapelId),
     year,
     month,
+  };
+};
+
+// Pengeluaran yang LOLOS gerbang: Kas Keluar PAID bulan itu tanpa komisi.
+//
+// KUERI SENDIRI, dan harus tetap sendiri. `disbursementsIn` menyaring
+// `bapelId: { in: ids }` dan `IN` tidak pernah cocok dengan NULL — itu AKAR
+// kenapa pengelakannya tak terlihat selama ini, bukan detail implementasi.
+// Menambahkan `null` ke `ids` atau sebuah `OR` ke fungsi itu mengubah gerbang,
+// Belum lapor, DAN prefill sekaligus, diam-diam. Setiap klausa lainnya di sini
+// IDENTIK dengan `disbursementsIn` — PAID, hidup, batas kalender yang sama —
+// atau kedua angka di layar itu tidak bisa dibandingkan.
+//
+// Dipecah dua: `stated` dinyatakan BUKAN_KOMISI sejak kolomnya ada, `inherited`
+// ditulis sebelum pertanyaannya ada. Yang warisan TIDAK bernada menuduh:
+// tidak ada yang salah memilih, pertanyaannya memang belum ada.
+const untaggedPart = (rows: readonly CashExpenseRow[]) => ({
+  amount: sumAmounts(rows.map((row) => cashExpenseTotal(row))),
+  count: rows.length,
+});
+
+export const untaggedMonth = (year: number, month: number) => {
+  const rows = CASH_EXPENSE.filter(
+    (row) =>
+      isLive(row) &&
+      row.status === "PAID" &&
+      row.bapelId === null &&
+      row.expenseDate.slice(0, 7) === `${year}-${pad(month)}`,
+  );
+
+  return {
+    ...untaggedPart(rows),
+    label: monthLabel(`${year}-${pad(month)}`),
+    stated: untaggedPart(
+      rows.filter((row) => row.bapelChoice === "BUKAN_KOMISI"),
+    ),
+    inherited: untaggedPart(rows.filter((row) => row.bapelChoice === null)),
   };
 };
 

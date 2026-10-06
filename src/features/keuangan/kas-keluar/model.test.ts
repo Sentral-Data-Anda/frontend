@@ -3,6 +3,7 @@ import { describe, expect, test } from "bun:test";
 import { FetchError } from "@/lib/api/fetcher";
 import { todayJakarta } from "@/lib/date";
 
+import { expenseDetail } from "./fixtures";
 import {
   ALL_MONTHS,
   EXPENSE_STATE_VARIANT,
@@ -13,7 +14,11 @@ import {
   expenseStateOf,
   isLocked,
   isRejected,
+  previousMonthOf,
+  toExpenseForm,
   toExpenseFormData,
+  waiveSchema,
+  waiveText,
   rejectionMarkOf,
   toExpenseQuery,
   toFormError,
@@ -35,6 +40,7 @@ const values = (next: Partial<ExpenseFormValues> = {}): ExpenseFormValues => ({
   payee: "  PLN   UP3  Medan ",
   paidFromAccountId: "2",
   description: "Tagihan  listrik",
+  bapelChoice: "BUKAN_KOMISI",
   lines: [{ accountId: "22", amount: "1850000", description: "Listrik" }],
   ...next,
 });
@@ -242,6 +248,104 @@ describe("expenseFormSchema", () => {
   test("baris kosong ditolak", () => {
     expect(pathsOf(values({ lines: [] }))).toContain("lines");
   });
+
+  test("kolom komisi belum dijawab ditolak di kolomnya sendiri", () => {
+    const paths = pathsOf(values({ bapelChoice: "", bapelId: "" }));
+
+    expect(paths).toContain("bapelChoice");
+    expect(paths).not.toContain("bapelId");
+  });
+
+  test("untuk komisi tanpa komisi terpilih ditolak di bapelId, bukan di form", () => {
+    const paths = pathsOf(values({ bapelChoice: "KOMISI", bapelId: "" }));
+
+    expect(paths).toEqual(["bapelId"]);
+  });
+
+  test("bukan belanja komisi lolos tanpa bapelId", () => {
+    expect(
+      pathsOf(values({ bapelChoice: "BUKAN_KOMISI", bapelId: "" })),
+    ).toEqual([]);
+  });
+});
+
+describe("kolom komisi", () => {
+  test("form baru tidak memilih salah satu jawaban", () => {
+    expect(emptyExpenseForm().bapelChoice).toBe("");
+  });
+
+  test("baris lama membuka form ubah dengan jawaban kosong, bukan bukan-komisi", () => {
+    const legacy = toExpenseForm(
+      expenseDetail({ bapelId: null, bapel: null, bapelChoice: null }),
+    );
+
+    expect(legacy.bapelChoice).toBe("");
+    expect(legacy.bapelId).toBe("");
+  });
+
+  test("baris baru membuka form ubah dengan jawabannya terbaca", () => {
+    const stated = toExpenseForm(
+      expenseDetail({
+        bapelId: null,
+        bapel: null,
+        bapelChoice: "BUKAN_KOMISI",
+      }),
+    );
+    const komisi = toExpenseForm(
+      expenseDetail({
+        bapelId: 3,
+        bapel: { code: "BPL-0003", name: "Komisi Pemuda" },
+        bapelChoice: "KOMISI",
+      }),
+    );
+
+    expect(stated.bapelChoice).toBe("BUKAN_KOMISI");
+    expect(komisi.bapelChoice).toBe("KOMISI");
+    expect(komisi.bapelId).toBe("3");
+  });
+
+  test("payload membawa jawaban DAN bapelId, tanpa representasi kedua", () => {
+    const body = toExpenseFormData(
+      values({ bapelChoice: "KOMISI", bapelId: "3" }),
+      false,
+    );
+
+    expect(body.get("bapelChoice")).toBe("KOMISI");
+    expect(body.get("bapelId")).toBe("3");
+    expect([...body.keys()].filter((key) => /bapel/i.test(key))).toEqual([
+      "bapelChoice",
+      "bapelId",
+    ]);
+  });
+
+  test("bukan belanja komisi mengirim jawabannya dan mengosongkan bapelId", () => {
+    const body = toExpenseFormData(
+      values({ bapelChoice: "BUKAN_KOMISI", bapelId: "" }),
+      false,
+    );
+
+    expect(body.get("bapelChoice")).toBe("BUKAN_KOMISI");
+    expect(body.get("bapelId")).toBeNull();
+  });
+
+  test("kontradiksi bukan galat ber-code: errorFixOf tidak menautkan apa pun", () => {
+    const contradiction = new FetchError(
+      400,
+      "Bukan Belanja Komisi Tidak Boleh Membawa Komisi",
+      [
+        {
+          path: "bapelId",
+          message: "Bukan Belanja Komisi Tidak Boleh Membawa Komisi",
+        },
+      ],
+    );
+
+    expect(contradiction.code).toBeNull();
+    expect(errorFixOf(contradiction)).toBeNull();
+    expect((toFormError(contradiction) as FetchError).issues[0]!.path).toBe(
+      "bapelId",
+    );
+  });
 });
 
 describe("errorFixOf", () => {
@@ -272,5 +376,90 @@ describe("toFormError", () => {
     ) as FetchError;
 
     expect(mapped.issues[0]!.path).toBe("attachments");
+  });
+});
+
+describe("errorFixOf: gerbang anggaran", () => {
+  test("BUDGET_REPORT_PENDING menautkan ke Laporan Budget, bukan ke Periode Fiskal", () => {
+    const fix = errorFixOf(
+      new FetchError(400, "apa saja", [], "BUDGET_REPORT_PENDING"),
+    );
+
+    expect(fix?.menu).toBe("LAPORAN_BUDGET");
+    expect(fix?.href).toContain("/anggaran/laporan-budget");
+  });
+
+  test("kata laporan atau budget TANPA code tidak pernah memicu tautannya", () => {
+    for (const message of [
+      "Komisi Ini Belum Menyelesaikan Laporan Pemakaian Budget Bulan Agustus",
+      "Laporan budget belum disetujui",
+      "budget",
+    ]) {
+      expect(errorFixOf(new FetchError(400, message))).toBeNull();
+    }
+  });
+
+  test("code tak dikenal dirender tanpa tautan", () => {
+    expect(
+      errorFixOf(new FetchError(400, "x", [], "BUDGET_REPORT_SOMETHING")),
+    ).toBeNull();
+  });
+
+  test("periode dan gerbang menghasilkan dua perbaikan BERBEDA, tidak digabung", () => {
+    const period = errorFixOf(new FetchError(400, "x", [], "PERIOD_CLOSED"));
+    const gate = errorFixOf(
+      new FetchError(400, "x", [], "BUDGET_REPORT_PENDING"),
+    );
+
+    expect(period?.href).not.toBe(gate?.href);
+    expect(period?.menu).not.toBe(gate?.menu);
+  });
+});
+
+describe("previousMonthOf", () => {
+  test("Januari mundur ke Desember tahun sebelumnya", () => {
+    expect(previousMonthOf("2027-01-05")).toEqual({ year: 2026, month: 12 });
+  });
+
+  test("bulan lain mundur satu di tahun yang sama", () => {
+    expect(previousMonthOf("2026-09-29")).toEqual({ year: 2026, month: 8 });
+    expect(previousMonthOf("2026-12-31")).toEqual({ year: 2026, month: 11 });
+  });
+
+  test("dihitung dari expenseDate, BUKAN dari hari ini", () => {
+    const today = todayJakarta();
+
+    expect(previousMonthOf("2026-03-15")).toEqual({ year: 2026, month: 2 });
+    expect(previousMonthOf("2026-03-15").year).not.toBe(
+      Number(today.slice(0, 4)) + 1,
+    );
+  });
+});
+
+describe("waiveSchema", () => {
+  const pathsOf = (reason: string) => {
+    const parsed = waiveSchema.safeParse({ reason });
+
+    return parsed.success
+      ? []
+      : parsed.error.issues.map((i) => i.path.join("."));
+  };
+
+  test("alasan wajib: kosong dan spasi saja ditolak", () => {
+    expect(pathsOf("")).toContain("reason");
+    expect(pathsOf("   ")).toContain("reason");
+  });
+
+  test("250 karakter diterima, 251 ditolak", () => {
+    expect(pathsOf("A".repeat(250))).toEqual([]);
+    expect(pathsOf("A".repeat(251))).toContain("reason");
+  });
+
+  test("teksnya menyebut komisi DAN bulannya", () => {
+    const text = waiveText("Komisi Pemuda", "Maret 2026");
+
+    expect(text).toContain("Komisi Pemuda");
+    expect(text).toContain("Maret 2026");
+    expect(text).toContain("tersimpan");
   });
 });

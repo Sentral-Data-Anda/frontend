@@ -7,6 +7,7 @@ import { useCompliance } from "../api";
 import { PENDING_EMPTY, currentMonthOf } from "../model";
 
 import { PendingItem } from "./pending-item";
+import { UntaggedRow } from "./untagged-row";
 
 const NOTE =
   "Komisi yang tidak mencairkan apa pun bulan itu tidak wajib melapor, dan gerbang pencairan meloloskannya.";
@@ -44,7 +45,7 @@ export const PendingContent = (props: PropTypes) => {
       </div>
 
       <DataList
-        items={compliance.data}
+        items={compliance.data?.rows}
         getKey={(row) => row.bapel?.publicId ?? String(row.bapelId)}
         label="Kepatuhan laporan per komisi"
         isLoading={compliance.isPending}
@@ -58,6 +59,10 @@ export const PendingContent = (props: PropTypes) => {
           <PendingItem row={row} month={month} isCanCreate={isCanCreate} />
         )}
       </DataList>
+
+      {compliance.data?.untagged ? (
+        <UntaggedRow untagged={compliance.data.untagged} />
+      ) : null}
     </div>
   );
 };

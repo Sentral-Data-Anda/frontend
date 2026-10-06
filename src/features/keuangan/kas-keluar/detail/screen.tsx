@@ -17,10 +17,11 @@ import { useMenuAccess } from "@/features/auth";
 import { useBoolean } from "@/hooks/use-boolean";
 import { useListReturn } from "@/hooks/use-list-return";
 import { FetchError } from "@/lib/api/fetcher";
+import { monthLabel } from "@/lib/date";
 import { formatRupiah } from "@/lib/format";
 
-import { useExpenseAction, useExpenseDetail } from "../api";
-import { EXPENSE_LIST_PATH, NO_VIEW } from "../model";
+import { useExpenseAction, useExpenseDetail, useGateCompliance } from "../api";
+import { EXPENSE_LIST_PATH, NO_VIEW, previousMonthOf } from "../model";
 import type { CashExpenseDetail, ExpenseAction } from "../types";
 import { ExpenseStateBadge } from "../ui";
 
@@ -31,6 +32,8 @@ import { FailureAlert } from "./failure-alert";
 import { LineList } from "./line-list";
 import { NoteList } from "./note-list";
 import { SummaryPanel } from "./summary-panel";
+import { WaiveDialog } from "./waive-dialog";
+import { WaiverPanel } from "./waiver-panel";
 
 const TITLE = "Kas Keluar";
 
@@ -71,10 +74,27 @@ export const ExpenseDetailScreen = (props: PropTypes) => {
   const action = useExpenseAction(publicId);
   const confirm = useFormConfirm();
   const isCancelOpen = useBoolean();
+  const isWaiveOpen = useBoolean();
   const [pickAction, setPickAction] = useState<ExpenseAction>("pengajuan");
   const [reason, setReason] = useState("");
   const [reasonError, setReasonError] = useState<string>();
   const expense = detail.data;
+  const gateMonth = previousMonthOf(expense?.expenseDate.slice(0, 10) ?? "");
+  const gate = useGateCompliance(
+    expense?.bapelId === null || expense?.bapelId === undefined
+      ? ""
+      : String(expense.bapelId),
+    gateMonth.year,
+    gateMonth.month,
+  );
+  // Bebaskan hanya bila gerbang MEMANG akan menolak. `NOT_DUE` (nol pencairan
+  // M−1), `APPROVED`, dan yang sudah dibebaskan tidak punya apa pun untuk
+  // dibebaskan — menawarkannya di situ mengiklankan pintu yang tidak dibutuhkan.
+  const isWaivable =
+    gate.data?.state === "DRAFT" || gate.data?.state === "MISSING";
+  const gateLabel = monthLabel(
+    `${gateMonth.year}-${String(gateMonth.month).padStart(2, "0")}`,
+  );
   const isNotFound =
     detail.error instanceof FetchError && detail.error.status === 404;
 
@@ -203,12 +223,18 @@ export const ExpenseDetailScreen = (props: PropTypes) => {
           />
         ) : null}
 
+        {expense.waiver ? (
+          <WaiverPanel waiver={expense.waiver} label={gateLabel} />
+        ) : null}
+
         <ExpenseActions
           expense={expense}
           pendingAction={
             action.isPending ? (action.variables?.action ?? null) : null
           }
+          isWaivable={isWaivable}
           onPick={onPick}
+          onWaive={isWaiveOpen.onTrue}
         />
 
         {isCancelOpen.value ? (
@@ -226,6 +252,7 @@ export const ExpenseDetailScreen = (props: PropTypes) => {
           <FailureAlert
             title={FAILURE_TITLE[action.variables?.action ?? pickAction]}
             error={action.error}
+            expense={expense}
           />
         ) : null}
 
@@ -243,6 +270,22 @@ export const ExpenseDetailScreen = (props: PropTypes) => {
           <h2 className="text-title font-semibold">Nota</h2>
           <NoteList notes={expense.attachments} />
         </div>
+      ) : null}
+
+      {expense.bapelId !== null ? (
+        <WaiveDialog
+          bapelId={expense.bapelId}
+          bapelName={expense.bapel?.name ?? "komisi ini"}
+          year={gateMonth.year}
+          month={gateMonth.month}
+          label={gateLabel}
+          isOpen={isWaiveOpen.value}
+          onClose={isWaiveOpen.onFalse}
+          onWaived={() => {
+            isWaiveOpen.onFalse();
+            toast.add({ title: "Berhasil membebaskan pencairan" });
+          }}
+        />
       ) : null}
 
       <FormConfirmDialog
