@@ -1608,7 +1608,7 @@ export const CASH_EXPENSE: CashExpenseRow[] = [
   // ada benihnya sama sekali, karena pembaca berikutnya akan menyimpulkan
   // gerbangnya rusak lalu "memperbaiki" kode yang benar.
   expense(
-    12,
+    13,
     thisMonth(24),
     "Ketua Komisi Anak",
     "Panjar perlengkapan sekolah minggu",

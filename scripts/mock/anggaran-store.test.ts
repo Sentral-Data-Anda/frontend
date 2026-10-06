@@ -29,7 +29,12 @@ import {
   remainingFor,
   untaggedMonth,
 } from "./anggaran-store";
-import { CASH_EXPENSE, cashExpenseLine } from "./keuangan-store";
+import {
+  CASH_EXPENSE,
+  CASH_EXPENSE_SOURCE,
+  JOURNAL_ENTRY,
+  cashExpenseLine,
+} from "./keuangan-store";
 
 const BAPEL = 2;
 
@@ -611,6 +616,29 @@ describe("benih yang membuat gerbang terlihat di peramban", () => {
     );
 
     expect(held.length).toBeGreaterThan(0);
+  });
+
+  // Benih saya semula memakai id 12 yang SUDAH dipakai `bkk-0012`. Akibatnya
+  // bukan cuma kosmetik: `journalRefOfSource` mencocokkan pada `sourceId`, jadi
+  // doc-24 mewarisi jurnal milik baris lain dan `bayar` menolak "Sudah
+  // Diposting Ke Jurnal" — pintu daruratnya terbuka lalu pembayarannya tetap
+  // gagal karena alasan yang sama sekali lain.
+  test("id kas keluar unik: dua baris berbagi id merusak tautan jurnalnya", () => {
+    const ids = CASH_EXPENSE.map((row) => row.id);
+
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  test("doc-24 belum punya jurnal, jadi Bayar sesudah dibebaskan bisa berhasil", () => {
+    const row = CASH_EXPENSE.find((item) => item.publicId === "doc-24")!;
+
+    expect(
+      // Entri jurnal tidak dihapus lunak, jadi tidak ada `isLive` di sini.
+      JOURNAL_ENTRY.some(
+        (entry) =>
+          entry.sourceType === CASH_EXPENSE_SOURCE && entry.sourceId === row.id,
+      ),
+    ).toBe(false);
   });
 
   test("dan minimal satu LOLOS, supaya gerbangnya bukan blokir buta", () => {
