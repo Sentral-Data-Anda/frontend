@@ -2,6 +2,10 @@
 
 import { useEffect, useState } from "react";
 
+/**
+ * Hibah step-up yang ditahan di memori saja, dan dijatuhkan begitu tab
+ * disembunyikan. Dipakai setiap layar yang membaca data ber-`StepUp`.
+ */
 export function useStepUp() {
   const [expiresAt, setExpiresAt] = useState<number | null>(null);
   const isHeld = expiresAt !== null;

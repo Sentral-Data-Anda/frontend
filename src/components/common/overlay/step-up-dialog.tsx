@@ -5,11 +5,14 @@ import { useForm } from "react-hook-form";
 
 import { PasswordInput } from "@/components/common/control";
 import { FormField } from "@/components/common/form";
-import { ConfirmDialog } from "@/components/common/overlay";
 import { applyServerError } from "@/lib/form-error";
+import {
+  verifyPassword,
+  verifyPasswordSchema,
+  type VerifyPasswordValues,
+} from "@/lib/step-up";
 
-import { verifyPassword } from "../api";
-import { verifyPasswordSchema, type VerifyPasswordValues } from "../model";
+import { ConfirmDialog } from "./confirm-dialog";
 
 const FIELD_ID = "step-up-password";
 
@@ -17,10 +20,17 @@ interface PropTypes {
   isOpen: boolean;
   onClose: () => void;
   onVerified: (expiresAt: string) => void;
+  /**
+   * Apa yang akan dilihat, dalam kalimat: "\u2026untuk melihat persembahan.",
+   * "\u2026untuk melihat data gaji." Dulu dipaku ke persembahan; begitu
+   * Penggajian dan Kontrak Karyawan ikut ber-`StepUp`, teks itu jadi salah di
+   * dua layar dari tiga.
+   */
+  description: string;
 }
 
 export const StepUpDialog = (props: PropTypes) => {
-  const { isOpen, onClose, onVerified } = props;
+  const { isOpen, onClose, onVerified, description } = props;
 
   const form = useForm<VerifyPasswordValues>({
     resolver: zodResolver(verifyPasswordSchema),
@@ -55,7 +65,7 @@ export const StepUpDialog = (props: PropTypes) => {
       isOpen={isOpen}
       onOpenChange={onOpenChange}
       title="Konfirmasi Password"
-      description="Masukkan password akun Anda untuk melihat persembahan."
+      description={description}
       confirmLabel={isSubmitting ? "Memeriksa…" : "Lanjut"}
       isPending={isSubmitting}
       isClosedOnConfirm={false}

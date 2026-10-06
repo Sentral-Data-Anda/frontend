@@ -1,5 +1,5 @@
 import { MENU, detailHref, menuHref, type MenuSlug } from "@/config/menu";
-import { formatRupiah } from "@/lib/format";
+import { formatDays, formatRupiah } from "@/lib/format";
 
 export const APPROVAL_DOCUMENT_TYPES = [
   "PURCHASE_REQUEST",
@@ -50,14 +50,12 @@ export type AmountUnit = "hari" | "rupiah";
 export const amountUnitOf = (type: ApprovalDocumentType): AmountUnit =>
   type === "LEAVE_REQUEST" ? "hari" : "rupiah";
 
-const dayFormat = new Intl.NumberFormat("id-ID");
-
 export const formatApprovalAmount = (
   type: ApprovalDocumentType,
   value: string | number,
 ): string =>
   amountUnitOf(type) === "hari"
-    ? `${dayFormat.format(Number(value))} hari`
+    ? formatDays(value)
     : formatRupiah(Number(value));
 
 export const APPROVAL_DOCUMENT_MENU: Partial<

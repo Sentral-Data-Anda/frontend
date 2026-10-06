@@ -71,6 +71,26 @@ export const formatRupiah = (
 
 export const formatNumber = (value: number) => rupiahFormat.format(value);
 
+/**
+ * API mengembalikan setiap `Decimal` sebagai STRING: gaji pokok, setiap angka
+ * slip, jumlah hari cuti (`Decimal(4,1)`). Satu pembulatan untuk semuanya,
+ * bukan satu per layar. Pola `formatRupiah(Number(x))` yang terulang ~45 kali
+ * di repo ini adalah bentuk yang digantikannya.
+ */
+export const formatAmount = (
+  value: string | number | null | undefined,
+  empty = "\u2014",
+) =>
+  value === null || value === undefined || value === ""
+    ? empty
+    : formatRupiah(Number(value));
+
+const dayFormat = new Intl.NumberFormat("id-ID");
+
+/** `"12.5"` \u2192 `"12,5 hari"`. Hari cuti juga `Decimal`-sebagai-string. */
+export const formatDays = (value: string | number) =>
+  `${dayFormat.format(Number(value))} hari`;
+
 const fractionDigitsOf = (currencyCode: string) =>
   new Intl.NumberFormat("id-ID", {
     style: "currency",
