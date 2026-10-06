@@ -15,6 +15,7 @@ import { inventarisMock } from "./inventaris";
 import { jadwalPelayanMock } from "./jadwal-pelayan";
 import { jadwalSayaMock } from "./jadwal-saya";
 import { jurnalMock } from "./jurnal";
+import { karyawanMock } from "./karyawan";
 import { kasKeluarMock } from "./kas-keluar";
 import { kasMasukMock } from "./kas-masuk";
 import { kegiatanMock } from "./kegiatan";
@@ -83,6 +84,7 @@ export const MOCK_HANDLERS: MockHandler[] = [
   permintaanPersetujuanMock,
   setelanPersetujuanMock,
   tipeCutiMock,
+  karyawanMock,
   tipeIbadahMock,
   ibadahMock,
   pelayananDdlMock,
