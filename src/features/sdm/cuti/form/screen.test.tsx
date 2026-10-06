@@ -68,7 +68,7 @@ const DETAIL: Cuti = {
   approval: null,
 };
 
-type Failure = { status: number; error: string };
+type Failure = { status: number; error: string; code?: string };
 
 type Options = {
   detail?: Cuti;
@@ -88,6 +88,7 @@ const QUOTA_SPENT = {
 
 const onMockApi = (options: Options = {}) => {
   const calls: { method: string; url: string; body?: unknown }[] = [];
+  const quotaUrls: string[] = [];
 
   globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = String(input);
@@ -113,6 +114,7 @@ const onMockApi = (options: Options = {}) => {
     }
 
     if (url.includes("/cuti/sisa-jatah")) {
+      quotaUrls.push(url);
       return Response.json({
         status: 200,
         message: "ok",
@@ -148,7 +150,7 @@ const onMockApi = (options: Options = {}) => {
     );
   }) as typeof fetch;
 
-  return calls;
+  return { calls, quotaUrls };
 };
 
 const onRenderForm = (
@@ -243,7 +245,10 @@ describe("gerbang izin rute form", () => {
 });
 
 describe("baris yang tidak lagi bisa diubah", () => {
-  test("baris yang sudah diproses merender keadaan terkunci, bukan form", async () => {
+  // Hari ini `approval` belum ada di jalur baca, jadi kunci ini HANYA menyala
+  // untuk baris non-PENDING — dan menyuruh petugas "tarik pengajuannya" di
+  // situ mengirimnya ke layar yang salah, 100% kasus.
+  test("baris yang sudah diproses: kalimatnya 'sudah diproses', bukan 'tarik'", async () => {
     onMockApi({ detail: { ...DETAIL, status: "APPROVED" } });
     onRenderForm({ [MENU.CUTI]: ["VIEW", "UPDATE"] }, "CTI-0006");
 
@@ -252,6 +257,8 @@ describe("baris yang tidak lagi bisa diubah", () => {
         screen.getByText("Pengajuan ini tidak bisa diubah lagi"),
       ).toBeTruthy(),
     );
+    expect(screen.getByText(/sudah diproses/)).toBeTruthy();
+    expect(screen.queryByText(/Tarik pengajuannya/)).toBeNull();
     expect(screen.queryByLabelText("Tanggal mulai")).toBeNull();
   });
 
@@ -275,6 +282,8 @@ describe("baris yang tidak lagi bisa diubah", () => {
         screen.getByText("Pengajuan ini tidak bisa diubah lagi"),
       ).toBeTruthy(),
     );
+    expect(screen.getByText(/Tarik pengajuannya dulu/)).toBeTruthy();
+    expect(screen.queryByText(/sudah diproses/)).toBeNull();
   });
 });
 
@@ -301,7 +310,38 @@ describe("ringkasan: hitungan hari dan sisa jatah", () => {
 
     const note = screen.getByText(/Libur mingguan karyawan/);
     expect(note.textContent).toMatch(/dikurangi oleh server saat disimpan/);
-    expect(note.textContent).toMatch(/belum punya kontrak berlaku/);
+  });
+
+  // `findWeeklyDayOff` mengembalikan larik kosong untuk DUA keadaan, dan
+  // keduanya dibebankan penuh. Menyebut satu saja memberi tahu petugas bahwa
+  // pembebanan penuh tidak berlaku bagi karyawan yang PUNYA kontrak.
+  test("catatan menyebut KEDUA keadaan yang dibebankan penuh", async () => {
+    onMockApi();
+    await onRenderLoadedEdit();
+
+    const note = screen.getByText(/Libur mingguan karyawan/).textContent ?? "";
+
+    expect(note).toMatch(/belum punya kontrak berlaku/);
+    expect(note).toMatch(/kontraknya belum diisi libur mingguan/);
+  });
+
+  test("sisa jatah ditanyakan untuk tahun MULAI, bukan tahun berjalan", async () => {
+    const { quotaUrls } = onMockApi({
+      detail: {
+        ...DETAIL,
+        startDate: "2027-01-04T00:00:00.000Z",
+        endDate: "2027-01-08T00:00:00.000Z",
+      },
+    });
+    onRenderForm({ [MENU.CUTI]: ["VIEW", "UPDATE"] }, "CTI-0006");
+
+    await waitFor(() => expect(quotaUrls.length).toBeGreaterThan(0));
+
+    const query = new URL(quotaUrls.at(-1) ?? "", "http://localhost")
+      .searchParams;
+    expect(query.get("year")).toBe("2027");
+    expect(query.get("karyawanId")).toBe("2");
+    expect(query.get("leaveTypeId")).toBe("1");
   });
 
   test("sisa jatah yang terlampaui dirender 0 hari, tidak pernah minus", async () => {
@@ -348,7 +388,7 @@ describe("ringkasan: hitungan hari dan sisa jatah", () => {
 
 describe("rentang yang seluruhnya libur", () => {
   test("ditolak sebelum kirim, dengan pesannya", async () => {
-    const calls = onMockApi({
+    const { calls } = onMockApi({
       holidays: [
         { date: "2026-05-12", name: "Libur A", type: "NASIONAL" },
         { date: "2026-05-13", name: "Libur B", type: "NASIONAL" },
@@ -375,7 +415,7 @@ describe("rentang yang seluruhnya libur", () => {
   });
 
   test("rentang yang masih memuat hari kerja tetap terkirim", async () => {
-    const calls = onMockApi({
+    const { calls } = onMockApi({
       holidays: [{ date: "2026-05-12", name: "Libur A", type: "NASIONAL" }],
     });
     await onRenderLoadedEdit();
@@ -391,7 +431,7 @@ describe("rentang yang seluruhnya libur", () => {
 
 describe("simpan", () => {
   test("payload tidak pernah memuat totalDays", async () => {
-    const calls = onMockApi();
+    const { calls } = onMockApi();
     await onRenderLoadedEdit();
 
     await onSaveConfirmed();
@@ -423,6 +463,29 @@ describe("simpan", () => {
       ).toBe("CTI-0006"),
     );
     expect(replaced.at(-1)).toBe(CUTI_LIST_PATH);
+  });
+
+  test("LEAVE_ZERO_DAYS dicabangkan lewat KODE, bukan lewat prosanya", async () => {
+    onMockApi({
+      save: {
+        status: 400,
+        code: "LEAVE_ZERO_DAYS",
+        // Prosa sengaja disunting: kalau cabangnya lewat teks, ini lolos.
+        error: "Tidak ada hari kerja di rentang yang Anda pilih",
+      },
+    });
+    await onRenderLoadedEdit();
+
+    await onSaveConfirmed();
+
+    await waitFor(() =>
+      expect(
+        screen.getByText("Tidak ada hari kerja di rentang yang Anda pilih"),
+      ).toBeTruthy(),
+    );
+    expect(
+      screen.getByLabelText("Tanggal mulai").getAttribute("aria-invalid"),
+    ).toBe("true");
   });
 
   test("409 tumpang-tindih mendarat di Tanggal mulai, bukan di Karyawan", async () => {

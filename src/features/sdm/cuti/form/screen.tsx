@@ -30,9 +30,11 @@ import {
   ALL_HOLIDAY_MESSAGE,
   CUTI_LIST_PATH,
   EMPTY_CUTI_FORM,
+  LOCKED_TITLE,
   cutiFormSchema,
   isAllHoliday,
   isEditable,
+  lockedDescriptionOf,
   serverFieldError,
   toCutiForm,
   toCutiPayload,
@@ -43,11 +45,6 @@ import { RequestSection } from "./request-section";
 import { SummarySection } from "./summary-section";
 
 const BACK_LABEL = "Kembali ke Cuti";
-
-const LOCKED_TITLE = "Pengajuan ini tidak bisa diubah lagi";
-
-const LOCKED_DESCRIPTION =
-  "Hanya pengajuan yang masih menunggu dan belum dikirim untuk ditandatangani yang bisa diubah. Tarik pengajuannya dulu lewat Permintaan Persetujuan.";
 
 interface PropTypes {
   code?: string;
@@ -101,8 +98,11 @@ export const CutiFormScreen = (props: PropTypes) => {
     form.clearErrors("root");
     setRejectedField(null);
 
-    // Satu-satunya bagian LEAVE_ZERO_DAYS yang layar ini bisa buktikan sendiri:
-    // libur mingguan karyawan hidup di kontrak yang menu ini tidak boleh baca.
+    // Langit-langit pra-cek ini, tertulis supaya hijaunya tidak terbaca
+    // sebagai cakupan penuh: ia hanya melihat HARI LIBUR. Penolakan server
+    // juga mencakup libur mingguan karyawan, yang hidup di kontrak dan tidak
+    // bisa dibaca dari menu ini — rentang yang nol hari HANYA karena libur
+    // mingguan lolos ke server dan kembali sebagai `LEAVE_ZERO_DAYS`.
     if (isAllHoliday(values.startDate, values.endDate, holidays)) {
       form.setError("startDate", { message: ALL_HOLIDAY_MESSAGE });
       setRejectedField("startDate");
@@ -116,6 +116,17 @@ export const CutiFormScreen = (props: PropTypes) => {
       saveListFocus(CUTI_LIST_PATH, saved.data.code);
       router.replace(listReturn);
     } catch (error) {
+      // Kode lebih dulu, prosa sebagai cadangan: satu penyuntingan copy di
+      // server mencabut pemetaan berbasis prosa tanpa satu pun gerbang
+      // menyala. `applyServerError` hanya meneruskan pesan, jadi kodenya
+      // dibaca di sini. Langit-langit: hanya `LEAVE_ZERO_DAYS` yang punya
+      // kode SDM di jalur ini — penolakan lain masih dipetakan lewat prosa.
+      if (error instanceof FetchError && error.code === "LEAVE_ZERO_DAYS") {
+        form.setError("startDate", { message: error.message });
+        setRejectedField("startDate");
+        return;
+      }
+
       setRejectedField(
         applyServerError(error, form.setError, serverFieldError),
       );
@@ -166,11 +177,11 @@ export const CutiFormScreen = (props: PropTypes) => {
     );
   }
 
-  if (isLocked) {
+  if (isLocked && detail.data) {
     return (
       <NoFormAccess
         title={LOCKED_TITLE}
-        description={LOCKED_DESCRIPTION}
+        description={lockedDescriptionOf(detail.data)}
         backHref={listReturn}
         backLabel={BACK_LABEL}
       />

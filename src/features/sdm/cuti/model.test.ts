@@ -1,7 +1,9 @@
 import { describe, expect, test } from "bun:test";
 
+import { cutiKeys } from "./api";
 import {
   calendarDaysOf,
+  chargedYearOf,
   cutiFormSchema,
   isAllHoliday,
   isCancellable,
@@ -403,5 +405,37 @@ describe("pesan server ke field", () => {
     expect(
       serverFieldError("Alasan tidak boleh lebih dari 250 karakter")?.field,
     ).toBe("reason");
+  });
+});
+
+describe("kunci cache jatah", () => {
+  // Tahun ikut di kunci, bukan hanya di query string: tanpa ia dua tahun
+  // berbagi satu entri cache dan layar menampilkan jawaban tahun yang salah
+  // walau permintaannya benar. Tidak bisa dibuktikan lewat render — tiap test
+  // memakai QueryClient sendiri — jadi pendaftarannya dinyatakan langsung.
+  test("tahun yang berbeda tidak pernah berbagi satu entri", () => {
+    expect(cutiKeys.quota("1", "2", "2026")).not.toEqual(
+      cutiKeys.quota("1", "2", "2027"),
+    );
+    expect(cutiKeys.quota("1", "2", "2026")).toEqual(
+      cutiKeys.quota("1", "2", "2026"),
+    );
+  });
+
+  test("tahun yang sama dengan karyawan berbeda juga terpisah", () => {
+    expect(cutiKeys.quota("1", "2", "2026")).not.toEqual(
+      cutiKeys.quota("3", "2", "2026"),
+    );
+  });
+});
+
+describe("tahun pembebanan", () => {
+  test("diambil dari tanggal MULAI, termasuk yang melintasi tahun baru", () => {
+    expect(chargedYearOf("2026-12-28T00:00:00.000Z")).toBe("2026");
+    expect(chargedYearOf("2027-01-04")).toBe("2027");
+  });
+
+  test("tanggal kosong jatuh ke tahun berjalan, bukan ke string kosong", () => {
+    expect(chargedYearOf("")).toMatch(/^\d{4}$/);
   });
 });

@@ -117,10 +117,15 @@ export function cutiTable(): DataTableConfig<Cuti> {
         ),
       },
       {
+        // Lantai `rem`, bukan hanya `fr`: "Sedang ditandatangani" (21 karakter)
+        // adalah teks status terpanjang di aplikasi, dan chip-nya
+        // `shrink-0 whitespace-nowrap` di atas `overflow-visible` — ia tidak
+        // bisa menyusut dan tidak bisa dipotong, jadi kolom `fr` murni
+        // membuatnya meluber ke chevron baris di 768–1344.
         key: "status",
         header: "Status",
-        width: "minmax(0,1.2fr)",
-        narrowWidth: "minmax(0,1.2fr)",
+        width: "minmax(10rem,1.2fr)",
+        narrowWidth: "minmax(10rem,1.2fr)",
         cell: (row) => <CutiStatusBadge cuti={row} />,
       },
     ],

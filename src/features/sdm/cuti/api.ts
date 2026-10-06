@@ -15,8 +15,8 @@ export const cutiKeys = {
   all: ["cuti"] as const,
   lists: () => [...cutiKeys.all, "list"] as const,
   detail: (code: string) => [...cutiKeys.all, "detail", code] as const,
-  quota: (karyawanId: string, leaveTypeId: string) =>
-    [...cutiKeys.all, "quota", karyawanId, leaveTypeId] as const,
+  quota: (karyawanId: string, leaveTypeId: string, year: string) =>
+    [...cutiKeys.all, "quota", karyawanId, leaveTypeId, year] as const,
   holidays: (from: string, to: string) =>
     ["hari-libur", "kalender", from, to] as const,
 };
@@ -43,15 +43,25 @@ export function useCutiDetail(code: string | undefined) {
  * Sisa jatah datang dari `sumDaysInYear` yang sama dengan jalur tulis, sudah
  * di-floor di 0 oleh `remainingDays` be-sada. Layar tidak menghitung ulang:
  * angka yang berbeda dari penegakannya lebih buruk daripada tanpa angka.
+ *
+ * `year` SELALU dikirim, dan selalu tahun MULAI permintaannya. Tanpa ia
+ * be-sada jatuh ke tahun berjalan, sementara setiap permintaan dibebankan ke
+ * tahun mulainya — jadi cuti Januari yang disusun bulan Desember akan
+ * menampilkan sisa tahun ini lalu ditolak atas sisa tahun depan. Ia juga masuk
+ * `queryKey`: tanpa itu dua tahun berbagi satu entri cache.
  */
-export function useRemainingQuota(karyawanId: string, leaveTypeId: string) {
+export function useRemainingQuota(
+  karyawanId: string,
+  leaveTypeId: string,
+  year: string,
+) {
   return useQuery({
-    queryKey: cutiKeys.quota(karyawanId, leaveTypeId),
+    queryKey: cutiKeys.quota(karyawanId, leaveTypeId, year),
     queryFn: () =>
       fetchOne<RemainingQuota>(
-        `/cuti/sisa-jatah?karyawanId=${encodeURIComponent(karyawanId)}&leaveTypeId=${encodeURIComponent(leaveTypeId)}`,
+        `/cuti/sisa-jatah?karyawanId=${encodeURIComponent(karyawanId)}&leaveTypeId=${encodeURIComponent(leaveTypeId)}&year=${encodeURIComponent(year)}`,
       ),
-    enabled: Boolean(karyawanId && leaveTypeId),
+    enabled: Boolean(karyawanId && leaveTypeId && year),
     staleTime: 0,
     select: (response) => response.data,
   });

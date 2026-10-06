@@ -20,6 +20,7 @@ import { MENU } from "../../../src/config/menu";
 import { addDays, todayJakarta } from "../../../src/lib/date";
 import { denied, json, list, readBody, type MockHandler } from "../kit";
 
+import { hariLiburMock } from "./hari-libur";
 import { KARYAWAN } from "./komponen-payroll";
 import { LEAVE_TYPE, isLiveLeaveType } from "./tipe-cuti";
 
@@ -184,7 +185,7 @@ const SEED: readonly LeaveRow[] = [
     1,
     1,
     `${YEAR}-02-10`,
-    `${YEAR}-02-19`,
+    `${YEAR}-02-17`,
     "8",
     "Pulang kampung menengok orang tua yang baru keluar dari rumah sakit.",
     "APPROVED",
@@ -195,7 +196,7 @@ const SEED: readonly LeaveRow[] = [
     1,
     1,
     `${YEAR}-06-15`,
-    `${YEAR}-06-22`,
+    `${YEAR}-06-20`,
     "6",
     "Mendampingi anak masuk sekolah di luar kota.",
     "APPROVED",
@@ -488,11 +489,38 @@ const parse = (body: Body) => {
 
 type Parsed = Exclude<ReturnType<typeof parse>, { failure: Response }>;
 
-const dayCount = (startDate: string, endDate: string) => {
-  let days = 1;
-  for (let at = startDate; at < endDate; at = addDays(at, 1)) days += 1;
+/**
+ * Hari libur dalam rentang, dari kalender yang `hari-libur.ts` layani —
+ * handler-nya dipanggil, bukan rows-nya disalin. Dua sebab: ekspansi
+ * `isRecurring` tetap satu tempat (pedoman dan be-sada sama-sama menuntutnya),
+ * dan angka yang mock SIMPAN tidak bisa berbeda dari angka yang ringkasan form
+ * BACA, karena keduanya sumbernya satu endpoint.
+ *
+ * Langit-langit: mock tidak punya store kontrak, jadi libur MINGGUAN tidak
+ * dikurangi di sini. Arahnya aman (mock mengenakan lebih banyak, tidak pernah
+ * mengembalikan jatah), dan ia sengaja sejajar dengan apa yang layar bisa
+ * lihat — bukan dengan seluruh aturan be-sada.
+ */
+const holidaysBetween = async (from: string, to: string) => {
+  const url = new URL(
+    `http://mock/api/v1/hari-libur/kalender?from=${from}&to=${to}`,
+  );
 
-  return days;
+  const response = await hariLiburMock({
+    request: new Request(url),
+    url,
+    path: "/hari-libur/kalender",
+    method: "GET",
+    can: () => true,
+    isAdmin: false,
+    sessionCode: "JMT-0001",
+  });
+
+  if (!response || response.status !== 200) return new Set<string>();
+
+  const body = (await response.json()) as { data: { date: string }[] };
+
+  return new Set(body.data.map((item) => item.date));
 };
 
 const isOverlapping = (parsed: Parsed, exceptId?: number) =>
@@ -506,7 +534,7 @@ const isOverlapping = (parsed: Parsed, exceptId?: number) =>
       parsed.startDate <= item.endDate,
   );
 
-const assertSavable = (parsed: Parsed, exceptId?: number) => {
+const assertSavable = async (parsed: Parsed, exceptId?: number) => {
   const karyawan = karyawanOf(parsed.karyawanId);
   if (!karyawan) {
     return json({ status: 404, error: "Karyawan Tidak Ditemukan" }, 404);
@@ -525,8 +553,13 @@ const assertSavable = (parsed: Parsed, exceptId?: number) => {
     return json({ status: 409, error: OVERLAP }, 409);
   }
 
-  const totalDays =
-    dayCount(parsed.startDate, parsed.endDate) - (parsed.halfDay ? 0.5 : 0);
+  const holidays = await holidaysBetween(parsed.startDate, parsed.endDate);
+  let working = 0;
+  for (let at = parsed.startDate; at <= parsed.endDate; at = addDays(at, 1)) {
+    if (!holidays.has(at)) working += 1;
+  }
+
+  const totalDays = working - (parsed.halfDay ? 0.5 : 0);
 
   if (totalDays <= 0) {
     return json(
@@ -673,7 +706,7 @@ export const cutiMock: MockHandler = async ({
     const parsed = parse(await readBody<Body>(request));
     if (parsed.failure) return parsed.failure;
 
-    const checked = assertSavable(parsed);
+    const checked = await assertSavable(parsed);
     if (checked instanceof Response) return checked;
 
     const id = nextId();
@@ -721,7 +754,7 @@ export const cutiMock: MockHandler = async ({
     const parsed = parse(await readBody<Body>(request));
     if (parsed.failure) return parsed.failure;
 
-    const checked = assertSavable(parsed, found.id);
+    const checked = await assertSavable(parsed, found.id);
     if (checked instanceof Response) return checked;
 
     found.karyawanId = parsed.karyawanId;

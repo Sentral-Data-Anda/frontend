@@ -7,7 +7,12 @@ import {
 } from "@/components/common/display";
 
 import { useRemainingQuota } from "../api";
-import { QUOTA_PENDING_NOTE, quotaSpentTextOf, quotaTextOf } from "../model";
+import {
+  QUOTA_PENDING_NOTE,
+  chargedYearOf,
+  quotaSpentTextOf,
+  quotaTextOf,
+} from "../model";
 import type { Cuti } from "../types";
 
 interface PropTypes {
@@ -17,9 +22,12 @@ interface PropTypes {
 export const QuotaPanel = (props: PropTypes) => {
   const { cuti } = props;
 
+  // Tahun MULAI permintaan ini, bukan tahun berjalan: detail cuti 2027 yang
+  // dibuka tahun ini harus melaporkan jatah 2027, dan harinya sendiri ikut.
   const quota = useRemainingQuota(
     String(cuti.karyawanId),
     String(cuti.leaveTypeId),
+    chargedYearOf(cuti.startDate),
   );
 
   return (

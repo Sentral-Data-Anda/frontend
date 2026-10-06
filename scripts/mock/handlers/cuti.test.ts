@@ -10,6 +10,7 @@ import {
   leaveRequestSeed,
   resetLeaveRequests,
 } from "./cuti";
+import { hariLiburMock } from "./hari-libur";
 import { resetLeaveTypes } from "./tipe-cuti";
 
 // Pedoman §7.2: dua larik, dua reset milik modul penyemainya. Berkas ini tidak
@@ -283,6 +284,102 @@ describe("sisa jatah tidak pernah negatif", () => {
     expect(String(result?.body.error)).toContain("Sisa Jatah Cuti Tidak Cukup");
     expect(String(result?.body.error)).toContain("Sisa 0 Hari");
     expect(String(result?.body.error)).not.toContain("-3");
+  });
+});
+
+// Aturan §2 fase ini: hari cuti = hari dalam rentang − hari libur. Mock dan
+// ringkasan form membaca kalender yang SAMA (`/hari-libur/kalender`), jadi
+// angka yang disimpan dan angka yang dipratinjau tidak bisa berbeda.
+describe("hari libur memotong hari cuti", () => {
+  const RECURRING = {
+    karyawanId: 3,
+    leaveTypeId: 2,
+    startDate: "2027-09-25",
+    endDate: "2027-09-29",
+    halfDay: false,
+    reason: "Rangkaian HUT gereja",
+  };
+
+  test("hari libur BERULANG di tahun lain ikut terpotong", async () => {
+    const result = await onCall("POST", "/cuti", { body: RECURRING });
+
+    expect(result?.status).toBe(201);
+    expect((result?.body.data as { totalDays: string }).totalDays).toBe("4");
+  });
+
+  test("paritas: yang disimpan sama dengan yang kalender laporkan", async () => {
+    const saved = Number(
+      (
+        (await onCall("POST", "/cuti", { body: RECURRING }))?.body.data as {
+          totalDays: string;
+        }
+      ).totalDays,
+    );
+
+    // Hitungan ringkasan form, dari endpoint yang sama, tanpa menyalin
+    // logikanya: hari kalender dikurangi baris kalender di dalam rentang.
+    const calendar = await hariLiburMock({
+      request: new Request("http://mock/api/v1/hari-libur/kalender"),
+      url: new URL(
+        `http://mock/api/v1/hari-libur/kalender?from=${RECURRING.startDate}&to=${RECURRING.endDate}`,
+      ),
+      path: "/hari-libur/kalender",
+      method: "GET",
+      can: () => true,
+      isAdmin: false,
+      sessionCode: "JMT-0001",
+    });
+    const holidays = ((await calendar!.json()) as { data: unknown[] }).data;
+
+    expect(holidays.length).toBe(1);
+    expect(saved).toBe(5 - holidays.length);
+  });
+
+  test("rentang yang SELURUHNYA libur ditolak dengan LEAVE_ZERO_DAYS", async () => {
+    const result = await onCall("POST", "/cuti", {
+      body: {
+        ...RECURRING,
+        startDate: "2027-09-27",
+        endDate: "2027-09-27",
+      },
+    });
+
+    expect(result?.status).toBe(400);
+    expect(result?.body.code).toBe("LEAVE_ZERO_DAYS");
+    expect(String(result?.body.error)).toContain(
+      "Tidak Memuat Satu Hari Kerja",
+    );
+  });
+
+  test("setengah hari tepat di hari libur ditolak, bukan disimpan −0,5", async () => {
+    const result = await onCall("POST", "/cuti", {
+      body: {
+        ...RECURRING,
+        startDate: "2027-09-27",
+        endDate: "2027-09-27",
+        halfDay: true,
+      },
+    });
+
+    expect(result?.status).toBe(400);
+    expect(result?.body.code).toBe("LEAVE_ZERO_DAYS");
+    expect(LEAVE_REQUEST.some((row) => Number(row.totalDays) <= 0)).toBe(false);
+  });
+
+  test("ubah memakai aturan yang sama dengan tambah", async () => {
+    const result = await onCall("PUT", "/cuti/CTI-0006", {
+      body: {
+        karyawanId: 2,
+        leaveTypeId: 2,
+        startDate: "2027-09-25",
+        endDate: "2027-09-29",
+        halfDay: false,
+        reason: "Rangkaian HUT gereja",
+      },
+    });
+
+    expect(result?.status).toBe(200);
+    expect((result?.body.data as { totalDays: string }).totalDays).toBe("4");
   });
 });
 

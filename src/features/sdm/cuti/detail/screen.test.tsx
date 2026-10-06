@@ -96,12 +96,14 @@ const onMockApi = (
   options: { detail?: Cuti; quota?: Record<string, unknown> } = {},
 ) => {
   const calls: { method: string; url: string }[] = [];
+  const quotaUrls: string[] = [];
 
   globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = String(input);
     const method = init?.method ?? "GET";
 
     if (url.includes("/cuti/sisa-jatah")) {
+      quotaUrls.push(url);
       return Response.json({
         status: 200,
         message: "ok",
@@ -121,7 +123,7 @@ const onMockApi = (
     });
   }) as typeof fetch;
 
-  return calls;
+  return Object.assign(calls, { quotaUrls });
 };
 
 const onRender = (
@@ -245,6 +247,25 @@ describe("sisa jatah tidak pernah negatif DI LAYAR", () => {
     expect(html).not.toContain("-2 hari");
     expect(html).not.toContain("−2 hari");
     expect(html).not.toMatch(/[-−]\d+(,\d+)? hari/);
+  });
+
+  test("jatah ditanyakan untuk tahun MULAI permintaan, bukan tahun berjalan", async () => {
+    const calls = onMockApi({
+      detail: {
+        ...DETAIL,
+        startDate: "2027-01-04T00:00:00.000Z",
+        endDate: "2027-01-08T00:00:00.000Z",
+      },
+    });
+    onRender({ [MENU.CUTI]: ["VIEW"] });
+
+    await waitFor(() => expect(calls.quotaUrls.length).toBeGreaterThan(0));
+
+    expect(
+      new URL(calls.quotaUrls[0] ?? "", "http://localhost").searchParams.get(
+        "year",
+      ),
+    ).toBe("2027");
   });
 
   test("tanpa batas tetap Tanpa batas", async () => {
@@ -420,7 +441,7 @@ describe("aksi", () => {
     expect(
       screen.getByText(/mengirim pengajuan cuti ini untuk ditandatangani/),
     ).toBeTruthy();
-    expect(calls).toEqual([]);
+    expect(calls.length).toBe(0);
 
     fireEvent.click(screen.getByRole("button", { name: "Ya" }));
 

@@ -217,6 +217,12 @@ describe("§0.3 no. 4 — alasan tidak pernah di daftar", () => {
   // Dua bentuk, bukan satu: `DataList` merender TABEL di >= 48rem dan BARIS
   // di bawahnya, dan baris HP punya `meta` sendiri yang tidak dilewati
   // konfigurasi kolom. Satu lebar saja menguji separuh layar.
+  //
+  // Langit-langitnya, tertulis supaya hijaunya tidak terbaca sebagai cakupan
+  // yang tidak ia punya: ia mencocokkan alasan PENUH, jadi alasan yang
+  // dipotong — `truncate`, `slice(0, 40)`, kutipan sebagian — lolos. Itu
+  // persis cara orang menambahkan alasan "dengan aman". Yang menutupnya
+  // adalah review, bukan test ini.
   test.each([
     ["tabel (>= 48rem)", true],
     ["baris HP (< 48rem)", false],

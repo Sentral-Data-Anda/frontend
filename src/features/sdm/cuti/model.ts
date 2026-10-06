@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import { MENU, menuHref } from "@/config/menu";
-import { addDays } from "@/lib/date";
+import { addDays, todayJakarta } from "@/lib/date";
 import { formatDate, formatDateShort, formatDays } from "@/lib/format";
 
 import type {
@@ -32,14 +32,19 @@ export const EMPTY_DESCRIPTION =
   "Pengajuan cuti dicatat di sini, lalu dikirim untuk ditandatangani. Tambahkan pengajuan pertama setelah tipe cuti dan jatahnya diisi.";
 
 /**
- * Dikatakan ke setiap petugas, bukan hanya ke karyawan yang kena: be-sada
- * membaca libur mingguan dari kontrak yang berlaku di tanggal mulai dan
- * memperlakukan "belum punya kontrak" sama dengan "tidak punya libur
- * mingguan". Cuti sengaja tidak menuntut kontrak seperti penggajian, jadi yang
- * benar adalah mengatakannya, bukan memblokir pengajuannya.
+ * Dikatakan ke setiap petugas, bukan hanya ke karyawan yang kena.
+ *
+ * `findWeeklyDayOff` be-sada mengembalikan larik kosong untuk DUA keadaan yang
+ * jalur cuti tidak bedakan: tidak ada kontrak yang berlaku, dan kontrak lama
+ * yang liburnya belum pernah diisi — migrasinya memang mengizinkan larik
+ * kosong. Menyebut hanya keadaan pertama memberi tahu petugas bahwa
+ * pembebanan penuh tidak berlaku bagi karyawan yang PUNYA kontrak, padahal
+ * server tetap membebankan penuh. Cuti sengaja tidak menuntut kontrak seperti
+ * penggajian, jadi yang benar adalah mengatakan keduanya, bukan memblokir
+ * pengajuannya.
  */
 export const WEEKLY_OFF_NOTE =
-  "Libur mingguan karyawan diambil dari kontrak yang berlaku di tanggal mulai, dan dikurangi oleh server saat disimpan. Karyawan yang belum punya kontrak berlaku dihitung penuh hari kalender.";
+  "Libur mingguan karyawan diambil dari kontrak yang berlaku di tanggal mulai, dan dikurangi oleh server saat disimpan. Kalau karyawan belum punya kontrak berlaku, atau kontraknya belum diisi libur mingguan, seluruh hari kalender dihitung.";
 
 export const QUOTA_PENDING_NOTE =
   "Terpakai sudah termasuk pengajuan yang masih menunggu. Pengajuan yang ditolak atau dibatalkan mengembalikan harinya.";
@@ -180,6 +185,14 @@ export const isUnderApproval = (row: Cuti) =>
   row.approval?.status === "PENDING";
 
 /**
+ * Tahun yang jatah permintaan ini dibebankan: tahun MULAI-nya, utuh, dan
+ * bukan tahun berjalan. Cuti 28 Des – 3 Jan membebankan ketujuh harinya ke
+ * tahun lama (`sumDaysInYear` be-sada).
+ */
+export const chargedYearOf = (startDate: string) =>
+  startDate.slice(0, 4) || todayJakarta().slice(0, 4);
+
+/**
  * Ubah, hapus, dan ajukan berbagi satu syarat di be-sada: masih PENDING dan
  * belum ada baris persetujuan terbuka. Satu predikat, bukan tiga nama.
  */
@@ -244,6 +257,20 @@ export const rejectedTextOf = (row: Cuti) => {
 
   return row.rejectedReason ?? REJECTED_WITHOUT_NOTE;
 };
+
+export const LOCKED_TITLE = "Pengajuan ini tidak bisa diubah lagi";
+
+/**
+ * Dua kalimat, karena dua penolakan. Satu kalimat "tarik pengajuannya dulu"
+ * untuk keduanya mengirim petugas ke layar yang salah pada baris yang hanya
+ * sudah diproses — cacat yang sama dengan urutan `assertEditable` be-sada
+ * (SC-B6), dan hari ini ia menyala di 100% kasus karena `approval` belum ada
+ * di jalur baca.
+ */
+export const lockedDescriptionOf = (row: Cuti) =>
+  isUnderApproval(row)
+    ? "Pengajuan ini sedang dikumpulkan tanda tangannya. Tarik pengajuannya dulu lewat Permintaan Persetujuan, baru bisa diubah."
+    : "Hanya pengajuan yang masih menunggu yang bisa diubah. Pengajuan ini sudah diproses.";
 
 export const REJECTED_TITLE = "Pengajuan cuti ini ditolak.";
 

@@ -12,6 +12,7 @@ import {
   QUOTA_PENDING_NOTE,
   WEEKLY_OFF_NOTE,
   calendarDaysOf,
+  chargedYearOf,
   holidayNamesOf,
   holidaysWithin,
   isAllHoliday,
@@ -37,7 +38,11 @@ export const SummarySection = (props: PropTypes) => {
   const startDate = useWatch({ control: form.control, name: "startDate" });
   const endDate = useWatch({ control: form.control, name: "endDate" });
   const length = useWatch({ control: form.control, name: "length" });
-  const quota = useRemainingQuota(karyawanId, leaveTypeId);
+  const quota = useRemainingQuota(
+    karyawanId,
+    leaveTypeId,
+    chargedYearOf(startDate),
+  );
   const calendarDays = calendarDaysOf(startDate, endDate);
   const holidayCount = holidaysWithin(holidays, startDate, endDate).length;
   const maxDays = maxWorkingDaysOf(
