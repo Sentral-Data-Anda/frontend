@@ -233,8 +233,10 @@ describe("daftar", () => {
 
   // `due` memerahkan teksnya dan berarti ditolak/gagal/jatuh tempo di seluruh
   // aplikasi. Diperiksa di tempat ia dirender, bukan hanya di tabel petanya.
+  // Prasyarat dinyatakan, bukan diandalkan: baris Alpa benih jatuh di
+  // TODAY-1, yang keluar dari filter bulan bawaan setiap tanggal 1.
   test("chip Alpa tidak memakai varian kegagalan uang", async () => {
-    onRenderList(["VIEW"]);
+    onRenderList(["VIEW"], "bulan=semua");
     await onLoaded();
 
     const alpa = screen.getAllByText("Alpa")[0];
