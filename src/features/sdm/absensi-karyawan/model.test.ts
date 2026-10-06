@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { addDays, startOfMonth, todayJakarta } from "@/lib/date";
+import { addMonths, addDays, startOfMonth, todayJakarta } from "@/lib/date";
 
 import {
   EMPTY_ABSENSI_FORM,
@@ -10,12 +10,19 @@ import {
   hoursTextOf,
   monthFilterOptions,
   serverFieldError,
+  subtitleOf,
   toAbsensiApiFilters,
   toAbsensiForm,
   toAbsensiPayload,
   type AbsensiFormValues,
 } from "./model";
-import { ATTENDANCE_STATUSES, type AbsensiKaryawan } from "./types";
+import {
+  ATTENDANCE_STATUS_LABEL,
+  ATTENDANCE_STATUS_VARIANT,
+  ATTENDANCE_STATUSES,
+  type AbsensiKaryawan,
+  type AttendanceStatus,
+} from "./types";
 
 const TODAY = todayJakarta();
 
@@ -231,6 +238,54 @@ describe("filter rentang tanggal", () => {
     expect(options.filter((it) => it.value === "2026-05")).toEqual([]);
     expect(options.filter((it) => it.value === MONTH_ALL)).toHaveLength(1);
   });
+
+  // Server menolak tanggal yang belum terjadi, jadi bulan depan adalah pilihan
+  // yang tidak akan pernah memuat satu baris pun.
+  test("nol bulan di masa depan, dan posisi ketiga adalah bulan lalu", () => {
+    const options = monthFilterOptions("2026-05-12");
+    const months = options
+      .map((it) => it.value)
+      .filter((it) => /^\d{4}-\d{2}$/.test(it));
+
+    expect(months.filter((it) => it >= "2026-05")).toEqual([]);
+    expect(options[2]).toMatchObject({ value: "2026-04" });
+  });
+
+  test("nol bulan di masa depan juga di batas tahun", () => {
+    const next = addMonths(startOfMonth(TODAY), 1).slice(0, 7);
+    const months = monthFilterOptions()
+      .map((it) => it.value)
+      .filter((it) => /^\d{4}-\d{2}$/.test(it));
+
+    expect(months.includes(next)).toBe(false);
+    expect(months.includes(startOfMonth(TODAY).slice(0, 7))).toBe(false);
+  });
+});
+
+// Filter bulan bawaan menyaring, tapi `useListParams` membaca nilai kosong
+// sebagai "tanpa filter" — jadi angkanya harus menyebut periodenya sendiri.
+describe("subjudul menyebut periodenya", () => {
+  test("bawaan menyebut bulan berjalan, bukan angka telanjang", () => {
+    expect(subtitleOf(12, {}, "2026-05-12")).toBe(
+      "12 catatan absensi · Mei 2026",
+    );
+  });
+
+  test("Semua bulan dikatakan apa adanya", () => {
+    expect(subtitleOf(14, { bulan: MONTH_ALL }, "2026-05-12")).toBe(
+      "14 catatan absensi · semua bulan",
+    );
+  });
+
+  test("bulan yang dipilih dinamai", () => {
+    expect(subtitleOf(3, { bulan: "2026-03" }, "2026-05-12")).toBe(
+      "3 catatan absensi · Maret 2026",
+    );
+  });
+
+  test("tanpa data belum ada subjudul", () => {
+    expect(subtitleOf(undefined, {})).toBeUndefined();
+  });
 });
 
 describe("pesan server ke field", () => {
@@ -285,5 +340,57 @@ describe("absensi tidak memengaruhi gaji, dan itu tertulis", () => {
   test("catatan menyebut Penggajian tidak membaca absensi", () => {
     expect(PAYROLL_NOTE).toMatch(/Penggajian tidak membaca absensi/);
     expect(PAYROLL_NOTE).toMatch(/tidak mengurangi gaji/);
+  });
+});
+
+/**
+ * Tabel warnanya sebelumnya bisa diacak seluruhnya tanpa satu test merah.
+ * Ini menyatakan apa yang dirender, bukan hanya memetakannya.
+ */
+describe("chip status", () => {
+  // Dilebarkan dengan sengaja: `as const satisfies` mempersempit tipenya
+  // sampai `"due"` jadi galat kompilasi — bagus, tapi assertion yang tidak
+  // bisa dikompilasi bukan assertion, dan tipenya bisa dilebarkan lagi.
+  const VARIANT: Record<AttendanceStatus, string> = ATTENDANCE_STATUS_VARIANT;
+
+  test("Hadir satu-satunya yang positif", () => {
+    expect(VARIANT.HADIR).toBe("success");
+    expect(
+      ATTENDANCE_STATUSES.filter((status) => VARIANT[status] === "success"),
+    ).toEqual(["HADIR"]);
+  });
+
+  test("Libur satu-satunya yang netral", () => {
+    expect(
+      ATTENDANCE_STATUSES.filter((status) => VARIANT[status] === "neutral"),
+    ).toEqual(["LIBUR"]);
+  });
+
+  test("tiga absen beralasan berbagi satu varian", () => {
+    expect(
+      ATTENDANCE_STATUSES.filter((status) => VARIANT[status] === "wait"),
+    ).toEqual(["IZIN", "SAKIT", "CUTI"]);
+  });
+
+  // `due` memerahkan teksnya, dan di seluruh aplikasi ia berarti ditolak,
+  // gagal, atau jatuh tempo. Absensi nol pengaruh uang (U-F).
+  test("nol status memakai kosakata kegagalan uang", () => {
+    expect(
+      ATTENDANCE_STATUSES.filter((status) => VARIANT[status] === "due"),
+    ).toEqual([]);
+  });
+
+  test("Alpa menonjol tanpa merah", () => {
+    expect(VARIANT.ALPA).toBe("draft");
+    expect(
+      ATTENDANCE_STATUSES.filter((status) => VARIANT[status] === "draft"),
+    ).toEqual(["ALPA"]);
+  });
+
+  test("keenam status punya label Indonesia, bukan nama enum", () => {
+    for (const status of ATTENDANCE_STATUSES) {
+      expect(ATTENDANCE_STATUS_LABEL[status]).not.toBe(status);
+      expect(ATTENDANCE_STATUS_LABEL[status].length).toBeGreaterThan(0);
+    }
   });
 });

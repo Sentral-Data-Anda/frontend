@@ -184,12 +184,64 @@ describe("gerbang tambah dan ubah", () => {
 });
 
 describe("daftar", () => {
-  test("subjudul menghitung catatan absensi", async () => {
+  test("subjudul menyebut periodenya, bukan angka telanjang", async () => {
     onRenderList(["VIEW"]);
 
+    // Bawaan menyaring ke bulan berjalan, jadi angkanya BUKAN total tabel.
     await waitFor(() =>
-      expect(screen.getByText(/\d+ catatan absensi/)).toBeTruthy(),
+      expect(screen.getByText(/\d+ catatan absensi · \w+ \d{4}/)).toBeTruthy(),
     );
+  });
+
+  test("Semua bulan dikatakan di subjudul", async () => {
+    onRenderList(["VIEW"], "bulan=semua");
+
+    await waitFor(() =>
+      expect(
+        screen.getByText(/\d+ catatan absensi · semua bulan/),
+      ).toBeTruthy(),
+    );
+  });
+
+  // U-F. Penjaga sebelumnya memaksa `bulan=semua` supaya cabangnya tercapai —
+  // yaitu menguji penjaga pada instance yang bukan instance nyatanya (§7.1).
+  // Keadaan di bawah ini adalah yang dibuka orang tanpa menyentuh apa pun.
+  test("keadaan BAWAAN memuat kalimat bahwa absensi tidak memengaruhi gaji", async () => {
+    onRenderList(["VIEW"]);
+    await onLoaded();
+
+    const note = screen.getByText(/Penggajian tidak membaca absensi/);
+    expect(note.textContent).toMatch(/bukan masukan perhitungan/);
+    expect(note.textContent).toMatch(/tidak mengurangi gaji/);
+  });
+
+  test("kalimat itu tetap ada saat daftarnya kosong", async () => {
+    onRenderList(["VIEW"], "bulan=2026-01");
+
+    await waitFor(() =>
+      expect(screen.getByText(/Penggajian tidak membaca absensi/)).toBeTruthy(),
+    );
+  });
+
+  test("nol janji potongan di daftar", async () => {
+    onRenderList(["VIEW"]);
+    await onLoaded();
+
+    expect(screen.queryByText(/memotong gaji/)).toBeNull();
+    expect(screen.queryByText(/dipotong dari gaji/)).toBeNull();
+  });
+
+  // `due` memerahkan teksnya dan berarti ditolak/gagal/jatuh tempo di seluruh
+  // aplikasi. Diperiksa di tempat ia dirender, bukan hanya di tabel petanya.
+  test("chip Alpa tidak memakai varian kegagalan uang", async () => {
+    onRenderList(["VIEW"]);
+    await onLoaded();
+
+    const alpa = screen.getAllByText("Alpa")[0];
+    const hadir = screen.getAllByText("Hadir")[0];
+
+    expect(alpa.className).not.toMatch(/text-destructive|failed-700/);
+    expect(alpa.className).not.toBe(hadir.className);
   });
 
   test("tanpa kotak cari: be-sada belum menerima ?filter", async () => {
@@ -265,14 +317,15 @@ describe("daftar", () => {
     expect(screen.queryByText(/Pilih Semua bulan/)).toBeNull();
   });
 
-  test("kosong tanpa batas apa pun: kalimat hari pertama menyebut Penggajian", async () => {
+  test("kosong tanpa batas apa pun: deskripsi hari pertama, bukan saran filter", async () => {
     process.env.MOCK_EMPTY = "1";
     onRenderList(["VIEW"], "bulan=semua");
 
     await waitFor(() =>
-      expect(screen.getByText(/Penggajian tidak membaca absensi/)).toBeTruthy(),
+      expect(screen.getByText(/Satu baris per karyawan per hari/)).toBeTruthy(),
     );
     expect(screen.queryByText(/Pilih Semua bulan/)).toBeNull();
+    expect(screen.queryByText(/cocok dengan filter/)).toBeNull();
     delete process.env.MOCK_EMPTY;
   });
 

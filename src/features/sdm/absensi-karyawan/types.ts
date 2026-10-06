@@ -39,14 +39,22 @@ export const ATTENDANCE_STATUS_LABEL: Record<AttendanceStatus, string> = {
   LIBUR: "Libur",
 };
 
-// Empat tingkat, bukan enam warna: hadir, absen yang sudah diurus, absen yang
-// tidak, dan hari yang memang tidak bekerja.
+/**
+ * Empat tingkat: hadir, absen yang sudah diurus, absen yang tidak, dan hari
+ * yang memang tidak bekerja.
+ *
+ * `ALPA` sengaja BUKAN `due`. `due` satu-satunya varian yang memerahkan
+ * teksnya, dan di seluruh aplikasi ia dipakai untuk ditolak, gagal, dan
+ * tagihan jatuh tempo — kosakata kegagalan uang. Di layar yang nol pengaruh
+ * uang (U-F) merah menjanjikan konsekuensi yang sistemnya tidak sediakan,
+ * yaitu kebohongan yang sama yang `note` bagian ini ada untuk melawan.
+ */
 export const ATTENDANCE_STATUS_VARIANT = {
   HADIR: "success",
   IZIN: "wait",
-  SAKIT: "draft",
+  SAKIT: "wait",
   CUTI: "wait",
-  ALPA: "due",
+  ALPA: "draft",
   LIBUR: "neutral",
 } as const satisfies Record<AttendanceStatus, string>;
 

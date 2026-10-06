@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import { MENU, menuHref } from "@/config/menu";
 import {
+  monthLabel,
   monthOptions,
   monthRange,
   startOfMonth,
@@ -30,7 +31,10 @@ export const TITLE = "Absensi Karyawan";
 export const PAYROLL_NOTE =
   "Catatan kehadiran, bukan masukan perhitungan. Penggajian tidak membaca absensi, jadi Alpa tidak mengurangi gaji secara otomatis.";
 
-export const EMPTY_DESCRIPTION = `Satu baris per karyawan per hari: hadir atau tidak, dan antara jam berapa. ${PAYROLL_NOTE}`;
+// `PAYROLL_NOTE` sengaja tidak diulang di sini: ia menetap di bawah subjudul
+// daftar, jadi ia terbaca saat ada data maupun saat belum ada.
+export const EMPTY_DESCRIPTION =
+  "Satu baris per karyawan per hari: hadir atau tidak, dan antara jam berapa.";
 
 // Cuti yang disetujui tidak menulis baris absensi di be-sada, jadi status Cuti
 // di sini selalu diketik orang.
@@ -144,14 +148,44 @@ export function hoursTextOf(
   return `${row.checkIn}–${row.checkOut}`;
 }
 
+/**
+ * Bulan berjalan ke belakang saja.
+ *
+ * `monthOptions` mulai dari bulan DEPAN, dan server menolak tanggal yang belum
+ * terjadi — jadi bulan di masa depan adalah pilihan yang tidak akan pernah
+ * memuat satu baris pun, duduk tepat di tempat orang mencari "bulan lalu".
+ */
 export function monthFilterOptions(today: string = todayJakarta()) {
   const current = startOfMonth(today).slice(0, 7);
 
   return [
     { value: "", label: "Bulan ini" },
     { value: MONTH_ALL, label: "Semua bulan" },
-    ...monthOptions(today).filter((option) => option.value !== current),
+    ...monthOptions(today).filter((option) => option.value < current),
   ];
+}
+
+/**
+ * Subjudul menyebut periodenya, bukan hanya angkanya.
+ *
+ * Filter bulan bawaan memang menyaring, tapi `useListParams` membaca nilai
+ * kosong sebagai "tanpa filter" — jadi tanpa label ini "12 catatan absensi"
+ * terbaca sebagai seluruh isi tabel, padahal ia satu bulan.
+ */
+export function subtitleOf(
+  totalData: number | undefined,
+  filters: Record<string, string>,
+  today: string = todayJakarta(),
+) {
+  if (totalData === undefined) return undefined;
+
+  const bulan = filters.bulan ?? "";
+  const period =
+    bulan === MONTH_ALL
+      ? "semua bulan"
+      : monthLabel(bulan || startOfMonth(today).slice(0, 7));
+
+  return `${totalData} catatan absensi · ${period}`;
 }
 
 /**

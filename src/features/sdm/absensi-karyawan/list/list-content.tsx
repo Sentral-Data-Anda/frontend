@@ -11,8 +11,10 @@ import { ABSENSI_FILTERS, useAbsensiList } from "../api";
 import {
   EMPTY_DESCRIPTION,
   MONTH_ALL,
+  PAYROLL_NOTE,
   TITLE,
   monthFilterOptions,
+  subtitleOf,
 } from "../model";
 import { ATTENDANCE_STATUS_LABEL, ATTENDANCE_STATUSES } from "../types";
 
@@ -50,11 +52,7 @@ export const AbsensiListContent = () => {
     <div className="pb-6">
       <PageHeader
         title={TITLE}
-        subtitle={
-          absensiList.totalData === undefined
-            ? undefined
-            : `${absensiList.totalData} catatan absensi`
-        }
+        subtitle={subtitleOf(absensiList.totalData, listParams.filters)}
         backHref={domainHref(MENU.SDM)}
         action={
           isCanCreate ? (
@@ -65,6 +63,12 @@ export const AbsensiListContent = () => {
           ) : null
         }
       />
+
+      {/* Menetap, bukan hanya di keadaan kosong: yang mengisi layar ini setiap
+          hari membacanya di sini, bukan di form (U-F). */}
+      <p className="text-muted-foreground px-gutter pb-4 text-caption">
+        {PAYROLL_NOTE}
+      </p>
 
       {/* Tanpa kotak cari: `GET /absensi-karyawan` be-sada belum menerima
           `?filter`, dan kotak yang tidak menyaring apa pun adalah janji kosong. */}
