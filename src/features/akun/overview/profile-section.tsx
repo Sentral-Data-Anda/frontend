@@ -10,11 +10,11 @@ import {
   Panel,
 } from "@/components/common/display";
 import { useSession } from "@/features/auth";
+import { useReveal } from "@/hooks/use-reveal";
 import { cn } from "@/lib/utils";
 
 import { profileKey } from "../api";
 import { orDash, roleLabels } from "../model";
-import { useReveal } from "../use-reveal";
 
 import { ProfileDetails } from "./profile-details";
 

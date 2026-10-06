@@ -6,16 +6,16 @@ import { useEffect, useEffectEvent } from "react";
 import { Button } from "@/components/common/control";
 import { Panel } from "@/components/common/display";
 import { DataList, DataListRow } from "@/components/common/list";
+import { StepUpDialog } from "@/components/common/overlay";
 import { useBoolean } from "@/hooks/use-boolean";
+import { useReveal } from "@/hooks/use-reveal";
+import { useStepUp } from "@/hooks/use-step-up";
 import { todayJakarta } from "@/lib/date";
 import { formatRupiah } from "@/lib/format";
+import { isStepUpRequired } from "@/lib/step-up";
 
 import { offeringKeys, useMyOfferings } from "../api";
-import { isStepUpRequired, offeringMeta } from "../model";
-import { useReveal } from "../use-reveal";
-import { useStepUp } from "../use-step-up";
-
-import { StepUpDialog } from "./step-up-dialog";
+import { offeringMeta } from "../model";
 
 const HISTORY_ID = "offering-history";
 
@@ -133,6 +133,7 @@ export const OfferingSection = () => {
         isOpen={isAsking.value}
         onClose={isAsking.onFalse}
         onVerified={onVerified}
+        description="Masukkan password akun Anda untuk melihat persembahan."
       />
     </Panel>
   );

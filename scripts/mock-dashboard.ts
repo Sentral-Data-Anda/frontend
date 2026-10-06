@@ -141,6 +141,15 @@ export const PERSONAS: Record<string, Persona> = {
       [MENU.MATA_UANG]: V,
       [MENU.PERSEMBAHAN]: LEDGER_ACTIONS,
       [MENU.KAS_MASUK]: LEDGER_ACTIONS,
+      // SDM tanpa gaji: sekretariat mengurus orangnya, bukan bayarannya.
+      // KONTRAK_KARYAWAN, KOMPONEN_PAYROLL, dan PAYROLL sengaja TIDAK di sini
+      // — ketiganya mengembalikan nominal per orang, dan U-C membatasinya ke
+      // bendahara. Pasangan sekretariat/bendahara itulah yang membuat gerbang
+      // VIEW tujuh layar SDM bisa dinilai dua arah lewat render.
+      [MENU.KARYAWAN]: KEJEMAATAN_ACTIONS,
+      [MENU.TIPE_CUTI]: KEJEMAATAN_ACTIONS,
+      [MENU.ABSENSI_KARYAWAN]: KEJEMAATAN_ACTIONS,
+      [MENU.CUTI]: KEJEMAATAN_ACTIONS,
     },
   },
   // §3b, plus IBADAH/EVENT VIEW supaya Agenda dan "· 2 kebaktian" tampil, dan
@@ -162,7 +171,14 @@ export const PERSONAS: Record<string, Persona> = {
       [MENU.LAPORAN_KEUANGAN]: V,
       [MENU.FAKTUR_SUPPLIER]: V,
       [MENU.PEMBAYARAN]: V,
-      [MENU.PAYROLL]: V,
+      // Tiga menu yang mengembalikan nominal per orang (§2.4). Hanya di sini.
+      [MENU.PAYROLL]: KEJEMAATAN_ACTIONS,
+      [MENU.KONTRAK_KARYAWAN]: KEJEMAATAN_ACTIONS,
+      [MENU.KOMPONEN_PAYROLL]: KEJEMAATAN_ACTIONS,
+      // Picker karyawan di form Kontrak, baca saja. Sepasang dengan grant
+      // penuh sekretariat ini jadi satu-satunya tempat di mock yang menilai
+      // "punya VIEW, tidak punya CREATE/UPDATE" dengan persona sungguhan.
+      [MENU.KARYAWAN]: V,
       [MENU.IBADAH]: V,
       [MENU.EVENT]: V,
       [MENU.PERMINTAAN_PERSETUJUAN]: APPROVAL_ACTIONS,

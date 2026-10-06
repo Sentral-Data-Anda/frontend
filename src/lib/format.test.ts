@@ -1,7 +1,9 @@
 import { describe, expect, test } from "bun:test";
 
 import {
+  formatAmount,
   formatDate,
+  formatDays,
   firstNameOf,
   formatDateTime,
   formatMoney,
@@ -102,5 +104,32 @@ describe("formatMoney", () => {
     expect(formatMoney(1_250.5, "SGD")).toBe("SGD 1.250,50");
     expect(formatMoney(-12.345, "EUR")).toBe("−EUR 12,35");
     expect(formatMoney(1_250.4, "JPY")).toBe("JPY 1.250");
+  });
+});
+
+describe("formatAmount", () => {
+  test("Decimal-sebagai-string, bulat dan bersen", () => {
+    expect(formatAmount("4500000.00")).toBe("Rp 4.500.000");
+    expect(formatAmount("4500000.50")).toBe("Rp 4.500.000,50");
+  });
+
+  test("kosong, null, dan undefined memakai satu teks yang sama", () => {
+    expect(formatAmount(null)).toBe("—");
+    expect(formatAmount(undefined)).toBe("—");
+    expect(formatAmount("")).toBe("—");
+    expect(formatAmount(null, "Belum ditetapkan")).toBe("Belum ditetapkan");
+  });
+
+  // "0.00" BUKAN kosong: potongan nol rupiah adalah angka, bukan ketiadaan.
+  test("nol tetap nol", () => {
+    expect(formatAmount("0.00")).toBe("Rp 0");
+  });
+});
+
+describe("formatDays", () => {
+  test("Decimal(4,1) memakai koma, bukan titik", () => {
+    expect(formatDays("12.5")).toBe("12,5 hari");
+    expect(formatDays("1.0")).toBe("1 hari");
+    expect(formatDays("0.5")).toBe("0,5 hari");
   });
 });
