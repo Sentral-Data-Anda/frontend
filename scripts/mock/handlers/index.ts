@@ -1,5 +1,6 @@
 import type { MockHandler } from "../kit";
 
+import { absensiKaryawanMock } from "./absensi-karyawan";
 import { activityLogMock } from "./activity-log";
 import { akunMock } from "./akun";
 import { anggaranMock } from "./anggaran";
@@ -89,6 +90,7 @@ export const MOCK_HANDLERS: MockHandler[] = [
   tipeCutiMock,
   cutiMock,
   karyawanMock,
+  absensiKaryawanMock,
   tipeIbadahMock,
   ibadahMock,
   pelayananDdlMock,
