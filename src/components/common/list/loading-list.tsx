@@ -69,7 +69,7 @@ export function LoadingDataList({
   return (
     <>
       <div className="md:hidden">
-        <LoadingList />
+        <LoadingList shape={shape} />
       </div>
 
       <div className="hidden md:block">

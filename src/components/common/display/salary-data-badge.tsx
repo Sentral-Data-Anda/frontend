@@ -3,7 +3,7 @@ import { Banknote } from "lucide-react";
 import { Badge } from "./badge";
 
 /**
- * Penanda yang MENETAP di Kontrak Karyawan dan Penggajian (SDM \u00a70.3 no. 8).
+ * Penanda yang MENETAP di Kontrak Karyawan dan Penggajian (SDM §0.3 no. 8).
  * Bukan modal, bukan konfirmasi, tidak bisa ditutup: tugasnya membuat orang
  * berpikir sebelum memproyeksikan layar atau membagikan tab.
  *
@@ -16,7 +16,7 @@ export const SalaryDataBadge = () => (
     <Banknote aria-hidden className="size-3.5 shrink-0" />
     Data gaji
     <span className="sr-only">
-      \u2014 nominal per orang. Jangan dibagikan atau diproyeksikan.
+      — nominal per orang. Jangan dibagikan atau diproyeksikan.
     </span>
   </Badge>
 );
