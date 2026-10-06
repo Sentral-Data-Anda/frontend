@@ -34,12 +34,22 @@ export type PenetapanKomponen = {
   effectiveFrom: string;
   effectiveTo: string | null;
   karyawan: { publicId: string; code: string; name: string };
-  payrollComponent: {
-    publicId: string;
-    code: string;
-    name: string;
-    type: ComponentType;
-  };
+  payrollComponent: AssignedComponent;
+};
+
+/**
+ * Komponen seperti yang dibawa relasi penetapan. `calculationType` dan
+ * `defaultValue` ada di sini supaya layar penetapan tidak bergantung pada
+ * pemilih yang hanya memuat komponen aktif — persis kasus yang ia butuhkan.
+ */
+export type AssignedComponent = {
+  publicId: string;
+  code: string;
+  name: string;
+  type: ComponentType;
+  calculationType: CalculationType;
+  defaultValue: string | null;
+  isActive: boolean;
 };
 
 export type PenetapanPayload = {

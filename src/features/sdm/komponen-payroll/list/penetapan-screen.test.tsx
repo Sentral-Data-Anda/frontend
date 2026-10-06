@@ -42,6 +42,27 @@ const ROWS: PenetapanKomponen[] = [
       code: "KPY-0001",
       name: "Tunjangan Transport",
       type: "EARNING",
+      calculationType: "FIXED",
+      defaultValue: "350000.00",
+      isActive: true,
+    },
+  },
+  {
+    publicId: "kkp-2",
+    karyawanId: 2,
+    payrollComponentId: 4,
+    value: "2.00",
+    effectiveFrom: "2026-02-01T00:00:00.000Z",
+    effectiveTo: "2026-12-31T00:00:00.000Z",
+    karyawan: { publicId: "kry-2", code: "KRY-0002", name: "Budi Santoso" },
+    payrollComponent: {
+      publicId: "kpy-4",
+      code: "KPY-0004",
+      name: "Iuran BPJS",
+      type: "DEDUCTION",
+      calculationType: "PERCENTAGE",
+      defaultValue: "1.00",
+      isActive: false,
     },
   },
 ];
@@ -130,6 +151,30 @@ describe("penanda data gaji", () => {
     await waitFor(() => expect(screen.getByText("Ani Wijaya")).toBeTruthy());
     expect(screen.getByText(/Default komponen/)).toBeTruthy();
     expect(screen.getByText(/Terbuka/)).toBeTruthy();
+
+    viewport.onRestore();
+  });
+
+  test("penetapan persentase dibaca persen, bukan rupiah", async () => {
+    const viewport = onStubViewport(true);
+    onMockApi();
+    onRender(["VIEW", "UPDATE"]);
+
+    await waitFor(() => expect(screen.getByText("Budi Santoso")).toBeTruthy());
+    // 2% dulu terbaca "Rp 2": potongan dua persen jadi dua rupiah.
+    expect(screen.getByText(/2%/)).toBeTruthy();
+    expect(screen.queryByText(/Rp 2$/)).toBeNull();
+
+    viewport.onRestore();
+  });
+
+  test("komponen nonaktif ditandai di barisnya", async () => {
+    const viewport = onStubViewport(true);
+    onMockApi();
+    onRender(["VIEW", "UPDATE"]);
+
+    await waitFor(() => expect(screen.getByText("Budi Santoso")).toBeTruthy());
+    expect(screen.getByText("Nonaktif")).toBeTruthy();
 
     viewport.onRestore();
   });

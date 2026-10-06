@@ -152,7 +152,9 @@ export const KatalogFormScreen = (props: PropTypes) => {
     return (
       <NoFormAccess
         title={
-          isEdit ? "Tidak bisa mengubah komponen" : "Tidak bisa menambah komponen"
+          isEdit
+            ? "Tidak bisa mengubah komponen"
+            : "Tidak bisa menambah komponen"
         }
         description="Peran Anda hanya bisa melihat komponen payroll."
         backHref={KATALOG_LIST_PATH}

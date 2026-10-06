@@ -14,19 +14,24 @@ import { useDdlOptions } from "@/hooks/use-ddl-options";
 import { formatAmount } from "@/lib/format";
 
 import {
+  INACTIVE_COMPONENT_NOTE,
   MAX_VALUE_DIGITS,
   PENETAPAN_PAIR_NOTE,
+  assignableOptions,
   pickedComponent,
 } from "../model";
 import {
   CALCULATION_TYPE_LABEL,
   COMPONENT_TYPE_LABEL,
+  type AssignedComponent,
   type KomponenPayrollOption,
   type PenetapanKomponen,
 } from "../types";
 import { LockedField } from "../ui";
 
 import { VALUE_MODE_OPTIONS, type PenetapanForm } from "./penetapan-options";
+
+const PERCENTAGE_DIGITS = 3;
 
 const hintOf = (row: KomponenPayrollOption) =>
   [
@@ -38,6 +43,11 @@ const hintOf = (row: KomponenPayrollOption) =>
         ? `${Number(row.defaultValue)}%`
         : formatAmount(row.defaultValue),
   ].join(" · ");
+
+type ChosenComponent = Pick<
+  AssignedComponent,
+  "calculationType" | "defaultValue"
+>;
 
 interface PropTypes {
   form: PenetapanForm;
@@ -67,16 +77,37 @@ export const PenetapanSection = (props: PropTypes) => {
     hintOf,
   );
 
-  const picked = pickedComponent(components.rows, componentId);
-  const isValueRequired = picked !== null && picked.defaultValue === null;
+  const componentOptions = assignableOptions(
+    components.rows,
+    components.options,
+  );
+
+  // Pemilih hanya memuat komponen aktif, jadi penetapan atas komponen yang
+  // sudah dimatikan mengambil bentuknya dari relasi penetapan.
+  const chosen: ChosenComponent | null =
+    pickedComponent(components.rows, componentId) ??
+    assignment?.payrollComponent ??
+    null;
+
+  const chosenCalculation = chosen?.calculationType;
+  const isPercentage = chosenCalculation === "PERCENTAGE";
+  const isValueRequired = chosen !== null && chosen.defaultValue === null;
   const isOwnValue = valueMode === "nilai";
   const isEdit = assignment !== undefined;
+  const isComponentRetired =
+    assignment !== undefined && !assignment.payrollComponent.isActive;
 
   useEffect(() => {
     if (isValueRequired && valueMode === "kosong") {
       form.setValue("valueMode", "nilai");
     }
   }, [isValueRequired, valueMode, form]);
+
+  useEffect(() => {
+    if (!chosenCalculation) return;
+
+    form.setValue("calculationType", chosenCalculation);
+  }, [chosenCalculation, form]);
 
   return (
     <FormSection
@@ -91,11 +122,7 @@ export const PenetapanSection = (props: PropTypes) => {
           value={assignment.karyawan.name}
         />
       ) : (
-        <ControlField
-          control={form.control}
-          name="karyawanId"
-          label="Karyawan"
-        >
+        <ControlField control={form.control} name="karyawanId" label="Karyawan">
           {(field) => (
             <ComboboxField
               id={field.name}
@@ -116,6 +143,7 @@ export const PenetapanSection = (props: PropTypes) => {
           id="payrollComponentId"
           label="Komponen"
           value={assignment.payrollComponent.name}
+          hint={isComponentRetired ? INACTIVE_COMPONENT_NOTE : undefined}
         />
       ) : (
         <ControlField
@@ -128,7 +156,7 @@ export const PenetapanSection = (props: PropTypes) => {
               id={field.name}
               value={field.value}
               onValueChange={field.onChange}
-              options={components.options}
+              options={componentOptions}
               isLoading={components.isLoading}
               disabled={isDisabled}
               placeholder="Pilih komponen"
@@ -167,10 +195,9 @@ export const PenetapanSection = (props: PropTypes) => {
         <ControlField
           control={form.control}
           name="value"
-          label={
-            picked?.calculationType === "PERCENTAGE"
-              ? "Persentase (%)"
-              : "Nilai (Rp)"
+          label={isPercentage ? "Persentase (%)" : "Nilai (Rp)"}
+          hint={
+            isPercentage ? "Persen dari gaji pokok, maksimal 100." : undefined
           }
         >
           {(field) => (
@@ -181,11 +208,7 @@ export const PenetapanSection = (props: PropTypes) => {
               onValueChange={field.onChange}
               onBlur={field.onBlur}
               disabled={isDisabled}
-              maxDigits={
-                picked?.calculationType === "PERCENTAGE"
-                  ? 3
-                  : MAX_VALUE_DIGITS
-              }
+              maxDigits={isPercentage ? PERCENTAGE_DIGITS : MAX_VALUE_DIGITS}
               maxFraction={2}
             />
           )}

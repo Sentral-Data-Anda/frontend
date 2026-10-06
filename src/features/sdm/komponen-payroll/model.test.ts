@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 
 import {
+  assignableOptions,
   EMPTY_KOMPONEN_FORM,
   EMPTY_PENETAPAN_FORM,
   KATALOG_LIST_PATH,
@@ -22,7 +23,11 @@ import {
   type KomponenFormValues,
   type PenetapanFormValues,
 } from "./model";
-import type { KomponenPayroll, PenetapanKomponen } from "./types";
+import type {
+  KomponenPayroll,
+  KomponenPayrollOption,
+  PenetapanKomponen,
+} from "./types";
 
 const komponen = (
   values: Partial<KomponenFormValues> = {},
@@ -44,8 +49,26 @@ const penetapan = (
   ...values,
 });
 
-const issuesOf = (result: { success: boolean; error?: { issues: unknown[] } }) =>
-  (result.error?.issues ?? []) as { path: (string | number)[]; message: string }[];
+const assignedComponent = (
+  calculationType: "FIXED" | "PERCENTAGE",
+): PenetapanKomponen["payrollComponent"] => ({
+  publicId: "kpy-4",
+  code: "KPY-0004",
+  name: "Iuran BPJS",
+  type: "DEDUCTION",
+  calculationType,
+  defaultValue: "1.00",
+  isActive: true,
+});
+
+const issuesOf = (result: {
+  success: boolean;
+  error?: { issues: unknown[] };
+}) =>
+  (result.error?.issues ?? []) as {
+    path: (string | number)[];
+    message: string;
+  }[];
 
 const fieldsOf = (values: KomponenFormValues | PenetapanFormValues) => {
   const schema =
@@ -91,9 +114,9 @@ describe("skema katalog", () => {
   test("nilai 0 dan kosong ditolak; mode per orang melewatkan keduanya", () => {
     expect(fieldsOf(komponen({ defaultValue: "0" }))).toEqual(["defaultValue"]);
     expect(fieldsOf(komponen({ defaultValue: "" }))).toEqual(["defaultValue"]);
-    expect(fieldsOf(komponen({ valueMode: "kosong", defaultValue: "" }))).toEqual(
-      [],
-    );
+    expect(
+      fieldsOf(komponen({ valueMode: "kosong", defaultValue: "" })),
+    ).toEqual([]);
   });
 
   test("payload: per orang mengirim null, bukan 0 dan bukan dihilangkan", () => {
@@ -103,9 +126,9 @@ describe("skema katalog", () => {
 
     expect(payload.defaultValue).toBeNull();
     expect("defaultValue" in payload).toBe(true);
-    expect(toKomponenPayload(komponen({ defaultValue: "350000" })).defaultValue).toBe(
-      350000,
-    );
+    expect(
+      toKomponenPayload(komponen({ defaultValue: "350000" })).defaultValue,
+    ).toBe(350000);
   });
 
   test("payload: akun kosong jadi null, nama dirapikan", () => {
@@ -156,9 +179,25 @@ describe("skema penetapan", () => {
   test("karyawan, komponen, dan tanggal mulai wajib", () => {
     expect(
       fieldsOf(
-        penetapan({ karyawanId: "", payrollComponentId: "", effectiveFrom: "" }),
+        penetapan({
+          karyawanId: "",
+          payrollComponentId: "",
+          effectiveFrom: "",
+        }),
       ).sort(),
     ).toEqual(["effectiveFrom", "karyawanId", "payrollComponentId"]);
+  });
+
+  test("persentase di atas 100 ditolak, 100 diterima", () => {
+    const percentage = (value: string) =>
+      penetapan({ calculationType: "PERCENTAGE", value });
+
+    expect(fieldsOf(percentage("100"))).toEqual([]);
+    expect(fieldsOf(percentage("101"))).toEqual(["value"]);
+    // 999 lolos `maxDigits`, jadi batasnya harus di skema.
+    expect(fieldsOf(percentage("999"))).toEqual(["value"]);
+    // Nominal di atas 100 tetap sah.
+    expect(fieldsOf(penetapan({ value: "250000" }))).toEqual([]);
   });
 
   test("nilai wajib saat mode sendiri, dilewati saat pakai default", () => {
@@ -194,12 +233,16 @@ describe("skema penetapan", () => {
         code: "KPY-0005",
         name: "Koperasi",
         type: "DEDUCTION",
+        calculationType: "FIXED",
+        defaultValue: "100000.00",
+        isActive: false,
       },
     };
 
     expect(toPenetapanForm(row)).toEqual({
       karyawanId: "4",
       payrollComponentId: "5",
+      calculationType: "FIXED",
       valueMode: "kosong",
       value: "",
       effectiveFrom: "2026-02-01",
@@ -209,9 +252,7 @@ describe("skema penetapan", () => {
 });
 
 describe("teks nilai", () => {
-  const row = (
-    values: Partial<KomponenPayroll> = {},
-  ): KomponenPayroll => ({
+  const row = (values: Partial<KomponenPayroll> = {}): KomponenPayroll => ({
     id: 1,
     code: "KPY-0001",
     name: "Transport",
@@ -242,10 +283,22 @@ describe("teks nilai", () => {
 
   test("nilai penetapan null berarti default komponen", () => {
     const assignment = (value: string | null) =>
-      ({ value }) as PenetapanKomponen;
+      ({
+        value,
+        payrollComponent: assignedComponent("FIXED"),
+      }) as PenetapanKomponen;
 
     expect(assignmentValueText(assignment(null))).toBe("Default komponen");
     expect(assignmentValueText(assignment("0.00"))).toBe("Rp 0");
+  });
+
+  test("penetapan persentase dibaca persen, bukan rupiah", () => {
+    const assignment = {
+      value: "2.00",
+      payrollComponent: assignedComponent("PERCENTAGE"),
+    } as PenetapanKomponen;
+
+    expect(assignmentValueText(assignment)).toBe("2%");
   });
 });
 
@@ -254,6 +307,41 @@ describe("baris yang dikelola sistem", () => {
     expect(isManaged({ code: "PPH21" })).toBe(true);
     expect(isManaged({ code: "KPY-0001" })).toBe(false);
     expect(isManaged({ code: "pph21" })).toBe(false);
+  });
+});
+
+describe("komponen yang dikelola sistem tidak ditawarkan ke penetapan", () => {
+  const rows: KomponenPayrollOption[] = [
+    {
+      id: 1,
+      code: "KPY-0001",
+      name: "Transport",
+      type: "EARNING",
+      calculationType: "FIXED",
+      defaultValue: "350000.00",
+    },
+    {
+      id: 6,
+      code: "PPH21",
+      name: "PPh21",
+      type: "DEDUCTION",
+      calculationType: "FIXED",
+      defaultValue: null,
+    },
+  ];
+  const options = [
+    { value: "1", label: "Transport" },
+    { value: "6", label: "PPh21" },
+  ];
+
+  test("PPh21 dibuang dari opsi, sisanya utuh", () => {
+    expect(assignableOptions(rows, options)).toEqual([
+      { value: "1", label: "Transport" },
+    ]);
+  });
+
+  test("tanpa baris PPh21 nol opsi hilang", () => {
+    expect(assignableOptions([rows[0]], [options[0]])).toEqual([options[0]]);
   });
 });
 
@@ -275,8 +363,16 @@ describe("pesan server ke field", () => {
         "Nilai Komponen Harus Diisi Karena Komponen Ini Tidak Punya Nilai Default",
       )?.field,
     ).toBe("value");
+    expect(penetapanServerFieldError("Karyawan Tidak Ditemukan")?.field).toBe(
+      "karyawanId",
+    );
+  });
+
+  test("penetapan: bentrokan periode menyorot tanggal, bukan galat tingkat form", () => {
     expect(
-      penetapanServerFieldError("Karyawan Tidak Ditemukan")?.field,
-    ).toBe("karyawanId");
+      penetapanServerFieldError(
+        "Karyawan ini sudah mendapat komponen tersebut pada periode yang dipilih. Ubah periodenya atau akhiri penetapan yang lama",
+      )?.field,
+    ).toBe("effectiveFrom");
   });
 });

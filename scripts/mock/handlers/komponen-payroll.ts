@@ -82,23 +82,80 @@ const component = (
 // Baris PPH21 disemai migrasi be-sada, jadi ia ada di mock juga: layarnya
 // menampilkannya terkunci, dan itu yang perlu bisa dilihat saat review.
 export const PAYROLL_COMPONENT: ComponentRow[] = [
-  component(1, "KPY-0001", "Tunjangan Transport", "EARNING", "FIXED", "350000.00", 23),
+  component(
+    1,
+    "KPY-0001",
+    "Tunjangan Transport",
+    "EARNING",
+    "FIXED",
+    "350000.00",
+    23,
+  ),
   component(2, "KPY-0002", "Tunjangan Jabatan", "EARNING", "FIXED", null, 23),
-  component(3, "KPY-0003", "Tunjangan Beras Keluarga Besar Sekali", "EARNING", "FIXED", "150000.00", null),
-  component(4, "KPY-0004", "Iuran BPJS Kesehatan", "DEDUCTION", "PERCENTAGE", "1.00", 12),
-  component(5, "KPY-0005", "Potongan Koperasi", "DEDUCTION", "FIXED", "100000.00", null, {
-    isActive: false,
-  }),
+  component(
+    3,
+    "KPY-0003",
+    "Tunjangan Beras Keluarga Besar Sekali",
+    "EARNING",
+    "FIXED",
+    "150000.00",
+    null,
+  ),
+  component(
+    4,
+    "KPY-0004",
+    "Iuran BPJS Kesehatan",
+    "DEDUCTION",
+    "PERCENTAGE",
+    "1.00",
+    12,
+  ),
+  component(
+    5,
+    "KPY-0005",
+    "Potongan Koperasi",
+    "DEDUCTION",
+    "FIXED",
+    "100000.00",
+    null,
+    {
+      isActive: false,
+    },
+  ),
   component(6, PPH21, "PPh21", "DEDUCTION", "FIXED", null, null, {
     isTaxable: false,
   }),
 ];
 
 export const KARYAWAN: KaryawanRow[] = [
-  { id: 1, publicId: "kry-1", code: "KRY-0001", name: "Ani Wijaya", position: "Sekretaris" },
-  { id: 2, publicId: "kry-2", code: "KRY-0002", name: "Budi Santoso", position: "Koster" },
-  { id: 3, publicId: "kry-3", code: "KRY-0003", name: "Citra Halim", position: "Bendahara Kantor" },
-  { id: 4, publicId: "kry-4", code: "KRY-0004", name: "Dewi Pakpahan", position: "Pengasuh Anak" },
+  {
+    id: 1,
+    publicId: "kry-1",
+    code: "KRY-0001",
+    name: "Ani Wijaya",
+    position: "Sekretaris",
+  },
+  {
+    id: 2,
+    publicId: "kry-2",
+    code: "KRY-0002",
+    name: "Budi Santoso",
+    position: "Koster",
+  },
+  {
+    id: 3,
+    publicId: "kry-3",
+    code: "KRY-0003",
+    name: "Citra Halim",
+    position: "Bendahara Kantor",
+  },
+  {
+    id: 4,
+    publicId: "kry-4",
+    code: "KRY-0004",
+    name: "Dewi Pakpahan",
+    position: "Pengasuh Anak",
+  },
 ];
 
 export const KARYAWAN_PAYROLL_COMPONENT: AssignmentRow[] = [
@@ -127,7 +184,7 @@ export const KARYAWAN_PAYROLL_COMPONENT: AssignmentRow[] = [
     publicId: "kkp-3",
     karyawanId: 2,
     payrollComponentId: 4,
-    value: null,
+    value: "2.00",
     effectiveFrom: `${YEAR}-02-01`,
     effectiveTo: null,
     deletedAt: null,
@@ -139,6 +196,17 @@ export const KARYAWAN_PAYROLL_COMPONENT: AssignmentRow[] = [
     payrollComponentId: 1,
     value: "500000.00",
     effectiveFrom: `${YEAR}-03-01`,
+    effectiveTo: null,
+    deletedAt: null,
+  },
+  // Komponen 5 nonaktif: penetapannya berhenti dibayar tapi tetap terdaftar.
+  {
+    id: 5,
+    publicId: "kkp-5",
+    karyawanId: 4,
+    payrollComponentId: 5,
+    value: null,
+    effectiveFrom: `${YEAR}-04-01`,
     effectiveTo: null,
     deletedAt: null,
   },
@@ -191,6 +259,9 @@ const assignmentView = (row: AssignmentRow) => {
           code: target.code,
           name: target.name,
           type: target.type,
+          calculationType: target.calculationType,
+          defaultValue: target.defaultValue,
+          isActive: target.isActive,
         }
       : null,
   };
@@ -198,11 +269,14 @@ const assignmentView = (row: AssignmentRow) => {
 
 const fail = (status: number, error: string, path?: string) =>
   json(
-    path ? { status, error, issues: [{ path, message: error }] } : { status, error },
+    path
+      ? { status, error, issues: [{ path, message: error }] }
+      : { status, error },
     status,
   );
 
-const serverError = () => json({ status: 500, error: "Kesalahan server." }, 500);
+const serverError = () =>
+  json({ status: 500, error: "Kesalahan server." }, 500);
 
 const findComponent = (code: string) =>
   PAYROLL_COMPONENT.find(
@@ -215,9 +289,7 @@ const findAssignment = (publicId: string) =>
   );
 
 const toMoney = (value: unknown) =>
-  value === null || value === undefined || value === ""
-    ? null
-    : Number(value);
+  value === null || value === undefined || value === "" ? null : Number(value);
 
 type ComponentBody = {
   name?: unknown;
@@ -232,7 +304,8 @@ type ComponentBody = {
 const parseComponent = (body: ComponentBody) => {
   const name = collapseSpaces(String(body.name ?? ""));
 
-  if (!name) return { failure: fail(400, "Mohon Lengkapi Nama Komponen", "name") };
+  if (!name)
+    return { failure: fail(400, "Mohon Lengkapi Nama Komponen", "name") };
   if (name.length > 100) {
     return {
       failure: fail(
@@ -247,7 +320,10 @@ const parseComponent = (body: ComponentBody) => {
     return { failure: fail(400, "Mohon Lengkapi Jenis Komponen", "type") };
   }
 
-  if (body.calculationType !== "FIXED" && body.calculationType !== "PERCENTAGE") {
+  if (
+    body.calculationType !== "FIXED" &&
+    body.calculationType !== "PERCENTAGE"
+  ) {
     return {
       failure: fail(400, "Mohon Lengkapi Cara Hitung", "calculationType"),
     };
@@ -275,9 +351,12 @@ const parseComponent = (body: ComponentBody) => {
     };
   }
 
-  const accountId = body.accountId === null || body.accountId === undefined || body.accountId === ""
-    ? null
-    : Number(body.accountId);
+  const accountId =
+    body.accountId === null ||
+    body.accountId === undefined ||
+    body.accountId === ""
+      ? null
+      : Number(body.accountId);
 
   if (accountId !== null && !(Number.isInteger(accountId) && accountId > 0)) {
     return { failure: fail(400, "Akun tidak valid", "accountId") };
@@ -286,7 +365,8 @@ const parseComponent = (body: ComponentBody) => {
   if (accountId !== null) {
     const account = accountOf(accountId);
 
-    if (!account) return { failure: fail(404, "Akun Tidak Ditemukan", "accountId") };
+    if (!account)
+      return { failure: fail(404, "Akun Tidak Ditemukan", "accountId") };
     if (!account.isActive) {
       return {
         failure: fail(
@@ -331,18 +411,26 @@ const parseAssignment = (body: AssignmentBody) => {
   }
   if (!Number.isInteger(payrollComponentId) || payrollComponentId <= 0) {
     return {
-      failure: fail(400, "Mohon Lengkapi Komponen Payroll", "payrollComponentId"),
+      failure: fail(
+        400,
+        "Mohon Lengkapi Komponen Payroll",
+        "payrollComponentId",
+      ),
     };
   }
 
   const effectiveFrom = String(body.effectiveFrom ?? "").slice(0, 10);
 
   if (!/^\d{4}-\d{2}-\d{2}$/.test(effectiveFrom)) {
-    return { failure: fail(400, "Mohon Lengkapi Berlaku Dari", "effectiveFrom") };
+    return {
+      failure: fail(400, "Mohon Lengkapi Berlaku Dari", "effectiveFrom"),
+    };
   }
 
   const effectiveTo =
-    body.effectiveTo === null || body.effectiveTo === undefined || body.effectiveTo === ""
+    body.effectiveTo === null ||
+    body.effectiveTo === undefined ||
+    body.effectiveTo === ""
       ? null
       : String(body.effectiveTo).slice(0, 10);
 
@@ -365,7 +453,8 @@ const parseAssignment = (body: AssignmentBody) => {
   const target = PAYROLL_COMPONENT.find(
     (row) => isLive(row) && row.id === payrollComponentId,
   );
-  if (!target) return { failure: fail(404, "Komponen Payroll Tidak Ditemukan") };
+  if (!target)
+    return { failure: fail(404, "Komponen Payroll Tidak Ditemukan") };
 
   if (!KARYAWAN.some((person) => person.id === karyawanId)) {
     return { failure: fail(404, "Karyawan Tidak Ditemukan") };
@@ -393,7 +482,12 @@ const parseAssignment = (body: AssignmentBody) => {
 };
 
 const isOverlapping = (
-  row: { karyawanId: number; payrollComponentId: number; effectiveFrom: string; effectiveTo: string | null },
+  row: {
+    karyawanId: number;
+    payrollComponentId: number;
+    effectiveFrom: string;
+    effectiveTo: string | null;
+  },
   skipId: number | null,
 ) =>
   KARYAWAN_PAYROLL_COMPONENT.some((other) => {
@@ -474,6 +568,7 @@ export const komponenPayrollMock: MockHandler = async (context) => {
       (row) =>
         isLive(row) &&
         row.isActive &&
+        row.code !== PPH21 &&
         (row.name.toLowerCase().includes(filter) ||
           row.code.toLowerCase().includes(filter)),
     );
@@ -494,8 +589,7 @@ export const komponenPayrollMock: MockHandler = async (context) => {
           (a, b) =>
             a.type.localeCompare(b.type) || a.name.localeCompare(b.name, "id"),
         )
-        .map(
-        ({ id, code, name, type, calculationType, defaultValue }) => ({
+        .map(({ id, code, name, type, calculationType, defaultValue }) => ({
           id,
           code,
           name,
@@ -514,7 +608,9 @@ export const komponenPayrollMock: MockHandler = async (context) => {
     return serverError();
   }
 
-  const assignmentKey = path.match(/^\/komponen-payroll\/karyawan\/([^/]+)$/)?.[1];
+  const assignmentKey = path.match(
+    /^\/komponen-payroll\/karyawan\/([^/]+)$/,
+  )?.[1];
 
   if (path === `${BASE}/karyawan` && method === "GET") {
     if (process.env.MOCK_500) return serverError();
@@ -530,8 +626,7 @@ export const komponenPayrollMock: MockHandler = async (context) => {
     )
       .slice()
       .sort(
-        (a, b) =>
-          b.effectiveFrom.localeCompare(a.effectiveFrom) || b.id - a.id,
+        (a, b) => b.effectiveFrom.localeCompare(a.effectiveFrom) || b.id - a.id,
       )
       .map(assignmentView);
 
@@ -633,7 +728,8 @@ export const komponenPayrollMock: MockHandler = async (context) => {
     )
       .slice()
       .sort(
-        (a, b) => a.type.localeCompare(b.type) || a.name.localeCompare(b.name, "id"),
+        (a, b) =>
+          a.type.localeCompare(b.type) || a.name.localeCompare(b.name, "id"),
       )
       .map(componentView);
 
@@ -647,7 +743,8 @@ export const komponenPayrollMock: MockHandler = async (context) => {
     if (
       PAYROLL_COMPONENT.some(
         (row) =>
-          isLive(row) && row.name.toLowerCase() === parsed.row.name.toLowerCase(),
+          isLive(row) &&
+          row.name.toLowerCase() === parsed.row.name.toLowerCase(),
       )
     ) {
       return fail(409, "Komponen Payroll Sudah Tersedia", "name");

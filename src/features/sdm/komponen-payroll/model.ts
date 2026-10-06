@@ -1,6 +1,13 @@
 import { z } from "zod";
 
-import { FORM_SEGMENT, MENU, createHref, editHref, menuHref } from "@/config/menu";
+import type { SelectOption } from "@/components/common/control";
+import {
+  FORM_SEGMENT,
+  MENU,
+  createHref,
+  editHref,
+  menuHref,
+} from "@/config/menu";
 import type { ListFilterSchema } from "@/hooks/use-list-params";
 import { formatAmount } from "@/lib/format";
 import { collapseSpaces } from "@/lib/name";
@@ -59,6 +66,9 @@ export const NO_VIEW_DESCRIPTION =
 export const MANAGED_NOTE =
   "Komponen PPh21 dipakai perhitungan pajak dan tidak bisa diubah atau dihapus.";
 
+export const INACTIVE_COMPONENT_NOTE =
+  "Komponen ini sudah nonaktif, jadi penetapan ini tidak dibayarkan pada penggajian berikutnya.";
+
 export const INACTIVE_NOTE =
   "Komponen nonaktif tetap tercantum di sini, tapi tidak dibayarkan pada penggajian berikutnya.";
 
@@ -69,21 +79,32 @@ export const PER_PERSON_LABEL = "Per orang";
 
 export const ACCOUNT_UNMAPPED = "Belum dipetakan";
 
+export const ACCOUNT_LOADING = "Memuat…";
+
+export const ACCOUNT_UNKNOWN = "Akun tidak ditemukan";
+
 export const PENETAPAN_PAIR_NOTE =
   "Karyawan dan komponen tidak bisa dipindahkan. Hapus penetapan ini lalu buat yang baru.";
 
-export const defaultValueText = (component: KomponenPayroll) => {
-  if (component.defaultValue === null) return PER_PERSON_LABEL;
+export const PERCENTAGE_MAX = 100;
 
-  return component.calculationType === "PERCENTAGE"
-    ? `${Number(component.defaultValue)}%`
-    : formatAmount(component.defaultValue);
-};
+const amountText = (
+  value: string,
+  calculationType: CalculationType | undefined,
+) =>
+  calculationType === "PERCENTAGE" ? `${Number(value)}%` : formatAmount(value);
 
+export const defaultValueText = (component: KomponenPayroll) =>
+  component.defaultValue === null
+    ? PER_PERSON_LABEL
+    : amountText(component.defaultValue, component.calculationType);
+
+// Persen dibaca dari relasi penetapan, bukan dari pemilih: tanpa itu 2% dari
+// gaji terbaca "Rp 2".
 export const assignmentValueText = (assignment: PenetapanKomponen) =>
   assignment.value === null
     ? "Default komponen"
-    : formatAmount(assignment.value);
+    : amountText(assignment.value, assignment.payrollComponent.calculationType);
 
 export const MAX_VALUE_DIGITS = 16;
 
@@ -179,6 +200,7 @@ export const penetapanFormSchema = z
   .object({
     karyawanId: z.string(),
     payrollComponentId: z.string(),
+    calculationType: z.enum(["FIXED", "PERCENTAGE"]),
     valueMode: z.enum(VALUE_MODE),
     value: z.string(),
     effectiveFrom: z.string(),
@@ -207,6 +229,15 @@ export const penetapanFormSchema = z
     amountIssues(values.value, "nilai").forEach((message) =>
       addIssue(["value"], message),
     );
+
+    // Tabel penetapan tidak punya CHECK persen, dan 5000 di komponen
+    // PERCENTAGE mengalikan gaji pokok lima puluh kali.
+    if (
+      values.calculationType === "PERCENTAGE" &&
+      Number(values.value) > PERCENTAGE_MAX
+    ) {
+      addIssue(["value"], "Persentase tidak boleh lebih dari 100");
+    }
   });
 
 export type PenetapanFormValues = z.infer<typeof penetapanFormSchema>;
@@ -214,6 +245,7 @@ export type PenetapanFormValues = z.infer<typeof penetapanFormSchema>;
 export const EMPTY_PENETAPAN_FORM: PenetapanFormValues = {
   karyawanId: "",
   payrollComponentId: "",
+  calculationType: "FIXED",
   valueMode: "nilai",
   value: "",
   effectiveFrom: "",
@@ -235,11 +267,28 @@ export const toPenetapanForm = (
 ): PenetapanFormValues => ({
   karyawanId: String(assignment.karyawanId),
   payrollComponentId: String(assignment.payrollComponentId),
+  calculationType: assignment.payrollComponent.calculationType,
   valueMode: assignment.value === null ? "kosong" : "nilai",
   value: assignment.value ?? "",
   effectiveFrom: assignment.effectiveFrom.slice(0, 10),
   effectiveTo: assignment.effectiveTo?.slice(0, 10) ?? "",
 });
+
+/**
+ * Opsi yang boleh ditetapkan ke seorang karyawan.
+ *
+ * Pemilih be-sada menyaring `isActive` saja, jadi baris yang dikelola sistem
+ * sampai ke sini. Menetapkannya membuat slip berisi baris yang akunnya tidak
+ * ada layarnya untuk diisi, dan `markPaid` menolak run-nya.
+ */
+export const assignableOptions = (
+  rows: readonly KomponenPayrollOption[],
+  options: readonly SelectOption[],
+) => {
+  const managed = new Set(rows.filter(isManaged).map((row) => String(row.id)));
+
+  return options.filter((option) => !managed.has(option.value));
+};
 
 export const pickedComponent = (
   rows: readonly KomponenPayrollOption[],
@@ -254,8 +303,16 @@ export const calculationHint = (
     : "Nominal rupiah.";
 
 const SERVER_FIELD_ERROR: ReadonlyArray<[RegExp, string, string?]> = [
-  [/komponen payroll sudah tersedia/i, "name", "Nama komponen ini sudah ada. Pakai nama lain."],
-  [/akun tidak ditemukan/i, "accountId", "Akun ini tidak ada lagi. Pilih akun lain."],
+  [
+    /komponen payroll sudah tersedia/i,
+    "name",
+    "Nama komponen ini sudah ada. Pakai nama lain.",
+  ],
+  [
+    /akun tidak ditemukan/i,
+    "accountId",
+    "Akun ini tidak ada lagi. Pilih akun lain.",
+  ],
   [/akun .* sudah tidak aktif/i, "accountId"],
   [/nilai default untuk komponen persentase/i, "defaultValue"],
   [/nama komponen/i, "name"],
@@ -263,8 +320,17 @@ const SERVER_FIELD_ERROR: ReadonlyArray<[RegExp, string, string?]> = [
 
 const SERVER_ASSIGNMENT_ERROR: ReadonlyArray<[RegExp, string, string?]> = [
   [/nilai komponen harus diisi/i, "value"],
-  [/komponen payroll tidak ditemukan/i, "payrollComponentId", "Komponen ini tidak ada lagi. Pilih komponen lain."],
-  [/karyawan tidak ditemukan/i, "karyawanId", "Karyawan ini tidak ada lagi. Pilih karyawan lain."],
+  [/sudah mendapat komponen tersebut pada periode/i, "effectiveFrom"],
+  [
+    /komponen payroll tidak ditemukan/i,
+    "payrollComponentId",
+    "Komponen ini tidak ada lagi. Pilih komponen lain.",
+  ],
+  [
+    /karyawan tidak ditemukan/i,
+    "karyawanId",
+    "Karyawan ini tidak ada lagi. Pilih karyawan lain.",
+  ],
   [/berlaku sampai/i, "effectiveTo"],
 ];
 

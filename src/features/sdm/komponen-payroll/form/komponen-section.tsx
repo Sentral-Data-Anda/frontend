@@ -11,11 +11,7 @@ import {
 } from "@/components/common/control";
 import { ControlField, FormSection, FormWide } from "@/components/common/form";
 
-import {
-  INACTIVE_NOTE,
-  MAX_VALUE_DIGITS,
-  calculationHint,
-} from "../model";
+import { INACTIVE_NOTE, MAX_VALUE_DIGITS, calculationHint } from "../model";
 import { LockedField } from "../ui";
 
 import {
@@ -127,7 +123,9 @@ export const KomponenSection = (props: PropTypes) => {
         <ControlField
           control={form.control}
           name="defaultValue"
-          label={calculationType === "PERCENTAGE" ? "Persentase (%)" : "Nilai (Rp)"}
+          label={
+            calculationType === "PERCENTAGE" ? "Persentase (%)" : "Nilai (Rp)"
+          }
         >
           {(field) => (
             <AmountInput
@@ -137,7 +135,9 @@ export const KomponenSection = (props: PropTypes) => {
               onValueChange={field.onChange}
               onBlur={field.onBlur}
               disabled={isDisabled}
-              maxDigits={calculationType === "PERCENTAGE" ? 3 : MAX_VALUE_DIGITS}
+              maxDigits={
+                calculationType === "PERCENTAGE" ? 3 : MAX_VALUE_DIGITS
+              }
               maxFraction={2}
             />
           )}

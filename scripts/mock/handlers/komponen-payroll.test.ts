@@ -100,9 +100,9 @@ describe("mock katalog", () => {
   });
 
   test("filter jenis divalidasi, bukan di-cast", async () => {
-    expect((await onCall("GET", "/komponen-payroll?type=EARNING"))?.status).toBe(
-      200,
-    );
+    expect(
+      (await onCall("GET", "/komponen-payroll?type=EARNING"))?.status,
+    ).toBe(200);
     expect((await onCall("GET", "/komponen-payroll?type=ENTAH"))?.status).toBe(
       400,
     );
@@ -115,7 +115,9 @@ describe("mock katalog", () => {
   });
 
   test("kunci katalog adalah code, bukan publicId", async () => {
-    expect((await onCall("GET", "/komponen-payroll/KPY-0001"))?.status).toBe(200);
+    expect((await onCall("GET", "/komponen-payroll/KPY-0001"))?.status).toBe(
+      200,
+    );
     expect((await onCall("GET", "/komponen-payroll/kpy-1"))?.status).toBe(404);
   });
 
@@ -178,10 +180,17 @@ describe("mock katalog", () => {
       defaultValue: null,
     });
 
-    expect((created?.body.data as { defaultValue: null }).defaultValue).toBeNull();
     expect(
-      (await onCall("POST", "/komponen-payroll", { ...COMPONENT, name: "Nol", defaultValue: 0 }))
-        ?.status,
+      (created?.body.data as { defaultValue: null }).defaultValue,
+    ).toBeNull();
+    expect(
+      (
+        await onCall("POST", "/komponen-payroll", {
+          ...COMPONENT,
+          name: "Nol",
+          defaultValue: 0,
+        })
+      )?.status,
     ).toBe(400);
   });
 
@@ -202,6 +211,7 @@ describe("mock penetapan", () => {
     const rows = all?.body.data as { publicId: string }[];
 
     expect(rows.map((row) => row.publicId)).toEqual([
+      "kkp-5",
       "kkp-4",
       "kkp-3",
       "kkp-2",
@@ -222,17 +232,44 @@ describe("mock penetapan", () => {
   });
 
   test("kunci penetapan adalah publicId, bukan code dan bukan id", async () => {
-    expect((await onCall("GET", "/komponen-payroll/karyawan/kkp-1"))?.status).toBe(
-      200,
+    expect(
+      (await onCall("GET", "/komponen-payroll/karyawan/kkp-1"))?.status,
+    ).toBe(200);
+    expect((await onCall("GET", "/komponen-payroll/karyawan/1"))?.status).toBe(
+      404,
     );
-    expect((await onCall("GET", "/komponen-payroll/karyawan/1"))?.status).toBe(404);
     expect(
       (await onCall("GET", "/komponen-payroll/karyawan/KPY-0001"))?.status,
     ).toBe(404);
   });
 
+  test("relasi penetapan membawa cara hitung, default, dan status komponen", async () => {
+    const all = await onCall("GET", "/komponen-payroll/karyawan?limit=100");
+    const rows = all?.body.data as {
+      publicId: string;
+      payrollComponent: {
+        calculationType: string;
+        defaultValue: string | null;
+        isActive: boolean;
+      };
+    }[];
+
+    // Tanpa ketiganya layar penetapan merender 2% sebagai "Rp 2", dan form
+    // ubah atas komponen nonaktif kehilangan seluruh penjaganya.
+    expect(
+      rows.find((row) => row.publicId === "kkp-3")?.payrollComponent,
+    ).toMatchObject({ calculationType: "PERCENTAGE", isActive: true });
+    expect(
+      rows.find((row) => row.publicId === "kkp-5")?.payrollComponent,
+    ).toMatchObject({ isActive: false, defaultValue: "100000.00" });
+  });
+
   test("respons tulis membawa relasi, sama seperti respons baca", async () => {
-    const created = await onCall("POST", "/komponen-payroll/karyawan", ASSIGNMENT);
+    const created = await onCall(
+      "POST",
+      "/komponen-payroll/karyawan",
+      ASSIGNMENT,
+    );
     const data = created?.body.data as {
       karyawan: { name: string };
       payrollComponent: { name: string };
@@ -291,16 +328,26 @@ describe("mock penetapan", () => {
 });
 
 describe("mock pemilih", () => {
-  test("/ddl/komponen-payroll hanya yang aktif, dan PPH21 ikut karena aktif", async () => {
+  // Assertion ini dulu berbunyi "PPH21 ikut karena aktif" — hijau, dan
+  // meng-encode cacatnya: komponen yang katalognya kunci masih bisa ditetapkan
+  // ke seorang karyawan dari layar sebelahnya, lalu `markPaid` menolak run-nya
+  // dengan akun yang tidak ada layarnya untuk diisi.
+  test("/ddl/komponen-payroll hanya yang aktif, dan PPH21 TIDAK ditawarkan", async () => {
     const picker = await onCall("GET", "/ddl/komponen-payroll");
 
     expect(codesOf(picker?.body)).toEqual([
       "KPY-0004",
-      "PPH21",
       "KPY-0003",
       "KPY-0002",
       "KPY-0001",
     ]);
+    expect(codesOf(picker?.body)).not.toContain("PPH21");
+  });
+
+  test("PPH21 tetap ada di katalog walau hilang dari pemilih", async () => {
+    const catalog = await onCall("GET", "/komponen-payroll?limit=100");
+
+    expect(codesOf(catalog?.body)).toContain("PPH21");
   });
 
   test("/ddl/komponen-payroll membawa defaultValue supaya form tidak membaca dua kali", async () => {
@@ -311,7 +358,9 @@ describe("mock pemilih", () => {
       defaultValue: string | null;
     }[];
 
-    expect(rows.find((row) => row.code === "KPY-0002")?.defaultValue).toBeNull();
+    expect(
+      rows.find((row) => row.code === "KPY-0002")?.defaultValue,
+    ).toBeNull();
     expect(rows.find((row) => row.code === "KPY-0004")).toMatchObject({
       calculationType: "PERCENTAGE",
       defaultValue: "1.00",
@@ -329,14 +378,22 @@ describe("mock pemilih", () => {
     const only = (slug: string) => (candidate: string) => candidate === slug;
 
     expect(
-      (await onCall("GET", "/ddl/karyawan", undefined, only(MENU.KOMPONEN_PAYROLL)))
+      (
+        await onCall(
+          "GET",
+          "/ddl/karyawan",
+          undefined,
+          only(MENU.KOMPONEN_PAYROLL),
+        )
+      )?.status,
+    ).toBe(200);
+    expect(
+      (await onCall("GET", "/ddl/karyawan", undefined, only(MENU.CUTI)))
         ?.status,
     ).toBe(200);
     expect(
-      (await onCall("GET", "/ddl/karyawan", undefined, only(MENU.CUTI)))?.status,
-    ).toBe(200);
-    expect(
-      (await onCall("GET", "/ddl/karyawan", undefined, only(MENU.PAYROLL)))?.status,
+      (await onCall("GET", "/ddl/karyawan", undefined, only(MENU.PAYROLL)))
+        ?.status,
     ).toBe(403);
   });
 });
@@ -357,8 +414,14 @@ describe("gerbang izin mock", () => {
         ?.status,
     ).toBe(403);
     expect(
-      (await onCall("DELETE", "/komponen-payroll/KPY-0003", undefined, viewOnly))
-        ?.status,
+      (
+        await onCall(
+          "DELETE",
+          "/komponen-payroll/KPY-0003",
+          undefined,
+          viewOnly,
+        )
+      )?.status,
     ).toBe(403);
     expect(
       (await onCall("POST", "/komponen-payroll/karyawan", ASSIGNMENT, viewOnly))

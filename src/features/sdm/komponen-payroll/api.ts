@@ -26,7 +26,8 @@ const assignmentPathOf = (publicId: string) =>
 export const komponenPayrollKeys = {
   all: ["komponen-payroll"] as const,
   lists: () => [...komponenPayrollKeys.all, "list"] as const,
-  detail: (code: string) => [...komponenPayrollKeys.all, "detail", code] as const,
+  detail: (code: string) =>
+    [...komponenPayrollKeys.all, "detail", code] as const,
   assignments: () => [...komponenPayrollKeys.all, "penetapan", "list"] as const,
   assignment: (publicId: string) =>
     [...komponenPayrollKeys.all, "penetapan", "detail", publicId] as const,
@@ -103,7 +104,8 @@ export function usePenetapanList(params: ListState) {
 export function usePenetapanDetail(publicId: string | undefined) {
   return useQuery({
     queryKey: komponenPayrollKeys.assignment(publicId ?? ""),
-    queryFn: () => fetchOne<PenetapanKomponen>(assignmentPathOf(publicId ?? "")),
+    queryFn: () =>
+      fetchOne<PenetapanKomponen>(assignmentPathOf(publicId ?? "")),
     enabled: Boolean(publicId),
     staleTime: 0,
     select: (response) => response.data,

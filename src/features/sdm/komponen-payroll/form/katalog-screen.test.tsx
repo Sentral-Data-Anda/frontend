@@ -147,9 +147,7 @@ describe("gerbang izin form katalog", () => {
 
     cleanup();
     onRender(["VIEW", "UPDATE"], "KPY-0001");
-    await waitFor(() =>
-      expect(screen.getByLabelText("Kode")).toBeTruthy(),
-    );
+    await waitFor(() => expect(screen.getByLabelText("Kode")).toBeTruthy());
     expect(screen.queryByRole("button", { name: "Hapus" })).toBeNull();
 
     cleanup();
@@ -188,7 +186,9 @@ describe("nominal per orang", () => {
 
     fireEvent.click(screen.getByText("Berbeda per orang"));
 
-    await waitFor(() => expect(screen.queryByLabelText("Nilai (Rp)")).toBeNull());
+    await waitFor(() =>
+      expect(screen.queryByLabelText("Nilai (Rp)")).toBeNull(),
+    );
 
     fireEvent.click(screen.getByRole("button", { name: "Simpan" }));
     fireEvent.click(await screen.findByRole("button", { name: "Ya" }));

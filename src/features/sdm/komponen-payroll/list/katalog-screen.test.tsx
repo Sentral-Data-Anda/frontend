@@ -174,7 +174,9 @@ describe("konfigurasi tabel katalog", () => {
       "status",
     ]);
     expect(
-      columns.filter((column) => column.isSecondary).map((column) => column.key),
+      columns
+        .filter((column) => column.isSecondary)
+        .map((column) => column.key),
     ).toEqual(["calculationType", "account"]);
   });
 });

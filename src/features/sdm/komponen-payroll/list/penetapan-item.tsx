@@ -1,4 +1,4 @@
-import { Pencil } from "lucide-react";
+import { Ban, Pencil } from "lucide-react";
 import Link from "next/link";
 
 import { buttonVariants } from "@/components/common/control";
@@ -8,12 +8,13 @@ import { saveListFocus } from "@/lib/list-return";
 import { cn } from "@/lib/utils";
 
 import {
+  INACTIVE_COMPONENT_NOTE,
   PENETAPAN_LIST_PATH,
   assignmentValueText,
   penetapanEditHref,
 } from "../model";
 import type { PenetapanKomponen } from "../types";
-import { ComponentTypeBadge } from "../ui";
+import { ComponentStatus, ComponentTypeBadge } from "../ui";
 
 const OPEN_ENDED = "Terbuka";
 
@@ -25,6 +26,21 @@ const labelOf = (assignment: PenetapanKomponen) =>
 
 const hrefOf = (isCanUpdate: boolean) => (assignment: PenetapanKomponen) =>
   isCanUpdate ? penetapanEditHref(assignment.publicId) : undefined;
+
+const isRetired = (assignment: PenetapanKomponen) =>
+  !assignment.payrollComponent.isActive;
+
+// Penanda berlebar ikon, bukan chip: chip "Nonaktif" di kolom 2fr menyisakan
+// satu huruf untuk nama komponennya di 820, dan sufiks teks ikut terpotong.
+const RetiredMark = () => (
+  <span
+    title={INACTIVE_COMPONENT_NOTE}
+    className="text-muted-foreground shrink-0"
+  >
+    <Ban aria-hidden className="size-3.5" />
+    <span className="sr-only">Komponen nonaktif</span>
+  </span>
+);
 
 const periodOf = (assignment: PenetapanKomponen) =>
   `${formatDate(assignment.effectiveFrom)} – ${
@@ -47,19 +63,23 @@ export const PenetapanListItemRow = (props: PropTypes) => {
       title={assignment.karyawan.name}
       meta={`${assignment.payrollComponent.name} · ${assignmentValueText(assignment)} · ${periodOf(assignment)}`}
       trailing={
-        href ? (
-          <Link
-            href={href}
-            onClick={() => saveFocus(assignment)}
-            aria-label={labelOf(assignment)}
-            className={cn(
-              buttonVariants({ variant: "ghost", size: "icon-sm" }),
-              "cursor-pointer",
-            )}
-          >
-            <Pencil aria-hidden />
-          </Link>
-        ) : null
+        <>
+          {isRetired(assignment) ? <ComponentStatus isActive={false} /> : null}
+
+          {href ? (
+            <Link
+              href={href}
+              onClick={() => saveFocus(assignment)}
+              aria-label={labelOf(assignment)}
+              className={cn(
+                buttonVariants({ variant: "ghost", size: "icon-sm" }),
+                "cursor-pointer",
+              )}
+            >
+              <Pencil aria-hidden />
+            </Link>
+          ) : null}
+        </>
       }
     />
   );
@@ -89,14 +109,20 @@ export function penetapanTable(
         header: "Komponen",
         width: "minmax(0,2fr)",
         narrowWidth: "minmax(0,2fr)",
+        // Status komponen ikut ke dalam span yang memotong, bukan jadi chip
+        // berlebar tetap: di 820 chip itu menyisakan satu huruf untuk namanya.
         cell: (assignment) => (
           <span className="flex min-w-0 items-center gap-2">
             <span
-              className="truncate"
               title={assignment.payrollComponent.name}
+              className={cn(
+                "truncate",
+                isRetired(assignment) && "text-muted-foreground",
+              )}
             >
               {assignment.payrollComponent.name}
             </span>
+            {isRetired(assignment) ? <RetiredMark /> : null}
             <ComponentTypeBadge type={assignment.payrollComponent.type} />
           </span>
         ),

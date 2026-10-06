@@ -9,6 +9,8 @@ import { useListParams } from "@/hooks/use-list-params";
 
 import { useKomponenPayrollList } from "../api";
 import {
+  ACCOUNT_LOADING,
+  ACCOUNT_UNKNOWN,
   ACCOUNT_UNMAPPED,
   KATALOG_CREATE_PATH,
   KATALOG_FILTERS,
@@ -32,12 +34,15 @@ export const KatalogList = () => {
   const accounts = useDdlOptions<AccountOption>("account");
   const isSearched = Boolean(listParams.search) || listParams.isFiltered;
 
+  // "Belum dipetakan" selama daftar akun masih terbang adalah kebohongan di
+  // kolom yang menentukan apakah penggajian bisa dibayar.
   const accountLabelOf = (accountId: number | null) => {
     if (accountId === null) return ACCOUNT_UNMAPPED;
+    if (accounts.isLoading) return ACCOUNT_LOADING;
 
     const account = accounts.rows.find((row) => row.id === accountId);
 
-    return account ? `${account.code} — ${account.name}` : ACCOUNT_UNMAPPED;
+    return account ? `${account.code} — ${account.name}` : ACCOUNT_UNKNOWN;
   };
 
   return (
@@ -52,10 +57,7 @@ export const KatalogList = () => {
         backHref={domainHref(MENU.SDM)}
         action={
           isCanCreate ? (
-            <PageHeaderAdd
-              href={KATALOG_CREATE_PATH}
-              label="Tambah komponen"
-            />
+            <PageHeaderAdd href={KATALOG_CREATE_PATH} label="Tambah komponen" />
           ) : null
         }
       />
@@ -101,10 +103,7 @@ export const KatalogList = () => {
         itemNoun="komponen"
       >
         {(component) => (
-          <KatalogListItemRow
-            component={component}
-            isCanUpdate={isCanUpdate}
-          />
+          <KatalogListItemRow component={component} isCanUpdate={isCanUpdate} />
         )}
       </DataList>
     </div>

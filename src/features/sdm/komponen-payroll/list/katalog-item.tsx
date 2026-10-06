@@ -14,10 +14,7 @@ import {
   isManaged,
   katalogEditHref,
 } from "../model";
-import {
-  CALCULATION_TYPE_LABEL,
-  type KomponenPayroll,
-} from "../types";
+import { CALCULATION_TYPE_LABEL, type KomponenPayroll } from "../types";
 import { ComponentStatus, ComponentTypeBadge } from "../ui";
 
 export type AccountLabelOf = (accountId: number | null) => string;

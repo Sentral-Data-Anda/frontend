@@ -1,6 +1,12 @@
 import { Toast } from "@base-ui/react/toast";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import { afterEach, describe, expect, mock, test } from "bun:test";
 
 import type { MenuAction } from "@/types/menu";
@@ -29,6 +35,8 @@ const { PenetapanFormScreen } = await import("./penetapan-screen");
 
 const originalFetch = globalThis.fetch;
 
+// Pemilih be-sada menyaring `isActive` saja, jadi baris PPH21 memang bisa
+// sampai ke sini. Layar yang menolaknya adalah penjaga keduanya.
 const COMPONENTS: KomponenPayrollOption[] = [
   {
     id: 1,
@@ -43,6 +51,22 @@ const COMPONENTS: KomponenPayrollOption[] = [
     code: "KPY-0002",
     name: "Tunjangan Jabatan",
     type: "EARNING",
+    calculationType: "FIXED",
+    defaultValue: null,
+  },
+  {
+    id: 4,
+    code: "KPY-0004",
+    name: "Iuran BPJS",
+    type: "DEDUCTION",
+    calculationType: "PERCENTAGE",
+    defaultValue: "1.00",
+  },
+  {
+    id: 6,
+    code: "PPH21",
+    name: "PPh21",
+    type: "DEDUCTION",
     calculationType: "FIXED",
     defaultValue: null,
   },
@@ -61,12 +85,53 @@ const DETAIL: PenetapanKomponen = {
     code: "KPY-0002",
     name: "Tunjangan Jabatan",
     type: "EARNING",
+    calculationType: "FIXED",
+    defaultValue: null,
+    isActive: true,
   },
 };
 
-const onMockApi = () => {
-  globalThis.fetch = ((input: string | URL) => {
+// Nilai null di atas komponen yang punya default: bentuk yang harus benar-benar
+// terkirim sebagai null, bukan dihilangkan dari badan permintaan.
+const WITH_DEFAULT: PenetapanKomponen = {
+  ...DETAIL,
+  value: null,
+  payrollComponentId: 1,
+  payrollComponent: {
+    publicId: "kpy-1",
+    code: "KPY-0001",
+    name: "Tunjangan Transport",
+    type: "EARNING",
+    calculationType: "FIXED",
+    defaultValue: "350000.00",
+    isActive: true,
+  },
+};
+
+// Komponen yang sudah dimatikan hilang dari pemilih, jadi form ubahnya hanya
+// punya relasi penetapan untuk bercabang.
+const RETIRED: PenetapanKomponen = {
+  ...DETAIL,
+  publicId: "kkp-9",
+  payrollComponentId: 4,
+  value: "2.00",
+  payrollComponent: {
+    publicId: "kpy-4",
+    code: "KPY-0004",
+    name: "Iuran BPJS",
+    type: "DEDUCTION",
+    calculationType: "PERCENTAGE",
+    defaultValue: "1.00",
+    isActive: false,
+  },
+};
+
+const sent: { method: string; body: unknown }[] = [];
+
+const onMockApi = (detail: PenetapanKomponen = DETAIL) => {
+  globalThis.fetch = ((input: string | URL, init?: RequestInit) => {
     const href = String(input);
+    const method = init?.method ?? "GET";
 
     if (href.includes("/ddl/komponen-payroll")) {
       return Promise.resolve(
@@ -84,8 +149,15 @@ const onMockApi = () => {
       );
     }
 
+    if (method !== "GET") {
+      sent.push({
+        method,
+        body: JSON.parse(String(init?.body ?? "{}")) as unknown,
+      });
+    }
+
     return Promise.resolve(
-      Response.json({ status: 200, message: "ok", data: DETAIL }),
+      Response.json({ status: 200, message: "ok", data: detail }),
     );
   }) as unknown as typeof fetch;
 };
@@ -110,6 +182,7 @@ afterEach(() => {
   cleanup();
   globalThis.fetch = originalFetch;
   window.sessionStorage.clear();
+  sent.length = 0;
 });
 
 describe("gerbang izin form penetapan", () => {
@@ -166,6 +239,35 @@ describe("penanda data gaji", () => {
   });
 });
 
+describe("payload penetapan, dari layar", () => {
+  test("tanggal YYYY-MM-DD dan nilai null benar-benar terkirim", async () => {
+    onMockApi(WITH_DEFAULT);
+    onRender(["VIEW", "UPDATE"], "kkp-1");
+
+    await waitFor(() =>
+      expect(
+        (screen.getByLabelText("Karyawan") as HTMLInputElement).readOnly,
+      ).toBe(true),
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Simpan" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Ya" }));
+
+    await waitFor(() => expect(sent.length).toBe(1));
+    expect(sent[0].method).toBe("PUT");
+    expect(sent[0].body).toMatchObject({
+      karyawanId: 1,
+      payrollComponentId: 1,
+      value: null,
+      effectiveFrom: "2026-01-01",
+      effectiveTo: null,
+    });
+    expect(Object.prototype.hasOwnProperty.call(sent[0].body, "value")).toBe(
+      true,
+    );
+  });
+});
+
 describe("pasangan karyawan dan komponen tidak bisa dipindahkan", () => {
   test("pada ubah keduanya read-only, bukan pilihan", async () => {
     onMockApi();
@@ -208,5 +310,37 @@ describe("pasangan karyawan dan komponen tidak bisa dipindahkan", () => {
 
     expect(choice.disabled).toBe(true);
     expect(screen.getByLabelText("Nilai (Rp)")).toBeTruthy();
+  });
+
+  test("komponen nonaktif: cabangnya datang dari relasi, bukan dari pemilih", async () => {
+    onMockApi(RETIRED);
+    onRender(["VIEW", "UPDATE"], "kkp-9");
+
+    // Label, batas digit, dan penjaga persen semuanya bergantung pada
+    // `calculationType`, yang pemilih aktif-saja tidak punya untuk baris ini.
+    await waitFor(() =>
+      expect(screen.getByLabelText("Persentase (%)")).toBeTruthy(),
+    );
+    expect(screen.queryByLabelText("Nilai (Rp)")).toBeNull();
+    expect(
+      screen.getByText(
+        "Komponen ini sudah nonaktif, jadi penetapan ini tidak dibayarkan pada penggajian berikutnya.",
+      ),
+    ).toBeTruthy();
+  });
+
+  test("persentase di atas 100 ditolak di layar, bukan ditemukan server", async () => {
+    onMockApi(RETIRED);
+    onRender(["VIEW", "UPDATE"], "kkp-9");
+
+    const value = await waitFor(() => screen.getByLabelText("Persentase (%)"));
+
+    fireEvent.change(value, { target: { value: "999" } });
+    fireEvent.click(screen.getByRole("button", { name: "Simpan" }));
+
+    expect(
+      await screen.findByText("Persentase tidak boleh lebih dari 100"),
+    ).toBeTruthy();
+    expect(sent.length).toBe(0);
   });
 });
