@@ -75,7 +75,14 @@ export function FormWide({
   className?: string;
   children: ReactNode;
 }) {
-  return <div className={cn("col-span-full", className)}>{children}</div>;
+  // `min-w-0` wajib: `Textarea` memakai `field-sizing-content`, jadi lebar
+  // min-content-nya mengikuti isinya. Tanpa ini `min-width: auto` menyelesaikan
+  // ke lebar itu dan meluber keluar track `minmax(0,1fr)` milik `FormSection` —
+  // halaman menggulir mendatar dan action bar sticky ikut lari. Hanya muncul di
+  // pita 704-800 dan 1024-1200, jadi 390/820/1440 semuanya hijau (pedoman §7.3).
+  return (
+    <div className={cn("col-span-full min-w-0", className)}>{children}</div>
+  );
 }
 
 export function FormActions({
