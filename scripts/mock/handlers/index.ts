@@ -6,6 +6,7 @@ import { anggaranMock } from "./anggaran";
 import { bapelMock } from "./bapel";
 import { barangMock } from "./barang";
 import { barangPersediaanMock } from "./barang-persediaan";
+import { cutiMock } from "./cuti";
 import { eventMock } from "./event";
 import { fasilitasMock } from "./fasilitas";
 import { galeriMock } from "./galeri";
@@ -85,6 +86,7 @@ export const MOCK_HANDLERS: MockHandler[] = [
   permintaanPersetujuanMock,
   setelanPersetujuanMock,
   tipeCutiMock,
+  cutiMock,
   karyawanMock,
   tipeIbadahMock,
   ibadahMock,
