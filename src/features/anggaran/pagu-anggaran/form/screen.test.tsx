@@ -355,16 +355,14 @@ describe("form pagu anggaran", () => {
     onRender(["VIEW", "UPDATE"], {}, "pga-1");
     await screen.findByLabelText("Pagu (Rp)");
 
-    expect(
-      screen.queryByRole("button", { name: "Beberapa badan pelayanan" }),
-    ).toBeNull();
+    expect(screen.queryByRole("button", { name: "Beberapa pagu" })).toBeNull();
   });
 });
 
 describe("mode batch", () => {
   const onOpenBatch = async () => {
     fireEvent.click(
-      await screen.findByRole("button", { name: "Beberapa badan pelayanan" }),
+      await screen.findByRole("button", { name: "Beberapa pagu" }),
     );
   };
 
