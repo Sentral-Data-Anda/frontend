@@ -4,15 +4,15 @@ import Link from "next/link";
 import { buttonVariants } from "@/components/common/control";
 import { Avatar, Badge } from "@/components/common/display";
 import { DataListRow, type DataTableConfig } from "@/components/common/list";
-import { formatAmount, formatDateShort } from "@/lib/format";
+import { formatAmount } from "@/lib/format";
 import { saveListFocus } from "@/lib/list-return";
 import { cn } from "@/lib/utils";
 
 import {
   LIST_PATH,
-  OPEN_ENDED,
   WEEKLY_DAY_OFF_MISSING,
   contractEditHref,
+  periodShortText,
   periodText,
   phaseOf,
 } from "../model";
@@ -54,11 +54,6 @@ const phaseBadge = (contract: KontrakKaryawan) => {
     </Badge>
   );
 };
-
-const periodShort = (contract: KontrakKaryawan) =>
-  `${formatDateShort(contract.effectiveFrom)} – ${
-    contract.effectiveTo ? formatDateShort(contract.effectiveTo) : OPEN_ENDED
-  }`;
 
 interface PropTypes {
   contract: KontrakKaryawan;
@@ -148,7 +143,10 @@ export function kontrakTable(
         width: "minmax(0,1.2fr)",
         isSecondary: true,
         cell: (contract) => (
-          <span className="block truncate">
+          <span
+            className="block truncate"
+            title={CONTRACT_TYPE_LABEL[contract.contractType]}
+          >
             {CONTRACT_TYPE_LABEL[contract.contractType]}
           </span>
         ),
@@ -160,7 +158,10 @@ export function kontrakTable(
         narrowWidth: "minmax(0,1.6fr)",
         align: "end",
         cell: (contract) => (
-          <span className="block truncate tabular-nums">
+          <span
+            className="block truncate tabular-nums"
+            title={formatAmount(contract.basicSalary)}
+          >
             {formatAmount(contract.basicSalary)}
           </span>
         ),
@@ -169,10 +170,13 @@ export function kontrakTable(
         key: "effectiveFrom",
         header: "Berlaku",
         width: "minmax(0,1.8fr)",
-        narrowWidth: "minmax(0,1.7fr)",
+        narrowWidth: "minmax(0,1.5fr)",
         cell: (contract) => (
-          <span className="block truncate tabular-nums">
-            {periodShort(contract)}
+          <span
+            className="block truncate tabular-nums"
+            title={periodText(contract)}
+          >
+            {periodShortText(contract)}
           </span>
         ),
       },
@@ -180,7 +184,7 @@ export function kontrakTable(
         key: "phase",
         header: "Status berlaku",
         width: "minmax(0,1.4fr)",
-        narrowWidth: "minmax(0,1.5fr)",
+        narrowWidth: "minmax(0,1.7fr)",
         cell: phaseBadge,
       },
     ],

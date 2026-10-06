@@ -15,6 +15,7 @@ type Json = {
   error?: string;
   message?: string;
   issues?: { path: string; message: string }[];
+  totalData?: number;
   data?: unknown;
 };
 
@@ -125,6 +126,83 @@ describe("kunci path", () => {
   test("publicId dan id bukan kunci", async () => {
     expect((await onCall("GET", "/kontrak-karyawan/ktr-1"))?.status).toBe(404);
     expect((await onCall("GET", "/kontrak-karyawan/1"))?.status).toBe(404);
+  });
+});
+
+/**
+ * Satu test per rute baca, dua arah, dan yang dinyatakan adalah BARIS yang
+ * dikembalikan — bukan statusnya. Pemindaian teks `SALARY_SCREENS` hanya
+ * melihat berkas mana yang menyebut field gaji; bacaan yang melebar ke baris
+ * yang bukan haknya tidak terlihat olehnya.
+ */
+describe("bacaan gaji", () => {
+  // Urutan `effectiveFrom desc, id desc`: 0002 mendahului 0001 karena keduanya
+  // mulai di hari yang sama.
+  const SEEDED = [
+    "KTR-0006",
+    "KTR-0004",
+    "KTR-0003",
+    "KTR-0002",
+    "KTR-0001",
+    "KTR-0005",
+  ];
+
+  test("GET / mengembalikan tepat baris benihnya, dengan KONTRAK_KARYAWAN VIEW", async () => {
+    const result = await onCall(
+      "GET",
+      "/kontrak-karyawan?limit=100",
+      undefined,
+      only(MENU.KONTRAK_KARYAWAN),
+    );
+
+    expect(result?.status).toBe(200);
+    expect(codesOf(result?.body)).toEqual(SEEDED);
+    expect(result?.body.totalData).toBe(SEEDED.length);
+  });
+
+  test("GET / tanpa KONTRAK_KARYAWAN VIEW mengembalikan nol baris", async () => {
+    for (const slug of [MENU.PAYROLL, MENU.KARYAWAN, MENU.KOMPONEN_PAYROLL]) {
+      const result = await onCall(
+        "GET",
+        "/kontrak-karyawan?limit=100",
+        undefined,
+        only(slug),
+      );
+
+      expect(result?.status, slug).toBe(403);
+      expect(result?.body.data, slug).toBeUndefined();
+    }
+  });
+
+  test("GET /:code mengembalikan kontrak yang diminta dan hanya itu", async () => {
+    const result = await onCall(
+      "GET",
+      "/kontrak-karyawan/KTR-0001",
+      undefined,
+      only(MENU.KONTRAK_KARYAWAN),
+    );
+
+    expect(result?.status).toBe(200);
+    expect(result?.body.data).toMatchObject({
+      code: "KTR-0001",
+      karyawanId: 1,
+      karyawan: { code: "KRY-0001" },
+    });
+    expect(Array.isArray(result?.body.data)).toBe(false);
+  });
+
+  test("GET /:code tanpa KONTRAK_KARYAWAN VIEW mengembalikan nol baris", async () => {
+    for (const slug of [MENU.PAYROLL, MENU.KARYAWAN, MENU.KOMPONEN_PAYROLL]) {
+      const result = await onCall(
+        "GET",
+        "/kontrak-karyawan/KTR-0001",
+        undefined,
+        only(slug),
+      );
+
+      expect(result?.status, slug).toBe(403);
+      expect(result?.body.data, slug).toBeUndefined();
+    }
   });
 });
 

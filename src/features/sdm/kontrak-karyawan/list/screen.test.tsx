@@ -1,11 +1,18 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import { afterEach, describe, expect, mock, test } from "bun:test";
 
 import { MENU } from "@/config/menu";
 import type { MenuAction } from "@/types/menu";
 
 import { onStubViewport } from "../../../../../tests/viewport";
+import { exportControlsIn } from "../export-guard";
 import type { KontrakKaryawan } from "../types";
 
 const granted: { current: Record<string, MenuAction[]> } = { current: {} };
@@ -230,7 +237,8 @@ describe("baris kontrak", () => {
     onRender(["VIEW", "UPDATE"]);
 
     await waitFor(() => expect(screen.getByText("Ani Wijaya")).toBeTruthy());
-    expect(screen.getAllByText(/Terbuka/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Sejak 1 Januari 2020/).length).toBeGreaterThan(0);
+    expect(screen.queryByText(/1970|Invalid Date/)).toBeNull();
 
     viewport.onRestore();
   });
@@ -250,31 +258,62 @@ describe("penanda data gaji", () => {
  * dirender, bukan sumbernya.
  */
 describe("nol jalur ekspor", () => {
-  const EXPORT_WORDS =
-    /(ekspor|export|unduh|download|cetak|print|csv|excel|xlsx?|pdf|simpan ke berkas)/i;
-
-  test("nol kendali apa pun yang menawarkan berkas", async () => {
+  test("nol kendali apa pun yang menawarkan berkas, termasuk yang di-portal", async () => {
     const viewport = onStubViewport(true);
     onMockApi();
-    const { container } = onRender(["VIEW", "CREATE", "UPDATE", "DELETE"]);
+    onRender(["VIEW", "CREATE", "UPDATE", "DELETE"]);
 
     await waitFor(() => expect(screen.getByText("Ani Wijaya")).toBeTruthy());
 
-    const offered = [...container.querySelectorAll("a, button")]
-      .map((node) =>
-        [
-          node.textContent ?? "",
-          node.getAttribute("aria-label") ?? "",
-          node.getAttribute("title") ?? "",
-          node.getAttribute("download") ?? "",
-        ].join(" "),
-      )
-      .filter((label) => EXPORT_WORDS.test(label));
+    // Panel filter Base UI di-portal ke `body`: dibuka dulu supaya isinya
+    // benar-benar ada di himpunan subjeknya.
+    fireEvent.click(screen.getByRole("button", { name: "Filter" }));
+    await waitFor(() =>
+      expect(screen.getAllByRole("button", { name: /Terapkan|Reset/ }).length)
+        .toBeGreaterThan(0),
+    );
 
-    expect(offered).toEqual([]);
-    expect(container.querySelectorAll("a[download]").length).toBe(0);
+    expect(exportControlsIn(document)).toEqual([]);
 
     viewport.onRestore();
+  });
+
+  test("penjaganya melihat ke luar container render", () => {
+    const portal = document.createElement("div");
+    portal.innerHTML = '<a download href="/x.csv">Unduh CSV</a>';
+    document.body.append(portal);
+
+    expect(exportControlsIn(document).length).toBe(2);
+
+    portal.remove();
+  });
+
+  test("keluarga ejaan, bukan satu frasa", () => {
+    const root = document.createElement("div");
+
+    for (const label of [
+      "Salin ke berkas",
+      "Simpan berkas",
+      "Arsipkan",
+      "Bagikan",
+      "Kirim ke email",
+      "Spreadsheet",
+      "Rekap bulanan",
+      "Cetak semua",
+      "Export",
+    ]) {
+      root.innerHTML = `<button type="button">${label}</button>`;
+      expect(exportControlsIn(root)).toHaveLength(1);
+    }
+  });
+
+  test("kendali biasa layar ini tidak kena positif palsu", () => {
+    const root = document.createElement("div");
+
+    for (const label of ["Simpan", "Batal", "Hapus", "Filter", "Coba lagi"]) {
+      root.innerHTML = `<button type="button">${label}</button>`;
+      expect(exportControlsIn(root)).toEqual([]);
+    }
   });
 });
 

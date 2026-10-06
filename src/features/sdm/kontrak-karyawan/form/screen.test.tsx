@@ -12,6 +12,7 @@ import { afterEach, describe, expect, mock, test } from "bun:test";
 import { MENU } from "@/config/menu";
 import type { MenuAction } from "@/types/menu";
 
+import { exportControlsIn } from "../export-guard";
 import { LIST_PATH } from "../model";
 import type { KontrakKaryawan } from "../types";
 
@@ -292,6 +293,7 @@ describe("libur mingguan", () => {
 
     const days = screen.getAllByRole("checkbox") as HTMLInputElement[];
 
+    await waitFor(() => expect(days[0].checked).toBe(true));
     fireEvent.click(days[5]);
     await onSave();
 
@@ -379,6 +381,34 @@ describe("bacaan gaji dijaga StepUp", () => {
     expect(screen.queryByLabelText("Jabatan")).toBeNull();
   });
 
+  // 403 POLOS: bukan step-up, bukan 404. Dulu layar ini diam-diam jadi form
+  // TAMBAH — judul ubah, Simpan aktif, field kosong, Karyawan bisa dipilih.
+  test("muat yang gagal di luar 404 tetap form ubah dan tidak bisa disimpan", async () => {
+    onMockApi(DETAIL, {
+      detailFailure: { status: 403, error: "Akses ditolak" },
+    });
+    onRender(["VIEW", "UPDATE", "DELETE"], "KTR-0001");
+
+    expect(await screen.findByText("Kontrak ini belum bisa dimuat.")).toBeTruthy();
+
+    const field = screen.getByLabelText("Karyawan") as HTMLInputElement;
+
+    expect(field.readOnly).toBe(true);
+    expect(screen.queryByRole("combobox", { name: "Karyawan" })).toBeNull();
+    expect((screen.getByLabelText("Kode kontrak") as HTMLInputElement).value).toBe(
+      "KTR-0001",
+    );
+    expect(
+      (screen.getByRole("button", { name: "Simpan" }) as HTMLButtonElement)
+        .disabled,
+    ).toBe(true);
+    expect(
+      (screen.getByRole("button", { name: "Hapus" }) as HTMLButtonElement)
+        .disabled,
+    ).toBe(true);
+    expect(screen.queryByText("Data gaji terkunci")).toBeNull();
+  });
+
   test("404 tetap keadaan tidak ditemukan", async () => {
     onMockApi(DETAIL, {
       detailFailure: { status: 404, error: "Kontrak Karyawan Tidak Ditemukan" },
@@ -391,9 +421,6 @@ describe("bacaan gaji dijaga StepUp", () => {
 });
 
 describe("penanda data gaji dan nol jalur ekspor", () => {
-  const EXPORT_WORDS =
-    /(ekspor|export|unduh|download|cetak|print|csv|excel|xlsx?|pdf|simpan ke berkas)/i;
-
   test("penanda menetap di form", () => {
     onMockApi();
     onRender(["VIEW", "CREATE"]);
@@ -410,24 +437,16 @@ describe("penanda data gaji dan nol jalur ekspor", () => {
     expect(screen.queryByText(/Ubah Kontrak Karyawan.*Rp/)).toBeNull();
   });
 
-  test("nol kendali apa pun yang menawarkan berkas", async () => {
+  test("nol kendali apa pun yang menawarkan berkas, termasuk di dialog", async () => {
     onMockApi();
-    const { container } = onRender(["VIEW", "UPDATE", "DELETE"], "KTR-0001");
+    onRender(["VIEW", "UPDATE", "DELETE"], "KTR-0001");
 
     await onLoaded();
 
-    const offered = [...container.querySelectorAll("a, button")]
-      .map((node) =>
-        [
-          node.textContent ?? "",
-          node.getAttribute("aria-label") ?? "",
-          node.getAttribute("title") ?? "",
-          node.getAttribute("download") ?? "",
-        ].join(" "),
-      )
-      .filter((label) => EXPORT_WORDS.test(label));
+    // Dialog konfirmasi di-portal ke `body`, jadi ia dibuka dulu.
+    fireEvent.click(screen.getByRole("button", { name: "Simpan" }));
+    await screen.findByRole("button", { name: "Ya" });
 
-    expect(offered).toEqual([]);
-    expect(container.querySelectorAll("a[download]").length).toBe(0);
+    expect(exportControlsIn(document)).toEqual([]);
   });
 });

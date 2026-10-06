@@ -17,7 +17,6 @@ export const LockedField = (props: PropTypes) => {
     <FormField htmlFor={id} label={label} hint={hint}>
       <Input
         readOnly
-        id={id}
         variant="filled"
         value={value}
         icon={<Lock />}

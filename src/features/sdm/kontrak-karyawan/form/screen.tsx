@@ -82,6 +82,11 @@ export const KontrakFormScreen = (props: PropTypes) => {
   const { isDirty, isSubmitting, submitCount } = form.formState;
   const rootError = form.formState.errors.root?.message;
   const isBusy = isSubmitting || deleteContract.isPending;
+  const isNotFound =
+    detail.error instanceof FetchError && detail.error.status === 404;
+  // Muat yang gagal di luar 404 dan di luar step-up: formnya tetap form ubah,
+  // tapi isinya bukan kontrak itu, jadi tidak boleh disimpan.
+  const isDetailBroken = detail.isError && !isNotFound && !lock.isLocked;
 
   const onLeave = () => router.replace(listReturn);
 
@@ -193,7 +198,7 @@ export const KontrakFormScreen = (props: PropTypes) => {
     );
   }
 
-  if (detail.error instanceof FetchError && detail.error.status === 404) {
+  if (isNotFound) {
     return (
       <FormNotFound
         noun="kontrak karyawan"
@@ -213,7 +218,7 @@ export const KontrakFormScreen = (props: PropTypes) => {
               ref={deleteRef}
               type="button"
               variant="destructive"
-              disabled={isBusy || detail.isLoading}
+              disabled={isBusy || detail.isLoading || isDetailBroken}
               onClick={() => confirm.onOpen("delete")}
             >
               {deleteContract.isPending ? "Menghapus…" : "Hapus"}
@@ -232,7 +237,7 @@ export const KontrakFormScreen = (props: PropTypes) => {
           <Button
             ref={saveRef}
             type="submit"
-            disabled={isBusy || detail.isLoading}
+            disabled={isBusy || detail.isLoading || isDetailBroken}
           >
             {isSubmitting ? "Menyimpan…" : "Simpan"}
           </Button>
@@ -257,6 +262,8 @@ export const KontrakFormScreen = (props: PropTypes) => {
         <EmployeeSection
           form={form}
           isDisabled={isBusy}
+          isEdit={isEdit}
+          code={code}
           contract={detail.data}
         />
         <JobSection form={form} isDisabled={isBusy} />
@@ -264,6 +271,23 @@ export const KontrakFormScreen = (props: PropTypes) => {
       </div>
 
       <div className="space-y-3 px-gutter pb-4 empty:hidden">
+        {isDetailBroken ? (
+          <div className="space-y-3">
+            <FormAlert
+              title="Kontrak ini belum bisa dimuat."
+              message={detail.error?.message ?? ""}
+            />
+
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => void detail.refetch()}
+            >
+              Coba lagi
+            </Button>
+          </div>
+        ) : null}
+
         {rootError ? (
           <FormAlert
             title="Data belum tersimpan. Coba simpan lagi."

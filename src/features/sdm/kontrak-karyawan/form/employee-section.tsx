@@ -15,15 +15,18 @@ import { LockedField } from "./locked-field";
 interface PropTypes {
   form: KontrakForm;
   isDisabled: boolean;
+  // Dari rutenya, bukan dari apakah detailnya termuat: muat yang gagal tidak
+  // boleh mengubah form ubah jadi form tambah.
+  isEdit: boolean;
+  code?: string;
   contract?: KontrakKaryawan;
 }
 
 export const EmployeeSection = (props: PropTypes) => {
-  const { form, isDisabled, contract } = props;
+  const { form, isDisabled, isEdit, code, contract } = props;
 
   const karyawanId = useWatch({ control: form.control, name: "karyawanId" });
   const karyawan = useDdlOptions("karyawan", "id", karyawanId);
-  const isEdit = contract !== undefined;
 
   return (
     <FormSection
@@ -35,7 +38,7 @@ export const EmployeeSection = (props: PropTypes) => {
         <LockedField
           id="karyawanId"
           label="Karyawan"
-          value={contract.karyawan.name}
+          value={contract?.karyawan.name ?? ""}
         />
       ) : (
         <ControlField control={form.control} name="karyawanId" label="Karyawan">
@@ -55,7 +58,11 @@ export const EmployeeSection = (props: PropTypes) => {
       )}
 
       {isEdit ? (
-        <LockedField id="code" label="Kode kontrak" value={contract.code} />
+        <LockedField
+          id="code"
+          label="Kode kontrak"
+          value={contract?.code ?? code ?? ""}
+        />
       ) : null}
     </FormSection>
   );

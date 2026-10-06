@@ -3,7 +3,7 @@ import { z } from "zod";
 import { MENU, createHref, editHref, menuHref } from "@/config/menu";
 import type { ListFilterSchema } from "@/hooks/use-list-params";
 import { todayJakarta } from "@/lib/date";
-import { formatDate } from "@/lib/format";
+import { formatDate, formatDateShort } from "@/lib/format";
 import { collapseSpaces } from "@/lib/name";
 
 import {
@@ -58,7 +58,7 @@ export const WEEKLY_DAY_OFF_HINT =
 export const WEEKLY_DAY_OFF_MISSING =
   "Kontrak ini tercatat tanpa libur mingguan, jadi cuti karyawan ini dihitung tanpa hari libur mingguan. Pilih harinya lalu simpan.";
 
-export const OPEN_ENDED = "Terbuka";
+export const OPEN_ENDED = "Sejak";
 
 export const MONEY_MAX = 9_999_999_999_999;
 
@@ -78,10 +78,28 @@ export const weeklyDayOffText = (days: readonly number[]) =>
 
 export const dayKeyOf = (value: string) => value.slice(0, 10);
 
+// Masa berlaku terbuka ditulis "Sejak <tanggal>", bukan "<tanggal> – Terbuka":
+// lebih pendek di kolom yang memang tidak muat, dan mengatakan hal yang sama.
 export const periodText = (contract: KontrakKaryawan) =>
-  `${formatDate(contract.effectiveFrom)} – ${
-    contract.effectiveTo ? formatDate(contract.effectiveTo) : OPEN_ENDED
-  }`;
+  contract.effectiveTo
+    ? `${formatDate(contract.effectiveFrom)} – ${formatDate(contract.effectiveTo)}`
+    : `${OPEN_ENDED} ${formatDate(contract.effectiveFrom)}`;
+
+const yearOf = (value: string) => dayKeyOf(value).slice(0, 4);
+
+// Tahun yang sama tidak diulang: kolomnya sempit dan nominal yang terpotong
+// terbaca sebagai angka lain.
+export const periodShortText = (contract: KontrakKaryawan) => {
+  const from = formatDateShort(contract.effectiveFrom);
+
+  if (!contract.effectiveTo) return `${OPEN_ENDED} ${from}`;
+
+  const year = yearOf(contract.effectiveFrom);
+  const head =
+    yearOf(contract.effectiveTo) === year ? from.replace(` ${year}`, "") : from;
+
+  return `${head} – ${formatDateShort(contract.effectiveTo)}`;
+};
 
 export const phaseOf = (
   contract: Pick<KontrakKaryawan, "effectiveFrom" | "effectiveTo">,
