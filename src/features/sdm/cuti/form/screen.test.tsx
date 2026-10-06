@@ -10,9 +10,10 @@ import {
 import { afterEach, describe, expect, mock, test } from "bun:test";
 
 import { MENU } from "@/config/menu";
+import { todayJakarta } from "@/lib/date";
 import type { MenuAction } from "@/types/menu";
 
-import { CUTI_LIST_PATH } from "../model";
+import { CUTI_LIST_PATH, LOCKED_TITLE } from "../model";
 import type { Cuti, HolidayDay } from "../types";
 
 const grants: { current: Partial<Record<string, MenuAction[]>> } = {
@@ -262,6 +263,25 @@ describe("baris yang tidak lagi bisa diubah", () => {
     expect(screen.queryByLabelText("Tanggal mulai")).toBeNull();
   });
 
+  // Terukur di peramban: `NoFormAccess` menutup dengan kalimat "hubungi
+  // administrator", dan keadaan ini bukan soal izin — petugasnya punya UPDATE.
+  test("tidak menyuruh menghubungi administrator: ini bukan soal izin", async () => {
+    onMockApi({ detail: { ...DETAIL, status: "APPROVED" } });
+    onRenderForm({ [MENU.CUTI]: ["VIEW", "UPDATE"] }, "CTI-0006");
+
+    await waitFor(() => expect(screen.getByText(LOCKED_TITLE)).toBeTruthy());
+
+    expect(screen.queryByText(/Hubungi administrator/i)).toBeNull();
+    expect(screen.getByRole("link", { name: "Kembali ke Cuti" })).toBeTruthy();
+  });
+
+  test("keadaan tanpa IZIN tetap menyuruh menghubungi administrator", () => {
+    onRenderForm({ [MENU.CUTI]: ["VIEW"] });
+
+    expect(screen.getByText("Tidak bisa mengajukan cuti")).toBeTruthy();
+    expect(screen.getByText(/Hubungi administrator/i)).toBeTruthy();
+  });
+
   test("baris yang sedang ditandatangani juga terkunci", async () => {
     onMockApi({
       detail: {
@@ -383,6 +403,57 @@ describe("ringkasan: hitungan hari dan sisa jatah", () => {
         screen.getByText(/termasuk pengajuan yang masih menunggu/),
       ).toBeTruthy(),
     );
+  });
+});
+
+// Terukur di peramban, bukan di sini lebih dulu: `DateField` membatasi ke HARI
+// INI kalau `max` tidak diberikan, dan seluruh suite ini tadinya memakai
+// tanggal LAMPAU — jadi hijau tanpa pernah menyentuh kasus utama layar.
+describe("cuti hampir selalu di masa depan", () => {
+  const nextYear = `${Number(todayJakarta().slice(0, 4)) + 1}`;
+
+  test("tanggal tahun depan diterima, bukan ditolak 'tidak boleh di masa depan'", async () => {
+    const calls = onMockApi();
+    await onRenderLoadedEdit();
+
+    onType("Tanggal mulai", `10/03/${nextYear}`);
+    onType("Tanggal selesai", `12/03/${nextYear}`);
+
+    await waitFor(() =>
+      expect(
+        (screen.getByLabelText("Tanggal mulai") as HTMLInputElement).value,
+      ).toBe(`10/03/${nextYear}`),
+    );
+    expect(screen.queryByText(/tidak boleh di masa depan/i)).toBeNull();
+
+    await onSaveConfirmed();
+
+    await waitFor(() => expect(calls.calls.length).toBe(1));
+    expect((calls.calls[0]?.body as Record<string, unknown>).startDate).toBe(
+      `${nextYear}-03-10`,
+    );
+  });
+
+  test("ringkasan ikut hidup untuk rentang di masa depan", async () => {
+    onMockApi({
+      holidays: [
+        {
+          date: `${nextYear}-03-11`,
+          name: "Hari Raya Nyepi",
+          type: "NASIONAL",
+        },
+      ],
+    });
+    await onRenderLoadedEdit();
+
+    onType("Tanggal mulai", `10/03/${nextYear}`);
+    onType("Tanggal selesai", `12/03/${nextYear}`);
+
+    await waitFor(() =>
+      expect(screen.getByText(/Hari Raya Nyepi/)).toBeTruthy(),
+    );
+    expect(screen.getByText("3 hari")).toBeTruthy();
+    expect(screen.getByText("2 hari")).toBeTruthy();
   });
 });
 

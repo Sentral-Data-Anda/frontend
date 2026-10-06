@@ -22,6 +22,7 @@ import { denied, json, list, readBody, type MockHandler } from "../kit";
 
 import { hariLiburMock } from "./hari-libur";
 import { KARYAWAN } from "./komponen-payroll";
+import { KARYAWAN_CONTRACT } from "./kontrak-karyawan";
 import { LEAVE_TYPE, isLiveLeaveType } from "./tipe-cuti";
 
 const TODAY = todayJakarta();
@@ -176,7 +177,8 @@ const waiting: ApprovalRow = {
 
 /**
  * Karyawan 1 sengaja melewati jatah Cuti Tahunan (12 hari): 8 + 6 = 14 hari
- * terpakai. Itu keadaan yang dulu mencetak "Sisa -3 Hari" dan yang
+ * terpakai — dan kedua rentangnya jujur terhadap aturan penuh, Senin libur
+ * mingguannya ikut dikurangi. Itu keadaan yang dulu mencetak "Sisa -3 Hari" dan yang
  * `remainingDays` be-sada sekarang lantai-kan di 0.
  */
 const SEED: readonly LeaveRow[] = [
@@ -184,8 +186,8 @@ const SEED: readonly LeaveRow[] = [
     1,
     1,
     1,
-    `${YEAR}-02-10`,
-    `${YEAR}-02-17`,
+    `${YEAR}-02-02`,
+    `${YEAR}-02-11`,
     "8",
     "Pulang kampung menengok orang tua yang baru keluar dari rumah sakit.",
     "APPROVED",
@@ -195,8 +197,8 @@ const SEED: readonly LeaveRow[] = [
     2,
     1,
     1,
-    `${YEAR}-06-15`,
-    `${YEAR}-06-20`,
+    `${YEAR}-06-08`,
+    `${YEAR}-06-14`,
     "6",
     "Mendampingi anak masuk sekolah di luar kota.",
     "APPROVED",
@@ -496,10 +498,6 @@ type Parsed = Exclude<ReturnType<typeof parse>, { failure: Response }>;
  * dan angka yang mock SIMPAN tidak bisa berbeda dari angka yang ringkasan form
  * BACA, karena keduanya sumbernya satu endpoint.
  *
- * Langit-langit: mock tidak punya store kontrak, jadi libur MINGGUAN tidak
- * dikurangi di sini. Arahnya aman (mock mengenakan lebih banyak, tidak pernah
- * mengembalikan jatah), dan ia sengaja sejajar dengan apa yang layar bisa
- * lihat — bukan dengan seluruh aturan be-sada.
  */
 const holidaysBetween = async (from: string, to: string) => {
   const url = new URL(
@@ -534,6 +532,28 @@ const isOverlapping = (parsed: Parsed, exceptId?: number) =>
       parsed.startDate <= item.endDate,
   );
 
+/**
+ * Libur mingguan karyawan dari kontrak yang berlaku di tanggal MULAI, meniru
+ * `cutiRepository.findWeeklyDayOff`. Benihnya diimpor dari modul yang
+ * menyemainya, tidak diduplikasi (pedoman §7.2).
+ *
+ * Larik kosong berarti dua hal yang jalur cuti sengaja tidak bedakan: tidak
+ * ada kontrak berlaku, dan kontrak yang liburnya belum pernah diisi. Keduanya
+ * dibebankan penuh hari kalender — arah yang tidak pernah mengembalikan jatah
+ * yang gereja tidak berikan.
+ */
+const weeklyDayOffOf = (karyawanId: number, onDate: string): number[] => {
+  const contract = KARYAWAN_CONTRACT.find(
+    (row) =>
+      row.deletedAt === null &&
+      row.karyawanId === karyawanId &&
+      row.effectiveFrom.slice(0, 10) <= onDate &&
+      (row.effectiveTo === null || row.effectiveTo.slice(0, 10) >= onDate),
+  );
+
+  return contract?.weeklyDayOff ?? [];
+};
+
 const assertSavable = async (parsed: Parsed, exceptId?: number) => {
   const karyawan = karyawanOf(parsed.karyawanId);
   if (!karyawan) {
@@ -554,9 +574,13 @@ const assertSavable = async (parsed: Parsed, exceptId?: number) => {
   }
 
   const holidays = await holidaysBetween(parsed.startDate, parsed.endDate);
+  const weeklyDayOff = weeklyDayOffOf(parsed.karyawanId, parsed.startDate);
   let working = 0;
   for (let at = parsed.startDate; at <= parsed.endDate; at = addDays(at, 1)) {
-    if (!holidays.has(at)) working += 1;
+    if (weeklyDayOff.includes(new Date(`${at}T00:00:00Z`).getUTCDay()))
+      continue;
+    if (holidays.has(at)) continue;
+    working += 1;
   }
 
   const totalDays = working - (parsed.halfDay ? 0.5 : 0);

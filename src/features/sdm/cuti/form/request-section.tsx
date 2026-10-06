@@ -11,10 +11,20 @@ import {
 } from "@/components/common/control";
 import { ControlField, FormSection, FormWide } from "@/components/common/form";
 import { useDdlOptions } from "@/hooks/use-ddl-options";
+import { endOfYearIso } from "@/lib/date";
 
 import { MAX_REASON, PAID_NOTE } from "../model";
 
 import { LENGTH_OPTIONS, type CutiForm } from "./form-options";
+
+/**
+ * `DateField` membatasi ke HARI INI kalau `max` tidak diberikan, dan cuti
+ * hampir selalu di masa depan — tanpa baris ini form menolak setiap tanggal
+ * mulai besok ke atas dengan "tidak boleh di masa depan". Dua tahun, sama
+ * dengan Kegiatan dan Pengumuman: cukup untuk cuti melahirkan yang melewati
+ * tahun baru, tanpa membuka tanggal yang tidak berarti.
+ */
+const DATE_MAX = endOfYearIso(2);
 
 const REASON_HINT =
   "Dibaca penanda tangan dan tersimpan di pengajuan ini. Tidak pernah tampil di daftar, kalender, atau notifikasi.";
@@ -84,6 +94,7 @@ export const RequestSection = (props: PropTypes) => {
             onValueChange={field.onChange}
             onBlur={field.onBlur}
             disabled={isDisabled}
+            max={DATE_MAX}
             isClearable={false}
           />
         )}
@@ -103,6 +114,7 @@ export const RequestSection = (props: PropTypes) => {
             onBlur={field.onBlur}
             disabled={isDisabled}
             min={startDate || undefined}
+            max={DATE_MAX}
             isClearable={false}
           />
         )}
