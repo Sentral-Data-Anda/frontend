@@ -11,6 +11,7 @@ import {
   resetLeaveRequests,
 } from "./cuti";
 import { hariLiburMock } from "./hari-libur";
+import { resetKontrakKaryawan } from "./kontrak-karyawan";
 import { resetLeaveTypes } from "./tipe-cuti";
 
 // Pedoman §7.2: dua larik, dua reset milik modul penyemainya. Berkas ini tidak
@@ -29,8 +30,11 @@ const FLAGS = [
   "MOCK_CUTI_OVERLAP",
 ] as const;
 
+// Tiga larik, tiga reset milik modul penyemainya masing-masing. Kontrak ikut
+// sejak mock menghitung libur mingguan dari sana.
 const onReset = () => {
   resetLeaveTypes();
+  resetKontrakKaryawan();
   resetLeaveRequests();
 };
 
@@ -77,11 +81,14 @@ const onCall = async (
   };
 };
 
+// Tanggal TETAP, bukan relatif terhadap hari ini: begitu libur mingguan ikut
+// dihitung, rentang yang bergeser tiap hari memberi jumlah hari yang berbeda
+// tiap hari. Karyawan 2 libur Senin+Selasa; 10–11 Maret 2027 Rabu–Kamis.
 const VALID = {
   karyawanId: 2,
   leaveTypeId: 4,
-  startDate: addDays(TODAY, 200),
-  endDate: addDays(TODAY, 201),
+  startDate: "2027-03-10",
+  endDate: "2027-03-11",
   halfDay: false,
   reason: "Menikah",
 };
@@ -291,6 +298,9 @@ describe("sisa jatah tidak pernah negatif", () => {
 // ringkasan form membaca kalender yang SAMA (`/hari-libur/kalender`), jadi
 // angka yang disimpan dan angka yang dipratinjau tidak bisa berbeda.
 describe("hari libur memotong hari cuti", () => {
+  // Karyawan 3 libur Sabtu+Minggu (kontrak yang berlaku 2027), dan 27 Sep
+  // adalah HUT Gereja yang berulang. Rentang 25–29 Sep 2027 memuat keduanya:
+  // Sab, Min, HUT Senin, lalu Selasa dan Rabu kerja.
   const RECURRING = {
     karyawanId: 3,
     leaveTypeId: 2,
@@ -300,10 +310,28 @@ describe("hari libur memotong hari cuti", () => {
     reason: "Rangkaian HUT gereja",
   };
 
-  test("hari libur BERULANG di tahun lain ikut terpotong", async () => {
+  test("libur mingguan DAN hari libur berulang sama-sama terpotong", async () => {
     const result = await onCall("POST", "/cuti", { body: RECURRING });
 
     expect(result?.status).toBe(201);
+    expect((result?.body.data as { totalDays: string }).totalDays).toBe("2");
+  });
+
+  test("karyawan tanpa libur mingguan terisi dihitung penuh hari kalender", async () => {
+    // Karyawan 4: kontraknya ada tapi `weeklyDayOff` kosong — baris pra-migrasi.
+    const result = await onCall("POST", "/cuti", {
+      body: {
+        karyawanId: 4,
+        leaveTypeId: 3,
+        startDate: "2027-09-25",
+        endDate: "2027-09-29",
+        halfDay: false,
+        reason: "Rangkaian HUT gereja",
+      },
+    });
+
+    expect(result?.status).toBe(201);
+    // 5 hari kalender − 1 hari libur, nol libur mingguan yang dikurangi.
     expect((result?.body.data as { totalDays: string }).totalDays).toBe("4");
   });
 
@@ -332,7 +360,30 @@ describe("hari libur memotong hari cuti", () => {
     const holidays = ((await calendar!.json()) as { data: unknown[] }).data;
 
     expect(holidays.length).toBe(1);
-    expect(saved).toBe(5 - holidays.length);
+    // 5 hari kalender − 1 hari libur − 2 hari libur mingguan (Sab, Min).
+    expect(saved).toBe(5 - holidays.length - 2);
+  });
+
+  // M17: tanpa test ini, mengabaikan rentang berlaku kontrak lolos — benihnya
+  // kebetulan memberi libur mingguan yang sama di kedua kontrak tiap orang,
+  // jadi "kontrak mana" tidak kelihatan dari jumlah harinya. Yang
+  // membedakannya adalah tanggal yang BELUM punya kontrak sama sekali.
+  test("tanggal sebelum kontrak mana pun berlaku dihitung penuh", async () => {
+    // Karyawan 3 baru berkontrak 1 Maret 2026; 3–4 Januari 2026 Sabtu–Minggu.
+    // Dengan kontraknya ia nol hari kerja, tanpa kontraknya dua hari penuh.
+    const result = await onCall("POST", "/cuti", {
+      body: {
+        karyawanId: 3,
+        leaveTypeId: 1,
+        startDate: `${YEAR}-01-03`,
+        endDate: `${YEAR}-01-04`,
+        halfDay: false,
+        reason: "Menemani keluarga dari luar kota",
+      },
+    });
+
+    expect(result?.status).toBe(201);
+    expect((result?.body.data as { totalDays: string }).totalDays).toBe("2");
   });
 
   test("rentang yang SELURUHNYA libur ditolak dengan LEAVE_ZERO_DAYS", async () => {
@@ -367,6 +418,10 @@ describe("hari libur memotong hari cuti", () => {
   });
 
   test("ubah memakai aturan yang sama dengan tambah", async () => {
+    // Karyawan 2 libur Senin+Selasa — bukan akhir pekan: 25 Sab kerja,
+    // 26 Min kerja, 27 Sen libur mingguan DAN HUT, 28 Sel libur mingguan,
+    // 29 Rab kerja → tiga hari. Libur mingguan tiap orang memang berbeda, dan
+    // di situlah aturannya berhenti bisa ditebak dari kalender saja.
     const result = await onCall("PUT", "/cuti/CTI-0006", {
       body: {
         karyawanId: 2,
@@ -379,7 +434,7 @@ describe("hari libur memotong hari cuti", () => {
     });
 
     expect(result?.status).toBe(200);
-    expect((result?.body.data as { totalDays: string }).totalDays).toBe("4");
+    expect((result?.body.data as { totalDays: string }).totalDays).toBe("3");
   });
 });
 
@@ -439,8 +494,8 @@ describe("simpan", () => {
         await onCall("POST", "/cuti", {
           body: {
             ...VALID,
-            startDate: addDays(TODAY, 300),
-            endDate: addDays(TODAY, 300),
+            startDate: "2027-04-14",
+            endDate: "2027-04-14",
             reason: "a".repeat(251),
           },
         })
@@ -493,8 +548,8 @@ describe("simpan", () => {
       body: {
         karyawanId: 2,
         leaveTypeId: 5,
-        startDate: addDays(TODAY, 10),
-        endDate: addDays(TODAY, 11),
+        startDate: "2027-04-14",
+        endDate: "2027-04-15",
         halfDay: false,
         reason: "Pemakaman paman, menginap satu malam",
       },

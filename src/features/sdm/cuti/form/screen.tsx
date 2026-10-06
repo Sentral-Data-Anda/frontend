@@ -1,12 +1,13 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useForm, useWatch } from "react-hook-form";
 
-import { Button } from "@/components/common/control";
-import { useToast } from "@/components/common/feedback";
+import { Button, buttonVariants } from "@/components/common/control";
+import { EmptyState, useToast } from "@/components/common/feedback";
 import {
   FormActions,
   FormAlert,
@@ -43,6 +44,8 @@ import {
 
 import { RequestSection } from "./request-section";
 import { SummarySection } from "./summary-section";
+
+const TITLE = "Cuti";
 
 const BACK_LABEL = "Kembali ke Cuti";
 
@@ -177,14 +180,28 @@ export const CutiFormScreen = (props: PropTypes) => {
     );
   }
 
+  // Sengaja BUKAN `NoFormAccess`: komponen itu menutup dengan "Hubungi
+  // administrator bila Anda memang seharusnya memegang akses ini", dan ini
+  // bukan soal akses — petugasnya memang punya UPDATE, keadaan dokumennya yang
+  // menutup. Menyuruhnya minta izin mengirimnya ke orang yang salah.
   if (isLocked && detail.data) {
     return (
-      <NoFormAccess
-        title={LOCKED_TITLE}
-        description={lockedDescriptionOf(detail.data)}
-        backHref={listReturn}
-        backLabel={BACK_LABEL}
-      />
+      <div className="pb-6">
+        <PageHeader title={TITLE} backHref={listReturn} isBackPersistent />
+
+        <EmptyState
+          title={LOCKED_TITLE}
+          description={lockedDescriptionOf(detail.data)}
+          action={
+            <Link
+              href={listReturn}
+              className={buttonVariants({ variant: "outline" })}
+            >
+              {BACK_LABEL}
+            </Link>
+          }
+        />
+      </div>
     );
   }
 
