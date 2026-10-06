@@ -60,6 +60,7 @@ import { stokOpnameMock } from "./stok-opname";
 import { supplierMock } from "./supplier";
 import { templateJadwalMock } from "./template-jadwal";
 import { tipeBarangMock } from "./tipe-barang";
+import { tipeCutiMock } from "./tipe-cuti";
 import { tipeIbadahMock } from "./tipe-ibadah";
 import { tipePersembahanMock } from "./tipe-persembahan";
 import { userMock } from "./user";
@@ -81,6 +82,7 @@ export const MOCK_HANDLERS: MockHandler[] = [
   hariLiburMock,
   permintaanPersetujuanMock,
   setelanPersetujuanMock,
+  tipeCutiMock,
   tipeIbadahMock,
   ibadahMock,
   pelayananDdlMock,
