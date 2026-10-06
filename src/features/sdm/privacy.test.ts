@@ -66,6 +66,7 @@ const SALARY_SCREENS = [
   "src/app/(app)/sdm/kontrak-karyawan/",
   "src/app/(app)/sdm/payroll/",
   "scripts/mock/handlers/kontrak-karyawan.ts",
+  "scripts/mock/handlers/kontrak-karyawan.test.ts",
   "scripts/mock/handlers/payroll.ts",
 ] as const;
 
