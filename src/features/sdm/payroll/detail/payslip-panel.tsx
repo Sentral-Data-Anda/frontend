@@ -7,7 +7,7 @@ import { PANEL_TITLE, Panel } from "@/components/common/display";
 import { formatAmount } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
-import { slipHref } from "../model";
+import { slipHref, sortedPayslips } from "../model";
 import type { PayrollRunDetail } from "../types";
 
 /**
@@ -39,7 +39,7 @@ export const PayslipPanel = (props: PropTypes) => {
       <h2 className={cn(PANEL_TITLE, "px-gutter pt-4 pb-2")}>Slip gaji</h2>
 
       <ul className="divide-hairline divide-y border-hairline border-t">
-        {run.payslips.map((slip) => (
+        {sortedPayslips(run).map((slip) => (
           <li key={slip.code}>
             <Link
               href={slipHref(run.code, slip.code)}

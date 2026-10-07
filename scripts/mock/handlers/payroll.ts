@@ -117,6 +117,7 @@ type RunRow = {
   totalNet: string;
   approvedAt: string | null;
   paidAt: string | null;
+  createdAt: string;
   payslips: SlipRow[];
   approval: ApprovalRow | null;
 };
@@ -298,6 +299,7 @@ const run = (
     ...totalsOf(slips),
     approvedAt: null,
     paidAt: null,
+    createdAt: `${startOfMonth(`${period.year}-${pad(period.month, 2)}-01`)}T02:00:00.000Z`,
     payslips: slips,
     approval: null,
     ...extra,
@@ -454,6 +456,11 @@ const runView = (row: RunRow) => ({
   totalNet: row.totalNet,
   approvedAt: row.approvedAt,
   paidAt: row.paidAt,
+  // Beranda adalah pembaca KEDUA rute ini: `features/beranda/api.ts`
+  // `PayrollItem` mendeklarasikannya dan widget `payables` memanggil
+  // `row.createdAt.slice(0, 10)` tanpa penjaga. Menghilangkannya bukan baris
+  // kosong di sana — ia TypeError saat render.
+  createdAt: row.createdAt,
 });
 
 const detailView = (row: RunRow) => ({
@@ -606,6 +613,7 @@ export const payrollMock: MockHandler = async (context) => {
       totalNet: "0.00",
       approvedAt: null,
       paidAt: null,
+      createdAt: new Date().toISOString(),
       payslips: [],
       approval: null,
     };

@@ -26,6 +26,11 @@ export const SummaryPanel = (props: PropTypes) => {
 
   const { isCanView: isCanViewJournal } = useMenuAccess(MENU.JURNAL);
   const { journal } = run;
+  // `markPaid` menjawab `journal: { code }` SAJA — tanpa `publicId`. Tautan di
+  // bawah aman hanya karena `usePayrollAction` meng-invalidate detailnya alih-
+  // alih menulis responsnya ke cache: yang dirender selalu hasil baca ulang,
+  // yang membawa `publicId`. Mengganti invalidate itu dengan `setQueryData`
+  // mematahkan tautan ini tanpa satu pun test merah.
   // Nol klaim tentang jurnal untuk run yang sudah dibayar tapi datanya tidak
   // membawa entry-nya: `markPaid` menulisnya, jadi "Belum diposting" di situ
   // akan salah. Sebelum dibayar, "Belum diposting" benar dari mesin statusnya.

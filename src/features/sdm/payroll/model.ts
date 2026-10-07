@@ -38,9 +38,19 @@ export const FILTERED_DESCRIPTION =
 export const FULL_MONTH_NOTE =
   "Penggajian membayar bulan penuh. Karyawan yang masuk atau berhenti di tengah bulan dibayar penuh atau tidak sama sekali.";
 
-/** U-D. Garisnya ditulis, bukan diselesaikan diam-diam dengan slip yang bisa disunting. */
+/**
+ * U-D. Garisnya ditulis, bukan diselesaikan diam-diam dengan slip yang bisa
+ * disunting.
+ *
+ * "untuk", bukan "hanya": `contractType` nol referensi di seluruh
+ * `src/modules/payroll/` be-sada — `findPayableKaryawan` menyaring `status`
+ * dan tanggal kontrak saja, bahkan tidak men-`select` kolomnya. Jadi pemusik
+ * ber-kontrak HONORER tetap ikut dihitung dan dibayar `basicSalary` penuh.
+ * Ini pernyataan kebijakan; menuliskannya sebagai klaim mekanis membuatnya
+ * bohong, dan menegakkannya di FE menaruh penjaga di lapis yang salah.
+ */
 export const VARIABLE_WAGE_NOTE =
-  "Yang masuk ke sini hanya staf bergaji tetap bulanan. Pemusik, petugas kebersihan, dan pengkhotbah tamu yang dibayar per ibadah atau per hari dicatat di Kas Keluar, bukan di sini.";
+  "Penggajian ini untuk staf bergaji tetap bulanan. Pemusik, petugas kebersihan, dan pengkhotbah tamu yang dibayar per ibadah atau per hari dicatat di Kas Keluar, bukan di sini.";
 
 export const SLIP_SOURCE_NOTE =
   "Slip ini dihitung dari kontrak dan komponen yang berlaku di hari terakhir bulan, dan tidak bisa disunting. Untuk mengubah angkanya, perbaiki kontrak atau komponennya lalu hitung ulang penggajian selama belum dibayarkan.";
@@ -109,6 +119,20 @@ export const FIX_HINT: Record<string, string> = {
 export const periodLabel = (run: Pick<PayrollRun, "year" | "month">) =>
   monthLabel(`${run.year}-${String(run.month).padStart(2, "0")}`);
 
+/**
+ * **Nol cakupan produksi hari ini, dan itu bukan kelalaian.**
+ *
+ * `PayrollRun` tidak punya relasi `approvalRequests` di skema be-sada, dan
+ * `findByCode` hanya meng-`include` `payslips` — jadi `approval` selalu
+ * `undefined` sampai SG-FE1 mendarat. Yang ikut mati bersamanya: chip
+ * "Menunggu persetujuan", {@link UNDER_APPROVAL_NOTE}, `ApprovalPanel`, dan
+ * keempat gerbang `!isUnderApproval` di bawah.
+ *
+ * Test-nya hijau atas bentuk payload yang server belum pernah kirim —
+ * `screen.test.tsx` me-mock lapis API dan menyuplai `approval` sendiri. Jadi
+ * hijaunya membuktikan layar ini akan benar, **bukan** bahwa ia bekerja hari
+ * ini. Jangan dibaca sebagai yang kedua.
+ */
 export const isUnderApproval = (run: Pick<PayrollRunDetail, "approval">) =>
   run.approval?.status === "PENDING";
 
@@ -121,6 +145,12 @@ export const isSubmittable = (run: PayrollRunDetail) =>
   run.payslips.length > 0 &&
   !isUnderApproval(run);
 
+/**
+ * Satu-satunya predikat di sini tanpa gerbang `!isUnderApproval`, dan itu
+ * disengaja: `submit` menuntut CALCULATED, jadi run yang APPROVED tidak bisa
+ * punya permintaan yang masih terbuka. Gerbangnya akan selalu benar dan
+ * membacanya seolah ada yang lupa.
+ */
 export const isPayable = (run: PayrollRunDetail) =>
   run.status === "APPROVED" && run.payslips.length > 0;
 
@@ -129,6 +159,16 @@ export const isCancellable = (run: PayrollRunDetail) =>
 
 export const isDeletable = (run: PayrollRunDetail) =>
   run.status !== "PAID" && run.status !== "APPROVED" && !isUnderApproval(run);
+
+/**
+ * `payroll.repository.ts` meng-`include` `payslips` **tanpa `orderBy`** —
+ * hanya `lines` yang punya — jadi urutannya apa pun yang Postgres kembalikan
+ * dan bisa bertukar antar muat. Bendahara yang mencocokkan dua kali akan
+ * melihat orang berpindah baris. `SLP-` dialokasikan `id asc`, jadi urut kode
+ * adalah urut stabil yang sama.
+ */
+export const sortedPayslips = (run: PayrollRunDetail) =>
+  [...run.payslips].sort((left, right) => left.code.localeCompare(right.code));
 
 export const payslipOf = (run: PayrollRunDetail, code: string) =>
   run.payslips.find((slip) => slip.code.toLowerCase() === code.toLowerCase()) ??
@@ -141,12 +181,15 @@ export const deductionsOf = (slip: Payslip) =>
   slip.lines.filter((line) => line.componentType === "DEDUCTION");
 
 /**
- * Lima tab, dan `CANCELLED` sengaja tidak punya satu.
+ * Label tab `CANCELLED` adalah "Batal", bukan "Dibatalkan" — dan itu diukur.
  *
- * `ListTabs` membagi lebarnya rata di bawah 36rem, jadi tab keenam membuat
- * label terpanjang terpotong di 360px — diukur, 54px teks dalam kotak 51px.
- * Yang dibatalkan adalah jalan buntu dan tetap terbaca di "Semua"; memotong
- * huruf pada tab yang paling jarang dipakai adalah harga yang salah.
+ * `ListTabs` membagi lebarnya rata di bawah 36rem, jadi "Dibatalkan" meluber
+ * 3px di 360 dan 1px di 390 (`scrollWidth` 54 lawan `clientWidth` 51; `rect`
+ * melaporkan 51 dan berbohong). "Batal" membuatnya 51/51 di 360 dan 56/56 di
+ * 390 — nol luberan, dan filternya tetap ada.
+ *
+ * `PAYROLL_STATUS_LABEL.CANCELLED` tetap "Dibatalkan": itu chip, dan chip
+ * tidak berbagi lebar dengan lima saudaranya. Label tab bukan label chip.
  */
 export const STATUS_TABS: { value: string; label: string }[] = [
   { value: "", label: "Semua" },
@@ -154,6 +197,7 @@ export const STATUS_TABS: { value: string; label: string }[] = [
   { value: "CALCULATED", label: "Dihitung" },
   { value: "APPROVED", label: "Disetujui" },
   { value: "PAID", label: "Dibayar" },
+  { value: "CANCELLED", label: "Batal" },
 ];
 
 const YEAR_WINDOW = 5;

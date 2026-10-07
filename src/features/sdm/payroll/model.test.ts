@@ -2,8 +2,19 @@ import { describe, expect, test } from "bun:test";
 
 import { todayJakarta } from "@/lib/date";
 
-import { openableMonths, payslipOf, periodLabel, yearOptions } from "./model";
-import type { PayrollRunDetail, Payslip } from "./types";
+import {
+  STATUS_TABS,
+  openableMonths,
+  payslipOf,
+  periodLabel,
+  sortedPayslips,
+  yearOptions,
+} from "./model";
+import {
+  PAYROLL_STATUS_LABEL,
+  type PayrollRunDetail,
+  type Payslip,
+} from "./types";
 
 describe("periode ditulis dengan nama bulan", () => {
   // Pelajaran Anggaran A8: "5/2026" terbaca sebagai tanggal, bukan bulan.
@@ -65,6 +76,33 @@ describe("pilihan tahun", () => {
   });
 });
 
+describe("tab status", () => {
+  // Kelima status punya tabnya, termasuk CANCELLED — run yang dibatalkan
+  // justru yang `Hapus`-nya menang, dan itu satu-satunya cara membuka ulang
+  // bulan yang `@@unique([year, month])` kunci.
+  test("kelima status bisa difilter, plus Semua", () => {
+    expect(STATUS_TABS.map((tab) => tab.value)).toEqual([
+      "",
+      "DRAFT",
+      "CALCULATED",
+      "APPROVED",
+      "PAID",
+      "CANCELLED",
+    ]);
+  });
+
+  // `ListTabs` membagi lebarnya rata di bawah 36rem. Diukur di peramban:
+  // "Dibatalkan" meluber 3px di 360, "Batal" nol.
+  test("label tab tetap pendek, dan CANCELLED memakai label chip yang lain", () => {
+    for (const tab of STATUS_TABS) {
+      expect(tab.label.length, tab.label).toBeLessThanOrEqual(9);
+    }
+
+    expect(STATUS_TABS.at(-1)?.label).toBe("Batal");
+    expect(PAYROLL_STATUS_LABEL.CANCELLED).toBe("Dibatalkan");
+  });
+});
+
 describe("slip dicari pada run yang sedang dibuka", () => {
   const slip = (code: string): Payslip => ({
     id: 1,
@@ -90,5 +128,36 @@ describe("slip dicari pada run yang sedang dibuka", () => {
 
   test("kode dari run lain tidak cocok", () => {
     expect(payslipOf(run, "SLP-2026-0009")).toBeNull();
+  });
+
+  // be-sada meng-`include` payslips tanpa `orderBy`, jadi urutannya apa pun
+  // yang Postgres kembalikan — dan bisa berbeda antar muat.
+  test("slip diurutkan atas kodenya, apa pun urutan responsnya", () => {
+    const shuffled = {
+      payslips: [
+        slip("SLP-2026-0003"),
+        slip("SLP-2026-0001"),
+        slip("SLP-2026-0002"),
+      ],
+    } as PayrollRunDetail;
+
+    expect(sortedPayslips(shuffled).map((one) => one.code)).toEqual([
+      "SLP-2026-0001",
+      "SLP-2026-0002",
+      "SLP-2026-0003",
+    ]);
+  });
+
+  test("mengurutkan tidak menyunting respons aslinya", () => {
+    const shuffled = {
+      payslips: [slip("SLP-2026-0002"), slip("SLP-2026-0001")],
+    } as PayrollRunDetail;
+
+    sortedPayslips(shuffled);
+
+    expect(shuffled.payslips.map((one) => one.code)).toEqual([
+      "SLP-2026-0002",
+      "SLP-2026-0001",
+    ]);
   });
 });

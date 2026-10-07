@@ -486,6 +486,36 @@ describe("privasi detail", () => {
     ).toBe("/sdm/payroll/PYR-2026-0003/slip/SLP-2026-0001");
   });
 
+  // be-sada meng-`include` payslips tanpa `orderBy`; panelnya yang menstabilkan.
+  test("slip dirender urut kode, apa pun urutan responsnya", async () => {
+    onMockApi(
+      detail("CALCULATED", {
+        payslips: [
+          slip("SLP-2026-0003", "Gideon Tampubolon"),
+          slip("SLP-2026-0001", "Andreas Sitanggang"),
+          slip("SLP-2026-0002", "Debora Manurung"),
+        ],
+      }),
+    );
+    onRender(ALL);
+
+    await waitFor(() =>
+      expect(
+        screen.getByRole("heading", { name: "Agustus 2026" }),
+      ).toBeTruthy(),
+    );
+
+    expect(
+      screen
+        .getAllByRole("link", { name: /^Buka slip gaji / })
+        .map((node) => node.getAttribute("href")),
+    ).toEqual([
+      "/sdm/payroll/PYR-2026-0003/slip/SLP-2026-0001",
+      "/sdm/payroll/PYR-2026-0003/slip/SLP-2026-0002",
+      "/sdm/payroll/PYR-2026-0003/slip/SLP-2026-0003",
+    ]);
+  });
+
   test("nol kendali ekspor, cetak, atau unduh di seluruh dokumen", async () => {
     onMockApi(detail("CALCULATED"));
     onRender(ALL);

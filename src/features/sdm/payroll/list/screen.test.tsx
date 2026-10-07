@@ -36,6 +36,23 @@ const onStubWideViewport = () => {
   return { onRestore: () => (window.matchMedia = original) };
 };
 
+/**
+ * Nama orang, kode slip, dan nominal per orang, dicari atas TEKS yang benar-
+ * benar dirender — bukan lewat `queryByText`, yang menyusun pesan galatnya
+ * dengan menyerialisasi seluruh DOM dan menjatuhkan runner (exit 133) persis
+ * saat ia menemukan sesuatu, yaitu saat kuitansinya paling dibutuhkan.
+ */
+const SALARY_LEAKS = [
+  /Andreas Sitanggang/,
+  /Debora Manurung/,
+  /SLP-\d{4}-\d{4}/,
+] as const;
+
+const salaryLeaksIn = (root: ParentNode & { textContent: string | null }) =>
+  SALARY_LEAKS.filter((pattern) => pattern.test(root.textContent ?? "")).map(
+    String,
+  );
+
 const granted: { current: Record<string, MenuAction[]> } = { current: {} };
 
 mock.module("next/navigation", () => ({
@@ -262,8 +279,7 @@ describe("privasi daftar", () => {
     await waitFor(() =>
       expect(screen.getByText("September 2026")).toBeTruthy(),
     );
-    expect(screen.queryByText(/Andreas Sitanggang/)).toBeNull();
-    expect(screen.queryByText(/SLP-2026-0001/)).toBeNull();
+    expect(salaryLeaksIn(document.body)).toEqual([]);
     // Dan kolomnya dinyatakan sendiri: baris tabel yang kosong karena datanya
     // kebetulan tidak ada bukan bukti bahwa kolomnya tidak ada.
     expect(payrollTable().columns.map((column) => column.key)).toEqual([
@@ -292,10 +308,23 @@ describe("privasi daftar", () => {
     viewport.onRestore();
   });
 
-  // Base UI mem-portal dialog ke `body`: kendali yang dipasang di sana jatuh
-  // keluar dari container `render()`, jadi penjaganya memindai `document` dan
-  // dialognya BENAR-BENAR dibuka supaya ada yang dipindai.
-  test("dialog yang ter-portal ikut dipindai, bukan hanya badan halaman", async () => {
+  /**
+   * Dialog DAN pemilihnya dibuka, lalu seluruh `document` dipindai.
+   *
+   * Tiga lapis DOM, masing-masing dengan caranya sendiri untuk tidak ada saat
+   * dipindai: badan halaman selalu ada; isi dialog hanya ada setelah dialognya
+   * dibuka; opsi `SelectField` hidup di `Select.Portal` dan **tidak ada sama
+   * sekali** sampai select-nya dibuka. Dua assertion yang benar di dua keadaan
+   * berbeda punya irisan kosong, jadi semuanya berdiri di keadaan yang sama.
+   *
+   * Satu select per test, dengan dialog yang baru: menutup popup Base UI di
+   * happy-dom tidak bisa diandalkan, dan select kedua yang gagal terbuka
+   * membuat pemindaian berikutnya memindai nol opsi tanpa bilang apa-apa.
+   */
+  test.each([
+    ["Tahun", 0],
+    ["Bulan", 1],
+  ])("isi dialog dan opsi pemilih %s ikut dipindai", async (_label, index) => {
     const viewport = onStubWideViewport();
     onMockApi();
     onRender(["VIEW", "CREATE"]);
@@ -309,7 +338,22 @@ describe("privasi daftar", () => {
       expect(screen.getByText("Buka periode penggajian")).toBeTruthy(),
     );
     expect(document.querySelectorAll("[role='alertdialog']").length).toBe(1);
+
+    const triggers = screen.getAllByRole("combobox");
+
+    expect(triggers).toHaveLength(2);
+    fireEvent.keyDown(triggers[index], { key: "ArrowDown" });
+
+    // Kuantifiernya: select yang diam-diam nol opsi membuat pemindaian di
+    // bawahnya tidak memindai apa pun, dan hijaunya tidak berarti apa pun.
+    await waitFor(() =>
+      expect(
+        document.querySelectorAll("[role='option']").length,
+      ).toBeGreaterThan(0),
+    );
+
     expect(exportControlsIn(document)).toEqual([]);
+    expect(salaryLeaksIn(document.body)).toEqual([]);
 
     viewport.onRestore();
   });

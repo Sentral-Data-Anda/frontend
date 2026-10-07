@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 
 import { MENU } from "../../../src/config/menu";
+import type { PayrollItem } from "../../../src/features/beranda/api";
 import { JOURNAL_ENTRY } from "../keuangan-store";
 import type { MockAction } from "../kit";
 
@@ -228,6 +229,62 @@ describe("pajak nol adalah hasil yang benar", () => {
     expect(result?.status).toBe(200);
     expect(names).not.toContain("PPh21");
     expect(run?.payslips?.every((slip) => slip.deductionTotal !== undefined));
+  });
+});
+
+/**
+ * `GET /payroll` punya DUA pembaca, dan yang kedua tidak kelihatan dari sini:
+ * widget Beranda `payables` membaca `PayrollItem` dan memanggil
+ * `row.createdAt.slice(0, 10)` tanpa penjaga. Field yang hilang di sana bukan
+ * baris kosong — ia TypeError saat render.
+ *
+ * `Record<keyof PayrollItem, true>` membuat daftarnya terikat ke tipenya:
+ * field yang ditambahkan ke `PayrollItem` tidak bisa lolos tanpa gagal
+ * kompilasi di sini lebih dulu.
+ */
+describe("baris daftar memenuhi kontrak SETIAP pembacanya", () => {
+  const BERANDA_FIELDS: Record<keyof PayrollItem, true> = {
+    code: true,
+    year: true,
+    month: true,
+    status: true,
+    totalNet: true,
+    createdAt: true,
+  };
+
+  test("setiap field yang Beranda deklarasikan ada di tiap baris", async () => {
+    const result = await onCall(
+      "GET",
+      "/payroll?limit=100",
+      undefined,
+      only(MENU.PAYROLL),
+    );
+    const rows = rowsOf(result?.body) as unknown as Record<string, unknown>[];
+
+    expect(rows.length).toBe(5);
+    for (const row of rows) {
+      for (const field of Object.keys(BERANDA_FIELDS)) {
+        expect(row[field], `${String(row.code)}.${field}`).toBeDefined();
+      }
+    }
+  });
+
+  test("createdAt berbentuk tanggal yang `slice(0, 10)` bisa baca", async () => {
+    const result = await onCall(
+      "GET",
+      "/payroll?limit=100",
+      undefined,
+      only(MENU.PAYROLL),
+    );
+
+    for (const row of rowsOf(result?.body) as unknown as {
+      code: string;
+      createdAt: string;
+    }[]) {
+      expect(row.createdAt.slice(0, 10), row.code).toMatch(
+        /^\d{4}-\d{2}-\d{2}$/,
+      );
+    }
   });
 });
 
