@@ -62,6 +62,7 @@ export const TransferListContent = () => {
       />
 
       <DataList
+        loadingShape="trailing"
         items={transferList.items}
         getKey={(transfer) => transfer.code}
         label="Daftar setoran"

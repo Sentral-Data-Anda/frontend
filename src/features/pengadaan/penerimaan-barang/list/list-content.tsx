@@ -57,6 +57,7 @@ export const ReceiptListContent = () => {
       />
 
       <DataList
+        loadingShape="plain"
         items={receiptList.items}
         getKey={(receipt) => receipt.code}
         label="Daftar penerimaan barang"

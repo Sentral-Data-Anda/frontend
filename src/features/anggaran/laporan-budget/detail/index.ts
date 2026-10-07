@@ -1,7 +1,6 @@
 export * from "./approval-panel";
 export * from "./failure-alert";
 export * from "./line-list";
-export * from "./link-style";
 export * from "./print-header";
 export * from "./receipt-list";
 export * from "./report-actions";

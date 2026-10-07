@@ -68,6 +68,7 @@ export const JadwalPelayanListContent = () => {
       />
 
       <DataList
+        loadingShape="trailing"
         items={jadwalList.items}
         getKey={(jadwal) => jadwal.code}
         label="Daftar jadwal pelayan"

@@ -59,6 +59,7 @@ export const RiwayatListScreen = () => {
       />
 
       <DataList
+        loadingShape="trailing"
         items={riwayatList.items}
         getKey={(riwayat) => riwayat.id}
         label="Daftar riwayat jemaat"

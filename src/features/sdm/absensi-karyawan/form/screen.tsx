@@ -53,7 +53,7 @@ export const AbsensiFormScreen = (props: PropTypes) => {
   const router = useRouter();
   const toast = useToast();
   const isEdit = Boolean(publicId);
-  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+  const { isCanView, isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
     MENU.ABSENSI_KARYAWAN,
   );
   const listReturn = useListReturn(ABSENSI_LIST_PATH);
@@ -154,6 +154,7 @@ export const AbsensiFormScreen = (props: PropTypes) => {
             : "Tidak bisa menambah absensi karyawan"
         }
         description="Peran Anda hanya bisa melihat data absensi karyawan."
+        isCanView={isCanView}
         backHref={ABSENSI_LIST_PATH}
         backLabel={BACK_LABEL}
       />

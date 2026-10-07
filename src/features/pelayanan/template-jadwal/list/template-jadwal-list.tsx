@@ -58,6 +58,7 @@ export const TemplateJadwalList = () => {
       />
 
       <DataList
+        loadingShape="trailing"
         items={templateList.items}
         getKey={(template) => template.code}
         label="Daftar template jadwal"

@@ -53,6 +53,7 @@ export const SupplierListContent = () => {
       />
 
       <DataList
+        loadingShape="trailing"
         items={supplierList.items}
         getKey={(supplier) => supplier.code}
         label="Daftar supplier"

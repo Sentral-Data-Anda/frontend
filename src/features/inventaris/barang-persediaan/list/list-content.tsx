@@ -87,6 +87,7 @@ export const StockListContent = () => {
       />
 
       <DataList
+        loadingShape="trailing"
         items={stockList.items}
         getKey={(item) => item.code}
         label="Daftar barang persediaan"

@@ -68,6 +68,7 @@ export const MutasiListContent = () => {
       />
 
       <DataList
+        loadingShape="trailing"
         items={mutasiList.items}
         getKey={(movement) => movement.publicId}
         label="Daftar mutasi stok"

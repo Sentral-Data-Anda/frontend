@@ -176,6 +176,7 @@ export const ProgramFormScreen = (props: PropTypes) => {
         description="Hanya Draf tanpa permintaan persetujuan terbuka yang bisa disunting. Tarik pengajuannya lebih dulu."
         backHref={leaveHref}
         backLabel="Kembali ke usulan"
+        isStateLocked
       />
     );
   }

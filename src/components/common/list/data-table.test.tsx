@@ -1,6 +1,8 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
+import { onStubViewport } from "../../../../tests/viewport";
+
 import { DataList, DataListRow } from "./data-list";
 import { DataTable, getRangeLabel, type DataTableConfig } from "./data-table";
 
@@ -67,13 +69,7 @@ describe("DataList + table", () => {
   });
 
   test("HP (< md) → tetap baris daftar walau `table` diberikan", () => {
-    const original = window.matchMedia;
-    window.matchMedia = ((query: string) => ({
-      matches: false,
-      media: query,
-      addEventListener: () => {},
-      removeEventListener: () => {},
-    })) as unknown as typeof window.matchMedia;
+    const viewport = onStubViewport(false);
 
     onRender({
       pagination: {
@@ -90,7 +86,7 @@ describe("DataList + table", () => {
     expect(screen.queryByRole("table")).toBeNull();
     expect(screen.getAllByRole("listitem")).toHaveLength(2);
 
-    window.matchMedia = original;
+    viewport.onRestore();
   });
 
   test("tablet ke atas + 'muat lebih banyak' → tabel dengan ujung muat-lagi", () => {

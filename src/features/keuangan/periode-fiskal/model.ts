@@ -25,8 +25,7 @@ export const POSTING_PERSEMBAHAN_PATH = `${JURNAL_PATH}/posting-persembahan`;
 
 export const APPROVED_EXPENSE_PATH = `${menuHref(MENU.KEUANGAN, MENU.KAS_KELUAR)}?status=APPROVED`;
 
-export const LINK_CLASS =
-  "text-primary cursor-pointer rounded-sm underline decoration-primary/30 underline-offset-4 transition-colors hover:decoration-primary focus-visible:decoration-primary";
+export { DETAIL_LINK as LINK_CLASS } from "@/components/common/display";
 
 export const PERIOD_STATUS_VARIANT: Record<
   PeriodStatus,

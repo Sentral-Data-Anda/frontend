@@ -60,6 +60,7 @@ export const DisposalContent = () => {
       />
 
       <DataList
+        loadingShape="trailing"
         items={list.items}
         getKey={(row) => row.code}
         label="Daftar pelepasan"

@@ -41,7 +41,7 @@ const isPeriodError = (error: unknown) =>
 export const PenyusutanFormScreen = () => {
   const router = useRouter();
   const toast = useToast();
-  const { isCanCreate } = useMenuAccess(MENU.PENYUSUTAN);
+  const { isCanView, isCanCreate } = useMenuAccess(MENU.PENYUSUTAN);
   const listReturn = useListReturn(PENYUSUTAN_LIST_PATH);
   const [rejectedField, setRejectedField] = useState<string | null>(null);
   const openRun = useOpenRun();
@@ -127,6 +127,7 @@ export const PenyusutanFormScreen = () => {
       <NoFormAccess
         title="Tidak bisa membuka periode penyusutan"
         description="Peran Anda hanya bisa melihat penyusutan."
+        isCanView={isCanView}
         backHref={PENYUSUTAN_LIST_PATH}
         backLabel="Kembali ke Penyusutan"
       />

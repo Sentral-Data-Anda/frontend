@@ -57,7 +57,9 @@ export const EventFormScreen = (props: PropTypes) => {
   const router = useRouter();
   const toast = useToast();
   const isEdit = Boolean(code);
-  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(MENU.EVENT);
+  const { isCanView, isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+    MENU.EVENT,
+  );
   const listReturn = useListReturn(EVENT_LIST_PATH);
   const [rejectedField, setRejectedField] = useState<string | null>(null);
   const [pickLeaveHref, setPickLeaveHref] = useState<string | null>(null);
@@ -193,6 +195,7 @@ export const EventFormScreen = (props: PropTypes) => {
           isEdit ? "Tidak bisa mengubah event" : "Tidak bisa menambah event"
         }
         description="Peran Anda hanya bisa melihat data event."
+        isCanView={isCanView}
         backHref={EVENT_LIST_PATH}
         backLabel="Kembali ke Event"
       />

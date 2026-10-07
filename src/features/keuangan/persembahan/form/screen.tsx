@@ -20,7 +20,7 @@ import { HeaderSection } from "./header-section";
 import { OfferingSection } from "./offering-section";
 
 export const PersembahanFormScreen = () => {
-  const { isCanCreate } = useMenuAccess(MENU.PERSEMBAHAN);
+  const { isCanView, isCanCreate } = useMenuAccess(MENU.PERSEMBAHAN);
   const {
     form,
     confirm,
@@ -39,6 +39,7 @@ export const PersembahanFormScreen = () => {
       <NoFormAccess
         title="Tidak bisa mencatat persembahan"
         description="Peran Anda hanya bisa melihat persembahan."
+        isCanView={isCanView}
         backHref={PERSEMBAHAN_LIST_PATH}
         backLabel="Kembali ke Persembahan"
       />

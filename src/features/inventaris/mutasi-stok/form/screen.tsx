@@ -46,7 +46,7 @@ export const MutasiFormScreen = () => {
   const toast = useToast();
   const searchParams = useSearchParams();
   const presetCode = searchParams.get("barang") ?? "";
-  const { isCanCreate } = useMenuAccess(MENU.MUTASI_STOK);
+  const { isCanView, isCanCreate } = useMenuAccess(MENU.MUTASI_STOK);
   const listReturn = useListReturn(MUTASI_LIST_PATH);
   const [rejectedField, setRejectedField] = useState<string | null>(null);
   const createMutasi = useCreateMutasi();
@@ -149,6 +149,7 @@ export const MutasiFormScreen = () => {
       <NoFormAccess
         title="Tidak bisa mencatat mutasi stok"
         description="Peran Anda hanya bisa melihat mutasi stok."
+        isCanView={isCanView}
         backHref={MUTASI_LIST_PATH}
         backLabel="Kembali ke Mutasi Stok"
       />

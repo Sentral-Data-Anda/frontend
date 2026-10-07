@@ -44,6 +44,7 @@ export const CurrencyListContent = () => {
       />
 
       <DataList
+        loadingShape="trailing"
         items={currencyList.items}
         getKey={(currency) => currency.code}
         label="Daftar mata uang"

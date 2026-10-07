@@ -57,7 +57,7 @@ export const approvalHref = (publicId: string) =>
 
 export const REQUEST_STATUS_VARIANT: Record<RequestStatus, BadgeVariant> = {
   DRAFT: "neutral",
-  PENDING_APPROVAL: "draft",
+  PENDING_APPROVAL: "wait",
   APPROVED: "success",
   REJECTED: "due",
 };

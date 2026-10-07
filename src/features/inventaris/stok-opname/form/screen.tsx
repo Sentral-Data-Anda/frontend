@@ -52,7 +52,9 @@ export const OpnameFormScreen = (props: PropTypes) => {
   const router = useRouter();
   const toast = useToast();
   const isEdit = Boolean(code);
-  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.STOK_OPNAME);
+  const { isCanView, isCanCreate, isCanUpdate } = useMenuAccess(
+    MENU.STOK_OPNAME,
+  );
   const isAllowed = isEdit ? isCanUpdate : isCanCreate;
   const listReturn = useListReturn(OPNAME_LIST_PATH);
   const [rejectedField, setRejectedField] = useState<string | null>(null);
@@ -140,6 +142,7 @@ export const OpnameFormScreen = (props: PropTypes) => {
             : "Tidak bisa menambah stok opname"
         }
         description="Peran Anda hanya bisa melihat stok opname."
+        isCanView={isCanView}
         backHref={listReturn}
         backLabel="Kembali ke Stok Opname"
       />

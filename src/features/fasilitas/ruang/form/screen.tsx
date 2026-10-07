@@ -57,7 +57,9 @@ export const RuangFormScreen = (props: PropTypes) => {
   const router = useRouter();
   const toast = useToast();
   const isEdit = Boolean(code);
-  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(MENU.RUANG);
+  const { isCanView, isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+    MENU.RUANG,
+  );
   const listReturn = useListReturn(RUANG_LIST_PATH);
   const [rejectedField, setRejectedField] = useState<string | null>(null);
   const saveRuang = useSaveRuang(code);
@@ -179,6 +181,7 @@ export const RuangFormScreen = (props: PropTypes) => {
           isEdit ? "Tidak bisa mengubah ruang" : "Tidak bisa menambah ruang"
         }
         description="Peran Anda hanya bisa melihat data ruang."
+        isCanView={isCanView}
         backHref={RUANG_LIST_PATH}
         backLabel="Kembali ke Ruang"
       />

@@ -93,6 +93,7 @@ export const PersembahanListContent = () => {
       />
 
       <DataList
+        loadingShape="trailing"
         items={persembahanList.items}
         getKey={(row) => row.code}
         label="Daftar persembahan"

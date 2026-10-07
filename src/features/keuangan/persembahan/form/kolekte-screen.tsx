@@ -35,7 +35,7 @@ import { HeaderSection } from "./header-section";
 import { KolekteRow } from "./kolekte-row";
 
 export const KolekteScreen = () => {
-  const { isCanCreate } = useMenuAccess(MENU.PERSEMBAHAN);
+  const { isCanView, isCanCreate } = useMenuAccess(MENU.PERSEMBAHAN);
   const typeAccess = useMenuAccess(MENU.TIPE_PERSEMBAHAN);
   const {
     form,
@@ -60,6 +60,7 @@ export const KolekteScreen = () => {
       <NoFormAccess
         title="Tidak bisa mencatat kolekte"
         description="Peran Anda hanya bisa melihat persembahan."
+        isCanView={isCanView}
         backHref={PERSEMBAHAN_LIST_PATH}
         backLabel="Kembali ke Persembahan"
       />

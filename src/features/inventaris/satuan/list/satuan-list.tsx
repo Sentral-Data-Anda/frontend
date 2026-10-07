@@ -43,6 +43,7 @@ export const SatuanList = () => {
       />
 
       <DataList
+        loadingShape="trailing"
         items={satuanList.items}
         getKey={(satuan) => satuan.code}
         label="Daftar satuan"

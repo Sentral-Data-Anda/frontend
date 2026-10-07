@@ -2,28 +2,18 @@
 
 import Link from "next/link";
 
-import { Badge, Panel } from "@/components/common/display";
+import {
+  ApprovalStatusBadge,
+  DETAIL_LINK,
+  Panel,
+} from "@/components/common/display";
 import { FormAlert } from "@/components/common/form";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { formatDateTime } from "@/lib/format";
-import {
-  APPROVAL_STATUS_LABEL,
-  type ApprovalStatus,
-} from "@/types/persetujuan";
 
 import { approvalHref } from "../model";
 import type { CashExpenseDetail, ExpenseApproval } from "../types";
-
-import { DETAIL_LINK } from "./link-style";
-
-const VARIANT: Record<ApprovalStatus, "draft" | "success" | "due" | "neutral"> =
-  {
-    PENDING: "draft",
-    APPROVED: "success",
-    REJECTED: "due",
-    CANCELLED: "neutral",
-  };
 
 const REJECTED_TITLE = "Ditolak. Perbaiki lalu ajukan lagi.";
 
@@ -72,9 +62,7 @@ export const ApprovalPanel = (props: PropTypes) => {
     <Panel label="Persetujuan">
       <div className="space-y-2 px-gutter py-3">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-          <Badge variant={VARIANT[approval.status]}>
-            {APPROVAL_STATUS_LABEL[approval.status]}
-          </Badge>
+          <ApprovalStatusBadge status={approval.status} />
           {requestLink}
         </div>
 

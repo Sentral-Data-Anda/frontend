@@ -73,6 +73,7 @@ export const ReceiptListContent = () => {
       />
 
       <DataList
+        loadingShape="trailing"
         items={receiptList.items}
         getKey={(receipt) => receipt.publicId}
         label="Daftar kas masuk"

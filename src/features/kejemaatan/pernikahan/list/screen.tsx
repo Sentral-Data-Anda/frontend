@@ -51,6 +51,7 @@ export const MarriageListScreen = () => {
       />
 
       <DataList
+        loadingShape="trailing"
         items={marriageList.items}
         getKey={(marriage) => marriage.id}
         label="Daftar pernikahan"

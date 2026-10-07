@@ -15,6 +15,7 @@ import {
   FormNotFound,
   LoadingForm,
   useFormConfirm,
+  NoFormAccess,
 } from "@/components/common/form";
 import { ConfirmDialog } from "@/components/common/overlay";
 import { PageHeader } from "@/components/layout";
@@ -49,7 +50,6 @@ import type { UserCredential } from "../types";
 import { AccountSection } from "./account-section";
 import { CredentialDialog } from "./credential-dialog";
 import { JemaatSection } from "./jemaat-section";
-import { NoFormAccess } from "./no-form-access";
 import { RoleSection } from "./role-section";
 
 type IssueKind = "create" | "reset" | "restore";
@@ -287,7 +287,17 @@ export const UserFormScreen = (props: PropTypes) => {
   ]);
 
   if (!(isEdit ? access.isCanView : access.isCanCreate)) {
-    return <NoFormAccess isEdit={isEdit} />;
+    return (
+      <NoFormAccess
+        title={isEdit ? "Tidak bisa membuka akun" : "Tidak bisa menambah akun"}
+        description={
+          "Peran Anda hanya bisa melihat akun login. Penambahan akun baru biasanya dikerjakan administrator."
+        }
+        backHref={USER_LIST_PATH}
+        backLabel="Kembali ke User"
+        isCanView={access.isCanView}
+      />
+    );
   }
 
   if (detail.error instanceof FetchError && detail.error.status === 404) {

@@ -58,7 +58,7 @@ export const KontrakFormScreen = (props: PropTypes) => {
   const router = useRouter();
   const toast = useToast();
   const isEdit = Boolean(code);
-  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+  const { isCanView, isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
     MENU.KONTRAK_KARYAWAN,
   );
   const listReturn = useListReturn(LIST_PATH);
@@ -162,6 +162,7 @@ export const KontrakFormScreen = (props: PropTypes) => {
           isEdit ? "Tidak bisa mengubah kontrak" : "Tidak bisa menambah kontrak"
         }
         description="Peran Anda hanya bisa melihat kontrak karyawan."
+        isCanView={isCanView}
         backHref={LIST_PATH}
         backLabel={BACK_LABEL}
       />

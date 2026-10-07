@@ -92,6 +92,7 @@ export const ExpenseListContent = () => {
       />
 
       <DataList
+        loadingShape="trailing"
         items={expenseList.items}
         getKey={(row) => row.publicId}
         label="Daftar kas keluar"

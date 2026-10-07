@@ -11,16 +11,6 @@ import { ApprovalStatusBadge } from "./approval-status-badge";
 import { DETAIL_LINK } from "./detail-link";
 import { Panel } from "./panel";
 
-/**
- * Persetujuan sebuah dokumen, BACA SAJA. Menandatangani tidak ada di sini dan
- * tidak ada di modul mana pun selain Permintaan Persetujuan (SDM \u00a73), jadi
- * komponen ini tidak punya tombol setujui/tolak.
- *
- * Ia bersama karena Cuti dan Penggajian sama-sama butuh dan keduanya di
- * `features/sdm` \u2014 yang tidak boleh mengimpor `features/keuangan` atau
- * `features/persetujuan` (eslint `boundaries/dependencies`). Tiga panel
- * berbentuk sama sudah ada di ketiga fitur itu; ketiganya dibiarkan.
- */
 export type ApprovalStepView = {
   order: number;
   approverRoleName: string;

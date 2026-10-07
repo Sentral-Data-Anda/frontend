@@ -53,6 +53,7 @@ export const OfferingTypeListContent = () => {
       />
 
       <DataList
+        loadingShape="trailing"
         items={offeringTypeList.items}
         getKey={(offeringType) => offeringType.code}
         label="Daftar tipe persembahan"

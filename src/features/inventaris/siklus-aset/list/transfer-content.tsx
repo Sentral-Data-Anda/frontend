@@ -31,6 +31,7 @@ export const TransferContent = () => {
       />
 
       <DataList
+        loadingShape="trailing"
         items={list.items}
         getKey={(row) => row.code}
         label="Daftar pindah lokasi"

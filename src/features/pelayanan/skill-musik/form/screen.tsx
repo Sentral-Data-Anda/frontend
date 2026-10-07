@@ -52,7 +52,7 @@ export const SkillMusikFormScreen = (props: PropTypes) => {
   const router = useRouter();
   const toast = useToast();
   const isEdit = Boolean(id);
-  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+  const { isCanView, isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
     MENU.SKILL_MUSIK,
   );
   const listReturn = useListReturn(SKILL_MUSIK_LIST_PATH);
@@ -155,6 +155,7 @@ export const SkillMusikFormScreen = (props: PropTypes) => {
             : "Tidak bisa menambah alat musik"
         }
         description="Peran Anda hanya bisa melihat data skill musik."
+        isCanView={isCanView}
         backHref={SKILL_MUSIK_LIST_PATH}
         backLabel="Kembali ke Skill Musik"
       />

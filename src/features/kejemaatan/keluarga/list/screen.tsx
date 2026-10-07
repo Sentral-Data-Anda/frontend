@@ -42,6 +42,7 @@ export const KeluargaListScreen = () => {
       />
 
       <DataList
+        loadingShape="trailing"
         items={keluargaList.items}
         getKey={(keluarga) => keluarga.code}
         label="Daftar keluarga"

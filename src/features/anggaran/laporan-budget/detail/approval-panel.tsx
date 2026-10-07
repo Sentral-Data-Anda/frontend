@@ -3,27 +3,18 @@
 import Link from "next/link";
 import { useSyncExternalStore } from "react";
 
-import { Badge, Panel, QrCode } from "@/components/common/display";
+import {
+  ApprovalStatusBadge,
+  DETAIL_LINK,
+  Panel,
+  QrCode,
+} from "@/components/common/display";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { formatDateTime } from "@/lib/format";
-import {
-  APPROVAL_STATUS_LABEL,
-  type ApprovalStatus,
-} from "@/types/persetujuan";
 
 import { approvalHref, pendingStepText, verificationHref } from "../model";
 import type { ReportApproval, ReportApprovalStep } from "../types";
-
-import { DETAIL_LINK } from "./link-style";
-
-const VARIANT: Record<ApprovalStatus, "draft" | "success" | "due" | "neutral"> =
-  {
-    PENDING: "draft",
-    APPROVED: "success",
-    REJECTED: "due",
-    CANCELLED: "neutral",
-  };
 
 const WAITING = "Menunggu tanda tangan jabatan ini";
 
@@ -54,9 +45,7 @@ export const ApprovalPanel = (props: PropTypes) => {
     <Panel label="Persetujuan">
       <div className="space-y-2 px-gutter py-3">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-          <Badge variant={VARIANT[approval.status]}>
-            {APPROVAL_STATUS_LABEL[approval.status]}
-          </Badge>
+          <ApprovalStatusBadge status={approval.status} />
 
           {isCanView ? (
             <Link
@@ -93,9 +82,7 @@ export const ApprovalPanel = (props: PropTypes) => {
                     <span className="min-w-0 text-body font-medium">
                       {step.approverRoleName ?? "Jabatan tidak tercatat"}
                     </span>
-                    <Badge variant={VARIANT[step.status]}>
-                      {APPROVAL_STATUS_LABEL[step.status]}
-                    </Badge>
+                    <ApprovalStatusBadge status={step.status} />
                   </span>
 
                   <span className="text-muted-foreground block text-caption">

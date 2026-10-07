@@ -3,11 +3,13 @@
 import Link from "next/link";
 
 import {
+  ApprovalStatusBadge,
   DescriptionItem,
   DescriptionList,
+  DETAIL_LINK as LINK,
   OptionalText,
-  PANEL_TITLE,
   Panel,
+  PANEL_TITLE,
 } from "@/components/common/display";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
@@ -22,10 +24,6 @@ import {
 
 import { submitterName } from "../model";
 import type { ApprovalRequest } from "../types";
-import { ApprovalStatusBadge } from "../ui/approval-status-badge";
-
-const LINK =
-  "text-primary cursor-pointer underline decoration-primary/30 underline-offset-4 transition-colors hover:decoration-primary focus-visible:decoration-primary";
 
 interface PropTypes {
   request: ApprovalRequest;

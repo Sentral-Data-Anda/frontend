@@ -3,9 +3,10 @@ import Link from "next/link";
 import {
   DescriptionItem,
   DescriptionList,
+  DETAIL_LINK as LINK,
   OptionalText,
-  PANEL_TITLE,
   Panel,
+  PANEL_TITLE,
 } from "@/components/common/display";
 import { formatDateTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -13,9 +14,6 @@ import { cn } from "@/lib/utils";
 import { eventEditHref, formatEventTime } from "../model";
 import type { RegistrationDetail } from "../types";
 import { RegistrationStatus } from "../ui";
-
-const LINK =
-  "text-primary cursor-pointer underline decoration-primary/30 underline-offset-4 transition-colors hover:decoration-primary";
 
 interface PropTypes {
   registration: RegistrationDetail;

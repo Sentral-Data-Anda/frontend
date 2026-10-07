@@ -6,6 +6,7 @@ import {
   Badge,
   DescriptionItem,
   DescriptionList,
+  DETAIL_LINK as LINK,
   OptionalText,
   Panel,
 } from "@/components/common/display";
@@ -24,9 +25,6 @@ import {
   moneyOf,
 } from "../../model";
 import type { Disposal } from "../../types";
-
-const LINK =
-  "text-primary cursor-pointer underline decoration-primary/30 underline-offset-4 transition-colors hover:decoration-primary focus-visible:decoration-primary";
 
 interface PropTypes {
   row: Disposal;

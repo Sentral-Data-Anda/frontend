@@ -201,9 +201,7 @@ describe("gerbang izin", () => {
     onRenderForm([], "apa-saja");
 
     expect(
-      screen.getByText(
-        "Peran Anda tidak memegang akses ke Setelan Alur Persetujuan.",
-      ),
+      screen.getByText("Peran Anda tidak memiliki akses ke menu ini."),
     ).toBeTruthy();
   });
 });

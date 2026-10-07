@@ -111,6 +111,7 @@ export const ProgramListContent = () => {
         />
       ) : (
         <DataList
+          loadingShape="trailing"
           items={items}
           getKey={(row) => row.publicId}
           label="Daftar program"

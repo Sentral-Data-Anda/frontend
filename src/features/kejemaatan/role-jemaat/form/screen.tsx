@@ -15,6 +15,7 @@ import {
   FormNotFound,
   LoadingForm,
   useFormConfirm,
+  NoFormAccess,
 } from "@/components/common/form";
 import { PageHeader } from "@/components/layout";
 import { MENU } from "@/config/menu";
@@ -40,7 +41,6 @@ import {
 } from "../model";
 
 import { JabatanSection } from "./jabatan-section";
-import { NoFormAccess } from "./no-form-access";
 import { PeriodeSection } from "./periode-section";
 
 interface PropTypes {
@@ -53,7 +53,7 @@ export const RoleJemaatFormScreen = (props: PropTypes) => {
   const router = useRouter();
   const toast = useToast();
   const isEdit = Boolean(id);
-  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+  const { isCanView, isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
     MENU.ROLE_JEMAAT,
   );
   const listReturn = useListReturn(ROLE_JEMAAT_LIST_PATH);
@@ -145,7 +145,17 @@ export const RoleJemaatFormScreen = (props: PropTypes) => {
   }, [isBusy, submitCount, rejectedField, deleteRole.isError]);
 
   if (!(isEdit ? isCanUpdate : isCanCreate)) {
-    return <NoFormAccess isEdit={isEdit} />;
+    return (
+      <NoFormAccess
+        title={
+          isEdit ? "Tidak bisa mengubah jabatan" : "Tidak bisa menambah jabatan"
+        }
+        description={`Peran Anda hanya bisa melihat jabatan jemaat. ${isEdit ? "Perubahan jabatan" : "Penambahan jabatan baru"} biasanya dikerjakan sekretariat.`}
+        backHref={ROLE_JEMAAT_LIST_PATH}
+        backLabel="Kembali ke Role Jemaat"
+        isCanView={isCanView}
+      />
+    );
   }
 
   if (detail.error instanceof FetchError && detail.error.status === 404) {

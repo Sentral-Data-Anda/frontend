@@ -27,8 +27,7 @@ export const journalHref = (publicId: string) =>
 export const persembahanHref = (code: string) =>
   detailHref(MENU.KEUANGAN, MENU.PERSEMBAHAN, code);
 
-export const TEXT_LINK =
-  "text-primary cursor-pointer rounded-sm underline decoration-primary/30 underline-offset-4 transition-colors hover:decoration-primary focus-visible:decoration-primary";
+export { DETAIL_LINK as TEXT_LINK } from "@/components/common/display";
 
 export const ANONYMOUS = "Anonim";
 

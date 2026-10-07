@@ -4,7 +4,11 @@ import Link from "next/link";
 import { useState } from "react";
 
 import { Button } from "@/components/common/control";
-import { DescriptionSkeleton, Panel } from "@/components/common/display";
+import {
+  DescriptionSkeleton,
+  DETAIL_LINK as LINK,
+  Panel,
+} from "@/components/common/display";
 import { EmptyState, useToast } from "@/components/common/feedback";
 import {
   FormAlert,
@@ -33,9 +37,6 @@ import { SummaryPanel } from "./summary-panel";
 import { VoidPanel } from "./void-panel";
 
 const TITLE = "Persembahan";
-
-const LINK =
-  "text-primary cursor-pointer underline decoration-primary/30 underline-offset-4 transition-colors hover:decoration-primary focus-visible:decoration-primary";
 
 interface PropTypes {
   code: string;

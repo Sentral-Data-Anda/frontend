@@ -59,7 +59,9 @@ export const ExpenseFormScreen = (props: PropTypes) => {
   const router = useRouter();
   const toast = useToast();
   const isEdit = Boolean(publicId);
-  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.KAS_KELUAR);
+  const { isCanView, isCanCreate, isCanUpdate } = useMenuAccess(
+    MENU.KAS_KELUAR,
+  );
   const isAllowed = isEdit ? isCanUpdate : isCanCreate;
   const listReturn = useListReturn(EXPENSE_LIST_PATH);
   const [rejectedField, setRejectedField] = useState<string | null>(null);
@@ -156,6 +158,7 @@ export const ExpenseFormScreen = (props: PropTypes) => {
             : "Tidak bisa menambah kas keluar"
         }
         description="Peran Anda hanya bisa melihat kas keluar."
+        isCanView={isCanView}
         backHref={backHref}
         backLabel={BACK_LABEL}
       />

@@ -15,6 +15,7 @@ import {
   FormNotFound,
   LoadingForm,
   useFormConfirm,
+  NoFormAccess,
 } from "@/components/common/form";
 import { PageHeader } from "@/components/layout";
 import { MENU } from "@/config/menu";
@@ -36,7 +37,6 @@ import {
 } from "../model";
 
 import { HolidaySection } from "./holiday-section";
-import { NoFormAccess } from "./no-form-access";
 
 interface PropTypes {
   id?: string;
@@ -48,7 +48,7 @@ export const HolidayFormScreen = (props: PropTypes) => {
   const router = useRouter();
   const toast = useToast();
   const isEdit = Boolean(id);
-  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+  const { isCanView, isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
     MENU.HARI_LIBUR,
   );
   const listReturn = useListReturn(HARI_LIBUR_LIST_PATH);
@@ -140,7 +140,19 @@ export const HolidayFormScreen = (props: PropTypes) => {
   }, [deleteHoliday.isError]);
 
   if (!(isEdit ? isCanUpdate : isCanCreate)) {
-    return <NoFormAccess isEdit={isEdit} />;
+    return (
+      <NoFormAccess
+        title={
+          isEdit
+            ? "Tidak bisa mengubah hari libur"
+            : "Tidak bisa menambah hari libur"
+        }
+        description={"Peran Anda hanya bisa melihat data hari libur."}
+        backHref={HARI_LIBUR_LIST_PATH}
+        backLabel="Kembali ke Hari Libur"
+        isCanView={isCanView}
+      />
+    );
   }
 
   if (detail.error instanceof FetchError && detail.error.status === 404) {

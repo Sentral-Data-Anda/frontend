@@ -33,8 +33,7 @@ export const MAX_LINES = 50;
 
 export const STALE_RATE_DAYS = 7;
 
-export const TEXT_LINK =
-  "text-primary cursor-pointer rounded-sm underline decoration-primary/30 underline-offset-4 transition-colors hover:decoration-primary focus-visible:decoration-primary";
+export { DETAIL_LINK as TEXT_LINK } from "@/components/common/display";
 
 export const ORDER_LIST_PATH = menuHref(MENU.PENGADAAN, MENU.PESANAN_PEMBELIAN);
 

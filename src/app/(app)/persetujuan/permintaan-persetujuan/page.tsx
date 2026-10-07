@@ -16,7 +16,12 @@ export default function Page() {
   return (
     <PageContainer size="full">
       <Suspense
-        fallback={<LoadingDataList table={permintaanTable("menunggu")} />}
+        fallback={
+          <LoadingDataList
+            shape="trailing"
+            table={permintaanTable("menunggu")}
+          />
+        }
       >
         <PermintaanListScreen />
       </Suspense>

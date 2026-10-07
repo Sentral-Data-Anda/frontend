@@ -56,7 +56,7 @@ export const DaftarPelayanFormScreen = (props: PropTypes) => {
   const router = useRouter();
   const toast = useToast();
   const isEdit = Boolean(code);
-  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+  const { isCanView, isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
     MENU.DAFTAR_PELAYAN,
   );
   const listReturn = useListReturn(DAFTAR_PELAYAN_LIST_PATH);
@@ -187,6 +187,7 @@ export const DaftarPelayanFormScreen = (props: PropTypes) => {
           isEdit ? "Tidak bisa mengubah pelayan" : "Tidak bisa menambah pelayan"
         }
         description="Peran Anda hanya bisa melihat data pelayan."
+        isCanView={isCanView}
         backHref={DAFTAR_PELAYAN_LIST_PATH}
         backLabel="Kembali ke Daftar Pelayan"
       />

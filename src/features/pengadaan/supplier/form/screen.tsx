@@ -50,7 +50,7 @@ export const SupplierFormScreen = (props: PropTypes) => {
   const router = useRouter();
   const toast = useToast();
   const isEdit = Boolean(code);
-  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+  const { isCanView, isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
     MENU.SUPPLIER,
   );
   const listReturn = useListReturn(SUPPLIER_LIST_PATH);
@@ -172,6 +172,7 @@ export const SupplierFormScreen = (props: PropTypes) => {
             : "Tidak bisa menambah supplier"
         }
         description="Peran Anda hanya bisa melihat supplier."
+        isCanView={isCanView}
         backHref={SUPPLIER_LIST_PATH}
         backLabel="Kembali ke Supplier"
       />

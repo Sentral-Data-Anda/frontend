@@ -26,8 +26,7 @@ export const MAX_LINES = 50;
 
 export const DESCRIPTION_MAX = 250;
 
-export const TEXT_LINK =
-  "text-primary cursor-pointer rounded-sm underline decoration-primary/30 underline-offset-4 transition-colors hover:decoration-primary focus-visible:decoration-primary";
+export { DETAIL_LINK as TEXT_LINK } from "@/components/common/display";
 
 export const JURNAL_LIST_PATH = menuHref(MENU.KEUANGAN, MENU.JURNAL);
 

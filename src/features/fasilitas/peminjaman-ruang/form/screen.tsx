@@ -83,7 +83,7 @@ export const LoanFormScreen = (props: PropTypes) => {
   const router = useRouter();
   const toast = useToast();
   const isEdit = Boolean(code);
-  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+  const { isCanView, isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
     MENU.PEMINJAMAN_RUANG,
   );
   const listReturn = useListReturn(LOAN_LIST_PATH);
@@ -348,6 +348,7 @@ export const LoanFormScreen = (props: PropTypes) => {
             : "Tidak bisa menambah peminjaman"
         }
         description="Peran Anda hanya bisa melihat data peminjaman ruang."
+        isCanView={isCanView}
         backHref={LOAN_LIST_PATH}
         backLabel="Kembali ke Peminjaman Ruang"
       />

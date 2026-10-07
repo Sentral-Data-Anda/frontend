@@ -222,6 +222,7 @@ export const GeneralLedger = (props: PropTypes) => {
 
           <div className="print:[&_[role=combobox]]:hidden print:[&_label]:hidden print:[&_nav]:hidden">
             <DataList
+              loadingShape="trailing"
               items={rows}
               getKey={(row) => row.key}
               label={`Buku besar ${code}`}

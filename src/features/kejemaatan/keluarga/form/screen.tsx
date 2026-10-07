@@ -15,6 +15,7 @@ import {
   FormNotFound,
   LoadingForm,
   useFormConfirm,
+  NoFormAccess,
 } from "@/components/common/form";
 import { PageHeader } from "@/components/layout";
 import { MENU } from "@/config/menu";
@@ -37,7 +38,6 @@ import {
 
 import { AddressSection } from "./address-section";
 import { KeluargaSection } from "./keluarga-section";
-import { NoFormAccess } from "./no-form-access";
 
 interface PropTypes {
   code?: string;
@@ -49,7 +49,7 @@ export const KeluargaFormScreen = (props: PropTypes) => {
   const router = useRouter();
   const toast = useToast();
   const isEdit = Boolean(code);
-  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+  const { isCanView, isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
     MENU.KELUARGA,
   );
   const listReturn = useListReturn(KELUARGA_LIST_PATH);
@@ -143,7 +143,19 @@ export const KeluargaFormScreen = (props: PropTypes) => {
   }, [deleteKeluarga.isError]);
 
   if (!(isEdit ? isCanUpdate : isCanCreate)) {
-    return <NoFormAccess isEdit={isEdit} />;
+    return (
+      <NoFormAccess
+        title={
+          isEdit
+            ? "Tidak bisa mengubah keluarga"
+            : "Tidak bisa menambah keluarga"
+        }
+        description={`Peran Anda hanya bisa melihat data keluarga. ${isEdit ? "Perubahan data" : "Penambahan keluarga baru"} biasanya dikerjakan sekretariat.`}
+        backHref={KELUARGA_LIST_PATH}
+        backLabel="Kembali ke Keluarga"
+        isCanView={isCanView}
+      />
+    );
   }
 
   if (detail.error instanceof FetchError && detail.error.status === 404) {

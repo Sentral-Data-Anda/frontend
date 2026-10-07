@@ -72,6 +72,7 @@ export const OpnameListContent = () => {
       />
 
       <DataList
+        loadingShape="trailing"
         items={opnameList.items}
         getKey={(opname) => opname.code}
         label="Daftar stok opname"

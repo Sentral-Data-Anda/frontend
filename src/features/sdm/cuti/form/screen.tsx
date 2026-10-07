@@ -59,7 +59,7 @@ export const CutiFormScreen = (props: PropTypes) => {
   const router = useRouter();
   const toast = useToast();
   const isEdit = Boolean(code);
-  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.CUTI);
+  const { isCanView, isCanCreate, isCanUpdate } = useMenuAccess(MENU.CUTI);
   const listReturn = useListReturn(CUTI_LIST_PATH);
   const [rejectedField, setRejectedField] = useState<string | null>(null);
   const saveCuti = useSaveCuti(code);
@@ -164,6 +164,7 @@ export const CutiFormScreen = (props: PropTypes) => {
           isEdit ? "Tidak bisa mengubah cuti" : "Tidak bisa mengajukan cuti"
         }
         description="Peran Anda hanya bisa melihat pengajuan cuti."
+        isCanView={isCanView}
         backHref={CUTI_LIST_PATH}
         backLabel={BACK_LABEL}
       />

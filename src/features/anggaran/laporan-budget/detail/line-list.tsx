@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 
-import { Panel } from "@/components/common/display";
+import { DETAIL_LINK, Panel } from "@/components/common/display";
 import { MENU } from "@/config/menu";
 import { TaggedTotal, type TaggedPart } from "@/features/anggaran/shared";
 import { useMenuAccess } from "@/features/auth";
@@ -11,8 +11,6 @@ import { sumAmounts } from "@/lib/number";
 
 import { accountHref, expenseHref, programHref } from "../model";
 import type { BudgetReportLine } from "../types";
-
-import { DETAIL_LINK } from "./link-style";
 
 const UNTAGGED_LABEL = "Tanpa program";
 

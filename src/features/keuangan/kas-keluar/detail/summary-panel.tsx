@@ -5,6 +5,7 @@ import Link from "next/link";
 import {
   DescriptionItem,
   DescriptionList,
+  DETAIL_LINK,
   OptionalText,
   Panel,
 } from "@/components/common/display";
@@ -14,8 +15,6 @@ import { formatAmount, formatDate } from "@/lib/format";
 
 import { accountHref, journalHref } from "../model";
 import type { CashExpenseDetail } from "../types";
-
-import { DETAIL_LINK } from "./link-style";
 
 interface PropTypes {
   expense: CashExpenseDetail;

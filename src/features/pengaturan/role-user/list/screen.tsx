@@ -42,6 +42,7 @@ export const RoleUserListScreen = () => {
       />
 
       <DataList
+        loadingShape="trailing"
         items={roleList.items}
         getKey={(role) => String(role.id)}
         label="Daftar role user"

@@ -43,6 +43,7 @@ export const SkillMusikList = () => {
       />
 
       <DataList
+        loadingShape="trailing"
         items={skillMusikList.items}
         getKey={(skillMusik) => String(skillMusik.id)}
         label="Daftar alat musik"

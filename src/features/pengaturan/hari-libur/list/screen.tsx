@@ -72,6 +72,7 @@ export const HolidayListScreen = () => {
       />
 
       <DataList
+        loadingShape="trailing"
         items={holidayList.items}
         getKey={(holiday) => String(holiday.id)}
         label="Daftar hari libur"

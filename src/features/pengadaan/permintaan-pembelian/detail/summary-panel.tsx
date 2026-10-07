@@ -6,6 +6,7 @@ import {
   Badge,
   DescriptionItem,
   DescriptionList,
+  DETAIL_LINK as LINK,
   OptionalText,
   Panel,
 } from "@/components/common/display";
@@ -16,9 +17,6 @@ import { APPROVAL_STATUS_LABEL } from "@/types/persetujuan";
 
 import { ORDER_STATUS_VARIANT, approvalHref, orderHref } from "../model";
 import { ORDER_STATUS_LABEL, type PurchaseRequestDetail } from "../types";
-
-const LINK =
-  "text-primary cursor-pointer underline decoration-primary/30 underline-offset-4 transition-colors hover:decoration-primary focus-visible:decoration-primary";
 
 const rupiahOf = (value: string) => formatAmount(value);
 

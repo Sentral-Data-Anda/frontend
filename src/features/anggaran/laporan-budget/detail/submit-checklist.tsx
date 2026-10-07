@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 
+import { DETAIL_LINK } from "@/components/common/display";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { formatNumber, formatRupiah } from "@/lib/format";
@@ -15,8 +16,7 @@ import {
 } from "../model";
 import type { BudgetReportDetail } from "../types";
 
-const LINK =
-  "text-primary cursor-pointer underline decoration-primary/30 underline-offset-4 outline-none transition-colors hover:decoration-primary focus-visible:ring-ring focus-visible:rounded-sm focus-visible:ring-2 inline-flex min-h-9 items-center text-body";
+const LINK = `${DETAIL_LINK} inline-flex min-h-9 items-center text-body`;
 
 type Check = {
   key: string;

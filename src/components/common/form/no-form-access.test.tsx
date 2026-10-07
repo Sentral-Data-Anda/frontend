@@ -29,4 +29,29 @@ describe("NoFormAccess", () => {
         .getAttribute("href"),
     ).toBe("/peribadahan/ibadah");
   });
+
+  const props = {
+    title: "Tidak bisa mengubah x",
+    description: "Peran Anda hanya bisa melihat x.",
+    backHref: "/x",
+    backLabel: "Kembali ke X",
+  };
+
+  test("tanpa VIEW: tidak mengaku bisa melihat, saran admin tetap ada", () => {
+    render(<NoFormAccess {...props} isCanView={false} />);
+
+    expect(screen.queryByText(/hanya bisa melihat/)).toBeNull();
+    expect(
+      screen.getByText("Peran Anda tidak memiliki akses ke menu ini."),
+    ).toBeTruthy();
+    expect(screen.getByText(/Hubungi administrator/)).toBeTruthy();
+  });
+
+  test("terkunci keadaan dokumen: tanpa saran hubungi administrator", () => {
+    render(<NoFormAccess {...props} isStateLocked />);
+
+    expect(screen.getByText(props.description)).toBeTruthy();
+    expect(screen.queryByText(/Hubungi administrator/)).toBeNull();
+    expect(screen.queryByText(/administrator/i)).toBeNull();
+  });
 });

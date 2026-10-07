@@ -14,7 +14,7 @@ import type { Movement } from "../types";
 import { QuantityCell } from "./quantity-cell";
 
 const ITEM_LINK =
-  "focus-visible:ring-ring -mx-1 block min-w-0 cursor-pointer truncate rounded-sm px-1 font-medium underline-offset-2 outline-none hover:underline focus-visible:ring-2";
+  "focus-visible:ring-ring -mx-1 -my-2.5 block min-w-0 cursor-pointer truncate rounded-sm px-1 py-2.5 font-medium underline-offset-2 outline-none hover:underline focus-visible:ring-2";
 
 const itemNameOf = (movement: Movement, isCanViewItem: boolean) =>
   isCanViewItem ? (

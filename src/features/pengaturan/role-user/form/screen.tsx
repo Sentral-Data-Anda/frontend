@@ -15,6 +15,7 @@ import {
   FormNotFound,
   LoadingForm,
   useFormConfirm,
+  NoFormAccess,
 } from "@/components/common/form";
 import { PageHeader } from "@/components/layout";
 import { MENU } from "@/config/menu";
@@ -44,7 +45,6 @@ import {
 } from "../model";
 
 import { AccessSection } from "./access-section";
-import { NoFormAccess } from "./no-form-access";
 import { RoleSection } from "./role-section";
 
 interface PropTypes {
@@ -58,7 +58,7 @@ export const RoleUserFormScreen = (props: PropTypes) => {
   const toast = useToast();
   const session = useSession();
   const isEdit = Boolean(id);
-  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+  const { isCanView, isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
     MENU.ROLE_USER,
   );
   const listReturn = useListReturn(ROLE_USER_LIST_PATH);
@@ -169,7 +169,15 @@ export const RoleUserFormScreen = (props: PropTypes) => {
   }, [deleteRole.isError]);
 
   if (!(isEdit ? isCanUpdate : isCanCreate)) {
-    return <NoFormAccess isEdit={isEdit} />;
+    return (
+      <NoFormAccess
+        title={isEdit ? "Tidak bisa mengubah role" : "Tidak bisa menambah role"}
+        description={"Peran Anda hanya bisa melihat data role user."}
+        backHref={ROLE_USER_LIST_PATH}
+        backLabel="Kembali ke Role User"
+        isCanView={isCanView}
+      />
+    );
   }
 
   if (detail.error instanceof FetchError && detail.error.status === 404) {

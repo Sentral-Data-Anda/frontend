@@ -42,6 +42,7 @@ export const BapelListScreen = () => {
       />
 
       <DataList
+        loadingShape="trailing"
         items={bapelList.items}
         getKey={(bapel) => bapel.code}
         label="Daftar badan pelayanan"

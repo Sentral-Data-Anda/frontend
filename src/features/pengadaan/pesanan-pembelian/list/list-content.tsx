@@ -80,6 +80,7 @@ export const OrderListContent = () => {
       />
 
       <DataList
+        loadingShape="trailing"
         items={orderList.items}
         getKey={(order) => order.code}
         label="Daftar pesanan pembelian"

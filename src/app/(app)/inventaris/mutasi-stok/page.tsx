@@ -15,7 +15,9 @@ export const metadata: Metadata = {
 export default function Page() {
   return (
     <PageContainer size="full">
-      <Suspense fallback={<LoadingDataList table={mutasiTable()} />}>
+      <Suspense
+        fallback={<LoadingDataList shape="trailing" table={mutasiTable()} />}
+      >
         <MutasiListScreen />
       </Suspense>
     </PageContainer>

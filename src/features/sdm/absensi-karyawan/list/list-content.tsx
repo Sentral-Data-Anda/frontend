@@ -100,6 +100,7 @@ export const AbsensiListContent = () => {
       />
 
       <DataList
+        loadingShape="trailing"
         items={absensiList.items}
         getKey={(row) => row.publicId}
         label="Daftar absensi karyawan"

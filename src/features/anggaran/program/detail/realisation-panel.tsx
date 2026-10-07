@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 
-import { Panel } from "@/components/common/display";
+import { DETAIL_LINK, Panel } from "@/components/common/display";
 import { MENU } from "@/config/menu";
 import { TaggedTotal } from "@/features/anggaran/shared";
 import { useMenuAccess } from "@/features/auth";
@@ -18,8 +18,6 @@ import {
   reportDetailHref,
 } from "../model";
 import type { ReportedUsage } from "../types";
-
-import { DETAIL_LINK } from "./link-style";
 
 interface PropTypes {
   usage: ReportedUsage;

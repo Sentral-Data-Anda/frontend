@@ -52,7 +52,7 @@ export const TipeIbadahFormScreen = (props: PropTypes) => {
   const router = useRouter();
   const toast = useToast();
   const isEdit = Boolean(code);
-  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+  const { isCanView, isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
     MENU.TIPE_IBADAH,
   );
   const listReturn = useListReturn(TIPE_IBADAH_LIST_PATH);
@@ -155,6 +155,7 @@ export const TipeIbadahFormScreen = (props: PropTypes) => {
             : "Tidak bisa menambah tipe ibadah"
         }
         description="Peran Anda hanya bisa melihat data tipe ibadah."
+        isCanView={isCanView}
         backHref={TIPE_IBADAH_LIST_PATH}
         backLabel="Kembali ke Tipe Ibadah"
       />

@@ -58,7 +58,7 @@ export const ReceiptFormScreen = (props: PropTypes) => {
   const searchParams = useSearchParams();
   const toast = useToast();
   const isEdit = Boolean(publicId);
-  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.KAS_MASUK);
+  const { isCanView, isCanCreate, isCanUpdate } = useMenuAccess(MENU.KAS_MASUK);
   const isAllowed = isEdit ? isCanUpdate : isCanCreate;
   const isGateway = !isEdit && searchParams.get(GATEWAY_PARAM) === "1";
   const listReturn = useListReturn(KAS_MASUK_LIST_PATH);
@@ -151,6 +151,7 @@ export const ReceiptFormScreen = (props: PropTypes) => {
             : "Tidak bisa menambah kas masuk"
         }
         description="Peran Anda hanya bisa melihat kas masuk."
+        isCanView={isCanView}
         backHref={leaveHref}
         backLabel="Kembali ke Kas Masuk"
       />

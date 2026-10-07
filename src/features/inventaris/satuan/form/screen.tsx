@@ -48,7 +48,9 @@ export const SatuanFormScreen = (props: PropTypes) => {
   const router = useRouter();
   const toast = useToast();
   const isEdit = Boolean(code);
-  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(MENU.SATUAN);
+  const { isCanView, isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+    MENU.SATUAN,
+  );
   const listReturn = useListReturn(SATUAN_LIST_PATH);
   const [rejectedField, setRejectedField] = useState<string | null>(null);
   const saveSatuan = useSaveSatuan(code);
@@ -145,6 +147,7 @@ export const SatuanFormScreen = (props: PropTypes) => {
           isEdit ? "Tidak bisa mengubah satuan" : "Tidak bisa menambah satuan"
         }
         description="Peran Anda hanya bisa melihat data satuan."
+        isCanView={isCanView}
         backHref={SATUAN_LIST_PATH}
         backLabel="Kembali ke Satuan"
       />

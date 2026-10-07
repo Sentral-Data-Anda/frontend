@@ -21,7 +21,11 @@ export default async function Page({
 
   return (
     <PageContainer size="full">
-      <Suspense fallback={<LoadingDataList table={loadingTableOf(jenis)} />}>
+      <Suspense
+        fallback={
+          <LoadingDataList shape="trailing" table={loadingTableOf(jenis)} />
+        }
+      >
         <CycleListScreen />
       </Suspense>
     </PageContainer>

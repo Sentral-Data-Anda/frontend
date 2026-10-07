@@ -69,6 +69,7 @@ export const PaymentListContent = () => {
       />
 
       <DataList
+        loadingShape="trailing"
         items={paymentList.items}
         getKey={(row) => row.publicId}
         label="Daftar pembayaran"
