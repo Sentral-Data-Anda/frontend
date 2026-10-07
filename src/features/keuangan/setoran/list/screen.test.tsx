@@ -217,3 +217,25 @@ describe("gerbang izin", () => {
     expect(isFetched).toBe(false);
   });
 });
+
+describe("indikator bawaan bulan berjalan", () => {
+  test("bawaan berbadge, bulan=semua tidak", async () => {
+    onRender(["VIEW"]);
+    await screen.findByText("Kas → Bank BCA");
+
+    expect(
+      screen.getByRole("button", { name: "Filter, 1 aktif" }),
+    ).toBeTruthy();
+    expect(
+      screen.getByRole("button", { name: "Hapus filter Bulan: Bulan ini" }),
+    ).toBeTruthy();
+
+    cleanup();
+    query.current = "bulan=semua";
+    onRender(["VIEW"]);
+    await screen.findByText("Kas → Bank BCA");
+
+    expect(screen.getByRole("button", { name: "Filter" })).toBeTruthy();
+    expect(screen.queryByRole("list", { name: "Filter aktif" })).toBeNull();
+  });
+});

@@ -179,6 +179,83 @@ describe("ListToolbar", () => {
     expect(listParams.onApplyFilters).toHaveBeenCalledWith({ wilayah: "" });
   });
 
+  /**
+   * Filter yang bawaannya menyaring, mis. "bulan ini": nilai kosong di URL
+   * BUKAN keadaan netral, jadi justru ia yang harus terbaca aktif. Kuantifikator
+   * test di atas adalah layar yang bawaannya netral (`wilayah`, `status`);
+   * di bawah ini layar yang bawaannya menyaring, predikat yang sama.
+   */
+  const MONTH: ListFilter[] = [
+    {
+      key: "bulan",
+      label: "Bulan",
+      kind: "select",
+      options: [
+        { value: "", label: "Bulan ini" },
+        { value: "semua", label: "Semua bulan" },
+        { value: "2026-09", label: "September 2026" },
+      ],
+      defaultValue: "semua",
+    },
+  ];
+
+  const onRenderMonth = (bulan: string) => {
+    const listParams: ListParams = {
+      search: "",
+      status: "",
+      filters: { bulan },
+      onSearch: mock(),
+      onApplyFilters: mock(),
+      onClearFilters: mock(),
+    };
+
+    render(<ListToolbar listParams={listParams} filters={MONTH} />);
+
+    return listParams;
+  };
+
+  test("bawaan yang menyaring terbaca aktif meski nilainya kosong", () => {
+    onRenderMonth("");
+
+    expect(
+      screen.getByRole("button", { name: "Filter, 1 aktif" }),
+    ).toBeTruthy();
+    expect(
+      screen.getByRole("button", { name: "Hapus filter Bulan: Bulan ini" }),
+    ).toBeTruthy();
+  });
+
+  test("nilai bawaan filternya terbaca tidak tersaring", () => {
+    onRenderMonth("semua");
+
+    expect(screen.getByRole("button", { name: "Filter" })).toBeTruthy();
+    expect(screen.queryByRole("list", { name: "Filter aktif" })).toBeNull();
+  });
+
+  test("hapus filter mengembalikan ke bawaannya, bukan ke kosong", () => {
+    const listParams = onRenderMonth("2026-09");
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Hapus filter Bulan: September 2026",
+      }),
+    );
+
+    expect(listParams.onApplyFilters).toHaveBeenCalledWith({ bulan: "semua" });
+  });
+
+  test("Reset mengembalikan draf ke bawaan filternya, bukan ke kosong", async () => {
+    const listParams = onRenderMonth("2026-09");
+
+    await openPanel();
+    fireEvent.click(screen.getByRole("button", { name: "Reset" }));
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Terapkan" }));
+    });
+
+    expect(listParams.onApplyFilters).toHaveBeenCalledWith({ bulan: "semua" });
+  });
+
   test("Hapus semua hanya tampil untuk dua filter atau lebih", () => {
     const listParams = onRenderToolbar({ status: "AKTIF", wilayah: "2" });
 

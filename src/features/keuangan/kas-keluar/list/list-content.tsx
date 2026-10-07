@@ -20,11 +20,15 @@ import {
 import { ExpenseListItem, expenseTable } from "./list-item";
 
 const LIST_FILTERS = {
-  bulan: { api: "bulan" },
+  // URL kosong = bulan ini, yang menyaring; "semua" yang tidak.
+  bulan: { api: "bulan", defaultValue: ALL_MONTHS },
   badan: { api: "bapelId" },
 } satisfies ListFilterSchema;
 
+// Bawaan daftar punya pilihannya sendiri: tanpa itu select-nya kosong dan
+// label filter aktifnya tanpa nama di keadaan yang paling sering dibuka.
 const MONTH_OPTIONS = [
+  { value: "", label: "Bulan ini" },
   { value: ALL_MONTHS, label: "Semua bulan" },
   ...monthOptions(),
 ];
@@ -73,6 +77,7 @@ export const ExpenseListContent = () => {
             label: "Bulan",
             kind: "select",
             options: MONTH_OPTIONS,
+            defaultValue: ALL_MONTHS,
           },
           {
             key: "badan",
@@ -97,7 +102,7 @@ export const ExpenseListContent = () => {
         emptyTitle={isNarrowed ? "Tidak ada kas keluar" : EMPTY_TITLE}
         emptyDescription={
           isNarrowed
-            ? "Tidak ada kas keluar yang cocok dengan filter ini."
+            ? "Tidak ada kas keluar yang cocok dengan pencarian atau filter ini. Bawaannya hanya bulan berjalan."
             : EMPTY_DESCRIPTION
         }
         onClearFilter={

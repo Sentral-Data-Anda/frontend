@@ -6,7 +6,11 @@ import { SearchInput } from "@/components/common/control";
 import type { ListState } from "@/hooks/use-list-params";
 
 import { ActiveFilters } from "./active-filters";
-import { listActiveFilters, type ListFilter } from "./list-filter";
+import {
+  defaultValueOf,
+  listActiveFilters,
+  type ListFilter,
+} from "./list-filter";
 import { ListFilterButton } from "./list-filter-button";
 
 interface PropTypes {
@@ -35,7 +39,7 @@ export const ListToolbar = (props: PropTypes) => {
     rowRef.current?.querySelector<HTMLButtonElement>("button")?.focus();
 
   const onRemove = (key: string) => {
-    listParams.onApplyFilters({ [key]: "" });
+    listParams.onApplyFilters({ [key]: defaultValueOf(filters, key) });
     focusFilterButton();
   };
 

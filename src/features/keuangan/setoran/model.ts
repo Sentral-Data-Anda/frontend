@@ -66,9 +66,6 @@ export function toTransferApiFilters(filters: Record<string, string>) {
     : monthRange(month || todayJakarta().slice(0, 7));
 }
 
-export const isMonthNarrowed = (filters: Record<string, string>) =>
-  (filters.bulan ?? "") !== MONTH_ALL;
-
 export const transferPathOf = (
   transfer: Pick<Transfer, "fromAccount" | "toAccount">,
 ) => `${transfer.fromAccount.name} → ${transfer.toAccount.name}`;

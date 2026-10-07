@@ -16,7 +16,18 @@ export type ListParams = {
   apiFilters?: Record<string, string>;
 };
 
-export type ListFilterSchema = Record<string, { api: string }>;
+/**
+ * `defaultValue`: nilai filter ini saat ia tidak menyaring apa pun.
+ *
+ * Hampir selalu `""`, karena parameter yang absen berarti "semua". Layar yang
+ * URL kosongnya justru menyaring (mis. bawaan "bulan ini") menyatakan token
+ * tak-menyaringnya di sini — tanpa itu `isFiltered` dan label filter aktif
+ * membaca bawaan yang menyaring sebagai "tidak tersaring".
+ */
+export type ListFilterSchema = Record<
+  string,
+  { api: string; defaultValue?: string }
+>;
 
 const NO_FILTERS: ListFilterSchema = {};
 
@@ -70,6 +81,17 @@ export function useListParams({
     } satisfies ListParams & { filters: Record<string, string> };
   }, [limit, filters, searchParams]);
 
+  const defaults = useMemo(
+    () =>
+      Object.fromEntries(
+        Object.entries(filters).map(([key, { defaultValue }]) => [
+          key,
+          defaultValue ?? "",
+        ]),
+      ),
+    [filters],
+  );
+
   const query = searchParams.toString();
 
   const writeParams = useCallback(
@@ -122,13 +144,8 @@ export function useListParams({
   );
 
   const onClearFilters = useCallback(
-    () =>
-      writeParams({
-        status: "",
-        ...Object.fromEntries(Object.keys(filters).map((key) => [key, ""])),
-        page: 1,
-      }),
-    [filters, writeParams],
+    () => writeParams({ status: "", ...defaults, page: 1 }),
+    [defaults, writeParams],
   );
 
   useEffect(() => {
@@ -138,7 +155,10 @@ export function useListParams({
   return {
     ...params,
     isFiltered:
-      Boolean(params.status) || Object.values(params.filters).some(Boolean),
+      Boolean(params.status) ||
+      Object.entries(params.filters).some(
+        ([key, value]) => value !== defaults[key],
+      ),
     onSearch,
     onApplyFilters,
     onClearFilters,

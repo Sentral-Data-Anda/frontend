@@ -10,7 +10,6 @@ import {
   STATUS_TABS,
   emptyTransferForm,
   fixLinkOf,
-  isMonthNarrowed,
   monthFilterOptions,
   pickAccountId,
   toTransferApiFilters,
@@ -136,8 +135,6 @@ describe("saringan daftar", () => {
       startDate: "",
       endDate: "",
     });
-    expect(isMonthNarrowed({ bulan: MONTH_ALL })).toBe(false);
-    expect(isMonthNarrowed({})).toBe(true);
   });
 
   test("pilihan bulan menawarkan bulan ini dan semua bulan", () => {
