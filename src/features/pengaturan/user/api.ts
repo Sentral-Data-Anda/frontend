@@ -20,6 +20,9 @@ export const userKeys = {
   detail: (code: string) => [...userKeys.all, "detail", code] as const,
 };
 
+const pathOf = (code: string, base = "/user") =>
+  `${base}/${encodeURIComponent(code)}`;
+
 export function useUserList(params: ListState) {
   return useListQuery({
     queryKey: userKeys.lists(),
@@ -31,7 +34,7 @@ export function useUserList(params: ListState) {
 export function useUserDetail(code: string | undefined) {
   return useQuery({
     queryKey: userKeys.detail(code ?? ""),
-    queryFn: () => fetchOne<UserDetail>(`/user/${code}`),
+    queryFn: () => fetchOne<UserDetail>(pathOf(code ?? "")),
     enabled: Boolean(code),
     staleTime: 0,
     select: (response) => response.data,
@@ -56,7 +59,7 @@ function useUserMutation<TVariables, TData>(
 
 export const useSaveUser = (code?: string) =>
   useUserMutation((payload: UserPayload) =>
-    fetchOne<UserCredential>(code ? `/user/${code}` : "/user", {
+    fetchOne<UserCredential>(code ? pathOf(code) : "/user", {
       method: code ? "PUT" : "POST",
       body: JSON.stringify(payload),
     }),
@@ -64,17 +67,21 @@ export const useSaveUser = (code?: string) =>
 
 export const useResetUser = (code?: string) =>
   useUserMutation(() =>
-    fetchOne<UserCredential>(`/user/reset/${code}`, { method: "PUT" }),
+    fetchOne<UserCredential>(pathOf(code ?? "", "/user/reset"), {
+      method: "PUT",
+    }),
   );
 
 export const useRestoreUser = (code?: string) =>
   useUserMutation(() =>
-    fetchOne<UserCredential>(`/user/restore/${code}`, { method: "PUT" }),
+    fetchOne<UserCredential>(pathOf(code ?? "", "/user/restore"), {
+      method: "PUT",
+    }),
   );
 
 export const useDeactivateUser = (code?: string) =>
   useUserMutation(() =>
-    fetchOne<unknown>(`/user/${code}`, { method: "DELETE" }),
+    fetchOne<unknown>(pathOf(code ?? ""), { method: "DELETE" }),
   );
 
 export const useUnregisteredJemaatOptions = () =>

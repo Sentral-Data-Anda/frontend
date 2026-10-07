@@ -21,6 +21,8 @@ export const daftarPelayanKeys = {
   detail: (code: string) => [...daftarPelayanKeys.all, "detail", code] as const,
 };
 
+const pathOf = (key: string) => `/pelayan/${encodeURIComponent(key)}`;
+
 export function useDaftarPelayanList(params: ListState) {
   return useListQuery({
     queryKey: daftarPelayanKeys.lists(),
@@ -32,7 +34,7 @@ export function useDaftarPelayanList(params: ListState) {
 export function usePelayanDetail(code: string | undefined) {
   return useQuery({
     queryKey: daftarPelayanKeys.detail(code ?? ""),
-    queryFn: () => fetchOne<PelayanDetail>(`/pelayan/${code}`),
+    queryFn: () => fetchOne<PelayanDetail>(pathOf(code ?? "")),
     enabled: Boolean(code),
     staleTime: 0,
     select: (response) => response.data,
@@ -62,7 +64,7 @@ export function useSavePelayan(code?: string) {
 
   return useMutation({
     mutationFn: (payload: PelayanPayload) =>
-      fetchOne<{ code: string }>(code ? `/pelayan/${code}` : "/pelayan", {
+      fetchOne<{ code: string }>(code ? pathOf(code) : "/pelayan", {
         method: code ? "PUT" : "POST",
         body: JSON.stringify(payload),
       }) as Promise<PelayanSaved>,
@@ -75,7 +77,7 @@ export function useDeletePelayan(code: string | undefined) {
 
   return useMutation({
     mutationFn: () =>
-      fetchOne<unknown>(`/pelayan/${code}`, { method: "DELETE" }),
+      fetchOne<unknown>(pathOf(code ?? ""), { method: "DELETE" }),
     onSuccess: onInvalidate,
   });
 }

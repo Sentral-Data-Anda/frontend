@@ -20,7 +20,7 @@ import { TIER_PREFIX, withEmptyOption, type SetelanForm } from "./form-options";
 
 const KIND_OPTIONS = [
   { value: "role", label: "Role sistem" },
-  { value: "position", label: "Jabatan komisi" },
+  { value: "position", label: "Jabatan badan pelayanan" },
 ];
 
 const SUBMITTER_BAPEL = "Badan pelayanan pengaju dokumen";

@@ -29,6 +29,9 @@ const TODAY = todayJakarta();
 
 const YEAR = Number(TODAY.slice(0, 4));
 
+// Server: `PREFIX-TAHUN-NOMOR`, tahun dari jam, bukan dari periode cutinya.
+const codeOf = (id: number) => `CTI-${YEAR}-${String(id).padStart(4, "0")}`;
+
 type LeaveStatus = "PENDING" | "APPROVED" | "REJECTED" | "CANCELLED";
 
 type ApprovalStatus = "PENDING" | "APPROVED" | "REJECTED" | "CANCELLED";
@@ -81,7 +84,7 @@ const row = (
 ): LeaveRow => ({
   id,
   publicId: `cti-${String(id).padStart(4, "0")}`,
-  code: `CTI-${String(id).padStart(4, "0")}`,
+  code: codeOf(id),
   karyawanId,
   leaveTypeId,
   startDate,
@@ -737,7 +740,7 @@ export const cutiMock: MockHandler = async ({
     const created: LeaveRow = {
       id,
       publicId: crypto.randomUUID(),
-      code: `CTI-${String(id).padStart(4, "0")}`,
+      code: codeOf(id),
       karyawanId: parsed.karyawanId,
       leaveTypeId: parsed.leaveTypeId,
       startDate: parsed.startDate,

@@ -18,6 +18,8 @@ export const tipeIbadahKeys = {
 
 const IBADAH_LIST_KEY = ["ibadah", "list"] as const;
 
+const pathOf = (key: string) => `/type-ibadah/${encodeURIComponent(key)}`;
+
 export function useTipeIbadahList(params: ListState) {
   return useListQuery({
     queryKey: tipeIbadahKeys.lists(),
@@ -33,7 +35,7 @@ export function useTipeIbadahList(params: ListState) {
 export function useTipeIbadahDetail(code: string | undefined) {
   return useQuery({
     queryKey: tipeIbadahKeys.detail(code ?? ""),
-    queryFn: () => fetchOne<TipeIbadah>(`/type-ibadah/${code}`),
+    queryFn: () => fetchOne<TipeIbadah>(pathOf(code ?? "")),
     enabled: Boolean(code),
     staleTime: 0,
     select: (response) => response.data,
@@ -61,7 +63,7 @@ export function useSaveTipeIbadah(code?: string) {
 
   return useMutation({
     mutationFn: (payload: TipeIbadahPayload) =>
-      fetchOne<TipeIbadah>(code ? `/type-ibadah/${code}` : "/type-ibadah", {
+      fetchOne<TipeIbadah>(code ? pathOf(code) : "/type-ibadah", {
         method: code ? "PUT" : "POST",
         body: JSON.stringify(payload),
       }),
@@ -74,7 +76,7 @@ export function useDeleteTipeIbadah(code: string | undefined) {
 
   return useMutation({
     mutationFn: () =>
-      fetchOne<unknown>(`/type-ibadah/${code}`, { method: "DELETE" }),
+      fetchOne<unknown>(pathOf(code ?? ""), { method: "DELETE" }),
     onSuccess: onInvalidate,
   });
 }

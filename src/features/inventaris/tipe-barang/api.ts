@@ -15,6 +15,8 @@ export const tipeBarangKeys = {
   detail: (code: string) => [...tipeBarangKeys.all, "detail", code] as const,
 };
 
+const pathOf = (key: string) => `/type-item/${encodeURIComponent(key)}`;
+
 export function useTipeBarangList(params: ListState) {
   return useListQuery({
     queryKey: tipeBarangKeys.lists(),
@@ -26,7 +28,7 @@ export function useTipeBarangList(params: ListState) {
 export function useTipeBarangDetail(code: string | undefined) {
   return useQuery({
     queryKey: tipeBarangKeys.detail(code ?? ""),
-    queryFn: () => fetchOne<TipeBarang>(`/type-item/${code}`),
+    queryFn: () => fetchOne<TipeBarang>(pathOf(code ?? "")),
     enabled: Boolean(code),
     staleTime: 0,
     select: (response) => response.data,
@@ -56,7 +58,7 @@ export function useSaveTipeBarang(code?: string) {
 
   return useMutation({
     mutationFn: (payload: TipeBarangPayload) =>
-      fetchOne<TipeBarang>(code ? `/type-item/${code}` : "/type-item", {
+      fetchOne<TipeBarang>(code ? pathOf(code) : "/type-item", {
         method: code ? "PUT" : "POST",
         body: JSON.stringify(payload),
       }),
@@ -69,7 +71,7 @@ export function useDeleteTipeBarang(code: string | undefined) {
 
   return useMutation({
     mutationFn: () =>
-      fetchOne<unknown>(`/type-item/${code}`, { method: "DELETE" }),
+      fetchOne<unknown>(pathOf(code ?? ""), { method: "DELETE" }),
     onSuccess: onInvalidate,
   });
 }

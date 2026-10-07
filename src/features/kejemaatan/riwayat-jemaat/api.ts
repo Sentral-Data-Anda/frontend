@@ -20,6 +20,8 @@ export const riwayatKeys = {
   detail: (id: string) => [...riwayatKeys.all, "detail", id] as const,
 };
 
+const pathOf = (key: string) => `/riwayat-jemaat/${encodeURIComponent(key)}`;
+
 export function useRiwayatList(params: ListState) {
   return useListQuery({
     queryKey: riwayatKeys.lists(),
@@ -32,7 +34,7 @@ export function useRiwayatList(params: ListState) {
 export function useRiwayatDetail(id: string | undefined) {
   return useQuery({
     queryKey: riwayatKeys.detail(id ?? ""),
-    queryFn: () => fetchOne<RiwayatJemaat>(`/riwayat-jemaat/${id}`),
+    queryFn: () => fetchOne<RiwayatJemaat>(pathOf(id ?? "")),
     enabled: Boolean(id),
     staleTime: 0,
     select: (response) => response.data,
@@ -44,10 +46,10 @@ export function useSaveRiwayat(id?: string) {
 
   return useMutation({
     mutationFn: (payload: RiwayatJemaatPayload) =>
-      fetchOne<RiwayatJemaatSaved>(
-        id ? `/riwayat-jemaat/${id}` : "/riwayat-jemaat",
-        { method: id ? "PUT" : "POST", body: JSON.stringify(payload) },
-      ),
+      fetchOne<RiwayatJemaatSaved>(id ? pathOf(id) : "/riwayat-jemaat", {
+        method: id ? "PUT" : "POST",
+        body: JSON.stringify(payload),
+      }),
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: riwayatKeys.lists() }),
   });
@@ -58,7 +60,7 @@ export function useDeleteRiwayat(id: string | undefined) {
 
   return useMutation({
     mutationFn: () =>
-      fetchOne<undefined>(`/riwayat-jemaat/${id}`, { method: "DELETE" }),
+      fetchOne<undefined>(pathOf(id ?? ""), { method: "DELETE" }),
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: riwayatKeys.lists() }),
   });

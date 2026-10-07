@@ -356,6 +356,9 @@ export const guardSlugOf = (path: string): MenuSlug | undefined =>
 
 const today = () => toDateKey(new Date());
 
+// Tahun kode dokumen dari jam, bukan periodenya: `generateCode` be-sada.
+const codeYear = () => today().slice(0, 4);
+
 export const addDays = (key: string, days: number): string => {
   const date = new Date(`${key}T00:00:00Z`);
   date.setUTCDate(date.getUTCDate() + days);
@@ -390,58 +393,6 @@ export const ROOM_ROWS = [
 ];
 
 // ---------------------------------------------------------------------------
-// GET /persetujuan?menunggu=saya — `persetujuan.repository.ts:46-64, 114-165`.
-// Tanpa nama pengaju dan tanpa nomor dokumen: hanya `documentType` +
-// `documentId`. Urut `submittedAt asc` (paling lama menunggu dulu).
-
-const approval = (
-  id: number,
-  documentType: string,
-  amount: number,
-  daysAgo: number,
-  bapel: string,
-) => ({
-  id,
-  publicId: `00000000-0000-4000-a000-${String(id).padStart(12, "0")}`,
-  code: `PST-2026-${String(id).padStart(4, "0")}`,
-  documentType,
-  documentId: 40 + id,
-  configId: 3,
-  amount: String(amount),
-  status: "PENDING",
-  currentOrder: 1,
-  submittedBy: 12,
-  submittedAt: `${addDays(today(), -daysAgo)}T03:10:00.000Z`,
-  completedAt: null,
-  createdAt: `${addDays(today(), -daysAgo)}T03:10:00.000Z`,
-  updatedAt: null,
-  config: { publicId: "cfg-3", name: "Persetujuan Majelis" },
-  steps: [
-    {
-      publicId: `step-${id}`,
-      order: 1,
-      approverRoleUserId: null,
-      approverRoleName: "Ketua",
-      approverBapelId: 4,
-      status: "PENDING",
-      note: null,
-      actedBy: null,
-      actedAt: null,
-      approverRoleUser: null,
-      approverBapel: { publicId: "bpl-4", code: "BPL-004", name: bapel },
-    },
-  ],
-});
-
-export function listWaitingApprovals() {
-  if (process.env.MOCK_NO_APPROVAL) return [];
-  return [
-    approval(19, "PROGRAM", 12_000_000, 5, "Komisi Wanita"),
-    approval(21, "CASH_EXPENSE", 4_500_000, 2, "Komisi Pemuda"),
-  ];
-}
-
-// ---------------------------------------------------------------------------
 // GET /persembahan/saya — `persembahan.repository.ts:6-31`. 200 `[]` bila
 // kosong (bukan 404). `periodStart`/`periodEnd` "YYYY-MM", pada `period`.
 
@@ -452,7 +403,7 @@ export function listMyOfferings(params: URLSearchParams, jemaatName: string) {
     return {
       id: 50 - index,
       publicId: `psb-${index}`,
-      code: `PSB-${String(50 - index).padStart(4, "0")}`,
+      code: `PSB-${codeYear()}-${String(50 - index).padStart(4, "0")}`,
       typePersembahanId: 1,
       jemaatId: 12,
       donorName: null,
@@ -720,7 +671,7 @@ const invoice = (
 ) => ({
   id,
   publicId: `inv-${id}`,
-  code: `INV-2026-${String(id).padStart(4, "0")}`,
+  code: `INV-${codeYear()}-${String(id).padStart(4, "0")}`,
   supplierInvoiceNumber: `SUP/IX/${id}`,
   supplierId: id,
   purchaseOrderId: null,
@@ -763,7 +714,7 @@ const payment = (
 ) => ({
   id,
   publicId: `pay-${id}`,
-  code: `PAY-2026-${String(id).padStart(4, "0")}`,
+  code: `PAY-${codeYear()}-${String(id).padStart(4, "0")}`,
   purpose,
   amount: String(amount),
   status,

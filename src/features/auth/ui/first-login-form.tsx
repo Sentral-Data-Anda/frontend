@@ -34,7 +34,7 @@ export const FirstLoginForm = (props: PropTypes) => {
 
   const onSubmitPassword = async (form: FirstLoginForm) => {
     try {
-      await fetchOne(`/auth/update/${code}`, {
+      await fetchOne(`/auth/update/${encodeURIComponent(code)}`, {
         method: "PUT",
         body: JSON.stringify(form),
       });

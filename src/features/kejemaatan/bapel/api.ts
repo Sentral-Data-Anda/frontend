@@ -14,6 +14,8 @@ export const bapelKeys = {
   detail: (code: string) => [...bapelKeys.all, "detail", code] as const,
 };
 
+const pathOf = (key: string) => `/bapel/${encodeURIComponent(key)}`;
+
 export function useBapelList(params: ListState) {
   return useListQuery({
     queryKey: bapelKeys.lists(),
@@ -25,7 +27,7 @@ export function useBapelList(params: ListState) {
 export function useBapelDetail(code: string | undefined) {
   return useQuery({
     queryKey: bapelKeys.detail(code ?? ""),
-    queryFn: () => fetchOne<BapelDetail>(`/bapel/${code}`),
+    queryFn: () => fetchOne<BapelDetail>(pathOf(code ?? "")),
     enabled: Boolean(code),
     staleTime: 0,
     select: (response) => response.data,
@@ -37,7 +39,7 @@ export function useSaveBapel(code?: string) {
 
   return useMutation({
     mutationFn: (payload: BapelPayload) =>
-      fetchOne<BapelDetail>(code ? `/bapel/${code}` : "/bapel", {
+      fetchOne<BapelDetail>(code ? pathOf(code) : "/bapel", {
         method: code ? "PUT" : "POST",
         body: JSON.stringify(payload),
       }),
@@ -50,7 +52,8 @@ export function useDeleteBapel(code: string | undefined) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: () => fetchOne<unknown>(`/bapel/${code}`, { method: "DELETE" }),
+    mutationFn: () =>
+      fetchOne<unknown>(pathOf(code ?? ""), { method: "DELETE" }),
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: bapelKeys.lists() }),
   });

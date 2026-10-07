@@ -21,6 +21,8 @@ export const templateJadwalKeys = {
     [...templateJadwalKeys.all, "detail", code] as const,
 };
 
+const pathOf = (key: string) => `/template-pelayan/${encodeURIComponent(key)}`;
+
 export function useTemplateJadwalList(params: ListState) {
   return useListQuery({
     queryKey: templateJadwalKeys.lists(),
@@ -33,7 +35,7 @@ export function useTemplateJadwalList(params: ListState) {
 export function useTemplateJadwalDetail(code: string | undefined) {
   return useQuery({
     queryKey: templateJadwalKeys.detail(code ?? ""),
-    queryFn: () => fetchOne<TemplateJadwalDetail>(`/template-pelayan/${code}`),
+    queryFn: () => fetchOne<TemplateJadwalDetail>(pathOf(code ?? "")),
     enabled: Boolean(code),
     staleTime: 0,
     select: (response) => response.data,
@@ -64,10 +66,10 @@ export function useSaveTemplateJadwal(code?: string) {
 
   return useMutation({
     mutationFn: (payload: TemplateJadwalPayload) =>
-      fetchOne<TemplateJadwalSaved>(
-        code ? `/template-pelayan/${code}` : "/template-pelayan",
-        { method: code ? "PUT" : "POST", body: JSON.stringify(payload) },
-      ),
+      fetchOne<TemplateJadwalSaved>(code ? pathOf(code) : "/template-pelayan", {
+        method: code ? "PUT" : "POST",
+        body: JSON.stringify(payload),
+      }),
     onSuccess: onInvalidate,
   });
 }
@@ -77,7 +79,7 @@ export function useDeleteTemplateJadwal(code: string | undefined) {
 
   return useMutation({
     mutationFn: () =>
-      fetchOne<unknown>(`/template-pelayan/${code}`, { method: "DELETE" }),
+      fetchOne<unknown>(pathOf(code ?? ""), { method: "DELETE" }),
     onSuccess: onInvalidate,
   });
 }

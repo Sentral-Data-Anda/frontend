@@ -423,6 +423,10 @@ const SETTING_KEY = {
   PAYMENT_GATEWAY: "KAS_GATEWAY",
 } as const;
 
+// `PREFIX-TAHUN-NOMOR`, tahun dari jam (be-sada `generateCode`); nomor = id agar unik lintas bulan.
+const giftCodeOf = (id: number) =>
+  `PSB-${TODAY.slice(0, 4)}-${String(id).padStart(4, "0")}`;
+
 const giftIdOf = (from: string, index: number) =>
   (Number(from.slice(0, 4)) * 12 + Number(from.slice(5, 7))) * 100 + index;
 
@@ -440,7 +444,7 @@ const giftsIn = (from: string, to: string): Gift[] => {
   const gifts = TYPE_PERSEMBAHAN.filter((type) => isLive(type)).map(
     (type, index): Gift => ({
       id: giftIdOf(from, index + 1),
-      code: `PSB-${from.slice(0, 7).replace("-", "")}-${String(index + 1).padStart(3, "0")}`,
+      code: giftCodeOf(giftIdOf(from, index + 1)),
       typeId: type.id,
       receiveMethod: index % 3 === 1 ? "TRANSFER" : "TUNAI",
       amount: String(500000 * (index + 1)),
@@ -451,7 +455,7 @@ const giftsIn = (from: string, to: string): Gift[] => {
   if (process.env.MOCK_GATEWAY_GIFT) {
     gifts.push({
       id: giftIdOf(from, 90),
-      code: `PSB-${from.slice(0, 7).replace("-", "")}-900`,
+      code: giftCodeOf(giftIdOf(from, 90)),
       typeId: TYPE_PERSEMBAHAN[0].id,
       receiveMethod: "PAYMENT_GATEWAY",
       amount: "750000",

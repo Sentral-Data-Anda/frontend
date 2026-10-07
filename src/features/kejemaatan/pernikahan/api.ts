@@ -23,6 +23,9 @@ export const marriageKeys = {
   detail: (id: string) => [...marriageKeys.all, "detail", id] as const,
 };
 
+const pathOf = (key: string, suffix = "") =>
+  `/marriage/${encodeURIComponent(key)}${suffix}`;
+
 export function useMarriageList(params: ListState) {
   return useListQuery({
     queryKey: marriageKeys.lists(),
@@ -35,7 +38,7 @@ export function useMarriageList(params: ListState) {
 export function useMarriageDetail(id: string | undefined) {
   return useQuery({
     queryKey: marriageKeys.detail(id ?? ""),
-    queryFn: () => fetchOne<MarriageDetail>(`/marriage/${id}`),
+    queryFn: () => fetchOne<MarriageDetail>(pathOf(id ?? "")),
     enabled: Boolean(id),
     staleTime: 0,
     select: (response) => response.data,
@@ -54,7 +57,7 @@ export function useSaveMarriage(id?: string) {
 
   return useMutation({
     mutationFn: (payload: MarriagePayload) =>
-      fetchOne<MarriageSaved>(id ? `/marriage/${id}` : "/marriage", {
+      fetchOne<MarriageSaved>(id ? pathOf(id) : "/marriage", {
         method: id ? "PUT" : "POST",
         body: JSON.stringify(payload),
       }),
@@ -67,7 +70,7 @@ export function useEndMarriage(id: string) {
 
   return useMutation({
     mutationFn: (payload: EndMarriagePayload) =>
-      fetchOne<MarriageSaved>(`/marriage/${id}/end`, {
+      fetchOne<MarriageSaved>(pathOf(id, "/end"), {
         method: "PUT",
         body: JSON.stringify(payload),
       }),
@@ -80,7 +83,7 @@ export function useDeleteMarriage(id?: string) {
 
   return useMutation({
     mutationFn: () =>
-      fetchOne<MarriageSaved>(`/marriage/${id}`, { method: "DELETE" }),
+      fetchOne<MarriageSaved>(pathOf(id ?? ""), { method: "DELETE" }),
     onSuccess: onInvalidate,
   });
 }

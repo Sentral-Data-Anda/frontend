@@ -106,6 +106,14 @@ export function useKeluargaAddress(id: string, isEnabled: boolean) {
   return useQuery({ ...keluargaAddressQuery(id), enabled: isEnabled });
 }
 
+export const hostSuggestionQuery = (typeId: string, zoneId: string) => ({
+  queryKey: [...ibadahKeys.hosts(), typeId, zoneId],
+  queryFn: () =>
+    fetchList<HostSuggestion>(
+      `/ibadah/saran-tuan-rumah?typeIbadahId=${typeId}&zoneChurchId=${zoneId}`,
+    ),
+});
+
 type HostParams = {
   isEnabled: boolean;
   typeIbadahId: string;
@@ -120,11 +128,7 @@ export function useHostOptions(params: HostParams) {
   const [term, setTerm] = useState("");
   const keluarga = useDdlSearch("keluarga", "id", pinned);
   const suggestions = useQuery({
-    queryKey: [...ibadahKeys.hosts(), typeIbadahId, zoneChurchId],
-    queryFn: () =>
-      fetchList<HostSuggestion>(
-        `/ibadah/saran-tuan-rumah?typeIbadahId=${typeIbadahId}&zoneChurchId=${zoneChurchId}`,
-      ),
+    ...hostSuggestionQuery(typeIbadahId, zoneChurchId),
     enabled: isEnabled && Boolean(typeIbadahId && zoneChurchId),
     select: (response) => toHostOptions(response.data),
   });

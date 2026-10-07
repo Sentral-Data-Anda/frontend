@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import type { SelectOption } from "@/components/common/control";
-import { MENU, createHref, menuHref } from "@/config/menu";
+import { FORM_SEGMENT, MENU, createHref, menuHref } from "@/config/menu";
 import { addDays, addMonths, toDateInput, todayJakarta } from "@/lib/date";
 import { formatDateShort, formatWeekday } from "@/lib/format";
 import { emptyToNull } from "@/lib/utils";
@@ -16,7 +16,7 @@ import type {
 
 export const IBADAH_LIST_PATH = menuHref(MENU.PERIBADAHAN, MENU.IBADAH);
 
-export const GILIRAN_PATH = `${IBADAH_LIST_PATH}/giliran`;
+export const GILIRAN_PATH = `${IBADAH_LIST_PATH}/${FORM_SEGMENT.rotation}`;
 
 export const salinHref = (code: string) =>
   `${createHref(MENU.PERIBADAHAN, MENU.IBADAH)}?salin=${encodeURIComponent(code)}`;
