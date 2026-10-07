@@ -219,7 +219,7 @@ describe("penyusutan", () => {
       false,
     );
     expect(assetView(innova, true)).toMatchObject({
-      depreciation: { bookValue: "50000000.00" },
+      depreciation: { bookValue: "50000000" },
     });
   });
 
@@ -277,7 +277,7 @@ describe("pelepasan", () => {
     expect(
       assetView(assetNamed("Printer Canon G2010")).disposal,
     ).not.toHaveProperty("approval");
-    expect(keyboard.depreciation?.openingAccumulated).toBe("0.00");
+    expect(keyboard.depreciation?.openingAccumulated).toBe("0");
   });
 
   test("ajukan lalu tarik: barang kembali aktif", () => {

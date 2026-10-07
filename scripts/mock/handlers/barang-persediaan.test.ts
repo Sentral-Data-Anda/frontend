@@ -81,7 +81,7 @@ describe("daftar", () => {
     expect(
       (all.body.data as View[]).find((row) => row.name === "Kidung Jemaat")
         ?.lastUnitPrice,
-    ).toBe("85000.00");
+    ).toBe("85000");
 
     const low = await onCall("GET", "/barang-persediaan?menipis=ya");
     expect((low.body.data as View[]).map((row) => row.name)).toEqual([

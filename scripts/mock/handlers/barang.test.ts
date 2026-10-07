@@ -149,7 +149,7 @@ describe("baca", () => {
       `/asset/${codeOf("Keyboard Yamaha PSR-SX700").toLowerCase()}`,
     );
     expect((keyboard.body.data as View).depreciation?.openingAccumulated).toBe(
-      "0.00",
+      "0",
     );
   });
 });

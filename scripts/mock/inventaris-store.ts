@@ -226,8 +226,9 @@ const monthStart = (offset: number) => addMonths(startOfMonth(TODAY), offset);
 
 const round2 = (value: number) => Math.round(value * 100) / 100;
 
+// be-sada: Decimal Prisma = string desimal terpendek, tanpa nol di belakang.
 export const money = (value: number | null) =>
-  value === null ? null : value.toFixed(2);
+  value === null ? null : String(Number(value.toFixed(2)));
 
 const periodIndex = (key: string) =>
   Number(key.slice(0, 4)) * 12 + Number(key.slice(5, 7)) - 1;

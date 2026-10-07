@@ -62,7 +62,7 @@ export const tasksOf = (jemaatName: string, today = todayJakarta()) => {
           role: { name: nameOf(ROLE_PELAYAN, slot.rolePelayanId)?.name ?? "" },
           musikSkill: nameOf(MUSIK_SKILL, slot.musikSkillId),
           group: nameOf(GROUP_PELAYAN, slot.groupPelayanId),
-          ibadah: ibadahLinkedTo(row.id),
+          ibadah: ibadahLinkedTo(row.id, "time"),
         })),
     );
 };
