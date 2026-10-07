@@ -11,8 +11,8 @@ import { afterEach, describe, expect, mock, test } from "bun:test";
 import { MENU } from "@/config/menu";
 import type { MenuAction } from "@/types/menu";
 
+import { exportControlsIn } from "../../../../../tests/export-guard";
 import { onStubViewport } from "../../../../../tests/viewport";
-import { exportControlsIn } from "../export-guard";
 import type { KontrakKaryawan } from "../types";
 
 const granted: { current: Record<string, MenuAction[]> } = { current: {} };
@@ -237,7 +237,9 @@ describe("baris kontrak", () => {
     onRender(["VIEW", "UPDATE"]);
 
     await waitFor(() => expect(screen.getByText("Ani Wijaya")).toBeTruthy());
-    expect(screen.getAllByText(/Sejak 1 Januari 2020/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Sejak 1 Januari 2020/).length).toBeGreaterThan(
+      0,
+    );
     expect(screen.queryByText(/1970|Invalid Date/)).toBeNull();
 
     viewport.onRestore();
@@ -269,8 +271,28 @@ describe("nol jalur ekspor", () => {
     // benar-benar ada di himpunan subjeknya.
     fireEvent.click(screen.getByRole("button", { name: "Filter" }));
     await waitFor(() =>
-      expect(screen.getAllByRole("button", { name: /Terapkan|Reset/ }).length)
-        .toBeGreaterThan(0),
+      expect(
+        screen.getAllByRole("button", { name: /Terapkan|Reset/ }).length,
+      ).toBeGreaterThan(0),
+    );
+
+    // Dan opsi select di dalamnya: `SelectField` merender opsinya di dalam
+    // `Select.Portal`, jadi DOM-nya belum ada sampai select-nya dibuka. Panel
+    // yang terbuka dengan select yang masih tertutup adalah himpunan subjek
+    // yang melewatkan tiap opsi — dua opsi palsu pernah lolos seluruh grup SDM
+    // karena nol test membuka satu select pun. `fireEvent.click` tidak
+    // membukanya; `keyDown` + `ArrowDown` yang membukanya.
+    const triggers = screen.getAllByRole("combobox");
+
+    expect(triggers).toHaveLength(1);
+    fireEvent.keyDown(triggers[0], { key: "ArrowDown" });
+
+    // Kuantifiernya: select yang diam-diam nol opsi membuat pemindaian di
+    // bawahnya tidak memindai apa pun, dan hijaunya tidak berarti apa pun.
+    await waitFor(() =>
+      expect(
+        document.querySelectorAll("[role='option']").length,
+      ).toBeGreaterThan(0),
     );
 
     expect(exportControlsIn(document)).toEqual([]);

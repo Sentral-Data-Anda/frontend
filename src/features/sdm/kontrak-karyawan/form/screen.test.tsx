@@ -12,7 +12,7 @@ import { afterEach, describe, expect, mock, test } from "bun:test";
 import { MENU } from "@/config/menu";
 import type { MenuAction } from "@/types/menu";
 
-import { exportControlsIn } from "../export-guard";
+import { exportControlsIn } from "../../../../../tests/export-guard";
 import { LIST_PATH } from "../model";
 import type { KontrakKaryawan } from "../types";
 
@@ -389,15 +389,17 @@ describe("bacaan gaji dijaga StepUp", () => {
     });
     onRender(["VIEW", "UPDATE", "DELETE"], "KTR-0001");
 
-    expect(await screen.findByText("Kontrak ini belum bisa dimuat.")).toBeTruthy();
+    expect(
+      await screen.findByText("Kontrak ini belum bisa dimuat."),
+    ).toBeTruthy();
 
     const field = screen.getByLabelText("Karyawan") as HTMLInputElement;
 
     expect(field.readOnly).toBe(true);
     expect(screen.queryByRole("combobox", { name: "Karyawan" })).toBeNull();
-    expect((screen.getByLabelText("Kode kontrak") as HTMLInputElement).value).toBe(
-      "KTR-0001",
-    );
+    expect(
+      (screen.getByLabelText("Kode kontrak") as HTMLInputElement).value,
+    ).toBe("KTR-0001");
     expect(
       (screen.getByRole("button", { name: "Simpan" }) as HTMLButtonElement)
         .disabled,
@@ -437,11 +439,62 @@ describe("penanda data gaji dan nol jalur ekspor", () => {
     expect(screen.queryByText(/Ubah Kontrak Karyawan.*Rp/)).toBeNull();
   });
 
+  /**
+   * Mode ubah mengunci field Karyawan jadi input `readOnly`, jadi select yang
+   * memuat roster TIDAK dirender di sana — mutasi ke opsinya tidak mendarat di
+   * DOM dan hijaunya tidak berarti apa pun. Mode tambah yang merendernya.
+   * Satu select per render: menutup popup Base UI di happy-dom tidak bisa
+   * diandalkan.
+   */
+  test.each([0, 1])(
+    "mode tambah: opsi select ke-%i ikut dipindai",
+    async (index) => {
+      onMockApi();
+      onRender(["VIEW", "CREATE"]);
+
+      await waitFor(() =>
+        expect(screen.getAllByRole("combobox").length).toBe(2),
+      );
+
+      const triggers = screen.getAllByRole("combobox");
+
+      fireEvent.keyDown(triggers[index], { key: "ArrowDown" });
+
+      // Kuantifiernya: select yang diam-diam nol opsi membuat pemindaian di
+      // bawahnya tidak memindai apa pun.
+      await waitFor(() =>
+        expect(
+          document.querySelectorAll("[role='option']").length,
+        ).toBeGreaterThan(0),
+      );
+
+      expect(exportControlsIn(document)).toEqual([]);
+    },
+  );
+
   test("nol kendali apa pun yang menawarkan berkas, termasuk di dialog", async () => {
     onMockApi();
     onRender(["VIEW", "UPDATE", "DELETE"], "KTR-0001");
 
     await onLoaded();
+
+    // Opsi select di-portal dan DOM-nya belum ada sampai select-nya dibuka,
+    // jadi select yang tertutup adalah himpunan subjek yang melewatkan tiap
+    // opsi. `fireEvent.click` tidak membukanya; `keyDown` + `ArrowDown` yang
+    // membukanya.
+    const triggers = screen.getAllByRole("combobox");
+
+    expect(triggers.length).toBeGreaterThan(0);
+    fireEvent.keyDown(triggers[0], { key: "ArrowDown" });
+
+    await waitFor(() =>
+      expect(
+        document.querySelectorAll("[role='option']").length,
+      ).toBeGreaterThan(0),
+    );
+
+    expect(exportControlsIn(document)).toEqual([]);
+    fireEvent.keyDown(triggers[0], { key: "Escape" });
 
     // Dialog konfirmasi di-portal ke `body`, jadi ia dibuka dulu.
     fireEvent.click(screen.getByRole("button", { name: "Simpan" }));

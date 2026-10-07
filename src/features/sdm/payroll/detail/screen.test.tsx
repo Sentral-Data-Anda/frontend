@@ -12,7 +12,7 @@ import { afterEach, describe, expect, mock, test } from "bun:test";
 import { MENU } from "@/config/menu";
 import type { MenuAction } from "@/types/menu";
 
-import { exportControlsIn } from "../export-guard";
+import { exportControlsIn } from "../../../../../tests/export-guard";
 import type { PayrollRunDetail, PayrollStatus, Payslip } from "../types";
 
 const granted: { current: Record<string, MenuAction[]> } = { current: {} };

@@ -12,8 +12,8 @@ import { afterEach, describe, expect, mock, test } from "bun:test";
 import { MENU } from "@/config/menu";
 import type { MenuAction } from "@/types/menu";
 
+import { exportControlsIn } from "../../../../../tests/export-guard";
 import { onStubViewport } from "../../../../../tests/viewport";
-import { exportControlsIn } from "../export-guard";
 import type { PayrollRun } from "../types";
 
 /**
