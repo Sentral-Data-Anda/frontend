@@ -54,4 +54,11 @@ describe("NoFormAccess", () => {
     expect(screen.queryByText(/Hubungi administrator/)).toBeNull();
     expect(screen.queryByText(/administrator/i)).toBeNull();
   });
+
+  test("tanpa VIEW: kalimatnya generik, menunya tetap tersebut di judul dan tombol kembali", () => {
+    render(<NoFormAccess {...props} isCanView={false} />);
+
+    expect(screen.getByRole("heading", { name: props.title })).toBeTruthy();
+    expect(screen.getByRole("link", { name: props.backLabel })).toBeTruthy();
+  });
 });

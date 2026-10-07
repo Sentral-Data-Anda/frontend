@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Fragment } from "react";
 
+import { DETAIL_LINK } from "@/components/common/display";
 import { formatNumber } from "@/lib/format";
 
 import {
@@ -10,8 +11,7 @@ import {
   type ReceiptGroup,
 } from "../model";
 
-export const CODE_LINK =
-  "text-primary decoration-primary/40 hover:decoration-primary relative cursor-pointer rounded-sm tabular-nums underline underline-offset-2 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none";
+export const CODE_LINK = `tabular-nums ${DETAIL_LINK}`;
 
 const codeLink = (code: string, href: string, isLinked: boolean) =>
   isLinked ? (

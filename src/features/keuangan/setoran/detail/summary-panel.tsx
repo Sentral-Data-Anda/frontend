@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import {
+  DETAIL_LINK,
   DescriptionItem,
   DescriptionList,
   OptionalText,
@@ -66,7 +67,7 @@ export const SummaryPanel = (props: PropTypes) => {
             {isJournalLinked ? (
               <Link
                 href={journalHref(journal.publicId)}
-                className="text-primary tabular-nums underline-offset-4 hover:underline"
+                className={`tabular-nums ${DETAIL_LINK}`}
               >
                 {journal.code}
               </Link>

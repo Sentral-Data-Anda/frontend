@@ -102,7 +102,6 @@ export const KontrakListContent = () => {
             }
             pagination={contracts.pagination}
             table={kontrakTable(isCanUpdate)}
-            loadingShape="trailing"
             itemNoun="kontrak"
           >
             {(contract) => (

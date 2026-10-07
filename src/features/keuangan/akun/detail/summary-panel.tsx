@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { buttonVariants } from "@/components/common/control";
 import {
+  DETAIL_LINK,
   DescriptionItem,
   DescriptionList,
   Panel,
@@ -39,7 +40,7 @@ export const SummaryPanel = (props: PropTypes) => {
           {account.parent ? (
             <Link
               href={accountDetailHref(account.parent.code)}
-              className="text-primary underline-offset-4 hover:underline"
+              className={DETAIL_LINK}
             >
               {account.parent.code} — {account.parent.name}
             </Link>
