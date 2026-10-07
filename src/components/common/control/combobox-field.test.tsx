@@ -309,3 +309,44 @@ describe("ComboboxField dengan opsi isDisabled", () => {
     expect(screen.getByRole<HTMLInputElement>("combobox").value).toBe("Sinta");
   });
 });
+
+describe("ComboboxField target sentuh dan kontras", () => {
+  test("tombol buka dan kosongkan setinggi kendali (size-control), bukan size-6", () => {
+    render(
+      <ComboboxField
+        value="1"
+        onValueChange={() => {}}
+        options={[{ value: "1", label: "Budi" }]}
+        isClearable
+      />,
+    );
+
+    for (const name of ["Buka pilihan", "Kosongkan pilihan"]) {
+      const { className } = screen.getByRole("button", { name });
+
+      expect(className).toContain("size-control");
+      expect(className).not.toContain("size-6");
+    }
+  });
+
+  test("hint opsi nonaktif memakai primary-700 (terbaca 4,7:1 di atas muted), bukan primary-500", async () => {
+    render(
+      <ComboboxField
+        value=""
+        onValueChange={() => {}}
+        options={[
+          { value: "1", label: "Sinta", hint: "Terjadwal", isDisabled: true },
+        ]}
+      />,
+    );
+
+    fireEvent.keyDown(screen.getByRole("combobox"), { key: "ArrowDown" });
+    const hint = (await screen.findByText("Terjadwal")).className;
+
+    expect(hint).toContain("group-data-disabled:text-primary-700");
+    expect(hint).toContain(
+      "group-data-disabled:group-data-highlighted:text-primary-700",
+    );
+    expect(hint).not.toContain("text-primary-500");
+  });
+});

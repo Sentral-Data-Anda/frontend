@@ -3,7 +3,7 @@
 import { useWatch } from "react-hook-form";
 
 import {
-  ComboboxField,
+  DdlField,
   DateField,
   Input,
   SelectField,
@@ -108,7 +108,7 @@ export const MembershipSection = (props: PropTypes) => {
         }
       >
         {(field) => (
-          <ComboboxField
+          <DdlField
             value={field.value}
             onValueChange={field.onChange}
             options={zoneChurch.options}
