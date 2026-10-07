@@ -71,6 +71,7 @@ afterAll(() => {
 
 afterEach(() => {
   cleanup();
+  viewport.onResize(true);
   restoreOrders();
   calls.length = 0;
   replaced.length = 0;
@@ -178,7 +179,8 @@ describe("isi halaman", () => {
     expect(within(summary).getByText(/^USD · 15\.750 per /)).toBeTruthy();
   });
 
-  test("Diterima sebagian: sisa per baris", async () => {
+  test("HP: Diterima sebagian, sisa per baris di meta", async () => {
+    viewport.onResize(false);
     await onRender(OPERATOR, PARTIAL);
 
     const [first] = orderAt(PARTIAL).items;

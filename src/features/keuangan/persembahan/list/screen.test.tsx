@@ -12,6 +12,7 @@ import {
 
 import type { MenuAction } from "@/types/menu";
 
+import { onStubViewport } from "../../../../../tests/viewport";
 import type { Persembahan } from "../types";
 
 const actions: { current: Record<string, MenuAction[]> } = { current: {} };
@@ -37,20 +38,13 @@ mock.module("@/features/auth/use-menu-access", () => ({
 
 const { PersembahanListScreen } = await import("./screen");
 
-// Tabel butuh 48rem dan daftar desktop butuh 64rem; keduanya dicocokkan supaya
-// kolom Jurnal dan Cara memang dirender.
-const originalMatchMedia = window.matchMedia;
+let viewport: ReturnType<typeof onStubViewport>;
 
 beforeAll(() => {
-  window.matchMedia = ((query: string) => ({
-    matches: query.startsWith("(min-width"),
-    media: query,
-    addEventListener: () => undefined,
-    removeEventListener: () => undefined,
-  })) as unknown as typeof window.matchMedia;
+  viewport = onStubViewport(true);
 });
 afterAll(() => {
-  window.matchMedia = originalMatchMedia;
+  viewport.onRestore();
 });
 
 const originalFetch = globalThis.fetch;

@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
+  act,
   cleanup,
   fireEvent,
   render,
@@ -231,14 +232,28 @@ describe("baris kontrak", () => {
     viewport.onRestore();
   });
 
-  test("masa berlaku terbuka tidak dirender sebagai tanggal karangan", async () => {
+  // Dua ejaan untuk satu masa berlaku terbuka: kolom tabel memakai
+  // `periodShortText` ("Sejak 1 Jan 2020") dengan bentuk panjangnya di `title`,
+  // baris HP memakai `periodText` ("Sejak 1 Januari 2020") di metanya. Tanggal
+  // karangan bisa muncul di salah satunya saja, jadi keduanya dijaga.
+  test("masa berlaku terbuka tidak dirender sebagai tanggal karangan, di kolom dan di baris HP", async () => {
     const viewport = onStubViewport(true);
     onMockApi();
     onRender(["VIEW", "UPDATE"]);
 
     await waitFor(() => expect(screen.getByText("Ani Wijaya")).toBeTruthy());
-    expect(screen.getAllByText(/Sejak 1 Januari 2020/).length).toBeGreaterThan(
+    expect(screen.getAllByText("Sejak 1 Jan 2020").length).toBeGreaterThan(0);
+    expect(screen.getAllByTitle("Sejak 1 Januari 2020").length).toBeGreaterThan(
       0,
+    );
+    expect(screen.queryByText(/1970|Invalid Date/)).toBeNull();
+
+    act(() => viewport.onResize(false));
+
+    await waitFor(() =>
+      expect(
+        screen.getAllByText(/Sejak 1 Januari 2020/).length,
+      ).toBeGreaterThan(0),
     );
     expect(screen.queryByText(/1970|Invalid Date/)).toBeNull();
 
@@ -283,19 +298,38 @@ describe("nol jalur ekspor", () => {
     // karena nol test membuka satu select pun. `fireEvent.click` tidak
     // membukanya; `keyDown` + `ArrowDown` yang membukanya.
     const triggers = screen.getAllByRole("combobox");
+    // DUA di lebar tabel: filter karyawan di panel, dan "Baris per halaman" di
+    // footer tabel. Yang kedua tidak ada sama sekali di lebar HP — dan selama
+    // `onStubViewport(true)` cuma menjawab kueri 64rem, layar ini merender
+    // baris HP, jadi select itu di luar himpunan subjek dan nol test pernah
+    // membukanya.
+    expect(triggers).toHaveLength(2);
 
-    expect(triggers).toHaveLength(1);
-    fireEvent.keyDown(triggers[0], { key: "ArrowDown" });
+    // Opsinya dihitung DI DALAM listbox select itu sendiri (`aria-controls`,
+    // yang hanya ada selagi ia terbuka): select yang tertutup tetap
+    // menyisakan satu `[role='option']` di `document`, jadi hitungan global
+    // hijau untuk select yang sebenarnya gagal terbuka — kuantifier yang
+    // mengukur himpunan orang lain. Diukur: dengan hitungan global, select
+    // kedua di layar ini lolos tanpa pernah terbuka.
+    const optionsOf = (trigger: Element) =>
+      document
+        .getElementById(trigger.getAttribute("aria-controls") ?? "")
+        ?.querySelectorAll("[role='option']").length ?? 0;
 
-    // Kuantifiernya: select yang diam-diam nol opsi membuat pemindaian di
-    // bawahnya tidak memindai apa pun, dan hijaunya tidak berarti apa pun.
-    await waitFor(() =>
-      expect(
-        document.querySelectorAll("[role='option']").length,
-      ).toBeGreaterThan(0),
-    );
+    for (const trigger of triggers) {
+      fireEvent.keyDown(trigger, { key: "ArrowDown" });
+      await waitFor(() =>
+        expect(trigger.getAttribute("aria-expanded")).toBe("true"),
+      );
 
-    expect(exportControlsIn(document)).toEqual([]);
+      expect(optionsOf(trigger)).toBeGreaterThan(0);
+      expect(exportControlsIn(document)).toEqual([]);
+
+      fireEvent.keyDown(trigger, { key: "Escape" });
+      await waitFor(() =>
+        expect(trigger.getAttribute("aria-expanded")).toBe("false"),
+      );
+    }
 
     viewport.onRestore();
   });

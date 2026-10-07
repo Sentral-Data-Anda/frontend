@@ -1,11 +1,13 @@
 import { Toast } from "@base-ui/react/toast";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
+  act,
   cleanup,
   fireEvent,
   render,
   screen,
   waitFor,
+  within,
 } from "@testing-library/react";
 import { afterEach, describe, expect, mock, test } from "bun:test";
 
@@ -15,26 +17,6 @@ import type { MenuAction } from "@/types/menu";
 import { exportControlsIn } from "../../../../../tests/export-guard";
 import { onStubViewport } from "../../../../../tests/viewport";
 import type { PayrollRun } from "../types";
-
-/**
- * `tests/viewport.ts` hanya mencocokkan `DESKTOP_MEDIA_QUERY`, sementara
- * `DataList` merender tabelnya pada `TABLE_MEDIA_QUERY` (48rem). Jadi stub itu
- * sendirian membuat SELURUH tabel jatuh keluar dari himpunan subjek — diukur:
- * dengan ia saja, menanam kolom nama di `payrollTable()` membuat penjaga
- * privasi di bawah tetap hijau. Stub ini mencocokkan keduanya.
- */
-const onStubWideViewport = () => {
-  const original = window.matchMedia;
-
-  window.matchMedia = ((query: string) => ({
-    matches: true,
-    media: query,
-    addEventListener: () => {},
-    removeEventListener: () => {},
-  })) as unknown as typeof window.matchMedia;
-
-  return { onRestore: () => (window.matchMedia = original) };
-};
 
 /**
  * Nama orang, kode slip, dan nominal per orang, dicari atas TEKS yang benar-
@@ -220,16 +202,36 @@ describe("daftar penggajian", () => {
     viewport.onRestore();
   });
 
-  test("nol rupiah dirender Rp 0, bukan tanda hubung", async () => {
+  // `formatAmount("0.00")` → "Rp 0", bukan "—": nol rupiah adalah angka, bukan
+  // ketiadaan, dan itu kasus yang helper lokal paling sering salah. Dua tempat
+  // yang gagal sendiri-sendiri: kolom Bersih di lebar tabel, dan meta "<kode> ·
+  // Bersih <angka>" di baris HP.
+  test("nol rupiah dirender Rp 0 di kolom Bersih dan di meta baris HP", async () => {
     const viewport = onStubViewport(true);
     onMockApi();
     onRender(["VIEW"]);
 
     await waitFor(() => expect(screen.getByText("Juli 2026")).toBeTruthy());
-    // `formatAmount("0.00")` → "Rp 0", bukan "—": potongan nol rupiah adalah
-    // angka, bukan ketiadaan, dan itu kasus yang helper lokal paling sering
-    // salah.
-    expect(screen.getByText(/Bersih Rp 0$/)).toBeTruthy();
+
+    const row = [
+      ...document.querySelectorAll<HTMLElement>("[data-row-id]"),
+    ].find((node) => node.textContent?.includes("Juli 2026"));
+
+    if (!row) throw new Error("baris Juli 2026 tidak ada di himpunan subjek");
+
+    // Bruto | Potongan | Bersih, ketiganya nol di run Juli: isi selnya dipaku
+    // sekaligus jumlah selnya, supaya kolom yang hilang tidak lewat sebagai
+    // hijau.
+    expect(
+      within(row)
+        .getAllByRole("cell")
+        .slice(2, 5)
+        .map((cell) => cell.textContent),
+    ).toEqual(["Rp 0", "Rp 0", "Rp 0"]);
+
+    act(() => viewport.onResize(false));
+
+    await waitFor(() => expect(screen.getByText(/Bersih Rp 0$/)).toBeTruthy());
     expect(screen.queryByText(/Bersih —/)).toBeNull();
 
     viewport.onRestore();
@@ -249,7 +251,7 @@ describe("daftar penggajian", () => {
  */
 describe("privasi daftar", () => {
   test("nol nama karyawan di DOM, walau respons membawanya", async () => {
-    const viewport = onStubWideViewport();
+    const viewport = onStubViewport(true);
     globalThis.fetch = (() =>
       Promise.resolve(
         Response.json({
@@ -295,7 +297,7 @@ describe("privasi daftar", () => {
   });
 
   test("nol kendali ekspor, cetak, atau unduh di seluruh dokumen", async () => {
-    const viewport = onStubWideViewport();
+    const viewport = onStubViewport(true);
     onMockApi();
     onRender(["VIEW", "CREATE", "UPDATE", "DELETE"]);
 
@@ -325,7 +327,7 @@ describe("privasi daftar", () => {
     ["Tahun", 0],
     ["Bulan", 1],
   ])("isi dialog dan opsi pemilih %s ikut dipindai", async (_label, index) => {
-    const viewport = onStubWideViewport();
+    const viewport = onStubViewport(true);
     onMockApi();
     onRender(["VIEW", "CREATE"]);
 

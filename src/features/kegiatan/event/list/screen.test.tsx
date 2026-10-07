@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import {
   afterAll,
   afterEach,
@@ -86,6 +86,19 @@ const onRenderList = (granted: MenuAction[]) => {
   );
 };
 
+/**
+ * Gerbang muat yang sekaligus memaku himpunan subjeknya: `findByText` atas
+ * subtitle "N <noun>" cocok dua kali di lebar tabel — subtitle dan footer
+ * "Menampilkan 1-10 dari N <noun>" — dan nol baris pun tetap melewatkannya,
+ * jadi asersi "tanpa tautan ubah" di bawahnya bisa hijau atas daftar kosong.
+ */
+const onRowsReady = () =>
+  waitFor(() =>
+    expect(document.querySelectorAll("[data-row-id]").length).toBeGreaterThan(
+      0,
+    ),
+  );
+
 describe("daftar event", () => {
   test("tanpa VIEW: keadaan tanpa akses, tanpa memanggil be-sada", () => {
     onRenderList([]);
@@ -107,7 +120,7 @@ describe("daftar event", () => {
     search.current = `bulan=${month}&status=draf`;
     onRenderList(["VIEW"]);
 
-    await screen.findByText(/\d+ event/);
+    await onRowsReady();
     search.current = "";
     const listCall = requested.find((url) => url.startsWith("/api/v1/event?"));
     const query = new URLSearchParams(listCall?.split("?")[1]);
@@ -122,7 +135,7 @@ describe("daftar event", () => {
   test("VIEW saja: tanpa Tambah dan tanpa tautan ubah", async () => {
     onRenderList(["VIEW"]);
 
-    await screen.findByText(/\d+ event/);
+    await onRowsReady();
     expect(screen.queryByRole("link", { name: "Tambah event" })).toBeNull();
     expect(screen.queryAllByRole("link", { name: /^Ubah / })).toHaveLength(0);
   });
@@ -130,7 +143,7 @@ describe("daftar event", () => {
   test("CREATE dan UPDATE: Tambah ke form baru dan baris ke form ubah", async () => {
     onRenderList(["VIEW", "CREATE", "UPDATE"]);
 
-    await screen.findByText(/\d+ event/);
+    await onRowsReady();
     expect(
       screen.getByRole("link", { name: "Tambah event" }).getAttribute("href"),
     ).toBe("/kegiatan/event/baru");
