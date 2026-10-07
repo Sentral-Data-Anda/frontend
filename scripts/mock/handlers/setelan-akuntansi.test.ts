@@ -62,8 +62,10 @@ describe("mock /setelan-akuntansi", () => {
     const all = await onCall("GET", "/setelan-akuntansi");
 
     expect(all?.status).toBe(200);
-    expect(rowsOf(all?.body).length).toBe(6);
-    expect(rowsOf(all?.body).filter((row) => !row.account).length).toBe(4);
+    expect(rowsOf(all?.body).length).toBe(ACCOUNTING_SETTING.length);
+    expect(rowsOf(all?.body).filter((row) => !row.account).length).toBe(
+      ACCOUNTING_SETTING.filter((row) => row.accountId === null).length,
+    );
     expect(rowsOf(all?.body).map((row) => row.key)).toContain(
       "PENDAPATAN_EVENT",
     );
@@ -81,7 +83,7 @@ describe("mock /setelan-akuntansi", () => {
 
     expect(all?.body.totalData).toBeUndefined();
     expect(all?.body.totalPage).toBeUndefined();
-    expect(rowsOf(all?.body).length).toBe(6);
+    expect(rowsOf(all?.body).length).toBe(ACCOUNTING_SETTING.length);
   });
 
   test("MOCK_SETTING_EMPTY mengosongkan semuanya tanpa mengubah store", async () => {

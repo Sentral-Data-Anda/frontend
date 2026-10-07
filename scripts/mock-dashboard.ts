@@ -799,56 +799,6 @@ export function listPayments(params: URLSearchParams) {
 }
 
 // ---------------------------------------------------------------------------
-// GET /payroll — `payroll.repository.ts:41-46`, tanpa relasi, urut tahun &
-// bulan menurun. Tidak ada jumlah karyawan di daftar.
-
-export function listPayrolls(params: URLSearchParams) {
-  const month = Number(today().slice(5, 7));
-  const year = Number(today().slice(0, 4));
-  const rows = [
-    {
-      id: 9,
-      publicId: "pyr-9",
-      code: "PYR-2026-0009",
-      year,
-      month,
-      status: "DRAFT",
-      totalGross: "45000000",
-      totalDeduction: "2500000",
-      totalNet: "5200000",
-      approvedBy: null,
-      approvedAt: null,
-      paidAt: null,
-      createdBy: 1,
-      createdAt: `${addDays(today(), -6)}T02:00:00.000Z`,
-      updatedBy: null,
-      updatedAt: null,
-    },
-    {
-      id: 8,
-      publicId: "pyr-8",
-      code: "PYR-2026-0008",
-      year,
-      month: month === 1 ? 12 : month - 1,
-      status: "PAID",
-      totalGross: "44000000",
-      totalDeduction: "2400000",
-      totalNet: "41600000",
-      approvedBy: 1,
-      approvedAt: `${addDays(today(), -30)}T02:00:00.000Z`,
-      paidAt: `${addDays(today(), -28)}T02:00:00.000Z`,
-      createdBy: 1,
-      createdAt: `${addDays(today(), -36)}T02:00:00.000Z`,
-      updatedBy: null,
-      updatedAt: null,
-    },
-  ];
-  const status = params.get("status");
-
-  return status ? rows.filter((row) => row.status === status) : rows;
-}
-
-// ---------------------------------------------------------------------------
 // GET /report/jemaat/type-gender — `report.service.ts:14-32`. Tanpa paginasi;
 // 200 `[]` bila kosong (cabang 404 tidak terjangkau).
 

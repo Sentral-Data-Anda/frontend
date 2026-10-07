@@ -250,6 +250,20 @@ export const ACCOUNTING_SETTING: SettingRow[] = [
     accountId: null,
     updatedById: null,
   },
+  {
+    key: "GAJI_BEBAN",
+    description:
+      "Akun beban yang didebit dengan gaji pokok saat penggajian ditandai dibayar. Tunjangan mengikuti akun komponennya masing-masing kalau diatur; kalau tidak, ikut akun ini.",
+    accountId: null,
+    updatedById: null,
+  },
+  {
+    key: "GAJI_KAS",
+    description:
+      "Akun kas atau bank yang dikredit sebesar gaji bersih saat penggajian ditandai dibayar. Tanpa akun ini penggajian menolak dibayarkan, dan itu disengaja.",
+    accountId: null,
+    updatedById: null,
+  },
 ];
 
 export const settingView = (row: SettingRow) => ({

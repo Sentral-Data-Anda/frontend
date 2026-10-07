@@ -35,6 +35,10 @@ const account = (isActive = true) => ({
   isActive,
 });
 
+// Diturunkan dari daftar kunci: `onRows(ALL)` berarti "semua terisi", bukan
+// "enam terisi". Menambah kunci di be-sada tidak boleh memerahkan test ini.
+const ALL = ACCOUNTING_SETTING_KEYS.length;
+
 const onRows = (filled: number, inactive = 0): AccountingSetting[] =>
   ACCOUNTING_SETTING_KEYS.map((key, index) => ({
     key,
@@ -93,13 +97,17 @@ describe("kesiapan hari pertama", () => {
     onRender(onRows(0), ["VIEW", "UPDATE"]);
 
     await waitFor(() =>
-      expect(screen.getByText("0 dari 6 setelan sudah diisi")).toBeTruthy(),
+      expect(
+        screen.getByText(`0 dari ${ALL} setelan sudah diisi`),
+      ).toBeTruthy(),
     );
 
     expect(screen.getAllByText("Belum diisi").length).toBe(
       ACCOUNTING_SETTING_KEYS.length,
     );
-    expect(screen.getByText("6 dari 6 setelan belum diisi.")).toBeTruthy();
+    expect(
+      screen.getByText(`${ALL} dari ${ALL} setelan belum diisi.`),
+    ).toBeTruthy();
     expect(
       screen.getByText(
         "Posting jurnal akan ditolak selama setelan ini belum lengkap.",
@@ -111,18 +119,22 @@ describe("kesiapan hari pertama", () => {
     onRender(onRows(1), ["VIEW", "UPDATE"]);
 
     await waitFor(() =>
-      expect(screen.getByText("1 dari 6 setelan sudah diisi")).toBeTruthy(),
+      expect(
+        screen.getByText(`1 dari ${ALL} setelan sudah diisi`),
+      ).toBeTruthy(),
     );
 
-    expect(screen.getAllByText("Belum diisi").length).toBe(5);
+    expect(screen.getAllByText("Belum diisi").length).toBe(ALL - 1);
     expect(screen.getAllByText("1-100 — Kas").length).toBeGreaterThan(0);
   });
 
   test("semua terisi dan aktif: tanpa peringatan", async () => {
-    onRender(onRows(6), ["VIEW", "UPDATE"]);
+    onRender(onRows(ALL), ["VIEW", "UPDATE"]);
 
     await waitFor(() =>
-      expect(screen.getByText("6 dari 6 setelan sudah diisi")).toBeTruthy(),
+      expect(
+        screen.getByText(`${ALL} dari ${ALL} setelan sudah diisi`),
+      ).toBeTruthy(),
     );
 
     expect(screen.queryByText(/belum diisi\./)).toBeNull();
@@ -130,7 +142,7 @@ describe("kesiapan hari pertama", () => {
   });
 
   test("akun dinonaktifkan sesudah ditunjuk ditandai", async () => {
-    onRender(onRows(6, 1), ["VIEW", "UPDATE"]);
+    onRender(onRows(ALL, 1), ["VIEW", "UPDATE"]);
 
     await waitFor(() =>
       expect(screen.getAllByText("Akun nonaktif").length).toBe(1),
@@ -142,10 +154,12 @@ describe("kesiapan hari pertama", () => {
 
 describe("izin dan id mentah", () => {
   test("tanpa UPDATE: tidak ada tautan ubah", async () => {
-    onRender(onRows(6), ["VIEW"]);
+    onRender(onRows(ALL), ["VIEW"]);
 
     await waitFor(() =>
-      expect(screen.getByText("6 dari 6 setelan sudah diisi")).toBeTruthy(),
+      expect(
+        screen.getByText(`${ALL} dari ${ALL} setelan sudah diisi`),
+      ).toBeTruthy(),
     );
 
     expect(screen.queryByRole("link", { name: /Pilih akun untuk/ })).toBeNull();
@@ -153,10 +167,12 @@ describe("izin dan id mentah", () => {
   });
 
   test("updatedBy berupa id tidak pernah dirender", async () => {
-    onRender(onRows(6), ["VIEW", "UPDATE"]);
+    onRender(onRows(ALL), ["VIEW", "UPDATE"]);
 
     await waitFor(() =>
-      expect(screen.getByText("6 dari 6 setelan sudah diisi")).toBeTruthy(),
+      expect(
+        screen.getByText(`${ALL} dari ${ALL} setelan sudah diisi`),
+      ).toBeTruthy(),
     );
 
     expect(screen.queryByText(/Terakhir diubah oleh 7/)).toBeNull();

@@ -33,11 +33,18 @@ const setting = (
 
 const ALL_EMPTY = ACCOUNTING_SETTING_KEYS.map((key) => setting(key, null));
 
+// Diturunkan dari daftar kunci, bukan dipaku: menambah kunci di be-sada tidak
+// boleh memerahkan test ini — itu justru yang dijamin "jumlah setelan
+// mengikuti bacaan" di bawah.
+const ALL = ACCOUNTING_SETTING_KEYS.length;
+
 describe("kesiapan", () => {
-  test("basis data baru: nol dari enam, peringatan menyebut yang diblokir", () => {
-    expect(readinessSubtitle(ALL_EMPTY)).toBe("0 dari 6 setelan sudah diisi");
+  test("basis data baru: nol dari seluruhnya, peringatan menyebut yang diblokir", () => {
+    expect(readinessSubtitle(ALL_EMPTY)).toBe(
+      `0 dari ${ALL} setelan sudah diisi`,
+    );
     expect(readinessAlertOf(ALL_EMPTY)).toEqual({
-      title: "6 dari 6 setelan belum diisi.",
+      title: `${ALL} dari ${ALL} setelan belum diisi.`,
       message: "Posting jurnal akan ditolak selama setelan ini belum lengkap.",
     });
   });
@@ -45,7 +52,9 @@ describe("kesiapan", () => {
   test("semua terisi dan aktif: tanpa peringatan", () => {
     const filled = ACCOUNTING_SETTING_KEYS.map((key) => setting(key, 2));
 
-    expect(readinessSubtitle(filled)).toBe("6 dari 6 setelan sudah diisi");
+    expect(readinessSubtitle(filled)).toBe(
+      `${ALL} dari ${ALL} setelan sudah diisi`,
+    );
     expect(readinessAlertOf(filled)).toBeNull();
   });
 
@@ -54,7 +63,9 @@ describe("kesiapan", () => {
       setting(key, 2, index > 0),
     );
 
-    expect(readinessSubtitle(rows)).toBe("6 dari 6 setelan sudah diisi");
+    expect(readinessSubtitle(rows)).toBe(
+      `${ALL} dari ${ALL} setelan sudah diisi`,
+    );
     expect(readinessAlertOf(rows)?.title).toBe(
       "1 setelan menunjuk akun nonaktif.",
     );
@@ -100,8 +111,12 @@ describe("jumlah setelan mengikuti bacaan", () => {
   test("kunci yang ditambah be-sada ikut terhitung tanpa perubahan kode", () => {
     const rows = [...ALL_EMPTY, setting("KUNCI_BARU", null)];
 
-    expect(readinessSubtitle(rows)).toBe("0 dari 7 setelan sudah diisi");
-    expect(readinessAlertOf(rows)?.title).toBe("7 dari 7 setelan belum diisi.");
+    expect(readinessSubtitle(rows)).toBe(
+      `0 dari ${ALL + 1} setelan sudah diisi`,
+    );
+    expect(readinessAlertOf(rows)?.title).toBe(
+      `${ALL + 1} dari ${ALL + 1} setelan belum diisi.`,
+    );
   });
 });
 

@@ -31,6 +31,7 @@ import { masterJemaatMock } from "./master-jemaat";
 import { mataUangMock } from "./mata-uang";
 import { mutasiStokMock } from "./mutasi-stok";
 import { paguAnggaranMock } from "./pagu-anggaran";
+import { payrollMock } from "./payroll";
 import { pelayanMock } from "./pelayan";
 import { pelayananDdlMock } from "./pelayanan-ddl";
 import { pembayaranMock } from "./pembayaran";
@@ -138,6 +139,7 @@ export const MOCK_HANDLERS: MockHandler[] = [
   programMock,
   laporanBudgetMock,
   komponenPayrollMock,
+  payrollMock,
   kontrakKaryawanMock,
   pengadaanMock,
   inventarisMock,

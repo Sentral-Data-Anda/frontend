@@ -85,7 +85,6 @@ import {
   listCashExpense,
   listInvoices,
   listPayments,
-  listPayrolls,
   jemaatTypeGender,
   listMyOfferings,
   listWaitingApprovals,
@@ -757,16 +756,6 @@ Bun.serve({
         "",
         "Pembayaran",
         "Berhasil Mendapatkan Pembayaran",
-      );
-    }
-
-    if (path === "/payroll") {
-      return list(
-        listPayrolls(url.searchParams),
-        url,
-        "",
-        "Penggajian",
-        "Berhasil Mendapatkan Penggajian",
       );
     }
 

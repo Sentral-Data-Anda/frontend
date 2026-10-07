@@ -26,6 +26,8 @@ const LABEL: Record<AccountingSettingKey, string> = {
   PENDAPATAN_EVENT: "Pendapatan pendaftaran event",
   PENYUSUTAN_BEBAN: "Beban penyusutan",
   PENYUSUTAN_AKUMULASI: "Akumulasi penyusutan",
+  GAJI_BEBAN: "Beban gaji",
+  GAJI_KAS: "Kas/bank penggajian",
 };
 
 const view = (row: (typeof ACCOUNTING_SETTING)[number]) => ({
