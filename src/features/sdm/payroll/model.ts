@@ -185,24 +185,13 @@ export const earningsOf = (slip: Payslip) =>
 export const deductionsOf = (slip: Payslip) =>
   slip.lines.filter((line) => line.componentType === "DEDUCTION");
 
-/**
- * Label tab `CANCELLED` adalah "Batal", bukan "Dibatalkan" — dan itu diukur.
- *
- * `ListTabs` membagi lebarnya rata di bawah 36rem, jadi "Dibatalkan" meluber
- * 3px di 360 dan 1px di 390 (`scrollWidth` 54 lawan `clientWidth` 51; `rect`
- * melaporkan 51 dan berbohong). "Batal" membuatnya 51/51 di 360 dan 56/56 di
- * 390 — nol luberan, dan filternya tetap ada.
- *
- * `PAYROLL_STATUS_LABEL.CANCELLED` tetap "Dibatalkan": itu chip, dan chip
- * tidak berbagi lebar dengan lima saudaranya. Label tab bukan label chip.
- */
 export const STATUS_TABS: { value: string; label: string }[] = [
   { value: "", label: "Semua" },
   { value: "DRAFT", label: "Draf" },
   { value: "CALCULATED", label: "Dihitung" },
   { value: "APPROVED", label: "Disetujui" },
   { value: "PAID", label: "Dibayar" },
-  { value: "CANCELLED", label: "Batal" },
+  { value: "CANCELLED", label: "Dibatalkan" },
 ];
 
 const YEAR_WINDOW = 5;
