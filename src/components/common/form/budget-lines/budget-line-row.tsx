@@ -10,7 +10,7 @@ import {
 
 import { AccountField, AmountInput, Input } from "@/components/common/control";
 import { formatAmount } from "@/lib/format";
-import { lineAmount } from "@/lib/number";
+import { lineAmountText } from "@/lib/number";
 
 import { useAccountLabel } from "../journal-lines/use-account-label";
 import { LineItemCard } from "../line-items/line-item-card";
@@ -57,7 +57,7 @@ export function BudgetLineRow<T extends FieldValues>(props: PropTypes<T>) {
 
   if (!line) return null;
 
-  const subtotal = lineAmount(
+  const subtotal = lineAmountText(
     String(line.quantity ?? ""),
     String(line.unitPrice ?? ""),
   );

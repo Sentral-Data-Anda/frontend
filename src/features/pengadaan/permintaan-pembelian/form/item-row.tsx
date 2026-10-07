@@ -4,8 +4,8 @@ import { Controller, useWatch } from "react-hook-form";
 
 import { AmountInput, Input } from "@/components/common/control";
 import { LineItemCard, useLineItemErrors } from "@/components/common/form";
-import { formatRupiah } from "@/lib/format";
-import { lineAmount } from "@/lib/number";
+import { formatAmount } from "@/lib/format";
+import { lineAmountText } from "@/lib/number";
 
 import { LINE_FIELDS, type RequestForm } from "./form-options";
 
@@ -26,14 +26,14 @@ export const ItemRow = (props: PropTypes) => {
   const errors = useLineItemErrors(form.control, "items", index, LINE_FIELDS);
   const name = line?.name.trim() || `Barang ${index + 1}`;
   const subtotal = line
-    ? lineAmount(line.quantity, line.estimatedUnitPrice)
+    ? lineAmountText(line.quantity, line.estimatedUnitPrice)
     : null;
 
   return (
     <LineItemCard
       index={index}
       title={name}
-      meta={`Subtotal ${subtotal === null ? "—" : formatRupiah(subtotal)}`}
+      meta={`Subtotal ${subtotal === null ? "—" : formatAmount(subtotal)}`}
       removeLabel={`Hapus ${name}`}
       isRemoveDisabled={isDisabled}
       onRemove={isRemovable ? onRemove : undefined}

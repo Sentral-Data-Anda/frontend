@@ -8,7 +8,7 @@ import {
 } from "react-hook-form";
 
 import { formatAmount } from "@/lib/format";
-import { lineAmount, sumAmounts } from "@/lib/number";
+import { lineAmountText, sumAmounts } from "@/lib/number";
 
 import { FormWide } from "../form-layout";
 import { LineItemList } from "../line-items/line-item-list";
@@ -42,13 +42,12 @@ export function BudgetLineList<T extends FieldValues>(props: PropTypes<T>) {
 
   const lines = useWatch({ control: form.control, name: name as FieldPath<T> });
   const total = sumAmounts(
-    (Array.isArray(lines) ? lines : []).map((line: DraftLine) =>
-      String(
-        lineAmount(
+    (Array.isArray(lines) ? lines : []).map(
+      (line: DraftLine) =>
+        lineAmountText(
           String(line?.quantity ?? ""),
           String(line?.unitPrice ?? ""),
-        ) ?? 0,
-      ),
+        ) ?? "0",
     ),
   );
 
