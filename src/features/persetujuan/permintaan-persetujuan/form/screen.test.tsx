@@ -151,7 +151,10 @@ describe("tolak", () => {
         "Tolak Kas keluar · CAS-2026-0014? Permintaan berakhir di tahap ini dan pengaju perlu mengajukan ulang.",
       ),
     ).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: "Ya" }));
+    const yes = screen.getByRole("button", { name: "Ya" });
+
+    expect(yes.className).toContain("text-destructive");
+    fireEvent.click(yes);
 
     await waitFor(() => expect(replaced).toEqual([PERMINTAAN_LIST_PATH]));
     expect(bodies).toEqual([{ note: "Nota belum dilampirkan." }]);

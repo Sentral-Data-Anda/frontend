@@ -18,10 +18,11 @@ export const wilayahKeys = {
 
 const pathOf = (key: string) => `/zone-church/${encodeURIComponent(key)}`;
 
-export function useWilayahList(params: ListState) {
+export function useWilayahList(params: ListState, enabled = true) {
   return useListQuery({
     queryKey: wilayahKeys.lists(),
     fetchPage: (apiQuery) => fetchList<Wilayah>(`/zone-church?${apiQuery}`),
+    enabled,
     params: {
       ...params,
       status: "",

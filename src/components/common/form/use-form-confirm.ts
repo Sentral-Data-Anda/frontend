@@ -4,7 +4,7 @@ import { useState, type MouseEvent } from "react";
 
 import { useBoolean } from "@/hooks/use-boolean";
 
-export type ConfirmKind = "save" | "update" | "cancel" | "delete";
+export type ConfirmKind = "save" | "update" | "cancel" | "delete" | "reject";
 
 export const useFormConfirm = () => {
   const [kind, setKind] = useState<ConfirmKind>("save");

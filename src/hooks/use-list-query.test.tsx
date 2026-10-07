@@ -73,6 +73,7 @@ const onRender = (
   server: ReturnType<typeof onServer>,
   params = onParams(),
   refetchInterval?: number,
+  enabled?: boolean,
 ) => {
   const viewport = onStubViewport(isDesktop);
   onRestoreViewport = viewport.onRestore;
@@ -88,6 +89,7 @@ const onRender = (
         fetchPage: server.fetchPage,
         params: props,
         refetchInterval,
+        enabled,
       }),
     {
       initialProps: params,
@@ -124,6 +126,68 @@ describe("getNextPageParam", () => {
 
   test("halaman 404 (totalPage 0) menghentikan akumulasi", () => {
     expect(getNextPageParam({ totalPage: 0 }, [], 4)).toBeUndefined();
+  });
+});
+
+describe("useListQuery — enabled", () => {
+  test.each([
+    ["desktop", true],
+    ["mobile", false],
+  ])(
+    "enabled=false di %s: nol permintaan; true: berjalan",
+    async (_name, isDesktop) => {
+      const off = onServer(3);
+      const offRender = onRender(isDesktop, off, onParams(), undefined, false);
+
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      expect(off.requests).toEqual([]);
+      expect(offRender.result.current.items).toBeUndefined();
+      offRender.unmount();
+      onRestoreViewport();
+
+      const on = onServer(3);
+      const onRendered = onRender(isDesktop, on, onParams(), undefined, true);
+
+      await waitFor(() =>
+        expect(onRendered.result.current.items).toBeDefined(),
+      );
+      expect(on.requests.length).toBeGreaterThan(0);
+    },
+  );
+
+  test("enabled berbalik false -> true menembak permintaan pertama", async () => {
+    const server = onServer(3);
+    const flag = { value: false };
+    const viewport = onStubViewport(true);
+    onRestoreViewport = viewport.onRestore;
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+    const hook = renderHook(
+      (enabled: boolean) =>
+        useListQuery({
+          queryKey: ["uji-balik"],
+          fetchPage: server.fetchPage,
+          params: onParams(),
+          enabled,
+        }),
+      {
+        initialProps: flag.value,
+        wrapper: ({ children }) => (
+          <QueryClientProvider client={queryClient}>
+            {children}
+          </QueryClientProvider>
+        ),
+      },
+    );
+
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(server.requests).toEqual([]);
+
+    hook.rerender(true);
+
+    await waitFor(() => expect(hook.result.current.items).toBeDefined());
+    expect(server.requests.length).toBeGreaterThan(0);
   });
 });
 

@@ -1,6 +1,14 @@
 import type { FieldValues, Path, UseFormSetError } from "react-hook-form";
 
-import { FetchError } from "./api/fetcher";
+import { FetchError, fallbackMessage } from "./api/fetcher";
+
+export const FORBIDDEN_MESSAGE =
+  "Anda tidak memiliki izin untuk melakukan tindakan ini.";
+
+const isBareForbidden = (error: FetchError) =>
+  error.status === 403 &&
+  error.code === null &&
+  error.message === fallbackMessage(403);
 
 export function applyServerError<T extends FieldValues>(
   error: unknown,
@@ -21,6 +29,11 @@ export function applyServerError<T extends FieldValues>(
       setError(issue.path as Path<T>, { message });
     }
     return error.issues[0].path;
+  }
+
+  if (isBareForbidden(error)) {
+    setError("root" as Path<T>, { message: FORBIDDEN_MESSAGE });
+    return "root";
   }
 
   const mapped = mapMessage?.(error.message);

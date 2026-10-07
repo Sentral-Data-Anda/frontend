@@ -34,16 +34,23 @@ const readIssues = (body: Record<string, unknown>): ApiIssue[] =>
       )
     : [];
 
+export const fallbackMessage = (status: number): string =>
+  `Permintaan gagal (${status}).`;
+
 const readError = async (
   response: Response,
 ): Promise<{ message: string; issues: ApiIssue[]; code: string | null }> => {
+  let issues: ApiIssue[] = [];
+  let code: string | null = null;
+
   try {
     const body: unknown = await response.json();
 
     if (body && typeof body === "object") {
       const record = body as Record<string, unknown>;
-      const issues = readIssues(record);
-      const code = typeof record.code === "string" ? record.code : null;
+
+      issues = readIssues(record);
+      code = typeof record.code === "string" ? record.code : null;
 
       if (typeof record.error === "string") {
         return { message: record.error, issues, code };
@@ -56,11 +63,7 @@ const readError = async (
     // Badan bukan JSON: pakai pesan bawaan.
   }
 
-  return {
-    message: `Permintaan gagal (${response.status}).`,
-    issues: [],
-    code: null,
-  };
+  return { message: fallbackMessage(response.status), issues, code };
 };
 
 const readErrorMessage = async (response: Response): Promise<string> =>

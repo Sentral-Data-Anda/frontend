@@ -1,5 +1,6 @@
 "use client";
 
+import { EmptyState } from "@/components/common/feedback";
 import { DataList, ListToolbar } from "@/components/common/list";
 import { PageHeader, PageHeaderAdd } from "@/components/layout";
 import { MENU, createHref, domainHref } from "@/config/menu";
@@ -12,9 +13,22 @@ import { WILAYAH_STATUS_OPTIONS } from "../types";
 import { WilayahListItemRow, wilayahTable } from "./list-item";
 
 export const WilayahListScreen = () => {
-  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.WILAYAH);
+  const { isCanView, isCanCreate, isCanUpdate } = useMenuAccess(MENU.WILAYAH);
   const listParams = useListParams();
-  const wilayahList = useWilayahList(listParams);
+  const wilayahList = useWilayahList(listParams, isCanView);
+
+  if (!isCanView) {
+    return (
+      <div className="pb-6">
+        <PageHeader title="Wilayah" backHref={domainHref(MENU.KEJEMAATAN)} />
+
+        <EmptyState
+          title="Anda tidak memiliki akses ke Wilayah"
+          description="Hubungi administrator bila Anda memerlukan akses ini."
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="pb-6">
