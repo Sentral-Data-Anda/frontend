@@ -41,12 +41,10 @@ export const AbsensiListContent = () => {
   const karyawan = useDdlOptions("karyawan", "id");
 
   // Daftar ini selalu dibatasi bulan kecuali "Semua bulan" dipilih, jadi
-  // "belum ada data" hanya benar ketika tidak ada satu pun batas yang berlaku.
+  // "belum ada data" hanya benar ketika tidak ada satu pun batas yang berlaku —
+  // dan sesudah `bulan` menyatakan bawaannya, `isFiltered` sudah berarti itu.
   const isAllMonths = listParams.filters.bulan === MONTH_ALL;
-  const isOtherFiltered = Boolean(
-    listParams.status || listParams.filters.karyawan,
-  );
-  const isNarrowed = isOtherFiltered || !isAllMonths;
+  const isNarrowed = listParams.isFiltered;
 
   return (
     <div className="pb-6">
@@ -80,6 +78,7 @@ export const AbsensiListContent = () => {
             label: "Bulan",
             kind: "select",
             options: monthFilterOptions(),
+            defaultValue: MONTH_ALL,
           },
           {
             key: "karyawan",

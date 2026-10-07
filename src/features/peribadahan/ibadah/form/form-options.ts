@@ -11,5 +11,3 @@ export const withNoneOption = (
   options: readonly SelectOption[],
 ): readonly SelectOption[] =>
   options.length ? [{ value: "", label }, ...options] : options;
-
-export const toDigits = (value: string) => value.replace(/\D/g, "").slice(0, 5);

@@ -4,7 +4,7 @@ import { z } from "zod";
 import type { Badge } from "@/components/common/display";
 import { MENU, detailHref, menuHref } from "@/config/menu";
 import { monthRange, toDateInput, todayJakarta } from "@/lib/date";
-import { formatRupiah } from "@/lib/format";
+import { formatAmount } from "@/lib/format";
 
 import type {
   AssetOption,
@@ -122,7 +122,7 @@ export const DISPOSAL_STATUS_NOTE: Record<DisposalStatus, string> = {
 };
 
 export const moneyOf = (value: string | null) =>
-  value === null ? null : formatRupiah(Number(value));
+  value === null ? null : formatAmount(value);
 
 export const assetHintOf = (row: AssetOption) =>
   [row.code, row.room?.name].filter(Boolean).join(" · ");
@@ -132,7 +132,7 @@ export const assetCostHintOf = (row: AssetOption) =>
     row.code,
     row.acquisitionCost === null
       ? "tanpa harga"
-      : formatRupiah(Number(row.acquisitionCost)),
+      : formatAmount(row.acquisitionCost),
   ].join(" · ");
 
 export const locationOf = (row: AssetOption) =>

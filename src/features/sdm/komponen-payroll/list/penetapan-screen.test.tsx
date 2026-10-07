@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, mock, test } from "bun:test";
 
 import type { MenuAction } from "@/types/menu";
@@ -168,13 +168,23 @@ describe("penanda data gaji", () => {
     viewport.onRestore();
   });
 
-  test("komponen nonaktif ditandai di barisnya", async () => {
+  // Penandanya BEDA per lebar, jadi satu yang hijau tidak mengatakan apa pun
+  // tentang yang lain: kolom tabel memakai ikon dengan teks sr-only "Komponen
+  // nonaktif", baris HP memakai chip "Nonaktif". Keduanya dijaga di sini, dan
+  // perpindahannya lewat `onResize` seperti jendela yang melewati 48rem.
+  test("komponen nonaktif ditandai di barisnya, di tabel dan di baris HP", async () => {
     const viewport = onStubViewport(true);
     onMockApi();
     onRender(["VIEW", "UPDATE"]);
 
     await waitFor(() => expect(screen.getByText("Budi Santoso")).toBeTruthy());
-    expect(screen.getByText("Nonaktif")).toBeTruthy();
+    expect(screen.getByText("Komponen nonaktif")).toBeTruthy();
+    expect(screen.queryByText("Nonaktif")).toBeNull();
+
+    act(() => viewport.onResize(false));
+
+    await waitFor(() => expect(screen.getByText("Nonaktif")).toBeTruthy());
+    expect(screen.queryByText("Komponen nonaktif")).toBeNull();
 
     viewport.onRestore();
   });

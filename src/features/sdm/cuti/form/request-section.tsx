@@ -132,12 +132,12 @@ export const RequestSection = (props: PropTypes) => {
               onValueChange={field.onChange}
               options={LENGTH_OPTIONS}
               disabled={isDisabled || !isOneDay}
+              hint={
+                isOneDay
+                  ? undefined
+                  : "Setengah hari hanya berlaku untuk cuti satu hari."
+              }
             />
-            {!isOneDay ? (
-              <p className="text-muted-foreground mt-1.5 text-caption">
-                Setengah hari hanya berlaku untuk cuti satu hari.
-              </p>
-            ) : null}
           </div>
         )}
       />

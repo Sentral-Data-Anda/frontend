@@ -22,7 +22,7 @@ export type SelectOption = {
 
 export const FIELD_POPUP = `${MENU_POPUP} max-h-[min(18rem,var(--available-height))] w-(--anchor-width) origin-(--transform-origin) overflow-y-auto overscroll-contain transition-[opacity,scale] duration-100 data-ending-style:scale-[0.98] data-ending-style:opacity-0 data-starting-style:scale-[0.98] data-starting-style:opacity-0`;
 
-export const FIELD_ITEM = `${MENU_ITEM} group grid cursor-pointer grid-cols-[1rem_1fr] data-disabled:cursor-not-allowed data-disabled:text-muted-foreground data-disabled:data-highlighted:bg-muted data-disabled:data-highlighted:text-muted-foreground`;
+export const FIELD_ITEM = `${MENU_ITEM} group grid cursor-pointer grid-cols-[1rem_1fr] data-disabled:cursor-not-allowed data-disabled:font-normal data-disabled:text-primary-500 data-disabled:data-highlighted:bg-muted data-disabled:data-highlighted:text-primary-500`;
 
 // Label dan hint satu baris bila muat; hint turun ke baris kedua bila tidak, label tidak dipersempit.
 export const FIELD_LABELED =
@@ -33,7 +33,7 @@ export const FIELD_LABEL = "min-w-0 grow truncate";
 export const FIELD_ITEM_HINTED = "h-auto! min-h-control py-1.5";
 
 export const FIELD_HINT =
-  "text-muted-foreground group-data-highlighted:text-primary-foreground/80 group-data-disabled:group-data-highlighted:text-muted-foreground max-w-full truncate text-caption font-normal";
+  "text-muted-foreground group-data-highlighted:text-primary-foreground/80 group-data-disabled:text-primary-500 group-data-disabled:group-data-highlighted:text-primary-500 max-w-full truncate text-caption font-normal";
 
 interface PropTypes {
   id?: string;

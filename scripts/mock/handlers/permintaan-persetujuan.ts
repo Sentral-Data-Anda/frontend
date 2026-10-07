@@ -194,7 +194,7 @@ const makeRow = (
       : status === "CANCELLED"
         ? hoursAgo(spec.daysAgo * 24 - 3)
         : (lastActed ?? null);
-  const code = `PST-2026-${pad(id, 4)}`;
+  const code = `PST-${TODAY.slice(0, 4)}-${pad(id, 4)}`;
 
   return {
     id,

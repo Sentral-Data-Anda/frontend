@@ -25,7 +25,6 @@
  *                                         koordinator | panitia.
  *                                         Lihat `scripts/mock-dashboard.ts`.
  *   MOCK_MAJELIS_NO_FINANCE=1           → majelis tanpa LAPORAN_KEUANGAN
- *   MOCK_NO_APPROVAL=1                  → antrean persetujuan kosong
  *   MOCK_DELAY_MS=3000 bun run dev:mock → semua jawaban ditunda 3 detik (layar tunggu)
  *   MOCK_EMPTY=1 bun run dev:mock       → SEMUA daftar kosong (404 ala be-sada):
  *                                         keadaan kosong tiap layar dan tiap widget
@@ -87,7 +86,6 @@ import {
   listPayments,
   jemaatTypeGender,
   listMyOfferings,
-  listWaitingApprovals,
   neraca,
   surplusDefisit,
 } from "./mock-dashboard";
@@ -714,19 +712,6 @@ Bun.serve({
       return json(
         { status: 403, error: "Access denied: You do not have permission" },
         403,
-      );
-    }
-
-    if (
-      path === "/persetujuan" &&
-      url.searchParams.get("menunggu") === "saya"
-    ) {
-      return list(
-        listWaitingApprovals(),
-        url,
-        "",
-        "Permintaan Persetujuan",
-        "Berhasil Mendapatkan Permintaan Persetujuan",
       );
     }
 

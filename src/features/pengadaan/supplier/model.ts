@@ -29,10 +29,6 @@ export const IS_ACTIVE_PARAM: Record<string, string> = {
   nonaktif: "false",
 };
 
-// Telepon dan rekening boleh diawali 0, jadi bukan toDigits bersama yang membuang nol depan.
-export const digitsOf = (value: string, maxLength: number) =>
-  value.replace(/\D/g, "").slice(0, maxLength);
-
 const optionalText = (max: number, message: string) =>
   z.string().refine((value) => value.trim().length <= max, message);
 

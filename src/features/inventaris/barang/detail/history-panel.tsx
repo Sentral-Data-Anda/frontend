@@ -1,7 +1,7 @@
 "use client";
 
 import { Panel } from "@/components/common/display";
-import { formatRupiah } from "@/lib/format";
+import { formatAmount } from "@/lib/format";
 import { APPROVAL_STATUS_LABEL } from "@/types/persetujuan";
 
 import { DISPOSAL_METHOD_LABEL, MAINTENANCE_STATUS_LABEL } from "../model";
@@ -28,7 +28,7 @@ const disposalLine = (row: Disposal): HistoryLine => ({
   summary: DISPOSAL_METHOD_LABEL[row.method],
   note: [
     APPROVAL_STATUS_LABEL[row.status],
-    row.method === "SOLD" ? formatRupiah(Number(row.proceeds)) : null,
+    row.method === "SOLD" ? formatAmount(row.proceeds) : null,
   ]
     .filter(Boolean)
     .join(" · "),

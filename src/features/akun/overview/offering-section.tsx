@@ -11,7 +11,7 @@ import { useBoolean } from "@/hooks/use-boolean";
 import { useReveal } from "@/hooks/use-reveal";
 import { useStepUp } from "@/hooks/use-step-up";
 import { todayJakarta } from "@/lib/date";
-import { formatRupiah } from "@/lib/format";
+import { formatAmount, formatRupiah } from "@/lib/format";
 import { isStepUpRequired } from "@/lib/step-up";
 
 import { offeringKeys, useMyOfferings } from "../api";
@@ -120,7 +120,7 @@ export const OfferingSection = () => {
                 meta={offeringMeta(item)}
                 trailing={
                   <span className="text-body font-semibold tabular-nums">
-                    {formatRupiah(Number(item.amount))}
+                    {formatAmount(item.amount)}
                   </span>
                 }
               />

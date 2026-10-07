@@ -36,6 +36,7 @@ export function useIbadahByDate(date: string, isEnabled: boolean) {
 const toAmount = (value: string | null | undefined) => Number(value ?? 0);
 
 export type ApprovalItem = {
+  publicId: string;
   code: string;
   documentType: ApprovalDocumentType;
   amount: string;

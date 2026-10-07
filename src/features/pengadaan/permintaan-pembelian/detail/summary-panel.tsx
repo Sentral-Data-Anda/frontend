@@ -12,13 +12,13 @@ import {
 } from "@/components/common/display";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
-import { formatDate, formatRupiah } from "@/lib/format";
+import { formatAmount, formatDate } from "@/lib/format";
 import { APPROVAL_STATUS_LABEL } from "@/types/persetujuan";
 
 import { ORDER_STATUS_VARIANT, approvalHref, orderHref } from "../model";
 import { ORDER_STATUS_LABEL, type PurchaseRequestDetail } from "../types";
 
-const rupiahOf = (value: string) => formatRupiah(Number(value));
+const rupiahOf = (value: string) => formatAmount(value);
 
 interface PropTypes {
   request: PurchaseRequestDetail;

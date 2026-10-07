@@ -161,9 +161,9 @@ describe("gerbang izin per rute", () => {
     const granted = { [MENU.TIPE_CUTI]: ALL };
 
     expect((await onCall("GET", "/cuti", { granted }))?.status).toBe(403);
-    expect((await onCall("GET", "/cuti/CTI-0001", { granted }))?.status).toBe(
-      403,
-    );
+    expect(
+      (await onCall("GET", `/cuti/CTI-${YEAR}-0001`, { granted }))?.status,
+    ).toBe(403);
     expect(
       (
         await onCall("GET", "/cuti/sisa-jatah?karyawanId=1&leaveTypeId=1", {
@@ -176,14 +176,14 @@ describe("gerbang izin per rute", () => {
   test("pengajuan butuh UPDATE, bukan CREATE", async () => {
     expect(
       (
-        await onCall("POST", "/cuti/CTI-0006/pengajuan", {
+        await onCall("POST", `/cuti/CTI-${YEAR}-0006/pengajuan`, {
           granted: { [MENU.CUTI]: ["VIEW", "CREATE"] },
         })
       )?.status,
     ).toBe(403);
     expect(
       (
-        await onCall("POST", "/cuti/CTI-0006/pengajuan", {
+        await onCall("POST", `/cuti/CTI-${YEAR}-0006/pengajuan`, {
           granted: { [MENU.CUTI]: ["VIEW", "UPDATE"] },
         })
       )?.status,
@@ -197,7 +197,7 @@ describe("gerbang izin per rute", () => {
 
     expect(
       (
-        await onCall("PUT", `/cuti/${code ?? "CTI-0001"}/batal`, {
+        await onCall("PUT", `/cuti/${code ?? `CTI-${YEAR}-0001`}/batal`, {
           granted: { [MENU.CUTI]: ["VIEW", "UPDATE"] },
         })
       )?.status,
@@ -236,8 +236,17 @@ describe("sisa jatah tidak pernah negatif", () => {
   });
 
   test("tipe tanpa batas: remaining TETAP null, tidak dilantai jadi 0", async () => {
+    // Benihnya relatif terhadap hari ini, jadi pada 31 Des ia jatuh di tahun
+    // berikutnya: tahun yang dinilai diambil dari benihnya, bukan dari kalender.
+    const seededYear = LEAVE_REQUEST.find(
+      (item) => item.karyawanId === 4 && item.leaveTypeId === 3,
+    )?.startDate.slice(0, 4);
+
     const data = (
-      await onCall("GET", "/cuti/sisa-jatah?karyawanId=4&leaveTypeId=3")
+      await onCall(
+        "GET",
+        `/cuti/sisa-jatah?karyawanId=4&leaveTypeId=3&year=${seededYear}`,
+      )
     )?.body.data as { maxDaysPerYear: null; taken: string; remaining: null };
 
     expect(data.maxDaysPerYear).toBeNull();
@@ -268,7 +277,9 @@ describe("sisa jatah tidak pernah negatif", () => {
     // CTI-0007 milik karyawan 3, tipe 1, berstatus CANCELLED di benih.
     expect(before.taken).toBe("0");
 
-    const pending = LEAVE_REQUEST.find((row) => row.code === "CTI-0007");
+    const pending = LEAVE_REQUEST.find(
+      (row) => row.code === `CTI-${YEAR}-0007`,
+    );
     if (pending) pending.status = "PENDING";
 
     const after = (
@@ -425,7 +436,7 @@ describe("hari libur memotong hari cuti", () => {
     // 26 Min kerja, 27 Sen libur mingguan DAN HUT, 28 Sel libur mingguan,
     // 29 Rab kerja → tiga hari. Libur mingguan tiap orang memang berbeda, dan
     // di situlah aturannya berhenti bisa ditebak dari kalender saja.
-    const result = await onCall("PUT", "/cuti/CTI-0006", {
+    const result = await onCall("PUT", `/cuti/CTI-${YEAR}-0006`, {
       body: {
         karyawanId: 2,
         leaveTypeId: 2,
@@ -533,21 +544,25 @@ describe("simpan", () => {
 
     expect(data.status).toBe("PENDING");
     expect(data.approval).toBeNull();
-    expect(data.code).toMatch(/^CTI-\d{4}$/);
+    expect(data.code).toMatch(new RegExp(`^CTI-${YEAR}-\\d{4}$`));
   });
 
   test("ubah menolak baris yang sudah diproses dan yang sedang ditandatangani", async () => {
-    const processed = await onCall("PUT", "/cuti/CTI-0001", { body: VALID });
+    const processed = await onCall("PUT", `/cuti/CTI-${YEAR}-0001`, {
+      body: VALID,
+    });
     expect(processed?.status).toBe(400);
     expect(processed?.body.error).toBe("Pengajuan Cuti Ini Sudah Diproses");
 
-    const waiting = await onCall("PUT", "/cuti/CTI-0005", { body: VALID });
+    const waiting = await onCall("PUT", `/cuti/CTI-${YEAR}-0005`, {
+      body: VALID,
+    });
     expect(waiting?.status).toBe(400);
     expect(String(waiting?.body.error)).toContain("Tarik Pengajuannya");
   });
 
   test("ubah tidak membelanjakan harinya dua kali", async () => {
-    const result = await onCall("PUT", "/cuti/CTI-0006", {
+    const result = await onCall("PUT", `/cuti/CTI-${YEAR}-0006`, {
       body: {
         karyawanId: 2,
         leaveTypeId: 5,
@@ -565,8 +580,8 @@ describe("simpan", () => {
 
 describe("aksi", () => {
   test("pengajuan memasang persetujuan PENDING; baris cuti tetap PENDING", async () => {
-    const result = await onCall("POST", "/cuti/CTI-0006/pengajuan");
-    const row = LEAVE_REQUEST.find((item) => item.code === "CTI-0006");
+    const result = await onCall("POST", `/cuti/CTI-${YEAR}-0006/pengajuan`);
+    const row = LEAVE_REQUEST.find((item) => item.code === `CTI-${YEAR}-0006`);
 
     expect(result?.status).toBe(201);
     expect(row?.status).toBe("PENDING");
@@ -574,28 +589,30 @@ describe("aksi", () => {
   });
 
   test("batal ditolak untuk cuti yang mulai hari ini atau sudah lewat", async () => {
-    const row = LEAVE_REQUEST.find((item) => item.code === "CTI-0006");
+    const row = LEAVE_REQUEST.find((item) => item.code === `CTI-${YEAR}-0006`);
     if (row) {
       row.status = "APPROVED";
       row.startDate = TODAY;
       row.endDate = TODAY;
     }
 
-    const result = await onCall("PUT", "/cuti/CTI-0006/batal");
+    const result = await onCall("PUT", `/cuti/CTI-${YEAR}-0006/batal`);
     expect(result?.status).toBe(400);
     expect(String(result?.body.error)).toContain("Pembatalan Hanya Sebelum");
   });
 
   test("batal hanya untuk yang sudah disetujui", async () => {
-    const result = await onCall("PUT", "/cuti/CTI-0006/batal");
+    const result = await onCall("PUT", `/cuti/CTI-${YEAR}-0006/batal`);
 
     expect(result?.status).toBe(400);
     expect(String(result?.body.error)).toContain("Sudah Disetujui");
   });
 
   test("hapus menyembunyikan barisnya dari daftar dan detail", async () => {
-    expect((await onCall("DELETE", "/cuti/CTI-0006"))?.status).toBe(200);
-    expect((await onCall("GET", "/cuti/CTI-0006"))?.status).toBe(404);
+    expect((await onCall("DELETE", `/cuti/CTI-${YEAR}-0006`))?.status).toBe(
+      200,
+    );
+    expect((await onCall("GET", `/cuti/CTI-${YEAR}-0006`))?.status).toBe(404);
   });
 });
 
@@ -604,14 +621,14 @@ describe("flag", () => {
     process.env.MOCK_500 = "1";
 
     expect((await onCall("GET", "/cuti"))?.status).toBe(500);
-    expect((await onCall("GET", "/cuti/CTI-0001"))?.status).toBe(200);
+    expect((await onCall("GET", `/cuti/CTI-${YEAR}-0001`))?.status).toBe(200);
   });
 
   test("MOCK_CUTI_SAVE_ERROR hanya menyentuh jalur tulis", async () => {
     process.env.MOCK_CUTI_SAVE_ERROR = "500";
 
     expect((await onCall("POST", "/cuti", { body: VALID }))?.status).toBe(500);
-    expect((await onCall("GET", "/cuti/CTI-0001"))?.status).toBe(200);
+    expect((await onCall("GET", `/cuti/CTI-${YEAR}-0001`))?.status).toBe(200);
   });
 
   test("MOCK_CUTI_OVERLAP memaksa 409 di rentang mana pun", async () => {
@@ -627,6 +644,6 @@ describe("jalur lain", () => {
   });
 
   test("kode yang tidak ada menjawab 404", async () => {
-    expect((await onCall("GET", "/cuti/CTI-9999"))?.status).toBe(404);
+    expect((await onCall("GET", `/cuti/CTI-${YEAR}-9999`))?.status).toBe(404);
   });
 });

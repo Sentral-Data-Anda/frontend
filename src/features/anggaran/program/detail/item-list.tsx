@@ -1,5 +1,5 @@
 import { Panel } from "@/components/common/display";
-import { formatNumber, formatRupiah } from "@/lib/format";
+import { formatAmount, formatNumber } from "@/lib/format";
 import { sumAmounts } from "@/lib/number";
 
 import type { ProgramItem } from "../types";
@@ -34,7 +34,7 @@ export const ItemList = (props: PropTypes) => {
                   item.account
                     ? `${item.account.code} · ${item.account.name}`
                     : null,
-                  `${formatNumber(Number(item.quantity))} × ${formatRupiah(Number(item.unitPrice))}`,
+                  `${formatNumber(Number(item.quantity))} × ${formatAmount(item.unitPrice)}`,
                   item.note,
                 ]
                   .filter(Boolean)
@@ -43,7 +43,7 @@ export const ItemList = (props: PropTypes) => {
             </span>
 
             <span className="shrink-0 text-body font-medium tabular-nums">
-              {formatRupiah(Number(item.amount))}
+              {formatAmount(item.amount)}
             </span>
           </li>
         ))}
@@ -51,7 +51,7 @@ export const ItemList = (props: PropTypes) => {
 
       <div className="border-hairline flex items-baseline justify-between gap-3 border-t px-gutter py-3 text-body font-medium">
         <span>Total usulan</span>
-        <span className="tabular-nums">{formatRupiah(Number(total))}</span>
+        <span className="tabular-nums">{formatAmount(total)}</span>
       </div>
     </Panel>
   );

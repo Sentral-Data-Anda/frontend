@@ -5,12 +5,12 @@ import {
   DataListRow,
   type DataTableConfig,
 } from "@/components/common/list";
-import { formatNumber, formatRupiah } from "@/lib/format";
+import { formatAmount, formatNumber, formatRupiah } from "@/lib/format";
 
 import type { PurchaseRequestItem } from "../types";
 
 const priceOf = (item: PurchaseRequestItem) =>
-  formatRupiah(Number(item.estimatedUnitPrice));
+  formatAmount(item.estimatedUnitPrice);
 
 const subtotalOf = (item: PurchaseRequestItem) =>
   formatRupiah(item.quantity * Number(item.estimatedUnitPrice));

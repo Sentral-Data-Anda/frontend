@@ -260,7 +260,7 @@ describe("nama jabatan", () => {
     const { reads } = onMockApi();
     onRenderForm(["VIEW", "CREATE"]);
 
-    fireEvent.click(screen.getByLabelText("Jabatan komisi"));
+    fireEvent.click(screen.getByLabelText("Jabatan badan pelayanan"));
     await waitFor(() => expect(reads).toContain("/ddl/jabatan-jemaat"));
 
     const jabatan = screen.getByLabelText("Nama jabatan") as HTMLInputElement;

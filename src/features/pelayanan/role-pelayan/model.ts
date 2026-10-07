@@ -1,10 +1,9 @@
 import { z } from "zod";
 
 import { MENU, menuHref } from "@/config/menu";
+import { collapseSpaces } from "@/lib/name";
 
 import type { RolePelayan, RolePelayanPayload } from "./types";
-
-const normalizeName = (name: string) => name.trim().replace(/\s+/g, " ");
 
 export const ROLE_PELAYAN_LIST_PATH = menuHref(
   MENU.PELAYANAN,
@@ -17,7 +16,7 @@ export const isPemusikRole = (name: string | undefined) =>
 export const rolePelayanFormSchema = z.object({
   name: z
     .string()
-    .transform(normalizeName)
+    .transform(collapseSpaces)
     .pipe(
       z
         .string()
@@ -33,7 +32,7 @@ export const EMPTY_ROLE_PELAYAN_FORM: RolePelayanFormValues = { name: "" };
 
 export const toRolePelayanPayload = (
   values: RolePelayanFormValues,
-): RolePelayanPayload => ({ name: normalizeName(values.name) });
+): RolePelayanPayload => ({ name: collapseSpaces(values.name) });
 
 export const toRolePelayanForm = (
   rolePelayan: RolePelayan,

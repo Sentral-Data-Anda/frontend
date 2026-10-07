@@ -8,7 +8,7 @@ import {
   type DataTableColumn,
   type DataTableConfig,
 } from "@/components/common/list";
-import { formatDateShort, formatRupiah } from "@/lib/format";
+import { formatAmount, formatDateShort } from "@/lib/format";
 import { saveListFocus } from "@/lib/list-return";
 import { cn } from "@/lib/utils";
 import { RECEIVE_METHOD_LABEL } from "@/types/keuangan";
@@ -30,7 +30,7 @@ const saveFocus = (row: Persembahan) =>
 const detailHrefOf = (row: Persembahan) => persembahanHref(row.code);
 
 const viewLabelOf = (row: Persembahan) =>
-  `Lihat persembahan ${row.code}, ${giverOf(row)}, ${formatRupiah(Number(row.amount))}`;
+  `Lihat persembahan ${row.code}, ${giverOf(row)}, ${formatAmount(row.amount)}`;
 
 const amountText = (row: Persembahan) => (
   <span
@@ -39,7 +39,7 @@ const amountText = (row: Persembahan) => (
       row.status === "VOID" && "text-muted-foreground line-through",
     )}
   >
-    {formatRupiah(Number(row.amount))}
+    {formatAmount(row.amount)}
   </span>
 );
 
@@ -82,7 +82,7 @@ export const PersembahanListItemRow = (props: PropTypes) => {
             row.status === "VOID" && "text-muted-foreground line-through",
           )}
         >
-          {formatRupiah(Number(row.amount))}
+          {formatAmount(row.amount)}
         </Link>
       }
       meta={`${row.typePersembahan.name} · ${giverOf(row)}`}

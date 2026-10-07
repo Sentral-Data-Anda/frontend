@@ -1,7 +1,7 @@
 import { cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, mock, test } from "bun:test";
 
-import { todayJakarta } from "@/lib/date";
+import { addDays, todayJakarta } from "@/lib/date";
 import type { MenuAction } from "@/types/menu";
 
 import {
@@ -169,5 +169,20 @@ describe("catat perawatan", () => {
 
     await waitFor(() => expect(replaced).toHaveLength(1));
     expect(calls.some((call) => call.method === "DELETE")).toBe(true);
+  });
+});
+
+describe("tanggal rencana boleh di masa depan", () => {
+  test("Tanggal rencana di masa depan diterima", () => {
+    onRender(["VIEW", "CREATE"]);
+
+    onTypeDate("Tanggal rencana", addDays(todayJakarta(), 90));
+
+    const box = screen.getByLabelText("Tanggal rencana");
+
+    expect(
+      screen.queryByText(/tidak boleh di masa depan/)?.textContent,
+    ).toBeUndefined();
+    expect(box.getAttribute("aria-invalid")).toBeNull();
   });
 });

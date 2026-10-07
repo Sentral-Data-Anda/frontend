@@ -11,7 +11,7 @@ import type { ListFilterSchema, ListState } from "@/hooks/use-list-params";
 import { useListQuery } from "@/hooks/use-list-query";
 import { fetchList, fetchOne } from "@/lib/api/fetcher";
 
-import { GATEWAY_SETTING_KEY, toReceiptApiFilters } from "./model";
+import { GATEWAY_SETTING_KEY, MONTH_ALL, toReceiptApiFilters } from "./model";
 import type {
   CashReceipt,
   CashReceiptDetail,
@@ -31,7 +31,8 @@ const JOURNAL_KEY = ["journal"] as const;
 const SETTING_KEY = ["accounting-setting"] as const;
 
 export const RECEIPT_FILTERS = {
-  bulan: { api: "bulan" },
+  // URL kosong = bulan ini, yang menyaring; "semua" yang tidak.
+  bulan: { api: "bulan", defaultValue: MONTH_ALL },
 } satisfies ListFilterSchema;
 
 type SettingRow = {

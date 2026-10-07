@@ -9,7 +9,7 @@ import {
 } from "@/components/common/display";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
-import { formatDate, formatMoney, formatRupiah } from "@/lib/format";
+import { formatAmount, formatDate, formatMoney } from "@/lib/format";
 
 import {
   TEXT_LINK,
@@ -83,14 +83,14 @@ export const SummaryPanel = (props: PropTypes) => {
             </span>
             {isValas ? (
               <span className="text-muted-foreground block text-caption">
-                {`≈ ${formatRupiah(Number(order.totalIDR))} · ${rateCaptionOf(order.exchangeRate, order.rateDate)}`}
+                {`≈ ${formatAmount(order.totalIDR)} · ${rateCaptionOf(order.exchangeRate, order.rateDate)}`}
               </span>
             ) : null}
           </span>
         </DescriptionItem>
         <DescriptionItem label="Diterima">
           <span className="tabular-nums">
-            {formatRupiah(Number(order.receivedTotalIDR))}
+            {formatAmount(order.receivedTotalIDR)}
           </span>
         </DescriptionItem>
       </DescriptionList>

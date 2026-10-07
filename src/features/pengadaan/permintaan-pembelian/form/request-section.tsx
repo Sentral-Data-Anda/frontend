@@ -3,7 +3,7 @@
 import { DateField, DdlField, Textarea } from "@/components/common/control";
 import { ControlField, FormSection, FormWide } from "@/components/common/form";
 import { useDdlOptions } from "@/hooks/use-ddl-options";
-import { todayJakarta } from "@/lib/date";
+import { endOfYearIso, todayJakarta } from "@/lib/date";
 
 import type { RequestForm } from "./form-options";
 
@@ -52,6 +52,7 @@ export const RequestSection = (props: PropTypes) => {
             disabled={isDisabled}
             variant="dekat"
             min={todayJakarta()}
+            max={endOfYearIso(1)}
             label="Dibutuhkan tanggal"
           />
         )}

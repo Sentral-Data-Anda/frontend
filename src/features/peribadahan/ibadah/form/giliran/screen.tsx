@@ -31,12 +31,11 @@ import { useListReturn } from "@/hooks/use-list-return";
 import { FetchError } from "@/lib/api/fetcher";
 import { FIRST_INVALID, revealField } from "@/lib/form-error";
 
-import { keluargaAddressQuery } from "../../api";
+import { hostSuggestionQuery, keluargaAddressQuery } from "../../api";
 import { IBADAH_LIST_PATH } from "../../model";
 import type { KeluargaAddress } from "../../types";
 
 import {
-  hostSuggestionQuery,
   rangeQuery,
   toDateSet,
   useIbadahInRange,

@@ -16,6 +16,8 @@ export const wilayahKeys = {
   detail: (code: string) => [...wilayahKeys.all, "detail", code] as const,
 };
 
+const pathOf = (key: string) => `/zone-church/${encodeURIComponent(key)}`;
+
 export function useWilayahList(params: ListState) {
   return useListQuery({
     queryKey: wilayahKeys.lists(),
@@ -31,7 +33,7 @@ export function useWilayahList(params: ListState) {
 export function useWilayahDetail(code: string | undefined) {
   return useQuery({
     queryKey: wilayahKeys.detail(code ?? ""),
-    queryFn: () => fetchOne<Wilayah>(`/zone-church/${code}`),
+    queryFn: () => fetchOne<Wilayah>(pathOf(code ?? "")),
     enabled: Boolean(code),
     staleTime: 0,
     select: (response) => response.data,
@@ -53,7 +55,7 @@ export function useSaveWilayah(code?: string) {
 
   return useMutation({
     mutationFn: (payload: WilayahPayload) =>
-      fetchOne<Wilayah>(code ? `/zone-church/${code}` : "/zone-church", {
+      fetchOne<Wilayah>(code ? pathOf(code) : "/zone-church", {
         method: code ? "PUT" : "POST",
         body: JSON.stringify(payload),
       }),
@@ -66,7 +68,7 @@ export function useDeleteWilayah(code: string | undefined) {
 
   return useMutation({
     mutationFn: () =>
-      fetchOne<unknown>(`/zone-church/${code}`, { method: "DELETE" }),
+      fetchOne<unknown>(pathOf(code ?? ""), { method: "DELETE" }),
     onSuccess: onInvalidate,
   });
 }

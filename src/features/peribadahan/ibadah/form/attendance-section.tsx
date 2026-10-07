@@ -4,10 +4,11 @@ import { useWatch } from "react-hook-form";
 
 import { Input } from "@/components/common/control";
 import { ControlField, FormSection, FormWide } from "@/components/common/form";
+import { keepDigits } from "@/lib/number";
 
 import { attendanceOf, formatCount } from "../model";
 
-import { type IbadahForm, toDigits } from "./form-options";
+import { type IbadahForm } from "./form-options";
 
 const COUNT_FIELDS = [
   { name: "maleCount", label: "Pria (dewasa)" },
@@ -46,7 +47,9 @@ export const AttendanceSection = (props: PropTypes) => {
           {(field) => (
             <Input
               {...field}
-              onChange={(event) => field.onChange(toDigits(event.target.value))}
+              onChange={(event) =>
+                field.onChange(keepDigits(event.target.value, 5))
+              }
               inputMode="numeric"
               autoComplete="off"
               maxLength={5}

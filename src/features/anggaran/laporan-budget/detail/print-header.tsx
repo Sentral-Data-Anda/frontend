@@ -1,4 +1,4 @@
-import { formatRupiah } from "@/lib/format";
+import { formatAmount } from "@/lib/format";
 
 import type { BudgetReportDetail } from "../types";
 
@@ -20,7 +20,7 @@ export const PrintHeader = (props: PropTypes) => {
       </p>
 
       <p className="text-body tabular-nums">
-        Total pemakaian {formatRupiah(Number(report.totalAmount))}
+        Total pemakaian {formatAmount(report.totalAmount)}
       </p>
     </div>
   );

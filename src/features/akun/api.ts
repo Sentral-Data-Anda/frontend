@@ -41,7 +41,7 @@ export function useMyProfile() {
 export function useChangePassword(code: string) {
   return useMutation({
     mutationFn: (payload: ChangePasswordPayload) =>
-      fetchOne<null>(`/auth/change-password/${code}`, {
+      fetchOne<null>(`/auth/change-password/${encodeURIComponent(code)}`, {
         method: "PUT",
         body: JSON.stringify(payload),
       }),

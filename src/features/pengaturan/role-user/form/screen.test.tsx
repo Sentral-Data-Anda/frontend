@@ -13,11 +13,11 @@ import { afterAll, afterEach, describe, expect, mock, test } from "bun:test";
 import type { Session } from "@/features/auth";
 import type { MenuAction, MenuNode } from "@/types/menu";
 
+import { onStubViewport } from "../../../../../tests/viewport";
 import { ROLE_USER_LIST_PATH } from "../model";
 import type { MenuOption, RoleUserDetail } from "../types";
 
 const actions: { current: MenuAction[] } = { current: [] };
-const isTable: { current: boolean } = { current: true };
 const replaced: string[] = [];
 
 const node = (slug: string, action: MenuAction[]): MenuNode => ({
@@ -64,14 +64,7 @@ mock.module("@/features/auth/use-menu-access", () => ({
   }),
 }));
 
-const originalMatchMedia = window.matchMedia;
-
-window.matchMedia = ((query: string) => ({
-  matches: isTable.current,
-  media: query,
-  addEventListener: () => undefined,
-  removeEventListener: () => undefined,
-})) as unknown as typeof window.matchMedia;
+const viewport = onStubViewport(true);
 
 const { RoleUserFormScreen } = await import("./screen");
 const { SessionProvider } = await import("@/features/auth");
@@ -125,7 +118,7 @@ type Failure = { status: number; error: string; issues?: unknown[] };
 const originalFetch = globalThis.fetch;
 
 afterAll(() => {
-  window.matchMedia = originalMatchMedia;
+  viewport.onRestore();
 });
 
 afterEach(() => {
@@ -134,7 +127,7 @@ afterEach(() => {
   window.sessionStorage.clear();
   replaced.length = 0;
   session.current = ADMIN;
-  isTable.current = true;
+  viewport.onResize(true);
 });
 
 const onMockApi = (
@@ -275,7 +268,7 @@ describe("matriks", () => {
     expect(screen.getAllByRole("table")).toHaveLength(2);
 
     cleanup();
-    isTable.current = false;
+    viewport.onResize(false);
     await onRenderLoaded(["UPDATE"], "3");
 
     const pills = within(screen.getByRole("group", { name: "Aksi Keluarga" }));
@@ -331,7 +324,7 @@ describe("matriks", () => {
 
     for (const isWide of [true, false]) {
       cleanup();
-      isTable.current = isWide;
+      viewport.onResize(isWide);
       await onRenderLoaded(["CREATE"]);
 
       expect(detailsOf("Kejemaatan").open).toBe(false);

@@ -109,6 +109,7 @@ afterAll(() => {
 
 afterEach(() => {
   cleanup();
+  viewport.onResize(true);
   for (const restore of restores) restore();
 });
 
@@ -158,7 +159,8 @@ describe("halaman penerimaan", () => {
     ).toBeTruthy();
   });
 
-  test("N barang satu baris pesanan dikelompokkan, dilipat > 3, Lengkapi data barang", async () => {
+  test("HP: N barang satu baris pesanan dikelompokkan, dilipat > 3, Lengkapi data barang", async () => {
+    viewport.onResize(false);
     const code = receiveChairs(5);
     onRender(code, {
       PENERIMAAN_BARANG: ["VIEW"],

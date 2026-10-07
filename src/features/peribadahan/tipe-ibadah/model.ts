@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { MENU, menuHref } from "@/config/menu";
+import { collapseSpaces } from "@/lib/name";
 
 import type { TipeIbadah, TipeIbadahPayload } from "./types";
 
@@ -9,12 +10,10 @@ export const TIPE_IBADAH_LIST_PATH = menuHref(
   MENU.TIPE_IBADAH,
 );
 
-const normalizeName = (name: string) => name.trim().replace(/\s+/g, " ");
-
 export const tipeIbadahFormSchema = z.object({
   name: z
     .string()
-    .transform(normalizeName)
+    .transform(collapseSpaces)
     .pipe(
       z
         .string()
@@ -34,7 +33,7 @@ export const EMPTY_TIPE_IBADAH_FORM: TipeIbadahFormValues = {
 export const toTipeIbadahPayload = (
   values: TipeIbadahFormValues,
 ): TipeIbadahPayload => ({
-  name: normalizeName(values.name),
+  name: collapseSpaces(values.name),
   isActive: values.isActive === "true",
 });
 

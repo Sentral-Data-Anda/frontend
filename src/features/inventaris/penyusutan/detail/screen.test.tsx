@@ -1,6 +1,7 @@
 import { Toast } from "@base-ui/react/toast";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
+  act,
   cleanup,
   fireEvent,
   render,
@@ -284,7 +285,14 @@ describe("aksi per status dan izin", () => {
 });
 
 describe("rincian", () => {
-  test("angka Rupiah dan baris total", async () => {
+  // Baris total ADA HANYA DI HP: `EntryList` merendernya pada
+  // `isTableWidth === false`, dan nilai buku di baris HP bermeta "Nilai buku
+  // <angka>" sementara di lebar tabel ia kolom berisi angkanya saja. Berkas
+  // ini menstub lebar tabel, jadi test ini menstub HP sendiri, lalu melewati
+  // 48rem untuk memaku sisi tabelnya.
+  test("HP: angka Rupiah dan baris total; lebar tabel: kolom nilai buku, tanpa baris total", async () => {
+    const viewport = onStubViewport(false);
+
     onRender(DONE);
     await onLoaded();
 
@@ -292,6 +300,17 @@ describe("rincian", () => {
     expect(screen.getAllByText("Nilai buku Rp 21.000.000,00").length).toBe(1);
     expect(screen.getByText("Total penyusutan 2 barang")).toBeTruthy();
     expect(screen.getAllByText("Rp 1.312.500,00").length).toBe(2);
+
+    act(() => viewport.onResize(true));
+
+    await waitFor(() =>
+      expect(screen.queryByText("Total penyusutan 2 barang")).toBeNull(),
+    );
+    expect(screen.queryByText("Nilai buku Rp 21.000.000,00")).toBeNull();
+    expect(screen.getAllByText("Rp 21.000.000,00").length).toBe(1);
+    expect(screen.getAllByText("Rp 1.312.500,00").length).toBe(1);
+
+    viewport.onRestore();
   });
 
   test("tautan barang hanya dengan BARANG VIEW", async () => {

@@ -63,12 +63,8 @@ export const DepreciationSection = (props: PropTypes) => {
             onValueChange={onPickDepreciable}
             options={DEPRECIABLE_OPTIONS}
             disabled={isDisabled || isLocked}
+            hint={isLocked ? LOCK_HINT : undefined}
           />
-          {isLocked ? (
-            <p className="text-muted-foreground mt-1.5 text-caption">
-              {LOCK_HINT}
-            </p>
-          ) : null}
         </FormWide>
 
         {isDepreciable === "1" ? (

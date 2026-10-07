@@ -7,28 +7,21 @@ import { useMenuAccess } from "@/features/auth";
 import { useListParams, type ListFilterSchema } from "@/hooks/use-list-params";
 
 import { useTransferList } from "../api";
-import {
-  MONTH_ALL,
-  STATUS_TABS,
-  isMonthNarrowed,
-  monthFilterOptions,
-} from "../model";
+import { MONTH_ALL, STATUS_TABS, monthFilterOptions } from "../model";
 
 import { TransferAddMenu } from "./add-menu";
 import { TransferListItemRow, transferTable } from "./list-item";
 
 const LIST_FILTERS = {
-  bulan: { api: "bulan" },
+  // URL kosong = bulan ini, yang menyaring; "semua" yang tidak.
+  bulan: { api: "bulan", defaultValue: MONTH_ALL },
 } satisfies ListFilterSchema;
 
 export const TransferListContent = () => {
   const { isCanCreate } = useMenuAccess(MENU.SETORAN);
   const listParams = useListParams({ filters: LIST_FILTERS });
   const transferList = useTransferList(listParams);
-  const isNarrowed =
-    Boolean(listParams.search) ||
-    Boolean(listParams.status) ||
-    isMonthNarrowed(listParams.filters);
+  const isNarrowed = Boolean(listParams.search) || listParams.isFiltered;
 
   const onShowAll = () =>
     listParams.onApplyFilters({ bulan: MONTH_ALL, status: "", search: "" });
@@ -63,6 +56,7 @@ export const TransferListContent = () => {
             label: "Bulan",
             kind: "select",
             options: monthFilterOptions(),
+            defaultValue: MONTH_ALL,
           },
         ]}
       />

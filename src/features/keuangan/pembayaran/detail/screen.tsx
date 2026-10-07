@@ -9,7 +9,7 @@ import { MENU, domainHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { useListReturn } from "@/hooks/use-list-return";
 import { FetchError } from "@/lib/api/fetcher";
-import { formatDateShort, formatRupiah } from "@/lib/format";
+import { formatAmount, formatDateShort } from "@/lib/format";
 
 import { usePaymentDetail } from "../api";
 import { NO_VIEW, PAYMENT_LIST_PATH, paymentDateOf } from "../model";
@@ -96,7 +96,7 @@ export const PaymentDetailScreen = (props: PropTypes) => {
   return (
     <div className="pb-8">
       <PageHeader
-        title={formatRupiah(Number(payment.amount))}
+        title={formatAmount(payment.amount)}
         subtitle={`${payment.code} · ${formatDateShort(paymentDateOf(payment))}`}
         backHref={listReturn}
         isBackPersistent

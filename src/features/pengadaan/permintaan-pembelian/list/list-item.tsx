@@ -8,7 +8,7 @@ import {
   type DataTableColumn,
   type DataTableConfig,
 } from "@/components/common/list";
-import { formatDateShort, formatRupiah } from "@/lib/format";
+import { formatAmount, formatDateShort } from "@/lib/format";
 import { saveListFocus } from "@/lib/list-return";
 import { cn } from "@/lib/utils";
 
@@ -29,8 +29,7 @@ const bapelOf = (row: PurchaseRequest) => row.bapel?.name ?? "—";
 const metaOf = (row: PurchaseRequest) =>
   [row.code, bapelOf(row), formatDateShort(row.createdAt)].join(" · ");
 
-const amountOf = (row: PurchaseRequest) =>
-  formatRupiah(Number(row.totalEstimatedIDR));
+const amountOf = (row: PurchaseRequest) => formatAmount(row.totalEstimatedIDR);
 
 const editLink = (row: PurchaseRequest) =>
   row.status === "DRAFT" ? (

@@ -11,9 +11,10 @@ import { useMenuAccess } from "@/features/auth";
 import { useDdlOptions } from "@/hooks/use-ddl-options";
 import { useListParams, type ListFilterSchema } from "@/hooks/use-list-params";
 import { useIsTableWidth } from "@/hooks/use-media";
+import { monthOptions } from "@/lib/date";
 
 import { useIbadahList } from "../api";
-import { GILIRAN_PATH, monthOptions } from "../model";
+import { GILIRAN_PATH } from "../model";
 
 import { IbadahListItemRow, ibadahTable } from "./list-item";
 

@@ -16,6 +16,9 @@ export const setelanKeys = {
   detail: (id: string) => [...setelanKeys.all, "detail", id] as const,
 };
 
+const pathOf = (key: string) =>
+  `/setelan-persetujuan/${encodeURIComponent(key)}`;
+
 export function useSetelanList(params: ListState) {
   return useListQuery({
     queryKey: setelanKeys.lists(),
@@ -30,7 +33,7 @@ export function useSetelanList(params: ListState) {
 export function useSetelanDetail(id: string | undefined) {
   return useQuery({
     queryKey: setelanKeys.detail(id ?? ""),
-    queryFn: () => fetchOne<SetelanItem>(`/setelan-persetujuan/${id}`),
+    queryFn: () => fetchOne<SetelanItem>(pathOf(id ?? "")),
     enabled: Boolean(id),
     staleTime: 0,
     select: (response) => response.data,
@@ -54,10 +57,10 @@ export function useSaveSetelan(id?: string) {
 
   return useMutation({
     mutationFn: (payload: SetelanPayload) =>
-      fetchOne<SetelanItem>(
-        id ? `/setelan-persetujuan/${id}` : "/setelan-persetujuan",
-        { method: id ? "PUT" : "POST", body: JSON.stringify(payload) },
-      ),
+      fetchOne<SetelanItem>(id ? pathOf(id) : "/setelan-persetujuan", {
+        method: id ? "PUT" : "POST",
+        body: JSON.stringify(payload),
+      }),
     onSuccess: onInvalidate,
   });
 }
@@ -67,7 +70,7 @@ export function useDeactivateSetelan(id?: string) {
 
   return useMutation({
     mutationFn: () =>
-      fetchOne<undefined>(`/setelan-persetujuan/${id}`, { method: "DELETE" }),
+      fetchOne<undefined>(pathOf(id ?? ""), { method: "DELETE" }),
     onSuccess: onInvalidate,
   });
 }

@@ -13,12 +13,12 @@ import { ProgressBar } from "@/components/common/dashboard";
 import { ControlField, FormSection, FormWide } from "@/components/common/form";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
+import { toDigits } from "@/lib/number";
 import { cn } from "@/lib/utils";
 
 import {
   formatThousands,
   registrationsHref,
-  toDigits,
   type EventFormValues,
 } from "../model";
 import type { ChurchEvent } from "../types";
@@ -134,12 +134,8 @@ export const RegistrationSection = (props: PropTypes) => {
           onValueChange={onPickPaid}
           options={PAID_OPTIONS}
           disabled={isDisabled || isPriceLocked}
+          hint={isPriceLocked && isPaid === "0" ? lockHint : undefined}
         />
-        {isPriceLocked && isPaid === "0" ? (
-          <p className="text-muted-foreground mt-1.5 text-caption">
-            {lockHint}
-          </p>
-        ) : null}
       </FormWide>
 
       {isPaid === "1" ? (
@@ -178,10 +174,8 @@ export const RegistrationSection = (props: PropTypes) => {
           onValueChange={onPickPublish}
           options={PUBLISH_OPTIONS}
           disabled={isDisabled}
+          hint="Event draf belum bisa didaftari dan tidak tampil di Beranda."
         />
-        <p className="text-muted-foreground mt-1.5 text-caption">
-          Event draf belum bisa didaftari dan tidak tampil di Beranda.
-        </p>
       </FormWide>
     </FormSection>
   );

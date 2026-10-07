@@ -122,7 +122,7 @@ export const config = {
     // Aset yang dialihkan ke /login dijawab HTML dan gagal diam-diam.
     {
       source:
-        "/((?!(?:api|_next/static|_next/image|manifest\\.webmanifest|sw\\.js|icons|brand|apple-icon\\.png|icon\\.png|favicon\\.ico|offline|robots\\.txt)(?:/|$)).*)",
+        "/((?!(?:api|_next/static|_next/image|manifest\\.webmanifest|sw\\.js|icons|brand|loading|apple-icon\\.png|icon\\.png|favicon\\.ico|offline|robots\\.txt)(?:/|$)).*)",
     },
     {
       source: "/api/:path*",

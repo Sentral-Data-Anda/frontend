@@ -4,8 +4,7 @@ import { Controller } from "react-hook-form";
 
 import { ChoiceField, Input, Textarea } from "@/components/common/control";
 import { ControlField, FormSection, FormWide } from "@/components/common/form";
-
-import { digitsOf } from "../model";
+import { keepDigits } from "@/lib/number";
 
 import { STATUS_OPTIONS, type SupplierForm } from "./form-options";
 
@@ -59,7 +58,7 @@ export const IdentitySection = (props: PropTypes) => {
           <Input
             {...field}
             onChange={(event) =>
-              field.onChange(digitsOf(event.target.value, 15))
+              field.onChange(keepDigits(event.target.value, 15))
             }
             type="tel"
             inputMode="tel"
@@ -105,10 +104,8 @@ export const IdentitySection = (props: PropTypes) => {
               onValueChange={field.onChange}
               options={STATUS_OPTIONS}
               disabled={isDisabled}
+              hint="Supplier nonaktif tidak bisa dipilih di pesanan baru."
             />
-            <p className="text-muted-foreground mt-1.5 text-caption">
-              Supplier nonaktif tidak bisa dipilih di pesanan baru.
-            </p>
           </div>
         )}
       />

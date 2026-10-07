@@ -1,9 +1,10 @@
 import { describe, expect, test } from "bun:test";
 
+import { keepDigits } from "@/lib/number";
+
 import {
   EMPTY_SUPPLIER_FORM,
   bankAccountOf,
-  digitsOf,
   serverFieldError,
   supplierFormSchema,
   supplierMetaOf,
@@ -108,8 +109,8 @@ test("payload: kosong jadi null, nama dilebur, status boolean", () => {
 });
 
 test("angka telepon dan rekening mempertahankan nol depan", () => {
-  expect(digitsOf("0812-3456 78", 15)).toBe("0812345678");
-  expect(digitsOf("0".repeat(40), 30)).toHaveLength(30);
+  expect(keepDigits("0812-3456 78", 15)).toBe("0812345678");
+  expect(keepDigits("0".repeat(40), 30)).toHaveLength(30);
 });
 
 test("409 be-sada dan 404 lama 'Sudah Tersedia' jatuh ke field nama", () => {

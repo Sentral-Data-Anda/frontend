@@ -9,7 +9,7 @@ import {
 } from "@/components/common/list";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
-import { formatRupiah } from "@/lib/format";
+import { formatAmount } from "@/lib/format";
 
 import { TEXT_LINK, accountHref, entryBalanceOf } from "../model";
 import type { JournalEntryDetail, JournalLine } from "../types";
@@ -20,7 +20,7 @@ const accountLabelOf = (line: JournalLine) =>
 const amount = (value: string, isMuted: boolean) => (
   <span className="block min-w-0 text-right tabular-nums">
     <span className={isMuted ? "text-muted-foreground" : "font-medium"}>
-      {isMuted ? "—" : formatRupiah(Number(value))}
+      {isMuted ? "—" : formatAmount(value)}
     </span>
   </span>
 );
@@ -81,8 +81,8 @@ const lineTable = (
 const metaOf = (line: JournalLine) =>
   [
     Number(line.debit) > 0
-      ? `Debit ${formatRupiah(Number(line.debit))}`
-      : `Kredit ${formatRupiah(Number(line.credit))}`,
+      ? `Debit ${formatAmount(line.debit)}`
+      : `Kredit ${formatAmount(line.credit)}`,
     line.description,
   ]
     .filter(Boolean)
@@ -116,8 +116,8 @@ export const LineList = (props: PropTypes) => {
             meta={metaOf(line)}
             trailing={
               <span className="text-body font-medium tabular-nums">
-                {formatRupiah(
-                  Number(Number(line.debit) > 0 ? line.debit : line.credit),
+                {formatAmount(
+                  Number(line.debit) > 0 ? line.debit : line.credit,
                 )}
               </span>
             }
@@ -128,15 +128,11 @@ export const LineList = (props: PropTypes) => {
       <dl className="border-hairline mx-gutter flex flex-wrap items-baseline justify-end gap-x-6 gap-y-1 border-t pt-3 text-body tabular-nums">
         <div className="flex items-baseline gap-2">
           <dt className="text-muted-foreground">Total debit</dt>
-          <dd className="font-semibold">
-            {formatRupiah(Number(balance.debit))}
-          </dd>
+          <dd className="font-semibold">{formatAmount(balance.debit)}</dd>
         </div>
         <div className="flex items-baseline gap-2">
           <dt className="text-muted-foreground">Total kredit</dt>
-          <dd className="font-semibold">
-            {formatRupiah(Number(balance.credit))}
-          </dd>
+          <dd className="font-semibold">{formatAmount(balance.credit)}</dd>
         </div>
         <div className="flex items-baseline gap-2">
           <dt className="text-muted-foreground">Selisih</dt>
@@ -147,7 +143,7 @@ export const LineList = (props: PropTypes) => {
                 : "text-warning-foreground font-semibold"
             }
           >
-            {formatRupiah(Number(balance.difference))}
+            {formatAmount(balance.difference)}
           </dd>
         </div>
       </dl>

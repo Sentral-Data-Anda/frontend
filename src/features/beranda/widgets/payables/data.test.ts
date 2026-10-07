@@ -80,6 +80,7 @@ describe("buildPayables", () => {
       {
         approvals: [
           {
+            publicId: "uuid-pst-021",
             code: "PST-021",
             documentType: "CASH_EXPENSE",
             amount: "4500000",

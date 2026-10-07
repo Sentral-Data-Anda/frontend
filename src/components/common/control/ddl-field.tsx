@@ -11,6 +11,7 @@ interface PropTypes {
   onValueChange: (value: string) => void;
   options: readonly SelectOption[];
   isLoading: boolean;
+  isClearable?: boolean;
   disabled: boolean;
   placeholder: string;
   emptyMessage: string;
@@ -19,10 +20,17 @@ interface PropTypes {
 }
 
 export const DdlField = (props: PropTypes) => {
-  const { isLoading, placeholder, ...rest } = props;
+  const { isLoading, placeholder, isClearable, ...rest } = props;
 
-  return props.options.length > SELECT_LIMIT ? (
-    <ComboboxField {...rest} isLoading={isLoading} placeholder={placeholder} />
+  // SelectField tidak punya tombol kosongkan; pilihan yang boleh dikosongkan
+  // memakai ComboboxField berapa pun jumlahnya, bukan diam-diam tanpa tombol.
+  return isClearable || props.options.length > SELECT_LIMIT ? (
+    <ComboboxField
+      {...rest}
+      isClearable={isClearable}
+      isLoading={isLoading}
+      placeholder={placeholder}
+    />
   ) : (
     <SelectField {...rest} placeholder={isLoading ? "Memuat…" : placeholder} />
   );

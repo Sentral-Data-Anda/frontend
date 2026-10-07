@@ -1,4 +1,5 @@
 import { MENU_DESCRIPTION, type MenuSlug } from "@/config/menu";
+import { collapseSpaces } from "@/lib/name";
 import type { MenuNode } from "@/types/menu";
 
 export type ScreenHit = { domain: MenuNode; leaf: MenuNode };
@@ -14,7 +15,7 @@ export function searchModules(
   domains: MenuNode[],
   keyword: string,
 ): ModuleSearch {
-  const needle = keyword.trim().replace(/\s+/g, " ").toLowerCase();
+  const needle = collapseSpaces(keyword).toLowerCase();
 
   if (!needle) return { kind: "domains", domains };
 

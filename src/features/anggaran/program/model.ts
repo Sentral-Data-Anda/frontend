@@ -10,7 +10,7 @@ import {
 } from "@/config/menu";
 import type { ListFilterSchema } from "@/hooks/use-list-params";
 import { FetchError } from "@/lib/api/fetcher";
-import { formatDateTime, formatRupiah } from "@/lib/format";
+import { formatAmount, formatDateTime } from "@/lib/format";
 import { lineAmount, sumAmounts } from "@/lib/number";
 import type { CeilingUsage } from "@/types/anggaran";
 
@@ -71,7 +71,7 @@ export const ceilingMissingMessage = (label: string) =>
   `Majelis Jemaat belum menetapkan pagu anggaran badan pelayanan ini untuk tahun ${label}. Pengajuan akan ditolak.`;
 
 export const ceilingExceededMessage = (remaining: string) =>
-  `Usulan ini melebihi sisa pagu ${formatRupiah(Number(remaining))}.`;
+  `Usulan ini melebihi sisa pagu ${formatAmount(remaining)}.`;
 
 export const UNTAGGED_LABEL = "Tanpa program";
 
@@ -217,7 +217,7 @@ export const rejectedStepOf = (approval: ProgramApproval | null) =>
     : null;
 
 export const amountText = (value: string | null) =>
-  value === null ? "Belum ditetapkan" : formatRupiah(Number(value));
+  value === null ? "Belum ditetapkan" : formatAmount(value);
 
 export const isCeilingMissing = (ceiling: CeilingUsage) =>
   ceiling.ceiling === null;
@@ -236,7 +236,7 @@ export const committedPercentOf = (ceiling: CeilingUsage) =>
     : (Number(ceiling.committed) / Number(ceiling.ceiling)) * 100;
 
 export const ceilingBarMeta = (ceiling: CeilingUsage) =>
-  `${formatRupiah(Number(ceiling.committed))} dari ${amountText(ceiling.ceiling)}`;
+  `${formatAmount(ceiling.committed)} dari ${amountText(ceiling.ceiling)}`;
 
 export const ceilingBarTitle =
   "Dijanjikan ke program tahun ini terhadap pagu anggaran badan pelayanan";
@@ -251,7 +251,7 @@ export const programWithdrawText =
   "Apakah Anda ingin menarik pengajuan ini? Usulan kembali menjadi Draf dan bisa disunting.";
 
 export const cancelDialogText = (remaining: string) =>
-  `Pagu badan pelayanan sebesar ${formatRupiah(Number(remaining))} akan kembali tersedia untuk usulan lain.`;
+  `Pagu badan pelayanan sebesar ${formatAmount(remaining)} akan kembali tersedia untuk usulan lain.`;
 
 export type ErrorFix = { menu: MenuSlug; label: string; href: string };
 

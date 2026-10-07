@@ -3,7 +3,7 @@ import {
   DataListRow,
   type DataTableConfig,
 } from "@/components/common/list";
-import { formatRupiah } from "@/lib/format";
+import { formatAmount } from "@/lib/format";
 
 import type { CashReceiptDetail, CashReceiptLine } from "../types";
 
@@ -12,7 +12,7 @@ const posOf = (line: CashReceiptLine) =>
 
 const amountOf = (line: CashReceiptLine) => (
   <span className="block truncate text-right font-medium tabular-nums">
-    {formatRupiah(Number(line.amount))}
+    {formatAmount(line.amount)}
   </span>
 );
 

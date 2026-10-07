@@ -7,7 +7,7 @@ import {
   type DataTableColumn,
   type DataTableConfig,
 } from "@/components/common/list";
-import { formatDateShort, formatRupiah } from "@/lib/format";
+import { formatAmount, formatDateShort } from "@/lib/format";
 import { saveListFocus } from "@/lib/list-return";
 import { cn } from "@/lib/utils";
 
@@ -30,7 +30,7 @@ const saveFocus = (row: Payment) =>
 const detailHrefOf = (row: Payment) => paymentHref(row.publicId);
 
 const viewLabelOf = (row: Payment) =>
-  `Lihat pembayaran ${row.code}, ${giverOf(row)}, ${formatRupiah(Number(row.amount))}`;
+  `Lihat pembayaran ${row.code}, ${giverOf(row)}, ${formatAmount(row.amount)}`;
 
 const StaleNote = () => (
   <span className="text-muted-foreground block text-caption">
@@ -63,7 +63,7 @@ export const PaymentListItem = (props: PropTypes) => {
           aria-label={viewLabelOf(row)}
           className={cn(TABLE_ROW_LINK, "tabular-nums")}
         >
-          {formatRupiah(Number(row.amount))}
+          {formatAmount(row.amount)}
         </Link>
       }
       meta={metaOf(row)}
@@ -132,7 +132,7 @@ export function paymentTable(): DataTableConfig<Payment> {
       align: "end",
       cell: (row) => (
         <span className="block truncate tabular-nums">
-          {formatRupiah(Number(row.amount))}
+          {formatAmount(row.amount)}
         </span>
       ),
     },

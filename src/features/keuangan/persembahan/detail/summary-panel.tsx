@@ -11,7 +11,7 @@ import {
 } from "@/components/common/display";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
-import { formatDate, formatRupiah } from "@/lib/format";
+import { formatAmount, formatDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { JOURNAL_STATUS_LABEL, RECEIVE_METHOD_LABEL } from "@/types/keuangan";
 
@@ -41,7 +41,7 @@ export const SummaryPanel = (props: PropTypes) => {
             row.status === "VOID" && "text-muted-foreground line-through",
           )}
         >
-          {formatRupiah(Number(row.amount))}
+          {formatAmount(row.amount)}
         </p>
       </div>
 

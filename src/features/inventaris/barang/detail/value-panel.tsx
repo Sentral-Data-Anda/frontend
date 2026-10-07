@@ -4,7 +4,7 @@ import {
   OptionalText,
   Panel,
 } from "@/components/common/display";
-import { formatDate, formatRupiah } from "@/lib/format";
+import { formatAmount, formatDate } from "@/lib/format";
 
 import {
   SOURCE_LABEL,
@@ -19,7 +19,7 @@ const rupiahOf = (value: string | null, empty: string) =>
   value === null ? (
     <OptionalText empty={empty} />
   ) : (
-    <span className="tabular-nums">{formatRupiah(Number(value))}</span>
+    <span className="tabular-nums">{formatAmount(value)}</span>
   );
 
 interface PropTypes {
@@ -69,8 +69,8 @@ export const ValuePanel = (props: PropTypes) => {
             asset.openingAccumulatedAsOf ? (
               <DescriptionItem label="Akumulasi awal">
                 <span className="tabular-nums">
-                  {formatRupiah(Number(asset.openingAccumulatedDepreciation))}{" "}
-                  per {formatMonth(asset.openingAccumulatedAsOf)}
+                  {formatAmount(asset.openingAccumulatedDepreciation)} per{" "}
+                  {formatMonth(asset.openingAccumulatedAsOf)}
                 </span>
               </DescriptionItem>
             ) : null}
@@ -79,7 +79,7 @@ export const ValuePanel = (props: PropTypes) => {
             </DescriptionItem>
             <DescriptionItem label="Nilai buku">
               <span className="text-title font-semibold tabular-nums">
-                {formatRupiah(Number(depreciation.bookValue))}
+                {formatAmount(depreciation.bookValue)}
               </span>
             </DescriptionItem>
             <DescriptionItem label="Terakhir disusutkan">

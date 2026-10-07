@@ -16,6 +16,7 @@ import {
   LockedField,
 } from "@/components/common/form";
 import { useDdlOptions } from "@/hooks/use-ddl-options";
+import { endOfYearIso } from "@/lib/date";
 import { formatAmount } from "@/lib/format";
 
 import {
@@ -52,6 +53,11 @@ type ChosenComponent = Pick<
   AssignedComponent,
   "calculationType" | "defaultValue"
 >;
+
+// Kontrak dan penetapan komponen boleh mulai NANTI — `contractPhase` punya
+// status UPCOMING untuk itu — jadi `max` bawaan `DateField` (hari ini) akan
+// menolak setiap periode yang belum berjalan.
+const PERIOD_MAX = endOfYearIso(5);
 
 interface PropTypes {
   form: PenetapanForm;
@@ -228,6 +234,7 @@ export const PenetapanSection = (props: PropTypes) => {
           <DateField
             id={field.name}
             label="Berlaku dari"
+            max={PERIOD_MAX}
             value={field.value}
             onValueChange={field.onChange}
             onBlur={field.onBlur}
@@ -253,6 +260,7 @@ export const PenetapanSection = (props: PropTypes) => {
             onBlur={field.onBlur}
             disabled={isDisabled}
             min={effectiveFrom || undefined}
+            max={PERIOD_MAX}
           />
         )}
       </ControlField>

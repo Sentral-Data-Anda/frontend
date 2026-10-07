@@ -15,6 +15,8 @@ export const holidayKeys = {
   detail: (id: string) => [...holidayKeys.all, "detail", id] as const,
 };
 
+const pathOf = (key: string) => `/hari-libur/${encodeURIComponent(key)}`;
+
 export function useHolidayList(params: ListState) {
   return useListQuery({
     queryKey: holidayKeys.lists(),
@@ -26,7 +28,7 @@ export function useHolidayList(params: ListState) {
 export function useHolidayDetail(id: string | undefined) {
   return useQuery({
     queryKey: holidayKeys.detail(id ?? ""),
-    queryFn: () => fetchOne<Holiday>(`/hari-libur/${id}`),
+    queryFn: () => fetchOne<Holiday>(pathOf(id ?? "")),
     enabled: Boolean(id),
     staleTime: 0,
     select: (response) => response.data,
@@ -48,7 +50,7 @@ export function useSaveHoliday(id?: string) {
 
   return useMutation({
     mutationFn: (payload: HolidayPayload) =>
-      fetchOne<Holiday>(id ? `/hari-libur/${id}` : "/hari-libur", {
+      fetchOne<Holiday>(id ? pathOf(id) : "/hari-libur", {
         method: id ? "PUT" : "POST",
         body: JSON.stringify(payload),
       }),
@@ -60,8 +62,7 @@ export function useDeleteHoliday(id: string | undefined) {
   const onInvalidate = useInvalidateHoliday();
 
   return useMutation({
-    mutationFn: () =>
-      fetchOne<Holiday>(`/hari-libur/${id}`, { method: "DELETE" }),
+    mutationFn: () => fetchOne<Holiday>(pathOf(id ?? ""), { method: "DELETE" }),
     onSuccess: onInvalidate,
   });
 }

@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { buttonVariants } from "@/components/common/control";
 import { DETAIL_LINK as LINK } from "@/components/common/display";
-import { formatNumber, formatRupiah } from "@/lib/format";
+import { formatAmount, formatNumber } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 import { createForHref, reportDetailHref, waiverTextOf } from "../model";
@@ -30,7 +30,7 @@ export const PendingItem = (props: PropTypes) => {
           </p>
           <p className="text-muted-foreground text-caption tabular-nums">
             {formatNumber(row.disbursementCount)} pencairan ·{" "}
-            {formatRupiah(Number(row.disbursementTotal))}
+            {formatAmount(row.disbursementTotal)}
           </p>
         </div>
 

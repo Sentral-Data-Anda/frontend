@@ -5,14 +5,13 @@ import {
   DataListRow,
   type DataTableConfig,
 } from "@/components/common/list";
-import { formatMoney, formatRupiah } from "@/lib/format";
+import { formatAmount, formatMoney } from "@/lib/format";
 
 import { quantityTextOf, type ReceiptGroup } from "../model";
 
 import { TargetLinks } from "./target-links";
 
-const priceOf = (group: ReceiptGroup) =>
-  formatRupiah(Number(group.unitPriceIDR));
+const priceOf = (group: ReceiptGroup) => formatAmount(group.unitPriceIDR);
 
 const foreignPriceOf = (group: ReceiptGroup, currencyCode: string) =>
   currencyCode === "IDR"

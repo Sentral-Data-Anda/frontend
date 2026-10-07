@@ -114,6 +114,11 @@ export const FIX_HINT: Record<string, string> = {
   PPH21_TARIFF_MISSING:
     "Hubungi administrator: tarif PPh21 tahun itu belum diisi.",
   PPH21_PTKP_MISSING: "Hubungi administrator: PTKP tahun itu belum diisi.",
+  // Dipecah dari `PPH21_TARIFF_MISSING`, yang dulu menanggung dua perbaikan
+  // admin berbeda sekaligus — tarif tahunan dan biaya jabatan — sehingga
+  // petunjuknya hanya tepat untuk salah satunya.
+  PPH21_OCCUPATIONAL_MISSING:
+    "Hubungi administrator: biaya jabatan PPh21 tahun itu belum diisi.",
 };
 
 export const periodLabel = (run: Pick<PayrollRun, "year" | "month">) =>

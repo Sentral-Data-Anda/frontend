@@ -7,8 +7,11 @@ import { DUMMY_BUDGET_USE } from "../../fixtures";
 
 export const BudgetUseWidget = () => {
   return (
-    <DashboardCard title="Realisasi vs pagu · komisi" isDummy>
-      <ul aria-label="Realisasi vs pagu per komisi" className="space-y-3.5">
+    <DashboardCard title="Realisasi vs pagu · badan pelayanan" isDummy>
+      <ul
+        aria-label="Realisasi vs pagu per badan pelayanan"
+        className="space-y-3.5"
+      >
         {DUMMY_BUDGET_USE.map((row) => {
           const percent = row.budget > 0 ? (row.used / row.budget) * 100 : 0;
           return (

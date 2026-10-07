@@ -1,7 +1,7 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useWatch } from "react-hook-form";
 
 import {
@@ -59,11 +59,9 @@ export const PlaceFields = (props: PropTypes) => {
   const isOther = placeType === "LAINNYA";
   const savedHost = saved?.hostKeluarga ?? null;
   const savedHostId = String(savedHost?.id ?? "");
-  const pinnedHost = useMemo(
-    () =>
-      savedHost ? { value: String(savedHost.id), label: savedHost.name } : null,
-    [savedHost],
-  );
+  const pinnedHost = savedHost
+    ? { value: String(savedHost.id), label: savedHost.name }
+    : null;
   const zones = useDdlOptions("zone-church", "id", zoneChurchId);
   const rooms = useDdlOptions("room", "id");
   const hosts = useHostOptions({

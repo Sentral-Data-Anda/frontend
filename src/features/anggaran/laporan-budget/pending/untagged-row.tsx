@@ -1,6 +1,6 @@
 "use client";
 
-import { formatNumber, formatRupiah } from "@/lib/format";
+import { formatAmount, formatNumber } from "@/lib/format";
 
 import type { UntaggedSpending } from "../types";
 
@@ -15,7 +15,7 @@ interface PropTypes {
 export const UntaggedRow = (props: PropTypes) => {
   const { untagged } = props;
 
-  const amount = formatRupiah(Number(untagged.amount));
+  const amount = formatAmount(untagged.amount);
   const count = formatNumber(untagged.count);
 
   return (
@@ -34,9 +34,9 @@ export const UntaggedRow = (props: PropTypes) => {
 
       <p className="text-muted-foreground mt-1 text-caption">
         Dinyatakan bukan belanja badan pelayanan{" "}
-        {formatRupiah(Number(untagged.stated.amount))} (
+        {formatAmount(untagged.stated.amount)} (
         {formatNumber(untagged.stated.count)}) · dicatat sebelum pertanyaannya
-        ada {formatRupiah(Number(untagged.inherited.amount))} (
+        ada {formatAmount(untagged.inherited.amount)} (
         {formatNumber(untagged.inherited.count)})
       </p>
     </section>

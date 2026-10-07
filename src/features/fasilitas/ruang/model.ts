@@ -40,8 +40,6 @@ export const IS_ACTIVE_PARAM: Record<string, string> = {
   nonaktif: "0",
 };
 
-export const toDigits = (value: string) => value.replace(/\D/g, "").slice(0, 5);
-
 export const ruangFormSchema = z.object({
   name: z
     .string()

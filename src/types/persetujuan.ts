@@ -1,5 +1,5 @@
 import { MENU, detailHref, menuHref, type MenuSlug } from "@/config/menu";
-import { formatDays, formatRupiah } from "@/lib/format";
+import { formatAmount, formatDays } from "@/lib/format";
 
 export const APPROVAL_DOCUMENT_TYPES = [
   "PURCHASE_REQUEST",
@@ -54,9 +54,7 @@ export const formatApprovalAmount = (
   type: ApprovalDocumentType,
   value: string | number,
 ): string =>
-  amountUnitOf(type) === "hari"
-    ? formatDays(value)
-    : formatRupiah(Number(value));
+  amountUnitOf(type) === "hari" ? formatDays(value) : formatAmount(value);
 
 export const APPROVAL_DOCUMENT_MENU: Partial<
   Record<ApprovalDocumentType, MenuSlug>

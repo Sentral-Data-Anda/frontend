@@ -1,5 +1,11 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import {
   afterAll,
   afterEach,
@@ -89,6 +95,19 @@ const onRender = (granted: MenuAction[], query = "") => {
   );
 };
 
+/**
+ * Gerbang muat yang sekaligus memaku himpunan subjeknya: `findByText` atas
+ * subtitle "N <noun>" cocok dua kali di lebar tabel — subtitle dan footer
+ * "Menampilkan 1-10 dari N <noun>" — dan nol baris pun tetap melewatkannya,
+ * jadi asersi "tanpa tautan ubah" di bawahnya bisa hijau atas daftar kosong.
+ */
+const onRowsReady = () =>
+  waitFor(() =>
+    expect(document.querySelectorAll("[data-row-id]").length).toBeGreaterThan(
+      0,
+    ),
+  );
+
 describe("tab jenis", () => {
   test("jenis di URL memilih tab dan endpoint; bulan dan cara jadi query be-sada", async () => {
     // Bulannya diambil dari seed SOLD+APPROVED satu-satunya, bukan dipatok:
@@ -102,7 +121,7 @@ describe("tab jenis", () => {
       `jenis=pelepasan&bulan=${month}&cara=SOLD&status=APPROVED`,
     );
 
-    await screen.findByText(/\d+ pelepasan/);
+    await onRowsReady();
     expect(
       screen
         .getByRole("tab", { name: "Pelepasan" })
@@ -160,14 +179,14 @@ describe("tombol tambah per tab", () => {
   test("pelepasan butuh DELETE, bukan CREATE", async () => {
     onRender(["VIEW", "CREATE"], "jenis=pelepasan");
 
-    await screen.findByText(/\d+ pelepasan/);
+    await onRowsReady();
     expect(screen.queryByRole("link", { name: "Ajukan pelepasan" })).toBeNull();
   });
 
   test("perawatan tanpa UPDATE: tanpa tautan ubah", async () => {
     onRender(["VIEW"]);
 
-    await screen.findByText(/\d+ perawatan/);
+    await onRowsReady();
     expect(
       screen.queryAllByRole("link", { name: /^Ubah perawatan/ }),
     ).toHaveLength(0);

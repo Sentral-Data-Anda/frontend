@@ -5,6 +5,7 @@ import { afterEach, describe, expect, mock, test } from "bun:test";
 import { MENU } from "@/config/menu";
 import type { MenuAction } from "@/types/menu";
 
+import { onStubViewport } from "../../../../../tests/viewport";
 import type { Cuti } from "../types";
 
 const grants: { current: Partial<Record<string, MenuAction[]>> } = {
@@ -33,26 +34,6 @@ mock.module("@/features/auth/use-menu-access", () => ({
 const { CutiListScreen } = await import("./screen");
 
 const originalFetch = globalThis.fetch;
-
-/**
- * `tests/viewport` hanya menjawab query DESKTOP, jadi memakainya untuk lebar
- * tabel membuat KEDUA kasus merender baris HP — dua test yang menguji hal yang
- * sama. Stub ini menjawab query yang `useIsTableWidth` benar-benar tanyakan.
- */
-const onStubWidth = (isTable: boolean) => {
-  const original = window.matchMedia;
-
-  window.matchMedia = ((query: string) => ({
-    matches: isTable,
-    media: query,
-    addEventListener: () => {},
-    removeEventListener: () => {},
-  })) as unknown as typeof window.matchMedia;
-
-  return () => {
-    window.matchMedia = original;
-  };
-};
 
 const REASON = "Mendampingi orang tua kontrol ke rumah sakit jiwa";
 
@@ -227,7 +208,7 @@ describe("§0.3 no. 4 — alasan tidak pernah di daftar", () => {
     ["tabel (>= 48rem)", true],
     ["baris HP (< 48rem)", false],
   ])("alasan tidak ada di DOM — %s", async (_label, isWide) => {
-    const onRestore = onStubWidth(isWide);
+    const viewport = onStubViewport(isWide);
     onMockApi();
     const view = onRender({ [MENU.CUTI]: ["VIEW"] });
 
@@ -247,7 +228,7 @@ describe("§0.3 no. 4 — alasan tidak pernah di daftar", () => {
 
     expect(html).not.toContain("rumah sakit jiwa");
 
-    onRestore();
+    viewport.onRestore();
   });
 
   test("tipe cuti BOLEH tampil: bendahara harus bisa membedakannya", async () => {

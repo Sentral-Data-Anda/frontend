@@ -9,7 +9,7 @@ import {
   FormWide,
   LineItemList,
 } from "@/components/common/form";
-import { formatRupiah } from "@/lib/format";
+import { formatAmount } from "@/lib/format";
 import { sumAmounts } from "@/lib/number";
 
 import { FORM_NOTE, MAX_BATCH_ROWS, emptyBatchRow } from "../model";
@@ -54,7 +54,7 @@ export const BatchSection = (props: PropTypes) => {
           isAddDisabled={isDisabled || rows.fields.length >= MAX_BATCH_ROWS}
           onAdd={() => rows.append(emptyBatchRow())}
           empty="Belum ada badan pelayanan. Tambahkan badan pelayanan dan pagunya."
-          summary={`Total ${formatRupiah(Number(total))}`}
+          summary={`Total ${formatAmount(total)}`}
           error={error}
           errorId="items-error"
         >

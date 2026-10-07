@@ -6,7 +6,7 @@ import { DETAIL_LINK, Panel } from "@/components/common/display";
 import { MENU } from "@/config/menu";
 import { TaggedTotal, type TaggedPart } from "@/features/anggaran/shared";
 import { useMenuAccess } from "@/features/auth";
-import { formatDate, formatRupiah } from "@/lib/format";
+import { formatAmount, formatDate } from "@/lib/format";
 import { sumAmounts } from "@/lib/number";
 
 import { accountHref, expenseHref, programHref } from "../model";
@@ -73,7 +73,7 @@ export const LineList = (props: PropTypes) => {
               </span>
 
               <span className="shrink-0 text-body font-medium tabular-nums">
-                {formatRupiah(Number(line.amount))}
+                {formatAmount(line.amount)}
               </span>
             </div>
 
@@ -131,7 +131,7 @@ export const LineList = (props: PropTypes) => {
 
       <div className="border-hairline flex items-baseline justify-between gap-3 border-t px-gutter py-3 text-body font-medium">
         <span>Total pemakaian</span>
-        <span className="tabular-nums">{formatRupiah(Number(total))}</span>
+        <span className="tabular-nums">{formatAmount(total)}</span>
       </div>
 
       <div className="border-hairline space-y-1 border-t px-gutter py-3">

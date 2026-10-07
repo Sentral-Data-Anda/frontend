@@ -3,6 +3,7 @@ import { z } from "zod";
 import type { SelectOption } from "@/components/common/control";
 import { MENU, menuHref } from "@/config/menu";
 import { FetchError } from "@/lib/api/fetcher";
+import { collapseSpaces } from "@/lib/name";
 
 import type {
   TemplateJadwalDetail,
@@ -15,13 +16,11 @@ export const TEMPLATE_JADWAL_LIST_PATH = menuHref(
   MENU.TEMPLATE_JADWAL,
 );
 
-const normalizeName = (name: string) => name.trim().replace(/\s+/g, " ");
-
 export const templateJadwalFormSchema = z
   .object({
     name: z
       .string()
-      .transform(normalizeName)
+      .transform(collapseSpaces)
       .pipe(
         z
           .string()
@@ -66,7 +65,7 @@ export const toTemplateJadwalPayload = (
   values: TemplateJadwalFormValues,
 ): TemplateJadwalPayload => ({
   bapelId: Number(values.bapelId),
-  name: normalizeName(values.name),
+  name: collapseSpaces(values.name),
   startTime: values.startTime,
   endTime: values.endTime,
   detail: values.slots.map((slot, index) => ({
