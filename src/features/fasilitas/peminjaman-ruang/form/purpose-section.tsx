@@ -24,7 +24,14 @@ export const PurposeSection = (props: PropTypes) => {
   const jemaat = useDdlSearch(
     "jemaat",
     "id",
-    saved ? { value: String(saved.jemaat.id), label: saved.jemaat.name } : null,
+    saved
+      ? {
+          value: String(saved.jemaat.id),
+          label: saved.jemaat.name,
+          hint: saved.jemaat.code,
+        }
+      : null,
+    (row) => row.code,
   );
   const bapelOptions = [{ value: "", label: PRIVATE_LABEL }, ...bapels.options];
 

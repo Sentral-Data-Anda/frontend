@@ -1,11 +1,14 @@
+import { UsersRound } from "lucide-react";
+
 import { cn } from "@/lib/utils";
 
 interface PropTypes {
   label: string;
+  variant?: "person" | "group";
 }
 
 export const Avatar = (props: PropTypes) => {
-  const { label } = props;
+  const { label, variant = "person" } = props;
 
   return (
     <span
@@ -15,7 +18,11 @@ export const Avatar = (props: PropTypes) => {
         "bg-primary-200 text-body font-semibold text-primary-900",
       )}
     >
-      {label.trim().charAt(0).toUpperCase() || "?"}
+      {variant === "group" ? (
+        <UsersRound data-slot="avatar-group-icon" className="size-4.5" />
+      ) : (
+        label.trim().charAt(0).toUpperCase() || "?"
+      )}
     </span>
   );
 };

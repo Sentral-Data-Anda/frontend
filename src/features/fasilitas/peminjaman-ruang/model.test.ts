@@ -5,6 +5,7 @@ import { FetchError } from "@/lib/api/fetcher";
 import {
   EMPTY_LOAN_FORM,
   batchRowErrors,
+  bookingTimeOf,
   clashSummary,
   isClash,
   loanFormSchema,
@@ -276,5 +277,33 @@ describe("batchRowErrors", () => {
     expect(batchRowErrors(new TypeError("fetch"), [], rows).root).toBe(
       "Tidak dapat menghubungi server. Periksa koneksi Anda.",
     );
+  });
+});
+
+describe("bookingTimeOf", () => {
+  const at = (
+    kind: "LOAN" | "IBADAH" | "EVENT",
+    startTime: string,
+    endTime: string,
+  ) => bookingTimeOf({ kind, startTime, endTime });
+
+  test("event ber-23.59 tidak mengarang jam selesai", () => {
+    const cases = [
+      [at("EVENT", "09:00", "23:59"), "mulai 09.00"],
+      [at("EVENT", "00:00", "23:59"), "sepanjang hari"],
+      [at("EVENT", "18:30", "23:59"), "mulai 18.30"],
+    ];
+
+    expect(cases).toHaveLength(3);
+    for (const [shown, expected] of cases) {
+      expect(shown).toBe(expected);
+      expect(shown).not.toMatch(/23[.:]59/);
+    }
+  });
+
+  test("jam selesai sungguhan tetap tampil", () => {
+    expect(at("EVENT", "09:00", "15:00")).toBe("09.00–15.00");
+    expect(at("LOAN", "20:00", "23:59")).toBe("20.00–23.59");
+    expect(at("IBADAH", "22:00", "23:59")).toBe("22.00–23.59");
   });
 });

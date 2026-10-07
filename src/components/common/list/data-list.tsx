@@ -32,6 +32,7 @@ export function DataListRow({
   meta,
   leading,
   trailing,
+  isTitleWrap = false,
   className,
 }: {
   id?: string;
@@ -39,21 +40,35 @@ export function DataListRow({
   meta?: ReactNode;
   leading?: ReactNode;
   trailing?: ReactNode;
+  isTitleWrap?: boolean;
   className?: string;
 }) {
   return (
     <li
       data-row-id={id}
-      className={cn("flex h-14 items-center gap-3 px-gutter", className)}
+      className={cn(
+        "flex items-center gap-3 px-gutter",
+        isTitleWrap ? "min-h-14" : "h-14",
+        className,
+      )}
     >
       {leading}
 
       <div
         data-slot="row-body"
-        className="flex min-w-0 flex-1 items-center gap-3 self-stretch border-border"
+        className={cn(
+          "flex min-w-0 flex-1 items-center gap-3 self-stretch border-border",
+          isTitleWrap && "py-2",
+        )}
       >
         <div className="min-w-0 flex-1">
-          <p className="truncate text-body font-medium" title={textOf(title)}>
+          <p
+            className={cn(
+              "text-body font-medium",
+              isTitleWrap ? "line-clamp-2 wrap-break-word" : "truncate",
+            )}
+            title={textOf(title)}
+          >
             {title}
           </p>
 

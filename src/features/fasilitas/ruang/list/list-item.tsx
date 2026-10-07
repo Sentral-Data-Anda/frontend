@@ -40,6 +40,7 @@ export const RuangListItemRow = (props: PropTypes) => {
   return (
     <DataListRow
       id={room.code}
+      isTitleWrap
       className="hover:bg-card relative transition-colors"
       leading={photoOf(room)}
       title={

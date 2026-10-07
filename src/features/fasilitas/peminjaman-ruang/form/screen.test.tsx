@@ -117,12 +117,14 @@ const api: {
   booking: Reply;
   check: (dates: string[]) => Reply;
   write: Reply;
+  jemaat: { id: number; code: string; name: string }[];
   calls: { method: string; path: string; body: unknown }[];
 } = {
   detail: { status: 200, body: { data: DETAIL } },
   booking: { status: 200, body: { data: BOOKING } },
   check: oneClash,
   write: { status: 200, body: { message: "OK", data: { code: CODE } } },
+  jemaat: [{ id: 3, code: "JMT-0003", name: "Christian Wijaya" }],
   calls: [],
 };
 
@@ -138,6 +140,7 @@ afterEach(() => {
   api.booking = { status: 200, body: { data: BOOKING } };
   api.check = oneClash;
   api.write = { status: 200, body: { message: "OK", data: { code: CODE } } };
+  api.jemaat = [{ id: 3, code: "JMT-0003", name: "Christian Wijaya" }];
 });
 
 const reply = ({ status, body }: Reply) =>
@@ -178,7 +181,7 @@ const onMockApi = () => {
     if (path === "/ddl/jemaat") {
       return reply({
         status: 200,
-        body: { data: [{ id: 3, code: "JMT-0003", name: "Christian Wijaya" }] },
+        body: { data: api.jemaat },
       });
     }
     if (path === "/loan-room/booking") return reply(api.booking);
@@ -317,6 +320,27 @@ describe("form ubah", () => {
     expect(window.sessionStorage.getItem(`list-focus:${LOAN_LIST_PATH}`)).toBe(
       CODE,
     );
+  });
+
+  test("pemilih jemaat menampilkan kode: dua orang bernama sama bisa dibedakan", async () => {
+    api.jemaat = [
+      { id: 3, code: "JMT-0003", name: "Andreas Siregar" },
+      { id: 9, code: "JMT-0009", name: "Andreas Siregar" },
+    ];
+    onRender(["VIEW", "CREATE"]);
+    await screen.findByRole("combobox", { name: "Peminjam" });
+    fireEvent.focus(input("jemaatId"));
+    fireEvent.input(input("jemaatId"), {
+      target: { value: "And" },
+      inputType: "insertText",
+    });
+
+    const options = await screen.findAllByRole("option");
+
+    expect(options.map((option) => option.textContent)).toEqual([
+      "Andreas SiregarJMT-0003",
+      "Andreas SiregarJMT-0009",
+    ]);
   });
 
   test("hapus lewat preset dengan teks khusus", async () => {
@@ -480,7 +504,7 @@ describe("tambah tiap minggu", () => {
       inputType: "insertText",
     });
     const person = await screen.findByRole("option", {
-      name: "Christian Wijaya",
+      name: /^Christian Wijaya/,
     });
     fireEvent.pointerDown(person);
     fireEvent.click(person);

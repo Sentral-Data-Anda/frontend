@@ -9,7 +9,7 @@ import {
   todayJakarta,
   weekdayDates,
 } from "@/lib/date";
-import { formatDateShort, formatTimeRange } from "@/lib/format";
+import { formatClock, formatDateShort, formatTimeRange } from "@/lib/format";
 
 import {
   BOOKING_KIND_LABEL,
@@ -76,6 +76,22 @@ export function toLoanApiFilters(
   };
 }
 
+const DAY_END = "23:59";
+
+// be-sada memberi event tanpa jam selesai (dan hari antara event menerus) "23:59";
+// angkanya tidak membedakan "belum diisi" dari jam selesai sungguhan.
+export const bookingTimeOf = (
+  item: Pick<Clash, "kind" | "startTime" | "endTime">,
+) => {
+  if (item.kind !== "EVENT" || item.endTime !== DAY_END) {
+    return formatTimeRange(item.startTime, item.endTime);
+  }
+
+  return item.startTime === "00:00"
+    ? "sepanjang hari"
+    : `mulai ${formatClock(item.startTime)}`;
+};
+
 export const bookingTitle = (item: Pick<Clash, "kind" | "name">) => {
   const kind = BOOKING_KIND_LABEL[item.kind];
 
@@ -89,7 +105,7 @@ export const clashSummary = (clashes: readonly Clash[]) => {
   const more = clashes.length > 1 ? ` +${clashes.length - 1} lainnya` : "";
 
   return first
-    ? `Bentrok: ${bookingTitle(first)} ${formatTimeRange(first.startTime, first.endTime)}${more}`
+    ? `Bentrok: ${bookingTitle(first)} ${bookingTimeOf(first)}${more}`
     : "Tersedia";
 };
 
