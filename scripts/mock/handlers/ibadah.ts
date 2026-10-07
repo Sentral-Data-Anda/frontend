@@ -659,15 +659,33 @@ registerWilayahDependent("Ibadah", (zoneId) =>
   allRows().some((row) => isLive(row) && row.zoneChurchId === zoneId),
 );
 
-export const ibadahLinkedTo = (jadwalId: number) =>
+const nameOnly = (relation: { name: string } | null) =>
+  relation ? { name: relation.name } : null;
+
+const isoDate = (date: string) =>
+  date.length === 10 ? `${date}T00:00:00.000Z` : date;
+
+export const ibadahLinkedTo = (
+  jadwalId: number,
+  order: "dateTime" | "time" = "dateTime",
+) =>
   allRows()
     .filter((row) => isLive(row) && row.jadwalPelayanId === jadwalId)
+    .sort(
+      (a, b) =>
+        (order === "time" ? 0 : a.date.localeCompare(b.date)) ||
+        a.startTime.localeCompare(b.startTime),
+    )
     .map((row) => ({
       code: row.code,
-      date: row.date,
+      date: isoDate(row.date),
       startTime: row.startTime,
       endTime: row.endTime,
+      placeType: row.placeType,
+      placeName: row.placeName,
       typeIbadah: { name: findTipeIbadah(row.typeIbadahId)?.name ?? "" },
+      room: nameOnly(relationOf(ROOM_ROWS, row.roomId)),
+      hostKeluarga: nameOnly(hostRelationOf(row.hostKeluargaId)),
     }));
 
 export const ibadahInRoom = (roomId: number, from: string, to?: string) =>

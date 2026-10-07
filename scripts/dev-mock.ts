@@ -456,6 +456,7 @@ const verifyPassword = async (request: Request) => {
 };
 
 Bun.serve({
+  hostname: "localhost",
   port: API_PORT,
   async fetch(request) {
     if (DELAY_MS > 0) await Bun.sleep(DELAY_MS);
@@ -833,15 +834,18 @@ Bun.serve({
 
 // Tanpa `next dev`, `Bun.serve` di atas yang menahan proses tetap hidup.
 if (!process.env.MOCK_API_ONLY) {
-  const next = Bun.spawn(["bunx", "next", "dev", "-p", String(WEB_PORT)], {
-    stdio: ["inherit", "inherit", "inherit"],
-    env: {
-      ...process.env,
-      API_BASE_URL: `http://localhost:${API_PORT}/api`,
-      NEXT_PUBLIC_SITE_URL: `http://localhost:${WEB_PORT}`,
-      MEDIA_ORIGIN: `http://localhost:${API_PORT}`,
+  const next = Bun.spawn(
+    ["bunx", "next", "dev", "-H", "localhost", "-p", String(WEB_PORT)],
+    {
+      stdio: ["inherit", "inherit", "inherit"],
+      env: {
+        ...process.env,
+        API_BASE_URL: `http://localhost:${API_PORT}/api`,
+        NEXT_PUBLIC_SITE_URL: `http://localhost:${WEB_PORT}`,
+        MEDIA_ORIGIN: `http://localhost:${API_PORT}`,
+      },
     },
-  });
+  );
 
   process.exit(await next.exited);
 }

@@ -2,8 +2,9 @@ import { describe, expect, test } from "bun:test";
 
 import { addDays, todayJakarta } from "../../../src/lib/date";
 import type { MockAction } from "../kit";
+import { JADWAL_PELAYAN } from "../pelayanan-store";
 
-import { ibadahMock } from "./ibadah";
+import { ibadahLinkedTo, ibadahMock } from "./ibadah";
 import { keluargaMock } from "./keluarga";
 import { tipeIbadahMock } from "./tipe-ibadah";
 
@@ -682,5 +683,39 @@ describe("POST /ibadah/batch", () => {
     expect(listed.body.data.map((row) => row.hostKeluarga?.id).sort()).toEqual([
       1, 4,
     ]);
+  });
+});
+
+describe("ibadahLinkedTo: bentuk be-sada (jadwal-pelayan.repository)", () => {
+  const linked = JADWAL_PELAYAN.map((row) => ibadahLinkedTo(row.id)).filter(
+    (rows) => rows.length > 0,
+  );
+
+  test("tiap ibadah terhubung membawa kunci penuh, bukan bentuk yang disunat", () => {
+    expect(linked.length).toBeGreaterThan(0);
+    for (const rows of linked) {
+      for (const row of rows) {
+        expect(Object.keys(row).sort()).toEqual([
+          "code",
+          "date",
+          "endTime",
+          "hostKeluarga",
+          "placeName",
+          "placeType",
+          "room",
+          "startTime",
+          "typeIbadah",
+        ]);
+        expect(row.date).toMatch(/^\d{4}-\d{2}-\d{2}T.*Z$/);
+        expect(Object.keys(row.typeIbadah)).toEqual(["name"]);
+        expect(
+          row.room === null || Object.keys(row.room).join() === "name",
+        ).toBe(true);
+      }
+    }
+  });
+
+  test("ibadah gereja terhubung membawa nama ruang", () => {
+    expect(linked.flat().some((row) => row.room?.name)).toBe(true);
   });
 });
