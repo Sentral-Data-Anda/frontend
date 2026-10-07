@@ -91,12 +91,8 @@ export const MovementSection = (props: PropTypes) => {
               onValueChange={onPickSource}
               options={FORM_SOURCE_OPTIONS[type]}
               disabled={isDisabled}
+              hint={field.value === "MANUAL" ? PURCHASE_HINT : undefined}
             />
-            {field.value === "MANUAL" ? (
-              <p className="text-muted-foreground mt-1.5 text-caption">
-                {PURCHASE_HINT}
-              </p>
-            ) : null}
           </div>
         )}
       />

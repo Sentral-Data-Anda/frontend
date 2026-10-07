@@ -145,10 +145,8 @@ export const TypeSection = (props: PropTypes) => {
               onValueChange={field.onChange}
               options={STATUS_OPTIONS}
               disabled={isDisabled}
+              hint={STATUS_HINT}
             />
-            <p className="text-muted-foreground mt-1.5 text-caption">
-              {STATUS_HINT}
-            </p>
           </div>
         )}
       />

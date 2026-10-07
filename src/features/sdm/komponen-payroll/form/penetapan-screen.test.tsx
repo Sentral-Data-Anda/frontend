@@ -9,6 +9,7 @@ import {
 } from "@testing-library/react";
 import { afterEach, describe, expect, mock, test } from "bun:test";
 
+import { addDays, toInputText, todayJakarta } from "@/lib/date";
 import type { MenuAction } from "@/types/menu";
 
 import { PENETAPAN_LIST_PATH } from "../model";
@@ -342,5 +343,37 @@ describe("pasangan karyawan dan komponen tidak bisa dipindahkan", () => {
       await screen.findByText("Persentase tidak boleh lebih dari 100"),
     ).toBeTruthy();
     expect(sent.length).toBe(0);
+  });
+});
+
+describe("masa berlaku penetapan boleh di masa depan", () => {
+  test.each([
+    ["Berlaku dari", "effectiveFrom"],
+    ["Berlaku sampai (opsional)", "effectiveTo"],
+  ])("%s di masa depan diterima dan terkirim", async (label, key) => {
+    onMockApi(WITH_DEFAULT);
+    onRender(["VIEW", "UPDATE"], "kkp-1");
+
+    await waitFor(() =>
+      expect(
+        (screen.getByLabelText("Karyawan") as HTMLInputElement).readOnly,
+      ).toBe(true),
+    );
+
+    const future = addDays(todayJakarta(), 90);
+    const box = screen.getByLabelText(label) as HTMLInputElement;
+
+    fireEvent.change(box, { target: { value: toInputText(future) } });
+    fireEvent.blur(box);
+
+    expect(
+      screen.queryByText(/tidak boleh di masa depan/)?.textContent,
+    ).toBeUndefined();
+
+    fireEvent.click(screen.getByRole("button", { name: "Simpan" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Ya" }));
+
+    await waitFor(() => expect(sent.length).toBe(1));
+    expect((sent[0].body as Record<string, unknown>)[key]).toBe(future);
   });
 });

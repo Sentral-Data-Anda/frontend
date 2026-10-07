@@ -4,7 +4,7 @@ import { useWatch } from "react-hook-form";
 
 import { DateField, SelectField, Textarea } from "@/components/common/control";
 import { ControlField, FormSection, FormWide } from "@/components/common/form";
-import { todayJakarta } from "@/lib/date";
+import { endOfYearIso, todayJakarta } from "@/lib/date";
 
 import { AssetLink } from "../../asset-link";
 import { AssetPicker } from "../../asset-picker";
@@ -28,6 +28,7 @@ export const MaintenanceSection = (props: PropTypes) => {
     name: ["status", "scheduledDate"],
   });
   const today = todayJakarta();
+  const planMax = endOfYearIso(1);
 
   const onPickAsset = (value: string) =>
     form.setValue("assetId", value, { shouldDirty: true });
@@ -91,6 +92,7 @@ export const MaintenanceSection = (props: PropTypes) => {
             disabled={isDisabled}
             variant="dekat"
             label="Tanggal rencana"
+            max={planMax}
           />
         )}
       </ControlField>

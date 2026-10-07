@@ -60,10 +60,8 @@ export const AlbumSection = (props: PropTypes) => {
               onValueChange={field.onChange}
               options={PUBLISH_OPTIONS}
               disabled={isDisabled}
+              hint="Hanya album terbit yang fotonya bisa tampil di website."
             />
-            <p className="text-muted-foreground mt-1.5 text-caption">
-              Hanya album terbit yang fotonya bisa tampil di website.
-            </p>
           </div>
         )}
       />

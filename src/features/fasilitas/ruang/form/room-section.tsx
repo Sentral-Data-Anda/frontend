@@ -59,11 +59,8 @@ export const RoomSection = (props: PropTypes) => {
               onValueChange={field.onChange}
               options={STATUS_OPTIONS}
               disabled={isDisabled}
+              hint="Ruang nonaktif tidak bisa dipinjam, tetapi tetap tercatat di riwayat."
             />
-            <p className="text-muted-foreground mt-1.5 text-caption">
-              Ruang nonaktif tidak bisa dipinjam, tetapi tetap tercatat di
-              riwayat.
-            </p>
           </div>
         )}
       />

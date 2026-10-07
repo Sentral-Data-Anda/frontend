@@ -47,8 +47,8 @@ const choiceField = (
           onValueChange={field.onChange}
           options={options}
           disabled={isDisabled}
+          hint={note}
         />
-        <p className="text-muted-foreground mt-1.5 text-caption">{note}</p>
       </div>
     )}
   />

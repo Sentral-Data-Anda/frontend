@@ -137,10 +137,8 @@ export const SettingsSection = (props: PropTypes) => {
           onValueChange={onPickPattern}
           options={PATTERN_OPTIONS}
           disabled={isOff}
+          hint={patternHint}
         />
-        <p className="text-muted-foreground mt-1.5 text-caption">
-          {patternHint}
-        </p>
       </div>
 
       <ControlField

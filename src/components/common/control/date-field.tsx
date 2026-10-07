@@ -59,6 +59,20 @@ export const DateField = (props: PropTypes) => {
 
   const today = todayJakarta();
 
+  // TANPA `max`, field ini MELARANG MASA DEPAN. Bawaannya benar untuk mayoritas
+  // layar SADA — mereka mencatat hal yang sudah terjadi — tapi kegagalannya
+  // SENYAP: layarnya tidak rusak, ia hanya menolak semua yang diketik orang.
+  // Cuti kena begitu (setiap tanggal mulai besok ditolak) dan nol test merah,
+  // karena seluruh fixture-nya bertanggal lampau.
+  //
+  // Jadi: kalau fieldmu boleh di masa depan, KIRIM `max` eksplisit. Konvensi
+  // rumah, pakai `endOfYearIso(n)`: Hari Libur, periode jabatan, masa berlaku
+  // kontrak & komponen payroll, garansi barang 5 · Cuti, Pengumuman, Event,
+  // program anggaran 2 · Jadwal Pelayan, Ibadah, Peminjaman Ruang, rencana
+  // perawatan, permintaan pembelian 1.
+  //
+  // Dan test-nya harus benar-benar MENGETIK tanggal masa depan — tanggal
+  // lampau lolos di kedua arah dan tidak membuktikan apa pun.
   const upperBound = max ?? today;
 
   const [draft, setDraft] = useState<string | null>(null);
@@ -100,11 +114,19 @@ export const DateField = (props: PropTypes) => {
 
   const onLeave = () => {
     const next = checkInput(text);
-    const parsed = parseDateInput(text);
 
     setError(next);
     if (!next) setDraft(null);
-    onValueChange(next ? "" : (parsed.iso ?? ""));
+
+    // Hanya tulis balik kalau orangnya MENGETIK sesuatu. Blur tanpa ketikan
+    // (Tab lewat) dulu ikut menulis — dan menulis "" begitu nilainya jatuh di
+    // luar batas, misalnya saat `min` bergeser setelah nilainya tersimpan.
+    // Akibatnya sekadar melewati field menghapus tanggal yang sudah benar,
+    // tanpa jejak. Galatnya tetap tampil; yang dicabut hanya penghapusannya.
+    if (draft !== null) {
+      onValueChange(next ? "" : (parseDateInput(text).iso ?? ""));
+    }
+
     onBlur?.();
   };
 
