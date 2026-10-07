@@ -5,6 +5,7 @@ import Link from "next/link";
 import {
   DescriptionItem,
   DescriptionList,
+  DETAIL_LINK as LINK,
   OptionalText,
   Panel,
 } from "@/components/common/display";
@@ -17,9 +18,6 @@ import { JOURNAL_STATUS_LABEL, RECEIVE_METHOD_LABEL } from "@/types/keuangan";
 import { ANONYMOUS, RECORDER, journalHref, periodLabel } from "../model";
 import type { Persembahan } from "../types";
 import { PersembahanStatusBadge } from "../ui";
-
-const LINK =
-  "text-primary cursor-pointer underline decoration-primary/30 underline-offset-4 transition-colors hover:decoration-primary focus-visible:decoration-primary";
 
 interface PropTypes {
   row: Persembahan;

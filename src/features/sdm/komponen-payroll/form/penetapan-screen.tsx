@@ -55,7 +55,7 @@ export const PenetapanFormScreen = (props: PropTypes) => {
   const router = useRouter();
   const toast = useToast();
   const isEdit = Boolean(publicId);
-  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+  const { isCanView, isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
     MENU.KOMPONEN_PAYROLL,
   );
   const listReturn = useListReturn(PENETAPAN_LIST_PATH);
@@ -157,6 +157,7 @@ export const PenetapanFormScreen = (props: PropTypes) => {
             : "Tidak bisa menambah penetapan"
         }
         description="Peran Anda hanya bisa melihat penetapan komponen."
+        isCanView={isCanView}
         backHref={PENETAPAN_LIST_PATH}
         backLabel={BACK_LABEL}
       />

@@ -43,6 +43,7 @@ export const RolePelayanList = () => {
       />
 
       <DataList
+        loadingShape="trailing"
         items={rolePelayanList.items}
         getKey={(rolePelayan) => String(rolePelayan.id)}
         label="Daftar role pelayan"

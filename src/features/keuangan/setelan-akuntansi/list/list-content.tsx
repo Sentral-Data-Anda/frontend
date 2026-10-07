@@ -30,6 +30,7 @@ export const SettingListContent = () => {
       <ReadinessAlert settings={settingList.settings} />
 
       <DataList
+        loadingShape="trailing"
         items={settingList.isLoading ? undefined : settingList.settings}
         getKey={(setting) => setting.key}
         label="Daftar setelan akuntansi"

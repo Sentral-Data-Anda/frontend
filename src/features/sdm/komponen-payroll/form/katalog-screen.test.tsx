@@ -169,6 +169,7 @@ describe("komponen yang dikelola sistem", () => {
     expect(screen.queryByRole("button", { name: "Simpan" })).toBeNull();
     expect(screen.queryByRole("button", { name: "Hapus" })).toBeNull();
     expect(screen.queryByLabelText("Nama")).toBeNull();
+    expect(screen.queryByText(/Hubungi administrator/)).toBeNull();
   });
 });
 

@@ -52,6 +52,7 @@ export const TipeIbadahList = () => {
       />
 
       <DataList
+        loadingShape="trailing"
         items={tipeIbadahList.items}
         getKey={(tipeIbadah) => tipeIbadah.code}
         label="Daftar tipe ibadah"

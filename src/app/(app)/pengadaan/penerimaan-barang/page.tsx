@@ -15,7 +15,9 @@ export const metadata: Metadata = {
 export default function Page() {
   return (
     <PageContainer size="full">
-      <Suspense fallback={<LoadingDataList table={receiptTable()} />}>
+      <Suspense
+        fallback={<LoadingDataList shape="plain" table={receiptTable()} />}
+      >
         <ReceiptListScreen />
       </Suspense>
     </PageContainer>

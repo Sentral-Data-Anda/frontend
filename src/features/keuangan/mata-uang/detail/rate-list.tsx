@@ -91,6 +91,7 @@ export const RateList = (props: PropTypes) => {
       />
 
       <DataList
+        loadingShape="trailing"
         items={rateList.items}
         getKey={(rate) => String(rate.id)}
         label={`Daftar kurs ${currencyCode}`}

@@ -86,6 +86,7 @@ export const PermintaanList = () => {
       />
 
       <DataList
+        loadingShape="trailing"
         items={permintaanList.items}
         getKey={(item) => item.publicId}
         label="Daftar permintaan persetujuan"

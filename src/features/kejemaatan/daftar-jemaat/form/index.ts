@@ -5,7 +5,6 @@ export * from "./family-section";
 export * from "./form-options";
 export * from "./identity-section";
 export * from "./membership-section";
-export * from "./no-form-access";
 export * from "./riwayat-fields";
 export * from "./screen";
 export * from "./social-section";

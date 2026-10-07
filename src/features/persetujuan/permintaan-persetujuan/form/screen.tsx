@@ -15,6 +15,7 @@ import {
   FormNotFound,
   LoadingForm,
   useFormConfirm,
+  NoFormAccess,
 } from "@/components/common/form";
 import { PageHeader } from "@/components/layout";
 import { MENU, detailHref } from "@/config/menu";
@@ -31,7 +32,6 @@ import {
   type RejectFormValues,
 } from "../model";
 
-import { NoFormAccess } from "./no-form-access";
 import { ReasonSection } from "./reason-section";
 import { RequestSection } from "./request-section";
 
@@ -44,7 +44,7 @@ export const PermintaanRejectScreen = (props: PropTypes) => {
 
   const router = useRouter();
   const toast = useToast();
-  const { isCanUpdate } = useMenuAccess(MENU.PERMINTAAN_PERSETUJUAN);
+  const { isCanView, isCanUpdate } = useMenuAccess(MENU.PERMINTAAN_PERSETUJUAN);
   const listReturn = useListReturn(PERMINTAAN_LIST_PATH);
   const detail = usePermintaanDetail(id, isCanUpdate);
   const reject = useReject(id);
@@ -115,7 +115,20 @@ export const PermintaanRejectScreen = (props: PropTypes) => {
   }, [isSubmitting, submitCount, rejectedField]);
 
   if (!isCanUpdate || request?.canSign === false) {
-    return <NoFormAccess backHref={backHref} isCanUpdate={isCanUpdate} />;
+    return (
+      <NoFormAccess
+        title="Tidak bisa menolak permintaan ini"
+        description={
+          isCanUpdate
+            ? "Permintaan ini tidak sedang menunggu tanda tangan Anda."
+            : "Peran Anda hanya bisa melihat permintaan persetujuan."
+        }
+        backHref={backHref}
+        backLabel="Kembali ke permintaan"
+        isCanView={isCanView}
+        isStateLocked={isCanUpdate}
+      />
+    );
   }
 
   if (detail.error instanceof FetchError && detail.error.status === 404) {

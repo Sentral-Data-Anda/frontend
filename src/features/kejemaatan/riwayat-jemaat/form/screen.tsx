@@ -15,6 +15,7 @@ import {
   FormNotFound,
   LoadingForm,
   useFormConfirm,
+  NoFormAccess,
 } from "@/components/common/form";
 import { PageHeader } from "@/components/layout";
 import { MENU } from "@/config/menu";
@@ -36,7 +37,6 @@ import {
 } from "../model";
 
 import { JemaatSection } from "./jemaat-section";
-import { NoFormAccess } from "./no-form-access";
 import { RiwayatSection } from "./riwayat-section";
 
 interface PropTypes {
@@ -49,7 +49,7 @@ export const RiwayatFormScreen = (props: PropTypes) => {
   const router = useRouter();
   const toast = useToast();
   const isEdit = Boolean(id);
-  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+  const { isCanView, isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
     MENU.RIWAYAT_JEMAAT,
   );
   const listReturn = useListReturn(RIWAYAT_LIST_PATH);
@@ -137,7 +137,17 @@ export const RiwayatFormScreen = (props: PropTypes) => {
   }, [isSubmitting, submitCount, rejectedField]);
 
   if (!(isEdit ? isCanUpdate : isCanCreate)) {
-    return <NoFormAccess isEdit={isEdit} />;
+    return (
+      <NoFormAccess
+        title={
+          isEdit ? "Tidak bisa mengubah riwayat" : "Tidak bisa mencatat riwayat"
+        }
+        description={`Peran Anda hanya bisa melihat riwayat jemaat. ${isEdit ? "Perubahan riwayat" : "Pencatatan riwayat baru"} biasanya dikerjakan sekretariat.`}
+        backHref={RIWAYAT_LIST_PATH}
+        backLabel="Kembali ke Riwayat Jemaat"
+        isCanView={isCanView}
+      />
+    );
   }
 
   if (detail.error instanceof FetchError && detail.error.status === 404) {

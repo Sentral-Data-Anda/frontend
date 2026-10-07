@@ -15,6 +15,7 @@ import {
   FormNotFound,
   LoadingForm,
   useFormConfirm,
+  NoFormAccess,
 } from "@/components/common/form";
 import { PageHeader } from "@/components/layout";
 import { MENU } from "@/config/menu";
@@ -42,7 +43,6 @@ import { DuplicateWarning } from "./duplicate-warning";
 import { FamilySection } from "./family-section";
 import { IdentitySection } from "./identity-section";
 import { MembershipSection } from "./membership-section";
-import { NoFormAccess } from "./no-form-access";
 import { RiwayatSection } from "./riwayat-fields";
 import { SocialSection } from "./social-section";
 
@@ -56,7 +56,9 @@ export const JemaatFormScreen = (props: PropTypes) => {
   const router = useRouter();
   const toast = useToast();
   const isEdit = Boolean(code);
-  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.DAFTAR_JEMAAT);
+  const { isCanView, isCanCreate, isCanUpdate } = useMenuAccess(
+    MENU.DAFTAR_JEMAAT,
+  );
   const listReturn = useListReturn(JEMAAT_LIST_PATH);
   const [rejectedField, setRejectedField] = useState<string | null>(null);
   const saveJemaat = useSaveJemaat(code);
@@ -133,7 +135,17 @@ export const JemaatFormScreen = (props: PropTypes) => {
   }, [isSubmitting, submitCount, rejectedField]);
 
   if (!(isEdit ? isCanUpdate : isCanCreate)) {
-    return <NoFormAccess isEdit={isEdit} />;
+    return (
+      <NoFormAccess
+        title={
+          isEdit ? "Tidak bisa mengubah jemaat" : "Tidak bisa menambah jemaat"
+        }
+        description={`Peran Anda hanya bisa melihat data jemaat. ${isEdit ? "Perubahan data" : "Penambahan jemaat baru"} biasanya dikerjakan sekretariat.`}
+        backHref={JEMAAT_LIST_PATH}
+        backLabel="Kembali ke Daftar Jemaat"
+        isCanView={isCanView}
+      />
+    );
   }
 
   if (detail.error instanceof FetchError && detail.error.status === 404) {

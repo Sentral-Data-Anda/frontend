@@ -35,6 +35,7 @@ export const ActivityLogListScreen = () => {
       />
 
       <DataList
+        loadingShape="trailing"
         items={logList.items}
         getKey={(log) => String(log.id)}
         label="Log aktivitas"

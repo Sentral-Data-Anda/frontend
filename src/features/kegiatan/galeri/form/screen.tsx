@@ -51,7 +51,9 @@ export const GaleriFormScreen = (props: PropTypes) => {
   const router = useRouter();
   const toast = useToast();
   const isEdit = Boolean(code);
-  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(MENU.GALERI);
+  const { isCanView, isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+    MENU.GALERI,
+  );
   const listReturn = useListReturn(GALERI_LIST_PATH);
   const [rejectedField, setRejectedField] = useState<string | null>(null);
   const saveGaleri = useSaveGaleri(code);
@@ -157,6 +159,7 @@ export const GaleriFormScreen = (props: PropTypes) => {
           isEdit ? "Tidak bisa mengubah album" : "Tidak bisa menambah album"
         }
         description="Peran Anda hanya bisa melihat galeri."
+        isCanView={isCanView}
         backHref={GALERI_LIST_PATH}
         backLabel="Kembali ke Galeri"
       />

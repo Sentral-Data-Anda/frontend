@@ -125,6 +125,7 @@ export const ReportListContent = () => {
             />
           ) : (
             <DataList
+              loadingShape="trailing"
               items={items}
               getKey={(row) => row.publicId}
               label="Daftar laporan pemakaian budget"

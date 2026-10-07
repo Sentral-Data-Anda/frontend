@@ -9,6 +9,7 @@ import {
   Input,
   type SelectOption,
 } from "@/components/common/control";
+import { DETAIL_LINK as LINK } from "@/components/common/display";
 import { ControlField, FormSection } from "@/components/common/form";
 import { useDdlOptions } from "@/hooks/use-ddl-options";
 
@@ -19,9 +20,6 @@ import {
   YES_NO_OPTIONS,
   type OfferingTypeForm,
 } from "./form-options";
-
-const LINK =
-  "text-primary cursor-pointer underline decoration-primary/30 underline-offset-4 transition-colors hover:decoration-primary focus-visible:decoration-primary";
 
 const LATER = "Perubahan hanya berlaku untuk persembahan berikutnya.";
 

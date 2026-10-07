@@ -15,6 +15,7 @@ import {
   FormNotFound,
   LoadingForm,
   useFormConfirm,
+  NoFormAccess,
 } from "@/components/common/form";
 import { PageHeader } from "@/components/layout";
 import { MENU } from "@/config/menu";
@@ -36,7 +37,6 @@ import {
 
 import { AlreadyEnded } from "./already-ended";
 import { EndSection } from "./end-section";
-import { NoFormAccess } from "./no-form-access";
 
 interface PropTypes {
   id: string;
@@ -47,7 +47,7 @@ export const MarriageEndScreen = (props: PropTypes) => {
 
   const router = useRouter();
   const toast = useToast();
-  const { isCanUpdate } = useMenuAccess(MENU.PERNIKAHAN);
+  const { isCanView, isCanUpdate } = useMenuAccess(MENU.PERNIKAHAN);
   const listReturn = useListReturn(MARRIAGE_LIST_PATH);
   const [rejectedField, setRejectedField] = useState<string | null>(null);
   const endMarriage = useEndMarriage(id);
@@ -113,7 +113,18 @@ export const MarriageEndScreen = (props: PropTypes) => {
     else revealField(rejectedField);
   }, [isSubmitting, submitCount, rejectedField]);
 
-  if (!isCanUpdate) return <NoFormAccess isEdit />;
+  if (!isCanUpdate)
+    return (
+      <NoFormAccess
+        title="Tidak bisa mengubah pernikahan"
+        description={
+          "Peran Anda hanya bisa melihat data pernikahan. Perubahan data biasanya dikerjakan sekretariat."
+        }
+        backHref={MARRIAGE_LIST_PATH}
+        backLabel="Kembali ke Pernikahan"
+        isCanView={isCanView}
+      />
+    );
 
   if (detail.error instanceof FetchError && detail.error.status === 404) {
     return (

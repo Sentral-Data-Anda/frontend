@@ -1,6 +1,7 @@
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 
+import { ApprovalStatusBadge } from "@/components/common/display";
 import {
   DataListRow,
   TABLE_ROW_LINK,
@@ -21,7 +22,6 @@ import {
   waitingAge,
 } from "../model";
 import type { ApprovalListItem, ApprovalView } from "../types";
-import { ApprovalStatusBadge } from "../ui/approval-status-badge";
 
 const detailHrefOf = (item: ApprovalListItem) =>
   detailHref(MENU.PERSETUJUAN, MENU.PERMINTAAN_PERSETUJUAN, item.publicId);

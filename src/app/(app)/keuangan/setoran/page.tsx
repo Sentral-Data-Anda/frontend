@@ -15,7 +15,9 @@ export const metadata: Metadata = {
 export default function Page() {
   return (
     <PageContainer size="full">
-      <Suspense fallback={<LoadingDataList table={transferTable()} />}>
+      <Suspense
+        fallback={<LoadingDataList shape="trailing" table={transferTable()} />}
+      >
         <TransferListScreen />
       </Suspense>
     </PageContainer>

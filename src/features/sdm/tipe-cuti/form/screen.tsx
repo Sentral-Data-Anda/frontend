@@ -52,7 +52,7 @@ export const TipeCutiFormScreen = (props: PropTypes) => {
   const router = useRouter();
   const toast = useToast();
   const isEdit = Boolean(code);
-  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+  const { isCanView, isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
     MENU.TIPE_CUTI,
   );
   const listReturn = useListReturn(TIPE_CUTI_LIST_PATH);
@@ -153,6 +153,7 @@ export const TipeCutiFormScreen = (props: PropTypes) => {
             : "Tidak bisa menambah tipe cuti"
         }
         description="Peran Anda hanya bisa melihat data tipe cuti."
+        isCanView={isCanView}
         backHref={TIPE_CUTI_LIST_PATH}
         backLabel="Kembali ke Tipe Cuti"
       />

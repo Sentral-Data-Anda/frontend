@@ -91,7 +91,9 @@ export const OrderFormScreen = (props: PropTypes) => {
   const queryClient = useQueryClient();
   const toast = useToast();
   const isEdit = Boolean(code);
-  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.PESANAN_PEMBELIAN);
+  const { isCanView, isCanCreate, isCanUpdate } = useMenuAccess(
+    MENU.PESANAN_PEMBELIAN,
+  );
   const requestAccess = useMenuAccess(MENU.PERMINTAAN_PEMBELIAN);
   const currencyAccess = useMenuAccess(MENU.MATA_UANG);
   const isAllowed = isEdit ? isCanUpdate : isCanCreate;
@@ -294,6 +296,7 @@ export const OrderFormScreen = (props: PropTypes) => {
             : "Tidak bisa menambah pesanan pembelian"
         }
         description="Peran Anda hanya bisa melihat pesanan pembelian."
+        isCanView={isCanView}
         backHref={leaveHref}
         backLabel="Kembali ke Pesanan Pembelian"
       />

@@ -15,6 +15,7 @@ import {
   FormNotFound,
   LoadingForm,
   useFormConfirm,
+  NoFormAccess,
 } from "@/components/common/form";
 import { PageHeader } from "@/components/layout";
 import { MENU } from "@/config/menu";
@@ -36,7 +37,6 @@ import {
   type SetelanFormValues,
 } from "../model";
 
-import { NoFormAccess } from "./no-form-access";
 import { ScopeSection } from "./scope-section";
 import { TiersSection } from "./tiers-section";
 import { WorkflowSection } from "./workflow-section";
@@ -152,7 +152,15 @@ export const SetelanFormScreen = (props: PropTypes) => {
   }, [isBusy, submitCount, rejectedField, deactivateSetelan.isError]);
 
   if (!(isEdit ? isCanView : isCanCreate)) {
-    return <NoFormAccess isEdit={isEdit} isCanView={isCanView} />;
+    return (
+      <NoFormAccess
+        title={isEdit ? "Tidak bisa membuka alur" : "Tidak bisa menambah alur"}
+        description={"Peran Anda hanya bisa melihat alur persetujuan."}
+        backHref={SETELAN_LIST_PATH}
+        backLabel="Kembali ke Setelan Alur Persetujuan"
+        isCanView={isCanView}
+      />
+    );
   }
 
   if (detail.error instanceof FetchError && detail.error.status === 404) {

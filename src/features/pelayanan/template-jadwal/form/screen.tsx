@@ -54,7 +54,7 @@ export const TemplateJadwalFormScreen = (props: PropTypes) => {
   const router = useRouter();
   const toast = useToast();
   const isEdit = Boolean(code);
-  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+  const { isCanView, isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
     MENU.TEMPLATE_JADWAL,
   );
   const listReturn = useListReturn(TEMPLATE_JADWAL_LIST_PATH);
@@ -161,6 +161,7 @@ export const TemplateJadwalFormScreen = (props: PropTypes) => {
             : "Tidak bisa menambah template jadwal"
         }
         description="Peran Anda hanya bisa melihat data template jadwal."
+        isCanView={isCanView}
         backHref={TEMPLATE_JADWAL_LIST_PATH}
         backLabel="Kembali ke Template Jadwal"
       />

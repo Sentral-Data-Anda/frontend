@@ -60,7 +60,9 @@ export const RequestFormScreen = (props: PropTypes) => {
   const searchParams = useSearchParams();
   const isEdit = Boolean(code);
   const copyCode = isEdit ? "" : (searchParams.get("salin") ?? "");
-  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.PERMINTAAN_PEMBELIAN);
+  const { isCanView, isCanCreate, isCanUpdate } = useMenuAccess(
+    MENU.PERMINTAAN_PEMBELIAN,
+  );
   const isAllowed = isEdit ? isCanUpdate : isCanCreate;
   const listReturn = useListReturn(REQUEST_LIST_PATH);
   const [rejectedField, setRejectedField] = useState<string | null>(null);
@@ -168,6 +170,7 @@ export const RequestFormScreen = (props: PropTypes) => {
             : "Tidak bisa menambah permintaan pembelian"
         }
         description="Peran Anda hanya bisa melihat permintaan pembelian."
+        isCanView={isCanView}
         backHref={backHref}
         backLabel="Kembali ke Permintaan Pembelian"
       />

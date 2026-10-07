@@ -75,6 +75,7 @@ export const PengumumanListContent = () => {
       />
 
       <DataList
+        loadingShape="trailing"
         items={pengumumanList.items}
         getKey={(announcement) => announcement.code}
         label="Daftar pengumuman"

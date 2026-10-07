@@ -197,6 +197,7 @@ describe("gerbang", () => {
     onRenderForm(["VIEW", "UPDATE"], CODE);
 
     expect(await screen.findByText("Barang tidak bisa diubah")).toBeTruthy();
+    expect(screen.queryByText(/Hubungi administrator/)).toBeNull();
     expect(
       screen
         .getByRole("link", { name: "Kembali ke halaman barang" })

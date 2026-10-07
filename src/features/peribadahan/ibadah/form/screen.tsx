@@ -66,7 +66,9 @@ export const IbadahFormScreen = (props: PropTypes) => {
   const isEdit = Boolean(code);
   const copyCode = isEdit ? "" : (searchParams.get("salin") ?? "");
   const isCopy = Boolean(copyCode);
-  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(MENU.IBADAH);
+  const { isCanView, isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+    MENU.IBADAH,
+  );
   const listReturn = useListReturn(IBADAH_LIST_PATH);
   const [rejectedField, setRejectedField] = useState<string | null>(null);
   const [pickLeaveHref, setPickLeaveHref] = useState<string | null>(null);
@@ -259,6 +261,7 @@ export const IbadahFormScreen = (props: PropTypes) => {
           isEdit ? "Tidak bisa mengubah ibadah" : "Tidak bisa menambah ibadah"
         }
         description="Peran Anda hanya bisa melihat data ibadah."
+        isCanView={isCanView}
         backHref={IBADAH_LIST_PATH}
         backLabel="Kembali ke Ibadah"
       />

@@ -55,7 +55,7 @@ export const PengumumanFormScreen = (props: PropTypes) => {
   const router = useRouter();
   const toast = useToast();
   const isEdit = Boolean(code);
-  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+  const { isCanView, isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
     MENU.PENGUMUMAN,
   );
   const listReturn = useListReturn(PENGUMUMAN_LIST_PATH);
@@ -169,6 +169,7 @@ export const PengumumanFormScreen = (props: PropTypes) => {
             : "Tidak bisa menambah pengumuman"
         }
         description="Peran Anda hanya bisa melihat pengumuman."
+        isCanView={isCanView}
         backHref={PENGUMUMAN_LIST_PATH}
         backLabel="Kembali ke Pengumuman"
       />

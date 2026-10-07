@@ -53,7 +53,7 @@ export const RolePelayanFormScreen = (props: PropTypes) => {
   const router = useRouter();
   const toast = useToast();
   const isEdit = Boolean(id);
-  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+  const { isCanView, isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
     MENU.ROLE_PELAYAN,
   );
   const listReturn = useListReturn(ROLE_PELAYAN_LIST_PATH);
@@ -158,6 +158,7 @@ export const RolePelayanFormScreen = (props: PropTypes) => {
             : "Tidak bisa menambah role pelayan"
         }
         description="Peran Anda hanya bisa melihat data role pelayan."
+        isCanView={isCanView}
         backHref={ROLE_PELAYAN_LIST_PATH}
         backLabel="Kembali ke Role Pelayan"
       />

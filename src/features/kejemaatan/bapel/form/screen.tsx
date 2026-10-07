@@ -15,6 +15,7 @@ import {
   FormNotFound,
   LoadingForm,
   useFormConfirm,
+  NoFormAccess,
 } from "@/components/common/form";
 import { PageHeader } from "@/components/layout";
 import { MENU } from "@/config/menu";
@@ -36,7 +37,6 @@ import {
 } from "../model";
 
 import { BapelSection } from "./bapel-section";
-import { NoFormAccess } from "./no-form-access";
 import { RuleSection } from "./rule-fields";
 
 interface PropTypes {
@@ -49,7 +49,9 @@ export const BapelFormScreen = (props: PropTypes) => {
   const router = useRouter();
   const toast = useToast();
   const isEdit = Boolean(code);
-  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(MENU.BAPEL);
+  const { isCanView, isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+    MENU.BAPEL,
+  );
   const listReturn = useListReturn(BAPEL_LIST_PATH);
   const [rejectedField, setRejectedField] = useState<string | null>(null);
   const saveBapel = useSaveBapel(code);
@@ -140,7 +142,19 @@ export const BapelFormScreen = (props: PropTypes) => {
   }, [deleteBapel.isError]);
 
   if (!(isEdit ? isCanUpdate : isCanCreate)) {
-    return <NoFormAccess isEdit={isEdit} />;
+    return (
+      <NoFormAccess
+        title={
+          isEdit
+            ? "Tidak bisa mengubah badan pelayanan"
+            : "Tidak bisa menambah badan pelayanan"
+        }
+        description={"Peran Anda hanya bisa melihat data badan pelayanan."}
+        backHref={BAPEL_LIST_PATH}
+        backLabel="Kembali ke Badan Pelayanan"
+        isCanView={isCanView}
+      />
+    );
   }
 
   if (detail.error instanceof FetchError && detail.error.status === 404) {

@@ -16,7 +16,12 @@ export default function Page() {
   return (
     <PageContainer size="full">
       <Suspense
-        fallback={<LoadingDataList table={templateJadwalTable(false)} />}
+        fallback={
+          <LoadingDataList
+            shape="trailing"
+            table={templateJadwalTable(false)}
+          />
+        }
       >
         <TemplateJadwalListScreen />
       </Suspense>

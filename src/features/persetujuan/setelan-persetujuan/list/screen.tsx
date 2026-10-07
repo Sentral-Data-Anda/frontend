@@ -64,6 +64,7 @@ export const SetelanListScreen = () => {
           />
 
           <DataList
+            loadingShape="trailing"
             items={setelanList.items}
             getKey={(item) => item.publicId}
             label="Daftar alur persetujuan"

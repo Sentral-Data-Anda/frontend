@@ -74,7 +74,7 @@ export const JadwalPelayanFormScreen = (props: PropTypes) => {
   const isEdit = Boolean(code);
   const copyCode = isEdit ? "" : (searchParams.get("salin") ?? "");
   const isCopy = Boolean(copyCode);
-  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+  const { isCanView, isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
     MENU.JADWAL_PELAYAN,
   );
   const listReturn = useListReturn(JADWAL_PELAYAN_LIST_PATH);
@@ -270,6 +270,7 @@ export const JadwalPelayanFormScreen = (props: PropTypes) => {
             : "Tidak bisa menambah jadwal pelayan"
         }
         description="Peran Anda hanya bisa melihat jadwal pelayan."
+        isCanView={isCanView}
         backHref={JADWAL_PELAYAN_LIST_PATH}
         backLabel="Kembali ke Jadwal Pelayan"
       />

@@ -64,6 +64,7 @@ export const PenyusutanListContent = () => {
       />
 
       <DataList
+        loadingShape="trailing"
         items={runList.items}
         getKey={(run) => run.code}
         label="Daftar penyusutan"

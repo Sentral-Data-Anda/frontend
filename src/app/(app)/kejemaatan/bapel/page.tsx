@@ -12,7 +12,11 @@ export const metadata: Metadata = {
 export default function Page() {
   return (
     <PageContainer size="full">
-      <Suspense fallback={<LoadingDataList table={bapelTable(false)} />}>
+      <Suspense
+        fallback={
+          <LoadingDataList shape="trailing" table={bapelTable(false)} />
+        }
+      >
         <BapelListScreen />
       </Suspense>
     </PageContainer>

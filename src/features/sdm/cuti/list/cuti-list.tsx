@@ -77,6 +77,7 @@ export const CutiList = () => {
       />
 
       <DataList
+        loadingShape="trailing"
         items={cutiList.items}
         getKey={(row) => row.code}
         label="Daftar pengajuan cuti"

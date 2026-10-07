@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 export default function Page() {
   return (
     <PageContainer size="full">
-      <Suspense fallback={<LoadingDataList />}>
+      <Suspense fallback={<LoadingDataList shape="trailing" />}>
         <LaporanKeuanganScreen />
       </Suspense>
     </PageContainer>

@@ -116,7 +116,7 @@ export const EXPENSE_STATE_LABEL: Record<ExpenseState, string> = {
 
 export const EXPENSE_STATE_VARIANT: Record<ExpenseState, BadgeVariant> = {
   DRAFT: "neutral",
-  PENDING_APPROVAL: "draft",
+  PENDING_APPROVAL: "wait",
   APPROVED: "wait",
   PAID: "success",
   CANCELLED: "neutral",

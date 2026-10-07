@@ -110,6 +110,7 @@ export const PayrollListContent = () => {
           />
 
           <DataList
+            loadingShape="trailing"
             items={runs.items}
             getKey={(run) => run.code}
             label="Daftar periode penggajian"

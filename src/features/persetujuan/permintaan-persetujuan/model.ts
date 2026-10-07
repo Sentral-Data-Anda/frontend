@@ -8,7 +8,6 @@ import { daysSince } from "@/lib/date";
 import {
   APPROVAL_DOCUMENT_LABEL,
   APPROVAL_DOCUMENT_TYPES,
-  type ApprovalStatus,
 } from "@/types/persetujuan";
 
 import type {
@@ -69,13 +68,6 @@ export const DOCUMENT_FILTER_OPTIONS = [
     label: APPROVAL_DOCUMENT_LABEL[type],
   })),
 ];
-
-export const STATUS_VARIANT: Record<ApprovalStatus, BadgeVariant> = {
-  PENDING: "wait",
-  APPROVED: "success",
-  REJECTED: "due",
-  CANCELLED: "neutral",
-};
 
 export const STEP_STATE_LABEL: Record<StepState, string> = {
   approved: "Disetujui",

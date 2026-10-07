@@ -86,6 +86,7 @@ export const RequestListContent = () => {
       />
 
       <DataList
+        loadingShape="trailing"
         items={requestList.items}
         getKey={(row) => row.code}
         label="Daftar permintaan pembelian"

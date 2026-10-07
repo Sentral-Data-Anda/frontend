@@ -332,6 +332,7 @@ describe("form program", () => {
       await screen.findByText("Usulan ini tidak bisa diubah"),
     ).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Simpan" })).toBeNull();
+    expect(screen.queryByText(/Hubungi administrator/)).toBeNull();
   });
 
   test("ubah diblokir saat usulan sudah disetujui", async () => {

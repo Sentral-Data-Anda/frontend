@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useWatch } from "react-hook-form";
 
 import { AmountInput } from "@/components/common/control";
+import { DETAIL_LINK as LINK } from "@/components/common/display";
 import { ControlField, FormAlert, FormSection } from "@/components/common/form";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
@@ -16,9 +17,6 @@ import {
   countGapText,
 } from "../model";
 import type { PersembahanForm } from "../use-persembahan-form";
-
-const LINK =
-  "text-primary cursor-pointer underline decoration-primary/30 underline-offset-4 transition-colors hover:decoration-primary focus-visible:decoration-primary";
 
 interface PropTypes {
   form: PersembahanForm;

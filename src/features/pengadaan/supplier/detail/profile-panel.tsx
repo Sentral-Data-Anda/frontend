@@ -1,6 +1,7 @@
 import {
   DescriptionItem,
   DescriptionList,
+  DETAIL_LINK as LINK,
   OptionalText,
   Panel,
 } from "@/components/common/display";
@@ -9,9 +10,6 @@ import { cn } from "@/lib/utils";
 import { bankAccountOf } from "../model";
 import type { Supplier } from "../types";
 import { SupplierStatus } from "../ui";
-
-const LINK =
-  "text-primary cursor-pointer underline decoration-primary/30 underline-offset-4 transition-colors hover:decoration-primary";
 
 interface PropTypes {
   supplier: Supplier;

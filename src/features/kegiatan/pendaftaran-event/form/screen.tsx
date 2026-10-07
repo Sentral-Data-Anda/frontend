@@ -53,7 +53,7 @@ export const PendaftaranFormScreen = () => {
   const toast = useToast();
   const searchParams = useSearchParams();
   const presetEvent = searchParams.get("event") ?? "";
-  const { isCanCreate } = useMenuAccess(MENU.PENDAFTARAN_EVENT);
+  const { isCanView, isCanCreate } = useMenuAccess(MENU.PENDAFTARAN_EVENT);
   const listReturn = useListReturn(PENDAFTARAN_LIST_PATH);
   const [rejectedField, setRejectedField] = useState<string | null>(null);
   const events = useEventOptions(OPEN_EVENT_DDL_PATH);
@@ -162,6 +162,7 @@ export const PendaftaranFormScreen = () => {
       <NoFormAccess
         title="Tidak bisa mendaftarkan peserta"
         description="Peran Anda hanya bisa melihat data pendaftaran."
+        isCanView={isCanView}
         backHref={PENDAFTARAN_LIST_PATH}
         backLabel="Kembali ke Pendaftaran Event"
       />

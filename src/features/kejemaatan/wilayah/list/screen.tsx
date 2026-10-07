@@ -51,6 +51,7 @@ export const WilayahListScreen = () => {
       />
 
       <DataList
+        loadingShape="trailing"
         items={wilayahList.items}
         getKey={(wilayah) => wilayah.code}
         label="Daftar wilayah"

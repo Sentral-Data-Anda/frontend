@@ -101,6 +101,7 @@ export const PeriodListContent = () => {
         />
       ) : (
         <DataList
+          loadingShape="trailing"
           items={items}
           getKey={(period) => period.id}
           label="Daftar periode fiskal"

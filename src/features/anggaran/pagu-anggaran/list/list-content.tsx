@@ -157,6 +157,7 @@ export const AllocationListContent = () => {
         />
       ) : (
         <DataList
+          loadingShape="trailing"
           items={items}
           getKey={(row) => row.publicId}
           label="Daftar pagu anggaran"

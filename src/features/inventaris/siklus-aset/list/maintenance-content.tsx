@@ -49,6 +49,7 @@ export const MaintenanceContent = () => {
       />
 
       <DataList
+        loadingShape="trailing"
         items={list.items}
         getKey={(row) => row.code}
         label="Daftar perawatan"

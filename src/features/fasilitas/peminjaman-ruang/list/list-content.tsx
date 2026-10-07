@@ -76,6 +76,7 @@ export const LoanListContent = () => {
       />
 
       <DataList
+        loadingShape="trailing"
         items={loanList.items}
         getKey={(loan) => loan.code}
         label="Daftar peminjaman ruang"

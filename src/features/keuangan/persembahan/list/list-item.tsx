@@ -1,6 +1,7 @@
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 
+import { DETAIL_LINK } from "@/components/common/display";
 import {
   DataListRow,
   TABLE_ROW_LINK,
@@ -21,8 +22,7 @@ import {
 import type { Persembahan } from "../types";
 import { PersembahanStatusBadge } from "../ui";
 
-const LINK =
-  "text-primary relative cursor-pointer underline decoration-primary/30 underline-offset-4 transition-colors hover:decoration-primary focus-visible:decoration-primary";
+const LINK = `${DETAIL_LINK} relative`;
 
 const saveFocus = (row: Persembahan) =>
   saveListFocus(PERSEMBAHAN_LIST_PATH, row.code);

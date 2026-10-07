@@ -1,15 +1,13 @@
 import Link from "next/link";
 
 import { buttonVariants } from "@/components/common/control";
+import { DETAIL_LINK as LINK } from "@/components/common/display";
 import { formatNumber, formatRupiah } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 import { createForHref, reportDetailHref, waiverTextOf } from "../model";
 import type { ComplianceRow } from "../types";
 import { PendingBadge } from "../ui";
-
-const LINK =
-  "text-primary cursor-pointer underline decoration-primary/30 underline-offset-4 outline-none transition-colors hover:decoration-primary focus-visible:ring-ring focus-visible:rounded-sm focus-visible:ring-2";
 
 interface PropTypes {
   row: ComplianceRow;

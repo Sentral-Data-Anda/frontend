@@ -52,7 +52,7 @@ export const TipeBarangFormScreen = (props: PropTypes) => {
   const router = useRouter();
   const toast = useToast();
   const isEdit = Boolean(code);
-  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+  const { isCanView, isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
     MENU.TIPE_BARANG,
   );
   const listReturn = useListReturn(TIPE_BARANG_LIST_PATH);
@@ -155,6 +155,7 @@ export const TipeBarangFormScreen = (props: PropTypes) => {
             : "Tidak bisa menambah tipe barang"
         }
         description="Peran Anda hanya bisa melihat data tipe barang."
+        isCanView={isCanView}
         backHref={TIPE_BARANG_LIST_PATH}
         backLabel="Kembali ke Tipe Barang"
       />

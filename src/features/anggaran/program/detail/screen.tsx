@@ -6,7 +6,11 @@ import { useState } from "react";
 
 import { Button } from "@/components/common/control";
 import { KpiCell, KpiStrip } from "@/components/common/dashboard";
-import { DescriptionSkeleton, Panel } from "@/components/common/display";
+import {
+  ApprovalPanel,
+  DescriptionSkeleton,
+  Panel,
+} from "@/components/common/display";
 import { EmptyState, useToast } from "@/components/common/feedback";
 import {
   FormAlert,
@@ -30,6 +34,7 @@ import {
   ceilingMissingMessage,
   isCeilingExceeded,
   isCeilingMissing,
+  pendingStepText,
   programDeleteText,
   programSubmitText,
   programWithdrawText,
@@ -41,7 +46,6 @@ import {
 import type { ProgramAction } from "../types";
 import { ProgramStatusBadge } from "../ui";
 
-import { ApprovalPanel } from "./approval-panel";
 import { CancelDialog } from "./cancel-dialog";
 import { CeilingPanel } from "./ceiling-panel";
 import { FailureAlert } from "./failure-alert";
@@ -242,7 +246,10 @@ export const ProgramDetailScreen = (props: PropTypes) => {
         ) : null}
 
         {program.approval ? (
-          <ApprovalPanel approval={program.approval} />
+          <ApprovalPanel
+            approval={program.approval}
+            pendingText={pendingStepText(program.approval)}
+          />
         ) : null}
 
         <SummaryPanel program={program} />

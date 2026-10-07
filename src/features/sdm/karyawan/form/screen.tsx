@@ -50,7 +50,7 @@ export const KaryawanFormScreen = (props: PropTypes) => {
   const router = useRouter();
   const toast = useToast();
   const isEdit = Boolean(code);
-  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+  const { isCanView, isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
     MENU.KARYAWAN,
   );
   const listReturn = useListReturn(KARYAWAN_LIST_PATH);
@@ -156,6 +156,7 @@ export const KaryawanFormScreen = (props: PropTypes) => {
             : "Tidak bisa menambah karyawan"
         }
         description="Peran Anda hanya bisa melihat data karyawan."
+        isCanView={isCanView}
         backHref={KARYAWAN_LIST_PATH}
         backLabel="Kembali ke Karyawan"
       />

@@ -39,8 +39,7 @@ export const receiptEditHref = (publicId: string) =>
 export const journalHref = (publicId: string) =>
   detailHref(MENU.KEUANGAN, MENU.JURNAL, publicId);
 
-export const TEXT_LINK =
-  "text-primary cursor-pointer rounded-sm underline decoration-primary/30 underline-offset-4 transition-colors hover:decoration-primary focus-visible:decoration-primary";
+export { DETAIL_LINK as TEXT_LINK } from "@/components/common/display";
 
 export const NOUN = "kas masuk";
 

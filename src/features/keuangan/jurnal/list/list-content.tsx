@@ -167,6 +167,7 @@ export const JournalListContent = () => {
         />
       ) : (
         <DataList
+          loadingShape="trailing"
           items={journalList.items}
           getKey={(entry) => entry.publicId}
           label="Daftar entri jurnal"

@@ -47,6 +47,7 @@ export const TipeCutiList = () => {
       />
 
       <DataList
+        loadingShape="trailing"
         items={tipeCutiList.items}
         getKey={(row) => row.code}
         label="Daftar tipe cuti"

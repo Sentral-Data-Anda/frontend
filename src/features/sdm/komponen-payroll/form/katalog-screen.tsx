@@ -57,7 +57,7 @@ export const KatalogFormScreen = (props: PropTypes) => {
   const router = useRouter();
   const toast = useToast();
   const isEdit = Boolean(code);
-  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+  const { isCanView, isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
     MENU.KOMPONEN_PAYROLL,
   );
   const listReturn = useListReturn(KATALOG_LIST_PATH);
@@ -157,6 +157,7 @@ export const KatalogFormScreen = (props: PropTypes) => {
             : "Tidak bisa menambah komponen"
         }
         description="Peran Anda hanya bisa melihat komponen payroll."
+        isCanView={isCanView}
         backHref={KATALOG_LIST_PATH}
         backLabel={BACK_LABEL}
       />
@@ -180,6 +181,7 @@ export const KatalogFormScreen = (props: PropTypes) => {
         description={MANAGED_NOTE}
         backHref={listReturn}
         backLabel={BACK_LABEL}
+        isStateLocked
       />
     );
   }

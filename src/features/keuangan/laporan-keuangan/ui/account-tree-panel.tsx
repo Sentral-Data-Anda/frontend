@@ -10,10 +10,10 @@ import { flattenTree, money } from "../model";
 import type { ReportAccount, ReportQuery } from "../types";
 
 const CODE_LINK =
-  "text-muted-foreground focus-visible:ring-ring block min-h-9 shrink-0 rounded-sm text-caption leading-9 tabular-nums underline-offset-2 outline-none hover:text-foreground hover:underline focus-visible:ring-2";
+  "text-muted-foreground focus-visible:ring-ring block min-h-9 min-w-9 shrink-0 rounded-sm text-caption leading-9 tabular-nums underline-offset-2 outline-none hover:text-foreground hover:underline focus-visible:ring-2";
 
 const NAME_LINK =
-  "text-foreground focus-visible:ring-ring block min-h-9 min-w-0 truncate rounded-sm leading-9 underline-offset-4 outline-none hover:underline focus-visible:ring-2";
+  "text-foreground focus-visible:ring-ring block min-h-9 min-w-9 truncate rounded-sm leading-9 underline-offset-4 outline-none hover:underline focus-visible:ring-2";
 
 const INDENT_STEP = 0.875;
 

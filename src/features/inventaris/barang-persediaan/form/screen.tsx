@@ -53,7 +53,7 @@ export const StockFormScreen = (props: PropTypes) => {
   const router = useRouter();
   const toast = useToast();
   const isEdit = Boolean(code);
-  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+  const { isCanView, isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
     MENU.BARANG_PERSEDIAAN,
   );
   const listReturn = useListReturn(STOCK_LIST_PATH);
@@ -163,6 +163,7 @@ export const StockFormScreen = (props: PropTypes) => {
             : "Tidak bisa menambah barang persediaan"
         }
         description="Peran Anda hanya bisa melihat data barang persediaan."
+        isCanView={isCanView}
         backHref={STOCK_LIST_PATH}
         backLabel="Kembali ke Barang Persediaan"
       />

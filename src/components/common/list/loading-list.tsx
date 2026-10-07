@@ -4,7 +4,7 @@ import { LoadingTable } from "./loading-table";
 
 export const LIST_DIVIDER = "[&>li+li>[data-slot=row-body]]:border-t";
 
-export type LoadingShape = "leading" | "trailing";
+export type LoadingShape = "leading" | "trailing" | "plain";
 
 export function LoadingRows({
   rows,

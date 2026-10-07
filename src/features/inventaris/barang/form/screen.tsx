@@ -65,7 +65,9 @@ export const BarangFormScreen = (props: PropTypes) => {
   const router = useRouter();
   const toast = useToast();
   const isEdit = Boolean(code);
-  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(MENU.BARANG);
+  const { isCanView, isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+    MENU.BARANG,
+  );
   const listReturn = useListReturn(BARANG_LIST_PATH);
   const [rejectedField, setRejectedField] = useState<string | null>(null);
   const [pickLeaveHref, setPickLeaveHref] = useState<string | null>(null);
@@ -206,6 +208,7 @@ export const BarangFormScreen = (props: PropTypes) => {
           isEdit ? "Tidak bisa mengubah barang" : "Tidak bisa menambah barang"
         }
         description="Peran Anda hanya bisa melihat data barang."
+        isCanView={isCanView}
         backHref={BARANG_LIST_PATH}
         backLabel="Kembali ke Barang"
       />
@@ -229,6 +232,7 @@ export const BarangFormScreen = (props: PropTypes) => {
         description="Barang yang sudah dilepas atau sedang diajukan lepas tidak bisa diubah."
         backHref={barangDetailHref(saved.code)}
         backLabel="Kembali ke halaman barang"
+        isStateLocked
       />
     );
   }

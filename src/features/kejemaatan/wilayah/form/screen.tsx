@@ -15,6 +15,7 @@ import {
   FormNotFound,
   LoadingForm,
   useFormConfirm,
+  NoFormAccess,
 } from "@/components/common/form";
 import { PageHeader } from "@/components/layout";
 import { MENU } from "@/config/menu";
@@ -35,7 +36,6 @@ import {
   type WilayahFormValues,
 } from "../model";
 
-import { NoFormAccess } from "./no-form-access";
 import { WilayahSection } from "./wilayah-section";
 
 interface PropTypes {
@@ -48,7 +48,9 @@ export const WilayahFormScreen = (props: PropTypes) => {
   const router = useRouter();
   const toast = useToast();
   const isEdit = Boolean(code);
-  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(MENU.WILAYAH);
+  const { isCanView, isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+    MENU.WILAYAH,
+  );
   const listReturn = useListReturn(WILAYAH_LIST_PATH);
   const [rejectedField, setRejectedField] = useState<string | null>(null);
   const saveWilayah = useSaveWilayah(code);
@@ -139,7 +141,17 @@ export const WilayahFormScreen = (props: PropTypes) => {
   }, [deleteWilayah.isError]);
 
   if (!(isEdit ? isCanUpdate : isCanCreate)) {
-    return <NoFormAccess isEdit={isEdit} />;
+    return (
+      <NoFormAccess
+        title={
+          isEdit ? "Tidak bisa mengubah wilayah" : "Tidak bisa menambah wilayah"
+        }
+        description={"Peran Anda hanya bisa melihat data wilayah."}
+        backHref={WILAYAH_LIST_PATH}
+        backLabel="Kembali ke Wilayah"
+        isCanView={isCanView}
+      />
+    );
   }
 
   if (detail.error instanceof FetchError && detail.error.status === 404) {
