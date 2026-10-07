@@ -1,17 +1,16 @@
 import { z } from "zod";
 
 import { MENU, menuHref } from "@/config/menu";
+import { collapseSpaces } from "@/lib/name";
 
 import type { SkillMusik, SkillMusikPayload } from "./types";
-
-const normalizeName = (name: string) => name.trim().replace(/\s+/g, " ");
 
 export const SKILL_MUSIK_LIST_PATH = menuHref(MENU.PELAYANAN, MENU.SKILL_MUSIK);
 
 export const skillMusikFormSchema = z.object({
   name: z
     .string()
-    .transform(normalizeName)
+    .transform(collapseSpaces)
     .pipe(
       z
         .string()
@@ -27,7 +26,7 @@ export const EMPTY_SKILL_MUSIK_FORM: SkillMusikFormValues = { name: "" };
 
 export const toSkillMusikPayload = (
   values: SkillMusikFormValues,
-): SkillMusikPayload => ({ name: normalizeName(values.name) });
+): SkillMusikPayload => ({ name: collapseSpaces(values.name) });
 
 export const toSkillMusikForm = (
   skillMusik: SkillMusik,

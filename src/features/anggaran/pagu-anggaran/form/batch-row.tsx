@@ -4,7 +4,7 @@ import { Controller, useWatch } from "react-hook-form";
 
 import { AmountInput, BapelField } from "@/components/common/control";
 import { LineItemCard, useLineItemErrors } from "@/components/common/form";
-import { formatRupiah } from "@/lib/format";
+import { formatAmount } from "@/lib/format";
 
 import { type BatchForm } from "./form-options";
 
@@ -38,7 +38,7 @@ export const BatchRow = (props: PropTypes) => {
     <LineItemCard
       index={index}
       title={`Badan pelayanan ${index + 1}`}
-      meta={amount ? formatRupiah(Number(amount)) : undefined}
+      meta={amount ? formatAmount(amount) : undefined}
       removeLabel={`Hapus baris ${index + 1}`}
       isRemoveDisabled={isDisabled}
       onRemove={onRemove}

@@ -8,7 +8,7 @@ import {
   type DataTableColumn,
   type DataTableConfig,
 } from "@/components/common/list";
-import { formatDate, formatDateShort, formatRupiah } from "@/lib/format";
+import { formatAmount, formatDate, formatDateShort } from "@/lib/format";
 import { saveListFocus } from "@/lib/list-return";
 import { cn } from "@/lib/utils";
 
@@ -48,7 +48,7 @@ const statusOf = (receipt: CashReceipt) => (
 
 const totalOf = (receipt: CashReceipt) => (
   <span className="block truncate text-right tabular-nums">
-    {formatRupiah(Number(receipt.totalAmount))}
+    {formatAmount(receipt.totalAmount)}
   </span>
 );
 
@@ -94,7 +94,7 @@ export const ReceiptListItemRow = (props: PropTypes) => {
         <>
           <span className="flex flex-col items-end gap-0.5">
             <span className="text-body font-medium tabular-nums">
-              {formatRupiah(Number(receipt.totalAmount))}
+              {formatAmount(receipt.totalAmount)}
             </span>
             {statusOf(receipt)}
           </span>

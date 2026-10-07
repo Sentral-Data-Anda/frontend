@@ -2,13 +2,7 @@ import { z } from "zod";
 
 import type { SelectOption } from "@/components/common/control";
 import { MENU, createHref, menuHref } from "@/config/menu";
-import {
-  addDays,
-  addMonths,
-  startOfMonth,
-  toDateInput,
-  todayJakarta,
-} from "@/lib/date";
+import { addDays, addMonths, toDateInput, todayJakarta } from "@/lib/date";
 import { formatDateShort, formatWeekday } from "@/lib/format";
 import { emptyToNull } from "@/lib/utils";
 
@@ -55,25 +49,6 @@ export function attendanceLabel(
   if (total > 0) return `${formatCount(total)} hadir`;
 
   return toDateInput(row.date) < today ? "Belum dicatat" : null;
-}
-
-const monthFormat = new Intl.DateTimeFormat("id-ID", {
-  month: "long",
-  year: "numeric",
-  timeZone: "UTC",
-});
-
-export function monthOptions(today: string = todayJakarta()): SelectOption[] {
-  const current = startOfMonth(today);
-
-  return Array.from({ length: 13 }, (_, index) => {
-    const month = addMonths(current, 1 - index);
-
-    return {
-      value: month.slice(0, 7),
-      label: monthFormat.format(new Date(`${month}T00:00:00Z`)),
-    };
-  });
 }
 
 export function monthRange(month: string): { start: string; end: string } {

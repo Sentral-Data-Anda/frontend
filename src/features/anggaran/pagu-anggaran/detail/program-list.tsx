@@ -7,7 +7,7 @@ import { Badge, Panel } from "@/components/common/display";
 import { EmptyState } from "@/components/common/feedback";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
-import { formatRupiah } from "@/lib/format";
+import { formatAmount } from "@/lib/format";
 import { PROGRAM_STATUS_LABEL } from "@/types/anggaran";
 
 import { useYearPrograms } from "../api";
@@ -78,7 +78,7 @@ export const ProgramList = (props: PropTypes) => {
                 </Badge>
 
                 <span className="shrink-0 text-body font-medium tabular-nums">
-                  {formatRupiah(Number(heldByProgram(program)))}
+                  {formatAmount(heldByProgram(program))}
                 </span>
 
                 <ChevronRight

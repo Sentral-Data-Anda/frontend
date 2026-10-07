@@ -13,12 +13,12 @@ import { ProgressBar } from "@/components/common/dashboard";
 import { ControlField, FormSection, FormWide } from "@/components/common/form";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
+import { toDigits } from "@/lib/number";
 import { cn } from "@/lib/utils";
 
 import {
   formatThousands,
   registrationsHref,
-  toDigits,
   type EventFormValues,
 } from "../model";
 import type { ChurchEvent } from "../types";

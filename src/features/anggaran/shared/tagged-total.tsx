@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 
-import { formatRupiah } from "@/lib/format";
+import { formatAmount } from "@/lib/format";
 import { sumAmounts } from "@/lib/number";
 
 export type TaggedPart = {
@@ -41,7 +41,7 @@ export const TaggedTotal = (props: PropTypes) => {
           ) : (
             <span className="min-w-0 truncate">{part.label}</span>
           )}
-          <span className={AMOUNT}>{formatRupiah(Number(part.amount))}</span>
+          <span className={AMOUNT}>{formatAmount(part.amount)}</span>
         </div>
       ))}
 
@@ -52,12 +52,12 @@ export const TaggedTotal = (props: PropTypes) => {
             {untaggedHint}
           </span>
         </span>
-        <span className={AMOUNT}>{formatRupiah(Number(untagged))}</span>
+        <span className={AMOUNT}>{formatAmount(untagged)}</span>
       </div>
 
       <div className={`${ROW} font-medium`}>
         <span className="min-w-0 truncate">Total</span>
-        <span className={AMOUNT}>{formatRupiah(Number(total))}</span>
+        <span className={AMOUNT}>{formatAmount(total)}</span>
       </div>
     </div>
   );

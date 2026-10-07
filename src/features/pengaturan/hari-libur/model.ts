@@ -3,6 +3,7 @@ import { z } from "zod";
 import { MENU, menuHref } from "@/config/menu";
 import { toDateInput, todayJakarta } from "@/lib/date";
 import { formatDate, formatDateShort, formatWeekday } from "@/lib/format";
+import { collapseSpaces } from "@/lib/name";
 
 import {
   HOLIDAY_TYPE_LABEL,
@@ -18,13 +19,11 @@ const HOLIDAY_TYPES = Object.keys(HOLIDAY_TYPE_LABEL) as [
   ...HolidayType[],
 ];
 
-const normalizeName = (name: string) => name.trim().replace(/\s+/g, " ");
-
 export const holidayFormSchema = z.object({
   date: z.string().min(1, "Tanggal wajib diisi"),
   name: z
     .string()
-    .overwrite(normalizeName)
+    .overwrite(collapseSpaces)
     .min(1, "Mohon lengkapi nama hari libur, mis. HUT Gereja.")
     .min(3, "Nama hari libur minimal 3 karakter")
     .max(100, "Nama hari libur maksimal 100 karakter"),
@@ -51,7 +50,7 @@ export const toHolidayPayload = (
   values: HolidayFormValues,
 ): HolidayPayload => ({
   date: values.date,
-  name: normalizeName(values.name),
+  name: collapseSpaces(values.name),
   type: values.type as HolidayType,
   isRecurring: values.isRecurring === "true",
 });

@@ -10,8 +10,7 @@ import {
   FormSection,
   FormWide,
 } from "@/components/common/form";
-
-import { toDigits } from "../model";
+import { keepDigits } from "@/lib/number";
 
 import {
   PAID_OPTIONS,
@@ -108,7 +107,9 @@ export const TypeSection = (props: PropTypes) => {
         {(field) => (
           <Input
             {...field}
-            onChange={(event) => field.onChange(toDigits(event.target.value))}
+            onChange={(event) =>
+              field.onChange(keepDigits(event.target.value, 3))
+            }
             disabled={isDisabled || isUnlimited}
             inputMode="numeric"
             autoComplete="off"

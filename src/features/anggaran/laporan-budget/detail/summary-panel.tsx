@@ -4,7 +4,7 @@ import {
   OptionalText,
   Panel,
 } from "@/components/common/display";
-import { formatDateTime, formatRupiah } from "@/lib/format";
+import { formatAmount, formatDateTime } from "@/lib/format";
 
 import type { BudgetReportDetail } from "../types";
 
@@ -27,7 +27,7 @@ export const SummaryPanel = (props: PropTypes) => {
         <DescriptionItem label="Bulan">{report.label}</DescriptionItem>
         <DescriptionItem label="Total pemakaian">
           <span className="tabular-nums">
-            {formatRupiah(Number(report.totalAmount))}
+            {formatAmount(report.totalAmount)}
           </span>
         </DescriptionItem>
         <DescriptionItem label="Keterangan" isWide isStacked>

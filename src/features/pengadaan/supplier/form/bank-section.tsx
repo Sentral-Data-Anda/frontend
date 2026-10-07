@@ -2,8 +2,7 @@
 
 import { Input } from "@/components/common/control";
 import { ControlField, FormSection } from "@/components/common/form";
-
-import { digitsOf } from "../model";
+import { keepDigits } from "@/lib/number";
 
 import type { SupplierForm } from "./form-options";
 
@@ -41,7 +40,7 @@ export const BankSection = (props: PropTypes) => {
           <Input
             {...field}
             onChange={(event) =>
-              field.onChange(digitsOf(event.target.value, 30))
+              field.onChange(keepDigits(event.target.value, 30))
             }
             inputMode="numeric"
             autoComplete="off"

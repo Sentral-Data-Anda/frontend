@@ -12,7 +12,7 @@ import {
 } from "@/components/common/display";
 import { useToast } from "@/components/common/feedback";
 import { FormAlert } from "@/components/common/form";
-import { formatDateTime, formatRupiah } from "@/lib/format";
+import { formatAmount, formatDateTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 import { isPast } from "../model";
@@ -77,9 +77,7 @@ export const PaymentPanel = (props: PropTypes) => {
           </Badge>
         </DescriptionItem>
         <DescriptionItem label="Nominal">
-          <span className="tabular-nums">
-            {formatRupiah(Number(payment.amount))}
-          </span>
+          <span className="tabular-nums">{formatAmount(payment.amount)}</span>
         </DescriptionItem>
         {isDeadlineShown ? (
           <DescriptionItem label="Batas bayar">

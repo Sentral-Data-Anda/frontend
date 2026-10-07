@@ -6,9 +6,9 @@ import { MENU, createHref, domainHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { useDdlOptions } from "@/hooks/use-ddl-options";
 import { useListParams, type ListFilterSchema } from "@/hooks/use-list-params";
+import { monthOptions } from "@/lib/date";
 
 import { useEventList } from "../api";
-import { monthOptions } from "../model";
 
 import { EventListItemRow, eventTable } from "./list-item";
 

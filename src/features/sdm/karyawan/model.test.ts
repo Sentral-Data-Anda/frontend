@@ -1,10 +1,11 @@
 import { describe, expect, test } from "bun:test";
 
+import { keepDigits } from "@/lib/number";
+
 import {
   EMPTY_KARYAWAN_FORM,
   karyawanFormSchema,
   serverFieldError,
-  toDigits,
   toKaryawanForm,
   toKaryawanPayload,
   type KaryawanFormValues,
@@ -306,7 +307,7 @@ describe("pesan server ke field", () => {
 
 describe("toDigits", () => {
   test("membuang bukan angka dan memotong di 15", () => {
-    expect(toDigits("+62 812-3456-7890")).toBe("6281234567890");
-    expect(toDigits("1".repeat(20))).toBe("1".repeat(15));
+    expect(keepDigits("+62 812-3456-7890", 15)).toBe("6281234567890");
+    expect(keepDigits("1".repeat(20), 15)).toBe("1".repeat(15));
   });
 });

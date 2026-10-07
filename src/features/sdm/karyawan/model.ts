@@ -28,9 +28,6 @@ const EMPLOYMENT_STATUSES = Object.keys(EMPLOYMENT_STATUS_LABEL) as [
   ...EmploymentStatus[],
 ];
 
-export const toDigits = (value: string) =>
-  value.replace(/\D/g, "").slice(0, 15);
-
 export const karyawanFormSchema = z
   .object({
     jemaatId: z.string(),

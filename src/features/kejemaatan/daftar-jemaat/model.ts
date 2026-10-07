@@ -2,6 +2,8 @@ import { z } from "zod";
 
 import { MENU, menuHref } from "@/config/menu";
 import { toDateInput } from "@/lib/date";
+import { collapseSpaces } from "@/lib/name";
+import { keepDigits } from "@/lib/number";
 import { emptyToNull } from "@/lib/utils";
 
 import type {
@@ -203,10 +205,7 @@ const idToNumber = (value: string): number | null =>
   value.trim() ? Number(value) : null;
 
 export const normalizePhone = (value: string): string =>
-  value
-    .replace(/^\+?62/, "0")
-    .replace(/\D/g, "")
-    .slice(0, 12);
+  keepDigits(value.replace(/^\+?62/, "0"), 12);
 
 export function toJemaatPayload(
   values: JemaatFormValues,
@@ -341,8 +340,7 @@ export function incompleteFields(values: {
 
 export const JEMAAT_LIST_PATH = menuHref(MENU.KEJEMAATAN, MENU.DAFTAR_JEMAAT);
 
-const normalizeName = (name: string) =>
-  name.trim().toLowerCase().replace(/\s+/g, " ");
+const nameKeyOf = (name: string) => collapseSpaces(name).toLowerCase();
 
 export function findDuplicate(
   rows: readonly { code: string; name: string; birthDate: string | null }[],
@@ -355,7 +353,7 @@ export function findDuplicate(
     rows.find(
       (row) =>
         row.code !== ownCode &&
-        normalizeName(row.name) === normalizeName(values.name) &&
+        nameKeyOf(row.name) === nameKeyOf(values.name) &&
         toDateInput(row.birthDate) === values.birthDate,
     ) ?? null
   );

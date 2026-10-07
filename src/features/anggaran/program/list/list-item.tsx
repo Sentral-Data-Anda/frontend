@@ -8,7 +8,7 @@ import {
   type DataTableColumn,
   type DataTableConfig,
 } from "@/components/common/list";
-import { formatRupiah } from "@/lib/format";
+import { formatAmount } from "@/lib/format";
 import { saveListFocus } from "@/lib/list-return";
 import { cn } from "@/lib/utils";
 
@@ -72,7 +72,7 @@ export const ProgramListItem = (props: PropTypes) => {
         <>
           <div className="min-w-0">
             <p className="truncate text-right text-body font-medium tabular-nums">
-              {formatRupiah(Number(row.proposedAmount))}
+              {formatAmount(row.proposedAmount)}
             </p>
             <div className="flex justify-end">
               <ProgramStatusBadge program={row} />
@@ -146,7 +146,7 @@ const COLUMNS: Column[] = [
     align: "end",
     cell: (row) => (
       <span className="block truncate font-medium tabular-nums">
-        {formatRupiah(Number(row.proposedAmount))}
+        {formatAmount(row.proposedAmount)}
       </span>
     ),
   },

@@ -1,12 +1,11 @@
 import { z } from "zod";
 
 import { MENU, menuHref } from "@/config/menu";
+import { collapseSpaces } from "@/lib/name";
 
 import type { Wilayah, WilayahPayload } from "./types";
 
 export const WILAYAH_LIST_PATH = menuHref(MENU.KEJEMAATAN, MENU.WILAYAH);
-
-const normalizeName = (name: string) => name.trim().replace(/\s+/g, " ");
 
 export const wilayahFormSchema = z.object({
   name: z
@@ -27,7 +26,7 @@ export const EMPTY_WILAYAH_FORM: WilayahFormValues = {
 export const toWilayahPayload = (
   values: WilayahFormValues,
 ): WilayahPayload => ({
-  name: normalizeName(values.name),
+  name: collapseSpaces(values.name),
   isActive: values.isActive === "true",
 });
 

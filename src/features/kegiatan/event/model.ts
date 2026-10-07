@@ -1,17 +1,10 @@
 import { z } from "zod";
 
-import type { SelectOption } from "@/components/common/control";
 import { MENU, menuHref } from "@/config/menu";
 import { fromServerAttachment, newAttachments } from "@/lib/attachment";
-import {
-  addDays,
-  addMonths,
-  startOfMonth,
-  toDateInput,
-  todayJakarta,
-} from "@/lib/date";
+import { addDays, addMonths, toDateInput, todayJakarta } from "@/lib/date";
 import { toFormData } from "@/lib/form-data";
-import { formatDateShort, formatRupiah } from "@/lib/format";
+import { formatAmount, formatDateShort } from "@/lib/format";
 import type { AttachmentValue } from "@/types/attachment";
 
 import type { ChurchEvent, EventStatus } from "./types";
@@ -67,7 +60,7 @@ export const placeOf = (
 ) => (event.isIndoor ? event.room?.name : event.location) ?? null;
 
 export const priceLabel = (event: Pick<ChurchEvent, "isPaid" | "price">) =>
-  event.isPaid && event.price ? formatRupiah(Number(event.price)) : "Gratis";
+  event.isPaid && event.price ? formatAmount(event.price) : "Gratis";
 
 export const isFull = (
   event: Pick<ChurchEvent, "capacity" | "registeredCount">,
@@ -82,25 +75,6 @@ export function eventStatusOf(
   if (toDateInput(event.startDate) <= today) return "ONGOING";
 
   return "UPCOMING";
-}
-
-const monthFormat = new Intl.DateTimeFormat("id-ID", {
-  month: "long",
-  year: "numeric",
-  timeZone: "UTC",
-});
-
-export function monthOptions(today: string = todayJakarta()): SelectOption[] {
-  const current = startOfMonth(today);
-
-  return Array.from({ length: 13 }, (_, index) => {
-    const month = addMonths(current, 1 - index);
-
-    return {
-      value: month.slice(0, 7),
-      label: monthFormat.format(new Date(`${month}T00:00:00Z`)),
-    };
-  });
 }
 
 export function monthRange(month: string): { start: string; end: string } {
@@ -286,9 +260,3 @@ const thousands = new Intl.NumberFormat("id-ID");
 
 export const formatThousands = (digits: string) =>
   digits ? thousands.format(Number(digits)) : "";
-
-export const toDigits = (value: string, maxLength: number) =>
-  value
-    .replace(/\D/g, "")
-    .replace(/^0+(?=\d)/, "")
-    .slice(0, maxLength);

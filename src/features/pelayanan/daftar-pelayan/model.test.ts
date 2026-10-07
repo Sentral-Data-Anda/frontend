@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 
 import { FetchError } from "@/lib/api/fetcher";
+import { keepDigits } from "@/lib/number";
 
 import {
   EMPTY_PELAYAN_FORM,
@@ -8,7 +9,6 @@ import {
   futureSlotsTitle,
   pelayanFormSchema,
   serverFieldError,
-  toDigits,
   toPelayanForm,
   toPelayanPayload,
   tugasOf,
@@ -90,8 +90,8 @@ describe("skema per jenis", () => {
   });
 
   test("HP ditempel dengan tanda hubung jadi digit saja, paling banyak 12", () => {
-    expect(toDigits("0812-3456")).toBe("08123456");
-    expect(toDigits("0812-3456-7890-11")).toBe("081234567890");
+    expect(keepDigits("0812-3456", 12)).toBe("08123456");
+    expect(keepDigits("0812-3456-7890-11", 12)).toBe("081234567890");
   });
 });
 

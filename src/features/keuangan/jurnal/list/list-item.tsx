@@ -7,7 +7,7 @@ import {
   type DataTableColumn,
   type DataTableConfig,
 } from "@/components/common/list";
-import { formatDate, formatDateShort, formatRupiah } from "@/lib/format";
+import { formatAmount, formatDate, formatDateShort } from "@/lib/format";
 import { saveListFocus } from "@/lib/list-return";
 
 import { JURNAL_LIST_PATH, journalHref, sourceLabelOf } from "../model";
@@ -42,7 +42,7 @@ const statusOf = (entry: JournalEntry) => (
 
 const totalOf = (entry: JournalEntry) => (
   <span className="block truncate text-right tabular-nums">
-    {formatRupiah(Number(entry.totalDebit))}
+    {formatAmount(entry.totalDebit)}
   </span>
 );
 
@@ -71,7 +71,7 @@ export const JournalListItemRow = (props: PropTypes) => {
       trailing={
         <span className="flex flex-col items-end gap-0.5">
           <span className="text-body font-medium tabular-nums">
-            {formatRupiah(Number(entry.totalDebit))}
+            {formatAmount(entry.totalDebit)}
           </span>
           {statusOf(entry)}
         </span>

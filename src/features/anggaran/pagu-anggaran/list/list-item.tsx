@@ -9,7 +9,7 @@ import {
   type DataTableColumn,
   type DataTableConfig,
 } from "@/components/common/list";
-import { formatRupiah } from "@/lib/format";
+import { formatAmount } from "@/lib/format";
 import { saveListFocus } from "@/lib/list-return";
 import { cn } from "@/lib/utils";
 
@@ -51,9 +51,7 @@ const editLink = (row: BudgetAllocation) => (
 );
 
 const money = (value: string) => (
-  <span className="block truncate tabular-nums">
-    {formatRupiah(Number(value))}
-  </span>
+  <span className="block truncate tabular-nums">{formatAmount(value)}</span>
 );
 
 interface PropTypes {

@@ -1,3 +1,9 @@
+// Telepon, rekening, dan hitungan boleh diawali nol, jadi bukan toDigits yang
+// membuang nol depan. Urutan toDigits dijaga: nol depan dibuang SEBELUM slice,
+// supaya "0012345" dengan maxLength 5 tetap "12345", bukan "123".
+export const keepDigits = (value: string, maxLength: number) =>
+  value.replace(/\D/g, "").slice(0, maxLength);
+
 export const toDigits = (value: string, maxLength: number) =>
   value
     .replace(/\D/g, "")

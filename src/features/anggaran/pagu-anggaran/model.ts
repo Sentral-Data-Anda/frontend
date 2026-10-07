@@ -11,7 +11,7 @@ import type { TaggedPart } from "@/features/anggaran/shared";
 import type { ListFilterSchema } from "@/hooks/use-list-params";
 import { FetchError } from "@/lib/api/fetcher";
 import { addMonths, monthLabel, monthOptions } from "@/lib/date";
-import { formatRupiah } from "@/lib/format";
+import { formatAmount } from "@/lib/format";
 import type { BudgetSetting, CeilingUsage } from "@/types/anggaran";
 
 import type {
@@ -132,7 +132,7 @@ export const pickYear = (filter: string, setting?: BudgetSetting) =>
   filter || (setting ? String(setting.budgetYear.year) : "");
 
 export const amountText = (value: string | null) =>
-  value === null ? CEILING_UNSET : formatRupiah(Number(value));
+  value === null ? CEILING_UNSET : formatAmount(value);
 
 export const percentOf = (usage: CeilingUsage) =>
   usage.ceiling === null || Number(usage.ceiling) <= 0
@@ -140,7 +140,7 @@ export const percentOf = (usage: CeilingUsage) =>
     : (Number(usage.reported) / Number(usage.ceiling)) * 100;
 
 export const barMetaOf = (usage: CeilingUsage) =>
-  `${formatRupiah(Number(usage.reported))} dari ${amountText(usage.ceiling)}`;
+  `${formatAmount(usage.reported)} dari ${amountText(usage.ceiling)}`;
 
 export const percentText = (usage: CeilingUsage) =>
   `${Math.round(percentOf(usage))}%`;

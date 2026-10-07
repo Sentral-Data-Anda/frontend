@@ -3,7 +3,7 @@ import {
   DescriptionList,
   OptionalText,
 } from "@/components/common/display";
-import { formatRupiah } from "@/lib/format";
+import { formatAmount } from "@/lib/format";
 
 import type { StockItem } from "../types";
 
@@ -32,7 +32,7 @@ export const DataPanel = (props: PropTypes) => {
           ) : (
             <span className="flex flex-col">
               <span className="tabular-nums">
-                {formatRupiah(Number(item.lastUnitPrice))}
+                {formatAmount(item.lastUnitPrice)}
               </span>
               <span className="text-muted-foreground text-caption font-normal">
                 Dari penerimaan barang terakhir

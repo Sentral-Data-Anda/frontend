@@ -7,7 +7,7 @@ import {
   type DataTableColumn,
   type DataTableConfig,
 } from "@/components/common/list";
-import { formatDate, formatDateShort, formatRupiah } from "@/lib/format";
+import { formatAmount, formatDate, formatDateShort } from "@/lib/format";
 import { saveListFocus } from "@/lib/list-return";
 import { cn } from "@/lib/utils";
 
@@ -34,7 +34,7 @@ const truncated = (text: string, className = "") => (
   </span>
 );
 
-const amountOf = (transfer: Transfer) => formatRupiah(Number(transfer.amount));
+const amountOf = (transfer: Transfer) => formatAmount(transfer.amount);
 
 interface PropTypes {
   transfer: Transfer;

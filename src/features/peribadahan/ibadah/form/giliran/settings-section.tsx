@@ -14,6 +14,7 @@ import { ControlField, FormSection, FormWide } from "@/components/common/form";
 import { useDdlOptions } from "@/hooks/use-ddl-options";
 import { endOfYearIso } from "@/lib/date";
 import { formatWeekday } from "@/lib/format";
+import { keepDigits } from "@/lib/number";
 
 import {
   PATTERN_LABEL,
@@ -153,7 +154,7 @@ export const SettingsSection = (props: PropTypes) => {
           <Input
             {...field}
             onChange={(event) =>
-              field.onChange(event.target.value.replace(/\D/g, "").slice(0, 2))
+              field.onChange(keepDigits(event.target.value, 2))
             }
             inputMode="numeric"
             autoComplete="off"

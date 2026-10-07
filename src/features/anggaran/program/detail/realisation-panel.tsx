@@ -6,7 +6,7 @@ import { Panel } from "@/components/common/display";
 import { MENU } from "@/config/menu";
 import { TaggedTotal } from "@/features/anggaran/shared";
 import { useMenuAccess } from "@/features/auth";
-import { formatRupiah } from "@/lib/format";
+import { formatAmount } from "@/lib/format";
 
 import {
   DISBURSED_LABEL,
@@ -86,9 +86,7 @@ export const RealisationPanel = (props: PropTypes) => {
         ) : (
           <span className="min-w-0">{DISBURSED_LABEL}</span>
         )}
-        <span className="shrink-0 tabular-nums">
-          {formatRupiah(Number(disbursed))}
-        </span>
+        <span className="shrink-0 tabular-nums">{formatAmount(disbursed)}</span>
       </div>
     </Panel>
   );

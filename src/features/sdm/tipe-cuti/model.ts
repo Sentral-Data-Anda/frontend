@@ -10,7 +10,6 @@ export const TIPE_CUTI_LIST_PATH = menuHref(MENU.SDM, MENU.TIPE_CUTI);
 
 // Lebar isian, bukan aturan: be-sada hanya menuntut bilangan bulat > 0, dan
 // batas jatah adalah kebijakan gereja — bukan angka yang SADA karang (§0.2).
-export const toDigits = (value: string) => value.replace(/\D/g, "").slice(0, 3);
 
 export const tipeCutiFormSchema = z
   .object({

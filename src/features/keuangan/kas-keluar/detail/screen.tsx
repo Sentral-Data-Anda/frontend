@@ -18,7 +18,7 @@ import { useBoolean } from "@/hooks/use-boolean";
 import { useListReturn } from "@/hooks/use-list-return";
 import { FetchError } from "@/lib/api/fetcher";
 import { monthLabel } from "@/lib/date";
-import { formatRupiah } from "@/lib/format";
+import { formatAmount } from "@/lib/format";
 
 import { useExpenseAction, useExpenseDetail, useGateCompliance } from "../api";
 import { EXPENSE_LIST_PATH, NO_VIEW, previousMonthOf } from "../model";
@@ -262,7 +262,7 @@ export const ExpenseDetailScreen = (props: PropTypes) => {
       <LineList lines={expense.lines} isRefreshing={detail.isFetching} />
 
       <p className="px-gutter pt-3 text-right text-body font-medium tabular-nums">
-        Total {formatRupiah(Number(expense.totalAmount))}
+        Total {formatAmount(expense.totalAmount)}
       </p>
 
       {expense.attachments.length > 0 ? (
