@@ -20,6 +20,8 @@ export const jemaatKeys = {
   detail: (code: string) => [...jemaatKeys.all, "detail", code] as const,
 };
 
+const pathOf = (key: string) => `/jemaat/${encodeURIComponent(key)}`;
+
 export function useJemaatList(params: ListState) {
   return useListQuery({
     queryKey: jemaatKeys.lists(),
@@ -44,7 +46,7 @@ export function useJemaatDuplicates(name: string, birthDate: string) {
 export function useJemaatDetail(code: string | undefined) {
   return useQuery({
     queryKey: jemaatKeys.detail(code ?? ""),
-    queryFn: () => fetchOne<JemaatDetail>(`/jemaat/${code}`),
+    queryFn: () => fetchOne<JemaatDetail>(pathOf(code ?? "")),
     enabled: Boolean(code),
     staleTime: 0,
     select: (response) => response.data,
@@ -56,7 +58,7 @@ export function useSaveJemaat(code?: string) {
 
   return useMutation({
     mutationFn: (payload: JemaatPayload) =>
-      fetchOne<{ code: string }>(code ? `/jemaat/${code}` : "/jemaat", {
+      fetchOne<{ code: string }>(code ? pathOf(code) : "/jemaat", {
         method: code ? "PUT" : "POST",
         body: JSON.stringify(payload),
       }),

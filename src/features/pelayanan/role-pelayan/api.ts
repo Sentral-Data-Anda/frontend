@@ -19,6 +19,8 @@ const DAFTAR_PELAYAN_LIST_KEY = ["daftar-pelayan", "list"] as const;
 const TEMPLATE_JADWAL_LIST_KEY = ["template-jadwal", "list"] as const;
 const JADWAL_PELAYAN_KEY = ["jadwal-pelayan"] as const;
 
+const pathOf = (key: string) => `/role-pelayan/${encodeURIComponent(key)}`;
+
 export function useRolePelayanList(params: ListState) {
   return useListQuery({
     queryKey: rolePelayanKeys.lists(),
@@ -31,7 +33,7 @@ export function useRolePelayanList(params: ListState) {
 export function useRolePelayanDetail(id: string | undefined) {
   return useQuery({
     queryKey: rolePelayanKeys.detail(id ?? ""),
-    queryFn: () => fetchOne<RolePelayan>(`/role-pelayan/${id}`),
+    queryFn: () => fetchOne<RolePelayan>(pathOf(id ?? "")),
     enabled: Boolean(id),
     staleTime: 0,
     select: (response) => response.data,
@@ -61,7 +63,7 @@ export function useSaveRolePelayan(id?: string) {
 
   return useMutation({
     mutationFn: (payload: RolePelayanPayload) =>
-      fetchOne<RolePelayan>(id ? `/role-pelayan/${id}` : "/role-pelayan", {
+      fetchOne<RolePelayan>(id ? pathOf(id) : "/role-pelayan", {
         method: id ? "PUT" : "POST",
         body: JSON.stringify(payload),
       }),
@@ -73,8 +75,7 @@ export function useDeleteRolePelayan(id: string | undefined) {
   const onInvalidate = useInvalidateRolePelayan(id);
 
   return useMutation({
-    mutationFn: () =>
-      fetchOne<unknown>(`/role-pelayan/${id}`, { method: "DELETE" }),
+    mutationFn: () => fetchOne<unknown>(pathOf(id ?? ""), { method: "DELETE" }),
     onSuccess: onInvalidate,
   });
 }

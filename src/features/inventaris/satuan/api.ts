@@ -15,6 +15,8 @@ export const satuanKeys = {
   detail: (code: string) => [...satuanKeys.all, "detail", code] as const,
 };
 
+const pathOf = (key: string) => `/unit/${encodeURIComponent(key)}`;
+
 export function useSatuanList(params: ListState) {
   return useListQuery({
     queryKey: satuanKeys.lists(),
@@ -26,7 +28,7 @@ export function useSatuanList(params: ListState) {
 export function useSatuanDetail(code: string | undefined) {
   return useQuery({
     queryKey: satuanKeys.detail(code ?? ""),
-    queryFn: () => fetchOne<Satuan>(`/unit/${code}`),
+    queryFn: () => fetchOne<Satuan>(pathOf(code ?? "")),
     enabled: Boolean(code),
     staleTime: 0,
     select: (response) => response.data,
@@ -56,7 +58,7 @@ export function useSaveSatuan(code?: string) {
 
   return useMutation({
     mutationFn: (payload: SatuanPayload) =>
-      fetchOne<Satuan>(code ? `/unit/${code}` : "/unit", {
+      fetchOne<Satuan>(code ? pathOf(code) : "/unit", {
         method: code ? "PUT" : "POST",
         body: JSON.stringify(payload),
       }),
@@ -68,7 +70,8 @@ export function useDeleteSatuan(code: string | undefined) {
   const onInvalidate = useInvalidateSatuan(code);
 
   return useMutation({
-    mutationFn: () => fetchOne<unknown>(`/unit/${code}`, { method: "DELETE" }),
+    mutationFn: () =>
+      fetchOne<unknown>(pathOf(code ?? ""), { method: "DELETE" }),
     onSuccess: onInvalidate,
   });
 }

@@ -14,6 +14,8 @@ export const keluargaKeys = {
   detail: (code: string) => [...keluargaKeys.all, "detail", code] as const,
 };
 
+const pathOf = (key: string) => `/keluarga/${encodeURIComponent(key)}`;
+
 export function useKeluargaList(params: ListState) {
   return useListQuery({
     queryKey: keluargaKeys.lists(),
@@ -25,7 +27,7 @@ export function useKeluargaList(params: ListState) {
 export function useKeluargaDetail(code: string | undefined) {
   return useQuery({
     queryKey: keluargaKeys.detail(code ?? ""),
-    queryFn: () => fetchOne<Keluarga>(`/keluarga/${code}`),
+    queryFn: () => fetchOne<Keluarga>(pathOf(code ?? "")),
     enabled: Boolean(code),
     staleTime: 0,
     select: (response) => response.data,
@@ -37,7 +39,7 @@ export function useSaveKeluarga(code?: string) {
 
   return useMutation({
     mutationFn: (payload: KeluargaPayload) =>
-      fetchOne<Keluarga>(code ? `/keluarga/${code}` : "/keluarga", {
+      fetchOne<Keluarga>(code ? pathOf(code) : "/keluarga", {
         method: code ? "PUT" : "POST",
         body: JSON.stringify(payload),
       }),
@@ -51,7 +53,7 @@ export function useDeleteKeluarga(code: string | undefined) {
 
   return useMutation({
     mutationFn: () =>
-      fetchOne<Keluarga>(`/keluarga/${code}`, { method: "DELETE" }),
+      fetchOne<Keluarga>(pathOf(code ?? ""), { method: "DELETE" }),
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: keluargaKeys.lists() }),
   });

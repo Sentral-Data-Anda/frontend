@@ -18,6 +18,8 @@ export const skillMusikKeys = {
 const DAFTAR_PELAYAN_LIST_KEY = ["daftar-pelayan", "list"] as const;
 const JADWAL_PELAYAN_KEY = ["jadwal-pelayan"] as const;
 
+const pathOf = (key: string) => `/musik-skill/${encodeURIComponent(key)}`;
+
 export function useSkillMusikList(params: ListState) {
   return useListQuery({
     queryKey: skillMusikKeys.lists(),
@@ -29,7 +31,7 @@ export function useSkillMusikList(params: ListState) {
 export function useSkillMusikDetail(id: string | undefined) {
   return useQuery({
     queryKey: skillMusikKeys.detail(id ?? ""),
-    queryFn: () => fetchOne<SkillMusik>(`/musik-skill/${id}`),
+    queryFn: () => fetchOne<SkillMusik>(pathOf(id ?? "")),
     enabled: Boolean(id),
     staleTime: 0,
     select: (response) => response.data,
@@ -58,7 +60,7 @@ export function useSaveSkillMusik(id?: string) {
 
   return useMutation({
     mutationFn: (payload: SkillMusikPayload) =>
-      fetchOne<SkillMusik>(id ? `/musik-skill/${id}` : "/musik-skill", {
+      fetchOne<SkillMusik>(id ? pathOf(id) : "/musik-skill", {
         method: id ? "PUT" : "POST",
         body: JSON.stringify(payload),
       }),
@@ -70,8 +72,7 @@ export function useDeleteSkillMusik(id: string | undefined) {
   const onInvalidate = useInvalidateSkillMusik(id);
 
   return useMutation({
-    mutationFn: () =>
-      fetchOne<unknown>(`/musik-skill/${id}`, { method: "DELETE" }),
+    mutationFn: () => fetchOne<unknown>(pathOf(id ?? ""), { method: "DELETE" }),
     onSuccess: onInvalidate,
   });
 }

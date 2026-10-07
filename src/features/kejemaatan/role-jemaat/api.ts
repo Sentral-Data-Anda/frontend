@@ -15,6 +15,8 @@ export const roleJemaatKeys = {
   detail: (id: string) => [...roleJemaatKeys.all, "detail", id] as const,
 };
 
+const pathOf = (key: string) => `/role-jemaat/${encodeURIComponent(key)}`;
+
 export function useRoleJemaatList(params: ListState) {
   return useListQuery({
     queryKey: roleJemaatKeys.lists(),
@@ -27,7 +29,7 @@ export function useRoleJemaatList(params: ListState) {
 export function useRoleJemaatDetail(id: string | undefined) {
   return useQuery({
     queryKey: roleJemaatKeys.detail(id ?? ""),
-    queryFn: () => fetchOne<RoleJemaatItem>(`/role-jemaat/${id}`),
+    queryFn: () => fetchOne<RoleJemaatItem>(pathOf(id ?? "")),
     enabled: Boolean(id),
     staleTime: 0,
     select: (response) => response.data,
@@ -39,7 +41,7 @@ export function useSaveRoleJemaat(id?: string) {
 
   return useMutation({
     mutationFn: (payload: RoleJemaatPayload) =>
-      fetchOne<{ id: number }>(id ? `/role-jemaat/${id}` : "/role-jemaat", {
+      fetchOne<{ id: number }>(id ? pathOf(id) : "/role-jemaat", {
         method: id ? "PUT" : "POST",
         body: JSON.stringify(payload),
       }),
@@ -53,7 +55,7 @@ export function useDeleteRoleJemaat(id?: string) {
 
   return useMutation({
     mutationFn: () =>
-      fetchOne<{ id: number }>(`/role-jemaat/${id}`, { method: "DELETE" }),
+      fetchOne<{ id: number }>(pathOf(id ?? ""), { method: "DELETE" }),
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: roleJemaatKeys.lists() }),
   });

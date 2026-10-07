@@ -20,6 +20,8 @@ export const roleUserKeys = {
   menuOptions: () => [...roleUserKeys.all, "menu-options"] as const,
 };
 
+const pathOf = (key: string) => `/role/${encodeURIComponent(key)}`;
+
 export function useRoleUserList(params: ListState) {
   return useListQuery({
     queryKey: roleUserKeys.lists(),
@@ -31,7 +33,7 @@ export function useRoleUserList(params: ListState) {
 export function useRoleUserDetail(id: string | undefined) {
   return useQuery({
     queryKey: roleUserKeys.detail(id ?? ""),
-    queryFn: () => fetchOne<RoleUserDetail>(`/role/${id}`),
+    queryFn: () => fetchOne<RoleUserDetail>(pathOf(id ?? "")),
     enabled: Boolean(id),
     staleTime: 0,
     select: (response) => response.data,
@@ -51,7 +53,7 @@ export function useSaveRoleUser(id?: string) {
 
   return useMutation({
     mutationFn: (payload: RoleUserPayload) =>
-      fetchOne<RoleUserItem>(id ? `/role/${id}` : "/role", {
+      fetchOne<RoleUserItem>(id ? pathOf(id) : "/role", {
         method: id ? "PUT" : "POST",
         body: JSON.stringify(payload),
       }),
@@ -64,7 +66,7 @@ export function useDeleteRoleUser(id: string | undefined) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: () => fetchOne<unknown>(`/role/${id}`, { method: "DELETE" }),
+    mutationFn: () => fetchOne<unknown>(pathOf(id ?? ""), { method: "DELETE" }),
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: roleUserKeys.lists() }),
   });
