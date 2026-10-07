@@ -1,7 +1,7 @@
 import { Badge } from "@/components/common/display";
-import { formatTimeRange } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
+import { bookingTimeOf } from "../model";
 import { BOOKING_KIND_LABEL, type RoomBooking } from "../types";
 
 interface PropTypes {
@@ -23,8 +23,8 @@ export const ScheduleRow = (props: PropTypes) => {
         isClash && "bg-warning/10",
       )}
     >
-      <span className="text-body font-medium tabular-nums">
-        {formatTimeRange(item.startTime, item.endTime)}
+      <span className="text-body font-medium tabular-nums first-letter:uppercase">
+        {bookingTimeOf(item)}
       </span>
 
       <span className="min-w-0">

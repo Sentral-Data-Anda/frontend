@@ -66,4 +66,33 @@ describe("MediaThumb", () => {
 
     expect(screen.getByText("Bazar tanpa gambar")).toBeDefined();
   });
+
+  test("rasio tetap oleh kelas aspect, bukan oleh gambarnya", () => {
+    const aspectOf = (ratio?: "square" | "video" | "photo") => {
+      const { container } = render(
+        <MediaThumb src={null} alt="Foto" size="fill" ratio={ratio} />,
+      );
+      const thumb = container.firstElementChild;
+      const found = [...(thumb?.classList ?? [])].filter((name) =>
+        name.startsWith("aspect-"),
+      );
+
+      cleanup();
+
+      return found;
+    };
+
+    expect(aspectOf()).toEqual(["aspect-square"]);
+    expect(aspectOf("video")).toEqual(["aspect-video"]);
+    expect(aspectOf("photo")).toEqual(["aspect-4/3"]);
+  });
+
+  test("sm dan md memakai tinggi tetap; lebar mengikuti rasio", () => {
+    const { container } = render(
+      <MediaThumb src={null} alt="Foto" ratio="photo" />,
+    );
+
+    expect(container.firstElementChild?.className).toContain("h-10");
+    expect(container.firstElementChild?.className).toContain("aspect-4/3");
+  });
 });

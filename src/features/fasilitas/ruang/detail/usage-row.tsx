@@ -1,7 +1,6 @@
 import Link from "next/link";
 
-import { formatTimeRange } from "@/lib/format";
-
+import { bookingTimeOf } from "../../peminjaman-ruang/model";
 import { loanEditHref } from "../model";
 import { USAGE_KIND_LABEL, type RoomUsage } from "../types";
 
@@ -16,8 +15,8 @@ export const UsageRow = (props: PropTypes) => {
   return (
     <li className="grid grid-cols-[6.5rem_minmax(0,1fr)] items-baseline gap-x-3 py-2 text-body">
       <span className="flex flex-col">
-        <span className="tabular-nums">
-          {formatTimeRange(usage.startTime, usage.endTime)}
+        <span className="tabular-nums first-letter:uppercase">
+          {bookingTimeOf(usage)}
         </span>
         <span className="text-muted-foreground text-caption">
           {USAGE_KIND_LABEL[usage.kind]}

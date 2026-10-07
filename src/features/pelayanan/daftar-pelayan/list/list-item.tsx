@@ -23,6 +23,9 @@ const labelOf = (pelayan: PelayanListItem) => `Ubah ${pelayan.namePelayan}`;
 
 const isGroupOf = (pelayan: PelayanListItem) => pelayan.typePelayan === "GROUP";
 
+const avatarOf = (pelayan: PelayanListItem) =>
+  isGroupOf(pelayan) ? "group" : "person";
+
 export const jenisOf = (pelayan: PelayanListItem) =>
   isGroupOf(pelayan)
     ? `${TYPE_PELAYAN_LABEL.GROUP} · ${pelayan.members.length} anggota`
@@ -39,7 +42,9 @@ export const PelayanListItemRow = (props: PropTypes) => {
   return (
     <DataListRow
       id={pelayan.code}
-      leading={<Avatar label={pelayan.namePelayan} />}
+      leading={
+        <Avatar label={pelayan.namePelayan} variant={avatarOf(pelayan)} />
+      }
       title={pelayan.namePelayan}
       meta={[pelayan.bapel, pelayan.role.join(", ")]
         .filter(Boolean)
@@ -83,7 +88,7 @@ export function daftarPelayanTable(
         narrowWidth: "minmax(0,2fr)",
         cell: (pelayan) => (
           <span className="flex min-w-0 items-center gap-3">
-            <Avatar label={pelayan.namePelayan} />
+            <Avatar label={pelayan.namePelayan} variant={avatarOf(pelayan)} />
             <span className="truncate font-medium" title={pelayan.namePelayan}>
               {pelayan.namePelayan}
             </span>

@@ -9,9 +9,15 @@ interface PropTypes {
   src: string | null;
   alt: string;
   size?: "sm" | "md" | "fill";
-  ratio?: "square" | "video";
+  ratio?: "square" | "video" | "photo";
   fit?: "cover" | "contain";
 }
+
+const RATIO_CLASS = {
+  square: "aspect-square",
+  video: "aspect-video",
+  photo: "aspect-4/3",
+} as const;
 
 export const MediaThumb = (props: PropTypes) => {
   const { src, alt, size = "sm", ratio = "square", fit = "cover" } = props;
@@ -33,11 +39,10 @@ export const MediaThumb = (props: PropTypes) => {
     <span
       className={cn(
         "bg-muted text-muted-foreground relative flex shrink-0 items-center justify-center overflow-hidden rounded-control",
-        size === "sm" && "size-10",
-        size === "md" && "size-16",
+        size === "sm" && "h-10",
+        size === "md" && "h-16",
         size === "fill" && "w-full",
-        size === "fill" &&
-          (ratio === "video" ? "aspect-video" : "aspect-square"),
+        RATIO_CLASS[ratio],
       )}
     >
       {src && !isFailed ? (

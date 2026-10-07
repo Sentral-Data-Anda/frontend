@@ -175,6 +175,41 @@ describe("halaman ruang", () => {
     ).toBe(ruangEditHref(CODE));
   });
 
+  test("event tanpa jam selesai (23.59 dari be-sada) tidak tampil sebagai jam selesai", async () => {
+    onRender(
+      { RUANG: ["VIEW"] },
+      {
+        usage: [
+          {
+            kind: "EVENT",
+            code: "EVT-2",
+            name: "Retret",
+            date: "2026-10-05",
+            startTime: "09:00",
+            endTime: "23:59",
+          },
+          {
+            kind: "EVENT",
+            code: "EVT-2",
+            name: "Retret",
+            date: "2026-10-06",
+            startTime: "00:00",
+            endTime: "23:59",
+          },
+        ],
+      },
+    );
+
+    const first = await screen.findByRole("region", {
+      name: "Senin, 5 Okt 2026",
+    });
+    const second = screen.getByRole("region", { name: "Selasa, 6 Okt 2026" });
+
+    expect(within(first).getByText("mulai 09.00")).toBeTruthy();
+    expect(within(second).getByText("sepanjang hari")).toBeTruthy();
+    expect(screen.queryByText(/23[.:]59/)).toBeNull();
+  });
+
   test("ruang nonaktif tanpa foto dan tanpa pemakaian", async () => {
     onRender(
       { RUANG: ["VIEW"] },

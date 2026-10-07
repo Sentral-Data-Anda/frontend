@@ -153,3 +153,43 @@ describe("DataList", () => {
     ).toHaveLength(2);
   });
 });
+
+describe("DataListRow judul", () => {
+  const titleOf = (isTitleWrap?: boolean) => {
+    const { container } = render(
+      <ul>
+        <DataListRow title="Judul" meta="meta" isTitleWrap={isTitleWrap} />
+      </ul>,
+    );
+    const row = container.querySelector("li");
+    const title = screen.getByText("Judul");
+    const result = {
+      row: row?.className.split(" ") ?? [],
+      title: title.className.split(" "),
+      body: row?.querySelector("[data-slot=row-body]")?.className.split(" "),
+    };
+
+    cleanup();
+
+    return result;
+  };
+
+  test("bawaan satu baris: tinggi tetap 56, judul dipotong", () => {
+    const one = titleOf();
+
+    expect(one.row).toContain("h-14");
+    expect(one.title).toContain("truncate");
+    expect(one.title).not.toContain("line-clamp-2");
+  });
+
+  test("isTitleWrap: dua baris, tinggi minimum, jarak di badan baris agar garis tetap di tepi", () => {
+    const two = titleOf(true);
+
+    expect(two.row).toContain("min-h-14");
+    expect(two.row).not.toContain("h-14");
+    expect(two.title).toContain("line-clamp-2");
+    expect(two.title).toContain("wrap-break-word");
+    expect(two.title).not.toContain("truncate");
+    expect(two.body).toContain("py-2");
+  });
+});

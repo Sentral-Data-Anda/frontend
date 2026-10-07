@@ -112,7 +112,6 @@ export const BarangLabelScreen = (props: PropTypes) => {
   return (
     <FormLayout
       onSubmit={onPrint}
-      className="print:*:max-w-none!"
       header={
         <PageHeader
           title={TITLE}

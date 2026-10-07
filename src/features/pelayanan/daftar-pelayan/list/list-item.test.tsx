@@ -62,6 +62,22 @@ describe("baris HP", () => {
     ).not.toBeNull();
   });
 
+  test("kelompok memakai avatar ikon grup, perorangan huruf namanya", () => {
+    const avatarOf = (pelayan: PelayanListItem) => {
+      const { container } = onRenderRow(pelayan);
+      const avatar = container.querySelector("li > span[aria-hidden]");
+
+      expect(avatar).not.toBeNull();
+      cleanup();
+
+      return avatar;
+    };
+
+    expect(avatarOf(BAND)?.querySelector("svg")).not.toBeNull();
+    expect(avatarOf(BETHARI)?.querySelector("svg")).toBeNull();
+    expect(avatarOf(BETHARI)?.textContent).toBe("B");
+  });
+
   test("tanpa UPDATE: tidak ada aksi ubah", () => {
     onRenderRow(BETHARI, false);
 
