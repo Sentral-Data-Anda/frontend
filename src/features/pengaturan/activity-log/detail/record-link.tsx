@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 
+import { DETAIL_LINK } from "@/components/common/display";
 import type { MenuSlug } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 
@@ -19,10 +20,7 @@ export const RecordLink = (props: PropTypes) => {
   if (!isCanView) return children;
 
   return (
-    <Link
-      href={href}
-      className="text-primary decoration-primary/40 hover:decoration-primary focus-visible:ring-ring relative rounded-sm underline after:absolute after:-inset-2.5 underline-offset-4 outline-none focus-visible:ring-2"
-    >
+    <Link href={href} className={DETAIL_LINK}>
       {children}
     </Link>
   );

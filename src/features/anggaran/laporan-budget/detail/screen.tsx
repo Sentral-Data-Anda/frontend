@@ -5,7 +5,11 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { Button } from "@/components/common/control";
-import { DescriptionSkeleton, Panel } from "@/components/common/display";
+import {
+  ApprovalPanel,
+  DescriptionSkeleton,
+  Panel,
+} from "@/components/common/display";
 import { EmptyState, useToast } from "@/components/common/feedback";
 import {
   FormAlert,
@@ -25,6 +29,7 @@ import {
   REPORT_LIST_PATH,
   REPORT_SUBMIT_TEXT,
   REPORT_WITHDRAW_TEXT,
+  pendingStepText,
   rejectedMessageOf,
   rejectedStepOf,
   rejectedTitleOf,
@@ -35,12 +40,12 @@ import {
 import type { ReportAction } from "../types";
 import { ReportStatusBadge } from "../ui";
 
-import { ApprovalPanel } from "./approval-panel";
 import { FailureAlert } from "./failure-alert";
 import { LineList } from "./line-list";
 import { PrintHeader } from "./print-header";
 import { ReceiptList } from "./receipt-list";
 import { ReportActions } from "./report-actions";
+import { StepRow } from "./step-row";
 import { SubmitChecklist } from "./submit-checklist";
 import { SummaryPanel } from "./summary-panel";
 import { VarianceStrip } from "./variance-strip";
@@ -213,7 +218,13 @@ export const ReportDetailScreen = (props: PropTypes) => {
           />
         ) : null}
 
-        {report.approval ? <ApprovalPanel approval={report.approval} /> : null}
+        {report.approval ? (
+          <ApprovalPanel
+            approval={report.approval}
+            pendingText={pendingStepText(report.approval)}
+            renderStep={(step) => <StepRow step={step} />}
+          />
+        ) : null}
 
         <SummaryPanel report={report} />
 

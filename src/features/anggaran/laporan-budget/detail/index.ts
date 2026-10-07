@@ -1,4 +1,4 @@
-export * from "./approval-panel";
+export * from "./step-row";
 export * from "./failure-alert";
 export * from "./line-list";
 export * from "./print-header";

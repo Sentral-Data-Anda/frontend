@@ -4,9 +4,14 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { Button } from "@/components/common/control";
-import { DescriptionSkeleton, Panel } from "@/components/common/display";
+import {
+  ApprovalPanel,
+  DescriptionSkeleton,
+  Panel,
+} from "@/components/common/display";
 import { EmptyState, useToast } from "@/components/common/feedback";
 import {
+  FormAlert,
   FormConfirmDialog,
   FormNotFound,
   useFormConfirm,
@@ -18,14 +23,13 @@ import { useBoolean } from "@/hooks/use-boolean";
 import { useListReturn } from "@/hooks/use-list-return";
 import { FetchError } from "@/lib/api/fetcher";
 import { monthLabel } from "@/lib/date";
-import { formatAmount } from "@/lib/format";
+import { formatAmount, formatDateTime } from "@/lib/format";
 
 import { useExpenseAction, useExpenseDetail, useGateCompliance } from "../api";
 import { EXPENSE_LIST_PATH, NO_VIEW, previousMonthOf } from "../model";
 import type { CashExpenseDetail, ExpenseAction } from "../types";
 import { ExpenseStateBadge } from "../ui";
 
-import { ApprovalPanel } from "./approval-panel";
 import { CancelPanel } from "./cancel-panel";
 import { ExpenseActions } from "./expense-actions";
 import { FailureAlert } from "./failure-alert";
@@ -36,6 +40,8 @@ import { WaiveDialog } from "./waive-dialog";
 import { WaiverPanel } from "./waiver-panel";
 
 const TITLE = "Kas Keluar";
+
+const REJECTED_TITLE = "Ditolak. Perbaiki lalu ajukan lagi.";
 
 const NOUN = "kas keluar";
 
@@ -218,9 +224,28 @@ export const ExpenseDetailScreen = (props: PropTypes) => {
         {expense.approval ? (
           <ApprovalPanel
             approval={expense.approval}
-            approvedBy={expense.approvedBy}
-            approvedAt={expense.approvedAt}
-          />
+            alert={
+              expense.approval.status === "REJECTED" ? (
+                <FormAlert
+                  tone="warning"
+                  title={REJECTED_TITLE}
+                  message={
+                    expense.approval.note ??
+                    "Penanda tangan tidak menuliskan catatan."
+                  }
+                />
+              ) : null
+            }
+          >
+            {expense.approvedBy ? (
+              <p className="text-muted-foreground text-body">
+                Disetujui {expense.approvedBy.name}
+                {expense.approvedAt
+                  ? ` \u00b7 ${formatDateTime(expense.approvedAt)}`
+                  : ""}
+              </p>
+            ) : null}
+          </ApprovalPanel>
         ) : null}
 
         {expense.waiver ? (
