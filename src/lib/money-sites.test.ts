@@ -28,18 +28,6 @@ const hitsOf = (pattern: RegExp) =>
     .map(RELATIVE)
     .sort();
 
-// Milik agent lain saat retrofit ini dikerjakan; hapus dari daftar saat disatukan.
-const PENDING_OTHER_OWNER = [
-  "components/common/form/budget-lines/budget-line-list.tsx",
-  "components/common/form/budget-lines/budget-line-row.tsx",
-  "components/common/form/budget-lines/usage-line-list.tsx",
-  "components/common/form/budget-lines/usage-line-row.tsx",
-  "components/common/form/cash-lines/cash-line-list.tsx",
-  "components/common/form/cash-lines/cash-line-row.tsx",
-  "components/common/form/journal-lines/balance-summary.tsx",
-  "components/common/form/journal-lines/journal-line-row.tsx",
-];
-
 describe("situs uang", () => {
   test("pemindai benar-benar membaca features, types, components, dan lib", () => {
     const scanned = sourcesIn(SRC).map(RELATIVE);
@@ -52,9 +40,9 @@ describe("situs uang", () => {
     expect(scanned).toContain("lib/format.ts");
   });
 
-  test("formatRupiah(Number(x)) inline hanya tersisa di daftar milik agent lain", () => {
+  test("formatRupiah(Number(x)) inline tidak tersisa di luar lib/format", () => {
     expect(hitsOf(INLINE).filter((path) => path !== "lib/format.ts")).toEqual(
-      PENDING_OTHER_OWNER,
+      [],
     );
   });
 

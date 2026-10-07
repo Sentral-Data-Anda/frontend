@@ -8,7 +8,7 @@ import {
 } from "react-hook-form";
 
 import type { SelectOption } from "@/components/common/control";
-import { formatRupiah } from "@/lib/format";
+import { formatAmount } from "@/lib/format";
 import { sumAmounts } from "@/lib/number";
 
 import { FormWide } from "../form-layout";
@@ -63,7 +63,7 @@ export function UsageLineList<T extends FieldValues>(props: PropTypes<T>) {
         isAddDisabled={isDisabled}
         onAdd={onAdd}
         empty="Belum ada baris. Tambahkan tanggal, pos, dan nominalnya."
-        summary={`Total pemakaian ${formatRupiah(Number(total))}`}
+        summary={`Total pemakaian ${formatAmount(total)}`}
         error={error}
         errorId={errorId}
       >

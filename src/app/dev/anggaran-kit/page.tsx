@@ -19,7 +19,11 @@ const CASES = [
     untagged: "243500000",
   },
   { title: "Sisa nol — barisnya tetap ada", untagged: "0" },
-  { title: "Belum ada komisi bertanda", untagged: "243500000", parts: [] },
+  {
+    title: "Belum ada badan pelayanan bertanda",
+    untagged: "243500000",
+    parts: [],
+  },
 ];
 
 export default function Page() {
@@ -34,9 +38,9 @@ export default function Page() {
 
             <div className="px-gutter pb-3">
               <TaggedTotal
-                label="Belanja per komisi"
+                label="Belanja per badan pelayanan"
                 parts={item.parts ?? KOMISI}
-                untaggedLabel="Pengeluaran tanpa komisi"
+                untaggedLabel="Pengeluaran tanpa badan pelayanan"
                 untagged={item.untagged}
                 untaggedHint="Tagihan gereja, gaji, dan yang belum ditandai."
               />

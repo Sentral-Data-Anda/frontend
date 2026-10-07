@@ -6,12 +6,11 @@ import {
   TABLE_ROW_LINK,
   type DataTableConfig,
 } from "@/components/common/list";
-import { formatNumber } from "@/lib/format";
+import { formatAmountCents, formatNumber } from "@/lib/format";
 import { saveListFocus } from "@/lib/list-return";
 
 import {
   PENYUSUTAN_LIST_PATH,
-  formatAmount,
   isCalculated,
   periodLabel,
   runHref,
@@ -60,7 +59,7 @@ export const PenyusutanListItemRow = (props: PropTypes) => {
         <span className="flex flex-col items-end">
           {isCalculated(run) ? (
             <span className="text-body font-medium tabular-nums">
-              {formatAmount(run.totalAmount)}
+              {formatAmountCents(run.totalAmount)}
             </span>
           ) : null}
           <RunStatus run={run} />
@@ -107,7 +106,7 @@ export function penyusutanTable(): DataTableConfig<Run> {
         align: "end",
         cell: (run) => (
           <span className="tabular-nums">
-            {isCalculated(run) ? formatAmount(run.totalAmount) : EMPTY}
+            {isCalculated(run) ? formatAmountCents(run.totalAmount) : EMPTY}
           </span>
         ),
       },

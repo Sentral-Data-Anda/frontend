@@ -10,7 +10,7 @@ import {
 } from "react-hook-form";
 
 import { AccountField, AmountInput, Input } from "@/components/common/control";
-import { formatRupiah } from "@/lib/format";
+import { formatAmount } from "@/lib/format";
 
 import { LineItemCard } from "../line-items/line-item-card";
 import { useLineItemErrors } from "../line-items/use-line-item-errors";
@@ -118,7 +118,7 @@ export function JournalLineRow<T extends FieldValues>(props: PropTypes<T>) {
       title={title}
       meta={
         amount
-          ? `${line.debit ? "Debit" : "Kredit"} ${formatRupiah(Number(amount))}`
+          ? `${line.debit ? "Debit" : "Kredit"} ${formatAmount(amount)}`
           : undefined
       }
       removeLabel={`Hapus baris ${index + 1}`}

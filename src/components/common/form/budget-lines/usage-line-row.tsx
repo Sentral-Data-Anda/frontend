@@ -16,7 +16,7 @@ import {
   Input,
   type SelectOption,
 } from "@/components/common/control";
-import { formatRupiah } from "@/lib/format";
+import { formatAmount } from "@/lib/format";
 
 import { useAccountLabel } from "../journal-lines/use-account-label";
 import { LineItemCard } from "../line-items/line-item-card";
@@ -98,7 +98,7 @@ export function UsageLineRow<T extends FieldValues>(props: PropTypes<T>) {
           title
         )
       }
-      meta={line.amount ? formatRupiah(Number(line.amount)) : undefined}
+      meta={line.amount ? formatAmount(line.amount) : undefined}
       removeLabel={`Hapus baris ${index + 1}`}
       isRemoveDisabled={isDisabled}
       onRemove={onRemove}
@@ -169,7 +169,7 @@ export function UsageLineRow<T extends FieldValues>(props: PropTypes<T>) {
               isLoading={isProgramLoading}
               disabled={isDisabled}
               placeholder="Tanpa program"
-              emptyMessage="Belum ada program komisi ini"
+              emptyMessage="Belum ada program badan pelayanan ini"
             />
           )}
         />

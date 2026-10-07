@@ -19,7 +19,13 @@ const ROOT = new URL("../", import.meta.url).pathname;
 const SURFACE = [
   "src/features/persetujuan/setelan-persetujuan/form/tier-fields.tsx",
   "src/features/beranda/widgets/dummy/budget-use-widget.tsx",
+  "src/components/common/form/budget-lines/usage-line-row.tsx",
+  "src/app/dev/anggaran-kit/page.tsx",
 ];
+
+// Nama spesifik ("Komisi Pemuda") dan identifier (KOMISI) bukan sebutan entitas.
+const WITHOUT_NAMES = (text: string) =>
+  text.replace(/Komisi (?=[A-Z])/g, "").replace(/\bKOMISI\b/g, "");
 
 describe("sebutan entitas badan pelayanan", () => {
   test("deskripsi menu tidak menyebut komisi", () => {
@@ -30,7 +36,15 @@ describe("sebutan entitas badan pelayanan", () => {
   });
 
   test.each(SURFACE)("%s tidak menyebut komisi", (file) => {
-    expect(readFileSync(`${ROOT}${file}`, "utf8")).not.toMatch(FAMILY);
+    expect(WITHOUT_NAMES(readFileSync(`${ROOT}${file}`, "utf8"))).not.toMatch(
+      FAMILY,
+    );
+  });
+
+  test("kontrol: nama spesifik dan identifier dibuang, sebutan entitas tidak", () => {
+    expect(WITHOUT_NAMES("Komisi Pemuda KOMISI")).not.toMatch(FAMILY);
+    expect(WITHOUT_NAMES("Belanja per komisi")).toMatch(FAMILY);
+    expect(WITHOUT_NAMES("Komisi bertanda")).toMatch(FAMILY);
   });
 
   test("kontrol: regex menangkap tiap ejaan keluarganya", () => {
