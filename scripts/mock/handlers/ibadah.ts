@@ -45,7 +45,7 @@ import { JADWAL_PELAYAN, type JadwalPelayanRow } from "../pelayanan-store";
 
 import { findKeluarga, keluargaRows } from "./keluarga";
 import { findTipeIbadah } from "./tipe-ibadah";
-import { findWilayah } from "./wilayah";
+import { findWilayah, registerWilayahDependent } from "./wilayah";
 
 type Relation = { id: number; code: string; name: string };
 
@@ -365,9 +365,10 @@ const typeRelationOf = (id: number) => {
 
 const serials = new Map<string, number>();
 
-const nextCode = (typeIbadahId: number, date: string) => {
+// Tahun kode dari jam, bukan tanggal ibadahnya: `generateCode` be-sada.
+const nextCode = (typeIbadahId: number) => {
   const typeCode = typeRowOf(typeIbadahId)?.code ?? "";
-  const key = `${typeCode.split("-")[1] ?? typeCode}-${date.slice(0, 4)}`;
+  const key = `${typeCode.split("-")[1] ?? typeCode}-${TODAY.slice(0, 4)}`;
   const serial = (serials.get(key) ?? 0) + 1;
 
   serials.set(key, serial);
@@ -378,7 +379,7 @@ const nextCode = (typeIbadahId: number, date: string) => {
 const toRow = (id: number, seed: Seed): Row => ({
   id,
   publicId: `00000000-0000-4000-b000-${String(id).padStart(12, "0")}`,
-  code: nextCode(seed.typeIbadahId, seed.date),
+  code: nextCode(seed.typeIbadahId),
   theme: null,
   bibleVerse: null,
   preacher: null,
@@ -653,6 +654,10 @@ const failure = (status: number, error: string, path?: string) =>
 const notFound = () => failure(404, "Ibadah Tidak Ditemukan");
 
 const isLive = (row: Row) => row.deletedAt === null;
+
+registerWilayahDependent("Ibadah", (zoneId) =>
+  allRows().some((row) => isLive(row) && row.zoneChurchId === zoneId),
+);
 
 export const ibadahLinkedTo = (jadwalId: number) =>
   allRows()

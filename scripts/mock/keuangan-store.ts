@@ -1140,7 +1140,7 @@ const lastWeekday = (weekday: number, weeksBack: number) => {
 
 export const IBADAH_OPTION = Array.from({ length: 10 }, (_, index) => ({
   id: index + 1,
-  code: `IBD-${pad(index + 1)}`,
+  code: `IBD_0001-${YEAR}-${pad(index + 1)}`,
   name: index % 2 === 0 ? "Ibadah Minggu I" : "Ibadah Minggu II",
   date: lastWeekday(SUNDAY, Math.floor(index / 2)),
 }));

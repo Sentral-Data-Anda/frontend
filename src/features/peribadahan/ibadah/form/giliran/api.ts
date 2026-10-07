@@ -11,15 +11,7 @@ import { fetchList, fetchOne } from "@/lib/api/fetcher";
 import type { ApiListResponse } from "@/types/api";
 
 import { ibadahKeys } from "../../api";
-import type { HostSuggestion, Ibadah, IbadahPayload } from "../../types";
-
-export const hostSuggestionQuery = (typeId: string, zoneId: string) => ({
-  queryKey: [...ibadahKeys.hosts(), typeId, zoneId],
-  queryFn: () =>
-    fetchList<HostSuggestion>(
-      `/ibadah/saran-tuan-rumah?typeIbadahId=${typeId}&zoneChurchId=${zoneId}`,
-    ),
-});
+import type { Ibadah, IbadahPayload } from "../../types";
 
 export const rangeQuery = (
   typeId: string,

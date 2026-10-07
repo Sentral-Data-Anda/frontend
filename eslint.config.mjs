@@ -279,9 +279,9 @@ const eslintConfig = defineConfig([
       "boundaries/include": [
         "src/{app,features,components,lib,hooks,config,types}/**/*.{ts,tsx}",
       ],
-      // Hanya EMPAT berkas auth yang boleh disentuh lintas lapisan, dan
-      // keempatnya memang "sesi": penyedia sesi, pembaca sesi di server, hook
-      // izin, dan kontrak sesinya sendiri (`types.ts`, setelah tipe menu
+      // Hanya LIMA berkas auth yang boleh disentuh lintas lapisan, dan
+      // kelimanya memang "sesi": barrel `index`, penyedia sesi, pembaca sesi di
+      // server, hook izin, dan kontrak sesinya sendiri (`types.ts`, setelah tipe menu
       // pindah ke `types/menu.ts`). `refresh.ts` — rotasi token — tidak ikut,
       // dan itulah yang membuat penyempitan ini ada artinya.
       "boundaries/files": [

@@ -9,7 +9,8 @@
  *   MOCK_DDL_EMPTY=1              → ddl kosong (404), sama dengan ddl lain
  *
  * Nama ganda (tanpa peka huruf besar) → 409 "Wilayah Sudah Tersedia".
- * ZC-0001 masih dipakai keluarga, jadi hapusnya 400. ZC-0005 nonaktif.
+ * ZC-0001 masih dipakai keluarga, jadi hapusnya 400; wilayah yang dipakai ibadah
+ * hidup juga 400 ("Ibadah"). ZC-0005 nonaktif.
  */
 import { MENU } from "../../../src/config/menu";
 import { ZONE_CHURCHES } from "../../mock-dashboard";
@@ -55,6 +56,28 @@ const rows: Row[] = process.env.MOCK_WILAYAH_MANY
     ];
 
 rows[0].blockers = "Keluarga";
+
+// Pemakai wilayah di modul lain mendaftar di sini (bukan diimpor) supaya tidak
+// ada impor melingkar. Label dan urutannya cermin `ZONE_CHURCH_DEPENDENTS`.
+const dependents: { label: string; isUsedBy: (zoneId: number) => boolean }[] =
+  [];
+
+export const registerWilayahDependent = (
+  label: string,
+  isUsedBy: (zoneId: number) => boolean,
+) => {
+  dependents.push({ label, isUsedBy });
+};
+
+const blockersOf = (row: Row) =>
+  [
+    row.blockers,
+    ...dependents
+      .filter((dependent) => dependent.isUsedBy(row.id))
+      .map((dependent) => dependent.label),
+  ]
+    .filter(Boolean)
+    .join(", ");
 
 const view = ({ blockers: _blockers, ...row }: Row) => row;
 
@@ -225,11 +248,13 @@ export const wilayahMock: MockHandler = async ({
   }
 
   if (method === "DELETE") {
-    if (row.blockers) {
+    const blockers = blockersOf(row);
+
+    if (blockers) {
       return json(
         {
           status: 400,
-          error: `Wilayah Tidak Dapat Dihapus Karena Masih Digunakan oleh ${row.blockers}. Nonaktifkan Wilayah Ini Jika Tidak Ingin Dipakai Lagi`,
+          error: `Wilayah Tidak Dapat Dihapus Karena Masih Digunakan oleh ${blockers}. Nonaktifkan Wilayah Ini Jika Tidak Ingin Dipakai Lagi`,
         },
         400,
       );

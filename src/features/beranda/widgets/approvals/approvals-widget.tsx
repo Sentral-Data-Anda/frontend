@@ -8,14 +8,19 @@ import {
 } from "@/components/common/dashboard";
 import { Badge } from "@/components/common/display";
 import { EmptyState } from "@/components/common/feedback";
-import { MENU, menuHref } from "@/config/menu";
+import { MENU, detailHref, menuHref } from "@/config/menu";
 import { daysSince } from "@/lib/date";
-import { formatRupiahCompact } from "@/lib/format";
-import { APPROVAL_DOCUMENT_LABEL } from "@/types/persetujuan";
+import {
+  APPROVAL_DOCUMENT_LABEL,
+  formatApprovalAmount,
+} from "@/types/persetujuan";
 
 import { amountOf, useWaitingApprovals, type ApprovalItem } from "../../api";
 
 const QUEUE_HREF = menuHref(MENU.PERSETUJUAN, MENU.PERMINTAAN_PERSETUJUAN);
+
+const detailHrefOf = (item: ApprovalItem) =>
+  detailHref(MENU.PERSETUJUAN, MENU.PERMINTAAN_PERSETUJUAN, item.publicId);
 
 const bapelOf = (item: ApprovalItem) =>
   item.steps.find((step) => step.order === item.currentOrder)?.approverBapel
@@ -31,7 +36,10 @@ export const ApprovalsWidget = () => {
 
   const rows: TableRow[] = items.slice(0, 5).map((item) => {
     const kind = APPROVAL_DOCUMENT_LABEL[item.documentType];
-    const amount = amountOf(item.amount);
+    const amount =
+      amountOf(item.amount) > 0
+        ? formatApprovalAmount(item.documentType, item.amount)
+        : null;
     const meta = [bapelOf(item), ageOf(daysSince(item.submittedAt, now))]
       .filter(Boolean)
       .join(" · ");
@@ -39,7 +47,7 @@ export const ApprovalsWidget = () => {
 
     return {
       key: item.code,
-      href: QUEUE_HREF,
+      href: detailHrefOf(item),
       label: `${item.code} · ${kind}`,
       cells: [
         <TableTitle key="item" title={`${item.code} · ${kind}`} meta={meta} />,
@@ -47,7 +55,7 @@ export const ApprovalsWidget = () => {
           {kind}
         </span>,
         <span key="amount" className="font-semibold">
-          {amount > 0 ? formatRupiahCompact(amount) : "—"}
+          {amount ?? "—"}
         </span>,
         status,
       ],
@@ -59,7 +67,7 @@ export const ApprovalsWidget = () => {
             {status}
           </>
         ),
-        trailing: amount > 0 ? formatRupiahCompact(amount) : undefined,
+        trailing: amount ?? undefined,
       },
     };
   });

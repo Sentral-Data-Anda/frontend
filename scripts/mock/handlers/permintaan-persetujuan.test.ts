@@ -1,5 +1,7 @@
 import { describe, expect, test } from "bun:test";
 
+import { todayJakarta } from "../../../src/lib/date";
+
 import { createPermintaanPersetujuanMock } from "./permintaan-persetujuan";
 
 const pid = (n: number) =>
@@ -30,6 +32,8 @@ const onCall = async (path: string, method = "GET", body?: unknown) => {
   return { status: response.status, body: await response.json() };
 };
 
+const YEAR = todayJakarta().slice(0, 4);
+
 describe("mock permintaan persetujuan (majelis)", () => {
   test("tolak: alasan divalidasi sebelum guard mesin", async () => {
     const finished = await onCall(`/persetujuan/${pid(17)}/tolak`, "PUT", {
@@ -51,8 +55,8 @@ describe("mock permintaan persetujuan (majelis)", () => {
     const queue = await onCall("/persetujuan?menunggu=saya&limit=100");
     const codes = queue.body.data.map((row: { code: string }) => row.code);
 
-    expect(codes).toContain("PST-2026-0001");
-    expect(codes).not.toContain("PST-2026-0007");
+    expect(codes).toContain(`PST-${YEAR}-0001`);
+    expect(codes).not.toContain(`PST-${YEAR}-0007`);
   });
 
   test("pengajuan sendiri di tahap role saya: canSign false, canWithdraw true", async () => {
