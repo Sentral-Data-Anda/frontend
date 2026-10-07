@@ -11,7 +11,7 @@ import {
 import type { ListFilterSchema } from "@/hooks/use-list-params";
 import { FetchError } from "@/lib/api/fetcher";
 import { formatAmount, formatDateTime } from "@/lib/format";
-import { lineAmount, sumAmounts } from "@/lib/number";
+import { lineAmountText, sumAmounts } from "@/lib/number";
 import type { CeilingUsage } from "@/types/anggaran";
 
 import type {
@@ -441,5 +441,5 @@ export const toProgramPayload = (
 
 export const formTotal = (items: readonly ProgramItemValues[]) =>
   sumAmounts(
-    items.map((item) => String(lineAmount(item.quantity, item.unitPrice) ?? 0)),
+    items.map((item) => lineAmountText(item.quantity, item.unitPrice) ?? "0"),
   );

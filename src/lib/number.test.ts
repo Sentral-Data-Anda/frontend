@@ -4,6 +4,7 @@ import {
   balanceOf,
   groupAmount,
   lineAmount,
+  lineAmountText,
   sumAmounts,
   toDecimal,
   toDigits,
@@ -84,6 +85,38 @@ describe("lineAmount", () => {
     expect(lineAmount("", "185000")).toBeNull();
     expect(lineAmount("2", "")).toBeNull();
     expect(lineAmount("0", "185000")).toBeNull();
+  });
+});
+
+describe("lineAmountText", () => {
+  test("jumlah x harga sebagai string desimal", () => {
+    expect(lineAmountText("4", "185000")).toBe("740000");
+    expect(lineAmountText("2", "520.5")).toBe("1041");
+    expect(lineAmountText("1.5", "0.5")).toBe("0.75");
+  });
+
+  test("tetap tepat di atas 15 digit signifikan", () => {
+    expect(lineAmountText("3", "3000000000000000.33")).toBe(
+      "9000000000000000.99",
+    );
+    expect(lineAmountText("99999999", "99999999")).toBe("9999999800000001");
+    expect(lineAmountText("1", "12345678901234567.89")).toBe(
+      "12345678901234567.89",
+    );
+  });
+
+  test("pecahan di bawah sen dibulatkan setengah-naik", () => {
+    expect(lineAmountText("0.5", "0.01")).toBe("0.01");
+    expect(lineAmountText("0.4", "0.01")).toBeNull();
+    expect(lineAmountText("1.005", "1")).toBe("1.01");
+  });
+
+  test("kosong, nol, dan bukan angka menjadi null", () => {
+    expect(lineAmountText("", "185000")).toBeNull();
+    expect(lineAmountText("2", "")).toBeNull();
+    expect(lineAmountText("0", "185000")).toBeNull();
+    expect(lineAmountText("-2", "5")).toBeNull();
+    expect(lineAmountText("a", "5")).toBeNull();
   });
 });
 

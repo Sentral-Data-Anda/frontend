@@ -57,6 +57,42 @@ const fromCents = (cents: bigint) => {
     : `${digits.slice(0, -2)}.${fraction}`;
 };
 
+const PLAIN_DECIMAL = /^(\d*)(?:\.(\d*))?$/;
+
+const scaledOf = (value: string) => {
+  const match = PLAIN_DECIMAL.exec(value);
+
+  if (!match || !(match[1] || match[2])) return null;
+
+  const fraction = match[2] ?? "";
+
+  return {
+    digits: BigInt(`${match[1] ?? ""}${fraction}` || "0"),
+    scale: fraction.length,
+  };
+};
+
+/**
+ * Jumlah x harga sebagai string desimal, dihitung dengan BigInt (float rusak di
+ * atas 15 digit). Dibulatkan setengah-naik ke sen; kosong/nol/bukan angka -> null.
+ */
+export const lineAmountText = (quantity: string, price: string) => {
+  const a = scaledOf(quantity);
+  const b = scaledOf(price);
+
+  if (!a || !b) return null;
+
+  const product = a.digits * b.digits;
+  const excess = a.scale + b.scale - 2;
+  const divisor = BigInt(10) ** BigInt(Math.max(excess, 0));
+  const cents =
+    excess > 0
+      ? (product + divisor / BigInt(2)) / divisor
+      : product * BigInt(10) ** BigInt(-excess);
+
+  return cents > ZERO ? fromCents(cents) : null;
+};
+
 export type BalanceLine = { debit: string; credit: string };
 
 export type BalanceSide = "debit" | "credit";
