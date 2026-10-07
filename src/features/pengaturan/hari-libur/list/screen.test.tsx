@@ -89,10 +89,14 @@ describe("daftar dengan filter Tahun", () => {
     expect(second).toEqual(["10", "11", "12"]);
   });
 
-  test("tanggal kejadian dari server, badge memakai tahun asal", async () => {
+  // Lebar tabel, karena itu yang distub berkas ini: tanggalnya kolom pendek
+  // `formatHolidayDateShort`, tipenya kolom sendiri. Baris HP dengan metanya
+  // yang disambung `·` punya penjaganya sendiri di `list-item.test.tsx`.
+  test("kolom tanggal dari server, badge memakai tahun asal", async () => {
     await onRenderPage("tahun=2026");
 
-    expect(screen.getByText("Minggu, 27 September 2026 · Gereja")).toBeTruthy();
+    expect(screen.getByText("Minggu, 27 Sep 2026")).toBeTruthy();
     expect(screen.getByText("Berulang sejak 1985")).toBeTruthy();
+    expect(screen.getAllByText("Gereja").length).toBeGreaterThan(0);
   });
 });

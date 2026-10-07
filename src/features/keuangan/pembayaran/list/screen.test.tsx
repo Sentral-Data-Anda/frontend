@@ -13,6 +13,7 @@ import {
 import { todayJakarta } from "@/lib/date";
 import type { MenuAction } from "@/types/menu";
 
+import { onStubViewport } from "../../../../../tests/viewport";
 import type { Payment } from "../types";
 
 const actions: { current: Record<string, MenuAction[]> } = { current: {} };
@@ -38,18 +39,13 @@ mock.module("@/features/auth/use-menu-access", () => ({
 
 const { PaymentListScreen } = await import("./screen");
 
-const originalMatchMedia = window.matchMedia;
+let viewport: ReturnType<typeof onStubViewport>;
 
 beforeAll(() => {
-  window.matchMedia = ((query: string) => ({
-    matches: query.startsWith("(min-width"),
-    media: query,
-    addEventListener: () => undefined,
-    removeEventListener: () => undefined,
-  })) as unknown as typeof window.matchMedia;
+  viewport = onStubViewport(true);
 });
 afterAll(() => {
-  window.matchMedia = originalMatchMedia;
+  viewport.onRestore();
 });
 
 const originalFetch = globalThis.fetch;

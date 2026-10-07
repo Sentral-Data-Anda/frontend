@@ -1,4 +1,4 @@
-import { DESKTOP_MEDIA_QUERY } from "@/hooks/use-media";
+import { DESKTOP_MEDIA_QUERY, TABLE_MEDIA_QUERY } from "@/hooks/use-media";
 
 /**
  * `matchMedia` tiruan untuk `useIsDesktop`. happy-dom punya `matchMedia`
@@ -15,7 +15,10 @@ export function onStubViewport(isDesktop: boolean) {
 
   window.matchMedia = ((query: string) => ({
     get matches() {
-      return query === DESKTOP_MEDIA_QUERY && matches;
+      return (
+        matches &&
+        (query === DESKTOP_MEDIA_QUERY || query === TABLE_MEDIA_QUERY)
+      );
     },
     media: query,
     addEventListener: (_type: string, listener: () => void) =>

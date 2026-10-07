@@ -1,25 +1,21 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
+import { onStubViewport } from "../../../../../tests/viewport";
 import type { Change } from "../model";
 import type { LogAction } from "../types";
 
 import { ChangesPanel } from "./changes-panel";
 
-const originalMatchMedia = window.matchMedia;
+let viewport: ReturnType<typeof onStubViewport> | undefined;
 
 afterEach(() => {
   cleanup();
-  window.matchMedia = originalMatchMedia;
+  viewport?.onRestore();
 });
 
 const onRender = (action: LogAction, changes: Change[], isTable: boolean) => {
-  window.matchMedia = ((query: string) => ({
-    matches: isTable,
-    media: query,
-    addEventListener: () => undefined,
-    removeEventListener: () => undefined,
-  })) as unknown as typeof window.matchMedia;
+  viewport = onStubViewport(isTable);
 
   render(<ChangesPanel action={action} changes={changes} />);
 };
