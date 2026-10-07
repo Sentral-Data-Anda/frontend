@@ -91,15 +91,16 @@ describe("tab status", () => {
     ]);
   });
 
-  // `ListTabs` membagi lebarnya rata di bawah 36rem. Diukur di peramban:
-  // "Dibatalkan" meluber 3px di 360, "Batal" nol.
-  test("label tab tetap pendek, dan CANCELLED memakai label chip yang lain", () => {
-    for (const tab of STATUS_TABS) {
-      expect(tab.label.length, tab.label).toBeLessThanOrEqual(9);
-    }
-
-    expect(STATUS_TABS.at(-1)?.label).toBe("Batal");
-    expect(PAYROLL_STATUS_LABEL.CANCELLED).toBe("Dibatalkan");
+  test("label tab status sama dengan chip di barisnya", () => {
+    expect(STATUS_TABS.map((tab) => tab.label)).toEqual([
+      "Semua",
+      "Draf",
+      "Dihitung",
+      "Disetujui",
+      "Dibayar",
+      "Dibatalkan",
+    ]);
+    expect(STATUS_TABS.at(-1)?.label).toBe(PAYROLL_STATUS_LABEL.CANCELLED);
   });
 });
 

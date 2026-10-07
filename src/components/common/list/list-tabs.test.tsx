@@ -68,4 +68,40 @@ describe("ListTabs", () => {
 
     expect(onValueChange).not.toHaveBeenCalled();
   });
+
+  test("tiga tab tidak jadi strip gulir, empat ke atas jadi strip gulir", () => {
+    renderTabs("perawatan");
+    expect(screen.getByRole("tablist").className).not.toContain(
+      "overflow-x-auto",
+    );
+    cleanup();
+
+    render(
+      <ListTabs
+        label="Status"
+        value="a"
+        options={[...OPTIONS, { value: "a", label: "Dibatalkan" }]}
+        onValueChange={mock()}
+      />,
+    );
+    expect(screen.getByRole("tablist").className).toContain("overflow-x-auto");
+    expect(screen.getByRole("tab", { name: "Dibatalkan" }).className).toContain(
+      "flex-none",
+    );
+  });
+
+  test("tab terpilih di-scrollIntoView saat nilai berubah", () => {
+    const scrollIntoView = mock();
+    Element.prototype.scrollIntoView = scrollIntoView;
+    const props = { label: "Jenis", options: OPTIONS, onValueChange: mock() };
+    const { rerender } = render(<ListTabs {...props} value="perawatan" />);
+    scrollIntoView.mockClear();
+
+    rerender(<ListTabs {...props} value="pelepasan" />);
+
+    expect(scrollIntoView).toHaveBeenCalledTimes(1);
+    expect(scrollIntoView.mock.contexts[0]).toBe(
+      screen.getByRole("tab", { name: "Pelepasan" }),
+    );
+  });
 });
