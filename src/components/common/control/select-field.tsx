@@ -33,7 +33,7 @@ export const FIELD_LABEL = "min-w-0 grow truncate";
 export const FIELD_ITEM_HINTED = "h-auto! min-h-control py-1.5";
 
 export const FIELD_HINT =
-  "text-muted-foreground group-data-highlighted:text-primary-foreground/80 group-data-disabled:text-primary-500 group-data-disabled:group-data-highlighted:text-primary-500 max-w-full truncate text-caption font-normal";
+  "text-muted-foreground group-data-highlighted:text-primary-foreground/80 group-data-disabled:text-primary-700 group-data-disabled:group-data-highlighted:text-primary-700 max-w-full truncate text-caption font-normal";
 
 interface PropTypes {
   id?: string;

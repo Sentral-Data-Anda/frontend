@@ -3,7 +3,7 @@
 import { useWatch } from "react-hook-form";
 
 import {
-  ComboboxField,
+  DdlField,
   Input,
   SelectField,
   optionsOf,
@@ -44,7 +44,7 @@ export const KeluargaSection = (props: PropTypes) => {
         isOptional
       >
         {(field) => (
-          <ComboboxField
+          <DdlField
             value={field.value}
             onValueChange={field.onChange}
             options={zoneChurch.options}
