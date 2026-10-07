@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 
 import {
   formatAmount,
+  formatAmountCents,
   formatDate,
   formatDays,
   firstNameOf,
@@ -133,6 +134,51 @@ describe("formatAmount", () => {
 
   test("negatif memakai minus matematis sebelum Rp", () => {
     expect(formatAmount("-1500.00")).toBe("\u2212Rp 1.500");
+  });
+
+  test("16+ digit tampil persis, tidak lewat float", () => {
+    expect(formatAmount("12345678901234567.89")).toBe(
+      "Rp 12.345.678.901.234.567,89",
+    );
+    expect(formatAmount("-12345678901234567.89")).toBe(
+      "\u2212Rp 12.345.678.901.234.567,89",
+    );
+    expect(formatAmount("9007199254740993")).toBe("Rp 9.007.199.254.740.993");
+  });
+
+  test("15 digit lebih sedikit sen tidak membulat naik ke triliun", () => {
+    expect(formatAmount("999999999999999.99")).toBe(
+      "Rp 999.999.999.999.999,99",
+    );
+    expect(formatAmount("999999999999999.00")).toBe("Rp 999.999.999.999.999");
+  });
+
+  test("pecahan lebih dari dua digit dibulatkan setengah-naik, membawa ke rupiah", () => {
+    expect(formatAmount("1.005")).toBe("Rp 1,01");
+    expect(formatAmount("1.004")).toBe("Rp 1,00");
+    expect(formatAmount("99.995")).toBe("Rp 100,00");
+    expect(formatAmount("0.999")).toBe("Rp 1,00");
+  });
+
+  test("minus hilang bila hasil tampil nol", () => {
+    expect(formatAmount("-0.004")).toBe("Rp 0,00");
+    expect(formatAmount("-0")).toBe("Rp 0");
+  });
+
+  test("teks yang bukan desimal jatuh ke jalur lama", () => {
+    expect(formatAmount("1e3")).toBe("Rp 1.000");
+  });
+});
+
+describe("formatAmountCents", () => {
+  test("sen selalu tampil, termasuk nol dan nilai besar", () => {
+    expect(formatAmountCents("200000")).toBe("Rp 200.000,00");
+    expect(formatAmountCents("0.00")).toBe("Rp 0,00");
+    expect(formatAmountCents("-0.00")).toBe("Rp 0,00");
+    expect(formatAmountCents("-1500.5")).toBe("\u2212Rp 1.500,50");
+    expect(formatAmountCents("12345678901234567.89")).toBe(
+      "Rp 12.345.678.901.234.567,89",
+    );
   });
 });
 

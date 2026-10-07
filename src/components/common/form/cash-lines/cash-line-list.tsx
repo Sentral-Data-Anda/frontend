@@ -7,7 +7,7 @@ import {
   type UseFormReturn,
 } from "react-hook-form";
 
-import { formatRupiah } from "@/lib/format";
+import { formatAmount } from "@/lib/format";
 import { sumAmounts } from "@/lib/number";
 
 import { FormWide } from "../form-layout";
@@ -54,7 +54,7 @@ export function CashLineList<T extends FieldValues>(props: PropTypes<T>) {
         isAddDisabled={isDisabled}
         onAdd={onAdd}
         empty="Belum ada baris. Tambahkan pos dan nominalnya."
-        summary={`Total ${formatRupiah(Number(total))}`}
+        summary={`Total ${formatAmount(total)}`}
         error={error}
         errorId={errorId}
       >

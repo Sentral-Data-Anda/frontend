@@ -9,7 +9,7 @@ import {
 } from "react-hook-form";
 
 import { AccountField, AmountInput, Input } from "@/components/common/control";
-import { formatRupiah } from "@/lib/format";
+import { formatAmount } from "@/lib/format";
 import { lineAmount } from "@/lib/number";
 
 import { useAccountLabel } from "../journal-lines/use-account-label";
@@ -70,7 +70,7 @@ export function BudgetLineRow<T extends FieldValues>(props: PropTypes<T>) {
     <LineItemCard
       index={index}
       title={title}
-      meta={subtotal ? formatRupiah(Number(subtotal)) : undefined}
+      meta={subtotal ? formatAmount(subtotal) : undefined}
       removeLabel={`Hapus baris ${index + 1}`}
       isRemoveDisabled={isDisabled}
       onRemove={onRemove}
@@ -176,7 +176,7 @@ export function BudgetLineRow<T extends FieldValues>(props: PropTypes<T>) {
           aria-label={`Subtotal baris ${index + 1}`}
           className="flex min-h-control items-center justify-end text-body tabular-nums"
         >
-          {formatRupiah(Number(subtotal || "0"))}
+          {formatAmount(subtotal || "0")}
         </output>
       </div>
 

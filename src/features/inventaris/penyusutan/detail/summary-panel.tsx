@@ -3,9 +3,9 @@ import {
   DescriptionList,
   Panel,
 } from "@/components/common/display";
-import { formatDateTime, formatNumber } from "@/lib/format";
+import { formatAmountCents, formatDateTime, formatNumber } from "@/lib/format";
 
-import { formatAmount, isCalculated } from "../model";
+import { isCalculated } from "../model";
 import type { RunDetail } from "../types";
 
 const journalEmptyOf = (run: RunDetail) =>
@@ -26,7 +26,7 @@ export const SummaryPanel = (props: PropTypes) => {
         <p className="text-muted-foreground text-body">Total penyusutan</p>
         {isDone ? (
           <p className="text-kpi font-semibold tracking-tight wrap-break-word tabular-nums">
-            {formatAmount(run.totalAmount)}
+            {formatAmountCents(run.totalAmount)}
           </p>
         ) : (
           <p className="text-muted-foreground text-kpi font-semibold tracking-tight">

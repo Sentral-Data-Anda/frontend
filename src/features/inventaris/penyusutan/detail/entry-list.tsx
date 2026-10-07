@@ -10,8 +10,9 @@ import {
   type DataTableConfig,
 } from "@/components/common/list";
 import { useIsTableWidth } from "@/hooks/use-media";
+import { formatAmountCents } from "@/lib/format";
 
-import { assetHref, formatAmount, isCalculated } from "../model";
+import { assetHref, isCalculated } from "../model";
 import type { RunDetail, RunEntry } from "../types";
 
 const hrefOf = (entry: RunEntry) => assetHref(entry.asset.code);
@@ -19,7 +20,7 @@ const hrefOf = (entry: RunEntry) => assetHref(entry.asset.code);
 const labelOf = (entry: RunEntry) => `Lihat barang ${entry.asset.name}`;
 
 const amountCell = (value: string) => (
-  <span className="tabular-nums">{formatAmount(value)}</span>
+  <span className="tabular-nums">{formatAmountCents(value)}</span>
 );
 
 const entryTable = (isCanViewAsset: boolean): DataTableConfig<RunEntry> => ({
@@ -121,10 +122,10 @@ export const EntryList = (props: PropTypes) => {
                 entry.asset.name
               )
             }
-            meta={`Nilai buku ${formatAmount(entry.bookValueAfter)}`}
+            meta={`Nilai buku ${formatAmountCents(entry.bookValueAfter)}`}
             trailing={
               <span className="text-body font-medium tabular-nums">
-                {formatAmount(entry.amount)}
+                {formatAmountCents(entry.amount)}
               </span>
             }
           />
@@ -137,7 +138,7 @@ export const EntryList = (props: PropTypes) => {
             Total penyusutan {run.entries.length} barang
           </span>
           <span className="text-body font-semibold tabular-nums">
-            {formatAmount(run.totalAmount)}
+            {formatAmountCents(run.totalAmount)}
           </span>
         </div>
       ) : null}

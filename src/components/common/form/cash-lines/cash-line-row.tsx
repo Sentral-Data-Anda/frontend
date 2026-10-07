@@ -10,7 +10,7 @@ import {
 } from "react-hook-form";
 
 import { AccountField, AmountInput, Input } from "@/components/common/control";
-import { formatRupiah } from "@/lib/format";
+import { formatAmount } from "@/lib/format";
 
 import { useAccountLabel } from "../journal-lines/use-account-label";
 import { LineItemCard } from "../line-items/line-item-card";
@@ -70,7 +70,7 @@ export function CashLineRow<T extends FieldValues>(props: PropTypes<T>) {
     <LineItemCard
       index={index}
       title={title}
-      meta={line.amount ? formatRupiah(Number(line.amount)) : undefined}
+      meta={line.amount ? formatAmount(line.amount) : undefined}
       removeLabel={`Hapus baris ${index + 1}`}
       isRemoveDisabled={isDisabled}
       onRemove={onRemove}

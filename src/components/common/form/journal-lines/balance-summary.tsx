@@ -2,7 +2,7 @@
 
 import { Check, TriangleAlert } from "lucide-react";
 
-import { formatRupiah } from "@/lib/format";
+import { formatAmount } from "@/lib/format";
 import type { BalanceSide } from "@/lib/number";
 import { cn } from "@/lib/utils";
 
@@ -44,12 +44,12 @@ export const BalanceSummary = (props: PropTypes) => {
           )}
           {isBalanced || shortSide === null
             ? "Seimbang"
-            : `${SHORT_LABEL[shortSide]} ${formatRupiah(Number(difference))}`}
+            : `${SHORT_LABEL[shortSide]} ${formatAmount(difference)}`}
         </span>
       )}
 
-      <span className={FIGURE}>Debit {formatRupiah(Number(debit))}</span>
-      <span className={FIGURE}>Kredit {formatRupiah(Number(credit))}</span>
+      <span className={FIGURE}>Debit {formatAmount(debit)}</span>
+      <span className={FIGURE}>Kredit {formatAmount(credit)}</span>
     </span>
   );
 };

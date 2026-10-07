@@ -71,6 +71,33 @@ export const formatRupiah = (
 
 export const formatNumber = (value: number) => rupiahFormat.format(value);
 
+const DECIMAL = /^([+-]?)(\d*)(?:\.(\d*))?$/;
+
+const groupThousands = (digits: string) =>
+  digits.replace(/\B(?=(\d{3})+$)/g, ".");
+
+// Teks murni, tanpa float: Number() membulatkan di atas 15 digit signifikan.
+// Pembulatan sen setengah-naik atas digit ketiga pecahan.
+const formatDecimalText = (text: string, isCents: boolean): string | null => {
+  const match = DECIMAL.exec(text.trim());
+
+  if (!match || (!match[2] && !match[3])) return null;
+
+  const [, sign, whole = "", fraction = ""] = match;
+  const hasFraction = /[1-9]/.test(fraction);
+  const cents =
+    BigInt(`${whole || "0"}${fraction.padEnd(2, "0").slice(0, 2)}`) +
+    (Number(fraction[2] ?? 0) >= 5 ? BigInt(1) : BigInt(0));
+  const showCents = isCents || hasFraction;
+  const body = `${groupThousands((cents / BigInt(100)).toString())}${showCents ? `,${(cents % BigInt(100)).toString().padStart(2, "0")}` : ""}`;
+
+  return `${sign === "-" && cents !== BigInt(0) ? "\u2212" : ""}Rp ${body}`;
+};
+
+const formatAmountWith = (value: string | number, isCents: boolean) =>
+  (typeof value === "string" ? formatDecimalText(value, isCents) : null) ??
+  formatRupiah(Number(value), { isCents });
+
 // Decimal dari API berupa STRING; "0.00" tetap "Rp 0". Hanya null/undefined/""
 // yang jadi pengganti, jangan campur "tidak ada data" dengan nol rupiah.
 export const formatAmount = (
@@ -79,7 +106,11 @@ export const formatAmount = (
 ) =>
   value === null || value === undefined || value === ""
     ? empty
-    : formatRupiah(Number(value));
+    : formatAmountWith(value, false);
+
+/** Seperti `formatAmount`, tetapi sen selalu tampil: `"200000"` -> `"Rp 200.000,00"`. */
+export const formatAmountCents = (value: string | number) =>
+  formatAmountWith(value, true);
 
 const dayFormat = new Intl.NumberFormat("id-ID");
 

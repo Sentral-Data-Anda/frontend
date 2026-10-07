@@ -7,7 +7,7 @@ import {
   type UseFormReturn,
 } from "react-hook-form";
 
-import { formatRupiah } from "@/lib/format";
+import { formatAmount } from "@/lib/format";
 import { lineAmount, sumAmounts } from "@/lib/number";
 
 import { FormWide } from "../form-layout";
@@ -61,7 +61,7 @@ export function BudgetLineList<T extends FieldValues>(props: PropTypes<T>) {
         isAddDisabled={isDisabled}
         onAdd={onAdd}
         empty="Belum ada rincian. Tambahkan pos, jumlah, dan harga satuannya."
-        summary={`Total usulan ${formatRupiah(Number(total))}`}
+        summary={`Total usulan ${formatAmount(total)}`}
         error={error}
         errorId={errorId}
       >
