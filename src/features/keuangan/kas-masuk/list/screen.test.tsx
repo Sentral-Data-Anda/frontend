@@ -152,12 +152,46 @@ describe("ReceiptListScreen", () => {
     expect(screen.queryByLabelText("Ubah kas masuk BKM-2026-0002")).toBeNull();
   });
 
-  test("kosong menyebut persembahan yang sudah diposting", async () => {
+  test("kosong di bulan berjalan menyebut bawaannya, bukan 'belum ada'", async () => {
+    onRender(["VIEW"], []);
+
+    expect(await screen.findByText("Tidak ada kas masuk")).toBeTruthy();
+    expect(screen.queryByText("Belum ada kas masuk")).toBeNull();
+    expect(screen.getByText(/Bawaannya hanya bulan berjalan/)).toBeTruthy();
+    expect(
+      screen.getByText(/Persembahan yang sudah diposting tidak dicatat lagi/),
+    ).toBeTruthy();
+  });
+
+  test("kosong di semua bulan baru berbunyi 'belum ada'", async () => {
+    query.current = "bulan=semua";
     onRender(["VIEW"], []);
 
     expect(await screen.findByText("Belum ada kas masuk")).toBeTruthy();
     expect(
       screen.getByText(/Persembahan yang sudah diposting tidak dicatat lagi/),
     ).toBeTruthy();
+  });
+});
+
+describe("indikator bawaan bulan berjalan", () => {
+  test("bawaan berbadge, bulan=semua tidak", async () => {
+    onRender(["VIEW"]);
+    await screen.findByText("Keluarga Santoso");
+
+    expect(
+      screen.getByRole("button", { name: "Filter, 1 aktif" }),
+    ).toBeTruthy();
+    expect(
+      screen.getByRole("button", { name: "Hapus filter Bulan: Bulan ini" }),
+    ).toBeTruthy();
+
+    cleanup();
+    query.current = "bulan=semua";
+    onRender(["VIEW"]);
+    await screen.findByText("Keluarga Santoso");
+
+    expect(screen.getByRole("button", { name: "Filter" })).toBeTruthy();
+    expect(screen.queryByRole("list", { name: "Filter aktif" })).toBeNull();
   });
 });

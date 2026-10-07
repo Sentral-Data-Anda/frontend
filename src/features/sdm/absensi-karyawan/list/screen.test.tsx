@@ -1,5 +1,11 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import {
   afterAll,
   afterEach,
@@ -22,10 +28,13 @@ import { resetKaryawanRows } from "../../../../../scripts/mock/handlers/karyawan
 import { onStubViewport } from "../../../../../tests/viewport";
 
 const search = { current: "" };
+const replaced: string[] = [];
 const actions: { current: MenuAction[] } = { current: [] };
 
 mock.module("next/navigation", () => ({
-  useRouter: () => ({ replace: () => undefined }),
+  useRouter: () => ({
+    replace: (url: string) => void replaced.push(url),
+  }),
   usePathname: () => "/sdm/absensi-karyawan",
   useSearchParams: () => new URLSearchParams(search.current),
 }));
@@ -52,6 +61,7 @@ const { AbsensiListScreen } = await import("./screen");
 
 const originalFetch = globalThis.fetch;
 let viewport: ReturnType<typeof onStubViewport>;
+let suiteFetch: typeof fetch;
 
 beforeAll(() => {
   viewport = onStubViewport(true);
@@ -77,6 +87,7 @@ beforeAll(() => {
       sessionCode: "test",
     });
   }) as typeof fetch;
+  suiteFetch = globalThis.fetch;
 });
 
 afterAll(() => {
@@ -92,7 +103,9 @@ beforeEach(() => {
 
 afterEach(() => {
   cleanup();
+  globalThis.fetch = suiteFetch;
   search.current = "";
+  replaced.length = 0;
 });
 
 const onRenderList = (granted: MenuAction[], query = "") => {
@@ -196,6 +209,87 @@ describe("daftar", () => {
     await waitFor(() =>
       expect(screen.getByText(/\d+ catatan absensi · \w+ \d{4}/)).toBeTruthy(),
     );
+  });
+
+  const onRenderEmpty = (query = "") => {
+    globalThis.fetch = (async (input: RequestInfo | URL) => {
+      const url = new URL(String(input), "http://mock.test");
+
+      return url.pathname.endsWith("/ddl/karyawan")
+        ? Response.json({ status: 200, message: "OK", data: [] })
+        : Response.json({
+            status: 200,
+            message: "OK",
+            totalData: 0,
+            totalPage: 1,
+            data: [],
+          });
+    }) as typeof fetch;
+
+    onRenderList(["VIEW"], query);
+  };
+
+  // Bawaan menyaring, jadi "belum ada" di sini akan berbohong tentang bulan lain.
+  test("kosong di bulan berjalan berbunyi 'tidak ada', bukan 'belum ada'", async () => {
+    onRenderEmpty();
+
+    expect(await screen.findByText("Tidak ada absensi karyawan")).toBeTruthy();
+    expect(screen.queryByText("Belum ada absensi karyawan")).toBeNull();
+    expect(
+      screen.getByText(/Pilih Semua bulan untuk melihat seluruh catatan/),
+    ).toBeTruthy();
+  });
+
+  test("kosong di semua bulan baru berbunyi 'belum ada'", async () => {
+    onRenderEmpty("bulan=semua");
+
+    expect(await screen.findByText("Belum ada absensi karyawan")).toBeTruthy();
+    expect(screen.queryByText("Tidak ada absensi karyawan")).toBeNull();
+  });
+
+  /**
+   * Rakitan nyata, bukan prop palsu: `useListParams` + `ListToolbar` yang
+   * benar-benar terpasang. Bawaan layar ini menyaring ke bulan berjalan, jadi
+   * indikatornya harus menyala di bawaan dan mati di `?bulan=semua` — terbalik
+   * dari layar yang bawaannya netral.
+   */
+  test("bawaan bulan berjalan: tombol Filter berbadge dan satu label hapus-filter", async () => {
+    onRenderList(["VIEW"]);
+    await onLoaded();
+
+    expect(
+      screen.getByRole("button", { name: "Filter, 1 aktif" }),
+    ).toBeTruthy();
+    expect(
+      screen.getByRole("button", { name: "Hapus filter Bulan: Bulan ini" }),
+    ).toBeTruthy();
+  });
+
+  test("bulan=semua: tanpa badge dan tanpa label hapus-filter", async () => {
+    onRenderList(["VIEW"], "bulan=semua");
+    await onLoaded();
+
+    expect(screen.getByRole("button", { name: "Filter" })).toBeTruthy();
+    expect(screen.queryByRole("list", { name: "Filter aktif" })).toBeNull();
+  });
+
+  test("karyawan menambah satu label di atas bawaan bulan yang menyaring", async () => {
+    onRenderList(["VIEW"], "karyawan=1");
+    await onLoaded();
+
+    expect(
+      screen.getByRole("button", { name: "Filter, 2 aktif" }),
+    ).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Hapus semua" })).toBeTruthy();
+  });
+
+  test("Hapus semua mengembalikan bulan ke 'semua', bukan membiarkannya kosong", async () => {
+    onRenderList(["VIEW"], "karyawan=1");
+    await onLoaded();
+
+    fireEvent.click(screen.getByRole("button", { name: "Hapus semua" }));
+
+    expect(replaced.at(-1)).toContain("bulan=semua");
   });
 
   test("Semua bulan dikatakan di subjudul", async () => {

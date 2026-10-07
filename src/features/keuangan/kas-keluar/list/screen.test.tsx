@@ -174,7 +174,16 @@ describe("daftar kas keluar", () => {
     expect(await screen.findByLabelText("Tambah kas keluar")).toBeTruthy();
   });
 
-  test("kosong: mengundang mencatat pengeluaran", async () => {
+  test("kosong di bulan berjalan menyebut bawaannya, bukan 'belum ada'", async () => {
+    onRender([]);
+
+    expect(await screen.findByText("Tidak ada kas keluar")).toBeTruthy();
+    expect(screen.queryByText("Belum ada kas keluar")).toBeNull();
+    expect(screen.getByText(/Bawaannya hanya bulan berjalan/)).toBeTruthy();
+  });
+
+  test("kosong di semua bulan mengundang mencatat pengeluaran", async () => {
+    search.current = "bulan=semua";
     onRender([]);
 
     expect(await screen.findByText("Belum ada kas keluar")).toBeTruthy();
@@ -201,5 +210,27 @@ describe("gerbang izin", () => {
       screen.getByText("Anda tidak memiliki akses ke Kas Keluar"),
     ).toBeTruthy();
     expect(isFetched).toBe(false);
+  });
+});
+
+describe("indikator bawaan bulan berjalan", () => {
+  test("bawaan berbadge, bulan=semua tidak", async () => {
+    onRender([rowOf()]);
+    await screen.findByText("CV Tirta Nusantara");
+
+    expect(
+      screen.getByRole("button", { name: "Filter, 1 aktif" }),
+    ).toBeTruthy();
+    expect(
+      screen.getByRole("button", { name: "Hapus filter Bulan: Bulan ini" }),
+    ).toBeTruthy();
+
+    cleanup();
+    search.current = "bulan=semua";
+    onRender([rowOf()]);
+    await screen.findByText("CV Tirta Nusantara");
+
+    expect(screen.getByRole("button", { name: "Filter" })).toBeTruthy();
+    expect(screen.queryByRole("list", { name: "Filter aktif" })).toBeNull();
   });
 });

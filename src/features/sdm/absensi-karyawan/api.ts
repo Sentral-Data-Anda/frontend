@@ -6,7 +6,7 @@ import type { ListFilterSchema, ListState } from "@/hooks/use-list-params";
 import { useListQuery } from "@/hooks/use-list-query";
 import { fetchList, fetchOne } from "@/lib/api/fetcher";
 
-import { toAbsensiApiFilters } from "./model";
+import { MONTH_ALL, toAbsensiApiFilters } from "./model";
 import type { AbsensiKaryawan, AbsensiKaryawanPayload } from "./types";
 
 const pathOf = (publicId: string) =>
@@ -23,7 +23,9 @@ export const absensiKeys = {
 // di sini; rentang tanggal diturunkan dari `bulan` lewat `toAbsensiApiFilters`.
 export const ABSENSI_FILTERS = {
   karyawan: { api: "karyawanId" },
-  bulan: { api: "bulan" },
+  // URL kosong = bulan ini, yang menyaring; yang tidak menyaring adalah
+  // "semua", jadi itulah bawaan yang dibandingkan tombol Filter.
+  bulan: { api: "bulan", defaultValue: MONTH_ALL },
 } satisfies ListFilterSchema;
 
 export function useAbsensiList(params: ListState) {

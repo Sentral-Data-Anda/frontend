@@ -11,6 +11,7 @@ import {
   EMPTY_DESCRIPTION,
   EMPTY_TITLE,
   KAS_MASUK_CREATE_PATH,
+  MONTH_ALL,
   PERSEMBAHAN_NOTE,
   STATUS_TABS,
   TITLE,
@@ -66,6 +67,7 @@ export const ReceiptListContent = () => {
             label: "Bulan",
             kind: "select",
             options: monthFilterOptions(),
+            defaultValue: MONTH_ALL,
           },
         ]}
       />
@@ -81,7 +83,7 @@ export const ReceiptListContent = () => {
         emptyTitle={isNarrowed ? "Tidak ada kas masuk" : EMPTY_TITLE}
         emptyDescription={
           isNarrowed
-            ? "Tidak ada kas masuk yang cocok dengan filter ini."
+            ? `Tidak ada kas masuk yang cocok dengan pencarian atau filter ini. Bawaannya hanya bulan berjalan. ${PERSEMBAHAN_NOTE}`
             : `${EMPTY_DESCRIPTION} ${PERSEMBAHAN_NOTE}`
         }
         onClearFilter={
