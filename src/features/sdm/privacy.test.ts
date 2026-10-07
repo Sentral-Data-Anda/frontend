@@ -68,6 +68,7 @@ const SALARY_SCREENS = [
   "scripts/mock/handlers/kontrak-karyawan.ts",
   "scripts/mock/handlers/kontrak-karyawan.test.ts",
   "scripts/mock/handlers/payroll.ts",
+  "scripts/mock/handlers/payroll.test.ts",
 ] as const;
 
 type Source = { path: string; text: string };
