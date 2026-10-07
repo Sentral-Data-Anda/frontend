@@ -64,6 +64,10 @@
  * Port bisa digeser supaya berjalan di samping `dev:mock` lain:
  *   MOCK_API_PORT=3011 PORT=3010 bun run dev:mock
  *
+ * Bawaannya hanya terjangkau dari mesin ini. Untuk mereview di HP sungguhan:
+ *   MOCK_HOST=0.0.0.0 bun run dev:mock
+ * lalu buka http://<IP-laptop>:3000 dari HP yang satu wifi.
+ *
  * Ini alat review, bukan kontrak. Bentuk respons yang benar tetap ditentukan
  * be-sada; kalau tiruan ini dan be-sada berselisih, be-sada yang benar.
  */
@@ -92,6 +96,20 @@ import {
 
 const API_PORT = Number(process.env.MOCK_API_PORT ?? 3001);
 const WEB_PORT = Number(process.env.PORT ?? 3000);
+
+/**
+ * Bawaannya `localhost`: tiruan ini tidak punya autentikasi sungguhan, jadi ia
+ * tidak boleh terbuka ke jaringan hanya karena kebetulan dijalankan di kafe.
+ *
+ * Tapi mereview layar di HP SUNGGUHAN butuh ia terjangkau dari jaringan lokal,
+ * dan itu alur kerja yang nyata di proyek ini — bukan kasus karangan. Jadi
+ * pilihannya dikembalikan, bukan dicabut:
+ *
+ *   MOCK_HOST=0.0.0.0 bun run dev:mock
+ *
+ * lalu buka `http://<IP-laptop>:3000` dari HP yang satu wifi.
+ */
+const HOST = process.env.MOCK_HOST ?? "localhost";
 
 const NAMES = [
   "Andreas Sitanggang",
@@ -456,7 +474,7 @@ const verifyPassword = async (request: Request) => {
 };
 
 Bun.serve({
-  hostname: "localhost",
+  hostname: HOST,
   port: API_PORT,
   async fetch(request) {
     if (DELAY_MS > 0) await Bun.sleep(DELAY_MS);
@@ -835,7 +853,7 @@ Bun.serve({
 // Tanpa `next dev`, `Bun.serve` di atas yang menahan proses tetap hidup.
 if (!process.env.MOCK_API_ONLY) {
   const next = Bun.spawn(
-    ["bunx", "next", "dev", "-H", "localhost", "-p", String(WEB_PORT)],
+    ["bunx", "next", "dev", "-H", HOST, "-p", String(WEB_PORT)],
     {
       stdio: ["inherit", "inherit", "inherit"],
       env: {
