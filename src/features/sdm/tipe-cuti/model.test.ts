@@ -1,11 +1,12 @@
 import { describe, expect, test } from "bun:test";
 
+import { keepDigits } from "@/lib/number";
+
 import {
   EMPTY_TIPE_CUTI_FORM,
   quotaTextOf,
   serverFieldError,
   tipeCutiFormSchema,
-  toDigits,
   toTipeCutiForm,
   toTipeCutiPayload,
   type TipeCutiFormValues,
@@ -116,8 +117,8 @@ describe("jatah: null bukan nol", () => {
   });
 
   test("isian hari hanya digit, maksimal 3", () => {
-    expect(toDigits("1a2b3c4")).toBe("123");
-    expect(toDigits("-5")).toBe("5");
+    expect(keepDigits("1a2b3c4", 3)).toBe("123");
+    expect(keepDigits("-5", 3)).toBe("5");
   });
 });
 

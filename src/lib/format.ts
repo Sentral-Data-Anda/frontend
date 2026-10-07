@@ -71,12 +71,8 @@ export const formatRupiah = (
 
 export const formatNumber = (value: number) => rupiahFormat.format(value);
 
-/**
- * API mengembalikan setiap `Decimal` sebagai STRING: gaji pokok, setiap angka
- * slip, jumlah hari cuti (`Decimal(4,1)`). Satu pembulatan untuk semuanya,
- * bukan satu per layar. Pola `formatRupiah(Number(x))` yang terulang ~45 kali
- * di repo ini adalah bentuk yang digantikannya.
- */
+// Decimal dari API berupa STRING; "0.00" tetap "Rp 0". Hanya null/undefined/""
+// yang jadi pengganti, jangan campur "tidak ada data" dengan nol rupiah.
 export const formatAmount = (
   value: string | number | null | undefined,
   empty = "\u2014",

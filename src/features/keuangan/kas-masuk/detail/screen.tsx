@@ -17,7 +17,7 @@ import { MENU, domainHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { useListReturn } from "@/hooks/use-list-return";
 import { FetchError } from "@/lib/api/fetcher";
-import { formatDateShort, formatRupiah } from "@/lib/format";
+import { formatAmount, formatDateShort } from "@/lib/format";
 
 import { useReceiptAction, useReceiptDetail } from "../api";
 import {
@@ -189,7 +189,7 @@ export const ReceiptDetailScreen = (props: PropTypes) => {
         <div className="flex flex-wrap items-baseline justify-between gap-2 pt-2">
           <h2 className="text-title font-semibold">Rincian</h2>
           <p className="text-body font-semibold tabular-nums">
-            {`Total ${formatRupiah(Number(receipt.totalAmount))}`}
+            {`Total ${formatAmount(receipt.totalAmount)}`}
           </p>
         </div>
       </div>

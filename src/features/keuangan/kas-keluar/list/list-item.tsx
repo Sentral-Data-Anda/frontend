@@ -8,7 +8,7 @@ import {
   type DataTableColumn,
   type DataTableConfig,
 } from "@/components/common/list";
-import { formatDateShort, formatRupiah } from "@/lib/format";
+import { formatAmount, formatDateShort } from "@/lib/format";
 import { saveListFocus } from "@/lib/list-return";
 import { cn } from "@/lib/utils";
 
@@ -32,7 +32,7 @@ const viewLabelOf = (row: CashExpense) =>
 
 const accountOf = (row: CashExpense) => row.paidFromAccount.name;
 
-const amountOf = (row: CashExpense) => formatRupiah(Number(row.totalAmount));
+const amountOf = (row: CashExpense) => formatAmount(row.totalAmount);
 
 const metaOf = (row: CashExpense) =>
   [row.code, accountOf(row), formatDateShort(row.expenseDate)].join(" · ");

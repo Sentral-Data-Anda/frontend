@@ -9,11 +9,11 @@ import {
   type DataTableConfig,
 } from "@/components/common/list";
 import {
+  formatAmount,
   formatDate,
   formatDateShort,
   formatMoney,
   formatNumber,
-  formatRupiah,
 } from "@/lib/format";
 import { saveListFocus } from "@/lib/list-return";
 import { cn } from "@/lib/utils";
@@ -95,7 +95,7 @@ export const OrderListItemRow = (props: PropTypes) => {
         <>
           <span className="flex flex-col items-end gap-0.5">
             <span className="text-body font-medium tabular-nums">
-              {formatRupiah(Number(order.totalIDR))}
+              {formatAmount(order.totalIDR)}
             </span>
             {statusOf(order)}
           </span>
@@ -164,7 +164,7 @@ const COLUMNS: Column[] = [
     cell: (order) => (
       <span className="block min-w-0 text-right">
         <span className="block truncate tabular-nums">
-          {formatRupiah(Number(order.totalIDR))}
+          {formatAmount(order.totalIDR)}
         </span>
         {foreignTotalOf(order) ? (
           <span className="text-muted-foreground block truncate text-caption tabular-nums">

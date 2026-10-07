@@ -9,6 +9,7 @@ import {
 } from "@/config/menu";
 import { addDays, monthRange, toDateInput, todayJakarta } from "@/lib/date";
 import {
+  formatAmount,
   formatDateShort,
   formatMoney,
   formatNumber,
@@ -108,8 +109,8 @@ export const requestHintOf = (
 ) =>
   [
     row.bapel?.name,
-    `perkiraan ${formatRupiah(Number(row.totalEstimatedIDR))}`,
-    `sudah dipesan ${formatRupiah(Number(row.orderedTotalIDR))}`,
+    `perkiraan ${formatAmount(row.totalEstimatedIDR)}`,
+    `sudah dipesan ${formatAmount(row.orderedTotalIDR)}`,
   ]
     .filter(Boolean)
     .join(" · ");

@@ -5,14 +5,14 @@ import {
   DataListRow,
   type DataTableConfig,
 } from "@/components/common/list";
-import { formatRupiah } from "@/lib/format";
+import { formatAmount } from "@/lib/format";
 
 import type { ExpenseLine } from "../types";
 
 const accountOf = (line: ExpenseLine) =>
   `${line.account.code} — ${line.account.name}`;
 
-const amountOf = (line: ExpenseLine) => formatRupiah(Number(line.amount));
+const amountOf = (line: ExpenseLine) => formatAmount(line.amount);
 
 const LINE_TABLE: DataTableConfig<ExpenseLine> = {
   columns: [

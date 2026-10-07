@@ -11,7 +11,7 @@ import {
 } from "@/components/common/control";
 import { LineItemCard, useLineItemErrors } from "@/components/common/form";
 import { monthOptions } from "@/lib/date";
-import { formatRupiah } from "@/lib/format";
+import { formatAmount } from "@/lib/format";
 
 import { ANONYMOUS, PERIOD_NOTE, toItemFromType } from "../model";
 import type { OfferingTypeOption } from "../types";
@@ -88,7 +88,7 @@ export const KolekteRow = (props: PropTypes) => {
       index={index}
       title={item.typeName || `Baris ${index + 1}`}
       meta={
-        [giver, item.amount ? formatRupiah(Number(item.amount)) : ""]
+        [giver, item.amount ? formatAmount(item.amount) : ""]
           .filter(Boolean)
           .join(" · ") || undefined
       }

@@ -10,7 +10,7 @@ import {
 } from "@/components/common/display";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
-import { formatDate, formatRupiah } from "@/lib/format";
+import { formatAmount, formatDate } from "@/lib/format";
 
 import { accountHref, journalHref } from "../model";
 import type { CashExpenseDetail } from "../types";
@@ -63,7 +63,7 @@ export const SummaryPanel = (props: PropTypes) => {
         </DescriptionItem>
         <DescriptionItem label="Total keluar">
           <span className="font-medium tabular-nums">
-            {formatRupiah(Number(expense.totalAmount))}
+            {formatAmount(expense.totalAmount)}
           </span>
         </DescriptionItem>
         {journal ? (

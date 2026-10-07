@@ -124,6 +124,16 @@ describe("formatAmount", () => {
   test("nol tetap nol", () => {
     expect(formatAmount("0.00")).toBe("Rp 0");
   });
+
+  test("nol negatif dan nol tanpa sen tidak menjadi tanda hubung", () => {
+    expect(formatAmount("-0.00")).toBe("Rp 0");
+    expect(formatAmount("0")).toBe("Rp 0");
+    expect(formatAmount(0)).toBe("Rp 0");
+  });
+
+  test("negatif memakai minus matematis sebelum Rp", () => {
+    expect(formatAmount("-1500.00")).toBe("\u2212Rp 1.500");
+  });
 });
 
 describe("formatDays", () => {

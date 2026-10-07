@@ -10,7 +10,7 @@ import {
 } from "@/config/menu";
 import { FetchError } from "@/lib/api/fetcher";
 import { addDays, monthRange, todayJakarta } from "@/lib/date";
-import { formatRupiah } from "@/lib/format";
+import { formatAmount, formatRupiah } from "@/lib/format";
 import { collapseSpaces } from "@/lib/name";
 import { sumAmounts } from "@/lib/number";
 import {
@@ -153,7 +153,7 @@ export const periodLabel = (period: string | null) =>
   period ? monthFormat.format(new Date(period)) : null;
 
 export const totalsSubtitle = (count: number, total: string) =>
-  `${count} persembahan · Total ${formatRupiah(Number(total))}`;
+  `${count} persembahan · Total ${formatAmount(total)}`;
 
 // ---------------------------------------------------------------------------
 // Galat server yang menyebut akun, setelan, tipe, atau periode: setiap satunya
@@ -313,7 +313,7 @@ export const itemsTotal = (items: readonly PersembahanItemValues[]) =>
   sumAmounts(items.map((item) => item.amount || "0"));
 
 export const itemsSummary = (items: readonly PersembahanItemValues[]) =>
-  `${items.length} baris · Total ${formatRupiah(Number(itemsTotal(items)))}`;
+  `${items.length} baris · Total ${formatAmount(itemsTotal(items))}`;
 
 /** Selisih hitung fisik: memperingatkan, tidak pernah memblokir (K8). */
 export const countGap = (

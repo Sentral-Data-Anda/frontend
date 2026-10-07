@@ -13,7 +13,7 @@ import { FetchError } from "@/lib/api/fetcher";
 import { fromServerAttachment, newAttachments } from "@/lib/attachment";
 import { addMonths, monthRange, startOfMonth, todayJakarta } from "@/lib/date";
 import { toFormData } from "@/lib/form-data";
-import { formatDateTime, formatRupiah } from "@/lib/format";
+import { formatAmount, formatDateTime, formatRupiah } from "@/lib/format";
 import { collapseSpaces } from "@/lib/name";
 import { sumAmounts } from "@/lib/number";
 import type { AttachmentValue } from "@/types/attachment";
@@ -244,7 +244,7 @@ export const varianceOf = (disbursed: string, reported: string): Variance => {
     disbursed,
     reported,
     difference: String(difference),
-    text: `Kas Keluar bulan ini ${formatRupiah(Number(disbursed))} · Laporan ini ${formatRupiah(Number(reported))} · selisih ${formatRupiah(Math.abs(difference))}`,
+    text: `Kas Keluar bulan ini ${formatAmount(disbursed)} · Laporan ini ${formatAmount(reported)} · selisih ${formatRupiah(Math.abs(difference))}`,
     isLarge: scale > 0 && Math.abs(difference) / scale > LARGE_VARIANCE,
   };
 };

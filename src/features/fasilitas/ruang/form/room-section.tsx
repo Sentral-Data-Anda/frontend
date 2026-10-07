@@ -4,8 +4,7 @@ import { Controller } from "react-hook-form";
 
 import { ChoiceField, Input } from "@/components/common/control";
 import { ControlField, FormSection } from "@/components/common/form";
-
-import { toDigits } from "../model";
+import { keepDigits } from "@/lib/number";
 
 import { STATUS_OPTIONS, type RuangForm } from "./form-options";
 
@@ -38,7 +37,9 @@ export const RoomSection = (props: PropTypes) => {
         {(field) => (
           <Input
             {...field}
-            onChange={(event) => field.onChange(toDigits(event.target.value))}
+            onChange={(event) =>
+              field.onChange(keepDigits(event.target.value, 5))
+            }
             inputMode="numeric"
             autoComplete="off"
             placeholder="mis. 120"

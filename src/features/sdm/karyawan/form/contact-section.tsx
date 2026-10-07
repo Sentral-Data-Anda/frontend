@@ -2,8 +2,7 @@
 
 import { Input, Textarea } from "@/components/common/control";
 import { ControlField, FormSection, FormWide } from "@/components/common/form";
-
-import { toDigits } from "../model";
+import { keepDigits } from "@/lib/number";
 
 import { type KaryawanForm } from "./form-options";
 
@@ -26,7 +25,9 @@ export const ContactSection = (props: PropTypes) => {
           <Input
             {...field}
             value={field.value}
-            onChange={(event) => field.onChange(toDigits(event.target.value))}
+            onChange={(event) =>
+              field.onChange(keepDigits(event.target.value, 15))
+            }
             inputMode="numeric"
             autoComplete="tel"
             maxLength={15}

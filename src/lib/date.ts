@@ -188,11 +188,13 @@ export const monthLabel = (month: string): string =>
 
 export function monthOptions(
   today: string = todayJakarta(),
+  options: { count?: number; ahead?: number } = {},
 ): { value: string; label: string }[] {
+  const { count = 13, ahead = 1 } = options;
   const current = startOfMonth(today);
 
-  return Array.from({ length: 13 }, (_, index) => {
-    const month = addMonths(current, 1 - index);
+  return Array.from({ length: count }, (_, index) => {
+    const month = addMonths(current, ahead - index);
 
     return {
       value: month.slice(0, 7),

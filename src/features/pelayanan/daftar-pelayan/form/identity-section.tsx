@@ -15,8 +15,9 @@ import {
   LockedField,
 } from "@/components/common/form";
 import { useDdlOptions } from "@/hooks/use-ddl-options";
+import { keepDigits } from "@/lib/number";
 
-import { toDigits, type PelayanFormValues } from "../model";
+import { type PelayanFormValues } from "../model";
 import { TYPE_PELAYAN_LABEL, type PelayanDetail } from "../types";
 
 import { STATUS_OPTIONS, TYPE_OPTIONS, type PelayanForm } from "./form-options";
@@ -100,7 +101,7 @@ export const IdentitySection = (props: PropTypes) => {
               <Input
                 {...field}
                 onChange={(event) =>
-                  field.onChange(toDigits(event.target.value))
+                  field.onChange(keepDigits(event.target.value, 12))
                 }
                 inputMode="numeric"
                 autoComplete="tel"

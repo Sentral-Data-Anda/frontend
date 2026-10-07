@@ -8,7 +8,11 @@ import {
   editHref,
   menuHref,
 } from "@/config/menu";
-import { addMonths, startOfMonth, toDateInput, todayJakarta } from "@/lib/date";
+import {
+  monthOptions as libMonthOptions,
+  toDateInput,
+  todayJakarta,
+} from "@/lib/date";
 import { formatDate, formatDateShort, formatWeekday } from "@/lib/format";
 import { normalizeName } from "@/lib/name";
 
@@ -62,24 +66,9 @@ export const ibadahLabel = (ibadah: IbadahLink) =>
 export const emptySlotCount = (row: Pick<JadwalPelayan, "detail">) =>
   row.detail.filter((slot) => !slot.pelayan).length;
 
-const monthFormat = new Intl.DateTimeFormat("id-ID", {
-  month: "long",
-  year: "numeric",
-  timeZone: "UTC",
-});
-
-export function monthOptions(today: string = todayJakarta()): SelectOption[] {
-  const current = startOfMonth(today);
-
-  return Array.from({ length: 15 }, (_, index) => {
-    const month = addMonths(current, 3 - index);
-
-    return {
-      value: month.slice(0, 7),
-      label: monthFormat.format(new Date(`${month}T00:00:00Z`)),
-    };
-  });
-}
+// Jadwal disusun di muka, jadi rentangnya bukan 13 bawaan lib: 3 bulan ke depan.
+export const monthOptions = (today: string = todayJakarta()): SelectOption[] =>
+  libMonthOptions(today, { count: 15, ahead: 3 });
 
 const EMPTY_SLOT: SlotPayload = {
   pelayanId: null,

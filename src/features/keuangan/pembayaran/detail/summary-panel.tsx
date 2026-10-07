@@ -6,7 +6,7 @@ import {
   OptionalText,
   Panel,
 } from "@/components/common/display";
-import { formatDateTime, formatRupiah } from "@/lib/format";
+import { formatAmount, formatDateTime } from "@/lib/format";
 import { JOURNAL_STATUS_LABEL } from "@/types/keuangan";
 
 import {
@@ -49,9 +49,7 @@ export const SummaryPanel = (props: PropTypes) => {
         </DescriptionItem>
 
         <DescriptionItem label="Nominal">
-          <span className="tabular-nums">
-            {formatRupiah(Number(payment.amount))}
-          </span>
+          <span className="tabular-nums">{formatAmount(payment.amount)}</span>
         </DescriptionItem>
 
         <DescriptionItem label="Status">

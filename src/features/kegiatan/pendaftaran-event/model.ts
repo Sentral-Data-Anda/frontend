@@ -9,7 +9,7 @@ import {
   menuHref,
 } from "@/config/menu";
 import { FetchError } from "@/lib/api/fetcher";
-import { formatDate, formatDateShort, formatRupiah } from "@/lib/format";
+import { formatAmount, formatDate, formatDateShort } from "@/lib/format";
 
 import {
   REGISTRATION_STATUS_LABEL,
@@ -59,7 +59,7 @@ export const maskPhone = (phone: string) => {
 };
 
 export const priceOf = (price: string | null) =>
-  price === null ? null : formatRupiah(Number(price));
+  price === null ? null : formatAmount(price);
 
 export const isEventFull = (event: EventOption) =>
   event.registeredCount >= event.capacity;

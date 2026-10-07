@@ -1,6 +1,6 @@
 import { MENU, createHref, detailHref, menuHref } from "@/config/menu";
 import { todayJakarta, toDateInput } from "@/lib/date";
-import { formatRupiah } from "@/lib/format";
+import { formatAmount } from "@/lib/format";
 
 import {
   REPORT_TABS,
@@ -41,8 +41,7 @@ export const flattenTree = (
     ...flattenTree(node.children, depth + 1),
   ]);
 
-export const money = (value: string | undefined) =>
-  formatRupiah(Number(value ?? 0));
+export const money = (value: string | undefined) => formatAmount(value ?? 0);
 
 export const NO_VIEW_TITLE = "Anda tidak memiliki akses ke Laporan Keuangan";
 

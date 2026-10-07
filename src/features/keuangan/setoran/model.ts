@@ -3,7 +3,7 @@ import { z } from "zod";
 import { MENU, createHref, detailHref, menuHref } from "@/config/menu";
 import { FetchError } from "@/lib/api/fetcher";
 import { monthOptions, monthRange, todayJakarta } from "@/lib/date";
-import { formatRupiah } from "@/lib/format";
+import { formatAmount } from "@/lib/format";
 import { collapseSpaces } from "@/lib/name";
 import { type CashStatus } from "@/types/keuangan";
 
@@ -173,7 +173,7 @@ export const saveTextOf = (
   rows: readonly TransferAccountOption[],
   values: TransferFormValues,
 ) =>
-  `Apakah Anda ingin menyimpan pemindahan ${formatRupiah(Number(values.amount))} dari ${accountNameOf(rows, values.fromAccountId)} ke ${accountNameOf(rows, values.toAccountId)}? Pembukuannya baru dibuat saat Anda menekan Setor.`;
+  `Apakah Anda ingin menyimpan pemindahan ${formatAmount(values.amount)} dari ${accountNameOf(rows, values.fromAccountId)} ke ${accountNameOf(rows, values.toAccountId)}? Pembukuannya baru dibuat saat Anda menekan Setor.`;
 
 export const POST_TEXT =
   "Apakah Anda ingin menyetor pemindahan ini? Pemindahan dicatat dan pembukuannya dibuat. Setelah ini setoran tidak bisa diubah.";

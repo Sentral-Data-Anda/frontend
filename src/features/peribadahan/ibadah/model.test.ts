@@ -1,5 +1,7 @@
 import { describe, expect, test } from "bun:test";
 
+import { monthOptions } from "@/lib/date";
+
 import {
   EMPTY_IBADAH_FORM,
   attendanceLabel,
@@ -11,7 +13,6 @@ import {
   ibadahFormSchema,
   mergeHostOptions,
   toHostOptions,
-  monthOptions,
   monthRange,
   salinHref,
   serverFieldError,

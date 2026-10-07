@@ -21,7 +21,7 @@ import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { useListReturn } from "@/hooks/use-list-return";
 import { applyServerError, FIRST_INVALID, revealField } from "@/lib/form-error";
-import { formatRupiah } from "@/lib/format";
+import { formatAmount } from "@/lib/format";
 
 import { useSubmitDisposal } from "../../api";
 import {
@@ -74,7 +74,7 @@ export const DisposalFormScreen = () => {
   const { isDirty, isSubmitting, submitCount } = form.formState;
   const rootError = form.formState.errors.root?.message;
   const summary = pickAsset
-    ? `Diajukan untuk persetujuan dengan nilai ${formatRupiah(Number(pickAsset.acquisitionCost ?? 0))}`
+    ? `Diajukan untuk persetujuan dengan nilai ${formatAmount(pickAsset.acquisitionCost ?? 0)}`
     : undefined;
 
   const onLeave = () => router.replace(listReturn);
