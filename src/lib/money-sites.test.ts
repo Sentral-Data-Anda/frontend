@@ -40,10 +40,21 @@ describe("situs uang", () => {
     expect(scanned).toContain("lib/format.ts");
   });
 
-  test("formatRupiah(Number(x)) inline tidak tersisa di luar lib/format", () => {
-    expect(hitsOf(INLINE).filter((path) => path !== "lib/format.ts")).toEqual(
-      [],
+  test("formatRupiah(Number(x)) inline tidak tersisa di mana pun", () => {
+    // `toEqual([])` hijau juga atas himpunan subjek yang KOSONG, jadi dua
+    // lapisnya dipaku di dalam test ini, bukan dititipkan ke test tetangga
+    // (pedoman §7.1 lapis 5): himpunannya tidak kosong, dan predikatnya
+    // benar-benar bisa menyala.
+    // Lantainya dipasang pada `hitsOf`, jalur yang sama dengan asersinya —
+    // lantai pada `sourcesIn` tidak menolong, karena `hitsOf` bisa rusak
+    // sendiri dan asersinya tetap hijau. Terbukti: memutasi `hitsOf` jadi
+    // selalu kosong membuat versi pertama test ini tetap hijau.
+    expect(hitsOf(/formatAmount\(/)).not.toEqual([]);
+    expect(INLINE.test("const a = formatRupiah(Number(row.amount));")).toBe(
+      true,
     );
+
+    expect(hitsOf(INLINE)).toEqual([]);
   });
 
   // Kurs bukan nominal: pecahan sen, jadi bukan lewat formatAmount.
