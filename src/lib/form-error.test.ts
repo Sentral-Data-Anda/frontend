@@ -1,7 +1,12 @@
 import { afterEach, describe, expect, test } from "bun:test";
 
-import { FetchError } from "./api/fetcher";
-import { applyServerError, FIRST_INVALID, revealField } from "./form-error";
+import { FetchError, fetchOne } from "./api/fetcher";
+import {
+  applyServerError,
+  FIRST_INVALID,
+  FORBIDDEN_MESSAGE,
+  revealField,
+} from "./form-error";
 
 type Recorded = { field: string; message?: string };
 
@@ -94,6 +99,68 @@ describe("applyServerError", () => {
 
     expect(calls[0].field).toBe("root");
     expect(calls[0].message).toContain("Periksa koneksi");
+  });
+});
+
+const onFail = async (status: number, body: unknown): Promise<FetchError> => {
+  const original = globalThis.fetch;
+
+  globalThis.fetch = (async () =>
+    new Response(JSON.stringify(body), { status })) as unknown as typeof fetch;
+
+  try {
+    await fetchOne("/uji");
+  } catch (error) {
+    if (error instanceof FetchError) return error;
+  } finally {
+    globalThis.fetch = original;
+  }
+
+  throw new Error("fetchOne tidak melempar FetchError");
+};
+
+describe("applyServerError: 403", () => {
+  test("403 polos tanpa pesan server jatuh ke kalimat bersama di root, mapMessage tak dipakai", async () => {
+    const { calls, setError } = onCollect();
+    let mapCalls = 0;
+
+    const field = applyServerError(await onFail(403, {}), setError, () => {
+      mapCalls += 1;
+      return null;
+    });
+
+    expect(calls).toEqual([{ field: "root", message: FORBIDDEN_MESSAGE }]);
+    expect(field).toBe("root");
+    expect(mapCalls).toBe(0);
+  });
+
+  test("403 ber-kode STEP_UP_REQUIRED tanpa pesan server TIDAK jatuh ke kalimat bersama", async () => {
+    const { calls, setError } = onCollect();
+
+    applyServerError(await onFail(403, { code: "STEP_UP_REQUIRED" }), setError);
+
+    expect(calls).toHaveLength(1);
+    expect(calls[0].message).not.toBe(FORBIDDEN_MESSAGE);
+    expect(calls[0].message).toBe("Permintaan gagal (403).");
+  });
+
+  test("403 polos dengan pesan server spesifik mempertahankan pesan servernya", async () => {
+    const { calls, setError } = onCollect();
+    const error = "Anda Tidak Dapat Memberikan Role Melebihi Milik Anda";
+
+    applyServerError(await onFail(403, { error }), setError);
+
+    expect(calls).toEqual([{ field: "root", message: error }]);
+  });
+
+  test("status non-403 tanpa pesan server tidak memakai kalimat izin", async () => {
+    const { calls, setError } = onCollect();
+
+    applyServerError(await onFail(500, {}), setError);
+
+    expect(calls).toEqual([
+      { field: "root", message: "Permintaan gagal (500)." },
+    ]);
   });
 });
 

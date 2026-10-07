@@ -18,10 +18,11 @@ interface PropTypes {
   onSave: () => void;
   onLeave: () => void;
   onDelete: () => void;
+  onReject: () => void;
 }
 
 const Harness = (props: PropTypes) => {
-  const { isDirty = false, onSave, onLeave, onDelete } = props;
+  const { isDirty = false, onSave, onLeave, onDelete, onReject } = props;
   const confirm = useFormConfirm();
 
   return (
@@ -35,6 +36,9 @@ const Harness = (props: PropTypes) => {
       <button type="button" onClick={() => confirm.onOpen("delete")}>
         Hapus
       </button>
+      <button type="button" onClick={() => confirm.onOpen("reject")}>
+        Tolak
+      </button>
       <button type="button" onClick={() => confirm.onCancel(isDirty, onLeave)}>
         Batal
       </button>
@@ -45,13 +49,19 @@ const Harness = (props: PropTypes) => {
         onSave={onSave}
         onLeave={onLeave}
         onDelete={onDelete}
+        onReject={onReject}
       />
     </>
   );
 };
 
 const onRender = (isDirty = false) => {
-  const handlers = { onSave: mock(), onLeave: mock(), onDelete: mock() };
+  const handlers = {
+    onSave: mock(),
+    onLeave: mock(),
+    onDelete: mock(),
+    onReject: mock(),
+  };
 
   render(<Harness isDirty={isDirty} {...handlers} />);
 
@@ -109,6 +119,29 @@ describe("standar konfirmasi form", () => {
 
     expect(handlers.onDelete).toHaveBeenCalledTimes(1);
     expect(handlers.onSave).not.toHaveBeenCalled();
+  });
+
+  test("tolak: Ya bernada destructive dan menjalankan onReject, bukan onSave", async () => {
+    const handlers = onRender();
+
+    await onOpen("Tolak", "Apakah Anda ingin menolak jemaat ini?");
+    const yes = screen.getByRole("button", { name: "Ya" });
+
+    expect(yes.className).toContain("text-destructive");
+    fireEvent.click(yes);
+
+    expect(handlers.onReject).toHaveBeenCalledTimes(1);
+    expect(handlers.onSave).not.toHaveBeenCalled();
+    expect(handlers.onDelete).not.toHaveBeenCalled();
+  });
+
+  test("simpan dan update TIDAK destructive", async () => {
+    onRender();
+
+    await onOpen("Simpan", "menyimpan data jemaat");
+    expect(screen.getByRole("button", { name: "Ya" }).className).not.toContain(
+      "text-destructive",
+    );
   });
 
   test("batal saat isian berubah: bertanya dulu, Ya menjalankan onLeave", async () => {

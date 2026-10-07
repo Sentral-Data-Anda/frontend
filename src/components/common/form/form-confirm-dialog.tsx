@@ -10,6 +10,7 @@ const QUESTION: Record<ConfirmKind, (noun: string) => string> = {
   cancel: () =>
     "Apakah Anda ingin membatalkan? Perubahan yang belum disimpan akan hilang.",
   delete: (noun) => `Apakah Anda ingin menghapus data ${noun} ini?`,
+  reject: (noun) => `Apakah Anda ingin menolak ${noun} ini?`,
 };
 
 interface PropTypes {
@@ -19,15 +20,18 @@ interface PropTypes {
   onSave?: () => void;
   onLeave?: () => void;
   onDelete?: () => void;
+  onReject?: () => void;
 }
 
 export const FormConfirmDialog = (props: PropTypes) => {
-  const { confirm, noun, descriptions, onSave, onLeave, onDelete } = props;
+  const { confirm, noun, descriptions, onSave, onLeave, onDelete, onReject } =
+    props;
   const { kind } = confirm;
 
   const onYes = () => {
     if (kind === "cancel") onLeave?.();
     else if (kind === "delete") onDelete?.();
+    else if (kind === "reject") onReject?.();
     else onSave?.();
   };
 
@@ -39,7 +43,7 @@ export const FormConfirmDialog = (props: PropTypes) => {
       description={descriptions?.[kind] ?? QUESTION[kind](noun)}
       confirmLabel="Ya"
       cancelLabel="Tidak"
-      isDestructive={kind === "delete"}
+      isDestructive={kind === "delete" || kind === "reject"}
       isFocusReturnedOnConfirm={false}
       onConfirm={onYes}
     />

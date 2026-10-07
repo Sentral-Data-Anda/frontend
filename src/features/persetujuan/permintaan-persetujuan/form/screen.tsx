@@ -75,7 +75,7 @@ export const PermintaanRejectScreen = (props: PropTypes) => {
 
   const onOpenConfirm = () => {
     setRejectedField(null);
-    confirm.onOpen("save");
+    confirm.onOpen("reject");
   };
 
   const onConfirm = (event: FormEvent<HTMLFormElement>) => {
@@ -209,9 +209,9 @@ export const PermintaanRejectScreen = (props: PropTypes) => {
         confirm={confirm}
         noun="penolakan"
         descriptions={{
-          save: `Tolak ${request ? documentTitle(request) : "permintaan ini"}? Permintaan berakhir di tahap ini dan pengaju perlu mengajukan ulang.`,
+          reject: `Tolak ${request ? documentTitle(request) : "permintaan ini"}? Permintaan berakhir di tahap ini dan pengaju perlu mengajukan ulang.`,
         }}
-        onSave={() => void onReject()}
+        onReject={() => void onReject()}
         onLeave={onLeave}
       />
     </FormLayout>
