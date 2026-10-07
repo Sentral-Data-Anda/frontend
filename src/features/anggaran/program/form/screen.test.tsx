@@ -17,6 +17,7 @@ import {
   test,
 } from "bun:test";
 
+import { addDays, toInputText, todayJakarta } from "@/lib/date";
 import type { BudgetSetting } from "@/types/anggaran";
 import type { MenuAction } from "@/types/menu";
 
@@ -367,4 +368,24 @@ describe("form program", () => {
 
     expect(screen.queryByText(/tidak punya akses ke program ini/i)).toBeNull();
   });
+});
+
+describe("tanggal program boleh di masa depan", () => {
+  test.each([/^Tanggal mulai/, /^Tanggal selesai/])(
+    "%s di masa depan diterima",
+    async (label) => {
+      onRender();
+      await screen.findByRole("button", { name: "Simpan" });
+
+      const box = screen.getByLabelText(label) as HTMLInputElement;
+
+      onType(label, toInputText(addDays(todayJakarta(), 90)));
+      fireEvent.blur(box);
+
+      expect(
+        screen.queryByText(/tidak boleh di masa depan/)?.textContent,
+      ).toBeUndefined();
+      expect(box.getAttribute("aria-invalid")).toBeNull();
+    },
+  );
 });

@@ -214,3 +214,99 @@ describe("DateField — baris konfirmasi (§7.3, §7.10 no. 10)", () => {
     expect(screen.queryByText(/Tanggal tidak ada/)).toBeNull();
   });
 });
+
+/**
+ * Batas yang BERGESER setelah nilainya tersimpan: Kegiatan Event mengikat
+ * `min` tanggal selesai ke tanggal mulai, jadi mengubah tanggal mulai bisa
+ * membuat tanggal selesai yang sudah benar jatuh di bawah batasnya. Sebelum
+ * perbaikan ini, sekadar MELEWATI field itu dengan Tab menghapus nilainya —
+ * tanpa ketikan, tanpa klik, tanpa cara mengembalikannya.
+ */
+describe("DateField — blur tanpa ketikan tidak menghapus nilai", () => {
+  const onRenderBounded = () => {
+    const sent: string[] = [];
+
+    function Harness() {
+      const [start, setStart] = useState("2026-10-20");
+      const [end, setEnd] = useState("2026-10-25");
+
+      return (
+        <>
+          <button type="button" onClick={() => setStart("2026-10-30")}>
+            Geser mulai
+          </button>
+
+          <FormField label="Tanggal selesai" htmlFor="endDate">
+            <DateField
+              value={end}
+              label="Tanggal selesai"
+              min={start}
+              max="2028-12-31"
+              onValueChange={(next) => {
+                sent.push(next);
+                setEnd(next);
+              }}
+            />
+          </FormField>
+        </>
+      );
+    }
+
+    render(<Harness />);
+
+    const box = screen.getByLabelText("Tanggal selesai") as HTMLInputElement;
+
+    return {
+      box,
+      sent,
+      shift: () => fireEvent.click(screen.getByText("Geser mulai")),
+      type: (text: string) =>
+        fireEvent.change(box, { target: { value: text } }),
+      leave: () => fireEvent.blur(box),
+    };
+  };
+
+  test("min bergeser melewati nilainya: blur tanpa ketikan menahan nilai", () => {
+    const date = onRenderBounded();
+
+    date.shift();
+    date.leave();
+
+    expect(date.sent).toEqual([]);
+    expect(date.box.value).toBe("25/10/2026");
+  });
+
+  test("min bergeser melewati nilainya: blur tanpa ketikan tetap memerahkan", () => {
+    const date = onRenderBounded();
+
+    date.shift();
+    date.leave();
+
+    expect(
+      screen.getByText(
+        "Tanggal selesai sebelum 30 Oktober 2026 tidak bisa disimpan.",
+      ),
+    ).toBeTruthy();
+    expect(date.box.getAttribute("aria-invalid")).toBe("true");
+  });
+
+  test("mengetik tanggal di bawah min tetap mengosongkan nilai form", () => {
+    const date = onRenderBounded();
+
+    date.type("01/10/2026");
+    date.leave();
+
+    expect(date.sent.at(-1)).toBe("");
+  });
+
+  test("mengetik tanggal sah di atas min tetap tersimpan", () => {
+    const date = onRenderBounded();
+
+    date.shift();
+    date.type("05/11/2026");
+    date.leave();
+
+    expect(date.sent.at(-1)).toBe("2026-11-05");
+    expect(date.box.value).toBe("05/11/2026");
+  });
+});

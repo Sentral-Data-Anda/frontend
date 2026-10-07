@@ -9,6 +9,7 @@ import {
 } from "@/components/common/control";
 import { ControlField, FormSection, FormWide } from "@/components/common/form";
 import { useDdlOptions } from "@/hooks/use-ddl-options";
+import { endOfYearIso } from "@/lib/date";
 
 import { CONDITION_OPTIONS, type BarangForm } from "./form-options";
 
@@ -86,6 +87,7 @@ export const IdentitySection = (props: PropTypes) => {
             disabled={isDisabled}
             variant="dekat"
             label="Garansi sampai"
+            max={endOfYearIso(5)}
             isClearable
           />
         )}

@@ -112,3 +112,54 @@ describe("ChoiceField di dalam FormField", () => {
     expect(screen.getByRole("radio", { name: "Pengajuan saya" })).toBeTruthy();
   });
 });
+
+describe("ChoiceField — error dan hint sendiri", () => {
+  const onShow = (extra: { error?: string; hint?: string }) =>
+    render(
+      <ChoiceField
+        id="tipe"
+        label="Tipe"
+        value=""
+        onValueChange={mock()}
+        options={OPTIONS}
+        {...extra}
+      />,
+    );
+
+  test("error: pilihan pertama invalid dan grup menunjuk pesannya", () => {
+    onShow({ error: "Pilih tipe", hint: "Petunjuk" });
+
+    const group = screen.getByRole("group");
+    const first = screen.getByRole("radio", { name: "Menunggu saya" });
+
+    expect(first.getAttribute("aria-invalid")).toBe("true");
+    expect(group.getAttribute("aria-describedby")).toBe("tipe-error");
+    expect(document.getElementById("tipe-error")?.textContent).toBe(
+      "Pilih tipe",
+    );
+    expect(screen.queryByText("Petunjuk")).toBeNull();
+  });
+
+  test("hint saja: tersambung, tidak invalid", () => {
+    onShow({ hint: "Petunjuk" });
+
+    expect(screen.getByRole("group").getAttribute("aria-describedby")).toBe(
+      "tipe-hint",
+    );
+    expect(document.getElementById("tipe-hint")?.textContent).toBe("Petunjuk");
+    expect(
+      screen
+        .getAllByRole("radio")
+        .filter((radio) => radio.getAttribute("aria-invalid") !== null),
+    ).toEqual([]);
+  });
+
+  test("tanpa keduanya tidak ada pesan", () => {
+    onShow({});
+
+    expect(
+      screen.getByRole("group").getAttribute("aria-describedby"),
+    ).toBeNull();
+    expect(document.querySelector("p")).toBeNull();
+  });
+});

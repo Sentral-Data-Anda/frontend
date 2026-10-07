@@ -10,6 +10,7 @@ import {
 import { afterEach, describe, expect, mock, test } from "bun:test";
 
 import { MENU } from "@/config/menu";
+import { addDays, toInputText, todayJakarta } from "@/lib/date";
 import type { MenuAction } from "@/types/menu";
 
 import { exportControlsIn } from "../../../../../tests/export-guard";
@@ -501,5 +502,59 @@ describe("penanda data gaji dan nol jalur ekspor", () => {
     await screen.findByRole("button", { name: "Ya" });
 
     expect(exportControlsIn(document)).toEqual([]);
+  });
+});
+
+/**
+ * Kontrak boleh MULAI NANTI — `contractPhase` punya status UPCOMING untuk itu.
+ * `DateField` tanpa `max` memakai hari ini sebagai batas atas, jadi tanpa
+ * `max` eksplisit field ini menolak setiap periode yang belum berjalan dan
+ * TIDAK ADA satu test pun yang merah, karena semua fixture bertanggal lampau.
+ * Test ini sengaja MENGETIK tanggal masa depan.
+ */
+describe("masa berlaku boleh di masa depan", () => {
+  const future = addDays(todayJakarta(), 90);
+
+  test("Berlaku dari di masa depan diterima dan terkirim", async () => {
+    onMockApi();
+    onRender(["VIEW", "UPDATE"], "KTR-0001");
+
+    await onLoaded();
+
+    const from = screen.getByLabelText("Berlaku dari") as HTMLInputElement;
+
+    fireEvent.change(from, { target: { value: toInputText(future) } });
+    fireEvent.blur(from);
+
+    expect(
+      screen.queryByText(/tidak boleh di masa depan/)?.textContent,
+    ).toBeUndefined();
+    expect(from.getAttribute("aria-invalid")).toBeNull();
+
+    await onSave();
+    await waitFor(() => expect(sent.length).toBe(1));
+    expect(sent[0].body.effectiveFrom).toBe(future);
+  });
+
+  test("Berlaku sampai di masa depan diterima dan terkirim", async () => {
+    onMockApi();
+    onRender(["VIEW", "UPDATE"], "KTR-0001");
+
+    await onLoaded();
+
+    const to = screen.getByLabelText(
+      "Berlaku sampai (opsional)",
+    ) as HTMLInputElement;
+
+    fireEvent.change(to, { target: { value: toInputText(future) } });
+    fireEvent.blur(to);
+
+    expect(
+      screen.queryByText(/tidak boleh di masa depan/)?.textContent,
+    ).toBeUndefined();
+
+    await onSave();
+    await waitFor(() => expect(sent.length).toBe(1));
+    expect(sent[0].body.effectiveTo).toBe(future);
   });
 });

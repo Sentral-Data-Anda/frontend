@@ -12,6 +12,8 @@ interface PropTypes {
   onValueChange: (value: string) => void;
   options: readonly SelectOption[];
   disabled?: boolean;
+  error?: string;
+  hint?: string;
   // Disuntikkan `FormField` lewat `cloneElement`. Tanpa menerimanya di sini,
   // keduanya hilang: grup tidak pernah terbaca salah, dan `aria-describedby`
   // menunjuk id pesan galat yang tidak terpasang ke apa pun.
@@ -28,9 +30,16 @@ export const ChoiceField = (props: PropTypes) => {
     onValueChange,
     options,
     disabled,
-    "aria-invalid": isInvalid,
-    "aria-describedby": describedBy,
+    error,
+    hint,
+    "aria-invalid": invalidProp,
+    "aria-describedby": describedByProp,
   } = props;
+
+  const message = error ?? hint;
+  const messageId = message ? `${id}-${error ? "error" : "hint"}` : undefined;
+  const isInvalid = invalidProp ?? (error ? true : undefined);
+  const describedBy = messageId ?? describedByProp;
 
   return (
     <div className="@container">
@@ -72,6 +81,20 @@ export const ChoiceField = (props: PropTypes) => {
           ))}
         </div>
       </fieldset>
+
+      {message ? (
+        <p
+          id={messageId}
+          className={cn(
+            "mt-1.5",
+            error
+              ? "text-destructive text-body"
+              : "text-muted-foreground text-caption",
+          )}
+        >
+          {message}
+        </p>
+      ) : null}
     </div>
   );
 };

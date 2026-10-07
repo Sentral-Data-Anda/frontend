@@ -44,4 +44,30 @@ describe("DdlField", () => {
 
     expect(document.querySelector("input#ruang")).not.toBeNull();
   });
+
+  test.each([
+    [true, 1],
+    [false, 0],
+  ])(
+    "isClearable=%s pada pilihan sedikit: tombol kosongkan %d",
+    (isClearable, count) => {
+      render(
+        <DdlField
+          id="ruang"
+          value="1"
+          onValueChange={() => {}}
+          options={optionsOf(3)}
+          isLoading={false}
+          isClearable={isClearable}
+          disabled={false}
+          placeholder="Pilih ruang"
+          emptyMessage="Belum ada ruang"
+        />,
+      );
+
+      expect(screen.queryAllByLabelText("Kosongkan pilihan").length).toBe(
+        count,
+      );
+    },
+  );
 });

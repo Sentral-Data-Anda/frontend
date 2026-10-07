@@ -12,6 +12,7 @@ import {
   type SelectOption,
 } from "@/components/common/control";
 import { ControlField, FormSection, FormWide } from "@/components/common/form";
+import { endOfYearIso } from "@/lib/date";
 
 import {
   PROPOSAL_NOTE,
@@ -30,6 +31,8 @@ interface PropTypes {
 
 export const ProposalSection = (props: PropTypes) => {
   const { form, yearOptions, isDisabled } = props;
+
+  const dateMax = endOfYearIso(2);
 
   return (
     <FormSection legend="Usulan" note={PROPOSAL_NOTE} disabled={isDisabled}>
@@ -96,6 +99,7 @@ export const ProposalSection = (props: PropTypes) => {
             onBlur={field.onBlur}
             variant="dekat"
             label="Tanggal mulai"
+            max={dateMax}
             isClearable
             disabled={isDisabled}
           />
@@ -116,6 +120,7 @@ export const ProposalSection = (props: PropTypes) => {
             onBlur={field.onBlur}
             variant="dekat"
             label="Tanggal selesai"
+            max={dateMax}
             isClearable
             disabled={isDisabled}
           />
@@ -135,11 +140,8 @@ export const ProposalSection = (props: PropTypes) => {
                 onValueChange={field.onChange}
                 options={UNPLANNED_OPTIONS}
                 disabled={isDisabled}
+                hint={UNPLANNED_NOTE}
               />
-
-              <p className="text-muted-foreground mt-1.5 text-caption">
-                {UNPLANNED_NOTE}
-              </p>
             </div>
           )}
         />

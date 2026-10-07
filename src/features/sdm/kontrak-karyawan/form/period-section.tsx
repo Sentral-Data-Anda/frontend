@@ -4,6 +4,7 @@ import { Controller, useWatch } from "react-hook-form";
 
 import { CheckboxGroupField, DateField } from "@/components/common/control";
 import { ControlField, FormSection, FormWide } from "@/components/common/form";
+import { endOfYearIso } from "@/lib/date";
 
 import {
   PERIOD_NOTE,
@@ -13,6 +14,11 @@ import {
 import { WEEKDAY_OPTIONS, type KontrakKaryawan } from "../types";
 
 import { type KontrakForm } from "./form-options";
+
+// Kontrak dan penetapan komponen boleh mulai NANTI — `contractPhase` punya
+// status UPCOMING untuk itu — jadi `max` bawaan `DateField` (hari ini) akan
+// menolak setiap periode yang belum berjalan.
+const PERIOD_MAX = endOfYearIso(5);
 
 interface PropTypes {
   form: KontrakForm;
@@ -44,6 +50,7 @@ export const PeriodSection = (props: PropTypes) => {
           <DateField
             id={field.name}
             label="Berlaku dari"
+            max={PERIOD_MAX}
             value={field.value}
             onValueChange={field.onChange}
             onBlur={field.onBlur}
@@ -69,6 +76,7 @@ export const PeriodSection = (props: PropTypes) => {
             onBlur={field.onBlur}
             disabled={isDisabled}
             min={effectiveFrom || undefined}
+            max={PERIOD_MAX}
           />
         )}
       </ControlField>

@@ -17,6 +17,7 @@ import {
   test,
 } from "bun:test";
 
+import { addDays, toInputText, todayJakarta } from "@/lib/date";
 import type { MenuAction } from "@/types/menu";
 
 import { onStubViewport } from "../../../../../tests/viewport";
@@ -369,5 +370,24 @@ describe("form tambah", () => {
       screen.getByLabelText("Nilai perolehan (perkiraan, Rp)"),
     ).toBeTruthy();
     expect(screen.getByLabelText("Ruang")).toBeTruthy();
+  });
+});
+
+describe("garansi boleh di masa depan", () => {
+  test("Garansi sampai di masa depan diterima", () => {
+    onMockApi();
+    onRenderForm(["VIEW", "CREATE"]);
+
+    const box = screen.getByLabelText(/^Garansi sampai/) as HTMLInputElement;
+
+    fireEvent.change(box, {
+      target: { value: toInputText(addDays(todayJakarta(), 400)) },
+    });
+    fireEvent.blur(box);
+
+    expect(
+      screen.queryByText(/tidak boleh di masa depan/)?.textContent,
+    ).toBeUndefined();
+    expect(box.getAttribute("aria-invalid")).toBeNull();
   });
 });

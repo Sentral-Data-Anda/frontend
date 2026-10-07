@@ -81,20 +81,13 @@ export const AccountSection = (props: PropTypes) => {
                 onValueChange={(value) => onPickType(value, field.onChange)}
                 options={ACCOUNT_TYPE_OPTIONS}
                 disabled={isDisabled || isTypeLocked}
-              />
-
-              <p
-                className={
-                  fieldState.error
-                    ? "text-destructive mt-1.5 text-body"
-                    : "text-muted-foreground mt-1.5 text-caption"
-                }
-              >
-                {fieldState.error?.message ??
-                  (isTypeLocked
+                error={fieldState.error?.message}
+                hint={
+                  isTypeLocked
                     ? ACCOUNT_TYPE_LOCKED_HINT
-                    : "Tipe menentukan laporan tempat akun ini muncul.")}
-              </p>
+                    : "Tipe menentukan laporan tempat akun ini muncul."
+                }
+              />
             </div>
           )}
         />
@@ -130,12 +123,8 @@ export const AccountSection = (props: PropTypes) => {
               onValueChange={field.onChange}
               options={ACCOUNT_STATUS_OPTIONS}
               disabled={isDisabled}
+              hint="Akun nonaktif tidak bisa dipilih di catatan baru, dan catatan lamanya tetap utuh."
             />
-
-            <p className="text-muted-foreground mt-1.5 text-caption">
-              Akun nonaktif tidak bisa dipilih di catatan baru, dan catatan
-              lamanya tetap utuh.
-            </p>
           </div>
         )}
       />

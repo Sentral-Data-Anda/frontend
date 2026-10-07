@@ -18,6 +18,7 @@ import {
   test,
 } from "bun:test";
 
+import { addDays, toInputText, todayJakarta } from "@/lib/date";
 import type { MenuAction } from "@/types/menu";
 
 import { permintaanPembelianMock } from "../../../../../scripts/mock/handlers/permintaan-pembelian";
@@ -368,5 +369,25 @@ describe("ajukan ulang", () => {
     ).toBeTruthy();
     await waitFor(() => expect(field("purpose")).toBeTruthy());
     expect(field("purpose").value).toBe("");
+  });
+});
+
+describe("tanggal dibutuhkan boleh di masa depan", () => {
+  test("Dibutuhkan tanggal di masa depan diterima", () => {
+    onRender(["VIEW", "CREATE"]);
+
+    const box = screen.getByLabelText(
+      /^Dibutuhkan tanggal/,
+    ) as HTMLInputElement;
+
+    fireEvent.change(box, {
+      target: { value: toInputText(addDays(todayJakarta(), 90)) },
+    });
+    fireEvent.blur(box);
+
+    expect(
+      screen.queryByText(/tidak boleh di masa depan/)?.textContent,
+    ).toBeUndefined();
+    expect(box.getAttribute("aria-invalid")).toBeNull();
   });
 });

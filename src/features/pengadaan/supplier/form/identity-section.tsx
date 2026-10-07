@@ -104,10 +104,8 @@ export const IdentitySection = (props: PropTypes) => {
               onValueChange={field.onChange}
               options={STATUS_OPTIONS}
               disabled={isDisabled}
+              hint="Supplier nonaktif tidak bisa dipilih di pesanan baru."
             />
-            <p className="text-muted-foreground mt-1.5 text-caption">
-              Supplier nonaktif tidak bisa dipilih di pesanan baru.
-            </p>
           </div>
         )}
       />
