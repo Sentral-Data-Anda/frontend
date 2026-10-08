@@ -5,6 +5,7 @@ import {
 } from "@/components/common/display";
 import { formatAmount } from "@/lib/format";
 
+import { valueOf } from "../model";
 import type { StockItem } from "../types";
 
 interface PropTypes {
@@ -25,6 +26,29 @@ export const DataPanel = (props: PropTypes) => {
         <DescriptionItem label="Ruang">{item.room.name}</DescriptionItem>
         <DescriptionItem label="Badan pelayanan">
           {item.bapel.name}
+        </DescriptionItem>
+        {/* Sebelum harga beli terakhir, dengan sengaja: INI yang menilai stok
+            keluar dan yang membuat nilai persediaan di Neraca. Harga beli
+            terakhir hanya keterangan. */}
+        <DescriptionItem label="Harga rata-rata">
+          {item.avgUnitPrice === null ? (
+            <span className="flex flex-col">
+              <span>—</span>
+              <span className="text-muted-foreground text-caption font-normal">
+                Belum pernah ada harga masuk. Pengambilan barang ini ditolak
+                saat posting sampai harganya terisi.
+              </span>
+            </span>
+          ) : (
+            <span className="flex flex-col">
+              <span className="tabular-nums">
+                {formatAmount(item.avgUnitPrice)}
+              </span>
+              <span className="text-muted-foreground text-caption font-normal">
+                Nilai persediaan {formatAmount(valueOf(item))}
+              </span>
+            </span>
+          )}
         </DescriptionItem>
         <DescriptionItem label="Harga beli terakhir">
           {item.lastUnitPrice === null ? (

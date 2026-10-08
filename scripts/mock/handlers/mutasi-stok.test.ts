@@ -114,6 +114,7 @@ describe("tulis (urutan galat)", () => {
         message: "Tanggal Mutasi Tidak Boleh Di Masa Depan",
       },
       { path: "source", message: "Sumber Tidak Sesuai Dengan Jenis Mutasi" },
+      { path: "value", message: "Mohon Lengkapi Nilai Barang Sumbangan" },
     ]);
   });
 
@@ -165,14 +166,84 @@ describe("tulis (urutan galat)", () => {
     const saved = await onCall(
       "POST",
       "/mutasi-stok",
-      valid({ type: "IN", source: "DONATION", quantity: 20, note: "Ibu Rina" }),
+      valid({
+        type: "IN",
+        source: "DONATION",
+        quantity: 20,
+        note: "Ibu Rina",
+        value: 400_000,
+      }),
     );
 
     expect(saved.status).toBe(201);
     expect(saved.body.data).toMatchObject({
       balanceAfter: 23,
       note: "Ibu Rina",
+      // "400000", bukan "400000.00": `money` di inventaris-store membuang nol
+      // di belakang. Tidak ada layar yang peduli -- `formatAmount` dan
+      // `valueOf` dua-duanya mengurainya -- dan `lastUnitPrice` sudah
+      // berbentuk sama sejak lama.
+      value: "400000",
     });
     expect(STOCK_ITEM.find((row) => row.id === ROTI)?.quantity).toBe(23);
+  });
+
+  /**
+   * Tiga aturan nilai, sama seperti server.
+   *
+   * Mock yang lebih longgar di sini membuat setiap layar dibangun melawan
+   * aturan yang tidak ada, dan cacatnya baru muncul di produksi.
+   */
+  test("sumbangan tanpa nilai ditolak pada field nilainya", async () => {
+    const saved = await onCall(
+      "POST",
+      "/mutasi-stok",
+      valid({ type: "IN", source: "DONATION", quantity: 5, note: "Ibu Rina" }),
+    );
+
+    expect(saved.status).toBe(400);
+    expect(saved.body.issues).toEqual([
+      { path: "value", message: "Mohon Lengkapi Nilai Barang Sumbangan" },
+    ]);
+  });
+
+  test("nilai pada mutasi keluar ditolak: harga rata-rata yang memutuskan", async () => {
+    const saved = await onCall(
+      "POST",
+      "/mutasi-stok",
+      valid({ type: "OUT", source: "USAGE", quantity: 1, value: 1 }),
+    );
+
+    expect(saved.status).toBe(400);
+    expect(saved.body.issues).toEqual([
+      {
+        path: "value",
+        message:
+          "Nilai Hanya Diisi Untuk Mutasi Masuk. Mutasi Keluar Memakai Harga Rata-Rata",
+      },
+    ]);
+  });
+
+  // Harga rata-rata bergerak, bukan harga terakhir: itu satu-satunya cara
+  // yang dikreditkan selalu bagian dari yang pernah didebit.
+  test("mutasi masuk memindahkan harga rata-rata barangnya", async () => {
+    const before = STOCK_ITEM.find((row) => row.id === ROTI);
+    const quantity = before?.quantity ?? 0;
+
+    await onCall(
+      "POST",
+      "/mutasi-stok",
+      valid({
+        type: "IN",
+        source: "MANUAL",
+        quantity: 10,
+        value: 300_000,
+        note: "Toko Sinar",
+      }),
+    );
+
+    const after = STOCK_ITEM.find((row) => row.id === ROTI);
+    expect(after?.quantity).toBe(quantity + 10);
+    expect(after?.avgUnitPrice).not.toBeNull();
   });
 });

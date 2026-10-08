@@ -22,7 +22,7 @@ interface PropTypes {
 }
 
 const NOTE =
-  "Dipakai saat perolehan aset dan penyusutan diposting. Dibiarkan kosong, penyusutan memakai akun di Setelan Akuntansi.";
+  "Dipakai saat perolehan aset, penyusutan, dan pemakaian persediaan diposting. Dibiarkan kosong, posting memakai akun di Setelan Akuntansi.";
 
 // Sekali di catatan section, bukan di bawah tiap field: terulang tiga kali
 // berturut-turut kalimatnya berhenti dibaca dan hanya menambah tinggi halaman.
@@ -31,10 +31,10 @@ const LOCKED_NOTE = `${NOTE} Hanya pemegang Setelan Akuntansi yang bisa mengubah
 export const TipeBarangSection = (props: PropTypes) => {
   const { form, isDisabled, tipeBarang } = props;
 
-  // Setelan Akuntansi, NOT Tipe Barang. These three accounts decide where
-  // depreciation lands in the general ledger, and the server refuses the
-  // change to anyone without that grant — so a picker shown here to a stock
-  // clerk would only earn them a 403 after they had filled it in.
+  // Setelan Akuntansi, NOT Tipe Barang. These four accounts decide where
+  // depreciation and inventory usage land in the general ledger, and the
+  // server refuses the change to anyone without that grant — so a picker shown
+  // here to a stock clerk would only earn them a 403 after filling it in.
   //
   // Locked rather than hidden: the clerk may read which accounts a type uses,
   // and `/tipe-barang/:code` already tells them. The picker could not stand in
@@ -116,6 +116,27 @@ export const TipeBarangSection = (props: PropTypes) => {
                 />
               )}
             </ControlField>
+
+            {/* Bukan akun penyusutan: persediaan tidak disusutkan, dia habis.
+                Dan bukan akun aset: itu Aset Tetap, jadi memakainya untuk
+                persediaan membuat kertas ATK masuk neraca sebagai aset
+                tetap. */}
+            <ControlField
+              control={form.control}
+              name="inventoryExpenseAccountId"
+              label="Akun beban pemakaian persediaan"
+            >
+              {(field) => (
+                <AccountField
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  type="EXPENSE"
+                  isClearable
+                  disabled={isDisabled}
+                  placeholder="Pilih akun beban"
+                />
+              )}
+            </ControlField>
           </>
         ) : (
           <>
@@ -139,6 +160,12 @@ export const TipeBarangSection = (props: PropTypes) => {
               value={accountText(
                 tipeBarang?.accumulatedDepreciationAccount ?? null,
               )}
+            />
+
+            <LockedField
+              id="inventoryExpenseAccountId"
+              label="Akun beban pemakaian persediaan"
+              value={accountText(tipeBarang?.inventoryExpenseAccount ?? null)}
             />
           </>
         )}

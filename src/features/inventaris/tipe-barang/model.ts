@@ -25,6 +25,7 @@ export const tipeBarangFormSchema = z.object({
   assetAccountId: z.string(),
   depreciationExpenseAccountId: z.string(),
   accumulatedDepreciationAccountId: z.string(),
+  inventoryExpenseAccountId: z.string(),
 });
 
 export type TipeBarangFormValues = z.infer<typeof tipeBarangFormSchema>;
@@ -34,6 +35,7 @@ export const EMPTY_TIPE_BARANG_FORM: TipeBarangFormValues = {
   assetAccountId: "",
   depreciationExpenseAccountId: "",
   accumulatedDepreciationAccountId: "",
+  inventoryExpenseAccountId: "",
 };
 
 /** `""` berarti belum dipilih, dan server menyimpannya sebagai null. */
@@ -44,7 +46,7 @@ export const toTipeBarangPayload = (
   values: TipeBarangFormValues,
 ): TipeBarangPayload => ({
   name: collapseSpaces(values.name),
-  // Ketiganya SELALU dikirim, termasuk saat null: server membedakan null
+  // Keempatnya SELALU dikirim, termasuk saat null: server membedakan null
   // (kosongkan akunnya) dari field yang tidak dikirim (biarkan apa adanya),
   // jadi menghilangkannya akan membuat picker yang dikosongkan tidak pernah
   // benar-benar terkosongkan.
@@ -55,6 +57,7 @@ export const toTipeBarangPayload = (
   accumulatedDepreciationAccountId: accountIdOf(
     values.accumulatedDepreciationAccountId,
   ),
+  inventoryExpenseAccountId: accountIdOf(values.inventoryExpenseAccountId),
 });
 
 export const toTipeBarangForm = (
@@ -66,6 +69,7 @@ export const toTipeBarangForm = (
   accumulatedDepreciationAccountId: idText(
     tipeBarang.accumulatedDepreciationAccount,
   ),
+  inventoryExpenseAccountId: idText(tipeBarang.inventoryExpenseAccount),
 });
 
 /** Akun yang sudah tersimpan, dalam bentuk yang dipegang picker. */

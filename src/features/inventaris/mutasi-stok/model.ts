@@ -11,6 +11,7 @@ import type {
   MovementPayload,
   MovementSource,
   MovementType,
+  MovementValueMode,
   StockOption,
 } from "./types";
 
@@ -110,11 +111,53 @@ export const DEFAULT_SOURCE: Record<FormType, MovementSource> = {
   OUT: "USAGE",
 };
 
+const AMOUNT = /^\d*$/;
+
+/**
+ * Apakah mutasi ini butuh, boleh, atau tidak menerima nilai rupiah.
+ *
+ * Tiga keadaan, bukan dua, karena ketiganya ada:
+ *
+ * - Sumbangan WAJIB. Dia satu-satunya barang masuk tanpa harga di tempat lain
+ *   — tidak ada faktur, tidak ada nota, dan harga rata-rata lama tidak bisa
+ *   menilai barang yang baru bagi gereja. Yang tidak dinilai masuk kartu stok
+ *   gratis dan mengecilkan neraca sebesar nilainya, diam-diam dan selamanya.
+ * - Beli langsung BOLEH. Notanya ada, jadi angkanya dipakai memindahkan harga
+ *   rata-rata. Dikosongkan, barangnya masuk tanpa harga dan tiap pengambilan
+ *   sesudahnya ditolak saat posting — jadi field-nya ada walau tidak wajib.
+ * - Mutasi keluar TIDAK menerimanya. Harga rata-rata yang memutuskan, dan itu
+ *   satu-satunya alasan buku besarnya cocok dengan kartu stok.
+ */
+export const valueModeOf = (
+  values: Pick<MovementFormValues, "type" | "source">,
+): MovementValueMode => {
+  if (values.type !== "IN") return "none";
+
+  return values.source === "DONATION" ? "required" : "optional";
+};
+
+export const VALUE_COPY: Record<
+  Exclude<MovementValueMode, "none">,
+  { label: string; placeholder: string; hint: string }
+> = {
+  required: {
+    label: "Nilai barang (perkiraan, Rp)",
+    placeholder: "mis. 450000",
+    hint: "Total nilai seluruh barang yang diterima, bukan harga satuan. Dipakai mengakui pendapatan sumbangan.",
+  },
+  optional: {
+    label: "Total yang dibayar (Rp)",
+    placeholder: "mis. 75000",
+    hint: "Total di nota, bukan harga satuan. Dipakai memperbarui harga rata-rata; uangnya sendiri dicatat di Kas Keluar.",
+  },
+};
+
 export const movementFormSchema = z
   .object({
     stockItemId: z.string().min(1, "Pilih barang persediaan"),
     type: z.enum(["IN", "OUT"]),
     source: z.string(),
+    value: z.string().regex(AMOUNT, "Isi angka tanpa titik atau koma."),
     quantity: z
       .string()
       .refine(
@@ -151,6 +194,23 @@ export const movementFormSchema = z
         message: "Tulis nama pemberi",
       });
     }
+
+    const mode = valueModeOf(values);
+
+    if (mode === "required" && !values.value) {
+      context.addIssue({
+        code: "custom",
+        path: ["value"],
+        message: "Isi nilai barang sumbangan",
+      });
+    }
+    if (mode !== "none" && values.value === "0") {
+      context.addIssue({
+        code: "custom",
+        path: ["value"],
+        message: "Nilai harus lebih dari 0",
+      });
+    }
   });
 
 export type MovementFormValues = z.infer<typeof movementFormSchema>;
@@ -160,6 +220,7 @@ export const emptyMovementForm = (): MovementFormValues => ({
   type: "OUT",
   source: DEFAULT_SOURCE.OUT,
   quantity: "",
+  value: "",
   movementDate: todayJakarta(),
   note: "",
 });
@@ -191,6 +252,12 @@ export const toMovementPayload = (
 ): MovementPayload => {
   const note = values.note.trim();
 
+  // `value` hanya dikirim saat mutasinya memang menerimanya. Mengirim "" atau
+  // 0 untuk mutasi keluar akan ditolak server pada field itu, dan penolakan
+  // yang muncul akibat field yang tidak pernah dilihat pengguna adalah
+  // kegagalan yang tidak bisa dia perbaiki.
+  const isValued = valueModeOf(values) !== "none" && values.value !== "";
+
   return {
     stockItemId: Number(values.stockItemId),
     type: values.type,
@@ -198,11 +265,13 @@ export const toMovementPayload = (
     quantity: Number(values.quantity),
     movementDate: values.movementDate,
     ...(note ? { note } : {}),
+    ...(isValued ? { value: Number(values.value) } : {}),
   };
 };
 
 const SERVER_FIELD_ERROR: ReadonlyArray<[RegExp, string]> = [
   [/stok tidak mencukupi/i, "quantity"],
+  [/nilai/i, "value"],
   [/tanggal mutasi/i, "movementDate"],
   [/barang persediaan tidak ditemukan/i, "stockItemId"],
 ];

@@ -79,6 +79,8 @@ export type StockItemRow = Live & {
   quantity: number;
   reorderPoint: number | null;
   lastUnitPrice: number | null;
+  /** Harga rata-rata bergerak, satu-satunya harga yang menilai stok keluar. */
+  avgUnitPrice: number | null;
   typeId: number;
   bapelId: number;
   roomId: number;
@@ -106,6 +108,15 @@ export type MovementRow = {
   source: MovementSource;
   quantity: number;
   balanceAfter: number;
+  /**
+   * Rupiah yang ikut pindah, bertanda: negatif saat stoknya keluar.
+   *
+   * Null untuk mutasi tanpa harga sama sekali. Posting menolaknya dengan
+   * menyebut nama barangnya, dan mock ini harus menolaknya juga — mock yang
+   * lebih longgar dari server menyembunyikan cacat dari setiap layar yang
+   * dibangun melawannya.
+   */
+  value: number | null;
   movementDate: string;
   note: string | null;
   createdAt: string;
@@ -294,14 +305,16 @@ const master = (
 ];
 
 /**
- * Tipe barang, dengan tiga akun yang dipakai saat perolehan aset dan
- * penyusutan diposting. Null berarti belum diatur, dan penyusutan jatuh ke
- * kunci Setelan Akuntansi.
+ * Tipe barang, dengan empat akun yang dipakai saat perolehan aset, penyusutan,
+ * dan pemakaian persediaan diposting. Null berarti belum diatur, dan
+ * posting jatuh ke kunci Setelan Akuntansi.
  */
 export type TypeItemRow = MasterRow & {
   assetAccountId: number | null;
   depreciationExpenseAccountId: number | null;
   accumulatedDepreciationAccountId: number | null;
+  /** Beban yang didebit saat persediaan tipe ini dipakai atau dibuang. */
+  inventoryExpenseAccountId: number | null;
 };
 
 /**
@@ -331,6 +344,10 @@ export const TYPE_ITEM: TypeItemRow[] = master(
   depreciationExpenseAccountId:
     row.name === "Elektronik" || row.name === "Kendaraan" ? 24 : null,
   accumulatedDepreciationAccountId: row.name === "Elektronik" ? 9 : null,
+  // 29 = 5-140 Beban ATK. Hanya ATK yang mengisinya, supaya layar Posting
+  // Persediaan menunjukkan keduanya: tipe yang memakai akunnya sendiri dan
+  // tipe yang jatuh ke kunci BEBAN_PERSEDIAAN.
+  inventoryExpenseAccountId: row.name === "ATK" ? 29 : null,
 }));
 
 export const UNIT = master(
@@ -1382,6 +1399,7 @@ const stockItem = (
     quantity: 0,
     reorderPoint: null,
     lastUnitPrice: null,
+    avgUnitPrice: null,
     deletedAt: null,
     ...seed,
   };
@@ -1405,6 +1423,50 @@ const lastMovementDateOf = (stockItemId: number) =>
     .sort()
     .at(-1) ?? null;
 
+const round = (value: number, places: number) => {
+  const scale = 10 ** places;
+
+  return Math.round(value * scale) / scale;
+};
+
+/**
+ * Harga rata-rata bergerak, mencerminkan `movementCosting` di server.
+ *
+ * Bukan harga terakhir, dan selisihnya bukan selera: beli 100 @1.000 lalu
+ * 100 @1.200 menaruh 220.000 untuk 200 unit, jadi mengeluarkan 200 pada harga
+ * terakhir mengkredit 240.000 — saldo aset minus dengan stok nol.
+ */
+export const movementCosting = (
+  item: { quantity: number; avgUnitPrice: number | null },
+  type: MovementType,
+  quantity: number,
+  cost: number | null,
+) => {
+  const balanceAfter = nextBalance(item.quantity, type, quantity);
+  const moved = balanceAfter - item.quantity;
+  const stated = cost === null ? null : round(cost, 2);
+
+  if (stated !== null && stated > 0 && moved > 0) {
+    const carried = (item.avgUnitPrice ?? 0) * item.quantity;
+
+    return {
+      balanceAfter,
+      value: stated,
+      avgUnitPrice: round((carried + stated) / balanceAfter, 4),
+    };
+  }
+
+  if (item.avgUnitPrice === null) {
+    return { balanceAfter, value: null, avgUnitPrice: null };
+  }
+
+  return {
+    balanceAfter,
+    value: round(item.avgUnitPrice * moved, 2),
+    avgUnitPrice: balanceAfter === 0 ? null : item.avgUnitPrice,
+  };
+};
+
 export const applyMovement = (
   stockItemId: number,
   input: {
@@ -1413,6 +1475,7 @@ export const applyMovement = (
     quantity: number;
     movementDate: string;
     note: string | null;
+    value?: number | null;
   },
 ): { movement: MovementRow } | { failure: Failure } => {
   const item = stockItemOf(stockItemId);
@@ -1446,7 +1509,13 @@ export const applyMovement = (
     };
   }
 
-  const balanceAfter = nextBalance(item.quantity, input.type, input.quantity);
+  const costing = movementCosting(
+    item,
+    input.type,
+    input.quantity,
+    input.value ?? null,
+  );
+  const balanceAfter = costing.balanceAfter;
   if (balanceAfter < 0) {
     return {
       failure: {
@@ -1463,11 +1532,13 @@ export const applyMovement = (
     publicId: uuid("db00", id),
     stockItemId: item.id,
     ...input,
+    value: costing.value,
     balanceAfter,
     createdAt: new Date().toISOString(),
   };
   STOCK_MOVEMENT.push(movement);
   item.quantity = balanceAfter;
+  item.avgUnitPrice = costing.avgUnitPrice;
 
   return { movement };
 };
@@ -1562,6 +1633,18 @@ stockItem({
 
 const OPNAME_POSTED_CODE = `OPN-${YEAR}-0001`;
 
+/**
+ * Tuple terakhir adalah RUPIAH yang ikut masuk, dan hanya untuk mutasi masuk.
+ *
+ * Stok awal menyebutkannya karena migrasi perpetual mengisi harga rata-rata
+ * dari harga terakhir — jadi begitulah keadaan sesudah deploy, bukan tebakan.
+ * Stok awal sendiri tetap TIDAK menjurnal; angkanya hanya memberi barangnya
+ * sebuah harga rata-rata untuk menilai pengambilan sesudahnya.
+ *
+ * SABUN sengaja tidak punya harga sama sekali, supaya layar Posting Persediaan
+ * menunjukkan kedua hasilnya: yang bisa dibukukan dan yang ditolak karena
+ * barangnya belum pernah dinilai siapa pun.
+ */
 const SEED_MOVEMENTS: [
   StockItemRow,
   number,
@@ -1569,29 +1652,62 @@ const SEED_MOVEMENTS: [
   MovementSource,
   number,
   string | null,
+  number?,
 ][] = [
-  [LILIN, -60, "IN", "OPENING_BALANCE", 40, "Stok awal"],
-  [ROTI, -60, "IN", "OPENING_BALANCE", 10, "Stok awal"],
-  [ANGGUR, -60, "IN", "OPENING_BALANCE", 8, "Stok awal"],
-  [KERTAS, -60, "IN", "OPENING_BALANCE", 10, "Stok awal"],
-  [TINTA, -60, "IN", "OPENING_BALANCE", 2, "Stok awal"],
+  [LILIN, -60, "IN", "OPENING_BALANCE", 40, "Stok awal", 600_000],
+  [ROTI, -60, "IN", "OPENING_BALANCE", 10, "Stok awal", 200_000],
+  [ANGGUR, -60, "IN", "OPENING_BALANCE", 8, "Stok awal", 360_000],
+  [KERTAS, -60, "IN", "OPENING_BALANCE", 10, "Stok awal", 550_000],
+  [TINTA, -60, "IN", "OPENING_BALANCE", 2, "Stok awal", 360_000],
   [SABUN, -60, "IN", "OPENING_BALANCE", 10, "Stok awal"],
-  [TISU, -60, "IN", "OPENING_BALANCE", 40, "Stok awal"],
-  [AMPLOP, -60, "IN", "OPENING_BALANCE", 20, "Stok awal"],
-  [KIDUNG, -60, "IN", "OPENING_BALANCE", 100, "Stok awal"],
-  [SPIDOL, -60, "IN", "OPENING_BALANCE", 5, "Stok awal"],
+  [TISU, -60, "IN", "OPENING_BALANCE", 40, "Stok awal", 480_000],
+  [AMPLOP, -60, "IN", "OPENING_BALANCE", 20, "Stok awal", 500_000],
+  [KIDUNG, -60, "IN", "OPENING_BALANCE", 100, "Stok awal", 8_500_000],
+  [SPIDOL, -60, "IN", "OPENING_BALANCE", 5, "Stok awal", 150_000],
   [LILIN, -53, "OUT", "USAGE", 8, "Ibadah Minggu"],
   [ROTI, -53, "OUT", "USAGE", 2, "Perjamuan Kudus"],
   [TISU, -50, "OUT", "TRANSFER", 10, "Dipindah ke gudang lama"],
   [LILIN, -46, "OUT", "USAGE", 8, "Ibadah Minggu"],
-  [KERTAS, -45, "IN", "GOODS_RECEIPT", 10, `Penerimaan GRN-${YEAR}-0001`],
-  [KIDUNG, -45, "IN", "GOODS_RECEIPT", 20, `Penerimaan GRN-${YEAR}-0001`],
+  [
+    KERTAS,
+    -45,
+    "IN",
+    "GOODS_RECEIPT",
+    10,
+    `Penerimaan GRN-${YEAR}-0001`,
+    600_000,
+  ],
+  [
+    KIDUNG,
+    -45,
+    "IN",
+    "GOODS_RECEIPT",
+    20,
+    `Penerimaan GRN-${YEAR}-0001`,
+    1_800_000,
+  ],
   [KERTAS, -44, "OUT", "PURCHASE_RETURN", 2, "Retur 2 rim basah"],
-  [LILIN, -40, "IN", "GOODS_RECEIPT", 24, `Penerimaan GRN-${YEAR}-0002`],
+  [
+    LILIN,
+    -40,
+    "IN",
+    "GOODS_RECEIPT",
+    24,
+    `Penerimaan GRN-${YEAR}-0002`,
+    384_000,
+  ],
   [ROTI, -39, "OUT", "USAGE", 2, "Perjamuan Kudus"],
   [ANGGUR, -39, "OUT", "USAGE", 2, "Perjamuan Kudus"],
   [SPIDOL, -35, "OUT", "USAGE", 5, "Kelas katekisasi"],
-  [LILIN, -32, "IN", "DONATION", 20, "Dari Ibu Rina untuk ibadah Natal"],
+  [
+    LILIN,
+    -32,
+    "IN",
+    "DONATION",
+    20,
+    "Dari Ibu Rina untuk ibadah Natal",
+    320_000,
+  ],
   [TINTA, -30, "OUT", "USAGE", 1, null],
   [SABUN, -28, "OUT", "USAGE", 2, null],
   [LILIN, -25, "OUT", "USAGE", 8, "Ibadah Minggu"],
@@ -1619,13 +1735,22 @@ const SEED_MOVEMENTS: [
   [AMPLOP, -7, "OUT", "MANUAL", 3, "Dipakai kebaktian padang"],
 ];
 
-for (const [item, offset, type, source, quantity, note] of SEED_MOVEMENTS) {
+for (const [
+  item,
+  offset,
+  type,
+  source,
+  quantity,
+  note,
+  value,
+] of SEED_MOVEMENTS) {
   applyMovement(item.id, {
     type,
     source,
     quantity,
     movementDate: day(offset),
     note,
+    value: value ?? null,
   });
 }
 
@@ -1774,6 +1899,7 @@ export const stockItemView = (row: StockItemRow) => ({
   quantity: row.quantity,
   reorderPoint: row.reorderPoint,
   lastUnitPrice: money(row.lastUnitPrice),
+  avgUnitPrice: money(row.avgUnitPrice),
   typeId: row.typeId,
   bapelId: row.bapelId,
   roomId: row.roomId,
@@ -1803,6 +1929,7 @@ export const movementView = (row: MovementRow) => {
     source: row.source,
     quantity: row.quantity,
     balanceAfter: row.balanceAfter,
+    value: row.value === null ? null : money(row.value),
     movementDate: iso(row.movementDate),
     note: row.note,
     createdAt: row.createdAt,

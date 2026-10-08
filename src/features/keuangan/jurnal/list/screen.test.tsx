@@ -199,23 +199,32 @@ describe("JournalListScreen", () => {
     );
   });
 
-  test("izin create membuka jalan ke Posting Persembahan", async () => {
+  /**
+   * Keempatnya, bukan hanya persembahan.
+   *
+   * Posting Aset, Pengadaan, dan Persediaan sudah punya rutenya masing-masing
+   * sejak fase-fase sebelumnya dan tidak satu pun pernah ditautkan dari
+   * mana-mana — jadi satu-satunya cara mencapainya adalah mengetik URL-nya.
+   * Rute tanpa tautan sama dengan rute yang tidak ada.
+   */
+  test.each([
+    ["Persembahan", "/keuangan/jurnal/posting-persembahan"],
+    ["Aset sumbangan", "/keuangan/jurnal/posting-aset"],
+    ["Pengadaan", "/keuangan/jurnal/posting-pengadaan"],
+    ["Persediaan", "/keuangan/jurnal/posting-persediaan"],
+  ])("izin create membuka jalan ke Posting %s", async (label, href) => {
     onRenderList(["VIEW", "CREATE"]);
 
     await waitFor(() =>
-      expect(
-        screen.getByRole("link", { name: /Posting persembahan/ }),
-      ).toBeTruthy(),
+      expect(screen.getByRole("link", { name: label })).toBeTruthy(),
     );
 
-    expect(
-      screen
-        .getByRole("link", { name: /Posting persembahan/ })
-        .getAttribute("href"),
-    ).toBe("/keuangan/jurnal/posting-persembahan");
+    expect(screen.getByRole("link", { name: label }).getAttribute("href")).toBe(
+      href,
+    );
   });
 
-  test("tanpa izin create, Posting Persembahan dan Tambah tidak dirender", async () => {
+  test("tanpa izin create, keempat posting dan Tambah tidak dirender", async () => {
     onRenderList(["VIEW"]);
 
     await waitFor(() =>

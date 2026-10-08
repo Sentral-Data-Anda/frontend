@@ -81,6 +81,39 @@ export const stockStatusOf = (
   return "TERSEDIA";
 };
 
+/**
+ * Nilai persediaan barang ini: jumlah x harga rata-rata.
+ *
+ * Harga RATA-RATA, bukan harga beli terakhir, karena inilah angka yang dibawa
+ * Persediaan di Neraca — dan menampilkan jumlah x harga terakhir di sebelahnya
+ * akan memberi dua angka berbeda untuk satu hal, yang salah satunya pasti
+ * tidak cocok dengan buku besar.
+ *
+ * Dihitung dalam sen lewat BigInt, pola yang sama dengan `outstandingOf` di
+ * Faktur Supplier. Jujur soal seberapa penting: `Number(harga) * jumlah` baru
+ * salah satu sen di atas sekitar 50 triliun rupiah, dan gereja tidak akan
+ * pernah menumpuk itu dalam barang habis pakai. Dipertahankan karena harganya
+ * nol, bukan karena ambangnya terjangkau — jangan hapus BigInt-nya dengan
+ * alasan "angkanya kecil", hapus saja kalau memang mengganggu dibaca.
+ */
+export const valueOf = (
+  item: Pick<StockItem, "quantity" | "avgUnitPrice">,
+): string => {
+  if (item.avgUnitPrice === null) return "0";
+
+  // `BigInt(100)`, bukan `100n`: target tsconfig di bawah ES2020, jadi literal
+  // BigInt tidak tersedia. Pola yang sama dipakai `outstandingOf` di Faktur
+  // Supplier.
+  const HUNDRED = BigInt(100);
+  const [whole = "0", fraction = ""] = item.avgUnitPrice.split(".");
+  const cents =
+    BigInt(whole.replace(/\D/g, "") || "0") * HUNDRED +
+    BigInt(`${fraction}00`.slice(0, 2));
+  const total = cents * BigInt(item.quantity);
+
+  return `${total / HUNDRED}.${String(total % HUNDRED).padStart(2, "0")}`;
+};
+
 export const quantityOf = (item: Pick<StockItem, "quantity" | "unit">) =>
   `${formatNumber(item.quantity)} ${item.unit.name}`;
 

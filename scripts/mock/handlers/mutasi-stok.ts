@@ -94,7 +94,8 @@ const listRows = (params: URLSearchParams) => {
 
 const parseIssues = (body: Body): Issue[] => {
   const issues: Issue[] = [];
-  const { stockItemId, type, source, quantity, movementDate, note } = body;
+  const { stockItemId, type, source, quantity, movementDate, note, value } =
+    body;
 
   if (typeof stockItemId !== "number" || stockItemId <= 0) {
     issues.push({
@@ -152,6 +153,34 @@ const parseIssues = (body: Body): Issue[] => {
     });
   }
 
+  // Tiga aturan nilai, sama seperti server. Mock yang lebih longgar di sini
+  // membuat setiap layar dibangun melawan aturan yang tidak ada.
+  if (value !== undefined && value !== null) {
+    if (typeof value !== "number" || value <= 0) {
+      issues.push({ path: "value", message: "Nilai harus lebih dari 0" });
+    } else if (Math.round(value * 100) !== value * 100) {
+      issues.push({
+        path: "value",
+        message: "Nilai maksimal 2 angka di belakang koma",
+      });
+    } else if (
+      isType(type) &&
+      type !== "IN" &&
+      !PROCESS_SOURCES.includes(source as MovementSource)
+    ) {
+      issues.push({
+        path: "value",
+        message:
+          "Nilai Hanya Diisi Untuk Mutasi Masuk. Mutasi Keluar Memakai Harga Rata-Rata",
+      });
+    }
+  } else if (source === "DONATION") {
+    issues.push({
+      path: "value",
+      message: "Mohon Lengkapi Nilai Barang Sumbangan",
+    });
+  }
+
   return issues;
 };
 
@@ -178,6 +207,7 @@ const create = (body: Body) => {
     quantity: body.quantity as number,
     movementDate: body.movementDate as string,
     note: note || null,
+    value: typeof body.value === "number" ? body.value : null,
   });
 
   if ("failure" in result) {

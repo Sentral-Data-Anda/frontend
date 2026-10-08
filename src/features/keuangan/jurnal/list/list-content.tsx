@@ -1,6 +1,12 @@
 "use client";
 
-import { HandCoins, Plus } from "lucide-react";
+import {
+  Armchair,
+  HandCoins,
+  PackageOpen,
+  Plus,
+  ReceiptText,
+} from "lucide-react";
 import Link from "next/link";
 
 import { buttonVariants } from "@/components/common/control";
@@ -22,14 +28,21 @@ import {
   JURNAL_CREATE_PATH,
   NO_ACCOUNT_DESCRIPTION,
   NO_ACCOUNT_TITLE,
+  POSTING_LINKS,
   POSTING_NOTE,
-  POSTING_PERSEMBAHAN_PATH,
   STATUS_TABS,
 } from "../model";
 
 import { JournalListItemRow, journalTable } from "./list-item";
 
 type AccountRow = { id: number; code: string; name: string };
+
+const POSTING_ICON = {
+  persembahan: HandCoins,
+  aset: Armchair,
+  pengadaan: ReceiptText,
+  persediaan: PackageOpen,
+} as const;
 
 export const JournalListContent = () => {
   const { isCanCreate } = useMenuAccess(MENU.JURNAL);
@@ -79,21 +92,31 @@ export const JournalListContent = () => {
 
       {isCanCreate ? (
         <Panel className="mx-gutter mb-4">
-          <div className="flex flex-wrap items-center justify-between gap-3 px-gutter py-3">
-            <p className="text-muted-foreground min-w-0 flex-1 basis-64 text-body">
-              {POSTING_NOTE}
-            </p>
+          <div className="space-y-3 px-gutter py-3">
+            <p className="text-muted-foreground text-body">{POSTING_NOTE}</p>
 
-            <Link
-              href={POSTING_PERSEMBAHAN_PATH}
-              className={cn(
-                buttonVariants({ variant: "outline" }),
-                "cursor-pointer",
-              )}
-            >
-              <HandCoins aria-hidden />
-              Posting persembahan
-            </Link>
+            {/* Membungkus, tidak menggulir: empat tombol tidak muat berjajar
+                di 390px, dan baris yang menggulir ke samping menyembunyikan
+                tombol terakhirnya di belakang tepi layar. */}
+            <div className="flex flex-wrap gap-2">
+              {POSTING_LINKS.map((entry) => {
+                const Icon = POSTING_ICON[entry.key];
+
+                return (
+                  <Link
+                    key={entry.key}
+                    href={entry.href}
+                    className={cn(
+                      buttonVariants({ variant: "outline" }),
+                      "cursor-pointer",
+                    )}
+                  >
+                    <Icon aria-hidden />
+                    {entry.label}
+                  </Link>
+                );
+              })}
+            </div>
           </div>
         </Panel>
       ) : null}

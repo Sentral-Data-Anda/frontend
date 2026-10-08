@@ -38,6 +38,23 @@ export const POSTING_ASET_PATH = `${JURNAL_LIST_PATH}/posting-aset`;
 
 export const POSTING_PENGADAAN_PATH = `${JURNAL_LIST_PATH}/posting-pengadaan`;
 
+export const POSTING_PERSEDIAAN_PATH = `${JURNAL_LIST_PATH}/posting-persediaan`;
+
+/**
+ * Keempat posting otomatis, dan menu yang menyediakan dokumennya.
+ *
+ * Satu daftar, bukan satu tautan: tiga layar ini sudah ada rutenya sejak
+ * fase-fase sebelumnya dan tidak satu pun pernah ditautkan dari mana-mana —
+ * jadi satu-satunya cara mencapainya adalah mengetik URL-nya. Rute yang tidak
+ * punya tautan sama dengan rute yang tidak ada.
+ */
+export const POSTING_LINKS = [
+  { key: "persembahan", href: POSTING_PERSEMBAHAN_PATH, label: "Persembahan" },
+  { key: "aset", href: POSTING_ASET_PATH, label: "Aset sumbangan" },
+  { key: "pengadaan", href: POSTING_PENGADAAN_PATH, label: "Pengadaan" },
+  { key: "persediaan", href: POSTING_PERSEDIAAN_PATH, label: "Persediaan" },
+] as const;
+
 export const journalHref = (publicId: string) =>
   detailHref(MENU.KEUANGAN, MENU.JURNAL, publicId);
 
@@ -54,6 +71,12 @@ export const persembahanHref = (code: string) =>
 
 export const asetHref = (code: string) =>
   detailHref(MENU.INVENTARIS, MENU.BARANG, code);
+
+// Penolakan mutasi persediaan menyebut kode BARANGNYA, bukan kode mutasinya:
+// sebuah mutasi tidak punya kode sendiri — dia baris di kartu stok — dan yang
+// harus diperbaiki memang harga barangnya.
+export const barangPersediaanHref = (code: string) =>
+  detailHref(MENU.INVENTARIS, MENU.BARANG_PERSEDIAAN, code);
 
 // Faktur dan pembayaran yang ditolak sama-sama menyebut KODE FAKTUR sebagai
 // subjeknya, jadi satu tautan cukup untuk keduanya.
@@ -76,7 +99,7 @@ export const NO_ACCOUNT_DESCRIPTION =
   "Entri jurnal memilih akun per baris, jadi daftar akun harus ada lebih dulu.";
 
 export const POSTING_NOTE =
-  "Persembahan diposting per baris: satu persembahan menjadi satu entri jurnal dengan dua baris.";
+  "Posting otomatis mengubah dokumen yang sudah dicatat menjadi entri jurnal, satu dokumen satu entri. Yang pernah diposting dilewati, jadi menjalankannya lagi aman.";
 
 export const POSTING_ASET_NOTE =
   "Hanya aset dari sumbangan dan hibah. Aset yang dibeli masuk buku bersama fakturnya — membukukannya di sini juga berarti menghitung pembelian yang sama dua kali.";
@@ -86,6 +109,12 @@ export const POSTING_PENGADAAN_NOTE =
 
 export const NOTHING_TO_POST_PENGADAAN =
   "Tidak ada faktur atau pembayaran yang bisa diposting di rentang ini.";
+
+export const POSTING_PERSEDIAAN_NOTE =
+  "Pemakaian, pembuangan, sumbangan barang, dan koreksi stok opname. Penerimaan barang dan beli langsung tidak lewat sini: uangnya sudah dibawa faktur suppliernya atau Kas Keluar.";
+
+export const NOTHING_TO_POST_PERSEDIAAN =
+  "Tidak ada mutasi persediaan yang bisa diposting di rentang ini.";
 
 export const NOTHING_TO_POST_ASET =
   "Tidak ada aset sumbangan yang bisa diposting di rentang ini.";
@@ -188,6 +217,13 @@ const FIX_BY_CODE: Record<string, Fix> = {
     href: menuHref(MENU.PENGADAAN, MENU.FAKTUR_SUPPLIER),
     label: "Buka Faktur Supplier",
     menu: MENU.FAKTUR_SUPPLIER,
+  },
+  // Mutasi tanpa nilai: yang diperbaiki adalah harga BARANGNYA, bukan
+  // mutasinya — sebuah mutasi tidak bisa diubah, dan memang tidak seharusnya.
+  STOCK_NO_COST: {
+    href: menuHref(MENU.INVENTARIS, MENU.BARANG_PERSEDIAAN),
+    label: "Buka Barang Persediaan",
+    menu: MENU.BARANG_PERSEDIAAN,
   },
 };
 

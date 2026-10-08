@@ -19,6 +19,7 @@ const ROTI: StockItem = {
   quantity: 3,
   reorderPoint: 5,
   lastUnitPrice: null,
+  avgUnitPrice: null,
   typeId: 6,
   bapelId: 1,
   roomId: 1,

@@ -79,11 +79,67 @@ describe("skema", () => {
 
   test("Donasi wajib catatan; Beli langsung tidak", () => {
     expect(
-      messagesOf(valid({ type: "IN", source: "DONATION", note: " " })),
+      messagesOf(
+        valid({
+          type: "IN",
+          source: "DONATION",
+          note: " ",
+          value: "450000",
+        }),
+      ),
     ).toEqual([["note", "Tulis nama pemberi"]]);
     expect(
       messagesOf(valid({ type: "IN", source: "MANUAL", note: "" })),
     ).toBeUndefined();
+  });
+
+  /**
+   * Hadiah adalah satu-satunya barang masuk tanpa harga di tempat lain: tidak
+   * ada faktur, tidak ada nota, dan harga rata-rata lama tidak bisa menilai
+   * barang yang baru bagi gereja. Yang tidak dinilai masuk kartu stok gratis
+   * dan mengecilkan neraca sebesar nilainya, diam-diam dan selamanya.
+   */
+  test("Donasi wajib nilai; Beli langsung boleh tanpa nilai", () => {
+    expect(
+      messagesOf(
+        valid({ type: "IN", source: "DONATION", note: "Ibu Rina", value: "" }),
+      ),
+    ).toEqual([["value", "Isi nilai barang sumbangan"]]);
+    expect(
+      messagesOf(valid({ type: "IN", source: "MANUAL", value: "" })),
+    ).toBeUndefined();
+    expect(
+      messagesOf(valid({ type: "IN", source: "MANUAL", value: "75000" })),
+    ).toBeUndefined();
+  });
+
+  test("nilai nol ditolak, karena nol terbaca sebagai fakta", () => {
+    expect(
+      messagesOf(valid({ type: "IN", source: "MANUAL", value: "0" })),
+    ).toEqual([["value", "Nilai harus lebih dari 0"]]);
+  });
+
+  /**
+   * Field yang tidak terlihat tidak boleh terkirim.
+   *
+   * Server menolak nilai pada mutasi keluar pada field `value`, dan form
+   * keluar tidak punya field itu — jadi penolakannya akan mendarat di tempat
+   * yang tidak bisa diperbaiki siapa pun.
+   */
+  test("mutasi keluar tidak mengirim nilai sama sekali", () => {
+    const payload = toMovementPayload(
+      valid({ type: "OUT", source: "USAGE", value: "99" }),
+    );
+
+    expect(payload).not.toHaveProperty("value");
+  });
+
+  test("mutasi masuk mengirim nilainya sebagai angka", () => {
+    expect(
+      toMovementPayload(
+        valid({ type: "IN", source: "MANUAL", value: "75000" }),
+      ),
+    ).toMatchObject({ value: 75000 });
   });
 
   test("tanggal tidak boleh di masa depan; sumber harus sesuai jenis", () => {

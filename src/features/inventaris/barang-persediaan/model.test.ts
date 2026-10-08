@@ -11,6 +11,7 @@ import {
   stockFormSchema,
   stockStatusOf,
   toStockPayload,
+  valueOf,
   type StockFormValues,
 } from "./model";
 
@@ -128,4 +129,55 @@ test("tanda jumlah per jenis; Masuk lainnya = Beli langsung", () => {
   expect(sourceLabelOf({ type: "ADJUSTMENT", source: "MANUAL" })).toBe(
     "Lainnya",
   );
+});
+
+describe("valueOf", () => {
+  /**
+   * Nilai persediaan barang ini: jumlah x harga RATA-RATA.
+   *
+   * Bukan harga beli terakhir, karena inilah angka yang dibawa Persediaan di
+   * Neraca. Menampilkan jumlah x harga terakhir di sebelahnya akan memberi dua
+   * angka berbeda untuk satu hal, dan salah satunya pasti tidak cocok dengan
+   * buku besar.
+   */
+  test("jumlah dikali harga rata-rata", () => {
+    expect(valueOf({ quantity: 12, avgUnitPrice: "82500.00" })).toBe(
+      "990000.00",
+    );
+  });
+
+  test("tanpa harga rata-rata nilainya nol, bukan NaN", () => {
+    expect(valueOf({ quantity: 12, avgUnitPrice: null })).toBe("0");
+  });
+
+  test("stok nol bernilai nol", () => {
+    expect(valueOf({ quantity: 0, avgUnitPrice: "82500.00" })).toBe("0.00");
+  });
+
+  /**
+   * Kasus nyata tempat `Number(harga) * jumlah` salah satu sen.
+   *
+   * Ditemukan dengan mencari, bukan dengan menduga: tebakan pertama saya
+   * (10.000 x 1.234.567,89) HIJAU di kedua implementasi, jadi test itu tidak
+   * membuktikan apa pun tentang BigInt-nya. Angka ini memang di luar skala
+   * gereja — sekitar 50 triliun — dan itu bagian dari apa yang dikatakannya:
+   * perhitungan sen ini murah, bukan mendesak.
+   */
+  test("perhitungan sen tidak membulat seperti double", () => {
+    expect(valueOf({ quantity: 720_023, avgUnitPrice: "70073865.88" })).toBe(
+      "50454795132515.24",
+    );
+    expect((Number("70073865.88") * 720_023).toFixed(2)).toBe(
+      "50454795132515.23",
+    );
+  });
+
+  // Mock menjawab "82500" tanpa desimal sementara server menjawab "82500.00".
+  // Keduanya harus terurai sama, atau layar yang ditinjau terhadap mock
+  // menunjukkan angka yang berbeda dari produksi.
+  test("harga tanpa desimal terurai sama dengan yang berdesimal", () => {
+    expect(valueOf({ quantity: 3, avgUnitPrice: "82500" })).toBe(
+      valueOf({ quantity: 3, avgUnitPrice: "82500.00" }),
+    );
+  });
 });

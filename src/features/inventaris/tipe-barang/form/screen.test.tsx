@@ -148,6 +148,7 @@ const DETAIL: TipeBarang = {
     name: "Beban Penyusutan",
   },
   accumulatedDepreciationAccount: null,
+  inventoryExpenseAccount: null,
 };
 
 type Failure = {
@@ -298,6 +299,7 @@ describe("simpan", () => {
           // utuh: sekadar ganti nama tidak boleh menghapus akun tipe ini.
           depreciationExpenseAccountId: 61,
           accumulatedDepreciationAccountId: null,
+          inventoryExpenseAccountId: null,
         },
       },
     ]);
@@ -375,6 +377,7 @@ describe("tambah", () => {
           assetAccountId: null,
           depreciationExpenseAccountId: null,
           accumulatedDepreciationAccountId: null,
+          inventoryExpenseAccountId: null,
         },
       },
     ]);
@@ -481,5 +484,39 @@ describe("akun akuntansi pada form", () => {
       (screen.queryByLabelText("Akun aset") as HTMLInputElement | null)
         ?.readOnly,
     ).not.toBe(true);
+  });
+
+  /**
+   * Akun KEEMPAT, dan dia dijaga oleh izin yang sama.
+   *
+   * Dia memutuskan ke beban mana pemakaian persediaan tipe ini mendarat di
+   * buku besar -- wewenang yang setara dengan ketiga akun lainnya, jadi
+   * membiarkannya terbuka untuk petugas stok akan membatalkan pemisahan
+   * wewenang yang dibangun tiga akun sebelumnya.
+   */
+  test("akun beban pemakaian persediaan ikut dijaga Setelan Akuntansi", async () => {
+    onMockApi();
+    await onRenderLoadedEdit();
+
+    const locked = screen.getByLabelText(
+      "Akun beban pemakaian persediaan",
+    ) as HTMLInputElement;
+
+    expect(locked.readOnly).toBe(true);
+    expect(
+      screen.queryByRole("combobox", {
+        name: "Akun beban pemakaian persediaan",
+      }),
+    ).toBeNull();
+
+    cleanup();
+    onMockApi();
+    await onRenderLoadedEditWithAccounting(["VIEW", "UPDATE"]);
+
+    expect(
+      await screen.findByRole("combobox", {
+        name: "Akun beban pemakaian persediaan",
+      }),
+    ).toBeTruthy();
   });
 });

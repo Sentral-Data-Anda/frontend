@@ -167,6 +167,7 @@ describe("invalidasi sesudah simpan dan hapus", () => {
             assetAccountId: null,
             depreciationExpenseAccountId: null,
             accumulatedDepreciationAccountId: null,
+            inventoryExpenseAccountId: null,
           }),
       };
     });

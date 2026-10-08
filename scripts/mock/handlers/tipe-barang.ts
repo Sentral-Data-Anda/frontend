@@ -37,11 +37,13 @@ const view = (row: TypeItemRow) => ({
   assetAccountId: row.assetAccountId,
   depreciationExpenseAccountId: row.depreciationExpenseAccountId,
   accumulatedDepreciationAccountId: row.accumulatedDepreciationAccountId,
+  inventoryExpenseAccountId: row.inventoryExpenseAccountId,
   assetAccount: accountRef(row.assetAccountId),
   depreciationExpenseAccount: accountRef(row.depreciationExpenseAccountId),
   accumulatedDepreciationAccount: accountRef(
     row.accumulatedDepreciationAccountId,
   ),
+  inventoryExpenseAccount: accountRef(row.inventoryExpenseAccountId),
 });
 
 const byName = (a: TypeItemRow, b: TypeItemRow) =>
@@ -91,6 +93,7 @@ const parse = (body: Record<string, unknown>) => {
       accumulatedDepreciationAccountId: idOf(
         body.accumulatedDepreciationAccountId,
       ),
+      inventoryExpenseAccountId: idOf(body.inventoryExpenseAccountId),
     },
   };
 };

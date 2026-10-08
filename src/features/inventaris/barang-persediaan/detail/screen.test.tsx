@@ -46,6 +46,7 @@ const ITEM: StockItem = {
   quantity: 120,
   reorderPoint: null,
   lastUnitPrice: "85000.00",
+  avgUnitPrice: "82500.00",
   typeId: 6,
   bapelId: 5,
   roomId: 1,
@@ -63,6 +64,7 @@ const MOVEMENTS: ItemMovement[] = [
     source: "USAGE",
     quantity: 5,
     balanceAfter: 120,
+    value: "-412500.00",
     movementDate: "2026-09-10T00:00:00.000Z",
   },
   {
@@ -71,6 +73,7 @@ const MOVEMENTS: ItemMovement[] = [
     source: "STOCK_OPNAME",
     quantity: -2,
     balanceAfter: 125,
+    value: "-165000.00",
     movementDate: "2026-09-01T00:00:00.000Z",
   },
 ];
@@ -182,6 +185,43 @@ describe("halaman barang persediaan", () => {
     expect(
       screen.queryByRole("link", { name: "Lihat semua mutasi" }),
     ).toBeNull();
+  });
+
+  /**
+   * Harga rata-rata DAN nilai persediaannya, di atas harga beli terakhir.
+   *
+   * Harga rata-rata yang menilai stok keluar dan yang membuat saldo Persediaan
+   * di Neraca; harga beli terakhir hanya keterangan. Menampilkan hanya yang
+   * terakhir membuat pembaca mengalikan angka yang salah dan mendapat nilai
+   * yang tidak pernah cocok dengan buku besar.
+   */
+  test("harga rata-rata dan nilai persediaannya ditampilkan", async () => {
+    onRender({ BARANG_PERSEDIAAN: ["VIEW"] });
+
+    await screen.findByRole("region", { name: "Stok" });
+
+    expect(screen.getByText("Harga rata-rata")).toBeTruthy();
+    expect(screen.getByText("Rp 82.500")).toBeTruthy();
+    // 120 x 82.500.
+    expect(screen.getByText("Nilai persediaan Rp 9.900.000")).toBeTruthy();
+  });
+
+  /**
+   * Barang tanpa harga sama sekali harus MENYEBUTKAN akibatnya.
+   *
+   * Pengambilannya ditolak saat posting, dan "—" tanpa penjelasan membuat
+   * penolakan itu muncul sebulan kemudian di layar yang berbeda, kepada orang
+   * yang berbeda, tanpa petunjuk apa pun tentang asalnya.
+   */
+  test("tanpa harga rata-rata, akibatnya disebut", async () => {
+    onRender(
+      { BARANG_PERSEDIAAN: ["VIEW"] },
+      { item: { ...ITEM, avgUnitPrice: null } },
+    );
+
+    await screen.findByRole("region", { name: "Stok" });
+
+    expect(screen.getByText(/Pengambilan barang ini ditolak/)).toBeTruthy();
   });
 
   test("lebih dari 10 mutasi: Lihat semua mutasi", async () => {

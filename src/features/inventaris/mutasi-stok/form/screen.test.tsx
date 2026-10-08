@@ -211,9 +211,16 @@ describe("form mutasi stok", () => {
     });
     onSave();
     expect(await screen.findByText("Tulis nama pemberi")).toBeTruthy();
+    // Hadiah adalah satu-satunya barang masuk tanpa harga di tempat lain, jadi
+    // nilainya wajib: yang tidak dinilai masuk kartu stok gratis dan
+    // mengecilkan neraca sebesar nilainya.
+    expect(await screen.findByText("Isi nilai barang sumbangan")).toBeTruthy();
 
     fireEvent.change(screen.getByLabelText("Pemberi dan catatan"), {
       target: { value: "Ibu Rina" },
+    });
+    fireEvent.change(screen.getByLabelText("Nilai barang (perkiraan, Rp)"), {
+      target: { value: "450000" },
     });
     onSave();
     expect(
@@ -233,6 +240,7 @@ describe("form mutasi stok", () => {
         quantity: 20,
         movementDate: todayJakarta(),
         note: "Ibu Rina",
+        value: 450000,
       },
     });
     expect(

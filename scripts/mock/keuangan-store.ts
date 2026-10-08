@@ -103,6 +103,7 @@ export const ACCOUNT: AccountRow[] = [
   account(6, "1-300", "Kas di Payment Gateway", "ASSET", 1),
   account(7, "1-400", "Selisih Kas", "ASSET", 1),
   account(8, "1-500", "Aset Tetap", "ASSET", 1),
+  account(27, "1-150", "Persediaan", "ASSET", 1),
   account(9, "1-590", "Akumulasi Penyusutan", "ASSET", 1),
   account(10, "2", "Kewajiban", "LIABILITY", null),
   account(11, "2-100", "Hutang Usaha", "LIABILITY", 10),
@@ -123,6 +124,11 @@ export const ACCOUNT: AccountRow[] = [
   }),
   account(23, "5-110", "Beban Administrasi", "EXPENSE", 21),
   account(24, "5-120", "Beban Penyusutan", "EXPENSE", 21),
+  account(28, "5-130", "Beban Pemakaian Persediaan", "EXPENSE", 21),
+  // Beban per tipe barang: inilah yang membuat pemisahan di Laporan
+  // Surplus/Defisit terlihat, dan yang membedakan akun tipe dari kunci
+  // cadangannya saat layar ditinjau.
+  account(29, "5-140", "Beban ATK", "EXPENSE", 21),
   account(25, "5-900", "Beban Lain-lain", "EXPENSE", 21, { isActive: false }),
   account(26, "5-910", "Pos Lama", "EXPENSE", 21, {
     deletedAt: `${addDays(TODAY, -90)}T02:00:00.000Z`,
@@ -267,7 +273,7 @@ export const ACCOUNTING_SETTING: SettingRow[] = [
   {
     key: "SUMBANGAN_ASET",
     description:
-      "Akun Pendapatan yang dikredit saat aset dari sumbangan atau hibah diposting. Sisi debitnya akun aset milik Tipe Barang-nya; kalau tipe itu belum punya, dipakai akun Aset Tetap di bawah.",
+      "Akun Pendapatan yang dikredit saat barang sumbangan atau hibah diposting, baik aset tetap maupun persediaan. Sisi debitnya akun aset Tipe Barang-nya untuk aset tetap, atau akun Persediaan untuk barang persediaan.",
     accountId: 20,
     updatedById: SESSION_USER_ID,
   },
@@ -288,8 +294,22 @@ export const ACCOUNTING_SETTING: SettingRow[] = [
   {
     key: "BEBAN_PENGADAAN",
     description:
-      "Akun yang didebit saat faktur supplier diposting, untuk faktur yang belum menyebut akun bebannya sendiri. Faktur yang sudah menyebutnya tidak memakai akun ini.",
+      "Akun yang didebit saat faktur supplier diposting, untuk faktur yang belum menyebut akun bebannya sendiri. Untuk faktur pembelian barang persediaan, arahkan akun faktur itu ke Persediaan, bukan ke sini: bebannya diakui saat dipakai.",
     accountId: 24,
+    updatedById: SESSION_USER_ID,
+  },
+  {
+    key: "PERSEDIAAN",
+    description:
+      "Akun Aset tempat barang persediaan dicatat selama masih ada. Dikredit sebesar harga rata-rata saat stok dipakai, dibuang, atau berkurang dari stok opname. Pembelian masuk ke sini lewat akun yang disebut faktur suppliernya.",
+    accountId: 27,
+    updatedById: SESSION_USER_ID,
+  },
+  {
+    key: "BEBAN_PERSEDIAAN",
+    description:
+      "Akun Beban yang didebit saat persediaan dipakai atau dibuang, untuk Tipe Barang yang belum menyebut akun bebannya sendiri. Tipe yang sudah menyebutnya tidak memakai akun ini.",
+    accountId: 28,
     updatedById: SESSION_USER_ID,
   },
 ];

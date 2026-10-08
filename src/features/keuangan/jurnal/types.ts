@@ -6,6 +6,11 @@ import type {
 
 export const JOURNAL_SOURCE_TYPES = [
   "MANUAL",
+  // Aset sumbangan dan hibah. Terlewat saat posting aset dibangun, dan
+  // kegagalannya persis sehening yang bisa terjadi: `JOURNAL_SOURCE_LABEL`
+  // menjawab undefined, jadi kolom Sumber kosong untuk SETIAP entri yang
+  // dibuat posting aset — tidak ada galat, tidak ada tipe yang mengeluh.
+  "ASSET_ACQUISITION",
   "GOODS_RECEIPT",
   "SUPPLIER_INVOICE",
   "SUPPLIER_PAYMENT",
@@ -24,6 +29,7 @@ export type JournalSourceType = (typeof JOURNAL_SOURCE_TYPES)[number];
 
 export const JOURNAL_SOURCE_LABEL: Record<JournalSourceType, string> = {
   MANUAL: "Manual",
+  ASSET_ACQUISITION: "Sumbangan barang",
   GOODS_RECEIPT: "Penerimaan barang",
   SUPPLIER_INVOICE: "Tagihan supplier",
   SUPPLIER_PAYMENT: "Pembayaran supplier",
@@ -31,7 +37,11 @@ export const JOURNAL_SOURCE_LABEL: Record<JournalSourceType, string> = {
   DEPRECIATION_RUN: "Penyusutan",
   PERSEMBAHAN: "Persembahan",
   EVENT_REGISTRATION: "Pendaftaran event",
-  STOCK_ADJUSTMENT: "Penyesuaian stok",
+  // Satu tipe sumber untuk SEMUA mutasi persediaan: pemakaian, pembuangan,
+  // sumbangan barang, koreksi opname. Namanya lebih sempit dari isinya, jadi
+  // labelnya yang melebar — "Penyesuaian stok" membuat pengambilan ATK
+  // terbaca seperti koreksi.
+  STOCK_ADJUSTMENT: "Mutasi persediaan",
   ITEM_DISPOSAL: "Pelepasan barang",
   CASH_RECEIPT: "Kas masuk",
   CASH_EXPENSE: "Kas keluar",

@@ -21,8 +21,10 @@ import {
   FORM_SOURCE_OPTIONS,
   FORM_TYPE_OPTIONS,
   OPNAME_CREATE_PATH,
+  VALUE_COPY,
   balanceAfterOf,
   stockShortageOf,
+  valueModeOf,
   type FormType,
 } from "../model";
 import type { StockOption } from "../types";
@@ -47,19 +49,28 @@ export const MovementSection = (props: PropTypes) => {
     name: ["type", "source", "quantity"],
   });
   const unitSuffix = stock ? ` (${stock.unit.name})` : "";
+  const valueMode = valueModeOf({ type, source });
+  const valueCopy = valueMode === "none" ? null : VALUE_COPY[valueMode];
   const balanceAfter = stock ? balanceAfterOf({ type, quantity }, stock) : null;
   const note = noteCopyOf(source);
 
+  // Nilainya dibuang saat arah mutasinya berubah, bukan dibiarkan tersembunyi:
+  // field yang tidak terlihat lagi tetap terkirim, dan server menolaknya pada
+  // field yang sudah hilang dari layar — kegagalan yang tidak bisa diperbaiki
+  // siapa pun.
   const onPickType = (value: string) => {
     const next = value as FormType;
 
     form.setValue("type", next, { shouldDirty: true });
     form.setValue("source", DEFAULT_SOURCE[next], { shouldDirty: true });
+    if (next !== "IN") form.setValue("value", "", { shouldDirty: true });
+    form.clearErrors("value");
   };
 
   const onPickSource = (value: string) => {
     form.setValue("source", value, { shouldDirty: true });
     form.clearErrors("note");
+    form.clearErrors("value");
   };
 
   return (
@@ -122,6 +133,29 @@ export const MovementSection = (props: PropTypes) => {
           />
         )}
       </ControlField>
+
+      {valueCopy ? (
+        <ControlField
+          control={form.control}
+          name="value"
+          label={valueCopy.label}
+          hint={valueCopy.hint}
+          isOptional={valueMode === "optional"}
+        >
+          {(field) => (
+            <Input
+              {...field}
+              onChange={(event) =>
+                field.onChange(toDigits(event.target.value, 12))
+              }
+              inputMode="numeric"
+              autoComplete="off"
+              placeholder={valueCopy.placeholder}
+              className="tabular-nums"
+            />
+          )}
+        </ControlField>
+      ) : null}
 
       <ControlField control={form.control} name="movementDate" label="Tanggal">
         {(field) => (

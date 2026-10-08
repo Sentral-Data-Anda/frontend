@@ -14,6 +14,7 @@ const TIPE: TipeBarang = {
   assetAccount: null,
   depreciationExpenseAccount: null,
   accumulatedDepreciationAccount: null,
+  inventoryExpenseAccount: null,
 };
 
 const onRenderRow = (isCanUpdate: boolean) =>

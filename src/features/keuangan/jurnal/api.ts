@@ -38,6 +38,12 @@ const ASET_KEY = ["asset"] as const;
 // Cermin `invoiceKeys.all` fitur Pengadaan, ditulis LITERAL.
 const FAKTUR_KEY = ["supplier-invoice"] as const;
 
+// Dua kunci, bukan satu: memposting mutasi tidak mengubah kartu stoknya, tapi
+// Mutasi Stok menunjukkan nilai per baris dan Barang Persediaan menunjukkan
+// harga rata-ratanya -- dan kedua layar itu membaca kunci yang berbeda.
+const MUTASI_KEY = ["stock-movement"] as const;
+const STOCK_ITEM_KEY = ["stock-item"] as const;
+
 export const JOURNAL_FILTERS = {
   bulan: { api: "bulan" },
   akun: { api: "akun" },
@@ -149,6 +155,38 @@ export function usePostPengadaan() {
         : Promise.all([
             invalidateJournal(queryClient),
             queryClient.invalidateQueries({ queryKey: FAKTUR_KEY }),
+          ]),
+  });
+}
+
+/**
+ * Mutasi persediaan: pemakaian, pembuangan, sumbangan barang, koreksi opname.
+ *
+ * Penerimaan barang dan beli langsung TIDAK lewat sini: uangnya sudah dibawa
+ * faktur suppliernya atau Kas Keluar, dan membukukannya dua kali membuat
+ * gereja membayar satu rim kertas dua kali.
+ */
+export function usePostPersediaan() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (input: PostingRange & { isDryRun: boolean }) =>
+      fetchOne<PostingResult>(
+        input.isDryRun
+          ? "/jurnal/posting-persediaan?dryRun=1"
+          : "/jurnal/posting-persediaan",
+        {
+          method: "POST",
+          body: JSON.stringify({ from: input.from, to: input.to }),
+        },
+      ),
+    onSuccess: (_response, input) =>
+      input.isDryRun
+        ? undefined
+        : Promise.all([
+            invalidateJournal(queryClient),
+            queryClient.invalidateQueries({ queryKey: MUTASI_KEY }),
+            queryClient.invalidateQueries({ queryKey: STOCK_ITEM_KEY }),
           ]),
   });
 }

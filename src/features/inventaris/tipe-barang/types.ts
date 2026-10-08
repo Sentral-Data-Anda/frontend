@@ -10,12 +10,14 @@ export type TipeBarang = {
   code: string;
   name: string;
   /**
-   * The three accounts a type sends its money to. Null is "belum diatur", and
-   * depreciation then falls back to the keys in Setelan Akuntansi.
+   * The four accounts a type sends its money to. Null is "belum diatur", and
+   * posting then falls back to the keys in Setelan Akuntansi.
    */
   assetAccount: TipeBarangAccount | null;
   depreciationExpenseAccount: TipeBarangAccount | null;
   accumulatedDepreciationAccount: TipeBarangAccount | null;
+  /** Beban yang didebit saat persediaan tipe ini dipakai atau dibuang. */
+  inventoryExpenseAccount: TipeBarangAccount | null;
 };
 
 export type TipeBarangPayload = {
@@ -23,4 +25,5 @@ export type TipeBarangPayload = {
   assetAccountId: number | null;
   depreciationExpenseAccountId: number | null;
   accumulatedDepreciationAccountId: number | null;
+  inventoryExpenseAccountId: number | null;
 };

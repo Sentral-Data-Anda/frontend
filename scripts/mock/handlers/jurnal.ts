@@ -12,7 +12,13 @@
  */
 import { MENU } from "../../../src/config/menu";
 import { SESSION_USER_ID } from "../../mock-dashboard";
-import { ASSET, TYPE_ITEM, supplierOf } from "../inventaris-store";
+import {
+  ASSET,
+  STOCK_ITEM,
+  STOCK_MOVEMENT,
+  TYPE_ITEM,
+  supplierOf,
+} from "../inventaris-store";
 import {
   JOURNAL_ENTRY,
   TODAY,
@@ -613,6 +619,166 @@ const assetDebitOf = (typeId: number) => {
   return type?.assetAccountId ?? settingAccountOf("ASET_TETAP");
 };
 
+const STOK_SOURCE = "STOCK_ADJUSTMENT";
+
+/**
+ * Mutasi mana yang menjurnal, mencerminkan `JOURNALED_SOURCES` dan
+ * `JOURNALED_MANUAL_TYPES` di server.
+ *
+ * Sepasang aturan, bukan satu daftar: MANUAL masuk adalah "Beli langsung",
+ * uangnya keluar lewat Kas Keluar, dan membukukannya di sini membuat gereja
+ * membayar satu rim kertas dua kali. Yang sama ke arah keluar atau sebagai
+ * koreksi JUSTRU harus membukukan. Penerimaan barang tidak pernah ikut —
+ * faktur suppliernya yang membawa uangnya.
+ */
+const STOK_SOURCES = ["DONATION", "USAGE", "DISPOSAL", "STOCK_OPNAME"];
+const STOK_MANUAL_TYPES = ["OUT", "ADJUSTMENT"];
+
+const isJournaledMovement = (row: { source: string; type: string }) =>
+  STOK_SOURCES.includes(row.source) ||
+  (row.source === "MANUAL" && STOK_MANUAL_TYPES.includes(row.type));
+
+const MOVEMENT_LABEL: Record<string, string> = {
+  DONATION: "Sumbangan Persediaan",
+  USAGE: "Pemakaian Persediaan",
+  DISPOSAL: "Pembuangan Persediaan",
+  STOCK_OPNAME: "Koreksi Stok Opname",
+  MANUAL: "Koreksi Persediaan",
+};
+
+const inventoryExpenseOf = (typeId: number) => {
+  const type = TYPE_ITEM.find((row) => row.id === typeId);
+
+  return (
+    type?.inventoryExpenseAccountId ?? settingAccountOf("BEBAN_PERSEDIAAN")
+  );
+};
+
+/**
+ * Mutasi persediaan: pemakaian, pembuangan, sumbangan barang, koreksi opname.
+ *
+ * Arahnya dibaca dari TANDA `value`, sama seperti server: stok yang masuk
+ * mendebit Persediaan, yang keluar mengkreditnya. Sisi lainnya akun beban,
+ * KECUALI sumbangan — hadiah bukan beban yang tidak terjadi, dia pendapatan.
+ */
+const onPostPersediaan = (url: URL, body: { from?: unknown; to?: unknown }) => {
+  const checked = rangeOf(url, body);
+  if ("failure" in checked) return checked.failure;
+
+  const { isDryRun, from, to } = checked;
+
+  const refused: { code: string; reason: string; reasonCode: string }[] = [];
+  let posted = 0;
+  let skipped = 0;
+
+  const rows = STOCK_MOVEMENT.filter(
+    (row) =>
+      isJournaledMovement(row) &&
+      row.movementDate >= from &&
+      row.movementDate <= to,
+  ).sort((a, b) => a.movementDate.localeCompare(b.movementDate) || a.id - b.id);
+
+  for (const row of rows) {
+    const item = STOCK_ITEM.find((stock) => stock.id === row.stockItemId);
+    if (!item) continue;
+
+    if (journalOfSource(STOK_SOURCE, row.id)) {
+      skipped += 1;
+      continue;
+    }
+
+    // Ditolak, bukan dilewati: stok yang keluar tanpa harga adalah barang yang
+    // pergi gratis sejauh yang dicatat buku, dan menyebutnya adalah cara
+    // seseorang pergi mengisi harganya.
+    if (row.value === null || row.value === 0) {
+      refused.push({
+        code: item.code,
+        reason: `Mutasi ${item.name} Belum Memiliki Nilai. Lengkapi Harga Barangnya Terlebih Dahulu`,
+        reasonCode: "STOCK_NO_COST",
+      });
+      continue;
+    }
+
+    const inventoryId = settingAccountOf("PERSEDIAAN");
+    if (!inventoryId) {
+      refused.push({
+        code: item.code,
+        reason:
+          "Setelan Akuntansi PERSEDIAAN Belum Diisi. Tetapkan Akunnya Terlebih Dahulu",
+        reasonCode: "SETTING_EMPTY",
+      });
+      continue;
+    }
+
+    const otherId =
+      row.source === "DONATION"
+        ? settingAccountOf("SUMBANGAN_ASET")
+        : inventoryExpenseOf(item.typeId);
+
+    if (!otherId) {
+      refused.push({
+        code: item.code,
+        reason: `Setelan Akuntansi ${row.source === "DONATION" ? "SUMBANGAN_ASET" : "BEBAN_PERSEDIAAN"} Belum Diisi. Tetapkan Akunnya Terlebih Dahulu`,
+        reasonCode: "SETTING_EMPTY",
+      });
+      continue;
+    }
+
+    const amount = String(Math.abs(row.value));
+    const isIncoming = row.value > 0;
+    const debitId = isIncoming ? inventoryId : otherId;
+    const creditId = isIncoming ? otherId : inventoryId;
+
+    if (isDryRun) {
+      const failure = periodFailureOf(row.movementDate);
+      if (failure) {
+        refused.push({
+          code: item.code,
+          reason: failure.message,
+          reasonCode: failure.code,
+        });
+        continue;
+      }
+
+      posted += 1;
+      continue;
+    }
+
+    const result = postDocumentEntry({
+      sourceType: STOK_SOURCE,
+      sourceId: row.id,
+      entryDate: row.movementDate,
+      description: `${MOVEMENT_LABEL[row.source] ?? "Mutasi Persediaan"} ${item.name} ${item.code}`,
+      lines: [
+        { accountId: debitId, debit: amount, credit: "0" },
+        { accountId: creditId, debit: "0", credit: amount },
+      ],
+    });
+
+    if ("failure" in result) {
+      refused.push({
+        code: item.code,
+        reason: result.failure.message,
+        reasonCode: result.failure.code,
+      });
+      continue;
+    }
+
+    posted += 1;
+  }
+
+  return json(
+    {
+      status: isDryRun ? 200 : 201,
+      message: isDryRun
+        ? "Berhasil Memeriksa Posting Mutasi Persediaan"
+        : "Berhasil Memposting Mutasi Persediaan Ke Jurnal",
+      data: { posted, skipped, refused },
+    },
+    isDryRun ? 200 : 201,
+  );
+};
+
 const FAKTUR_SOURCE = "SUPPLIER_INVOICE";
 const BAYAR_SOURCE = "SUPPLIER_PAYMENT";
 
@@ -1011,6 +1177,13 @@ export const jurnalMock: MockHandler = async (ctx) => {
     if (process.env.MOCK_JURNAL_ACTION_500) return serverError();
 
     return onPostPengadaan(url, await readBody(request));
+  }
+
+  if (key === "posting-persediaan") {
+    if (method !== "POST" || step) return null;
+    if (process.env.MOCK_JURNAL_ACTION_500) return serverError();
+
+    return onPostPersediaan(url, await readBody(request));
   }
 
   const row = find(decodeURIComponent(key));

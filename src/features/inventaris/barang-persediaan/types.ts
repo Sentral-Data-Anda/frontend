@@ -9,6 +9,13 @@ export type StockItem = {
   quantity: number;
   reorderPoint: number | null;
   lastUnitPrice: string | null;
+  /**
+   * Harga rata-rata bergerak, dan satu-satunya harga yang menilai stok keluar.
+   *
+   * Beda dari `lastUnitPrice` dan itu yang penting: nilai persediaan di Neraca
+   * adalah jumlah x harga INI, bukan x harga beli terakhir.
+   */
+  avgUnitPrice: string | null;
   typeId: number;
   bapelId: number;
   roomId: number;
@@ -51,5 +58,6 @@ export type ItemMovement = {
   source: MovementSource;
   quantity: number;
   balanceAfter: number;
+  value: string | null;
   movementDate: string;
 };

@@ -220,6 +220,9 @@ const create = (body: Body) => {
     quantity: 0,
     reorderPoint: input.reorderPoint,
     lastUnitPrice: null,
+    // Barang baru belum punya harga sama sekali. Mutasi masuk pertamanya yang
+    // menetapkan harga rata-ratanya, lewat helper yang sama.
+    avgUnitPrice: null,
     typeId: input.typeId,
     bapelId: input.bapelId,
     roomId: input.roomId,

@@ -16,6 +16,7 @@ const MOVEMENT: Movement = {
   source: "MANUAL",
   quantity: 10,
   balanceAfter: 58,
+  value: "750000.00",
   movementDate: "2026-09-20T00:00:00.000Z",
   note: "Toko Sinar",
   stockItem: {

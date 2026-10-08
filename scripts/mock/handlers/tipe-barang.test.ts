@@ -71,6 +71,8 @@ describe("mock /type-item", () => {
       "depreciationExpenseAccount",
       "depreciationExpenseAccountId",
       "id",
+      "inventoryExpenseAccount",
+      "inventoryExpenseAccountId",
       "name",
       "publicId",
     ]);

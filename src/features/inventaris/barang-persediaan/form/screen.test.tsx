@@ -66,6 +66,7 @@ const DETAIL: StockItem = {
   quantity: 48,
   reorderPoint: 20,
   lastUnitPrice: null,
+  avgUnitPrice: null,
   typeId: 6,
   bapelId: 1,
   roomId: 1,

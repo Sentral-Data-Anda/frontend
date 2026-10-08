@@ -121,7 +121,7 @@ describe("mock /ddl keuangan", () => {
     const asset = await onCall(keuanganMock, "/ddl/account?type=ASSET");
     const rows = asset?.body.data as { type: string; code: string }[];
 
-    expect((all?.body.data as unknown[]).length).toBe(25);
+    expect((all?.body.data as unknown[]).length).toBe(28);
     expect(rows.every((row) => row.type === "ASSET")).toBe(true);
     expect(rows.some((row) => row.code === "5-910")).toBe(false);
   });

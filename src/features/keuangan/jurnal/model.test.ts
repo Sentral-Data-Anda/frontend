@@ -16,10 +16,20 @@ import {
   toJournalPayload,
   type JournalFormValues,
   NOTHING_TO_POST,
+  POSTING_ASET_PATH,
+  POSTING_LINKS,
+  POSTING_PENGADAAN_PATH,
+  POSTING_PERSEDIAAN_PATH,
+  POSTING_PERSEMBAHAN_PATH,
   PREVIEW_REQUIRED,
   postingStatusOf,
 } from "./model";
-import type { JournalEntryDetail, JournalLine } from "./types";
+import {
+  JOURNAL_SOURCE_LABEL,
+  JOURNAL_SOURCE_TYPES,
+  type JournalEntryDetail,
+  type JournalLine,
+} from "./types";
 
 const line = (debit: string, credit: string, accountId = 2): JournalLine => ({
   id: `jln-${accountId}-${debit}-${credit}`,
@@ -323,5 +333,63 @@ describe("postingStatusOf", () => {
 
   test("ada yang bisa diposting: tanpa status", () => {
     expect(postingStatusOf({ result: { posted: 3 } })).toBeUndefined();
+  });
+});
+
+describe("sumber entri", () => {
+  /**
+   * Terlewat saat posting aset dibangun, dan kegagalannya persis sehening yang
+   * bisa terjadi: `JOURNAL_SOURCE_LABEL` menjawab undefined, jadi kolom Sumber
+   * KOSONG untuk setiap entri yang dibuat posting aset. Tidak ada galat, tidak
+   * ada tipe yang mengeluh, tidak ada test yang merah.
+   */
+  test("setiap tipe sumber punya labelnya", () => {
+    const missing = JOURNAL_SOURCE_TYPES.filter(
+      (type) => !JOURNAL_SOURCE_LABEL[type],
+    );
+
+    expect(missing).toEqual([]);
+  });
+
+  test("aset sumbangan punya tipe sumbernya sendiri", () => {
+    expect(JOURNAL_SOURCE_TYPES).toContain("ASSET_ACQUISITION");
+    expect(JOURNAL_SOURCE_LABEL.ASSET_ACQUISITION).toBe("Sumbangan barang");
+  });
+
+  // Satu tipe sumber untuk SEMUA mutasi persediaan, jadi labelnya tidak boleh
+  // menyempit jadi "penyesuaian": pengambilan ATK bukan koreksi.
+  test("mutasi persediaan tidak terbaca sebagai penyesuaian", () => {
+    expect(JOURNAL_SOURCE_LABEL.STOCK_ADJUSTMENT).toBe("Mutasi persediaan");
+  });
+});
+
+describe("tautan posting", () => {
+  /**
+   * Keempatnya punya rute, dan tiga di antaranya tidak pernah ditautkan dari
+   * mana-mana sampai sekarang. Rute tanpa tautan sama dengan rute yang tidak
+   * ada: satu-satunya cara mencapainya adalah mengetik URL-nya.
+   */
+  test("keempat posting otomatis ada di daftarnya", () => {
+    expect(POSTING_LINKS.map((entry) => entry.href)).toEqual([
+      POSTING_PERSEMBAHAN_PATH,
+      POSTING_ASET_PATH,
+      POSTING_PENGADAAN_PATH,
+      POSTING_PERSEDIAAN_PATH,
+    ]);
+  });
+});
+
+describe("perbaikan mutasi persediaan", () => {
+  /**
+   * Ke Barang Persediaan, bukan ke Mutasi Stok: yang diperbaiki adalah HARGA
+   * barangnya. Mutasinya sendiri tidak bisa diubah, dan memang tidak
+   * seharusnya -- dia catatan tentang apa yang sudah terjadi.
+   */
+  test("STOCK_NO_COST menautkan ke Barang Persediaan", () => {
+    expect(fixOfCode("STOCK_NO_COST")).toEqual({
+      href: "/inventaris/barang-persediaan",
+      label: "Buka Barang Persediaan",
+      menu: "BARANG_PERSEDIAAN",
+    });
   });
 });

@@ -1489,6 +1489,7 @@ export const receiveGoods = (input: {
         quantity: 0,
         reorderPoint: null,
         lastUnitPrice: price,
+        avgUnitPrice: null,
         typeId: line.typeId,
         bapelId,
         roomId: line.roomId,
@@ -1498,20 +1499,26 @@ export const receiveGoods = (input: {
       STOCK_ITEM.push(stock);
     }
 
-    applyMovement(stock.id, {
+    const received = stock;
+
+    applyMovement(received.id, {
       type: "IN",
       source: "GOODS_RECEIPT",
       quantity: item.quantityReceived,
       movementDate: input.receivedDate,
       note: `Penerimaan ${code}`,
+      // Total barisnya, bukan harga satuan: `applyMovement` yang membaginya.
+      // Penerimaan sendiri tidak menjurnal — faktur suppliernya yang membawa
+      // uangnya — tapi harga rata-ratanya tetap harus bergerak di sini.
+      value: price * item.quantityReceived,
     });
-    stock.lastUnitPrice = price;
+    received.lastUnitPrice = price;
     items.push(
       receiptItem({
         purchaseOrderItemId: line.id,
         quantityReceived: item.quantityReceived,
         assetId: null,
-        stockItemId: stock.id,
+        stockItemId: received.id,
       }),
     );
   }

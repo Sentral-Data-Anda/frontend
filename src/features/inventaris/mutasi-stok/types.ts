@@ -19,6 +19,15 @@ export type Movement = {
   source: MovementSource;
   quantity: number;
   balanceAfter: number;
+  /**
+   * Rupiah yang ikut pindah, dibekukan saat mutasinya ditulis. Negatif saat
+   * stoknya keluar — tandanya yang dibaca posting untuk menentukan sisi mana
+   * yang Persediaan.
+   *
+   * Null untuk mutasi sebelum persediaan perpetual berlaku. Posting
+   * menolaknya dengan menyebut nama barangnya, bukan menilainya nol.
+   */
+  value: string | null;
   movementDate: string;
   note: string | null;
   stockItem: {
@@ -37,6 +46,13 @@ export type MovementPayload = {
   quantity: number;
   movementDate: string;
   note?: string;
+  /**
+   * Hanya untuk mutasi MASUK, dan server menolaknya untuk yang keluar.
+   *
+   * Total rupiahnya, bukan harga satuan: itu angka yang dipegang orang —
+   * nota toko menyebut harga satu kardus — dan server yang membaginya.
+   */
+  value?: number;
 };
 
 export type StockOption = {
@@ -47,3 +63,5 @@ export type StockOption = {
   unit: { name: string };
   room: { id: number; name: string };
 };
+
+export type MovementValueMode = "required" | "optional" | "none";

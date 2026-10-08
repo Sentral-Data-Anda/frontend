@@ -9,14 +9,15 @@ import {
 } from "./model";
 
 const issuesOf = (name: string) => {
-  // Ketiga picker akun ikut dikirim: skema ini menggambarkan NILAI FORM, dan
-  // form selalu punya keempatnya. Tanpa ini setiap kasus di bawah membawa tiga
-  // issue tambahan yang tidak ada hubungannya dengan nama.
+  // Keempat picker akun ikut dikirim: skema ini menggambarkan NILAI FORM, dan
+  // form selalu punya keempatnya. Tanpa ini setiap kasus di bawah membawa
+  // empat issue tambahan yang tidak ada hubungannya dengan nama.
   const parsed = tipeBarangFormSchema.safeParse({
     name,
     assetAccountId: "",
     depreciationExpenseAccountId: "",
     accumulatedDepreciationAccountId: "",
+    inventoryExpenseAccountId: "",
   });
 
   return parsed.success
@@ -53,6 +54,7 @@ const NO_ACCOUNTS = {
   assetAccountId: "",
   depreciationExpenseAccountId: "",
   accumulatedDepreciationAccountId: "",
+  inventoryExpenseAccountId: "",
 };
 
 describe("form ↔ payload", () => {
@@ -81,6 +83,7 @@ describe("form ↔ payload", () => {
       assetAccountId: null,
       depreciationExpenseAccountId: null,
       accumulatedDepreciationAccountId: null,
+      inventoryExpenseAccountId: null,
     });
   });
 
@@ -91,12 +94,14 @@ describe("form ↔ payload", () => {
         assetAccountId: "11",
         depreciationExpenseAccountId: "61",
         accumulatedDepreciationAccountId: "21",
+        inventoryExpenseAccountId: "29",
       }),
     ).toEqual({
       name: "Kendaraan",
       assetAccountId: 11,
       depreciationExpenseAccountId: 61,
       accumulatedDepreciationAccountId: 21,
+      inventoryExpenseAccountId: 29,
     });
   });
 
@@ -113,12 +118,14 @@ describe("form ↔ payload", () => {
           code: "1-290",
           name: "Akumulasi Penyusutan",
         },
+        inventoryExpenseAccount: null,
       }),
     ).toEqual({
       name: "Elektronik",
       assetAccountId: "11",
       depreciationExpenseAccountId: "",
       accumulatedDepreciationAccountId: "21",
+      inventoryExpenseAccountId: "",
     });
   });
 });
