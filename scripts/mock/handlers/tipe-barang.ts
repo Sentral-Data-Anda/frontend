@@ -14,25 +14,37 @@ import {
   codeOf,
   isLive,
   nextId,
-  type MasterRow,
+  type TypeItemRow,
 } from "../inventaris-store";
+import { accountRef } from "../keuangan-store";
 import { denied, json, list, readBody, type MockHandler } from "../kit";
 
 const NOT_FOUND = "Tipe Barang Tidak Ditemukan";
 const IN_USE =
   "Tipe Barang Tidak Dapat Dihapus Karena Terhubung dengan Data Barang";
 
-const view = ({ id, publicId, code, name }: MasterRow) => ({
-  id,
-  publicId,
-  code,
-  name,
-  assetAccountId: null,
-  depreciationExpenseAccountId: null,
-  accumulatedDepreciationAccountId: null,
+/**
+ * Bentuk yang sama dengan be-sada: id akun TETAP ada di baris (form memakainya
+ * untuk memilih ulang) DAN akun yang sudah diselesaikan ada di sebelahnya.
+ * Sebelumnya hanya id-nya yang dikirim, dan layar membaca objeknya -- jadi
+ * setiap field terkunci berbunyi "Belum diatur" betapa pun terisinya datanya.
+ */
+const view = (row: TypeItemRow) => ({
+  id: row.id,
+  publicId: row.publicId,
+  code: row.code,
+  name: row.name,
+  assetAccountId: row.assetAccountId,
+  depreciationExpenseAccountId: row.depreciationExpenseAccountId,
+  accumulatedDepreciationAccountId: row.accumulatedDepreciationAccountId,
+  assetAccount: accountRef(row.assetAccountId),
+  depreciationExpenseAccount: accountRef(row.depreciationExpenseAccountId),
+  accumulatedDepreciationAccount: accountRef(
+    row.accumulatedDepreciationAccountId,
+  ),
 });
 
-const byName = (a: MasterRow, b: MasterRow) =>
+const byName = (a: TypeItemRow, b: TypeItemRow) =>
   a.name.localeCompare(b.name, "id");
 
 const findRow = (code: string) =>
@@ -56,15 +68,31 @@ const messageOf = (name: string) => {
   return null;
 };
 
-const parse = (body: { name?: unknown }) => {
+/** Id akun dari body: null yang berarti kosong, bukan field yang hilang. */
+const idOf = (value: unknown): number | null =>
+  typeof value === "number" && Number.isInteger(value) && value > 0
+    ? value
+    : null;
+
+const parse = (body: Record<string, unknown>) => {
   if (typeof body.name !== "string") {
     return { failure: nameError(400, "Mohon Lengkapi Nama Tipe Barang") };
   }
 
   const name = collapseSpaces(body.name);
   const message = messageOf(name);
+  if (message) return { failure: nameError(400, message) };
 
-  return message ? { failure: nameError(400, message) } : { name };
+  return {
+    name,
+    accounts: {
+      assetAccountId: idOf(body.assetAccountId),
+      depreciationExpenseAccountId: idOf(body.depreciationExpenseAccountId),
+      accumulatedDepreciationAccountId: idOf(
+        body.accumulatedDepreciationAccountId,
+      ),
+    },
+  };
 };
 
 const isNameTaken = (name: string) =>
@@ -124,17 +152,18 @@ export const tipeBarangMock: MockHandler = async ({
   }
 
   if (path === "/type-item" && method === "POST") {
-    const parsed = parse(await readBody<{ name?: unknown }>(request));
+    const parsed = parse(await readBody<Record<string, unknown>>(request));
     if (parsed.failure) return parsed.failure;
     if (isNameTaken(parsed.name)) return taken();
 
     const id = nextId(TYPE_ITEM);
-    const row: MasterRow = {
+    const row: TypeItemRow = {
       id,
       publicId: crypto.randomUUID(),
       code: codeOf("TYP_ITM"),
       name: parsed.name,
       deletedAt: null,
+      ...parsed.accounts,
     };
     TYPE_ITEM.push(row);
 
@@ -147,7 +176,7 @@ export const tipeBarangMock: MockHandler = async ({
   if (!code) return null;
 
   if (method === "PUT") {
-    const parsed = parse(await readBody<{ name?: unknown }>(request));
+    const parsed = parse(await readBody<Record<string, unknown>>(request));
     if (parsed.failure) return parsed.failure;
 
     const row = findRow(code);
@@ -157,6 +186,7 @@ export const tipeBarangMock: MockHandler = async ({
     if (isRenamed && isNameTaken(parsed.name)) return taken();
 
     row.name = parsed.name;
+    Object.assign(row, parsed.accounts);
 
     return json({
       status: 200,

@@ -11,6 +11,9 @@ const TIPE: TipeBarang = {
   publicId: "p-1",
   code: "TYP_ITM-0001",
   name: "Elektronik",
+  assetAccount: null,
+  depreciationExpenseAccount: null,
+  accumulatedDepreciationAccount: null,
 };
 
 const onRenderRow = (isCanUpdate: boolean) =>

@@ -291,7 +291,24 @@ const master = (
   },
 ];
 
-export const TYPE_ITEM = master(
+/**
+ * Tipe barang, dengan tiga akun yang dipakai saat perolehan aset dan
+ * penyusutan diposting. Null berarti belum diatur, dan penyusutan jatuh ke
+ * kunci Setelan Akuntansi.
+ */
+export type TypeItemRow = MasterRow & {
+  assetAccountId: number | null;
+  depreciationExpenseAccountId: number | null;
+  accumulatedDepreciationAccountId: number | null;
+};
+
+/**
+ * Dua tipe pertama DIISI dan sisanya tidak, dengan sengaja: layar harus bisa
+ * ditinjau dalam kedua keadaan tanpa menyiapkan data lebih dulu, dan tipe yang
+ * hanya mengisi satu sisi adalah kasus yang membedakan fallback per-sisi dari
+ * fallback sekaligus.
+ */
+export const TYPE_ITEM: TypeItemRow[] = master(
   "TYP_ITM",
   "d100",
   [
@@ -305,7 +322,14 @@ export const TYPE_ITEM = master(
     "Dekorasi",
   ],
   "Lain-lain",
-);
+).map((row) => ({
+  ...row,
+  // 8 = 1-500 Aset Tetap, 24 = 5-120 Beban Penyusutan, 9 = 1-590 Akumulasi.
+  assetAccountId: row.name === "Elektronik" ? 8 : null,
+  depreciationExpenseAccountId:
+    row.name === "Elektronik" || row.name === "Kendaraan" ? 24 : null,
+  accumulatedDepreciationAccountId: row.name === "Elektronik" ? 9 : null,
+}));
 
 export const UNIT = master(
   "UNT",

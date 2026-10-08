@@ -63,14 +63,34 @@ describe("mock /type-item", () => {
       "Perlengkapan Ibadah",
     ]);
     expect(Object.keys((all?.body.data as object[])[0]).sort()).toEqual([
+      "accumulatedDepreciationAccount",
       "accumulatedDepreciationAccountId",
+      "assetAccount",
       "assetAccountId",
       "code",
+      "depreciationExpenseAccount",
       "depreciationExpenseAccountId",
       "id",
       "name",
       "publicId",
     ]);
+
+    // Akun yang SUDAH DISELESAIKAN, bukan hanya id-nya. Layar membaca objek
+    // ini; mock yang hanya mengirim id membuat setiap field terkunci berbunyi
+    // "Belum diatur" betapa pun terisinya datanya, dan tinjauan visual apa
+    // pun di atasnya meninjau kebohongan.
+    const elektronik = (all?.body.data as Record<string, unknown>[]).find(
+      (row) => row.name === "Elektronik",
+    );
+    expect(elektronik?.depreciationExpenseAccount).toMatchObject({
+      code: "5-120",
+      name: "Beban Penyusutan",
+    });
+
+    const atk = (all?.body.data as Record<string, unknown>[]).find(
+      (row) => row.name === "ATK",
+    );
+    expect(atk?.depreciationExpenseAccount).toBeNull();
 
     const filtered = await onCall("GET", "/type-item?filter=ke");
     expect(namesOf(filtered?.body)).toEqual(["Kebersihan", "Kendaraan"]);

@@ -18,6 +18,12 @@ interface PropTypes {
   value: string;
   onValueChange: (value: string) => void;
   type?: AccountType;
+  /**
+   * Shows a clear button. `DdlField` switches to `ComboboxField` for it, so an
+   * optional account can actually be unset — a select has no way to say
+   * "none" and would strand the first value the user picked.
+   */
+  isClearable?: boolean;
   disabled?: boolean;
   placeholder?: string;
   "aria-invalid"?: boolean;
@@ -30,6 +36,7 @@ export const AccountField = (props: PropTypes) => {
     value,
     onValueChange,
     type,
+    isClearable,
     disabled = false,
     placeholder = "Pilih akun",
     ...aria
@@ -57,6 +64,7 @@ export const AccountField = (props: PropTypes) => {
       onValueChange={onValueChange}
       options={options}
       isLoading={isLoading}
+      isClearable={isClearable}
       disabled={disabled}
       placeholder={placeholder}
       emptyMessage="Belum ada akun"

@@ -160,7 +160,15 @@ describe("invalidasi sesudah simpan dan hapus", () => {
     const invalidated = await onInvalidated((code) => {
       const save = useSaveTipeBarang(code);
 
-      return { mutateAsync: () => save.mutateAsync({ name: "Kendaraan" }) };
+      return {
+        mutateAsync: () =>
+          save.mutateAsync({
+            name: "Kendaraan",
+            assetAccountId: null,
+            depreciationExpenseAccountId: null,
+            accumulatedDepreciationAccountId: null,
+          }),
+      };
     });
 
     expect(invalidated).toEqual(EXPECTED);

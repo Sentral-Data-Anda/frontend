@@ -222,7 +222,11 @@ export const TipeBarangFormScreen = (props: PropTypes) => {
       ) : null}
 
       <div className={detail.isLoading ? "hidden" : undefined}>
-        <TipeBarangSection form={form} isDisabled={isBusy} />
+        <TipeBarangSection
+          form={form}
+          isDisabled={isBusy}
+          tipeBarang={detail.data}
+        />
       </div>
 
       <div className="space-y-3 px-gutter pb-4 empty:hidden">
