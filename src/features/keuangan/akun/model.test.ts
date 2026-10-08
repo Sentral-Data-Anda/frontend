@@ -30,6 +30,11 @@ const VALID = {
   type: "ASSET",
   parentAccountId: "",
   isActive: "true",
+  // Keduanya ikut: skema ini menggambarkan NILAI FORM, dan form selalu punya
+  // keduanya. "" adalah jawaban yang sah -- ia dikirim sebagai null, dan null
+  // DIBACA tanpa pembatasan / diturunkan dari tipe akunnya.
+  netAssetClass: "",
+  cashFlowCategory: "",
 };
 
 const account = (
@@ -45,6 +50,8 @@ const account = (
   parentAccountId,
   parent: null,
   isActive: true,
+  netAssetClass: null,
+  cashFlowCategory: null,
   childCount: 0,
 });
 
@@ -82,6 +89,8 @@ describe("skema akun", () => {
         type: "ASSET",
         parentAccountId: "",
         isActive: "false",
+        netAssetClass: "",
+        cashFlowCategory: "",
       }),
     ).toEqual({
       code: "1-100",
@@ -89,6 +98,8 @@ describe("skema akun", () => {
       type: "ASSET",
       parentAccountId: null,
       isActive: false,
+      netAssetClass: null,
+      cashFlowCategory: null,
     });
   });
 
@@ -101,6 +112,8 @@ describe("skema akun", () => {
       type: "ASSET",
       parentAccountId: "1",
       isActive: "false",
+      netAssetClass: "",
+      cashFlowCategory: "",
     });
   });
 });

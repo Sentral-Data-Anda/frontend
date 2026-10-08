@@ -68,6 +68,8 @@ const account = (
       ? null
       : { id: parentAccountId, code: "1", name: "Aset", type: "ASSET" },
   isActive: true,
+  netAssetClass: null,
+  cashFlowCategory: null,
   childCount: 0,
   ...extra,
 });

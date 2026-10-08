@@ -220,11 +220,18 @@ const createBatch = async (request: Request) => {
     ]);
   }
 
-  if (receiveMethod !== "TUNAI" && receiveMethod !== "TRANSFER") {
+  // QRIS ikut, PAYMENT_GATEWAY tidak: baris gateway ditulis webhook dari
+  // sebuah `Payment`, sementara QRIS statis gereja tidak punya `Payment` sama
+  // sekali dan memang dicatat tangan.
+  if (
+    receiveMethod !== "TUNAI" &&
+    receiveMethod !== "TRANSFER" &&
+    receiveMethod !== "QRIS"
+  ) {
     return failure(400, [
       {
         path: "receiveMethod",
-        message: "Cara Terima Harus Tunai Atau Transfer",
+        message: "Cara Terima Harus Tunai, Transfer Atau QRIS",
       },
     ]);
   }

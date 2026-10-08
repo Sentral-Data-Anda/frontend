@@ -52,6 +52,8 @@ const DETAIL: AccountDetail = {
   parentAccountId: 1,
   parent: { id: 1, code: "1", name: "Aset", type: "ASSET" },
   isActive: true,
+  netAssetClass: null,
+  cashFlowCategory: null,
   childCount: 0,
   hasJournalLines: false,
 };
@@ -202,6 +204,8 @@ describe("tambah", () => {
       type: "ASSET",
       parentAccountId: null,
       isActive: true,
+      netAssetClass: null,
+      cashFlowCategory: null,
     });
     expect(window.sessionStorage.getItem(`list-focus:${AKUN_LIST_PATH}`)).toBe(
       "1-200",
@@ -397,5 +401,25 @@ describe("hapus", () => {
 
     expect(await screen.findByText(HAS_CHILDREN)).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Nonaktifkan" })).toBeNull();
+  });
+});
+
+/**
+ * "" pada kedua picker ini adalah JAWABAN, bukan field yang belum diisi.
+ *
+ * Ia dikirim sebagai null, dan null punya arti di keduanya — tanpa pembatasan,
+ * dan diturunkan dari tipe akunnya. Placeholder bawaan "Pilih" membuat akun
+ * yang sudah benar terbaca seperti tertinggal, dan mengundang orang mengisinya
+ * dengan sesuatu hanya supaya tidak terlihat kosong. Terlihat saat meninjau
+ * layarnya.
+ */
+describe("klasifikasi laporan pada form akun", () => {
+  test("kosong terbaca sebagai bawaannya, bukan sebagai belum dipilih", async () => {
+    onMockApi();
+    onRenderForm(["CREATE"]);
+
+    expect(screen.getByText("Tanpa pembatasan (bawaan)")).toBeTruthy();
+    expect(screen.getByText("Ikuti tipe akun")).toBeTruthy();
+    expect(screen.queryByText("Pilih")).toBeNull();
   });
 });

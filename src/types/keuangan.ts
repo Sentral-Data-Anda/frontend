@@ -123,6 +123,7 @@ export const PAYMENT_STATUS_LABEL: Record<PaymentStatus, string> = {
 export const RECEIVE_METHODS = [
   "TUNAI",
   "TRANSFER",
+  "QRIS",
   "PAYMENT_GATEWAY",
 ] as const;
 
@@ -131,6 +132,10 @@ export type ReceiveMethod = (typeof RECEIVE_METHODS)[number];
 export const RECEIVE_METHOD_LABEL: Record<ReceiveMethod, string> = {
   TUNAI: "Tunai",
   TRANSFER: "Transfer",
+  // "QRIS gereja", bukan "QRIS": yang ini papan QR statis milik gereja yang
+  // dicatat tangan. Pembayaran online juga lewat QRIS, dan dua pilihan yang
+  // sama-sama berbunyi "QRIS" akan dipilih bergantian oleh orang yang berbeda.
+  QRIS: "QRIS gereja",
   PAYMENT_GATEWAY: "Pembayaran online",
 };
 
@@ -138,6 +143,7 @@ export const RECEIVE_METHOD_LABEL: Record<ReceiveMethod, string> = {
 export const ACCOUNTING_SETTING_KEYS = [
   "PERSEMBAHAN_KAS",
   "PERSEMBAHAN_BANK",
+  "PERSEMBAHAN_QRIS",
   "KAS_GATEWAY",
   "PENDAPATAN_EVENT",
   "PENYUSUTAN_BEBAN",

@@ -2,12 +2,28 @@
 
 import { Controller, useWatch } from "react-hook-form";
 
-import { AccountField, ChoiceField, Input } from "@/components/common/control";
+import {
+  AccountField,
+  ChoiceField,
+  Input,
+  SelectField,
+} from "@/components/common/control";
 import { ControlField, FormSection, FormWide } from "@/components/common/form";
 import type { AccountType } from "@/types/keuangan";
 
-import { ACCOUNT_TYPE_LOCKED_HINT, PARENT_NOTE, toAccountCode } from "../model";
-import { ACCOUNT_STATUS_OPTIONS, ACCOUNT_TYPE_OPTIONS } from "../types";
+import {
+  ACCOUNT_TYPE_LOCKED_HINT,
+  CASH_FLOW_HINT,
+  NET_ASSET_HINT,
+  PARENT_NOTE,
+  toAccountCode,
+} from "../model";
+import {
+  ACCOUNT_STATUS_OPTIONS,
+  ACCOUNT_TYPE_OPTIONS,
+  CASH_FLOW_CATEGORY_OPTIONS,
+  NET_ASSET_CLASS_OPTIONS,
+} from "../types";
 
 import { type AccountForm } from "./form-options";
 
@@ -128,6 +144,53 @@ export const AccountSection = (props: PropTypes) => {
           </div>
         )}
       />
+
+      {/* Keduanya hanya dipakai laporan, dan keduanya punya jawaban bawaan
+          yang benar — jadi mereka ada di bagian sendiri, di bawah, bukan di
+          tengah field yang wajib diisi. */}
+      <FormWide>
+        <ControlField
+          control={form.control}
+          name="netAssetClass"
+          label="Kelas aset neto"
+          isOptional
+          hint={NET_ASSET_HINT}
+        >
+          {(field) => (
+            // `placeholder` disamakan dengan label pilihan kosongnya, karena
+            // "" di sini adalah JAWABAN, bukan field yang belum diisi: ia
+            // dikirim sebagai null dan null dibaca tanpa pembatasan. Bawaan
+            // "Pilih" membuat akun yang sudah benar terbaca seperti tertinggal.
+            <SelectField
+              value={field.value}
+              onValueChange={field.onChange}
+              options={NET_ASSET_CLASS_OPTIONS}
+              placeholder="Tanpa pembatasan (bawaan)"
+              disabled={isDisabled}
+            />
+          )}
+        </ControlField>
+      </FormWide>
+
+      <FormWide>
+        <ControlField
+          control={form.control}
+          name="cashFlowCategory"
+          label="Kategori arus kas"
+          isOptional
+          hint={CASH_FLOW_HINT}
+        >
+          {(field) => (
+            <SelectField
+              value={field.value}
+              onValueChange={field.onChange}
+              options={CASH_FLOW_CATEGORY_OPTIONS}
+              placeholder="Ikuti tipe akun"
+              disabled={isDisabled}
+            />
+          )}
+        </ControlField>
+      </FormWide>
     </FormSection>
   );
 };

@@ -112,9 +112,20 @@ export const POSTED_FILTER_OPTIONS: SelectOption[] = [
   { value: "0", label: "Belum diposting" },
 ];
 
+/**
+ * Cara uang bisa benar-benar tiba LEWAT TANGAN.
+ *
+ * PAYMENT_GATEWAY tidak ada di sini dan tidak boleh ditambahkan: baris gateway
+ * ditulis webhook dari sebuah `Payment` yang sudah dikonfirmasi penyedia, dan
+ * menerimanya di sini akan membuat ada gift gateway tanpa pembayaran di
+ * belakangnya. QRIS JUSTRU ada, karena QRIS statis gereja tidak punya
+ * `Payment` sama sekali — tidak ada yang memberi tahu sistem ini saat
+ * seseorang memindai papan di pintu.
+ */
 export const RECEIVE_METHOD_OPTIONS: SelectOption[] = [
   { value: "TUNAI", label: RECEIVE_METHOD_LABEL.TUNAI },
   { value: "TRANSFER", label: RECEIVE_METHOD_LABEL.TRANSFER },
+  { value: "QRIS", label: RECEIVE_METHOD_LABEL.QRIS },
 ];
 
 /** Bawaan daftar: 30 hari terakhir, yang dilihat bendahara tiap Minggu. */

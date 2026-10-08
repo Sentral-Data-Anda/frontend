@@ -45,6 +45,8 @@ type Body = {
   type?: unknown;
   parentAccountId?: unknown;
   isActive?: unknown;
+  netAssetClass?: unknown;
+  cashFlowCategory?: unknown;
 };
 
 const fieldError = (
@@ -100,12 +102,34 @@ function parse(body: Body) {
   const parentAccountId =
     typeof body.parentAccountId === "number" ? body.parentAccountId : null;
 
+  // `undefined` berarti "jangan ubah", null berarti "kosongkan". Dua hal
+  // berbeda, sama seperti `isActive` di atas: form yang tidak mengirim field
+  // tidak boleh diam-diam mengubah klasifikasi yang sudah dipilih seseorang.
+  const classOf = <T extends string>(value: unknown, allowed: readonly T[]) =>
+    value === undefined
+      ? undefined
+      : value === null
+        ? null
+        : allowed.includes(value as T)
+          ? (value as T)
+          : undefined;
+
   return {
     code,
     name,
     type: type as AccountRow["type"],
     parentAccountId,
     isActive: body.isActive !== false,
+    netAssetClass: classOf(body.netAssetClass, [
+      "TANPA_PEMBATASAN",
+      "DENGAN_PEMBATASAN",
+    ] as const),
+    cashFlowCategory: classOf(body.cashFlowCategory, [
+      "KAS",
+      "OPERASI",
+      "INVESTASI",
+      "PENDANAAN",
+    ] as const),
   };
 }
 
@@ -264,6 +288,8 @@ export const akunMock: MockHandler = async ({
       isActive: parsed.isActive,
       deletedAt: null,
       hasJournal: false,
+      netAssetClass: parsed.netAssetClass ?? null,
+      cashFlowCategory: parsed.cashFlowCategory ?? null,
     };
     ACCOUNT.push(row);
 
@@ -307,6 +333,12 @@ export const akunMock: MockHandler = async ({
     row.type = parsed.type;
     row.parentAccountId = parsed.parentAccountId;
     row.isActive = parsed.isActive;
+    if (parsed.netAssetClass !== undefined) {
+      row.netAssetClass = parsed.netAssetClass;
+    }
+    if (parsed.cashFlowCategory !== undefined) {
+      row.cashFlowCategory = parsed.cashFlowCategory;
+    }
 
     return json({
       status: 200,

@@ -124,8 +124,24 @@ describe("batch atomik", () => {
 
     expect(response?.status).toBe(400);
     expect((await bodyOf(response)).error).toBe(
-      "Cara Terima Harus Tunai Atau Transfer",
+      "Cara Terima Harus Tunai, Transfer Atau QRIS",
     );
+  });
+
+  /**
+   * QRIS statis gereja DITERIMA, dan pembedaannya intinya.
+   *
+   * Papan QR di pintu tidak punya `Payment` sama sekali — tidak ada yang
+   * memberi tahu sistem ini saat seseorang memindainya — jadi dia memang
+   * dicatat tangan. Yang ditolak tetap PAYMENT_GATEWAY, yang ditulis webhook
+   * dari pembayaran yang sudah dikonfirmasi penyedia.
+   */
+  test("QRIS gereja diterima, karena dia memang dicatat tangan", async () => {
+    const response = await batch([{ typePersembahanId: 1, amount: 1000 }], {
+      receiveMethod: "QRIS",
+    });
+
+    expect(response?.status).toBe(201);
   });
 
   test("bulan tanpa periode fiskal ditolak dengan code, bukan hanya kalimat", async () => {

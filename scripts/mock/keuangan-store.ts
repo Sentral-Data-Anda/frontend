@@ -72,6 +72,10 @@ export type AccountRow = {
   isActive: boolean;
   deletedAt: string | null;
   hasJournal: boolean;
+  /** ISAK 35. Null dibaca TANPA_PEMBATASAN. */
+  netAssetClass: "TANPA_PEMBATASAN" | "DENGAN_PEMBATASAN" | null;
+  /** KAS menandai akunnya sendiri. Null diturunkan dari `type`. */
+  cashFlowCategory: "KAS" | "OPERASI" | "INVESTASI" | "PENDANAAN" | null;
 };
 
 const account = (
@@ -91,19 +95,39 @@ const account = (
   isActive: true,
   deletedAt: null,
   hasJournal: false,
+  netAssetClass: null,
+  cashFlowCategory: null,
   ...extra,
 });
 
 export const ACCOUNT: AccountRow[] = [
   account(1, "1", "Aset", "ASSET", null),
-  account(2, "1-100", "Kas", "ASSET", 1, { hasJournal: true }),
-  account(3, "1-110", "Kas Kecil", "ASSET", 1),
-  account(4, "1-200", "Bank BCA", "ASSET", 1, { hasJournal: true }),
-  account(5, "1-210", "Bank Mandiri Dana Pembangunan", "ASSET", 1),
-  account(6, "1-300", "Kas di Payment Gateway", "ASSET", 1),
+  account(2, "1-100", "Kas", "ASSET", 1, {
+    hasJournal: true,
+    cashFlowCategory: "KAS",
+  }),
+  account(3, "1-110", "Kas Kecil", "ASSET", 1, { cashFlowCategory: "KAS" }),
+  account(4, "1-200", "Bank BCA", "ASSET", 1, {
+    hasJournal: true,
+    cashFlowCategory: "KAS",
+  }),
+  // Rekening dana pembangunan: kas UNTUK arus kas, dan sisi aset netonya
+  // dibawa oleh akun pendapatan dan bebannya, bukan oleh rekeningnya.
+  // Pembatasan melekat pada aset NETO, bukan pada kasnya.
+  account(5, "1-210", "Bank Mandiri Dana Pembangunan", "ASSET", 1, {
+    cashFlowCategory: "KAS",
+  }),
+  account(6, "1-300", "Kas di Payment Gateway", "ASSET", 1, {
+    cashFlowCategory: "KAS",
+  }),
   account(7, "1-400", "Selisih Kas", "ASSET", 1),
   account(8, "1-500", "Aset Tetap", "ASSET", 1),
-  account(27, "1-150", "Persediaan", "ASSET", 1),
+  // Persediaan ditimpa ke OPERASI dengan sengaja: turunan dari tipenya akan
+  // menjawab INVESTASI, dan membeli kertas bukan investasi. Inilah satu kasus
+  // yang membuat kolom `cashFlowCategory` ada.
+  account(27, "1-150", "Persediaan", "ASSET", 1, {
+    cashFlowCategory: "OPERASI",
+  }),
   account(9, "1-590", "Akumulasi Penyusutan", "ASSET", 1),
   account(10, "2", "Kewajiban", "LIABILITY", null),
   account(11, "2-100", "Hutang Usaha", "LIABILITY", 10),
@@ -116,7 +140,9 @@ export const ACCOUNT: AccountRow[] = [
   }),
   account(17, "4-110", "Persembahan Perpuluhan", "INCOME", 15),
   account(18, "4-120", "Persembahan Syukur", "INCOME", 15),
-  account(19, "4-130", "Persembahan Dana Pembangunan", "INCOME", 15),
+  account(19, "4-130", "Persembahan Dana Pembangunan", "INCOME", 15, {
+    netAssetClass: "DENGAN_PEMBATASAN",
+  }),
   account(20, "4-200", "Sewa Gedung", "INCOME", 15),
   account(21, "5", "Beban", "EXPENSE", null),
   account(22, "5-100", "Beban Listrik dan Air", "EXPENSE", 21, {
@@ -129,6 +155,11 @@ export const ACCOUNT: AccountRow[] = [
   // Surplus/Defisit terlihat, dan yang membedakan akun tipe dari kunci
   // cadangannya saat layar ditinjau.
   account(29, "5-140", "Beban ATK", "EXPENSE", 21),
+  // Beban terikat: belanja dana pembangunan mengurangi kelas TERIKAT, bukan
+  // yang bebas. Tanpa akun beban terikat, kelas itu hanya bisa tumbuh.
+  account(30, "5-150", "Beban Pembangunan", "EXPENSE", 21, {
+    netAssetClass: "DENGAN_PEMBATASAN",
+  }),
   account(25, "5-900", "Beban Lain-lain", "EXPENSE", 21, { isActive: false }),
   account(26, "5-910", "Pos Lama", "EXPENSE", 21, {
     deletedAt: `${addDays(TODAY, -90)}T02:00:00.000Z`,
@@ -174,6 +205,8 @@ export const accountView = (row: AccountRow, isDetail = false) => ({
   parentAccountId: row.parentAccountId,
   parent: parentRef(row.parentAccountId),
   isActive: row.isActive,
+  netAssetClass: row.netAssetClass,
+  cashFlowCategory: row.cashFlowCategory,
   childCount: ACCOUNT.filter(
     (child) => isLive(child) && child.parentAccountId === row.id,
   ).length,
@@ -226,6 +259,13 @@ export const ACCOUNTING_SETTING: SettingRow[] = [
     description:
       "Akun bank yang didebit saat persembahan transfer diposting ke jurnal",
     accountId: 4,
+    updatedById: SESSION_USER_ID,
+  },
+  {
+    key: "PERSEMBAHAN_QRIS",
+    description:
+      "Akun yang didebit saat persembahan lewat QRIS statis gereja diposting. Dipisah dari Bank Persembahan Transfer karena pencairannya terlambat dan sudah dipotong MDR: satu rekening yang menampung keduanya tidak akan pernah bisa dicocokkan.",
+    accountId: 5,
     updatedById: SESSION_USER_ID,
   },
   {
@@ -1162,7 +1202,7 @@ export type PersembahanRow = {
   donorName: string | null;
   period: string | null;
   amount: string;
-  receiveMethod: "TUNAI" | "TRANSFER" | "PAYMENT_GATEWAY";
+  receiveMethod: "TUNAI" | "TRANSFER" | "QRIS" | "PAYMENT_GATEWAY";
   receivedDate: string;
   receivedById: number | null;
   ibadahId: number | null;

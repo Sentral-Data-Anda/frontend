@@ -21,6 +21,7 @@ import { useNeraca } from "../api";
 import { SURPLUS_HINT, accountHref, ledgerHref, money } from "../model";
 
 import { AccountTreePanel } from "./account-tree-panel";
+import { NetAssetRow } from "./net-asset-row";
 import { ReportBanners } from "./report-banners";
 import { ReportError } from "./report-error";
 import { ReportFilters } from "./report-filters";
@@ -175,6 +176,11 @@ export const BalanceSheet = (props: PropTypes) => {
                 key="surplus"
                 total={report?.totals.surplus}
                 hint={SURPLUS_HINT}
+                query={query}
+              />,
+              <NetAssetRow
+                key="net-assets"
+                netAssets={report?.netAssets}
                 query={query}
               />,
             ]}

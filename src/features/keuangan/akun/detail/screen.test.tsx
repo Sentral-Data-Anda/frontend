@@ -63,6 +63,8 @@ const PARENT: Account = {
   parentAccountId: null,
   parent: null,
   isActive: true,
+  netAssetClass: null,
+  cashFlowCategory: null,
   childCount: 1,
 };
 
@@ -75,6 +77,8 @@ const CHILD: Account = {
   parentAccountId: 1,
   parent: { id: 1, code: "1", name: "Aset", type: "ASSET" },
   isActive: false,
+  netAssetClass: null,
+  cashFlowCategory: null,
   childCount: 0,
 };
 

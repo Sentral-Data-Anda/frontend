@@ -65,7 +65,10 @@ const postings = (from: string | null, to: string): Posting[] => {
   ).flatMap((entry) => entry.lines.map((line) => ({ entry, line })));
 };
 
-type Balance = Pick<AccountRow, "id" | "code" | "name" | "type"> & {
+type Balance = Pick<
+  AccountRow,
+  "id" | "code" | "name" | "type" | "netAssetClass" | "cashFlowCategory"
+> & {
   parentAccountId: number | null;
   cents: number;
 };
@@ -93,8 +96,71 @@ const balancesFor = (from: string | null, to: string): Balance[] => {
     name: row.name,
     type: row.type,
     parentAccountId: row.parentAccountId,
+    netAssetClass: row.netAssetClass,
+    cashFlowCategory: row.cashFlowCategory,
     cents: sideOf(row.type, debit.get(row.id) ?? 0, credit.get(row.id) ?? 0),
   }));
+};
+
+/** Null dibaca TANPA_PEMBATASAN — cermin `classOf` di server. */
+const classOf = (row: { netAssetClass: AccountRow["netAssetClass"] }) =>
+  row.netAssetClass ?? "TANPA_PEMBATASAN";
+
+const derivedCashFlowOf = (type: AccountType) => {
+  if (type === "INCOME" || type === "EXPENSE") return "OPERASI";
+  if (type === "ASSET") return "INVESTASI";
+
+  return "PENDANAAN";
+};
+
+const cashFlowOf = (row: {
+  type: AccountType;
+  cashFlowCategory: AccountRow["cashFlowCategory"];
+}) => row.cashFlowCategory ?? derivedCashFlowOf(row.type);
+
+/**
+ * Saldo LEAF per kelas, bukan pohonnya.
+ *
+ * Total sebuah akun induk sudah memuat anak-anaknya, jadi menjumlahkan node
+ * akan menghitung tiap angka dua kali — cermin `byClass` di server.
+ */
+const byClass = (rows: readonly Balance[], types: readonly AccountType[]) => {
+  let tanpaPembatasan = 0;
+  let denganPembatasan = 0;
+
+  for (const row of rows) {
+    if (!types.includes(row.type)) continue;
+
+    if (classOf(row) === "DENGAN_PEMBATASAN") denganPembatasan += row.cents;
+    else tanpaPembatasan += row.cents;
+  }
+
+  return {
+    tanpaPembatasan,
+    denganPembatasan,
+    total: tanpaPembatasan + denganPembatasan,
+  };
+};
+
+type ByClass = ReturnType<typeof byClass>;
+
+const classView = (value: ByClass) => ({
+  tanpaPembatasan: amountOf(value.tanpaPembatasan),
+  denganPembatasan: amountOf(value.denganPembatasan),
+  total: amountOf(value.total),
+});
+
+const combine = (left: ByClass, right: ByClass, sign: 1 | -1): ByClass => ({
+  tanpaPembatasan: left.tanpaPembatasan + sign * right.tanpaPembatasan,
+  denganPembatasan: left.denganPembatasan + sign * right.denganPembatasan,
+  total: left.total + sign * right.total,
+});
+
+const dayBefore = (date: string) => {
+  const previous = new Date(`${date}T00:00:00.000Z`);
+  previous.setUTCDate(previous.getUTCDate() - 1);
+
+  return previous.toISOString().slice(0, 10);
 };
 
 const byCode = (a: Node, b: Node) => a.code.localeCompare(b.code);
@@ -216,6 +282,17 @@ const onNeraca = (url: URL) => {
         equity: amountOf(totals.equity),
         surplus: amountOf(totals.surplus),
       },
+      netAssets: classView(
+        combine(
+          byClass(balances, ["EQUITY"]),
+          combine(
+            byClass(balances, ["INCOME"]),
+            byClass(balances, ["EXPENSE"]),
+            -1,
+          ),
+          1,
+        ),
+      ),
       balanced:
         !process.env.MOCK_UNBALANCED &&
         totals.assets === totals.liabilities + totals.equity + totals.surplus,
@@ -245,6 +322,196 @@ const onSurplusDefisit = (url: URL) => {
         expense: amountOf(sumOf(expense)),
         surplus: amountOf(sumOf(income) - sumOf(expense)),
       },
+      byNetAssetClass: {
+        income: classView(byClass(balances, ["INCOME"])),
+        expense: classView(byClass(balances, ["EXPENSE"])),
+        surplus: classView(
+          combine(
+            byClass(balances, ["INCOME"]),
+            byClass(balances, ["EXPENSE"]),
+            -1,
+          ),
+        ),
+      },
+    },
+  });
+};
+
+const onPerubahanAsetNeto = (url: URL) => {
+  const range = readRange(url);
+  if ("failure" in range) return range.failure;
+
+  const opening = balancesFor(null, dayBefore(range.from));
+  const inRange = balancesFor(range.from, range.to);
+
+  const openingNet = combine(
+    byClass(opening, ["EQUITY"]),
+    combine(byClass(opening, ["INCOME"]), byClass(opening, ["EXPENSE"]), -1),
+    1,
+  );
+  const income = byClass(inRange, ["INCOME"]);
+  const expense = byClass(inRange, ["EXPENSE"]);
+  const change = combine(income, expense, -1);
+  const equityMovement = byClass(inRange, ["EQUITY"]);
+
+  return json({
+    status: 200,
+    message: "Berhasil Mendapatkan Laporan Perubahan Aset Neto",
+    data: {
+      from: utc(range.from),
+      to: utc(range.to),
+      opening: classView(openingNet),
+      income: classView(income),
+      expense: classView(expense),
+      change: classView(change),
+      equityMovement: classView(equityMovement),
+      closing: classView(
+        combine(combine(openingNet, change, 1), equityMovement, 1),
+      ),
+      classes: ["TANPA_PEMBATASAN", "DENGAN_PEMBATASAN"],
+    },
+  });
+};
+
+/**
+ * Arus kas metode langsung — cermin `arusKas` di server, termasuk penolakannya.
+ *
+ * Mock yang melaporkan nol di sini akan menyembunyikan satu-satunya laporan di
+ * modul ini yang bisa menolak, dan layar penolakannya tidak akan pernah
+ * terlihat sampai produksi.
+ */
+const onArusKas = (url: URL) => {
+  const range = readRange(url);
+  if ("failure" in range) return range.failure;
+
+  const cashAccounts = liveAccounts().filter(
+    (row) => row.cashFlowCategory === "KAS",
+  );
+
+  if (!cashAccounts.length) {
+    return json(
+      {
+        status: 400,
+        error:
+          "Belum Ada Akun Yang Ditandai Kas. Tetapkan Kategori Arus Kas Pada Akun Kas Dan Bank Terlebih Dahulu",
+      },
+      400,
+    );
+  }
+
+  const cashIds = new Set(cashAccounts.map((row) => row.id));
+  const byId = new Map(liveAccounts().map((row) => [row.id, row]));
+
+  const openingCash = balancesFor(null, dayBefore(range.from))
+    .filter((row) => cashIds.has(row.id))
+    .reduce((sum, row) => sum + row.cents, 0);
+
+  const sections: Record<string, number> = {
+    OPERASI: 0,
+    INVESTASI: 0,
+    PENDANAAN: 0,
+  };
+  const lines = new Map<
+    number,
+    { code: string; name: string; section: string; amount: number }
+  >();
+  let isDerived = false;
+
+  const entries = JOURNAL_ENTRY.filter(
+    (entry) =>
+      entry.status === "POSTED" &&
+      entry.entryDate >= range.from &&
+      entry.entryDate <= range.to &&
+      entry.lines.some((line) => cashIds.has(line.accountId)) &&
+      !process.env.MOCK_EMPTY,
+  );
+
+  for (const entry of entries) {
+    const cashDelta = entry.lines
+      .filter((line) => cashIds.has(line.accountId))
+      .reduce(
+        (sum, line) => sum + centsOf(line.debit) - centsOf(line.credit),
+        0,
+      );
+
+    if (cashDelta === 0) continue;
+
+    const others = entry.lines
+      .filter((line) => !cashIds.has(line.accountId))
+      .map((line) => ({
+        accountId: line.accountId,
+        weight: Math.abs(centsOf(line.debit) - centsOf(line.credit)),
+      }))
+      .filter((line) => line.weight !== 0);
+
+    const total = others.reduce((sum, line) => sum + line.weight, 0);
+    let left = cashDelta;
+
+    const shares =
+      others.length === 0 || total === 0
+        ? [{ accountId: -1, amount: cashDelta }]
+        : others.map((line, index) => {
+            const amount =
+              index === others.length - 1
+                ? left
+                : Math.round((cashDelta * line.weight) / total);
+            left -= amount;
+
+            return { accountId: line.accountId, amount };
+          });
+
+    for (const share of shares) {
+      const account = byId.get(share.accountId);
+      const section = account ? cashFlowOf(account) : "OPERASI";
+      if (section === "KAS") continue;
+
+      if (account && account.cashFlowCategory === null) isDerived = true;
+
+      sections[section] = (sections[section] ?? 0) + share.amount;
+
+      if (!account) continue;
+
+      const row = lines.get(account.id);
+      lines.set(account.id, {
+        code: account.code,
+        name: account.name,
+        section,
+        amount: (row?.amount ?? 0) + share.amount,
+      });
+    }
+  }
+
+  const change =
+    (sections.OPERASI ?? 0) +
+    (sections.INVESTASI ?? 0) +
+    (sections.PENDANAAN ?? 0);
+
+  return json({
+    status: 200,
+    message: "Berhasil Mendapatkan Laporan Arus Kas",
+    data: {
+      from: utc(range.from),
+      to: utc(range.to),
+      openingCash: amountOf(openingCash),
+      sections: {
+        operasi: amountOf(sections.OPERASI ?? 0),
+        investasi: amountOf(sections.INVESTASI ?? 0),
+        pendanaan: amountOf(sections.PENDANAAN ?? 0),
+      },
+      lines: [...lines.values()]
+        .filter((row) => row.amount !== 0)
+        .sort(
+          (a, b) =>
+            a.section.localeCompare(b.section) || a.code.localeCompare(b.code),
+        )
+        .map((row) => ({ ...row, amount: amountOf(row.amount) })),
+      change: amountOf(change),
+      closingCash: amountOf(openingCash + change),
+      cashAccounts: cashAccounts.map((row) => ({
+        code: row.code,
+        name: row.name,
+      })),
+      isDerived,
     },
   });
 };
@@ -335,6 +602,10 @@ export const laporanKeuanganMock: MockHandler = (ctx) => {
   if (path === "/laporan-keuangan/neraca") return onNeraca(url);
   if (path === "/laporan-keuangan/surplus-defisit")
     return onSurplusDefisit(url);
+  if (path === "/laporan-keuangan/perubahan-aset-neto") {
+    return onPerubahanAsetNeto(url);
+  }
+  if (path === "/laporan-keuangan/arus-kas") return onArusKas(url);
   if (path === "/laporan-keuangan/buku-besar") return onBukuBesar(url);
 
   return null;

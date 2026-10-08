@@ -155,6 +155,8 @@ describe("useSaveAccount", () => {
         type: "ASSET",
         parentAccountId: null,
         isActive: true,
+        netAssetClass: null,
+        cashFlowCategory: null,
       }),
     );
 

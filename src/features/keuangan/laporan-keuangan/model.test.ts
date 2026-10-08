@@ -48,7 +48,13 @@ describe("flattenTree", () => {
 describe("pembacaan parameter", () => {
   test("tab tidak dikenal jatuh ke neraca", () => {
     expect(readTab("buku-besar")).toBe("buku-besar");
-    expect(readTab("arus-kas")).toBe("neraca");
+    // "arus-kas" dulu dipakai sebagai contoh tab yang TIDAK dikenal di sini.
+    // Sekarang dia tab sungguhan, jadi contohnya harus yang tidak akan pernah
+    // jadi tab -- kalau tidak, test ini akan mengunci tab baru berikutnya
+    // supaya tidak pernah bisa ditambahkan.
+    expect(readTab("aset-neto")).toBe("aset-neto");
+    expect(readTab("arus-kas")).toBe("arus-kas");
+    expect(readTab("entah-apa")).toBe("neraca");
     expect(readTab("")).toBe("neraca");
   });
 

@@ -22,6 +22,7 @@ const NOT_FOUND = "Setelan Akuntansi Tidak Ditemukan";
 const LABEL: Record<AccountingSettingKey, string> = {
   PERSEMBAHAN_KAS: "Kas persembahan tunai",
   PERSEMBAHAN_BANK: "Bank persembahan transfer",
+  PERSEMBAHAN_QRIS: "Kas/bank QRIS gereja",
   KAS_GATEWAY: "Kas di Payment Gateway",
   PENDAPATAN_EVENT: "Pendapatan pendaftaran event",
   PENYUSUTAN_BEBAN: "Beban penyusutan",

@@ -18,7 +18,13 @@ import {
   readTab,
 } from "./model";
 import { REPORT_TABS } from "./types";
-import { BalanceSheet, GeneralLedger, IncomeStatement } from "./ui";
+import {
+  BalanceSheet,
+  CashFlowStatement,
+  GeneralLedger,
+  IncomeStatement,
+  NetAssetStatement,
+} from "./ui";
 
 const REPORT_FILTERS = {
   tab: { api: "tab" },
@@ -80,6 +86,20 @@ export const LaporanKeuanganScreen = () => {
 
           {tab === "laba-rugi" ? (
             <IncomeStatement
+              month={month}
+              onPickMonth={onPickFilter("bulan")}
+            />
+          ) : null}
+
+          {tab === "aset-neto" ? (
+            <NetAssetStatement
+              month={month}
+              onPickMonth={onPickFilter("bulan")}
+            />
+          ) : null}
+
+          {tab === "arus-kas" ? (
+            <CashFlowStatement
               month={month}
               onPickMonth={onPickFilter("bulan")}
             />

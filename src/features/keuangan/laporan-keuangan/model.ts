@@ -77,4 +77,42 @@ export const LEDGER_NO_ROW_DESCRIPTION =
 
 export const SURPLUS_LABEL = "Surplus/Defisit";
 
+/**
+ * Kelas aset neto ISAK 35, dengan kalimat yang bisa dibaca orang.
+ *
+ * "Tanpa pembatasan" dan "dengan pembatasan" adalah istilah standarnya, dan
+ * istilah itulah yang dicari pemeriksa. Keterangannya ada supaya bendahara
+ * yang belum pernah menemuinya tahu artinya tanpa membuka PSAK.
+ */
+export const NET_ASSET_CLASS_LABEL = {
+  tanpaPembatasan: "Tanpa pembatasan",
+  denganPembatasan: "Dengan pembatasan",
+} as const;
+
+export const NET_ASSET_NOTE =
+  "Dengan pembatasan berarti pemberinya menentukan penggunaannya — dana pembangunan, beasiswa. Pembatasan di sini dibawa oleh AKUN, jadi dana terikat butuh akun pendapatan dan akun bebannya sendiri.";
+
+export const CASH_FLOW_SECTION_LABEL = {
+  OPERASI: "Aktivitas operasi",
+  INVESTASI: "Aktivitas investasi",
+  PENDANAAN: "Aktivitas pendanaan",
+} as const;
+
+export const CASH_FLOW_DERIVED_TITLE =
+  "Sebagian angka ditempatkan otomatis dari tipe akunnya.";
+
+export const CASH_FLOW_DERIVED_MESSAGE =
+  "Akun yang belum punya kategori arus kas ditebak dari tipenya, dan tebakan itu salah untuk sebagian hal — membeli persediaan adalah operasi, bukan investasi. Atur Kategori Arus Kas di Akun agar angkanya dipilih, bukan ditebak.";
+
+export const CASH_FLOW_NO_ACCOUNT_TITLE = "Belum ada akun yang ditandai kas.";
+
+export const CASH_FLOW_NO_ACCOUNT_MESSAGE =
+  "Laporan Arus Kas menjelaskan pergerakan saldo kas dan bank, jadi ia perlu tahu akun mana yang kas. Tandai di Akun lewat Kategori Arus Kas.";
+
+export const ASET_NETO_SCROLL_HINT =
+  "Geser tabel ke samping untuk kolom Dengan pembatasan dan Jumlah.";
+
+export const ASET_NETO_EMPTY_NOTE =
+  "Gereja ini belum punya dana dengan pembatasan. Kolomnya tetap ditampilkan karena ISAK 35 memintanya, dan nol adalah jawaban yang benar.";
+
 export const SURPLUS_HINT = "Sejak awal pencatatan, belum dipindah ke ekuitas.";
