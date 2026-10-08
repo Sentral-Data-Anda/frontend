@@ -21,7 +21,12 @@ interface PropTypes {
   tipeBarang?: TipeBarang;
 }
 
-const HINT = "Hanya pemegang Setelan Akuntansi yang bisa mengubahnya.";
+const NOTE =
+  "Dipakai saat perolehan aset dan penyusutan diposting. Dibiarkan kosong, penyusutan memakai akun di Setelan Akuntansi.";
+
+// Sekali di catatan section, bukan di bawah tiap field: terulang tiga kali
+// berturut-turut kalimatnya berhenti dibaca dan hanya menambah tinggi halaman.
+const LOCKED_NOTE = `${NOTE} Hanya pemegang Setelan Akuntansi yang bisa mengubahnya.`;
 
 export const TipeBarangSection = (props: PropTypes) => {
   const { form, isDisabled, tipeBarang } = props;
@@ -56,7 +61,7 @@ export const TipeBarangSection = (props: PropTypes) => {
 
       <FormSection
         legend="Akun akuntansi"
-        note="Dipakai saat perolehan aset dan penyusutan diposting. Dibiarkan kosong, penyusutan memakai akun di Setelan Akuntansi."
+        note={isCanSetAccounts ? NOTE : LOCKED_NOTE}
         disabled={isDisabled}
       >
         {isCanSetAccounts ? (
@@ -118,7 +123,6 @@ export const TipeBarangSection = (props: PropTypes) => {
               id="assetAccountId"
               label="Akun aset"
               value={accountText(tipeBarang?.assetAccount ?? null)}
-              hint={HINT}
             />
 
             <LockedField
@@ -127,7 +131,6 @@ export const TipeBarangSection = (props: PropTypes) => {
               value={accountText(
                 tipeBarang?.depreciationExpenseAccount ?? null,
               )}
-              hint={HINT}
             />
 
             <LockedField
@@ -136,7 +139,6 @@ export const TipeBarangSection = (props: PropTypes) => {
               value={accountText(
                 tipeBarang?.accumulatedDepreciationAccount ?? null,
               )}
-              hint={HINT}
             />
           </>
         )}
