@@ -12,7 +12,7 @@
  */
 import { MENU } from "../../../src/config/menu";
 import { SESSION_USER_ID } from "../../mock-dashboard";
-import { ASSET, TYPE_ITEM } from "../inventaris-store";
+import { ASSET, TYPE_ITEM, supplierOf } from "../inventaris-store";
 import {
   JOURNAL_ENTRY,
   TODAY,
@@ -39,6 +39,11 @@ import {
   type MockAction,
   type MockHandler,
 } from "../kit";
+import {
+  SUPPLIER_INVOICE,
+  SUPPLIER_PAYMENT,
+  isLive as isLivePengadaan,
+} from "../pengadaan-store";
 
 const NOT_FOUND = "Jurnal Tidak Ditemukan";
 
@@ -608,6 +613,187 @@ const assetDebitOf = (typeId: number) => {
   return type?.assetAccountId ?? settingAccountOf("ASET_TETAP");
 };
 
+const FAKTUR_SOURCE = "SUPPLIER_INVOICE";
+const BAYAR_SOURCE = "SUPPLIER_PAYMENT";
+
+/**
+ * Faktur supplier dan pembayarannya, dalam urutan itu.
+ *
+ * Pembayaran MENDEBIT hutang yang DIKREDIT fakturnya, jadi fakturnya dulu.
+ * Tiruan yang membalik urutannya akan menolak pembayaran yang server terima,
+ * dan layar yang ditinjau di atasnya meninjau perilaku yang tidak ada.
+ */
+const onPostPengadaan = (url: URL, body: { from?: unknown; to?: unknown }) => {
+  const checked = rangeOf(url, body);
+  if ("failure" in checked) return checked.failure;
+
+  const { isDryRun, from, to } = checked;
+
+  const refused: { code: string; reason: string; reasonCode: string }[] = [];
+  let posted = 0;
+  let skipped = 0;
+
+  const payableOf = (supplierId: number) =>
+    supplierOf(supplierId)?.payableAccountId ??
+    settingAccountOf("HUTANG_SUPPLIER");
+
+  const bookedHere = new Set<number>();
+
+  const invoices = SUPPLIER_INVOICE.filter(
+    (row) =>
+      isLivePengadaan(row) &&
+      row.status !== "DRAFT" &&
+      row.status !== "CANCELLED" &&
+      row.invoiceDate >= from &&
+      row.invoiceDate <= to,
+  );
+
+  for (const row of invoices) {
+    if (journalOfSource(FAKTUR_SOURCE, row.id)) {
+      skipped += 1;
+      continue;
+    }
+
+    const debitId = row.expenseAccountId ?? settingAccountOf("BEBAN_PENGADAAN");
+    const creditId = payableOf(row.supplierId);
+
+    if (!debitId || !creditId) {
+      refused.push({
+        code: row.code,
+        reason: `Setelan Akuntansi ${debitId ? "HUTANG_SUPPLIER" : "BEBAN_PENGADAAN"} Belum Diisi. Tetapkan Akunnya Terlebih Dahulu`,
+        reasonCode: "SETTING_EMPTY",
+      });
+      continue;
+    }
+
+    if (isDryRun) {
+      const failure = periodFailureOf(row.invoiceDate);
+      if (failure) {
+        refused.push({
+          code: row.code,
+          reason: failure.message,
+          reasonCode: failure.code,
+        });
+        continue;
+      }
+
+      bookedHere.add(row.id);
+      posted += 1;
+      continue;
+    }
+
+    const result = postDocumentEntry({
+      sourceType: FAKTUR_SOURCE,
+      sourceId: row.id,
+      entryDate: row.invoiceDate,
+      description: `Faktur Supplier ${row.code}`,
+      lines: [
+        { accountId: debitId, debit: row.totalIDR, credit: "0" },
+        { accountId: creditId, debit: "0", credit: row.totalIDR },
+      ],
+    });
+
+    if ("failure" in result) {
+      refused.push({
+        code: row.code,
+        reason: result.failure.message,
+        reasonCode: result.failure.code,
+      });
+      continue;
+    }
+
+    bookedHere.add(row.id);
+    posted += 1;
+  }
+
+  const payments = SUPPLIER_PAYMENT.filter(
+    (row) => row.paymentDate >= from && row.paymentDate <= to,
+  );
+
+  for (const row of payments) {
+    if (journalOfSource(BAYAR_SOURCE, row.id)) {
+      skipped += 1;
+      continue;
+    }
+
+    const invoice = SUPPLIER_INVOICE.find(
+      (one) => one.id === row.supplierInvoiceId,
+    );
+    if (!invoice) continue;
+
+    if (
+      !journalOfSource(FAKTUR_SOURCE, invoice.id) &&
+      !bookedHere.has(invoice.id)
+    ) {
+      refused.push({
+        code: row.code,
+        reason: `Faktur ${invoice.code} Belum Diposting. Posting Fakturnya Terlebih Dahulu`,
+        reasonCode: "INVOICE_NOT_POSTED",
+      });
+      continue;
+    }
+
+    const debitId = payableOf(invoice.supplierId);
+    if (!debitId) {
+      refused.push({
+        code: row.code,
+        reason:
+          "Setelan Akuntansi HUTANG_SUPPLIER Belum Diisi. Tetapkan Akunnya Terlebih Dahulu",
+        reasonCode: "SETTING_EMPTY",
+      });
+      continue;
+    }
+
+    if (isDryRun) {
+      const failure = periodFailureOf(row.paymentDate);
+      if (failure) {
+        refused.push({
+          code: row.code,
+          reason: failure.message,
+          reasonCode: failure.code,
+        });
+        continue;
+      }
+
+      posted += 1;
+      continue;
+    }
+
+    const result = postDocumentEntry({
+      sourceType: BAYAR_SOURCE,
+      sourceId: row.id,
+      entryDate: row.paymentDate,
+      description: `Pembayaran Faktur ${row.code}`,
+      lines: [
+        { accountId: debitId, debit: row.amountIDR, credit: "0" },
+        { accountId: row.accountId, debit: "0", credit: row.amountIDR },
+      ],
+    });
+
+    if ("failure" in result) {
+      refused.push({
+        code: row.code,
+        reason: result.failure.message,
+        reasonCode: result.failure.code,
+      });
+      continue;
+    }
+
+    posted += 1;
+  }
+
+  return json(
+    {
+      status: isDryRun ? 200 : 201,
+      message: isDryRun
+        ? "Berhasil Memeriksa Posting Pengadaan"
+        : "Berhasil Memposting Pengadaan Ke Jurnal",
+      data: { posted, skipped, refused },
+    },
+    isDryRun ? 200 : 201,
+  );
+};
+
 const onPostAset = (url: URL, body: { from?: unknown; to?: unknown }) => {
   const checked = rangeOf(url, body);
   if ("failure" in checked) return checked.failure;
@@ -818,6 +1004,13 @@ export const jurnalMock: MockHandler = async (ctx) => {
     if (process.env.MOCK_JURNAL_ACTION_500) return serverError();
 
     return onPostAset(url, await readBody(request));
+  }
+
+  if (key === "posting-pengadaan") {
+    if (method !== "POST" || step) return null;
+    if (process.env.MOCK_JURNAL_ACTION_500) return serverError();
+
+    return onPostPengadaan(url, await readBody(request));
   }
 
   const row = find(decodeURIComponent(key));
