@@ -11,6 +11,7 @@ import { toExpenseQuery } from "./model";
 import type {
   CashExpense,
   CashExpenseDetail,
+  CeilingHeadroom,
   ExpenseAction,
   GateCompliance,
   WaiveInput,
@@ -77,6 +78,23 @@ export function useGateCompliance(
     retry: false,
     select: (response) =>
       response.data.find((row) => String(row.bapelId) === bapelId) ?? null,
+  });
+}
+
+// Sisa pagu komisi untuk tahun pelayanan yang memuat tanggal ini. Tanggalnya
+// dikirim utuh, bukan tahunnya: server yang melipatnya lewat `anggaranYearOf`,
+// dan FE yang menghitung tahun pelayanan sendiri akan jadi jawaban kedua atas
+// pertanyaan yang sama.
+export function useCeiling(bapelId: string, expenseDate: string) {
+  return useQuery({
+    queryKey: [...expenseKeys.all, "ceiling", bapelId, expenseDate],
+    queryFn: () =>
+      fetchOne<CeilingHeadroom>(
+        `${BASE}/sisa-pagu?bapelId=${encodeURIComponent(bapelId)}&tanggal=${encodeURIComponent(expenseDate)}`,
+      ),
+    enabled: Boolean(bapelId && expenseDate),
+    retry: false,
+    select: (response) => response.data,
   });
 }
 

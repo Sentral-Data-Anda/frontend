@@ -63,6 +63,23 @@ export type GateCompliance = {
   waiver: GateWaiver | null;
 };
 
+/**
+ * A komisi's pagu for the tahun pelayanan a date falls in.
+ *
+ * Two nulls, each with one meaning, and the screen must keep them apart.
+ * `usage` null means this komisi's pagu is not this viewer's to see. A
+ * `usage.ceiling` of null means it is theirs to see and the Majelis has set
+ * none. Collapsed, the second message would be shown for the first case and a
+ * komisi would go asking for a pagu that already exists.
+ */
+export type CeilingHeadroom = {
+  budgetYear: { year: number; label: string };
+  usage: {
+    ceiling: string | null;
+    disbursed: string;
+  } | null;
+};
+
 export type WaiveInput = {
   bapelId: number;
   year: number;

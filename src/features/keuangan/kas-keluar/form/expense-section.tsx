@@ -24,6 +24,7 @@ import {
 
 import type { ExpenseForm } from "./form-options";
 import { GateAlert } from "./gate-alert";
+import { PaguAlert } from "./pagu-alert";
 
 interface PropTypes {
   form: ExpenseForm;
@@ -35,6 +36,9 @@ export const ExpenseSection = (props: PropTypes) => {
 
   const bapelChoice = useWatch({ control: form.control, name: "bapelChoice" });
   const bapelId = useWatch({ control: form.control, name: "bapelId" });
+  // Ditonton supaya peringatan pagu ikut berubah saat nominal diketik,
+  // bukan hanya saat komisi atau tanggalnya diganti.
+  const lines = useWatch({ control: form.control, name: "lines" });
   const expenseDate = useWatch({ control: form.control, name: "expenseDate" });
   const { rows } = useDdlOptions<DdlOption>("bapel");
   const bapelName =
@@ -161,11 +165,20 @@ export const ExpenseSection = (props: PropTypes) => {
 
       {bapelChoice === "KOMISI" && bapelId && expenseDate ? (
         <FormWide>
-          <GateAlert
-            bapelId={bapelId}
-            bapelName={bapelName}
-            expenseDate={expenseDate}
-          />
+          <div className="space-y-2 empty:hidden">
+            <GateAlert
+              bapelId={bapelId}
+              bapelName={bapelName}
+              expenseDate={expenseDate}
+            />
+
+            <PaguAlert
+              bapelId={bapelId}
+              bapelName={bapelName}
+              expenseDate={expenseDate}
+              amounts={lines.map((line) => line?.amount ?? "")}
+            />
+          </div>
         </FormWide>
       ) : null}
 

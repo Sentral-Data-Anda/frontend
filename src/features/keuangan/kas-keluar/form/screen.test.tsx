@@ -60,6 +60,7 @@ afterEach(() => {
   actions.current = [];
   replaced.length = 0;
   compliance.current = [];
+  ceiling.current = null;
 });
 
 const BAPEL_DDL = [
@@ -80,11 +81,25 @@ const ACCOUNT_DDL = [
 
 const compliance: { current: unknown[] } = { current: [] };
 
+// Sisa pagu dijawab TERPISAH dari catch-all GET. Tanpa cabang ini catch-all
+// mengembalikan fixture detail kas keluar untuk `/sisa-pagu` juga, dan sebuah
+// mock yang lebih longgar dari server adalah cara spanduk ini pernah
+// menjatuhkan seluruh form.
+const ceiling: { current: unknown } = { current: null };
+
 const onMockApi = (detail?: CashExpenseDetail) => {
   const sent: FormData[] = [];
 
   globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = String(input);
+
+    if (url.includes("/sisa-pagu")) {
+      return Response.json({
+        status: 200,
+        message: "ok",
+        data: ceiling.current,
+      });
+    }
 
     if (url.includes("belum-lapor")) {
       return Response.json({
@@ -543,5 +558,123 @@ describe("spanduk gerbang di form", () => {
     // Yang dijaga di sini: spanduknya sendiri, dan bahwa ia bukan galat form.
     expect(await screen.findByText(/masih draf\./)).toBeTruthy();
     expect(screen.getByRole("link", { name: "Lihat laporannya" })).toBeTruthy();
+  });
+});
+
+/**
+ * Spanduk sisa pagu.
+ *
+ * Draf setiap test di bawah memakai `expenseDetail()`, yang satu barisnya
+ * bernilai 3.200.000 — jadi angka itulah yang harus ikut dihitung. Kalau
+ * `amounts` tersambung ke field yang salah, draf terbaca 0 dan setiap kasus
+ * pelampauan di bawah ini berhenti muncul.
+ */
+describe("spanduk sisa pagu di form", () => {
+  const PAGU = (ceiling: string | null, disbursed: string) => ({
+    budgetYear: { year: 2026, label: "2026" },
+    usage: { ceiling, disbursed },
+  });
+
+  const onPickKomisi = async () => {
+    fireEvent.click(
+      screen.getByRole("radio", { name: "Untuk badan pelayanan" }),
+    );
+    fireEvent.click(
+      await screen.findByRole("combobox", { name: "Badan pelayanan" }),
+    );
+    fireEvent.click(await screen.findByRole("option", { name: /Komisi Anak/ }));
+  };
+
+  // 3.000.000 terpakai + 3.200.000 draf = 6.200.000 atas pagu 5.000.000.
+  // Tanpa draf, 3.000.000 masih di bawah pagu dan tidak ada spanduk sama
+  // sekali — itu yang membuat test ini membuktikan `amounts` tersambung.
+  test("melampaui pagu: spanduk menyebut selisihnya", async () => {
+    ceiling.current = PAGU("5000000", "3000000");
+    onMockApi(expenseDetail());
+    onRenderForm(["VIEW", "UPDATE"], "doc-7");
+
+    await screen.findByLabelText("Dibayarkan kepada");
+    await onPickKomisi();
+
+    expect(await screen.findByText(/melampaui pagu/)).toBeTruthy();
+    expect(await screen.findByText(/Rp 1\.200\.000/)).toBeTruthy();
+  });
+
+  test("masih di dalam pagu: tidak ada spanduk", async () => {
+    ceiling.current = PAGU("10000000", "3000000");
+    onMockApi(expenseDetail());
+    const { container } = onRenderForm(["VIEW", "UPDATE"], "doc-7");
+
+    await screen.findByLabelText("Dibayarkan kepada");
+    await onPickKomisi();
+
+    await screen.findByRole("combobox", { name: "Badan pelayanan" });
+    expect(container.textContent).not.toContain("melampaui pagu");
+  });
+
+  // Tepat di pagu BUKAN pelampauan, sama seperti `withinCeiling` di server
+  // yang memakai `lessThanOrEqualTo`. Dua jawaban atas satu pertanyaan adalah
+  // yang dihindari di sini: layar hanya memperingatkan, jadi layar yang
+  // berbeda pendapat akan memperingatkan sesuatu yang tidak terjadi.
+  test("tepat di pagu bukan pelampauan", async () => {
+    ceiling.current = PAGU("6200000", "3000000");
+    onMockApi(expenseDetail());
+    const { container } = onRenderForm(["VIEW", "UPDATE"], "doc-7");
+
+    await screen.findByLabelText("Dibayarkan kepada");
+    await onPickKomisi();
+
+    await screen.findByRole("combobox", { name: "Badan pelayanan" });
+    expect(container.textContent).not.toContain("melampaui pagu");
+  });
+
+  // Dua null tidak boleh diruntuhkan. "Tidak terlihat" bukan "belum
+  // ditetapkan" — disuruh yang kedua, komisi akan meminta Majelis menetapkan
+  // pagu yang sebenarnya sudah ada.
+  test("pagu tidak terlihat: bukan dibilang belum ditetapkan", async () => {
+    ceiling.current = {
+      budgetYear: { year: 2026, label: "2026" },
+      usage: null,
+    };
+    onMockApi(expenseDetail());
+    const { container } = onRenderForm(["VIEW", "UPDATE"], "doc-7");
+
+    await screen.findByLabelText("Dibayarkan kepada");
+    await onPickKomisi();
+
+    expect(
+      await screen.findByText(/tidak terlihat untuk peran Anda/),
+    ).toBeTruthy();
+    expect(container.textContent).not.toContain("belum menetapkan pagu");
+  });
+
+  test("pagu belum ditetapkan: dikatakan apa adanya", async () => {
+    ceiling.current = PAGU(null, "0");
+    onMockApi(expenseDetail());
+    const { container } = onRenderForm(["VIEW", "UPDATE"], "doc-7");
+
+    await screen.findByLabelText("Dibayarkan kepada");
+    await onPickKomisi();
+
+    expect(await screen.findByText(/belum menetapkan pagu/)).toBeTruthy();
+    expect(container.textContent).not.toContain(
+      "tidak terlihat untuk peran Anda",
+    );
+  });
+
+  test("Simpan TETAP aktif saat pagu terlampaui — gereja memilih peringatan", async () => {
+    ceiling.current = PAGU("5000000", "3000000");
+    onMockApi(expenseDetail());
+    onRenderForm(["VIEW", "UPDATE"], "doc-7");
+
+    await screen.findByLabelText("Dibayarkan kepada");
+    await onPickKomisi();
+
+    await screen.findByText(/melampaui pagu/);
+    expect(
+      screen
+        .getAllByRole("button", { name: "Simpan" })
+        .every((button) => !(button as HTMLButtonElement).disabled),
+    ).toBe(true);
   });
 });

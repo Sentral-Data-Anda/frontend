@@ -117,3 +117,27 @@ export const balanceOf = (lines: readonly BalanceLine[]) => {
 
 export const sumAmounts = (values: readonly string[]) =>
   fromCents(values.reduce((total, value) => total + toCents(value), ZERO));
+
+/**
+ * By how much `spent` plus `draft` goes past `ceiling`, or null when it does
+ * not.
+ *
+ * Cents throughout, like everything else in this file: all three are Decimal
+ * strings, two from the API and one summed out of form fields, and a float
+ * comparison would report an overrun on a disbursement that lands exactly on
+ * the ceiling.
+ *
+ * Exactly on the ceiling is NOT an overrun, which is the server's own rule in
+ * `withinCeiling` — `committed.plus(proposed).lessThanOrEqualTo(ceiling)`.
+ * Two answers to one question is the thing worth avoiding here: the screen
+ * only warns, so a screen that disagreed would be warning about nothing.
+ */
+export const overBy = (
+  ceiling: string,
+  spent: string,
+  draft: string,
+): string | null => {
+  const excess = toCents(spent) + toCents(draft) - toCents(ceiling);
+
+  return excess > ZERO ? fromCents(excess) : null;
+};
