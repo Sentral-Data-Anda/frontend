@@ -30,6 +30,8 @@ const LABEL: Record<AccountingSettingKey, string> = {
   GAJI_KAS: "Kas/bank penggajian",
   SUMBANGAN_ASET: "Pendapatan sumbangan aset",
   ASET_TETAP: "Aset tetap",
+  HUTANG_SUPPLIER: "Hutang supplier",
+  BEBAN_PENGADAAN: "Beban pengadaan",
 };
 
 const view = (row: (typeof ACCOUNTING_SETTING)[number]) => ({

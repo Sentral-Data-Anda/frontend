@@ -36,6 +36,8 @@ export const POSTING_PERSEMBAHAN_PATH = `${JURNAL_LIST_PATH}/posting-persembahan
 
 export const POSTING_ASET_PATH = `${JURNAL_LIST_PATH}/posting-aset`;
 
+export const POSTING_PENGADAAN_PATH = `${JURNAL_LIST_PATH}/posting-pengadaan`;
+
 export const journalHref = (publicId: string) =>
   detailHref(MENU.KEUANGAN, MENU.JURNAL, publicId);
 
@@ -52,6 +54,11 @@ export const persembahanHref = (code: string) =>
 
 export const asetHref = (code: string) =>
   detailHref(MENU.INVENTARIS, MENU.BARANG, code);
+
+// Faktur dan pembayaran yang ditolak sama-sama menyebut KODE FAKTUR sebagai
+// subjeknya, jadi satu tautan cukup untuk keduanya.
+export const fakturHref = (code: string) =>
+  detailHref(MENU.PENGADAAN, MENU.FAKTUR_SUPPLIER, code);
 
 export const monthListHref = (year: number, month: number) =>
   `${JURNAL_LIST_PATH}?bulan=${year}-${String(month).padStart(2, "0")}`;
@@ -73,6 +80,12 @@ export const POSTING_NOTE =
 
 export const POSTING_ASET_NOTE =
   "Hanya aset dari sumbangan dan hibah. Aset yang dibeli masuk buku bersama fakturnya — membukukannya di sini juga berarti menghitung pembelian yang sama dua kali.";
+
+export const POSTING_PENGADAAN_NOTE =
+  "Faktur supplier dan pembayarannya dibukukan bersama, fakturnya lebih dulu. Sebuah pembayaran mendebit hutang yang dikredit fakturnya, jadi membukukan pembayaran lebih dulu membuat kewajibannya minus.";
+
+export const NOTHING_TO_POST_PENGADAAN =
+  "Tidak ada faktur atau pembayaran yang bisa diposting di rentang ini.";
 
 export const NOTHING_TO_POST_ASET =
   "Tidak ada aset sumbangan yang bisa diposting di rentang ini.";
@@ -168,6 +181,13 @@ const FIX_BY_CODE: Record<string, Fix> = {
     href: menuHref(MENU.INVENTARIS, MENU.BARANG),
     label: "Buka Barang",
     menu: MENU.BARANG,
+  },
+  // Pembayaran yang fakturnya belum dibukukan: yang harus diperbaiki adalah
+  // fakturnya, bukan pembayarannya, jadi tautannya ke Faktur Supplier.
+  INVOICE_NOT_POSTED: {
+    href: menuHref(MENU.PENGADAAN, MENU.FAKTUR_SUPPLIER),
+    label: "Buka Faktur Supplier",
+    menu: MENU.FAKTUR_SUPPLIER,
   },
 };
 

@@ -18,6 +18,8 @@ type Live = { id: number; deletedAt: string | null };
 export type MasterRow = Live & { publicId: string; code: string; name: string };
 
 export type SupplierRow = Live & {
+  /** Akun hutang milik supplier ini. Null berarti ikut kunci HUTANG_SUPPLIER. */
+  payableAccountId?: number | null;
   publicId: string;
   code: string;
   name: string;

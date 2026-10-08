@@ -278,6 +278,20 @@ export const ACCOUNTING_SETTING: SettingRow[] = [
     accountId: 8,
     updatedById: SESSION_USER_ID,
   },
+  {
+    key: "HUTANG_SUPPLIER",
+    description:
+      "Akun Kewajiban yang dikredit saat faktur supplier diposting, untuk supplier yang belum menyebut akun hutangnya sendiri. Didebit lagi saat pembayaran fakturnya diposting.",
+    accountId: 11,
+    updatedById: SESSION_USER_ID,
+  },
+  {
+    key: "BEBAN_PENGADAAN",
+    description:
+      "Akun yang didebit saat faktur supplier diposting, untuk faktur yang belum menyebut akun bebannya sendiri. Faktur yang sudah menyebutnya tidak memakai akun ini.",
+    accountId: 24,
+    updatedById: SESSION_USER_ID,
+  },
 ];
 
 export const settingView = (row: SettingRow) => ({

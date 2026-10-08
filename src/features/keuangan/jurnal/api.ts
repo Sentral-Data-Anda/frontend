@@ -35,6 +35,9 @@ const PERSEMBAHAN_KEY = ["persembahan"] as const;
 // sama seperti PERSEMBAHAN_KEY di atas: fitur tidak saling mengimpor.
 const ASET_KEY = ["asset"] as const;
 
+// Cermin `invoiceKeys.all` fitur Pengadaan, ditulis LITERAL.
+const FAKTUR_KEY = ["supplier-invoice"] as const;
+
 export const JOURNAL_FILTERS = {
   bulan: { api: "bulan" },
   akun: { api: "akun" },
@@ -120,6 +123,36 @@ export function useDeleteJournal(publicId: string) {
  * Membatalkan daftar aset juga, bukan hanya jurnal: layar aset menunjukkan
  * apakah sebuah aset sudah dibukukan.
  */
+/**
+ * Faktur supplier dan pembayarannya, SATU batch dan dalam urutan itu.
+ *
+ * Membatalkan daftar faktur juga, bukan hanya jurnal: layar faktur menolak
+ * batal dan hapus begitu fakturnya dibukukan.
+ */
+export function usePostPengadaan() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (input: PostingRange & { isDryRun: boolean }) =>
+      fetchOne<PostingResult>(
+        input.isDryRun
+          ? "/jurnal/posting-pengadaan?dryRun=1"
+          : "/jurnal/posting-pengadaan",
+        {
+          method: "POST",
+          body: JSON.stringify({ from: input.from, to: input.to }),
+        },
+      ),
+    onSuccess: (_response, input) =>
+      input.isDryRun
+        ? undefined
+        : Promise.all([
+            invalidateJournal(queryClient),
+            queryClient.invalidateQueries({ queryKey: FAKTUR_KEY }),
+          ]),
+  });
+}
+
 export function usePostAset() {
   const queryClient = useQueryClient();
 
