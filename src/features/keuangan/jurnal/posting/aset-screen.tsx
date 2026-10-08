@@ -23,12 +23,13 @@ import { monthOptions, todayJakarta } from "@/lib/date";
 import { formatNumber } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
-import { usePostPayment } from "../api";
+import { usePostAset } from "../api";
 import {
-  NO_POSTING_ACCESS,
+  JURNAL_LIST_PATH,
+  NOTHING_TO_POST_ASET,
   NO_VIEW,
-  PAYMENT_LIST_PATH,
-  POSTING_NOTE,
+  POSTING_ASET_NOTE,
+  asetHref,
   isSameRange,
   postingStatusOf,
   rangeOfMonth,
@@ -38,7 +39,10 @@ import { FixLink } from "../ui";
 
 import { RefusedList } from "./refused-list";
 
-const TITLE = "Posting Pembayaran Event";
+const TITLE = "Posting Aset Sumbangan";
+
+const NO_POSTING_ACCESS =
+  "Peran Anda bisa melihat Jurnal, tetapi tidak membuat entri.";
 
 type Outcome = {
   range: PostingRange;
@@ -47,14 +51,17 @@ type Outcome = {
 };
 
 const postedTextOf = (result: PostingResult) =>
-  `Pratinjau ini akan membukukan ${formatNumber(result.posted)} pembayaran menjadi ${formatNumber(result.posted)} entri jurnal. ${formatNumber(result.skipped)} dilewati dan ${formatNumber(result.refused.length)} ditolak. Entri yang diposting tidak bisa diubah atau dihapus lagi — hanya dibalik.`;
+  `Pratinjau ini akan membukukan ${formatNumber(result.posted)} aset menjadi ${formatNumber(result.posted)} entri jurnal. ${formatNumber(result.skipped)} dilewati dan ${formatNumber(result.refused.length)} ditolak. Entri yang diposting tidak bisa diubah atau dihapus lagi — hanya dibalik.`;
 
-export const PostingPembayaranScreen = () => {
+export const PostingAsetScreen = () => {
   const toast = useToast();
   const { isCanView, isCanCreate } = useMenuAccess(MENU.JURNAL);
+  // Izin aset dihitung di sini, bukan di dalam RefusedList: hook tidak bisa
+  // dipanggil bersyarat, dan dokumen yang ditolak di sini dijaga menu lain.
+  const asetAccess = useMenuAccess(MENU.BARANG);
   const [bulan, setBulan] = useState(() => todayJakarta().slice(0, 7));
   const [outcome, setOutcome] = useState<Outcome | null>(null);
-  const posting = usePostPayment();
+  const posting = usePostAset();
   const confirm = useFormConfirm();
   const range = rangeOfMonth(bulan);
   const preview =
@@ -97,10 +104,10 @@ export const PostingPembayaranScreen = () => {
   if (!isCanCreate) {
     return (
       <NoFormAccess
-        title="Tidak bisa memposting pembayaran"
+        title="Tidak bisa memposting aset"
         description={isCanView ? NO_POSTING_ACCESS : NO_VIEW}
-        backHref={PAYMENT_LIST_PATH}
-        backLabel="Kembali ke Pembayaran"
+        backHref={JURNAL_LIST_PATH}
+        backLabel="Kembali ke Jurnal"
       />
     );
   }
@@ -109,9 +116,9 @@ export const PostingPembayaranScreen = () => {
     <FormLayout
       onSubmit={onConfirm}
       actions={
-        <FormActions status={postingStatusOf(preview)}>
+        <FormActions status={postingStatusOf(preview, NOTHING_TO_POST_ASET)}>
           <Link
-            href={PAYMENT_LIST_PATH}
+            href={JURNAL_LIST_PATH}
             className={cn(
               buttonVariants({ variant: "outline" }),
               "cursor-pointer",
@@ -130,16 +137,16 @@ export const PostingPembayaranScreen = () => {
       header={
         <PageHeader
           title={TITLE}
-          backHref={PAYMENT_LIST_PATH}
+          backHref={JURNAL_LIST_PATH}
           isBackPersistent
         />
       }
     >
       <div className="space-y-4 px-gutter py-4">
-        <p className="text-muted-foreground text-body">{POSTING_NOTE}</p>
+        <p className="text-muted-foreground text-body">{POSTING_ASET_NOTE}</p>
 
         <RangeSection
-          noun="pembayaran"
+          noun="aset"
           bulan={bulan}
           options={monthOptions()}
           isPending={posting.isPending}
@@ -162,11 +169,17 @@ export const PostingPembayaranScreen = () => {
         ) : null}
       </div>
 
-      {outcome ? <RefusedList refused={outcome.result.refused} /> : null}
+      {outcome ? (
+        <RefusedList
+          refused={outcome.result.refused}
+          noun="Aset"
+          hrefOf={(code) => (asetAccess.isCanView ? asetHref(code) : null)}
+        />
+      ) : null}
 
       <FormConfirmDialog
         confirm={confirm}
-        noun="posting pembayaran"
+        noun="posting aset"
         descriptions={
           preview ? { save: postedTextOf(preview.result) } : undefined
         }

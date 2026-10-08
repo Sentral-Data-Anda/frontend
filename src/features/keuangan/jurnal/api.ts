@@ -31,6 +31,9 @@ export const journalKeys = {
 const PERIOD_KEY = ["fiscal-period"] as const;
 
 const PERSEMBAHAN_KEY = ["persembahan"] as const;
+// Cermin `assetKeys.all` fitur Inventaris, ditulis LITERAL dengan alasan yang
+// sama seperti PERSEMBAHAN_KEY di atas: fitur tidak saling mengimpor.
+const ASET_KEY = ["asset"] as const;
 
 export const JOURNAL_FILTERS = {
   bulan: { api: "bulan" },
@@ -107,6 +110,37 @@ export function useDeleteJournal(publicId: string) {
   return useMutation({
     mutationFn: () => fetchOne<unknown>(pathOf(publicId), { method: "DELETE" }),
     onSuccess: () => invalidateJournal(queryClient),
+  });
+}
+
+/**
+ * Aset sumbangan dan hibah. Aset yang DIBELI tidak lewat sini: dia masuk buku
+ * bersama fakturnya.
+ *
+ * Membatalkan daftar aset juga, bukan hanya jurnal: layar aset menunjukkan
+ * apakah sebuah aset sudah dibukukan.
+ */
+export function usePostAset() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (input: PostingRange & { isDryRun: boolean }) =>
+      fetchOne<PostingResult>(
+        input.isDryRun
+          ? "/jurnal/posting-aset?dryRun=1"
+          : "/jurnal/posting-aset",
+        {
+          method: "POST",
+          body: JSON.stringify({ from: input.from, to: input.to }),
+        },
+      ),
+    onSuccess: (_response, input) =>
+      input.isDryRun
+        ? undefined
+        : Promise.all([
+            invalidateJournal(queryClient),
+            queryClient.invalidateQueries({ queryKey: ASET_KEY }),
+          ]),
   });
 }
 

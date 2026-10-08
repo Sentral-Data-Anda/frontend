@@ -13,3 +13,4 @@ export * from "./line-items";
 export * from "./cash-lines";
 export * from "./journal-lines";
 export * from "./budget-lines";
+export * from "./posting";

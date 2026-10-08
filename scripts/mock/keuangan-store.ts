@@ -225,7 +225,7 @@ export const ACCOUNTING_SETTING: SettingRow[] = [
   {
     key: "KAS_GATEWAY",
     description:
-      "Uang persembahan online yang belum cair dari payment gateway. Saat cair, catat di Kas Masuk ke rekening bank dan bebankan biayanya ke Beban Administrasi.",
+      "Akun Aset kas di payment gateway, didebit saat pembayaran online diposting (persembahan maupun pendaftaran event). Saat payout cair, catat Jurnal Manual: debit Bank, debit Beban Administrasi sebesar potongan penyedia, kredit akun ini.",
     accountId: null,
     updatedById: null,
   },
@@ -263,6 +263,20 @@ export const ACCOUNTING_SETTING: SettingRow[] = [
       "Akun kas atau bank yang dikredit sebesar gaji bersih saat penggajian ditandai dibayar. Tanpa akun ini penggajian menolak dibayarkan, dan itu disengaja.",
     accountId: null,
     updatedById: null,
+  },
+  {
+    key: "SUMBANGAN_ASET",
+    description:
+      "Akun Pendapatan yang dikredit saat aset dari sumbangan atau hibah diposting. Sisi debitnya akun aset milik Tipe Barang-nya; kalau tipe itu belum punya, dipakai akun Aset Tetap di bawah.",
+    accountId: 20,
+    updatedById: SESSION_USER_ID,
+  },
+  {
+    key: "ASET_TETAP",
+    description:
+      "Akun Aset yang didebit saat aset diposting, untuk Tipe Barang yang belum menyebut akun asetnya sendiri. Tipe yang sudah menyebutnya tidak memakai akun ini.",
+    accountId: 8,
+    updatedById: SESSION_USER_ID,
   },
 ];
 

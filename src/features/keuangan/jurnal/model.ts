@@ -34,6 +34,8 @@ export const JURNAL_CREATE_PATH = createHref(MENU.KEUANGAN, MENU.JURNAL);
 
 export const POSTING_PERSEMBAHAN_PATH = `${JURNAL_LIST_PATH}/posting-persembahan`;
 
+export const POSTING_ASET_PATH = `${JURNAL_LIST_PATH}/posting-aset`;
+
 export const journalHref = (publicId: string) =>
   detailHref(MENU.KEUANGAN, MENU.JURNAL, publicId);
 
@@ -47,6 +49,9 @@ export const PERIODE_FISKAL_PATH = menuHref(MENU.KEUANGAN, MENU.PERIODE_FISKAL);
 
 export const persembahanHref = (code: string) =>
   detailHref(MENU.KEUANGAN, MENU.PERSEMBAHAN, code);
+
+export const asetHref = (code: string) =>
+  detailHref(MENU.INVENTARIS, MENU.BARANG, code);
 
 export const monthListHref = (year: number, month: number) =>
   `${JURNAL_LIST_PATH}?bulan=${year}-${String(month).padStart(2, "0")}`;
@@ -65,6 +70,12 @@ export const NO_ACCOUNT_DESCRIPTION =
 
 export const POSTING_NOTE =
   "Persembahan diposting per baris: satu persembahan menjadi satu entri jurnal dengan dua baris.";
+
+export const POSTING_ASET_NOTE =
+  "Hanya aset dari sumbangan dan hibah. Aset yang dibeli masuk buku bersama fakturnya — membukukannya di sini juga berarti menghitung pembelian yang sama dua kali.";
+
+export const NOTHING_TO_POST_ASET =
+  "Tidak ada aset sumbangan yang bisa diposting di rentang ini.";
 
 export const NOTHING_TO_POST =
   "Tidak ada persembahan yang bisa diposting di rentang ini.";
@@ -149,6 +160,14 @@ const FIX_BY_CODE: Record<string, Fix> = {
     href: menuHref(MENU.KEUANGAN, MENU.PERIODE_FISKAL),
     label: "Buka Periode Fiskal",
     menu: MENU.PERIODE_FISKAL,
+  },
+  // Tanpa baris ini kolom Perbaikan kosong untuk setiap aset yang ditolak, dan
+  // kolom itu ada justru untuk mengatakan ke mana memperbaikinya. Terlihat saat
+  // meninjau layarnya, bukan saat membaca kodenya.
+  ASSET_NO_COST: {
+    href: menuHref(MENU.INVENTARIS, MENU.BARANG),
+    label: "Buka Barang",
+    menu: MENU.BARANG,
   },
 };
 
@@ -336,10 +355,18 @@ export const rangeOfMonth = (bulan: string): PostingRange | null => {
 export const isSameRange = (a: PostingRange | null, b: PostingRange | null) =>
   a !== null && b !== null && a.from === b.from && a.to === b.to;
 
+/**
+ * Kalimat di bawah tombol: kenapa Posting masih mati.
+ *
+ * `nothing` dilewatkan pemanggil, bukan dipaku di sini. Dipaku, layar Aset
+ * memakai tombol yang sama dan berbunyi "tidak ada persembahan" — terlihat
+ * saat meninjau layarnya, bukan saat membaca kodenya.
+ */
 export const postingStatusOf = (
   preview: { result: { posted: number } } | null,
+  nothing: string = NOTHING_TO_POST,
 ): string | undefined => {
   if (preview === null) return PREVIEW_REQUIRED;
 
-  return preview.result.posted === 0 ? NOTHING_TO_POST : undefined;
+  return preview.result.posted === 0 ? nothing : undefined;
 };

@@ -667,6 +667,48 @@ const PRINTER = asset({
   openingAccumulatedAsOf: GO_LIVE_AS_OF,
 });
 
+/**
+ * Aset dari SUMBANGAN dan HIBAH, satu-satunya yang bisa diposting ke jurnal.
+ * Yang dibeli masuk buku bersama fakturnya.
+ *
+ * Yang ketiga sengaja tanpa biaya perolehan: itu keadaan yang DITOLAK posting,
+ * dan tanpa satu baris seperti ini layar penolakannya tidak pernah terlihat.
+ */
+asset({
+  name: "Keyboard Yamaha PSR-E473",
+  description: "Sumbangan keluarga untuk komisi musik.",
+  typeId: TYPE.MUSIK,
+  bapelId: PEMUDA,
+  roomId: AULA,
+  acquisitionSource: "DONATION",
+  donorName: "Kel. Sitanggang",
+  acquisitionDate: monthStart(-1),
+  acquisitionCost: 7_200_000,
+});
+
+asset({
+  name: "Kursi Lipat Chitose 50 unit",
+  description: "Hibah dari klasis untuk aula.",
+  typeId: TYPE.MEBEL,
+  bapelId: MAJELIS,
+  roomId: AULA,
+  acquisitionSource: "GRANT",
+  donorName: "Klasis Jakarta Timur",
+  acquisitionDate: monthStart(-1),
+  acquisitionCost: 12_500_000,
+});
+
+asset({
+  name: "Organ Yamaha Lama",
+  description: "Sumbangan jemaat, nilainya belum ditaksir.",
+  typeId: TYPE.MUSIK,
+  bapelId: MAJELIS,
+  roomId: GEDUNG,
+  acquisitionSource: "DONATION",
+  donorName: "Alm. Bpk. Panggabean",
+  acquisitionDate: monthStart(-1),
+});
+
 const SOUND = asset({
   name: "Sound Portable Huper",
   description: "Pengeras suara untuk kebaktian luar gedung.",

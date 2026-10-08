@@ -28,14 +28,7 @@ export type PostingRange = {
   to: string;
 };
 
-export type PostingRefusal = {
-  code: string;
-  reason: string;
-  reasonCode: string;
-};
-
-export type PostingResult = {
-  posted: number;
-  skipped: number;
-  refused: PostingRefusal[];
-};
+// Satu definisi, bukan satu per fitur: dua bentuk yang kebetulan mirip akan
+// menyimpang, dan yang menyimpang di sini adalah apa yang dilaporkan sebuah
+// batch posting kepada bendahara.
+export type { PostingRefusal, PostingResult } from "@/components/common/form";

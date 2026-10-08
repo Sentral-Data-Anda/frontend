@@ -12,6 +12,7 @@
  */
 import { MENU } from "../../../src/config/menu";
 import { SESSION_USER_ID } from "../../mock-dashboard";
+import { ASSET, TYPE_ITEM } from "../inventaris-store";
 import {
   JOURNAL_ENTRY,
   TODAY,
@@ -534,37 +535,179 @@ const daysBetween = (from: string, to: string) =>
       86400000,
   ) + 1;
 
-const onPostPersembahan = (
+const ASET_SOURCE = "ASSET_ACQUISITION";
+
+/**
+ * Rentang dan bendera pratinjau, diperiksa sekali untuk kedua posting.
+ *
+ * Tombol paling berbahaya di aplikasi ini tidak boleh berubah menjadi posting
+ * sungguhan karena salah ketik, dan dua salinan pemeriksaan itu adalah dua
+ * tempat yang bisa menyimpang.
+ */
+const rangeOf = (
   url: URL,
   body: { from?: unknown; to?: unknown },
-) => {
+): { failure: Response } | { isDryRun: boolean; from: string; to: string } => {
   const dryRun = url.searchParams.get("dryRun");
 
-  // Tombol paling berbahaya di aplikasi ini tidak boleh berubah menjadi
-  // posting sungguhan karena salah ketik.
   if (dryRun !== null && !/^(1|0|true|false)$/i.test(dryRun)) {
-    return fieldError("dryRun", "Nilai dryRun Tidak Valid");
+    return { failure: fieldError("dryRun", "Nilai dryRun Tidak Valid") };
   }
 
-  const isDryRun = dryRun !== null && /^(1|true)$/i.test(dryRun);
   const from = typeof body.from === "string" ? body.from : "";
   const to = typeof body.to === "string" ? body.to : "";
 
   if (!/^\d{4}-\d{2}-\d{2}$/.test(from)) {
-    return fieldError("from", "Mohon Lengkapi Tanggal Awal");
+    return { failure: fieldError("from", "Mohon Lengkapi Tanggal Awal") };
   }
   if (!/^\d{4}-\d{2}-\d{2}$/.test(to)) {
-    return fieldError("to", "Mohon Lengkapi Tanggal Akhir");
+    return { failure: fieldError("to", "Mohon Lengkapi Tanggal Akhir") };
   }
   if (to < from) {
-    return fieldError(
-      "to",
-      "Tanggal Akhir Harus Sama Atau Sesudah Tanggal Awal",
-    );
+    return {
+      failure: fieldError(
+        "to",
+        "Tanggal Akhir Harus Sama Atau Sesudah Tanggal Awal",
+      ),
+    };
   }
   if (daysBetween(from, to) > MAX_RANGE_DAYS) {
-    return fieldError("to", `Rentang Maksimal ${MAX_RANGE_DAYS} Hari`);
+    return {
+      failure: fieldError("to", `Rentang Maksimal ${MAX_RANGE_DAYS} Hari`),
+    };
   }
+
+  return {
+    isDryRun: dryRun !== null && /^(1|true)$/i.test(dryRun),
+    from,
+    to,
+  };
+};
+
+/**
+ * Aset yang BISA dibukukan: sumbangan dan hibah saja.
+ *
+ * Yang dibeli masuk buku bersama fakturnya, dan menyertakannya di sini akan
+ * menghitung pembelian yang sama dua kali — tiruan yang lebih longgar dari
+ * server menyembunyikan cacat itu dari layar maupun dari tinjauan.
+ */
+const donatedIn = (from: string, to: string) =>
+  ASSET.filter(
+    (row) =>
+      isLive(row) &&
+      (row.acquisitionSource === "DONATION" ||
+        row.acquisitionSource === "GRANT") &&
+      typeof row.acquisitionDate === "string" &&
+      row.acquisitionDate >= from &&
+      row.acquisitionDate <= to,
+  );
+
+const assetDebitOf = (typeId: number) => {
+  const type = TYPE_ITEM.find((row) => row.id === typeId);
+
+  return type?.assetAccountId ?? settingAccountOf("ASET_TETAP");
+};
+
+const onPostAset = (url: URL, body: { from?: unknown; to?: unknown }) => {
+  const checked = rangeOf(url, body);
+  if ("failure" in checked) return checked.failure;
+
+  const { isDryRun, from, to } = checked;
+
+  const refused: { code: string; reason: string; reasonCode: string }[] = [];
+  let posted = 0;
+  let skipped = 0;
+
+  for (const row of donatedIn(from, to)) {
+    if (journalOfSource(ASET_SOURCE, row.id)) {
+      skipped += 1;
+      continue;
+    }
+
+    // Ditolak, bukan dilewati: aset yang tidak pernah dinilai siapa pun adalah
+    // lubang yang pantas disebut.
+    if (row.acquisitionCost === null) {
+      refused.push({
+        code: row.code,
+        reason: `Aset ${row.name} Belum Memiliki Biaya Perolehan. Isi Nilainya Terlebih Dahulu`,
+        reasonCode: "ASSET_NO_COST",
+      });
+      continue;
+    }
+
+    const debitId = assetDebitOf(row.typeId);
+    const creditId = settingAccountOf("SUMBANGAN_ASET");
+
+    if (!debitId || !creditId) {
+      refused.push({
+        code: row.code,
+        reason: `Setelan Akuntansi ${debitId ? "SUMBANGAN_ASET" : "ASET_TETAP"} Belum Diisi. Tetapkan Akunnya Terlebih Dahulu`,
+        reasonCode: "SETTING_EMPTY",
+      });
+      continue;
+    }
+
+    const amount = String(row.acquisitionCost);
+    const entryDate = row.acquisitionDate as string;
+
+    if (isDryRun) {
+      const failure = periodFailureOf(entryDate);
+      if (failure) {
+        refused.push({
+          code: row.code,
+          reason: failure.message,
+          reasonCode: failure.code,
+        });
+        continue;
+      }
+
+      posted += 1;
+      continue;
+    }
+
+    const result = postDocumentEntry({
+      sourceType: ASET_SOURCE,
+      sourceId: row.id,
+      entryDate,
+      description: `Sumbangan Aset ${row.name} ${row.code}`,
+      lines: [
+        { accountId: debitId, debit: amount, credit: "0" },
+        { accountId: creditId, debit: "0", credit: amount },
+      ],
+    });
+
+    if ("failure" in result) {
+      refused.push({
+        code: row.code,
+        reason: result.failure.message,
+        reasonCode: result.failure.code,
+      });
+      continue;
+    }
+
+    posted += 1;
+  }
+
+  return json(
+    {
+      status: isDryRun ? 200 : 201,
+      message: isDryRun
+        ? "Berhasil Memeriksa Posting Aset"
+        : "Berhasil Memposting Aset Ke Jurnal",
+      data: { posted, skipped, refused },
+    },
+    isDryRun ? 200 : 201,
+  );
+};
+
+const onPostPersembahan = (
+  url: URL,
+  body: { from?: unknown; to?: unknown },
+) => {
+  const checked = rangeOf(url, body);
+  if ("failure" in checked) return checked.failure;
+
+  const { isDryRun, from, to } = checked;
 
   const refused: { code: string; reason: string; reasonCode: string }[] = [];
   let posted = 0;
@@ -668,6 +811,13 @@ export const jurnalMock: MockHandler = async (ctx) => {
     if (process.env.MOCK_JURNAL_ACTION_500) return serverError();
 
     return onPostPersembahan(url, await readBody(request));
+  }
+
+  if (key === "posting-aset") {
+    if (method !== "POST" || step) return null;
+    if (process.env.MOCK_JURNAL_ACTION_500) return serverError();
+
+    return onPostAset(url, await readBody(request));
   }
 
   const row = find(decodeURIComponent(key));
