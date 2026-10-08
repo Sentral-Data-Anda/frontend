@@ -19,19 +19,62 @@ export const tipeBarangFormSchema = z.object({
     .pipe(
       z.string().min(2, NAME_ERROR).max(50, "Nama tipe maksimal 50 karakter"),
     ),
+
+  // Disimpan sebagai STRING di form, seperti setiap picker lain di aplikasi
+  // ini: "" berarti belum dipilih, dan dia yang dikirim sebagai null.
+  assetAccountId: z.string(),
+  depreciationExpenseAccountId: z.string(),
+  accumulatedDepreciationAccountId: z.string(),
 });
 
 export type TipeBarangFormValues = z.infer<typeof tipeBarangFormSchema>;
 
-export const EMPTY_TIPE_BARANG_FORM: TipeBarangFormValues = { name: "" };
+export const EMPTY_TIPE_BARANG_FORM: TipeBarangFormValues = {
+  name: "",
+  assetAccountId: "",
+  depreciationExpenseAccountId: "",
+  accumulatedDepreciationAccountId: "",
+};
+
+/** `""` berarti belum dipilih, dan server menyimpannya sebagai null. */
+const accountIdOf = (value: string): number | null =>
+  value === "" ? null : Number(value);
 
 export const toTipeBarangPayload = (
   values: TipeBarangFormValues,
-): TipeBarangPayload => ({ name: collapseSpaces(values.name) });
+): TipeBarangPayload => ({
+  name: collapseSpaces(values.name),
+  // Ketiganya SELALU dikirim, termasuk saat null: server membedakan null
+  // (kosongkan akunnya) dari field yang tidak dikirim (biarkan apa adanya),
+  // jadi menghilangkannya akan membuat picker yang dikosongkan tidak pernah
+  // benar-benar terkosongkan.
+  assetAccountId: accountIdOf(values.assetAccountId),
+  depreciationExpenseAccountId: accountIdOf(
+    values.depreciationExpenseAccountId,
+  ),
+  accumulatedDepreciationAccountId: accountIdOf(
+    values.accumulatedDepreciationAccountId,
+  ),
+});
 
 export const toTipeBarangForm = (
   tipeBarang: TipeBarang,
-): TipeBarangFormValues => ({ name: tipeBarang.name });
+): TipeBarangFormValues => ({
+  name: tipeBarang.name,
+  assetAccountId: idText(tipeBarang.assetAccount),
+  depreciationExpenseAccountId: idText(tipeBarang.depreciationExpenseAccount),
+  accumulatedDepreciationAccountId: idText(
+    tipeBarang.accumulatedDepreciationAccount,
+  ),
+});
+
+/** Akun yang sudah tersimpan, dalam bentuk yang dipegang picker. */
+const idText = (account: { id: number } | null): string =>
+  account ? String(account.id) : "";
+
+/** `kode — nama`, atau kalimat untuk akun yang belum diatur. */
+export const accountText = (account: { code: string; name: string } | null) =>
+  account ? `${account.code} — ${account.name}` : "Belum diatur";
 
 const SERVER_FIELD_ERROR: ReadonlyArray<
   [RegExp, keyof TipeBarangFormValues, string?]
@@ -41,6 +84,10 @@ const SERVER_FIELD_ERROR: ReadonlyArray<
     "name",
     "Tipe dengan nama ini sudah ada. Pakai nama lain.",
   ],
+  // Tidak ada pola untuk penolakan akun, dan itu disengaja: server mengirim
+  // path field-nya di `issues`, jadi picker yang salah tersorot sendiri.
+  // Menebak satu field di sini akan menyorot picker yang keliru saat yang
+  // bermasalah justru akun yang lain.
 ];
 
 export function serverFieldError(

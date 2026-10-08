@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 
 import {
+  accountText,
   serverFieldError,
   tipeBarangFormSchema,
   toTipeBarangForm,
@@ -8,7 +9,15 @@ import {
 } from "./model";
 
 const issuesOf = (name: string) => {
-  const parsed = tipeBarangFormSchema.safeParse({ name });
+  // Ketiga picker akun ikut dikirim: skema ini menggambarkan NILAI FORM, dan
+  // form selalu punya keempatnya. Tanpa ini setiap kasus di bawah membawa tiga
+  // issue tambahan yang tidak ada hubungannya dengan nama.
+  const parsed = tipeBarangFormSchema.safeParse({
+    name,
+    assetAccountId: "",
+    depreciationExpenseAccountId: "",
+    accumulatedDepreciationAccountId: "",
+  });
 
   return parsed.success
     ? []
@@ -40,25 +49,89 @@ describe("tipeBarangFormSchema", () => {
   });
 });
 
+const NO_ACCOUNTS = {
+  assetAccountId: "",
+  depreciationExpenseAccountId: "",
+  accumulatedDepreciationAccountId: "",
+};
+
 describe("form ↔ payload", () => {
-  test("payload hanya { name }: spasi dirapikan, huruf tidak diubah", () => {
-    expect(toTipeBarangPayload({ name: "  tv   led " })).toEqual({
-      name: "tv led",
-    });
-    expect(toTipeBarangPayload({ name: "ATK" })).toEqual({ name: "ATK" });
-    expect(tipeBarangFormSchema.parse({ name: " alat  musik " })).toEqual({
-      name: "alat musik",
+  test("spasi nama dirapikan, hurufnya tidak diubah", () => {
+    expect(
+      toTipeBarangPayload({ name: "  tv   led ", ...NO_ACCOUNTS }).name,
+    ).toBe("tv led");
+    expect(toTipeBarangPayload({ name: "ATK", ...NO_ACCOUNTS }).name).toBe(
+      "ATK",
+    );
+    expect(
+      tipeBarangFormSchema.parse({ name: " alat  musik ", ...NO_ACCOUNTS })
+        .name,
+    ).toBe("alat musik");
+  });
+
+  /**
+   * Picker kosong dikirim sebagai NULL, bukan dihilangkan dari payload.
+   * Server membedakan null (kosongkan akunnya) dari field yang tidak dikirim
+   * (biarkan apa adanya) -- dihilangkan, picker yang dikosongkan tidak akan
+   * pernah benar-benar terkosongkan.
+   */
+  test("picker kosong jadi null, bukan field yang hilang", () => {
+    expect(toTipeBarangPayload({ name: "ATK", ...NO_ACCOUNTS })).toEqual({
+      name: "ATK",
+      assetAccountId: null,
+      depreciationExpenseAccountId: null,
+      accumulatedDepreciationAccountId: null,
     });
   });
 
-  test("detail be-sada jadi nilai form tanpa kolom akun", () => {
+  test("picker terisi jadi angka", () => {
+    expect(
+      toTipeBarangPayload({
+        name: "Kendaraan",
+        assetAccountId: "11",
+        depreciationExpenseAccountId: "61",
+        accumulatedDepreciationAccountId: "21",
+      }),
+    ).toEqual({
+      name: "Kendaraan",
+      assetAccountId: 11,
+      depreciationExpenseAccountId: 61,
+      accumulatedDepreciationAccountId: 21,
+    });
+  });
+
+  test("detail be-sada jadi nilai form, akun sebagai id string", () => {
     expect(
       toTipeBarangForm({
         publicId: "p-1",
         code: "TYP_ITM-0001",
         name: "Elektronik",
+        assetAccount: { id: 11, code: "1-200", name: "Peralatan" },
+        depreciationExpenseAccount: null,
+        accumulatedDepreciationAccount: {
+          id: 21,
+          code: "1-290",
+          name: "Akumulasi Penyusutan",
+        },
       }),
-    ).toEqual({ name: "Elektronik" });
+    ).toEqual({
+      name: "Elektronik",
+      assetAccountId: "11",
+      depreciationExpenseAccountId: "",
+      accumulatedDepreciationAccountId: "21",
+    });
+  });
+});
+
+describe("accountText", () => {
+  test("kode dan nama, bukan id mentah", () => {
+    expect(accountText({ code: "5-200", name: "Beban Penyusutan" })).toBe(
+      "5-200 — Beban Penyusutan",
+    );
+  });
+
+  test("akun yang belum diatur dikatakan apa adanya", () => {
+    expect(accountText(null)).toBe("Belum diatur");
   });
 });
 

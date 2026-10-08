@@ -23,13 +23,25 @@ mock.module("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams(),
 }));
 
+// Sadar MENU, bukan satu jawaban untuk semua. Layar ini menanyakan dua menu
+// yang berbeda -- TIPE_BARANG untuk form-nya, SETELAN_AKUNTANSI untuk ketiga
+// akunnya -- dan mock yang mengabaikan menu mana yang ditanya membuat
+// pemisahan wewenang itu tak teruji sama sekali. `accounting` default-nya
+// KOSONG, jadi test yang tidak menyebutnya memakai peran paling sempit.
+const accounting: { current: MenuAction[] } = { current: [] };
+
 mock.module("@/features/auth/use-menu-access", () => ({
-  useMenuAccess: () => ({
-    isCanView: actions.current.includes("VIEW"),
-    isCanCreate: actions.current.includes("CREATE"),
-    isCanUpdate: actions.current.includes("UPDATE"),
-    isCanDelete: actions.current.includes("DELETE"),
-  }),
+  useMenuAccess: (menu: string) => {
+    const granted =
+      menu === "SETELAN_AKUNTANSI" ? accounting.current : actions.current;
+
+    return {
+      isCanView: granted.includes("VIEW"),
+      isCanCreate: granted.includes("CREATE"),
+      isCanUpdate: granted.includes("UPDATE"),
+      isCanDelete: granted.includes("DELETE"),
+    };
+  },
 }));
 
 const { TipeBarangFormScreen } = await import("./screen");
@@ -41,6 +53,8 @@ afterEach(() => {
   globalThis.fetch = originalFetch;
   window.sessionStorage.clear();
   replaced.length = 0;
+  actions.current = [];
+  accounting.current = [];
 });
 
 const onRenderForm = (granted: MenuAction[], code?: string) => {
@@ -105,10 +119,35 @@ describe("gerbang izin rute form", () => {
   });
 });
 
+const ACCOUNT_DDL = [
+  { id: 11, code: "1-200", name: "Peralatan", type: "ASSET", isActive: true },
+  {
+    id: 21,
+    code: "1-290",
+    name: "Akumulasi Penyusutan",
+    type: "ASSET",
+    isActive: true,
+  },
+  {
+    id: 61,
+    code: "5-200",
+    name: "Beban Penyusutan",
+    type: "EXPENSE",
+    isActive: true,
+  },
+];
+
 const DETAIL: TipeBarang = {
   code: "TYP_ITM-0005",
   publicId: "p-5",
   name: "Dekorasi",
+  assetAccount: null,
+  depreciationExpenseAccount: {
+    id: 61,
+    code: "5-200",
+    name: "Beban Penyusutan",
+  },
+  accumulatedDepreciationAccount: null,
 };
 
 type Failure = {
@@ -162,6 +201,17 @@ const onMockApi = (failure: { save?: Failure; remove?: Failure } = {}) => {
         { status: 201 },
       );
     }
+    // Dijawab, bukan di-404-kan: picker akun memanggilnya, dan mock yang
+    // menolak di tempat server menjawab adalah kebohongan dengan arah lain.
+    if (url.startsWith("/api/v1/ddl/account")) {
+      const type = new URL(url, "http://x").searchParams.get("type");
+
+      return Response.json({
+        status: 200,
+        message: "ok",
+        data: ACCOUNT_DDL.filter((row) => !type || row.type === type),
+      });
+    }
     if (url === "/api/v1/type-item/TYP_ITM-0005") {
       return Response.json({ status: 200, message: "OK", data: DETAIL });
     }
@@ -185,6 +235,20 @@ const onRenderLoadedEdit = async (granted: MenuAction[] = ["UPDATE"]) => {
   );
 };
 
+/** `onRenderLoadedEdit`, with a say over the Setelan Akuntansi grant too. */
+const onRenderLoadedEditWithAccounting = async (granted: MenuAction[]) => {
+  accounting.current = granted;
+  const rendered = onRenderForm(["VIEW", "UPDATE"], "TYP_ITM-0005");
+
+  await waitFor(() =>
+    expect((screen.getByLabelText("Nama") as HTMLInputElement).value).toBe(
+      "Dekorasi",
+    ),
+  );
+
+  return rendered;
+};
+
 const onSaveConfirmed = async () => {
   fireEvent.click(screen.getByRole("button", { name: "Simpan" }));
   fireEvent.click(await screen.findByRole("button", { name: "Ya" }));
@@ -201,7 +265,7 @@ describe("simpan", () => {
     expect(screen.queryByText(/Apakah Anda ingin menyimpan/)).toBeNull();
   });
 
-  test("Ya mengirim PUT { name }, kembali ke daftar dengan filter dan sorot", async () => {
+  test("Ya mengirim PUT dengan akun tersimpan utuh, kembali ke daftar dengan filter dan sorot", async () => {
     const listUrl = `${TIPE_BARANG_LIST_PATH}?search=dek&page=2`;
     window.sessionStorage.setItem(
       `list-return:${TIPE_BARANG_LIST_PATH}`,
@@ -221,7 +285,22 @@ describe("simpan", () => {
     fireEvent.click(screen.getByRole("button", { name: "Ya" }));
 
     await waitFor(() => expect(replaced).toEqual([listUrl]));
-    expect(calls).toEqual([{ method: "PUT", body: { name: "Dekorasi" } }]);
+    expect(calls).toEqual([
+      {
+        method: "PUT",
+        // Ketiga akun SELALU terkirim, termasuk saat null: server
+        // membedakan null (kosongkan) dari field yang tidak dikirim
+        // (biarkan apa adanya).
+        body: {
+          name: "Dekorasi",
+          assetAccountId: null,
+          // 61 adalah akun yang sudah tersimpan di DETAIL, dikirim kembali
+          // utuh: sekadar ganti nama tidak boleh menghapus akun tipe ini.
+          depreciationExpenseAccountId: 61,
+          accumulatedDepreciationAccountId: null,
+        },
+      },
+    ]);
     expect(
       window.sessionStorage.getItem(`list-focus:${TIPE_BARANG_LIST_PATH}`),
     ).toBe("TYP_ITM-0005");
@@ -285,7 +364,20 @@ describe("tambah", () => {
     fireEvent.click(screen.getByRole("button", { name: "Ya" }));
 
     await waitFor(() => expect(replaced).toEqual([listUrl]));
-    expect(calls).toEqual([{ method: "POST", body: { name: "alat tulis" } }]);
+    expect(calls).toEqual([
+      {
+        method: "POST",
+        // Ketiga akun SELALU terkirim, termasuk saat null: server
+        // membedakan null (kosongkan) dari field yang tidak dikirim
+        // (biarkan apa adanya).
+        body: {
+          name: "alat tulis",
+          assetAccountId: null,
+          depreciationExpenseAccountId: null,
+          accumulatedDepreciationAccountId: null,
+        },
+      },
+    ]);
     expect(
       window.sessionStorage.getItem(`list-focus:${TIPE_BARANG_LIST_PATH}`),
     ).toBe("TYP_ITM-0006");
@@ -333,5 +425,61 @@ describe("hapus", () => {
     await waitFor(() => expect(screen.getByText(message)).toBeTruthy());
     expect(screen.getByText("Tipe barang belum terhapus.")).toBeTruthy();
     expect(replaced).toEqual([]);
+  });
+});
+
+/**
+ * Siapa yang boleh mengarahkan akun tipe barang.
+ *
+ * Form ini dijaga TIPE_BARANG, tapi ketiga akun itu memutuskan ke mana
+ * penyusutan mendarat di buku besar — dan server menolak perubahannya kepada
+ * siapa pun tanpa SETELAN_AKUNTANSI UPDATE. Picker yang ditampilkan ke
+ * petugas inventaris hanya akan menghadiahi mereka 403 sesudah diisi.
+ */
+describe("akun akuntansi pada form", () => {
+  test("tanpa Setelan Akuntansi: field terkunci, bukan picker", async () => {
+    onMockApi();
+    await onRenderLoadedEdit();
+
+    const locked = screen.getByLabelText(
+      "Akun beban penyusutan",
+    ) as HTMLInputElement;
+
+    expect(locked.readOnly).toBe(true);
+    expect(locked.value).toBe("5-200 — Beban Penyusutan");
+    expect(
+      screen.queryByRole("combobox", { name: "Akun beban penyusutan" }),
+    ).toBeNull();
+  });
+
+  test("akun yang belum diatur dikatakan apa adanya, bukan dibiarkan kosong", async () => {
+    onMockApi();
+    await onRenderLoadedEdit();
+
+    expect((screen.getByLabelText("Akun aset") as HTMLInputElement).value).toBe(
+      "Belum diatur",
+    );
+  });
+
+  test("field terkunci menyebut siapa yang bisa mengubahnya", async () => {
+    onMockApi();
+    const { container } = await onRenderLoadedEditWithAccounting([]);
+
+    expect(container.textContent).toContain(
+      "Hanya pemegang Setelan Akuntansi yang bisa mengubahnya.",
+    );
+  });
+
+  test("dengan Setelan Akuntansi UPDATE: picker yang muncul", async () => {
+    onMockApi();
+    await onRenderLoadedEditWithAccounting(["VIEW", "UPDATE"]);
+
+    expect(
+      await screen.findByRole("combobox", { name: "Akun beban penyusutan" }),
+    ).toBeTruthy();
+    expect(
+      (screen.queryByLabelText("Akun aset") as HTMLInputElement | null)
+        ?.readOnly,
+    ).not.toBe(true);
   });
 });
