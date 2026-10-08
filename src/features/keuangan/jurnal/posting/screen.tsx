@@ -11,6 +11,8 @@ import {
   FormConfirmDialog,
   FormLayout,
   NoFormAccess,
+  PreviewPanel,
+  RangeSection,
   useFormConfirm,
 } from "@/components/common/form";
 import { PageHeader } from "@/components/layout";
@@ -30,14 +32,13 @@ import {
   RELOAD_ADVICE,
   isReloadAdvised,
   isSameRange,
+  persembahanHref,
   monthListHref,
   rangeOfMonth,
 } from "../model";
 import type { PostingRange, PostingResult } from "../types";
 import { FixLink } from "../ui";
 
-import { PreviewPanel } from "./preview-panel";
-import { RangeSection } from "./range-section";
 import { RefusedList } from "./refused-list";
 
 const TITLE = "Posting Persembahan";
@@ -54,6 +55,9 @@ const postedTextOf = (result: PostingResult) =>
 export const PostingPersembahanScreen = () => {
   const toast = useToast();
   const { isCanView, isCanCreate } = useMenuAccess(MENU.JURNAL);
+  // Izinnya dihitung di sini, bukan di dalam RefusedList: dokumen yang berbeda
+  // dijaga menu yang berbeda, dan hook tidak bisa dipanggil bersyarat.
+  const persembahanAccess = useMenuAccess(MENU.PERSEMBAHAN);
   const [bulan, setBulan] = useState(() => todayJakarta().slice(0, 7));
   const [outcome, setOutcome] = useState<Outcome | null>(null);
   const posting = usePostPersembahan();
@@ -145,6 +149,7 @@ export const PostingPersembahanScreen = () => {
         <p className="text-muted-foreground text-body">{POSTING_NOTE}</p>
 
         <RangeSection
+          noun="persembahan"
           bulan={bulan}
           options={monthOptions()}
           isPending={posting.isPending}
@@ -186,7 +191,15 @@ export const PostingPersembahanScreen = () => {
         ) : null}
       </div>
 
-      {outcome ? <RefusedList refused={outcome.result.refused} /> : null}
+      {outcome ? (
+        <RefusedList
+          refused={outcome.result.refused}
+          noun="Persembahan"
+          hrefOf={(code) =>
+            persembahanAccess.isCanView ? persembahanHref(code) : null
+          }
+        />
+      ) : null}
 
       <FormConfirmDialog
         confirm={confirm}

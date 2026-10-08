@@ -144,6 +144,8 @@ export const ACCOUNTING_SETTING_KEYS = [
   "PENYUSUTAN_AKUMULASI",
   "GAJI_BEBAN",
   "GAJI_KAS",
+  "SUMBANGAN_ASET",
+  "ASET_TETAP",
 ] as const;
 
 export type AccountingSettingKey = (typeof ACCOUNTING_SETTING_KEYS)[number];

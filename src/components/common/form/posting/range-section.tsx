@@ -6,6 +6,8 @@ import { Button, SelectField } from "@/components/common/control";
 import { Panel } from "@/components/common/display";
 
 interface PropTypes {
+  /** Apa yang diposting: "persembahan", "pembayaran", "aset". */
+  noun: string;
   bulan: string;
   options: readonly { value: string; label: string }[];
   isPending: boolean;
@@ -14,10 +16,10 @@ interface PropTypes {
 }
 
 export const RangeSection = (props: PropTypes) => {
-  const { bulan, options, isPending, onPickBulan, onPreview } = props;
+  const { noun, bulan, options, isPending, onPickBulan, onPreview } = props;
 
   return (
-    <Panel label="Rentang persembahan">
+    <Panel label={`Rentang ${noun}`}>
       <div className="flex flex-wrap items-end gap-3 px-gutter py-4">
         <div className="min-w-0 flex-1 basis-56">
           <label
@@ -28,7 +30,7 @@ export const RangeSection = (props: PropTypes) => {
           </label>
           <SelectField
             id="bulan"
-            aria-label="Bulan persembahan"
+            aria-label={`Bulan ${noun}`}
             value={bulan}
             onValueChange={onPickBulan}
             options={options}

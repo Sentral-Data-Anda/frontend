@@ -5,7 +5,7 @@ import { CircleSlash, Stamp, TriangleAlert } from "lucide-react";
 import { KpiCell, KpiStrip } from "@/components/common/dashboard";
 import { formatNumber } from "@/lib/format";
 
-import type { PostingResult } from "../types";
+import type { PostingResult } from "./types";
 
 const POSTED_HINT: Record<"preview" | "done", string> = {
   preview: "akan dibukukan",
