@@ -1537,3 +1537,166 @@ export const receiveGoods = (input: {
 export const supplierInUse = (supplierId: number) =>
   PURCHASE_ORDER.some((row) => isLive(row) && row.supplierId === supplierId) ||
   MAINTENANCE.some((row) => isLive(row) && row.supplierId === supplierId);
+
+export type SupplierInvoiceStatus =
+  "DRAFT" | "AWAITING_PAYMENT" | "PARTIALLY_PAID" | "PAID" | "CANCELLED";
+
+export type SupplierPaymentRow = {
+  id: number;
+  publicId: string;
+  code: string;
+  supplierInvoiceId: number;
+  paymentDate: string;
+  amountIDR: string;
+  accountId: number;
+  method: string | null;
+  reference: string | null;
+  note: string | null;
+};
+
+export type SupplierInvoiceRow = Live & {
+  id: number;
+  publicId: string;
+  code: string;
+  supplierInvoiceNumber: string;
+  supplierId: number;
+  purchaseOrderId: number | null;
+  /** Ke mana faktur dibebankan. Null berarti ikut kunci Beban Pengadaan. */
+  expenseAccountId: number | null;
+  invoiceDate: string;
+  dueDate: string;
+  currencyCode: string;
+  exchangeRate: number;
+  totalForeignCurrency: string;
+  totalIDR: string;
+  status: SupplierInvoiceStatus;
+  paidAmountIDR: string;
+};
+
+export const SUPPLIER_INVOICE: SupplierInvoiceRow[] = [];
+
+export const SUPPLIER_PAYMENT: SupplierPaymentRow[] = [];
+
+export const supplierInvoiceOf = (publicId: string) =>
+  SUPPLIER_INVOICE.find((row) => row.publicId === publicId && isLive(row));
+
+export const paymentsOfInvoice = (invoiceId: number) =>
+  SUPPLIER_PAYMENT.filter((row) => row.supplierInvoiceId === invoiceId);
+
+const invoice = (
+  seed: Omit<
+    SupplierInvoiceRow,
+    "id" | "publicId" | "code" | "deletedAt" | "exchangeRate" | "totalIDR"
+  > & { exchangeRate?: number },
+) => {
+  const id = SUPPLIER_INVOICE.length + 1;
+  const rate = seed.exchangeRate ?? 1;
+  const row: SupplierInvoiceRow = {
+    id,
+    publicId: uuid("e800", id),
+    code: codeOf("INV", { yearly: true }),
+    deletedAt: null,
+    exchangeRate: rate,
+    totalIDR: money(Number(seed.totalForeignCurrency) * rate),
+    ...seed,
+  };
+  SUPPLIER_INVOICE.push(row);
+
+  return row;
+};
+
+const payment = (
+  seed: Omit<SupplierPaymentRow, "id" | "publicId" | "code">,
+) => {
+  const id = SUPPLIER_PAYMENT.length + 1;
+  const row: SupplierPaymentRow = {
+    id,
+    publicId: uuid("e900", id),
+    code: codeOf("PYS", { yearly: true }),
+    ...seed,
+  };
+  SUPPLIER_PAYMENT.push(row);
+
+  return row;
+};
+
+/**
+ * Empat faktur yang menutupi setiap keadaan layar: draf yang masih bisa
+ * diubah, yang menunggu pembayaran, yang dibayar sebagian, dan yang lunas.
+ *
+ * Tanpa keempatnya, tombol dan lencana di layar detail tidak pernah terlihat
+ * dalam keadaan yang membedakannya.
+ */
+invoice({
+  supplierInvoiceNumber: "FK/2026/0912",
+  supplierId: 1,
+  purchaseOrderId: null,
+  expenseAccountId: null,
+  invoiceDate: monthStart(-1),
+  dueDate: day(14),
+  currencyCode: "IDR",
+  totalForeignCurrency: money(4_750_000),
+  status: "DRAFT",
+  paidAmountIDR: money(0),
+});
+
+const MENUNGGU = invoice({
+  supplierInvoiceNumber: "FK/2026/0918",
+  supplierId: 1,
+  purchaseOrderId: null,
+  expenseAccountId: 24,
+  invoiceDate: monthStart(-1),
+  dueDate: day(21),
+  currencyCode: "IDR",
+  totalForeignCurrency: money(9_500_000),
+  status: "AWAITING_PAYMENT",
+  paidAmountIDR: money(0),
+});
+
+const SEBAGIAN = invoice({
+  supplierInvoiceNumber: "FK/2026/0921",
+  supplierId: 2,
+  purchaseOrderId: null,
+  expenseAccountId: 24,
+  invoiceDate: monthStart(-1),
+  dueDate: day(7),
+  currencyCode: "IDR",
+  totalForeignCurrency: money(12_000_000),
+  status: "PARTIALLY_PAID",
+  paidAmountIDR: money(4_000_000),
+});
+
+const LUNAS = invoice({
+  supplierInvoiceNumber: "FK/2026/0903",
+  supplierId: 2,
+  purchaseOrderId: null,
+  expenseAccountId: 24,
+  invoiceDate: monthStart(-2),
+  dueDate: monthStart(-1),
+  currencyCode: "IDR",
+  totalForeignCurrency: money(2_300_000),
+  status: "PAID",
+  paidAmountIDR: money(2_300_000),
+});
+
+payment({
+  supplierInvoiceId: SEBAGIAN.id,
+  paymentDate: day(-10),
+  amountIDR: money(4_000_000),
+  accountId: 4,
+  method: "Transfer",
+  reference: "TRF-88120",
+  note: null,
+});
+
+payment({
+  supplierInvoiceId: LUNAS.id,
+  paymentDate: monthStart(-1),
+  amountIDR: money(2_300_000),
+  accountId: 4,
+  method: "Transfer",
+  reference: "TRF-87004",
+  note: null,
+});
+
+void MENUNGGU;

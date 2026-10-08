@@ -9,6 +9,7 @@ import { barangMock } from "./barang";
 import { barangPersediaanMock } from "./barang-persediaan";
 import { cutiMock } from "./cuti";
 import { eventMock } from "./event";
+import { fakturSupplierMock } from "./faktur-supplier";
 import { fasilitasMock } from "./fasilitas";
 import { galeriMock } from "./galeri";
 import { hariLiburMock } from "./hari-libur";
@@ -120,6 +121,7 @@ export const MOCK_HANDLERS: MockHandler[] = [
   penyusutanMock,
   supplierMock,
   permintaanPembelianMock,
+  fakturSupplierMock,
   pesananPembelianMock,
   penerimaanBarangMock,
   mataUangMock,
