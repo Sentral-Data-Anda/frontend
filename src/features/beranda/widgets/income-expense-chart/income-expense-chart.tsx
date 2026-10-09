@@ -42,9 +42,9 @@ export const IncomeExpenseChart = () => {
       actionLabel="Laporan"
       actionHref={menuHref(MENU.REPORT, MENU.FINANCIAL_STATEMENT)}
       query={flow}
-      minHeight="min-h-52"
+      minHeight="min-h-44"
     >
-      <div aria-hidden className="flex h-44 items-end gap-1.5">
+      <div aria-hidden className="flex h-36 items-end gap-1.5">
         {MONTH_LABEL.map((label, index) => {
           const month = flow.months[index];
           return (

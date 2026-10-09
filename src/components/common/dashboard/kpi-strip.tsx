@@ -20,6 +20,10 @@ export function KpiStrip({
   const cells = Children.toArray(children);
   const count = cells.length;
   const isFive = count === 5;
+  // Batas 28rem menjaga strip dua sel tidak jadi dua kartu selebar layar (§10.12).
+  // Mulai tiga sel batas itu justru menyisakan lubang di kanan strip, sementara
+  // baris kartu di bawahnya tetap selebar penuh.
+  const isCapped = count <= 2;
 
   return (
     <div className="@container/strip">
@@ -31,7 +35,9 @@ export function KpiStrip({
           isFive
             ? "@min-[36rem]/strip:grid-cols-6"
             : "@min-[36rem]/strip:grid-cols-[repeat(var(--kpi-cols),minmax(0,1fr))]",
-          "@min-[55rem]/strip:grid-cols-[repeat(var(--kpi-cols),minmax(0,28rem))]",
+          isCapped
+            ? "@min-[55rem]/strip:grid-cols-[repeat(var(--kpi-cols),minmax(0,28rem))]"
+            : "@min-[55rem]/strip:grid-cols-[repeat(var(--kpi-cols),minmax(0,1fr))]",
         )}
       >
         {cells.map((cell, index) => (
