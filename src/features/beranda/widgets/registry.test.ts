@@ -128,7 +128,7 @@ describe("grup KPI", () => {
     ];
     const picked = selectWidgets([], widgets, true);
 
-    expect(picked.kind).toBe("umum");
+    expect(picked.view).toBe("umum");
     expect(ids(picked.kpi)).toEqual(["u1", "u2"]);
   });
 
@@ -138,7 +138,7 @@ describe("grup KPI", () => {
       ...Array.from({ length: 6 }, (_, i) => kpi(`u${i}`, "umum")),
     ];
 
-    expect(selectWidgets([], widgets, true).kind).toBe("finance");
+    expect(selectWidgets([], widgets, true).view).toBe("finance");
   });
 
   test("widget ber-kind hanya di tampilan jenis itu", () => {
@@ -151,8 +151,7 @@ describe("grup KPI", () => {
     ];
 
     expect(ids(selectWidgets([], widgets, true).main)).toEqual(["fm", "both"]);
-    expect(ids(selectWidgets([], widgets, true, "all").main)).toEqual([
-      "fm",
+    expect(ids(selectWidgets([], widgets, true, "umum").main)).toEqual([
       "um",
       "both",
     ]);
@@ -192,18 +191,21 @@ describe("persona dev:mock", () => {
       return children.length ? [{ ...leaf(slug, []), children }] : [];
     });
 
-  const picked = (
-    key: string,
-    isDummyShown = false,
-    view: DashboardView = "all",
-  ) => {
-    const { kind, groups, kpi, main, side } = selectWidgets(
-      menuOf(key),
-      undefined,
-      isDummyShown,
-      view,
-    );
-    return { kind, groups, kpi: ids(kpi), main: ids(main), side: ids(side) };
+  const picked = (key: string, isDummyShown = false, view?: DashboardView) => {
+    const {
+      view: picked,
+      groups,
+      kpi,
+      main,
+      side,
+    } = selectWidgets(menuOf(key), undefined, isDummyShown, view);
+    return {
+      kind: picked,
+      groups,
+      kpi: ids(kpi),
+      main: ids(main),
+      side: ids(side),
+    };
   };
 
   test("sekretariat: dashboard umum, tanpa angka keuangan", () => {
@@ -240,13 +242,8 @@ describe("persona dev:mock", () => {
     // `budget-use` masuk karena bendahara kini memegang BUDGET
     // (keputusan user: pagu milik majelis DAN bendahara). Widget-nya masih
     // `isDummy`, jadi ia hanya tampil di luar production.
-    expect(main).toEqual([
-      "income-expense-chart",
-      "payables",
-      "budget-use",
-      "agenda-week",
-      "approvals",
-    ]);
+    expect(main).toEqual(["income-expense-chart", "payables", "budget-use"]);
+    expect(main).not.toContain("agenda-week");
     expect(side.slice(0, 4)).toEqual([
       "cash-accounts",
       "income-by-type",
@@ -342,14 +339,6 @@ describe("selectWidgets: pilihan tampilan", () => {
     expect(ids(bawaan.main)).toEqual(["grafik"]);
   });
 
-  test("Semua: gabungan kedua grup, strip KPI tetap satu grup", () => {
-    const all = selectWidgets(menu, widgets, true, "all");
-
-    expect(ids(all.main)).toEqual(["grafik", "agenda"]);
-    expect(ids(all.kpi)).toEqual(["kpi-uang"]);
-    expect(all.view).toBe("all");
-  });
-
   test("satu grup: widget dan KPI grup itu, plus widget tanpa kind", () => {
     const uang = selectWidgets(menu, widgets, true, "finance");
 
@@ -378,7 +367,7 @@ describe("selectWidgets: pilihan tampilan", () => {
     const satuGrup = widgets.filter((w) => w.id !== "kpi-acara");
     const bawaan = selectWidgets(menu, satuGrup, true);
 
-    for (const view of ["all", "finance", "umum"] as const) {
+    for (const view of ["finance", "umum"] as const) {
       const hasil = selectWidgets(menu, satuGrup, true, view);
 
       expect(hasil.view).toBe(bawaan.view);

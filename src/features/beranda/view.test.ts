@@ -13,12 +13,10 @@ describe("readDashboardView", () => {
     expect(readDashboardView("umum")).toBe("umum");
   });
 
-  test("menerima Semua", () => {
-    expect(readDashboardView("all")).toBe("all");
-  });
-
   test("nilai asing atau kosong = belum memilih", () => {
-    for (const value of [undefined, "", "keuangan", "__proto__"]) {
+    // "all" dulu tampilan yang sah; cookie lama yang masih menyimpannya harus
+    // jatuh ke bawaan, bukan menyaring apa pun.
+    for (const value of [undefined, "", "all", "keuangan", "__proto__"]) {
       expect(readDashboardView(value)).toBeUndefined();
     }
   });

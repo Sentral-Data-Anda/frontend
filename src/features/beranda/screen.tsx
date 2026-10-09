@@ -83,7 +83,6 @@ export const HomeScreen = (props: PropTypes) => {
 
       <div className="mt-5 px-gutter">
         <DashboardGrid
-          isStacked={widgets.view === "all"}
           kpi={
             widgets.kpi.length ? (
               <KpiStrip label="Ringkasan">

@@ -8,7 +8,7 @@ afterEach(cleanup);
 describe("ViewPicker", () => {
   test("tidak dirender untuk user satu grup", () => {
     const { container } = render(
-      <ViewPicker value="all" groups={["umum"]} onPick={() => {}} />,
+      <ViewPicker value="umum" groups={["umum"]} onPick={() => {}} />,
     );
 
     expect(container.innerHTML).toBe("");
@@ -35,7 +35,7 @@ describe("ViewPicker", () => {
 
     render(
       <ViewPicker
-        value="all"
+        value="umum"
         groups={["finance", "umum"]}
         onPick={(view) => dipilih.push(view)}
       />,
@@ -45,9 +45,10 @@ describe("ViewPicker", () => {
 
     const item = screen.getByRole("menuitemradio", { name: "Keuangan" });
 
+    expect(screen.queryByRole("menuitemradio", { name: "Semua" })).toBeNull();
     expect(
       screen
-        .getByRole("menuitemradio", { name: "Semua" })
+        .getByRole("menuitemradio", { name: "Umum" })
         .getAttribute("aria-checked"),
     ).toBe("true");
 

@@ -25,8 +25,6 @@ export const ViewPicker = (props: PropTypes) => {
 
   if (!isViewPickable(groups)) return null;
 
-  const options: DashboardView[] = ["all", ...groups];
-
   return (
     <Menu.Root>
       <Menu.Trigger
@@ -44,7 +42,7 @@ export const ViewPicker = (props: PropTypes) => {
               value={value}
               onValueChange={(next) => onPick(next as DashboardView)}
             >
-              {options.map((option) => (
+              {groups.map((option) => (
                 <Menu.RadioItem
                   key={option}
                   value={option}

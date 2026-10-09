@@ -275,24 +275,16 @@ export function selectWidgets(
   const dominant: KpiGroup =
     finance.length > 0 && finance.length >= umum.length ? "finance" : "umum";
 
-  const picked: DashboardView =
-    isViewPickable(groups) && view && (view === "all" || groups.includes(view))
-      ? view
-      : dominant;
-
-  const kind: KpiGroup = picked === "all" ? dominant : picked;
+  const kind: DashboardView =
+    isViewPickable(groups) && view && groups.includes(view) ? view : dominant;
 
   const of = (slot: WidgetSlot) =>
-    allowed.filter(
-      (w) =>
-        w.slot === slot && (picked === "all" || !w.kind || w.kind === picked),
-    );
+    allowed.filter((w) => w.slot === slot && (!w.kind || w.kind === kind));
   const main = of("main");
   const side = of("side");
 
   return {
-    kind,
-    view: picked,
+    view: kind,
     groups,
     kpi: kind === "finance" ? finance : umum,
     main: main.length ? main : side.slice(0, 1),
