@@ -21,7 +21,6 @@ import { BudgetUseWidget } from "./dummy/budget-use-widget";
 import { CashAccountsWidget } from "./finance/cash-accounts-widget";
 import { ClosingReadinessWidget } from "./finance/closing-readiness-widget";
 import { IncomeByTypeWidget } from "./finance/income-by-type-widget";
-import { KpiCashBalance } from "./finance-kpi/kpi-cash-balance";
 import { KpiExpense } from "./finance-kpi/kpi-expense";
 import { KpiIncome } from "./finance-kpi/kpi-income";
 import { KpiSurplusYear } from "./finance-kpi/kpi-surplus-year";
@@ -31,7 +30,6 @@ import { KpiBirthdays } from "./office/kpi-birthdays";
 import { KpiJemaatTotal } from "./office/kpi-jemaat-total";
 import { KpiTodayLoans } from "./office/kpi-today-loans";
 import { LoanRoomsWidget } from "./office/loan-rooms-widget";
-import { KpiPayables } from "./payables/kpi-payables";
 import { PayablesWidget } from "./payables/payables-widget";
 import { AnnouncementsWidget } from "./personal/announcements-widget";
 import { TugasSayaWidget } from "./tugas-saya/tugas-saya-widget";
@@ -65,14 +63,6 @@ const PAYABLE_SOURCES = [
 
 export const WIDGETS: readonly Widget[] = [
   {
-    id: "kpi-cash-balance",
-    slot: "kpi",
-    group: "finance",
-    gate: [view(MENU.FINANCIAL_STATEMENT)],
-    isDummy: true,
-    Component: KpiCashBalance,
-  },
-  {
     id: "kpi-income",
     slot: "kpi",
     group: "finance",
@@ -92,14 +82,6 @@ export const WIDGETS: readonly Widget[] = [
     group: "finance",
     gate: [view(MENU.FINANCIAL_STATEMENT)],
     Component: KpiSurplusYear,
-  },
-  {
-    id: "kpi-payables",
-    slot: "kpi",
-    group: "finance",
-    gate: [],
-    gateAny: PAYABLE_SOURCES,
-    Component: KpiPayables,
   },
 
   {
@@ -209,12 +191,14 @@ export const WIDGETS: readonly Widget[] = [
   {
     id: "tugas-saya",
     slot: "side",
+    kind: "umum",
     gate: [],
     Component: TugasSayaWidget,
   },
   {
     id: "loan-rooms",
     slot: "side",
+    kind: "umum",
     gate: [view(MENU.PEMINJAMAN_RUANG)],
     Component: LoanRoomsWidget,
   },
@@ -227,6 +211,7 @@ export const WIDGETS: readonly Widget[] = [
   {
     id: "jemaat",
     slot: "side",
+    kind: "umum",
     gate: [view(MENU.REPORT_JEMAAT)],
     Component: JemaatWidget,
   },

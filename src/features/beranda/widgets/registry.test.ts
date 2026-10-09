@@ -231,22 +231,20 @@ describe("persona dev:mock", () => {
     const { kind, kpi, main, side } = picked("bendahara", true);
 
     expect(kind).toBe("finance");
-    expect(kpi).toEqual([
-      "kpi-cash-balance",
-      "kpi-income",
-      "kpi-expense",
-      "kpi-surplus-year",
-      "kpi-payables",
-    ]);
+    // Strip Keuangan tinggal tiga: "Saldo kas & bank" dan "Perlu dibayar" dicabut
+    // karena angkanya sama dengan kartu Saldo Rekening dan Perlu Diselesaikan.
+    expect(kpi).toEqual(["kpi-income", "kpi-expense", "kpi-surplus-year"]);
     // `budget-use` masuk karena bendahara kini memegang BUDGET
     // (keputusan user: pagu milik majelis DAN bendahara). Widget-nya masih
     // `isDummy`, jadi ia hanya tampil di luar production.
     expect(main).toEqual(["payables", "income-expense-chart", "budget-use"]);
     expect(main).not.toContain("agenda-week");
-    expect(side.slice(0, 3)).toEqual([
+    // Tugas Saya, Peminjaman Ruangan, dan Jemaat kini milik tampilan Umum saja.
+    expect(side).toEqual([
       "closing-readiness",
       "cash-accounts",
       "income-by-type",
+      "announcements",
     ]);
 
     const keuangan = picked("bendahara", true, "finance");
@@ -279,10 +277,10 @@ describe("persona dev:mock", () => {
     expect(picked("bendahara", true).groups).toEqual(["finance", "umum"]);
   });
 
-  test("tugas saya: tanpa gerbang, kartu sisi pertama tanpa kind, di sisi semua persona", () => {
-    const sideIds = WIDGETS.filter((w) => w.slot === "side" && !w.kind).map(
-      (w) => w.id,
-    );
+  test("tugas saya: tanpa gerbang, kartu sisi pertama tampilan Umum", () => {
+    const sideIds = WIDGETS.filter(
+      (w) => w.slot === "side" && w.kind !== "finance",
+    ).map((w) => w.id);
     const tugas = WIDGETS.find((w) => w.id === "tugas-saya");
 
     expect(tugas?.gate).toEqual([]);
@@ -295,10 +293,11 @@ describe("persona dev:mock", () => {
       "jemaat",
     ]);
 
-    // Persona tanpa widget main sama sekali menaikkan kartu sisi pertama ke main,
-    // jadi tugas-saya selalu tampil, hanya kolomnya yang bisa berbeda.
+    // Di tampilan Umum tugas-saya selalu tampil; kolomnya bisa berbeda karena
+    // persona tanpa widget main menaikkan kartu sisi pertama ke kolom utama.
+    // Di tampilan Keuangan ia sengaja tidak ada (keputusan user 2026-10-09).
     for (const key of Object.keys(PERSONAS)) {
-      const { main, side } = picked(key);
+      const { main, side } = picked(key, false, "umum");
       expect([...main, ...side]).toContain("tugas-saya");
     }
   });

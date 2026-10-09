@@ -37,7 +37,7 @@ const renderHome = (menu: MenuNode[]) =>
     </QueryClientProvider>,
   );
 
-describe("angka kas di Beranda", () => {
+describe("saldo rekening di Beranda", () => {
   test("tanpa FINANCIAL_STATEMENT VIEW tidak dirender", () => {
     renderHome([
       {
@@ -46,7 +46,7 @@ describe("angka kas di Beranda", () => {
       },
     ]);
 
-    expect(screen.queryByText("Saldo kas & bank")).toBeNull();
+    expect(screen.queryByText("Saldo Rekening")).toBeNull();
   });
 
   test("dengan FINANCIAL_STATEMENT VIEW dirender", () => {
@@ -60,6 +60,6 @@ describe("angka kas di Beranda", () => {
       },
     ]);
 
-    expect(screen.getByText("Saldo kas & bank")).toBeTruthy();
+    expect(screen.getByText("Saldo Rekening")).toBeTruthy();
   });
 });

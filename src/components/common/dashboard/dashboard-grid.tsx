@@ -8,10 +8,11 @@ const SIDE_GRID =
 const SIDE_STACKED =
   "@min-[66rem]:grid-cols-3 @min-[66rem]:@max-[104rem]:[&>*:last-child:nth-child(3n+1)]:col-span-3 @min-[66rem]:@max-[104rem]:[&>*:last-child:nth-child(3n+2)]:col-span-2 @min-[104rem]:grid-cols-[repeat(auto-fit,minmax(24rem,1fr))]";
 
-// Pecah dua kolom mulai 4 kartu: sejak Ulang Tahun dan Jemaat Baru menyatu, sisi
-// tampilan Umum tinggal 4 kartu dan satu kolom membuatnya menjulang sempit.
+// Pecah dua kolom mulai 3 kartu. Sisi tampilan Umum tinggal 4 kartu sejak Ulang
+// Tahun dan Jemaat Baru menyatu, dan sisi tampilan Keuangan tinggal 3 di production;
+// satu kolom membuat keduanya menjulang sempit dan lebih tinggi daripada layar.
 const SIDE_SPLIT =
-  "@min-[66rem]:@max-[82rem]:grid-cols-3 @min-[66rem]:@max-[82rem]:[&>*:last-child:nth-child(3n+1)]:col-span-3 @min-[66rem]:@max-[82rem]:[&>*:last-child:nth-child(3n+2)]:col-span-2 @min-[82rem]:@max-[120rem]:grid-cols-1 @min-[82rem]:@max-[120rem]:[&>*:last-child:nth-child(odd)]:col-span-1 @min-[82rem]:@max-[120rem]:has-[>*:nth-child(4)]:grid-cols-2 @min-[82rem]:@max-[120rem]:has-[>*:nth-child(4)]:[&>*:last-child:nth-child(odd)]:col-span-2 @min-[120rem]:grid-cols-[repeat(auto-fit,minmax(24rem,1fr))]";
+  "@min-[66rem]:@max-[82rem]:grid-cols-3 @min-[66rem]:@max-[82rem]:[&>*:last-child:nth-child(3n+1)]:col-span-3 @min-[66rem]:@max-[82rem]:[&>*:last-child:nth-child(3n+2)]:col-span-2 @min-[82rem]:@max-[120rem]:grid-cols-1 @min-[82rem]:@max-[120rem]:[&>*:last-child:nth-child(odd)]:col-span-1 @min-[82rem]:@max-[120rem]:has-[>*:nth-child(3)]:grid-cols-2 @min-[82rem]:@max-[120rem]:has-[>*:nth-child(3)]:[&>*:last-child:nth-child(odd)]:col-span-2 @min-[120rem]:grid-cols-[repeat(auto-fit,minmax(24rem,1fr))]";
 
 const MAIN_STACKED =
   "@min-[104rem]:has-[>*:nth-child(2)]:grid-cols-2 @min-[150rem]:has-[>*:nth-child(3)]:grid-cols-3 @min-[104rem]:[&>*]:mx-auto @min-[104rem]:[&>*]:w-full @min-[104rem]:[&>*]:max-w-[90rem]";
