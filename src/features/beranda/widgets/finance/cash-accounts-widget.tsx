@@ -9,8 +9,8 @@ export const CashAccountsWidget = () => {
   const total = DUMMY_CASH_ACCOUNTS.reduce((sum, row) => sum + row.amount, 0);
 
   return (
-    <DashboardCard title="Saldo per rekening" isDummy>
-      <ul aria-label="Saldo per rekening" className="divide-hairline divide-y">
+    <DashboardCard title="Saldo Rekening" isDummy>
+      <ul aria-label="Saldo Rekening" className="divide-hairline divide-y">
         {DUMMY_CASH_ACCOUNTS.map((row) => (
           <li
             key={row.id}

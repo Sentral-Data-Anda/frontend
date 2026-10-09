@@ -37,7 +37,7 @@ export const IncomeExpenseChart = () => {
 
   return (
     <DashboardCard
-      title="Masuk vs keluar · 12 bulan"
+      title="Masuk vs Keluar"
       trailing={<Legend />}
       actionLabel="Laporan"
       actionHref={menuHref(MENU.REPORT, MENU.FINANCIAL_STATEMENT)}

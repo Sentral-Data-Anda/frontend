@@ -7,7 +7,7 @@ import { DUMMY_BUDGET_USE } from "../../fixtures";
 
 export const BudgetUseWidget = () => {
   return (
-    <DashboardCard title="Realisasi vs pagu · badan pelayanan" isDummy>
+    <DashboardCard title="Realisasi Budget" isDummy>
       <ul
         aria-label="Realisasi vs pagu per badan pelayanan"
         className="space-y-3.5"

@@ -161,15 +161,12 @@ describe("SidebarNav satu DOM untuk kedua mode", () => {
     expect(railButtonOf("Kejemaatan").getAttribute("type")).toBe("button");
   });
 
-  test("Pencarian dan sub-layar hanya milik mode penuh (dilipat di rail)", () => {
+  test("sub-layar hanya milik mode penuh (dilipat di rail)", () => {
     render(<SidebarNav menu={MENU} pathname="/kejemaatan/keluarga" />);
 
-    const cari = screen.getByRole("link", { name: "Pencarian" });
     const leaf = screen.getByRole("link", { name: "Keluarga" });
 
-    for (const el of [cari, leaf]) {
-      expect(el.closest(`[class~="${FULL_ONLY}"]`)).toBeTruthy();
-    }
+    expect(leaf.closest(`[class~="${FULL_ONLY}"]`)).toBeTruthy();
     expect(
       screen
         .getByRole("link", { name: "Beranda" })

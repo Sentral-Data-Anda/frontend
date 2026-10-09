@@ -75,7 +75,7 @@ export const AgendaWeekWidget = () => {
 
   return (
     <DashboardCard
-      title={offset === 0 ? "Agenda minggu ini" : "Agenda"}
+      title="Agenda Mingguan"
       query={{
         isPending: ibadah.isPending || (isEventShown && events.isPending),
         isFetching: ibadah.isFetching || events.isFetching,
@@ -117,7 +117,7 @@ export const AgendaWeekWidget = () => {
         />
       ) : (
         <DashboardTable
-          label="Agenda minggu ini"
+          label="Agenda Mingguan"
           columns={COLUMNS}
           rows={tableRows}
         />

@@ -69,8 +69,8 @@ export const AgendaWidget = () => {
 
   return (
     <DashboardCard
-      title="Agenda"
-      actionLabel="Kalender"
+      title="Agenda Harian"
+      actionLabel="Semua"
       actionHref={IBADAH_HREF}
       query={{
         isPending: ibadah.isPending || (isEventShown && events.isPending),

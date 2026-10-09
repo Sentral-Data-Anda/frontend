@@ -73,12 +73,8 @@ export const PayablesWidget = () => {
 
   return (
     <DashboardCard
-      title="Perlu diselesaikan"
-      actionLabel={
-        state.rows.length > MAX_ROWS
-          ? `Semua (${state.rows.length})`
-          : "Keuangan"
-      }
+      title="Perlu Diselesaikan"
+      actionLabel="Semua"
       actionHref={domainHref(MENU.FINANCE)}
       query={state}
       minHeight="min-h-48"
@@ -87,7 +83,7 @@ export const PayablesWidget = () => {
         <EmptyState isCompact title="Tidak ada yang perlu diselesaikan" />
       ) : (
         <DashboardTable
-          label="Perlu diselesaikan"
+          label="Perlu Diselesaikan"
           columns={COLUMNS}
           rows={tableRows}
         />

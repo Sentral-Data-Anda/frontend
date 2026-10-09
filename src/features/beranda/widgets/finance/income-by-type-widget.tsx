@@ -14,14 +14,14 @@ export const IncomeByTypeWidget = () => {
 
   return (
     <DashboardCard
-      title="Pemasukan per jenis · bulan ini"
+      title="Pemasukan per Jenis"
       query={query}
       minHeight="min-h-36"
     >
       {!data || data.parts.length === 0 ? (
         <EmptyState isCompact title="Belum ada pemasukan bulan ini" />
       ) : (
-        <ul aria-label="Pemasukan per jenis" className="space-y-3">
+        <ul aria-label="Pemasukan per Jenis" className="space-y-3">
           {data.parts.slice(0, 5).map((part) => (
             <li key={part.code}>
               <ProgressBar

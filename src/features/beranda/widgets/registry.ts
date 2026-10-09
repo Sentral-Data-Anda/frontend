@@ -34,7 +34,6 @@ import { KpiBirthdays } from "./office/kpi-birthdays";
 import { KpiJemaatTotal } from "./office/kpi-jemaat-total";
 import { KpiTodayLoans } from "./office/kpi-today-loans";
 import { LoanRoomsWidget } from "./office/loan-rooms-widget";
-import { ZonesWidget } from "./office/zones-widget";
 import { KpiPayables } from "./payables/kpi-payables";
 import { PayablesWidget } from "./payables/payables-widget";
 import { AnnouncementsWidget } from "./personal/announcements-widget";
@@ -190,13 +189,6 @@ export const WIDGETS: readonly Widget[] = [
     kind: "umum",
     gate: [view(MENU.APPROVAL_REQUEST)],
     Component: ApprovalsWidget,
-  },
-  {
-    id: "zones",
-    slot: "main",
-    kind: "umum",
-    gate: [view(MENU.REPORT_JEMAAT)],
-    Component: ZonesWidget,
   },
 
   {

@@ -21,8 +21,8 @@ export const LoanRoomsWidget = () => {
 
   return (
     <DashboardCard
-      title="Peminjaman ruang 7 hari ke depan"
-      actionLabel="Peminjaman"
+      title="Peminjaman Ruangan"
+      actionLabel="Semua"
       actionHref={LOAN_ROOM_HREF}
       query={query}
       minHeight="min-h-28"
@@ -33,7 +33,7 @@ export const LoanRoomsWidget = () => {
           title="Tidak ada peminjaman ruang 7 hari ke depan"
         />
       ) : (
-        <DashboardList label="Peminjaman ruang">
+        <DashboardList label="Peminjaman Ruangan">
           {items.slice(0, 4).map((item) => (
             <DashboardRow
               key={item.code}

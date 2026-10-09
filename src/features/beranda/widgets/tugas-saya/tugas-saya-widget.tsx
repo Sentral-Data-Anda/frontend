@@ -15,7 +15,7 @@ import { toDateKey } from "../../model";
 
 import { MAX_TASKS, toTaskRows } from "./data";
 
-const TITLE = "Tugas saya";
+const TITLE = "Tugas Saya";
 
 export const TugasSayaWidget = () => {
   const today = toDateKey(new Date());
@@ -27,12 +27,7 @@ export const TugasSayaWidget = () => {
   return (
     <DashboardCard
       title={TITLE}
-      trailing={
-        <span className="text-muted-foreground text-body">
-          4 pekan ke depan
-        </span>
-      }
-      actionLabel={access.isCanView ? "Semua jadwal" : undefined}
+      actionLabel={access.isCanView ? "Semua" : undefined}
       actionHref={
         access.isCanView
           ? menuHref(MENU.PELAYANAN, MENU.JADWAL_PELAYAN)
@@ -42,7 +37,10 @@ export const TugasSayaWidget = () => {
       minHeight="min-h-32"
     >
       {rows.length === 0 ? (
-        <EmptyState isCompact title="Tidak ada tugas pelayanan" />
+        <EmptyState
+          isCompact
+          title="Tidak ada tugas pelayanan 4 pekan ke depan"
+        />
       ) : (
         <>
           <DashboardList label={TITLE}>

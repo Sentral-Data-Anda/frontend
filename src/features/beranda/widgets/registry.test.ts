@@ -216,7 +216,7 @@ describe("persona dev:mock", () => {
       "kpi-birthdays",
       "kpi-today-loans",
     ]);
-    expect(main).toEqual(["agenda-week", "zones"]);
+    expect(main).toEqual(["agenda-week"]);
     expect(side).toEqual([
       "birthdays",
       "announcements",
@@ -262,7 +262,6 @@ describe("persona dev:mock", () => {
       "budget-use",
     ]);
     expect(keuangan.main).not.toContain("agenda-week");
-    expect(keuangan.side).not.toContain("zones");
   });
 
   test("majelis berizin laporan keuangan tetap mendapat strip umum (§10.1 #2)", () => {
@@ -276,7 +275,7 @@ describe("persona dev:mock", () => {
 
     const umum = picked("majelis", true, "umum");
 
-    expect(umum.main).toEqual(["agenda-week", "approvals", "zones"]);
+    expect(umum.main).toEqual(["agenda-week", "approvals"]);
     expect(umum.main).not.toContain("income-expense-chart");
   });
 
@@ -284,10 +283,6 @@ describe("persona dev:mock", () => {
     expect(picked("sekretariat", true).groups).toEqual(["umum"]);
     expect(picked("admin", true).groups).toEqual(["finance", "umum"]);
     expect(picked("bendahara", true).groups).toEqual(["finance", "umum"]);
-  });
-
-  test("production: jemaat per wilayah memakai data asli", () => {
-    expect(picked("sekretariat").main).toContain("zones");
   });
 
   test("tugas saya: tanpa gerbang, tepat sesudah pengumuman, di sisi semua persona", () => {

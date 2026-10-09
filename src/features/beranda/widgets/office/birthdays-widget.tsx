@@ -20,8 +20,8 @@ export const BirthdaysWidget = () => {
 
   return (
     <DashboardCard
-      title="Ulang tahun minggu ini"
-      actionLabel={items.length > 5 ? `Semua (${items.length})` : undefined}
+      title="Ulang Tahun"
+      actionLabel={items.length > 5 ? "Semua" : undefined}
       actionHref={items.length > 5 ? REPORT_JEMAAT_HREF : undefined}
       query={query}
       minHeight="min-h-32"
@@ -32,7 +32,7 @@ export const BirthdaysWidget = () => {
           title="Tidak ada yang berulang tahun minggu ini"
         />
       ) : (
-        <DashboardList label="Ulang tahun minggu ini">
+        <DashboardList label="Ulang Tahun">
           {items.slice(0, 5).map((item) => {
             const day = days.find((key) => key.slice(5) === item.dayKey);
             return (

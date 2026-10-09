@@ -11,7 +11,7 @@ import { formatDayMonth } from "../../model";
 
 export const NewMembersWidget = () => {
   return (
-    <DashboardCard title="Jemaat baru · bulan ini" isDummy>
+    <DashboardCard title="Jemaat Baru" isDummy>
       <DashboardList label="Jemaat baru bulan ini">
         {DUMMY_NEW_MEMBERS.map((member) => (
           <DashboardRow

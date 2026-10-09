@@ -48,7 +48,7 @@ test("KPI menghitung peminjaman hari ini dari tujuh hari yang dimuat", () => {
 test("widget menampilkan semua status, bukan hanya yang menunggu", () => {
   renderWith([loan(1, "Rapat pengurus")]);
 
-  expect(screen.getByText("Peminjaman ruang 7 hari ke depan")).toBeDefined();
+  expect(screen.getByText("Peminjaman Ruangan")).toBeDefined();
   expect(screen.getByText("Rapat pengurus · Sari Lubis")).toBeDefined();
   expect(screen.getByText(/18\.00$/)).toBeDefined();
 });

@@ -4,4 +4,3 @@ export * from "./kpi-birthdays";
 export * from "./kpi-jemaat-total";
 export * from "./kpi-today-loans";
 export * from "./loan-rooms-widget";
-export * from "./zones-widget";

@@ -46,9 +46,10 @@ const renderWidget = (items: TugasSayaItem[]) => {
 test("kosong: satu baris penjelasan, kartu tetap tampil", () => {
   renderWidget([]);
 
-  expect(screen.getByText("Tugas saya")).toBeDefined();
-  expect(screen.getByText("4 pekan ke depan")).toBeDefined();
-  expect(screen.getByText("Tidak ada tugas pelayanan")).toBeDefined();
+  expect(screen.getByText("Tugas Saya")).toBeDefined();
+  expect(
+    screen.getByText("Tidak ada tugas pelayanan 4 pekan ke depan"),
+  ).toBeDefined();
 });
 
 test("maks 6 baris, sisanya diringkas", () => {
@@ -71,9 +72,9 @@ test("dengan VIEW Jadwal Pelayan: baris ke halaman baca, aksi ke daftar", () => 
   expect(
     screen.getByRole("link", { name: "Tugas 1" }).getAttribute("href"),
   ).toBe("/pelayanan/jadwal-pelayan/JDL-1");
-  expect(
-    screen.getByRole("link", { name: "Semua jadwal" }).getAttribute("href"),
-  ).toBe("/pelayanan/jadwal-pelayan");
+  expect(screen.getByRole("link", { name: "Semua" }).getAttribute("href")).toBe(
+    "/pelayanan/jadwal-pelayan",
+  );
 });
 
 test("tugas lewat kelompok: nama tautan menyebut kelompoknya", () => {

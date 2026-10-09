@@ -10,7 +10,6 @@ import {
   LayoutGrid,
   LogOut,
   UserRound,
-  Search,
   type LucideIcon,
 } from "lucide-react";
 import Link from "next/link";
@@ -355,24 +354,6 @@ export function SidebarNav({
             pathname={pathname}
             isCollapsed={isCollapsed}
           />
-        </li>
-        <li
-          className={cn(
-            "transition-none group-data-collapsed/sidebar:transition-[visibility]",
-            RAIL_HIDDEN,
-          )}
-        >
-          <Fold>
-            <div className="pt-0.5">
-              <NavLink
-                href="/modul"
-                label="Pencarian"
-                icon={Search}
-                pathname={pathname}
-                isCollapsed={isCollapsed}
-              />
-            </div>
-          </Fold>
         </li>
       </ul>
 

@@ -65,18 +65,18 @@ export const ClosingReadinessWidget = () => {
 
   return (
     <DashboardCard
-      title="Kesiapan tutup buku"
+      title="Kesiapan Tutup Buku"
       trailing={
         <span className="text-muted-foreground text-body tabular-nums">
           {ready}/{checks.length}
         </span>
       }
-      actionLabel="Periode fiskal"
+      actionLabel="Periode Fiskal"
       actionHref={menuHref(MENU.FINANCE, MENU.FISCAL_PERIOD)}
       query={periods}
       minHeight="min-h-32"
     >
-      <ul aria-label="Kesiapan tutup buku" className="space-y-2.5">
+      <ul aria-label="Kesiapan Tutup Buku" className="space-y-2.5">
         {checks.map((check) => (
           <li
             key={check.id}

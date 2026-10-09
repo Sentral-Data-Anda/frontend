@@ -74,8 +74,8 @@ export const ApprovalsWidget = () => {
 
   return (
     <DashboardCard
-      title="Menunggu tindakan saya"
-      actionLabel="Buka antrean"
+      title="Persetujuan Saya"
+      actionLabel="Semua"
       actionHref={QUEUE_HREF}
       query={query}
       minHeight="min-h-36"
@@ -84,7 +84,7 @@ export const ApprovalsWidget = () => {
         <EmptyState isCompact title="Tidak ada yang menunggu" />
       ) : (
         <DashboardTable
-          label="Menunggu tindakan saya"
+          label="Persetujuan Saya"
           columns={[
             { label: "Item", width: "2.3fr" },
             { label: "Jenis", width: "1fr", align: "right" },
