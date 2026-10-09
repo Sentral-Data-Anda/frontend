@@ -161,7 +161,7 @@ describe("gerbang izin detail", () => {
 
     onRender({});
 
-    expect(screen.getByText("Anda tidak memiliki akses ke Cuti")).toBeTruthy();
+    expect(screen.getByText("Anda tidak memiliki akses ke Leave")).toBeTruthy();
     expect(isFetched).toBe(false);
   });
 

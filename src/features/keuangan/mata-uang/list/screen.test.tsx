@@ -119,7 +119,7 @@ describe("daftar mata uang", () => {
     onRender([]);
 
     expect(
-      screen.getByText("Anda tidak memiliki akses ke Mata Uang"),
+      screen.getByText("Anda tidak memiliki akses ke Currency"),
     ).toBeTruthy();
   });
 });

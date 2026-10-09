@@ -86,7 +86,7 @@ describe("cetak label barang", () => {
     onRender("kode=AST_0001_0002-0001");
 
     expect(
-      screen.getByText("Anda tidak memiliki akses ke Barang"),
+      screen.getByText("Anda tidak memiliki akses ke Asset Master"),
     ).toBeTruthy();
     expect(urls).toEqual([]);
   });

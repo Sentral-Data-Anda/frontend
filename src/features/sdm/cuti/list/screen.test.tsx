@@ -160,7 +160,7 @@ describe("gerbang izin daftar cuti", () => {
 
     onRender({});
 
-    expect(screen.getByText("Anda tidak memiliki akses ke Cuti")).toBeTruthy();
+    expect(screen.getByText("Anda tidak memiliki akses ke Leave")).toBeTruthy();
     expect(isFetched).toBe(false);
   });
 
@@ -173,7 +173,7 @@ describe("gerbang izin daftar cuti", () => {
 
     onRender({ [MENU.LEAVE_TYPE]: ["VIEW", "CREATE"] });
 
-    expect(screen.getByText("Anda tidak memiliki akses ke Cuti")).toBeTruthy();
+    expect(screen.getByText("Anda tidak memiliki akses ke Leave")).toBeTruthy();
     expect(isFetched).toBe(false);
   });
 

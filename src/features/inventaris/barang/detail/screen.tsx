@@ -24,7 +24,7 @@ import { PhotoGrid } from "./photo-grid";
 import { StatusLine } from "./status-line";
 import { ValuePanel } from "./value-panel";
 
-const TITLE = "Barang";
+const TITLE = "Asset Master";
 
 interface PropTypes {
   code: string;
@@ -46,7 +46,7 @@ export const BarangDetailScreen = (props: PropTypes) => {
       <div className="pb-8">
         <PageHeader title={TITLE} backHref={domainHref(MENU.FIXED_ASSET)} />
         <EmptyState
-          title="Anda tidak memiliki akses ke Barang"
+          title="Anda tidak memiliki akses ke Asset Master"
           description="Hubungi administrator bila Anda memang seharusnya memegang akses ini."
         />
       </div>

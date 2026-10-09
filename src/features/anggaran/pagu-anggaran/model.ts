@@ -40,7 +40,7 @@ export const LIST_FILTERS = {
   komisi: { api: "bapelId" },
 } satisfies ListFilterSchema;
 
-export const NO_VIEW = "Peran Anda tidak memiliki akses ke Pagu Anggaran.";
+export const NO_VIEW = "Peran Anda tidak memiliki akses ke Budget.";
 
 export const EMPTY_TITLE = "Belum ada pagu anggaran";
 

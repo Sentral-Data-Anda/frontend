@@ -147,7 +147,7 @@ describe("halaman barang persediaan", () => {
     onRender({});
 
     expect(
-      screen.getByText("Anda tidak memiliki akses ke Barang Persediaan"),
+      screen.getByText("Anda tidak memiliki akses ke Stock Item"),
     ).toBeTruthy();
   });
 

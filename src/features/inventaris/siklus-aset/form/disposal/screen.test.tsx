@@ -92,7 +92,7 @@ describe("ajukan pelepasan", () => {
     onRender([]);
 
     expect(
-      screen.getByText("Anda tidak memiliki akses ke Siklus Aset"),
+      screen.getByText("Anda tidak memiliki akses ke Asset Transaction"),
     ).toBeTruthy();
     expect(screen.queryByText(/Peran Anda/)).toBeNull();
   });

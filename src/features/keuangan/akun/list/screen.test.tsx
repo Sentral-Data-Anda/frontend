@@ -193,7 +193,9 @@ describe("gerbang izin", () => {
       </QueryClientProvider>,
     );
 
-    expect(screen.getByText("Anda tidak memiliki akses ke Akun")).toBeTruthy();
+    expect(
+      screen.getByText("Anda tidak memiliki akses ke Chart of Account"),
+    ).toBeTruthy();
     expect(isFetched).toBe(false);
   });
 });

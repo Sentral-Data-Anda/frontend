@@ -50,7 +50,7 @@ export const BarangListContent = () => {
   return (
     <div className="pb-6">
       <PageHeader
-        title="Barang"
+        title="Asset Master"
         subtitle={
           assetList.totalData === undefined
             ? undefined

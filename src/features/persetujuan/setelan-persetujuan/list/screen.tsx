@@ -26,7 +26,7 @@ export const SetelanListScreen = () => {
   return (
     <div className="pb-6">
       <PageHeader
-        title="Setelan Alur Persetujuan"
+        title="Approval Workflow"
         subtitle={
           !isCanView || setelanList.totalData === undefined
             ? undefined
@@ -96,7 +96,7 @@ export const SetelanListScreen = () => {
         </>
       ) : (
         <EmptyState
-          title="Anda tidak memiliki akses ke Setelan Alur Persetujuan"
+          title="Anda tidak memiliki akses ke Approval Workflow"
           description="Hubungi administrator bila Anda memerlukan akses ini."
         />
       )}

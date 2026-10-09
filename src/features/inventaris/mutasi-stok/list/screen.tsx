@@ -14,9 +14,12 @@ export const MutasiListScreen = () => {
     <MutasiListContent />
   ) : (
     <div className="pb-6">
-      <PageHeader title="Mutasi Stok" backHref={domainHref(MENU.INVENTORY)} />
+      <PageHeader
+        title="Stock Movement"
+        backHref={domainHref(MENU.INVENTORY)}
+      />
       <EmptyState
-        title="Anda tidak memiliki akses ke Mutasi Stok"
+        title="Anda tidak memiliki akses ke Stock Movement"
         description="Hubungi administrator bila Anda memang seharusnya memegang akses ini."
       />
     </div>

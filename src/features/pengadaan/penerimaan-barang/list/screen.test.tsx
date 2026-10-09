@@ -93,7 +93,7 @@ describe("daftar penerimaan", () => {
     onRenderList([]);
 
     expect(
-      screen.getByText("Anda tidak memiliki akses ke Penerimaan Barang"),
+      screen.getByText("Anda tidak memiliki akses ke Goods Receipt"),
     ).toBeTruthy();
     expect(requested).toEqual([]);
   });

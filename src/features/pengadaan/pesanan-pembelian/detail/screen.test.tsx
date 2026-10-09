@@ -145,7 +145,7 @@ describe("aksi per status × izin", () => {
     renderWithQuery(<OrderDetailScreen code={orderAt(KURSI).code} />);
 
     expect(
-      screen.getByText("Anda tidak memiliki akses ke Pesanan Pembelian"),
+      screen.getByText("Anda tidak memiliki akses ke Purchase Order"),
     ).toBeTruthy();
   });
 });

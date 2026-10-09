@@ -33,7 +33,7 @@ export const ListHeader = (props: PropTypes) => {
   return (
     <>
       <PageHeader
-        title="Siklus Aset"
+        title="Asset Transaction"
         subtitle={
           totalData === undefined
             ? undefined

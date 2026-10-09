@@ -19,7 +19,7 @@ export const AbsensiListScreen = () => {
       <PageHeader title={TITLE} backHref={domainHref(MENU.HR)} />
 
       <EmptyState
-        title="Anda tidak memiliki akses ke Absensi Karyawan"
+        title="Anda tidak memiliki akses ke Attendance"
         description="Hubungi administrator bila Anda memerlukan akses ini."
       />
     </div>

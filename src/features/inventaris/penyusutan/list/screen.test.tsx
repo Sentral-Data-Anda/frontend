@@ -26,7 +26,7 @@ describe("gerbang VIEW daftar", () => {
     render(<PenyusutanListScreen />);
 
     expect(
-      screen.getByText("Anda tidak memiliki akses ke Penyusutan"),
+      screen.getByText("Anda tidak memiliki akses ke Depreciation"),
     ).toBeTruthy();
     expect(screen.queryByRole("link", { name: "Buka periode" })).toBeNull();
     expect(isFetched).toBe(false);

@@ -56,7 +56,7 @@ export const PayrollListContent = () => {
   return (
     <div className="pb-6">
       <PageHeader
-        title="Penggajian"
+        title="Payroll"
         subtitle={
           runs.totalData === undefined
             ? undefined

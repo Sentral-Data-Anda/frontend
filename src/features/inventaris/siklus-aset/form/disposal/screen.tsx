@@ -157,7 +157,7 @@ export const DisposalFormScreen = () => {
       header={
         <PageHeader
           title="Ajukan Pelepasan"
-          subtitle="Siklus Aset"
+          subtitle="Asset Transaction"
           backHref={listReturn}
           isBackPersistent
           onBack={confirm.onBack(isDirty)}

@@ -14,9 +14,12 @@ export const BarangListScreen = () => {
     <BarangListContent />
   ) : (
     <div className="pb-6">
-      <PageHeader title="Barang" backHref={domainHref(MENU.FIXED_ASSET)} />
+      <PageHeader
+        title="Asset Master"
+        backHref={domainHref(MENU.FIXED_ASSET)}
+      />
       <EmptyState
-        title="Anda tidak memiliki akses ke Barang"
+        title="Anda tidak memiliki akses ke Asset Master"
         description="Hubungi administrator bila Anda memang seharusnya memegang akses ini."
       />
     </div>

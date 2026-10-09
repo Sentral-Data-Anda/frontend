@@ -18,7 +18,7 @@ export const RoleUserListScreen = () => {
   return (
     <div className="pb-6">
       <PageHeader
-        title="Role User"
+        title="User Role"
         subtitle={
           roleList.totalData === undefined
             ? undefined

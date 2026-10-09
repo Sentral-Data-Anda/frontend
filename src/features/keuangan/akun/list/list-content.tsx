@@ -38,7 +38,7 @@ export const AccountListContent = () => {
   return (
     <div className="pb-6">
       <PageHeader
-        title="Akun"
+        title="Chart of Account"
         subtitle={
           isChartEmpty || accountList.totalData === undefined
             ? undefined

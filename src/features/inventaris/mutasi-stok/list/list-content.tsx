@@ -28,7 +28,7 @@ export const MutasiListContent = () => {
   return (
     <div className="pb-6">
       <PageHeader
-        title="Mutasi Stok"
+        title="Stock Movement"
         subtitle={
           mutasiList.totalData === undefined
             ? undefined

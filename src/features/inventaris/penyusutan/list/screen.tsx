@@ -14,10 +14,13 @@ export const PenyusutanListScreen = () => {
 
   return (
     <div className="pb-6">
-      <PageHeader title="Penyusutan" backHref={domainHref(MENU.FIXED_ASSET)} />
+      <PageHeader
+        title="Depreciation"
+        backHref={domainHref(MENU.FIXED_ASSET)}
+      />
 
       <EmptyState
-        title="Anda tidak memiliki akses ke Penyusutan"
+        title="Anda tidak memiliki akses ke Depreciation"
         description="Hubungi administrator bila Anda memerlukan akses ini."
       />
     </div>

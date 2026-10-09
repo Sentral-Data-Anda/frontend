@@ -126,7 +126,7 @@ describe("gerbang izin", () => {
     onRenderList([]);
 
     expect(
-      screen.getByText("Anda tidak memiliki akses ke Setelan Alur Persetujuan"),
+      screen.getByText("Anda tidak memiliki akses ke Approval Workflow"),
     ).toBeTruthy();
     expect(screen.queryByRole("button", { name: /Filter/ })).toBeNull();
   });

@@ -133,7 +133,7 @@ describe("tiga bacaan", () => {
     onRenderPage("");
 
     expect(
-      screen.getByText("Anda tidak memiliki akses ke Permintaan Persetujuan"),
+      screen.getByText("Anda tidak memiliki akses ke Approval Request"),
     ).toBeTruthy();
     expect(requested).toEqual([]);
   });

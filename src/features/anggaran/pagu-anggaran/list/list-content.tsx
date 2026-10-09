@@ -36,7 +36,7 @@ import {
 import { BudgetYearDialog } from "./budget-year-dialog";
 import { AllocationListItem, allocationTable } from "./list-item";
 
-const TITLE = "Pagu Anggaran";
+const TITLE = "Budget";
 
 export const AllocationListContent = () => {
   const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.BUDGET);

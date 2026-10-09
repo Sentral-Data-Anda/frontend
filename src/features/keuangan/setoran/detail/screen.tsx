@@ -38,7 +38,7 @@ import { TransferStatusBadge } from "../ui";
 import { SummaryPanel } from "./summary-panel";
 import { TransferActions } from "./transfer-actions";
 
-const TITLE = "Setoran";
+const TITLE = "Bank Deposit";
 
 const REASON_FIELD = "cancel-reason";
 
@@ -102,7 +102,7 @@ export const TransferDetailScreen = (props: PropTypes) => {
       <div className="pb-8">
         <PageHeader title={TITLE} backHref={domainHref(MENU.FINANCE)} />
         <EmptyState
-          title="Anda tidak memiliki akses ke Setoran"
+          title="Anda tidak memiliki akses ke Bank Deposit"
           description="Hubungi administrator bila Anda memang seharusnya memegang akses ini."
         />
       </div>

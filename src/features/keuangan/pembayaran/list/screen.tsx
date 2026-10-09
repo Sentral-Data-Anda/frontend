@@ -16,9 +16,9 @@ export const PaymentListScreen = () => {
     <PaymentListContent />
   ) : (
     <div className="pb-6">
-      <PageHeader title="Pembayaran" backHref={domainHref(MENU.FINANCE)} />
+      <PageHeader title="Payment" backHref={domainHref(MENU.FINANCE)} />
       <EmptyState
-        title="Anda tidak memiliki akses ke Pembayaran"
+        title="Anda tidak memiliki akses ke Payment"
         description={NO_VIEW}
       />
     </div>

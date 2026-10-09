@@ -14,10 +14,10 @@ export const CurrencyListScreen = () => {
 
   return (
     <div className="pb-6">
-      <PageHeader title="Mata Uang" backHref={domainHref(MENU.FINANCE)} />
+      <PageHeader title="Currency" backHref={domainHref(MENU.FINANCE)} />
 
       <EmptyState
-        title="Anda tidak memiliki akses ke Mata Uang"
+        title="Anda tidak memiliki akses ke Currency"
         description="Hubungi administrator bila Anda memerlukan akses ini."
       />
     </div>

@@ -36,7 +36,7 @@ import { EntryList } from "./entry-list";
 import { RunActions } from "./run-actions";
 import { SummaryPanel } from "./summary-panel";
 
-const TITLE = "Penyusutan";
+const TITLE = "Depreciation";
 
 interface PropTypes {
   code: string;
@@ -115,7 +115,7 @@ export const PenyusutanDetailScreen = (props: PropTypes) => {
       <div className="pb-8">
         <PageHeader title={TITLE} backHref={domainHref(MENU.FIXED_ASSET)} />
         <EmptyState
-          title="Anda tidak memiliki akses ke Penyusutan"
+          title="Anda tidak memiliki akses ke Depreciation"
           description="Hubungi administrator bila Anda memerlukan akses ini."
         />
       </div>

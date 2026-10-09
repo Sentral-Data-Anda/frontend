@@ -14,12 +14,9 @@ export const StockListScreen = () => {
     <StockListContent />
   ) : (
     <div className="pb-6">
-      <PageHeader
-        title="Barang Persediaan"
-        backHref={domainHref(MENU.INVENTORY)}
-      />
+      <PageHeader title="Stock Item" backHref={domainHref(MENU.INVENTORY)} />
       <EmptyState
-        title="Anda tidak memiliki akses ke Barang Persediaan"
+        title="Anda tidak memiliki akses ke Stock Item"
         description="Hubungi administrator bila Anda memang seharusnya memegang akses ini."
       />
     </div>

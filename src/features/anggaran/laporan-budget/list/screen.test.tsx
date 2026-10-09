@@ -191,7 +191,9 @@ describe("daftar laporan", () => {
     const calls = onRender([report()], {});
 
     expect(
-      await screen.findByText("Anda tidak memiliki akses ke Laporan Budget"),
+      await screen.findByText(
+        "Anda tidak memiliki akses ke Budget Realization",
+      ),
     ).toBeTruthy();
     expect(calls.filter((url) => url.includes("laporan-budget"))).toHaveLength(
       0,

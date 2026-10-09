@@ -125,7 +125,7 @@ describe("halaman mata uang", () => {
     onRender([], "USD");
 
     expect(
-      screen.getByText("Anda tidak memiliki akses ke Mata Uang"),
+      screen.getByText("Anda tidak memiliki akses ke Currency"),
     ).toBeTruthy();
     expect(calls).toEqual([]);
   });

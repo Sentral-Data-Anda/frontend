@@ -21,7 +21,7 @@ import { AKUN_LIST_PATH, accountEditHref } from "../model";
 import { ChildList } from "./child-list";
 import { SummaryPanel } from "./summary-panel";
 
-const TITLE = "Akun";
+const TITLE = "Chart of Account";
 
 interface PropTypes {
   code: string;
@@ -44,7 +44,7 @@ export const AccountDetailScreen = (props: PropTypes) => {
         <PageHeader title={TITLE} backHref={domainHref(MENU.FINANCE)} />
 
         <EmptyState
-          title="Anda tidak memiliki akses ke Akun"
+          title="Anda tidak memiliki akses ke Chart of Account"
           description="Hubungi administrator bila Anda memerlukan akses ini."
         />
       </div>

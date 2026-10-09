@@ -15,12 +15,12 @@ export const SettingListScreen = () => {
   return (
     <div className="pb-6">
       <PageHeader
-        title="Setelan Akuntansi"
+        title="Accounting Setting"
         backHref={domainHref(MENU.FINANCE)}
       />
 
       <EmptyState
-        title="Anda tidak memiliki akses ke Setelan Akuntansi"
+        title="Anda tidak memiliki akses ke Accounting Setting"
         description="Hubungi administrator bila Anda memerlukan akses ini."
       />
     </div>

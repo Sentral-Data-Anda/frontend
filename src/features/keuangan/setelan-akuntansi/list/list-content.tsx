@@ -18,7 +18,7 @@ export const SettingListContent = () => {
   return (
     <div className="pb-6">
       <PageHeader
-        title="Setelan Akuntansi"
+        title="Accounting Setting"
         subtitle={
           settingList.isLoading || settingList.error
             ? undefined

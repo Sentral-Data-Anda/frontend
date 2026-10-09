@@ -15,11 +15,11 @@ export const OrderListScreen = () => {
   ) : (
     <div className="pb-6">
       <PageHeader
-        title="Pesanan Pembelian"
+        title="Purchase Order"
         backHref={domainHref(MENU.PROCUREMENT)}
       />
       <EmptyState
-        title="Anda tidak memiliki akses ke Pesanan Pembelian"
+        title="Anda tidak memiliki akses ke Purchase Order"
         description="Hubungi administrator bila Anda memang seharusnya memegang akses ini."
       />
     </div>

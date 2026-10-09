@@ -144,7 +144,7 @@ export const TransferFormScreen = () => {
       header={
         <PageHeader
           title="Pindahkan Barang"
-          subtitle="Siklus Aset"
+          subtitle="Asset Transaction"
           backHref={listReturn}
           isBackPersistent
           onBack={confirm.onBack(isDirty)}

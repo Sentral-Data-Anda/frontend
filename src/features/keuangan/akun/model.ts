@@ -26,7 +26,7 @@ export const accountEditHref = (code: string) =>
 export const ledgerHref = (code: string) =>
   `${menuHref(MENU.REPORT, MENU.FINANCIAL_STATEMENT)}?tab=buku-besar&code=${encodeURIComponent(code)}`;
 
-export const NO_VIEW = "Peran Anda tidak memiliki akses ke Akun.";
+export const NO_VIEW = "Peran Anda tidak memiliki akses ke Chart of Account.";
 
 export const EMPTY_TITLE = "Belum ada akun";
 

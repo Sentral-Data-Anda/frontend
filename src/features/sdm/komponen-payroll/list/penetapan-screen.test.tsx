@@ -119,7 +119,7 @@ describe("gerbang izin daftar penetapan", () => {
     onRender([]);
 
     expect(
-      screen.getByText("Anda tidak memiliki akses ke Komponen Payroll"),
+      screen.getByText("Anda tidak memiliki akses ke Payroll Component"),
     ).toBeTruthy();
     expect(isFetched).toBe(false);
   });

@@ -15,11 +15,11 @@ export const RequestListScreen = () => {
   ) : (
     <div className="pb-6">
       <PageHeader
-        title="Permintaan Pembelian"
+        title="Purchase Request"
         backHref={domainHref(MENU.PROCUREMENT)}
       />
       <EmptyState
-        title="Anda tidak memiliki akses ke Permintaan Pembelian"
+        title="Anda tidak memiliki akses ke Purchase Request"
         description="Hubungi administrator bila Anda memang seharusnya memegang akses ini."
       />
     </div>

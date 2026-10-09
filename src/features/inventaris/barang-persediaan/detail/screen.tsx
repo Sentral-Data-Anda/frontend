@@ -21,7 +21,7 @@ import { DataPanel } from "./data-panel";
 import { MovementList } from "./movement-list";
 import { StockPanel } from "./stock-panel";
 
-const TITLE = "Barang Persediaan";
+const TITLE = "Stock Item";
 
 interface PropTypes {
   code: string;
@@ -43,7 +43,7 @@ export const StockDetailScreen = (props: PropTypes) => {
       <div className="pb-8">
         <PageHeader title={TITLE} backHref={domainHref(MENU.INVENTORY)} />
         <EmptyState
-          title="Anda tidak memiliki akses ke Barang Persediaan"
+          title="Anda tidak memiliki akses ke Stock Item"
           description="Hubungi administrator bila Anda memang seharusnya memegang akses ini."
         />
       </div>

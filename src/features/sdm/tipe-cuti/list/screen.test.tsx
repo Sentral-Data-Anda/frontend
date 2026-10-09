@@ -26,7 +26,7 @@ describe("gerbang VIEW daftar", () => {
     render(<TipeCutiListScreen />);
 
     expect(
-      screen.getByText("Anda tidak memiliki akses ke Tipe Cuti"),
+      screen.getByText("Anda tidak memiliki akses ke Leave Type"),
     ).toBeTruthy();
     expect(screen.queryByRole("searchbox")).toBeNull();
     expect(isFetched).toBe(false);

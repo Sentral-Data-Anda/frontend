@@ -31,7 +31,7 @@ export { DETAIL_LINK as TEXT_LINK } from "@/components/common/display";
 
 export const ANONYMOUS = "Anonim";
 
-export const NO_VIEW = "Peran Anda tidak memiliki akses ke Pembayaran.";
+export const NO_VIEW = "Peran Anda tidak memiliki akses ke Payment.";
 
 export const EMPTY_TITLE = "Belum ada pembayaran online";
 

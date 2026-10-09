@@ -178,7 +178,7 @@ export const MutasiFormScreen = () => {
       header={
         <PageHeader
           title="Catat Mutasi"
-          subtitle="Mutasi Stok"
+          subtitle="Stock Movement"
           backHref={listReturn}
           isBackPersistent
           onBack={confirm.onBack(isDirty)}

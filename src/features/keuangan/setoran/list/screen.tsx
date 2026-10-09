@@ -14,9 +14,9 @@ export const TransferListScreen = () => {
     <TransferListContent />
   ) : (
     <div className="pb-6">
-      <PageHeader title="Setoran" backHref={domainHref(MENU.FINANCE)} />
+      <PageHeader title="Bank Deposit" backHref={domainHref(MENU.FINANCE)} />
       <EmptyState
-        title="Anda tidak memiliki akses ke Setoran"
+        title="Anda tidak memiliki akses ke Bank Deposit"
         description="Hubungi administrator bila Anda memang seharusnya memegang akses ini."
       />
     </div>

@@ -28,7 +28,7 @@ import { ItemList } from "./item-list";
 import { StatusActions } from "./status-actions";
 import { SummaryPanel } from "./summary-panel";
 
-const TITLE = "Permintaan Pembelian";
+const TITLE = "Purchase Request";
 
 const FAILURE_TITLE: Record<RequestAction, string> = {
   pengajuan: "Permintaan belum diajukan.",
@@ -96,7 +96,7 @@ export const RequestDetailScreen = (props: PropTypes) => {
       <div className="pb-8">
         <PageHeader title={TITLE} backHref={domainHref(MENU.PROCUREMENT)} />
         <EmptyState
-          title="Anda tidak memiliki akses ke Permintaan Pembelian"
+          title="Anda tidak memiliki akses ke Purchase Request"
           description="Hubungi administrator bila Anda memang seharusnya memegang akses ini."
         />
       </div>

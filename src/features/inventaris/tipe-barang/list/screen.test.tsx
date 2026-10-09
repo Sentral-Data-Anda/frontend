@@ -26,7 +26,7 @@ describe("gerbang VIEW daftar", () => {
     render(<TipeBarangListScreen />);
 
     expect(
-      screen.getByText("Anda tidak memiliki akses ke Tipe Barang"),
+      screen.getByText("Anda tidak memiliki akses ke Item Category"),
     ).toBeTruthy();
     expect(screen.queryByRole("searchbox")).toBeNull();
     expect(isFetched).toBe(false);

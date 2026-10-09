@@ -18,7 +18,7 @@ export const ActivityLogListScreen = () => {
   return (
     <div className="pb-6">
       <PageHeader
-        title="Log Aktivitas"
+        title="Activity Log"
         subtitle={
           logList.totalData === undefined
             ? undefined

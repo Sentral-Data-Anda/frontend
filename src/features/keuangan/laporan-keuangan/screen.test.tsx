@@ -303,7 +303,7 @@ describe("gerbang VIEW", () => {
     onRender({});
 
     expect(
-      screen.getByText("Anda tidak memiliki akses ke Laporan Keuangan"),
+      screen.getByText("Anda tidak memiliki akses ke Financial Statement"),
     ).toBeTruthy();
 
     await new Promise((resolve) => setTimeout(resolve, 20));

@@ -15,11 +15,11 @@ export const ReceiptListScreen = () => {
   ) : (
     <div className="pb-6">
       <PageHeader
-        title="Penerimaan Barang"
+        title="Goods Receipt"
         backHref={domainHref(MENU.PROCUREMENT)}
       />
       <EmptyState
-        title="Anda tidak memiliki akses ke Penerimaan Barang"
+        title="Anda tidak memiliki akses ke Goods Receipt"
         description="Hubungi administrator bila Anda memang seharusnya memegang akses ini."
       />
     </div>

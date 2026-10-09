@@ -38,7 +38,7 @@ export const KontrakListContent = () => {
   return (
     <div className="pb-6">
       <PageHeader
-        title="Kontrak Karyawan"
+        title="Employee Contract"
         subtitle={
           contracts.totalData === undefined
             ? undefined

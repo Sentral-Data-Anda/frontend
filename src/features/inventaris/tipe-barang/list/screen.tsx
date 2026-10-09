@@ -14,10 +14,10 @@ export const TipeBarangListScreen = () => {
 
   return (
     <div className="pb-6">
-      <PageHeader title="Tipe Barang" backHref={domainHref(MENU.INVENTORY)} />
+      <PageHeader title="Item Category" backHref={domainHref(MENU.INVENTORY)} />
 
       <EmptyState
-        title="Anda tidak memiliki akses ke Tipe Barang"
+        title="Anda tidak memiliki akses ke Item Category"
         description="Hubungi administrator bila Anda memerlukan akses ini."
       />
     </div>

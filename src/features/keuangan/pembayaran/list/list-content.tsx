@@ -30,7 +30,7 @@ export const PaymentListContent = () => {
   return (
     <div className="pb-6">
       <PageHeader
-        title="Pembayaran"
+        title="Payment"
         subtitle={
           paymentList.totalData === undefined
             ? undefined

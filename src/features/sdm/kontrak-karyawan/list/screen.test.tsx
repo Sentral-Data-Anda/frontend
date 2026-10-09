@@ -147,7 +147,7 @@ describe("gerbang izin daftar kontrak", () => {
     onRender([]);
 
     expect(
-      screen.getByText("Anda tidak memiliki akses ke Kontrak Karyawan"),
+      screen.getByText("Anda tidak memiliki akses ke Employee Contract"),
     ).toBeTruthy();
     expect(isFetched).toBe(false);
   });
@@ -167,7 +167,7 @@ describe("gerbang izin daftar kontrak", () => {
     );
 
     expect(
-      screen.getByText("Anda tidak memiliki akses ke Kontrak Karyawan"),
+      screen.getByText("Anda tidak memiliki akses ke Employee Contract"),
     ).toBeTruthy();
   });
 

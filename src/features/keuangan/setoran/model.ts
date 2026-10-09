@@ -32,7 +32,7 @@ export const journalHref = (publicId: string) =>
 export const TRANSFER_INFO =
   "Setoran memindahkan uang antar akun gereja sendiri. Uangnya tidak bertambah dan tidak berkurang, jadi setoran tidak pernah muncul sebagai pengeluaran di laporan.";
 
-export const NO_VIEW = "Peran Anda tidak memiliki akses ke Setoran.";
+export const NO_VIEW = "Peran Anda tidak memiliki akses ke Bank Deposit.";
 
 export const EMPTY_ACCOUNT_TITLE = "Belum ada akun kas atau bank";
 

@@ -109,7 +109,7 @@ describe("gerbang izin daftar katalog", () => {
     onRender([]);
 
     expect(
-      screen.getByText("Anda tidak memiliki akses ke Komponen Payroll"),
+      screen.getByText("Anda tidak memiliki akses ke Payroll Component"),
     ).toBeTruthy();
     expect(screen.queryByRole("searchbox")).toBeNull();
     expect(isFetched).toBe(false);

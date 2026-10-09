@@ -20,7 +20,7 @@ import { MATA_UANG_LIST_PATH, currencyEditHref } from "../model";
 import { RateList } from "./rate-list";
 import { SummaryPanel } from "./summary-panel";
 
-const TITLE = "Mata Uang";
+const TITLE = "Currency";
 
 interface PropTypes {
   code: string;
@@ -41,7 +41,7 @@ export const CurrencyDetailScreen = (props: PropTypes) => {
       <div className="pb-8">
         <PageHeader title={TITLE} backHref={domainHref(MENU.FINANCE)} />
         <EmptyState
-          title="Anda tidak memiliki akses ke Mata Uang"
+          title="Anda tidak memiliki akses ke Currency"
           description="Hubungi administrator bila Anda memerlukan akses ini."
         />
       </div>

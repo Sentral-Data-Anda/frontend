@@ -15,11 +15,11 @@ export const InvoiceListScreen = () => {
   ) : (
     <div className="pb-6">
       <PageHeader
-        title="Faktur Supplier"
+        title="Supplier Invoice"
         backHref={domainHref(MENU.PROCUREMENT)}
       />
       <EmptyState
-        title="Anda tidak memiliki akses ke Faktur Supplier"
+        title="Anda tidak memiliki akses ke Supplier Invoice"
         description="Hubungi administrator bila Anda memang seharusnya memegang akses ini."
       />
     </div>

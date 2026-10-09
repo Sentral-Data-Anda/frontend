@@ -147,7 +147,7 @@ describe("gerbang izin daftar penggajian", () => {
     onRender([]);
 
     expect(
-      screen.getByText("Anda tidak memiliki akses ke Penggajian"),
+      screen.getByText("Anda tidak memiliki akses ke Payroll"),
     ).toBeTruthy();
     expect(isFetched).toBe(false);
   });
@@ -169,7 +169,7 @@ describe("gerbang izin daftar penggajian", () => {
     );
 
     expect(
-      screen.getByText("Anda tidak memiliki akses ke Penggajian"),
+      screen.getByText("Anda tidak memiliki akses ke Payroll"),
     ).toBeTruthy();
   });
 
@@ -371,7 +371,7 @@ describe("step-up pada bacaan gaji", () => {
     );
     expect(screen.getAllByText(/Masukkan password/).length).toBeGreaterThan(0);
     expect(
-      screen.queryByText("Anda tidak memiliki akses ke Penggajian"),
+      screen.queryByText("Anda tidak memiliki akses ke Payroll"),
     ).toBeNull();
   });
 

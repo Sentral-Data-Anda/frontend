@@ -73,7 +73,7 @@ export const JournalListContent = () => {
   return (
     <div className="pb-6">
       <PageHeader
-        title="Jurnal"
+        title="Journal Entry"
         subtitle={
           isBookEmpty || journalList.totalData === undefined
             ? undefined

@@ -25,7 +25,7 @@ const LIST_FILTERS = { tahun: { api: "year" } } satisfies ListFilterSchema;
 
 const MONTHS_IN_YEAR = 12;
 
-const TITLE = "Periode Fiskal";
+const TITLE = "Fiscal Period";
 
 export const PeriodListContent = () => {
   const { isCanCreate } = useMenuAccess(MENU.FISCAL_PERIOD);

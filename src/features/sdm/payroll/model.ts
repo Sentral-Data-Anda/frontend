@@ -13,7 +13,7 @@ export const runHref = (code: string) =>
 export const slipHref = (runCode: string, slipCode: string) =>
   `${runHref(runCode)}/slip/${encodeURIComponent(slipCode)}`;
 
-export const NO_VIEW_TITLE = "Anda tidak memiliki akses ke Penggajian";
+export const NO_VIEW_TITLE = "Anda tidak memiliki akses ke Payroll";
 
 export const NO_VIEW_DESCRIPTION =
   "Hubungi administrator bila Anda memerlukan akses ini.";

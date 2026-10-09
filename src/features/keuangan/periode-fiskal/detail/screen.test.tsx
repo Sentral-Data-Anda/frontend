@@ -148,7 +148,7 @@ describe("izin", () => {
     onRender(OPEN, {});
 
     expect(
-      screen.getByText("Anda tidak memiliki akses ke Periode Fiskal"),
+      screen.getByText("Anda tidak memiliki akses ke Fiscal Period"),
     ).toBeTruthy();
   });
 

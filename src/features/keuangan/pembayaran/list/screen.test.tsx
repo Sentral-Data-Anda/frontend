@@ -158,7 +158,7 @@ describe("gerbang izin", () => {
     onRender({});
 
     expect(
-      screen.getByText("Anda tidak memiliki akses ke Pembayaran"),
+      screen.getByText("Anda tidak memiliki akses ke Payment"),
     ).toBeTruthy();
     expect(urls).toEqual([]);
   });

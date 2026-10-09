@@ -63,7 +63,7 @@ export const BarangLabelScreen = (props: PropTypes) => {
 
         {!isCanView ? (
           <EmptyState
-            title="Anda tidak memiliki akses ke Barang"
+            title="Anda tidak memiliki akses ke Asset Master"
             description="Hubungi administrator bila Anda memang seharusnya memegang akses ini."
           />
         ) : labels.error ? (

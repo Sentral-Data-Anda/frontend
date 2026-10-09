@@ -15,12 +15,12 @@ export const PermintaanListScreen = () => {
   return (
     <div className="pb-6">
       <PageHeader
-        title="Permintaan Persetujuan"
+        title="Approval Request"
         backHref={domainHref(MENU.APPROVAL)}
       />
 
       <EmptyState
-        title="Anda tidak memiliki akses ke Permintaan Persetujuan"
+        title="Anda tidak memiliki akses ke Approval Request"
         description="Hubungi administrator bila Anda memerlukan akses ini."
       />
     </div>

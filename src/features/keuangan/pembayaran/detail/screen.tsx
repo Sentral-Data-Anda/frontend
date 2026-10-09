@@ -18,7 +18,7 @@ import { PaymentStatusBadge } from "../ui";
 import { SettlementNote } from "./settlement-note";
 import { SummaryPanel } from "./summary-panel";
 
-const TITLE = "Pembayaran";
+const TITLE = "Payment";
 
 interface PropTypes {
   publicId: string;
@@ -41,7 +41,7 @@ export const PaymentDetailScreen = (props: PropTypes) => {
       <div className="pb-8">
         <PageHeader title={TITLE} backHref={domainHref(MENU.FINANCE)} />
         <EmptyState
-          title="Anda tidak memiliki akses ke Pembayaran"
+          title="Anda tidak memiliki akses ke Payment"
           description={NO_VIEW}
         />
       </div>

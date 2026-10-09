@@ -14,10 +14,13 @@ export const AccountListScreen = () => {
 
   return (
     <div className="pb-6">
-      <PageHeader title="Akun" backHref={domainHref(MENU.FINANCE)} />
+      <PageHeader
+        title="Chart of Account"
+        backHref={domainHref(MENU.FINANCE)}
+      />
 
       <EmptyState
-        title="Anda tidak memiliki akses ke Akun"
+        title="Anda tidak memiliki akses ke Chart of Account"
         description="Hubungi administrator bila Anda memerlukan akses ini."
       />
     </div>

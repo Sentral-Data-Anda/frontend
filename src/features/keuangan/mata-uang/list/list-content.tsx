@@ -20,7 +20,7 @@ export const CurrencyListContent = () => {
   return (
     <div className="pb-6">
       <PageHeader
-        title="Mata Uang"
+        title="Currency"
         subtitle={
           currencyList.totalData === undefined
             ? undefined

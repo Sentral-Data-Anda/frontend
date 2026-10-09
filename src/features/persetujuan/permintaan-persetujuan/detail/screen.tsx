@@ -24,7 +24,7 @@ import { ActionPanel } from "./action-panel";
 import { StepTimeline } from "./step-timeline";
 import { SummaryPanel } from "./summary-panel";
 
-const TITLE = "Permintaan Persetujuan";
+const TITLE = "Approval Request";
 
 interface PropTypes {
   id: string;
@@ -95,7 +95,7 @@ export const PermintaanDetailScreen = (props: PropTypes) => {
       <div className="pb-8">
         {header(TITLE)}
         <EmptyState
-          title="Anda tidak memiliki akses ke Permintaan Persetujuan"
+          title="Anda tidak memiliki akses ke Approval Request"
           description="Hubungi administrator bila Anda memerlukan akses ini."
         />
       </div>

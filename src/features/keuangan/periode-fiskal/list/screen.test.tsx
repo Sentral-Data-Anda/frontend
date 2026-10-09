@@ -162,7 +162,7 @@ describe("gerbang VIEW", () => {
     onRender(DESCENDING, []);
 
     expect(
-      screen.getByText("Anda tidak memiliki akses ke Periode Fiskal"),
+      screen.getByText("Anda tidak memiliki akses ke Fiscal Period"),
     ).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Buka tahun" })).toBeNull();
     expect(requested).toEqual([]);

@@ -27,7 +27,7 @@ import { PendingContent } from "../pending";
 
 import { ReportListItem, reportTable } from "./list-item";
 
-const TITLE = "Laporan Budget";
+const TITLE = "Budget Realization";
 
 export const ReportListContent = () => {
   const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.BUDGET_REALIZATION);

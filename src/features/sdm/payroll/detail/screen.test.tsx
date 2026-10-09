@@ -173,7 +173,7 @@ describe("gerbang izin detail penggajian", () => {
     onRender([]);
 
     expect(
-      screen.getByText("Anda tidak memiliki akses ke Penggajian"),
+      screen.getByText("Anda tidak memiliki akses ke Payroll"),
     ).toBeTruthy();
     expect(isFetched).toBe(false);
   });

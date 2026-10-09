@@ -51,7 +51,7 @@ import { SummaryPanel } from "./summary-panel";
 import { VarianceStrip } from "./variance-strip";
 import { WaiverPanel } from "./waiver-panel";
 
-const TITLE = "Laporan Budget";
+const TITLE = "Budget Realization";
 
 const NOUN = "laporan pemakaian budget";
 
@@ -100,7 +100,7 @@ export const ReportDetailScreen = (props: PropTypes) => {
         <PageHeader title={TITLE} backHref={domainHref(MENU.REPORT)} />
 
         <EmptyState
-          title="Anda tidak memiliki akses ke Laporan Budget"
+          title="Anda tidak memiliki akses ke Budget Realization"
           description={NO_VIEW}
         />
       </div>

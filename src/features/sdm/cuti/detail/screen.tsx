@@ -37,7 +37,7 @@ import { QuotaPanel } from "./quota-panel";
 import { ReasonPanel } from "./reason-panel";
 import { SummaryPanel } from "./summary-panel";
 
-const TITLE = "Cuti";
+const TITLE = "Leave";
 
 const SUBMIT_QUESTION =
   "Apakah Anda ingin mengirim pengajuan cuti ini untuk ditandatangani?";
@@ -90,7 +90,7 @@ export const CutiDetailScreen = (props: PropTypes) => {
         <PageHeader title={TITLE} backHref={domainHref(MENU.HR)} />
 
         <EmptyState
-          title="Anda tidak memiliki akses ke Cuti"
+          title="Anda tidak memiliki akses ke Leave"
           description="Hubungi administrator bila Anda memerlukan akses ini."
         />
       </div>

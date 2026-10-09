@@ -32,7 +32,7 @@ export const invoiceHref = (publicId: string) =>
 export const invoiceEditHref = (publicId: string) =>
   editHref(MENU.PROCUREMENT, MENU.SUPPLIER_INVOICE, publicId);
 
-export const NO_VIEW = "Peran Anda tidak memiliki akses ke Faktur Supplier.";
+export const NO_VIEW = "Peran Anda tidak memiliki akses ke Supplier Invoice.";
 
 export const EMPTY_TITLE = "Belum ada faktur supplier";
 

@@ -77,7 +77,7 @@ describe("daftar mutasi stok", () => {
     onRender([]);
 
     expect(
-      screen.getByText("Anda tidak memiliki akses ke Mutasi Stok"),
+      screen.getByText("Anda tidak memiliki akses ke Stock Movement"),
     ).toBeTruthy();
     expect(urls).toEqual([]);
   });

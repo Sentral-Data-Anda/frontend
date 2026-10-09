@@ -106,7 +106,7 @@ describe("daftar", () => {
     onRenderList([]);
 
     expect(
-      screen.getByText("Anda tidak memiliki akses ke Permintaan Pembelian"),
+      screen.getByText("Anda tidak memiliki akses ke Purchase Request"),
     ).toBeTruthy();
   });
 

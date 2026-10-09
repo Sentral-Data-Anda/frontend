@@ -34,7 +34,7 @@ import { PeriodActions } from "./period-actions";
 import { ReopenDialog } from "./reopen-dialog";
 import { SummaryPanel } from "./summary-panel";
 
-const TITLE = "Periode Fiskal";
+const TITLE = "Fiscal Period";
 
 interface PropTypes {
   id: string;
@@ -73,7 +73,7 @@ export const PeriodDetailScreen = (props: PropTypes) => {
         <PageHeader title={TITLE} backHref={domainHref(MENU.FINANCE)} />
 
         <EmptyState
-          title="Anda tidak memiliki akses ke Periode Fiskal"
+          title="Anda tidak memiliki akses ke Fiscal Period"
           description="Hubungi administrator bila Anda memerlukan akses ini."
         />
       </div>

@@ -46,7 +46,7 @@ export const LaporanKeuanganScreen = () => {
   return (
     <div className="pb-6">
       <PageHeader
-        title="Laporan Keuangan"
+        title="Financial Statement"
         backHref={domainHref(MENU.REPORT)}
         action={
           isCanView ? (

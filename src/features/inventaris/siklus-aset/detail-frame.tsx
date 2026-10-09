@@ -33,7 +33,11 @@ export const DetailFrame = (props: PropTypes) => {
     query.error instanceof FetchError && query.error.status === 404;
 
   const header = (
-    <PageHeader title="Siklus Aset" backHref={backHref} isBackPersistent />
+    <PageHeader
+      title="Asset Transaction"
+      backHref={backHref}
+      isBackPersistent
+    />
   );
 
   if (!isCanView) return <NoCycleAccess />;

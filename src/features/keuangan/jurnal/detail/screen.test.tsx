@@ -233,7 +233,7 @@ describe("JournalDetailScreen", () => {
 
     await waitFor(() =>
       expect(
-        screen.getByText("Anda tidak memiliki akses ke Jurnal"),
+        screen.getByText("Anda tidak memiliki akses ke Journal Entry"),
       ).toBeTruthy(),
     );
   });

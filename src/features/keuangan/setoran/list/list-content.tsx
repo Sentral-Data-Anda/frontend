@@ -29,7 +29,7 @@ export const TransferListContent = () => {
   return (
     <div className="pb-6">
       <PageHeader
-        title="Setoran"
+        title="Bank Deposit"
         subtitle={
           transferList.totalData === undefined
             ? undefined

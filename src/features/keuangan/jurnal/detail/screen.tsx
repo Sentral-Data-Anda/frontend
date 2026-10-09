@@ -43,7 +43,7 @@ import { LineList } from "./line-list";
 import { ReverseDialog } from "./reverse-dialog";
 import { SummaryPanel } from "./summary-panel";
 
-const TITLE = "Jurnal";
+const TITLE = "Journal Entry";
 
 const FAILURE_TITLE: Record<EntryAction, string> = {
   posting: "Entri belum diposting.",
@@ -120,7 +120,7 @@ export const JournalDetailScreen = (props: PropTypes) => {
       <div className="pb-8">
         <PageHeader title={TITLE} backHref={domainHref(MENU.FINANCE)} />
         <EmptyState
-          title="Anda tidak memiliki akses ke Jurnal"
+          title="Anda tidak memiliki akses ke Journal Entry"
           description={`${NO_VIEW} Hubungi administrator bila Anda memang seharusnya memegangnya.`}
         />
       </div>

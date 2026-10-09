@@ -498,7 +498,9 @@ describe("tanpa akses", () => {
     onRender(report(), {});
 
     expect(
-      await screen.findByText("Anda tidak memiliki akses ke Laporan Budget"),
+      await screen.findByText(
+        "Anda tidak memiliki akses ke Budget Realization",
+      ),
     ).toBeTruthy();
   });
 });

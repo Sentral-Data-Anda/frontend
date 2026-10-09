@@ -50,7 +50,7 @@ import { PayrollActions, type PickedAction } from "./payroll-actions";
 import { PayslipPanel } from "./payslip-panel";
 import { SummaryPanel } from "./summary-panel";
 
-const TITLE = "Penggajian";
+const TITLE = "Payroll";
 
 const FAILURE_TITLE: Record<PickedAction, string> = {
   hitung: "Penggajian belum dihitung.",

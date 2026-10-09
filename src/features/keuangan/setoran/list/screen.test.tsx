@@ -212,7 +212,7 @@ describe("gerbang izin", () => {
     );
 
     expect(
-      screen.getByText("Anda tidak memiliki akses ke Setoran"),
+      screen.getByText("Anda tidak memiliki akses ke Bank Deposit"),
     ).toBeTruthy();
     expect(isFetched).toBe(false);
   });

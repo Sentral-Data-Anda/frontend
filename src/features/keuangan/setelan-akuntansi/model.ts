@@ -14,7 +14,7 @@ export const AKUN_LIST_PATH = menuHref(MENU.FINANCE, MENU.CHART_OF_ACCOUNT);
 export const settingEditHref = (key: string) =>
   editHref(MENU.FINANCE, MENU.ACCOUNTING_SETTING, key);
 
-export const NO_VIEW = "Peran Anda tidak memiliki akses ke Setelan Akuntansi.";
+export const NO_VIEW = "Peran Anda tidak memiliki akses ke Accounting Setting.";
 
 export const accountLabelOf = (setting: AccountingSetting) =>
   setting.account ? `${setting.account.code} — ${setting.account.name}` : null;

@@ -14,10 +14,10 @@ export const PeriodListScreen = () => {
 
   return (
     <div className="pb-6">
-      <PageHeader title="Periode Fiskal" backHref={domainHref(MENU.FINANCE)} />
+      <PageHeader title="Fiscal Period" backHref={domainHref(MENU.FINANCE)} />
 
       <EmptyState
-        title="Anda tidak memiliki akses ke Periode Fiskal"
+        title="Anda tidak memiliki akses ke Fiscal Period"
         description="Hubungi administrator bila Anda memerlukan akses ini."
       />
     </div>

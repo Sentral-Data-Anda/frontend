@@ -24,7 +24,7 @@ export const PenyusutanListContent = () => {
   return (
     <div className="pb-6">
       <PageHeader
-        title="Penyusutan"
+        title="Depreciation"
         subtitle={
           runList.totalData === undefined
             ? undefined

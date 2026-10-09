@@ -35,7 +35,7 @@ export const InvoiceListContent = () => {
   return (
     <div className="pb-6">
       <PageHeader
-        title="Faktur Supplier"
+        title="Supplier Invoice"
         subtitle={
           invoiceList.totalData === undefined
             ? undefined

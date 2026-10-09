@@ -25,7 +25,7 @@ import { AttachmentList } from "./attachment-list";
 import { ItemList } from "./item-list";
 import { SummaryPanel } from "./summary-panel";
 
-const TITLE = "Penerimaan Barang";
+const TITLE = "Goods Receipt";
 
 const FINAL_NOTE =
   "Penerimaan tidak bisa diubah atau dihapus. Salah catat diperbaiki di Inventaris: Mutasi Stok Keluar untuk barang persediaan, Pelepasan di Siklus Aset untuk barang.";
@@ -52,7 +52,7 @@ export const ReceiptDetailScreen = (props: PropTypes) => {
       <div className="pb-8">
         <PageHeader title={TITLE} backHref={domainHref(MENU.PROCUREMENT)} />
         <EmptyState
-          title="Anda tidak memiliki akses ke Penerimaan Barang"
+          title="Anda tidak memiliki akses ke Goods Receipt"
           description="Hubungi administrator bila Anda memang seharusnya memegang akses ini."
         />
       </div>

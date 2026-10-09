@@ -91,7 +91,7 @@ export const InvoiceDetailScreen = (props: PropTypes) => {
   if (!isCanView) {
     return (
       <div className="pb-6">
-        <PageHeader title="Faktur Supplier" backHref={listReturn} />
+        <PageHeader title="Supplier Invoice" backHref={listReturn} />
         <EmptyState title="Tidak bisa melihat faktur" description={NO_VIEW} />
       </div>
     );
@@ -110,7 +110,7 @@ export const InvoiceDetailScreen = (props: PropTypes) => {
   if (!invoice) {
     return (
       <div className="pb-6">
-        <PageHeader title="Faktur Supplier" backHref={listReturn} />
+        <PageHeader title="Supplier Invoice" backHref={listReturn} />
         {detail.error ? (
           <div className="px-gutter py-5">
             <FormAlert

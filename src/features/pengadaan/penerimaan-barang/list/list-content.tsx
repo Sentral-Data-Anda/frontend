@@ -25,7 +25,7 @@ export const ReceiptListContent = () => {
   return (
     <div className="pb-6">
       <PageHeader
-        title="Penerimaan Barang"
+        title="Goods Receipt"
         subtitle={
           receiptList.totalData === undefined
             ? undefined

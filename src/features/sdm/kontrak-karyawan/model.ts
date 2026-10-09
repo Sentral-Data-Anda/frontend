@@ -25,7 +25,7 @@ export const FILTERS = {
   karyawan: { api: "karyawanId" },
 } satisfies ListFilterSchema;
 
-export const NO_VIEW_TITLE = "Anda tidak memiliki akses ke Kontrak Karyawan";
+export const NO_VIEW_TITLE = "Anda tidak memiliki akses ke Employee Contract";
 
 export const NO_VIEW_DESCRIPTION =
   "Hubungi administrator bila Anda memerlukan akses ini.";

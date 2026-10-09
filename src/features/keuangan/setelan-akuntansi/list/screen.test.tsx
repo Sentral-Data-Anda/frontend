@@ -86,7 +86,7 @@ describe("gerbang VIEW", () => {
     );
 
     expect(
-      screen.getByText("Anda tidak memiliki akses ke Setelan Akuntansi"),
+      screen.getByText("Anda tidak memiliki akses ke Accounting Setting"),
     ).toBeTruthy();
     expect(isFetched).toBe(false);
   });

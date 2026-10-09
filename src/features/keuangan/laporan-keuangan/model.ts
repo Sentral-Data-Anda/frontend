@@ -43,7 +43,7 @@ export const flattenTree = (
 
 export const money = (value: string | undefined) => formatAmount(value ?? 0);
 
-export const NO_VIEW_TITLE = "Anda tidak memiliki akses ke Laporan Keuangan";
+export const NO_VIEW_TITLE = "Anda tidak memiliki akses ke Financial Statement";
 
 export const NO_VIEW_DESCRIPTION =
   "Laporan keuangan hanya terbuka untuk peran yang memegang pembukuan. Hubungi administrator bila Anda memang seharusnya memegangnya.";

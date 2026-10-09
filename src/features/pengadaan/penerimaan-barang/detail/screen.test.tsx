@@ -155,7 +155,7 @@ describe("halaman penerimaan", () => {
     onRender(KERTAS_RECEIPT.code, {});
 
     expect(
-      screen.getByText("Anda tidak memiliki akses ke Penerimaan Barang"),
+      screen.getByText("Anda tidak memiliki akses ke Goods Receipt"),
     ).toBeTruthy();
   });
 

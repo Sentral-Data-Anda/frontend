@@ -31,7 +31,7 @@ export const StockListContent = () => {
   return (
     <div className="pb-6">
       <PageHeader
-        title="Barang Persediaan"
+        title="Stock Item"
         subtitle={
           stockList.totalData === undefined
             ? undefined

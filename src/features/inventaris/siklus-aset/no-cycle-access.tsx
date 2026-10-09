@@ -4,9 +4,12 @@ import { MENU, domainHref } from "@/config/menu";
 
 export const NoCycleAccess = () => (
   <div className="pb-8">
-    <PageHeader title="Siklus Aset" backHref={domainHref(MENU.FIXED_ASSET)} />
+    <PageHeader
+      title="Asset Transaction"
+      backHref={domainHref(MENU.FIXED_ASSET)}
+    />
     <EmptyState
-      title="Anda tidak memiliki akses ke Siklus Aset"
+      title="Anda tidak memiliki akses ke Asset Transaction"
       description="Hubungi administrator bila Anda memang seharusnya memegang akses ini."
     />
   </div>

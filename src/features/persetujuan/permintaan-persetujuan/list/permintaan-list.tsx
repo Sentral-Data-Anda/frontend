@@ -56,7 +56,7 @@ export const PermintaanList = () => {
   return (
     <div className="pb-6">
       <PageHeader
-        title="Permintaan Persetujuan"
+        title="Approval Request"
         subtitle={
           permintaanList.totalData === undefined
             ? undefined

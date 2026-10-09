@@ -140,7 +140,7 @@ describe("gerbang VIEW", () => {
     onRenderList([]);
 
     expect(
-      screen.getByText("Anda tidak memiliki akses ke Absensi Karyawan"),
+      screen.getByText("Anda tidak memiliki akses ke Attendance"),
     ).toBeTruthy();
     expect(isFetched).toBe(false);
 
@@ -154,7 +154,7 @@ describe("gerbang VIEW", () => {
     await onLoaded();
 
     expect(
-      screen.queryByText("Anda tidak memiliki akses ke Absensi Karyawan"),
+      screen.queryByText("Anda tidak memiliki akses ke Attendance"),
     ).toBeNull();
   });
 });

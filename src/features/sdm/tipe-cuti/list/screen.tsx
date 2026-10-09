@@ -14,10 +14,10 @@ export const TipeCutiListScreen = () => {
 
   return (
     <div className="pb-6">
-      <PageHeader title="Tipe Cuti" backHref={domainHref(MENU.HR)} />
+      <PageHeader title="Leave Type" backHref={domainHref(MENU.HR)} />
 
       <EmptyState
-        title="Anda tidak memiliki akses ke Tipe Cuti"
+        title="Anda tidak memiliki akses ke Leave Type"
         description="Hubungi administrator bila Anda memerlukan akses ini."
       />
     </div>

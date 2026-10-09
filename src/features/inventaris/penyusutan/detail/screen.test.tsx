@@ -158,7 +158,7 @@ const onRender = (
   );
 };
 
-const onLoaded = () => screen.findByText("Penyusutan Agustus 2026");
+const onLoaded = () => screen.findByText("Depreciation Agustus 2026");
 
 const button = (name: string) => screen.queryByRole("button", { name });
 

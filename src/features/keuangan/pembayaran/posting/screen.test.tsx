@@ -162,7 +162,7 @@ describe("PostingPembayaranScreen", () => {
     onRenderPosting({ PAYMENT: ["VIEW"] });
 
     expect(
-      screen.getByText("Peran Anda tidak memiliki akses ke Pembayaran."),
+      screen.getByText("Peran Anda tidak memiliki akses ke Payment."),
     ).toBeTruthy();
   });
 

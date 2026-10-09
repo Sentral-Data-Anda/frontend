@@ -21,7 +21,7 @@ export const ABSENSI_LIST_PATH = menuHref(MENU.HR, MENU.ATTENDANCE);
 
 export const NOUN = "absensi karyawan";
 
-export const TITLE = "Absensi Karyawan";
+export const TITLE = "Attendance";
 
 /**
  * Wajib, bukan gaya (SDM README §2.7, U-F): `KaryawanAttendance` dibaca nol

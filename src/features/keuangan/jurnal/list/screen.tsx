@@ -16,9 +16,9 @@ export const JournalListScreen = () => {
     <JournalListContent />
   ) : (
     <div className="pb-6">
-      <PageHeader title="Jurnal" backHref={domainHref(MENU.FINANCE)} />
+      <PageHeader title="Journal Entry" backHref={domainHref(MENU.FINANCE)} />
       <EmptyState
-        title="Anda tidak memiliki akses ke Jurnal"
+        title="Anda tidak memiliki akses ke Journal Entry"
         description={`${NO_VIEW} Hubungi administrator bila Anda memang seharusnya memegangnya.`}
       />
     </div>

@@ -33,7 +33,7 @@ export const HolidayListScreen = () => {
   return (
     <div className="pb-6">
       <PageHeader
-        title="Hari Libur"
+        title="Holiday"
         subtitle={
           holidayList.totalData === undefined
             ? undefined

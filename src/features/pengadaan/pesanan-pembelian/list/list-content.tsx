@@ -32,7 +32,7 @@ export const OrderListContent = () => {
   return (
     <div className="pb-6">
       <PageHeader
-        title="Pesanan Pembelian"
+        title="Purchase Order"
         subtitle={
           orderList.totalData === undefined
             ? undefined

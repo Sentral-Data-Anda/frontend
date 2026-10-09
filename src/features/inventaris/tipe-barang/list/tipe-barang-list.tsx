@@ -19,7 +19,7 @@ export const TipeBarangList = () => {
   return (
     <div className="pb-6">
       <PageHeader
-        title="Tipe Barang"
+        title="Item Category"
         subtitle={
           tipeBarangList.totalData === undefined
             ? undefined

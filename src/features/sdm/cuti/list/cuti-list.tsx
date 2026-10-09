@@ -28,7 +28,7 @@ export const CutiList = () => {
   return (
     <div className="pb-6">
       <PageHeader
-        title="Cuti"
+        title="Leave"
         subtitle={
           cutiList.totalData === undefined
             ? undefined

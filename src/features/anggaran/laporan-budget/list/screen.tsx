@@ -16,10 +16,13 @@ export const ReportListScreen = () => {
 
   return (
     <div className="pb-6">
-      <PageHeader title="Laporan Budget" backHref={domainHref(MENU.REPORT)} />
+      <PageHeader
+        title="Budget Realization"
+        backHref={domainHref(MENU.REPORT)}
+      />
 
       <EmptyState
-        title="Anda tidak memiliki akses ke Laporan Budget"
+        title="Anda tidak memiliki akses ke Budget Realization"
         description={NO_VIEW}
       />
     </div>

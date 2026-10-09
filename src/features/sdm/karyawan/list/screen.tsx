@@ -14,10 +14,10 @@ export const KaryawanListScreen = () => {
 
   return (
     <div className="pb-6">
-      <PageHeader title="Karyawan" backHref={domainHref(MENU.HR)} />
+      <PageHeader title="Employee" backHref={domainHref(MENU.HR)} />
 
       <EmptyState
-        title="Anda tidak memiliki akses ke Karyawan"
+        title="Anda tidak memiliki akses ke Employee"
         description="Hubungi administrator bila Anda memerlukan akses ini."
       />
     </div>

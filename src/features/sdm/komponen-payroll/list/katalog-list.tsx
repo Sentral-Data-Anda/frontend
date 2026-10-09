@@ -48,7 +48,7 @@ export const KatalogList = () => {
   return (
     <div className="pb-6">
       <PageHeader
-        title="Komponen Payroll"
+        title="Payroll Component"
         subtitle={
           components.totalData === undefined
             ? undefined

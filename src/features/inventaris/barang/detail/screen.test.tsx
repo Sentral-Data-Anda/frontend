@@ -145,7 +145,7 @@ describe("halaman barang", () => {
     onRender({});
 
     expect(
-      screen.getByText("Anda tidak memiliki akses ke Barang"),
+      screen.getByText("Anda tidak memiliki akses ke Asset Master"),
     ).toBeTruthy();
   });
 

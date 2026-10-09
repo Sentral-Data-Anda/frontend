@@ -29,7 +29,7 @@ export const RequestListContent = () => {
   return (
     <div className="pb-6">
       <PageHeader
-        title="Permintaan Pembelian"
+        title="Purchase Request"
         subtitle={
           requestList.totalData === undefined
             ? undefined

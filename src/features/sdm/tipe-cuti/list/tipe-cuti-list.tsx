@@ -23,7 +23,7 @@ export const TipeCutiList = () => {
   return (
     <div className="pb-6">
       <PageHeader
-        title="Tipe Cuti"
+        title="Leave Type"
         subtitle={
           tipeCutiList.totalData === undefined
             ? undefined

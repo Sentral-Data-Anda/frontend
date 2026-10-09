@@ -20,7 +20,7 @@ import { PAGU_LIST_PATH, allocationEditHref } from "../model";
 import { ProgramList } from "./program-list";
 import { SummaryPanel } from "./summary-panel";
 
-const TITLE = "Pagu Anggaran";
+const TITLE = "Budget";
 
 interface PropTypes {
   publicId: string;
@@ -42,7 +42,7 @@ export const AllocationDetailScreen = (props: PropTypes) => {
         <PageHeader title={TITLE} backHref={domainHref(MENU.BUDGETING)} />
 
         <EmptyState
-          title="Anda tidak memiliki akses ke Pagu Anggaran"
+          title="Anda tidak memiliki akses ke Budget"
           description="Hubungi administrator bila Anda memerlukan akses ini."
         />
       </div>

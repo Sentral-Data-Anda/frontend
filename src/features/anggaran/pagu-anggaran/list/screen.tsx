@@ -14,10 +14,10 @@ export const AllocationListScreen = () => {
 
   return (
     <div className="pb-6">
-      <PageHeader title="Pagu Anggaran" backHref={domainHref(MENU.BUDGETING)} />
+      <PageHeader title="Budget" backHref={domainHref(MENU.BUDGETING)} />
 
       <EmptyState
-        title="Anda tidak memiliki akses ke Pagu Anggaran"
+        title="Anda tidak memiliki akses ke Budget"
         description="Hubungi administrator bila Anda memerlukan akses ini."
       />
     </div>

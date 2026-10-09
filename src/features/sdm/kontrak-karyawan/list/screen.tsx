@@ -16,7 +16,7 @@ export const KontrakListScreen = () => {
 
   return (
     <div className="pb-6">
-      <PageHeader title="Kontrak Karyawan" backHref={domainHref(MENU.HR)} />
+      <PageHeader title="Employee Contract" backHref={domainHref(MENU.HR)} />
 
       <EmptyState title={NO_VIEW_TITLE} description={NO_VIEW_DESCRIPTION} />
     </div>

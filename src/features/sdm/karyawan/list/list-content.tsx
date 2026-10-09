@@ -25,7 +25,7 @@ export const KaryawanListContent = () => {
   return (
     <div className="pb-6">
       <PageHeader
-        title="Karyawan"
+        title="Employee"
         subtitle={
           karyawanList.totalData === undefined
             ? undefined

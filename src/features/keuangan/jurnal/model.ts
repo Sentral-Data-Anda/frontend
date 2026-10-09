@@ -86,7 +86,7 @@ export const fakturHref = (code: string) =>
 export const monthListHref = (year: number, month: number) =>
   `${JURNAL_LIST_PATH}?bulan=${year}-${String(month).padStart(2, "0")}`;
 
-export const NO_VIEW = "Peran Anda tidak memiliki akses ke Jurnal.";
+export const NO_VIEW = "Peran Anda tidak memiliki akses ke Journal Entry.";
 
 export const EMPTY_TITLE = "Belum ada entri jurnal";
 

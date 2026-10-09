@@ -309,7 +309,7 @@ describe("daftar pagu anggaran", () => {
     onRender([]);
 
     expect(
-      screen.getByText("Anda tidak memiliki akses ke Pagu Anggaran"),
+      screen.getByText("Anda tidak memiliki akses ke Budget"),
     ).toBeTruthy();
   });
 });

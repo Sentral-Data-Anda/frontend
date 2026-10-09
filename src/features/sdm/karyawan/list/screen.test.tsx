@@ -104,7 +104,7 @@ describe("gerbang izin", () => {
     onRenderList([]);
 
     expect(
-      screen.getByText("Anda tidak memiliki akses ke Karyawan"),
+      screen.getByText("Anda tidak memiliki akses ke Employee"),
     ).toBeTruthy();
     expect(screen.queryByLabelText("Cari karyawan")).toBeNull();
   });

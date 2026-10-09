@@ -16,7 +16,7 @@ export const PayrollListScreen = () => {
 
   return (
     <div className="pb-6">
-      <PageHeader title="Penggajian" backHref={domainHref(MENU.HR)} />
+      <PageHeader title="Payroll" backHref={domainHref(MENU.HR)} />
 
       <EmptyState title={NO_VIEW_TITLE} description={NO_VIEW_DESCRIPTION} />
     </div>

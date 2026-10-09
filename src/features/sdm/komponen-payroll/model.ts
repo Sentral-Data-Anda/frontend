@@ -58,7 +58,7 @@ export const PENETAPAN_FILTERS = {
   komponen: { api: "payrollComponentId" },
 } satisfies ListFilterSchema;
 
-export const NO_VIEW_TITLE = "Anda tidak memiliki akses ke Komponen Payroll";
+export const NO_VIEW_TITLE = "Anda tidak memiliki akses ke Payroll Component";
 
 export const NO_VIEW_DESCRIPTION =
   "Hubungi administrator bila Anda memerlukan akses ini.";
