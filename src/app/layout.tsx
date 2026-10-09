@@ -10,6 +10,13 @@ import { publicEnv } from "@/lib/env";
 
 import "./globals.css";
 
+// CSP produksi memakai `strict-dynamic`, yang membuang `'self'` sehingga hanya
+// script ber-nonce yang dieksekusi. Nonce dibuat per request di src/proxy.ts,
+// jadi halaman yang di-prerender saat build keluar tanpa nonce dan seluruh
+// script-nya diblokir browser. Render per request menjaga nonce selalu
+// terpasang. Lihat src/lib/security/csp.ts.
+export const dynamic = "force-dynamic";
+
 const roboto = Roboto({
   variable: "--font-sans",
   subsets: ["latin"],
