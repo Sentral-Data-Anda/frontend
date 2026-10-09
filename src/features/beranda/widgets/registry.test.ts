@@ -269,7 +269,6 @@ describe("persona dev:mock", () => {
 
     expect(kind).toBe("umum");
     expect(kpi[0]).toBe("kpi-jemaat-total");
-    expect(kpi).toContain("kpi-waiting-approvals");
     expect(main).toContain("agenda-week");
     expect(main).toContain("approvals");
 

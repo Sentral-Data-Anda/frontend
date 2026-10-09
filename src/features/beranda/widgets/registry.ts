@@ -18,7 +18,6 @@ import { AgendaWeekWidget } from "./agenda-week/agenda-week-widget";
 import { KpiEventsFortnight } from "./agenda-week/kpi-events-fortnight";
 import { KpiServicesWeek } from "./agenda-week/kpi-services-week";
 import { ApprovalsWidget } from "./approvals/approvals-widget";
-import { KpiWaitingApprovals } from "./approvals/kpi-waiting-approvals";
 import { BudgetUseWidget } from "./dummy/budget-use-widget";
 import { NewMembersWidget } from "./dummy/new-members-widget";
 import { CashAccountsWidget } from "./finance/cash-accounts-widget";
@@ -132,13 +131,6 @@ export const WIDGETS: readonly Widget[] = [
     group: "umum",
     gate: [view(MENU.REPORT_JEMAAT)],
     Component: KpiBirthdays,
-  },
-  {
-    id: "kpi-waiting-approvals",
-    slot: "kpi",
-    group: "umum",
-    gate: [view(MENU.APPROVAL_REQUEST)],
-    Component: KpiWaitingApprovals,
   },
   {
     id: "kpi-today-loans",
