@@ -7,7 +7,9 @@ import { DomainTileGrid, SectionHeader } from "@/components/common/navigation";
 import {
   AccountLink,
   AppIdentity,
+  DashboardBody,
   DashboardHeader,
+  DashboardPage,
   MobileOnly,
   PageHeader,
 } from "@/components/layout";
@@ -56,7 +58,7 @@ export const HomeScreen = (props: PropTypes) => {
   };
 
   return (
-    <div className="pb-6">
+    <DashboardPage>
       <PageHeader
         leading={<AppIdentity role={session.roleUser.name} />}
         action={
@@ -81,8 +83,9 @@ export const HomeScreen = (props: PropTypes) => {
         trailing={bell}
       />
 
-      <div className="mt-5 px-gutter">
+      <DashboardBody>
         <DashboardGrid
+          isFullHeight
           kpi={
             widgets.kpi.length ? (
               <KpiStrip label="Ringkasan">
@@ -113,7 +116,7 @@ export const HomeScreen = (props: PropTypes) => {
             <Component key={id} />
           ))}
         />
-      </div>
-    </div>
+      </DashboardBody>
+    </DashboardPage>
   );
 };

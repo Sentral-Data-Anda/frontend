@@ -18,11 +18,9 @@ const MAIN_STACKED =
 
 // Di jendela dua kolom, kolom utama jadi flex setinggi baris dan kartu terakhirnya
 // menyerap sisa tinggi, sehingga kaki kedua kolom rata ketika kartu yang panjang
-// (`isScrollable`) sudah berhenti di batas tingginya. Batas itu hanya dilepas kalau
-// kartu panjang itu satu-satunya isi kolom: ia lalu mengikuti tinggi kolom sisi dan
-// menggulir di dalam, bukan berhenti di 32rem dan meninggalkan lubang di bawahnya.
+// (`isScrollable`) menyerap sisa tinggi kolom dan menggulir di dalam dirinya.
 const MAIN_SPLIT =
-  "@min-[82rem]:@max-[120rem]:flex @min-[82rem]:@max-[120rem]:h-full @min-[82rem]:@max-[120rem]:flex-col @min-[82rem]:@max-[120rem]:[&>*:last-child]:flex-1 @min-[82rem]:@max-[120rem]:[&>*:only-child]:max-h-none! @min-[120rem]:has-[>*:nth-child(2)]:grid-cols-2 @min-[150rem]:has-[>*:nth-child(3)]:grid-cols-3 @min-[120rem]:[&>*]:mx-auto @min-[120rem]:[&>*]:w-full @min-[120rem]:[&>*]:max-w-[90rem]";
+  "@min-[82rem]:@max-[120rem]:flex @min-[82rem]:@max-[120rem]:h-full @min-[82rem]:@max-[120rem]:flex-col @min-[82rem]:@max-[120rem]:[&>*:last-child]:flex-1 @min-[120rem]:has-[>*:nth-child(2)]:grid-cols-2 @min-[150rem]:has-[>*:nth-child(3)]:grid-cols-3 @min-[120rem]:[&>*]:mx-auto @min-[120rem]:[&>*]:w-full @min-[120rem]:[&>*]:max-w-[90rem]";
 
 interface PropTypes {
   kpi?: ReactNode;
@@ -30,27 +28,52 @@ interface PropTypes {
   main: ReactNode[];
   side: ReactNode[];
   isStacked?: boolean;
+  /** Isi grid mengikuti tinggi induknya, bukan tinggi isinya. Induk harus punya
+   *  tinggi pasti; dipakai Beranda supaya dashboard pas satu layar. */
+  isFullHeight?: boolean;
 }
 
 export const DashboardGrid = (props: PropTypes) => {
-  const { kpi, between, main, side, isStacked = false } = props;
+  const {
+    kpi,
+    between,
+    main,
+    side,
+    isStacked = false,
+    isFullHeight = false,
+  } = props;
 
   const isSplit = !isStacked && main.length > 0 && side.length > 0;
 
   return (
-    <div className="@container">
-      <div className="flex flex-col gap-4">
+    <div
+      className={cn(
+        "@container",
+        isFullHeight && "lg:flex lg:min-h-0 lg:flex-1 lg:flex-col",
+      )}
+    >
+      <div
+        className={cn(
+          "flex flex-col gap-4",
+          isFullHeight && "lg:min-h-0 lg:flex-1",
+        )}
+      >
         {kpi}
         {between}
 
         <div
           className={cn(
             "grid items-start gap-4",
+            isFullHeight && "lg:min-h-0 lg:flex-1",
             // Di jendela dua kolom keduanya diregangkan setinggi baris supaya kaki
             // kolom rata: kolom yang isinya lebih pendek membagi sisa tinggi ke
             // kartunya, bukan menyisakan lubang di bawah.
             isSplit &&
               "@min-[82rem]:@max-[120rem]:grid-cols-2 @min-[82rem]:@max-[120rem]:items-stretch",
+            // `grid-rows-1` (`minmax(0,1fr)`) memberi barisnya tinggi dari induknya,
+            // bukan dari isinya, sehingga kartu `isScrollable` menyusut dan menggulir
+            // alih-alih memanjangkan halaman.
+            isFullHeight && isSplit && "@min-[82rem]:@max-[120rem]:grid-rows-1",
           )}
         >
           {main.length ? (
