@@ -44,8 +44,7 @@ export const DashboardGrid = (props: PropTypes) => {
         <div
           className={cn(
             "grid items-start gap-4",
-            isSplit &&
-              "@min-[82rem]:@max-[120rem]:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]",
+            isSplit && "@min-[82rem]:@max-[120rem]:grid-cols-2",
           )}
         >
           {main.length ? (
