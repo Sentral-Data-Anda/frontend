@@ -70,5 +70,12 @@ Thumbs.db
 ehthumbs.db
 Desktop.ini
 
-# Setelan lokal Claude Code (mis. allowlist izin yang khas per mesin).
+# Catatan kerja dan setelan agent, disimpan lokal: ditulis untuk yang sedang
+# membangun, bukan untuk yang meng-clone. Dokumentasi proyek bersama ada di
+# ../docs/. Keputusan yang bertahan lebih lama dari catatannya tinggal di kode
+# dan di komentar migrasi.
 .claude/
+.superpowers/
+docs/
+CLAUDE.md
+AGENTS.md
