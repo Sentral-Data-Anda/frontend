@@ -39,7 +39,7 @@ export function DashboardCard({
       label={title}
       className={cn(
         "p-4 lg:p-6",
-        isScrollable && "lg:flex lg:min-h-32 lg:flex-col lg:overflow-hidden",
+        isScrollable && "lg:flex lg:min-h-64 lg:flex-col lg:overflow-hidden",
       )}
     >
       <div className="mb-4 flex min-h-6 items-center justify-between gap-3">

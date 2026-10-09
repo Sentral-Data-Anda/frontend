@@ -74,6 +74,7 @@ export const PayablesWidget = () => {
   return (
     <DashboardCard
       title="Perlu Diselesaikan"
+      isScrollable
       actionLabel="Semua"
       actionHref={domainHref(MENU.FINANCE)}
       query={state}
