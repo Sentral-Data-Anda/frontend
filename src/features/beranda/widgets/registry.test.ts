@@ -220,11 +220,10 @@ describe("persona dev:mock", () => {
     ]);
     expect(main).toEqual(["agenda-week"]);
     expect(side).toEqual([
-      "birthdays",
-      "announcements",
       "tugas-saya",
       "loan-rooms",
-      "new-members",
+      "announcements",
+      "jemaat",
     ]);
   });
 
@@ -242,20 +241,19 @@ describe("persona dev:mock", () => {
     // `budget-use` masuk karena bendahara kini memegang BUDGET
     // (keputusan user: pagu milik majelis DAN bendahara). Widget-nya masih
     // `isDummy`, jadi ia hanya tampil di luar production.
-    expect(main).toEqual(["income-expense-chart", "payables", "budget-use"]);
+    expect(main).toEqual(["payables", "income-expense-chart", "budget-use"]);
     expect(main).not.toContain("agenda-week");
-    expect(side.slice(0, 4)).toEqual([
+    expect(side.slice(0, 3)).toEqual([
+      "closing-readiness",
       "cash-accounts",
       "income-by-type",
-      "closing-readiness",
-      "agenda",
     ]);
 
     const keuangan = picked("bendahara", true, "finance");
 
     expect(keuangan.main).toEqual([
-      "income-expense-chart",
       "payables",
+      "income-expense-chart",
       "budget-use",
     ]);
     expect(keuangan.main).not.toContain("agenda-week");
@@ -271,7 +269,7 @@ describe("persona dev:mock", () => {
 
     const umum = picked("majelis", true, "umum");
 
-    expect(umum.main).toEqual(["agenda-week", "approvals"]);
+    expect(umum.main).toEqual(["approvals", "agenda-week"]);
     expect(umum.main).not.toContain("income-expense-chart");
   });
 
@@ -281,26 +279,35 @@ describe("persona dev:mock", () => {
     expect(picked("bendahara", true).groups).toEqual(["finance", "umum"]);
   });
 
-  test("tugas saya: tanpa gerbang, tepat sesudah pengumuman, di sisi semua persona", () => {
-    const sideIds = WIDGETS.filter((w) => w.slot === "side").map((w) => w.id);
+  test("tugas saya: tanpa gerbang, kartu sisi pertama tanpa kind, di sisi semua persona", () => {
+    const sideIds = WIDGETS.filter((w) => w.slot === "side" && !w.kind).map(
+      (w) => w.id,
+    );
     const tugas = WIDGETS.find((w) => w.id === "tugas-saya");
 
     expect(tugas?.gate).toEqual([]);
     expect(tugas?.gateAny).toBeUndefined();
-    expect(sideIds[sideIds.indexOf("announcements") + 1]).toBe("tugas-saya");
+    // Urutan baca: tugas pribadi dulu, baru jadwal, baru bacaan.
+    expect(sideIds).toEqual([
+      "tugas-saya",
+      "loan-rooms",
+      "announcements",
+      "jemaat",
+    ]);
 
+    // Persona tanpa widget main sama sekali menaikkan kartu sisi pertama ke main,
+    // jadi tugas-saya selalu tampil, hanya kolomnya yang bisa berbeda.
     for (const key of Object.keys(PERSONAS)) {
       const { main, side } = picked(key);
-      expect(main).not.toContain("tugas-saya");
-      expect(side).toContain("tugas-saya");
+      expect([...main, ...side]).toContain("tugas-saya");
     }
   });
 
-  test("operator dan koordinator: pengumuman tetap naik ke main", () => {
+  test("operator dan koordinator: kartu sisi pertama naik ke main", () => {
     for (const key of ["operator", "koordinator"]) {
       const { main, side } = picked(key);
-      expect(main).toEqual(["announcements"]);
-      expect(side).toEqual(["tugas-saya"]);
+      expect(main).toEqual(["tugas-saya"]);
+      expect(side).toEqual(["announcements"]);
     }
   });
 

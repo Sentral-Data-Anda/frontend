@@ -1,7 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
 import {
-  findNextService,
   formatDayMonth,
   formatLongDate,
   formatMonthYear,
@@ -53,43 +52,6 @@ describe("greetingOf", () => {
 
   test("membaca jam WIB, bukan jam UTC", () => {
     expect(greetingOf(new Date("2026-08-16T01:00:00Z"))).toBe("Selamat pagi");
-  });
-});
-
-describe("findNextService", () => {
-  const services = [{ startTime: "08:00" }, { startTime: "17:00" }];
-
-  test("sebelum semua ibadah → yang paling pagi", () => {
-    expect(findNextService(services, wib("2026-08-16", "06:30"))).toBe(
-      services[0],
-    );
-  });
-
-  test("tepat di jam mulai masih dihitung berikutnya", () => {
-    expect(findNextService(services, wib("2026-08-16", "08:00"))).toBe(
-      services[0],
-    );
-  });
-
-  test("di antara dua ibadah → yang berikutnya", () => {
-    expect(findNextService(services, wib("2026-08-16", "08:01"))).toBe(
-      services[1],
-    );
-  });
-
-  test("sesudah semua ibadah → tidak ada", () => {
-    expect(
-      findNextService(services, wib("2026-08-16", "19:00")),
-    ).toBeUndefined();
-  });
-
-  test("memakai jam WIB, bukan UTC, lintas tengah malam", () => {
-    expect(findNextService(services, new Date("2026-08-15T17:30:00Z"))).toBe(
-      services[0],
-    );
-    expect(
-      findNextService(services, new Date("2026-08-16T16:30:00Z")),
-    ).toBeUndefined();
   });
 });
 

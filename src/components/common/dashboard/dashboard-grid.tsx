@@ -8,19 +8,21 @@ const SIDE_GRID =
 const SIDE_STACKED =
   "@min-[66rem]:grid-cols-3 @min-[66rem]:@max-[104rem]:[&>*:last-child:nth-child(3n+1)]:col-span-3 @min-[66rem]:@max-[104rem]:[&>*:last-child:nth-child(3n+2)]:col-span-2 @min-[104rem]:grid-cols-[repeat(auto-fit,minmax(24rem,1fr))]";
 
+// Pecah dua kolom mulai 4 kartu: sejak Ulang Tahun dan Jemaat Baru menyatu, sisi
+// tampilan Umum tinggal 4 kartu dan satu kolom membuatnya menjulang sempit.
 const SIDE_SPLIT =
-  "@min-[66rem]:@max-[82rem]:grid-cols-3 @min-[66rem]:@max-[82rem]:[&>*:last-child:nth-child(3n+1)]:col-span-3 @min-[66rem]:@max-[82rem]:[&>*:last-child:nth-child(3n+2)]:col-span-2 @min-[82rem]:@max-[120rem]:grid-cols-1 @min-[82rem]:@max-[120rem]:[&>*:last-child:nth-child(odd)]:col-span-1 @min-[82rem]:@max-[120rem]:has-[>*:nth-child(5)]:grid-cols-2 @min-[82rem]:@max-[120rem]:has-[>*:nth-child(5)]:[&>*:last-child:nth-child(odd)]:col-span-2 @min-[120rem]:grid-cols-[repeat(auto-fit,minmax(24rem,1fr))]";
+  "@min-[66rem]:@max-[82rem]:grid-cols-3 @min-[66rem]:@max-[82rem]:[&>*:last-child:nth-child(3n+1)]:col-span-3 @min-[66rem]:@max-[82rem]:[&>*:last-child:nth-child(3n+2)]:col-span-2 @min-[82rem]:@max-[120rem]:grid-cols-1 @min-[82rem]:@max-[120rem]:[&>*:last-child:nth-child(odd)]:col-span-1 @min-[82rem]:@max-[120rem]:has-[>*:nth-child(4)]:grid-cols-2 @min-[82rem]:@max-[120rem]:has-[>*:nth-child(4)]:[&>*:last-child:nth-child(odd)]:col-span-2 @min-[120rem]:grid-cols-[repeat(auto-fit,minmax(24rem,1fr))]";
 
 const MAIN_STACKED =
   "@min-[104rem]:has-[>*:nth-child(2)]:grid-cols-2 @min-[150rem]:has-[>*:nth-child(3)]:grid-cols-3 @min-[104rem]:[&>*]:mx-auto @min-[104rem]:[&>*]:w-full @min-[104rem]:[&>*]:max-w-[90rem]";
 
 // Di jendela dua kolom, kolom utama jadi flex setinggi baris dan kartu terakhirnya
 // menyerap sisa tinggi, sehingga kaki kedua kolom rata ketika kartu yang panjang
-// (`isScrollable`) sudah berhenti di batas tingginya. Batas itu dilepas untuk kartu
-// terakhir: kalau ia sendiri yang panjang, ia mengikuti tinggi kolom sisi dan
-// menggulir di dalam, bukan menyisakan lubang di bawah kolom utama.
+// (`isScrollable`) sudah berhenti di batas tingginya. Batas itu hanya dilepas kalau
+// kartu panjang itu satu-satunya isi kolom: ia lalu mengikuti tinggi kolom sisi dan
+// menggulir di dalam, bukan berhenti di 32rem dan meninggalkan lubang di bawahnya.
 const MAIN_SPLIT =
-  "@min-[82rem]:@max-[120rem]:flex @min-[82rem]:@max-[120rem]:h-full @min-[82rem]:@max-[120rem]:flex-col @min-[82rem]:@max-[120rem]:[&>*:last-child]:flex-1 @min-[82rem]:@max-[120rem]:[&>*:last-child]:max-h-none! @min-[120rem]:has-[>*:nth-child(2)]:grid-cols-2 @min-[150rem]:has-[>*:nth-child(3)]:grid-cols-3 @min-[120rem]:[&>*]:mx-auto @min-[120rem]:[&>*]:w-full @min-[120rem]:[&>*]:max-w-[90rem]";
+  "@min-[82rem]:@max-[120rem]:flex @min-[82rem]:@max-[120rem]:h-full @min-[82rem]:@max-[120rem]:flex-col @min-[82rem]:@max-[120rem]:[&>*:last-child]:flex-1 @min-[82rem]:@max-[120rem]:[&>*:only-child]:max-h-none! @min-[120rem]:has-[>*:nth-child(2)]:grid-cols-2 @min-[150rem]:has-[>*:nth-child(3)]:grid-cols-3 @min-[120rem]:[&>*]:mx-auto @min-[120rem]:[&>*]:w-full @min-[120rem]:[&>*]:max-w-[90rem]";
 
 interface PropTypes {
   kpi?: ReactNode;

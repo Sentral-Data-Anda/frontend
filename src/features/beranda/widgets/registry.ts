@@ -13,13 +13,11 @@ import {
   type KpiGroup,
 } from "../view";
 
-import { AgendaWidget } from "./agenda/agenda-widget";
 import { AgendaWeekWidget } from "./agenda-week/agenda-week-widget";
 import { KpiEventsFortnight } from "./agenda-week/kpi-events-fortnight";
 import { KpiServicesWeek } from "./agenda-week/kpi-services-week";
 import { ApprovalsWidget } from "./approvals/approvals-widget";
 import { BudgetUseWidget } from "./dummy/budget-use-widget";
-import { NewMembersWidget } from "./dummy/new-members-widget";
 import { CashAccountsWidget } from "./finance/cash-accounts-widget";
 import { ClosingReadinessWidget } from "./finance/closing-readiness-widget";
 import { IncomeByTypeWidget } from "./finance/income-by-type-widget";
@@ -28,7 +26,7 @@ import { KpiExpense } from "./finance-kpi/kpi-expense";
 import { KpiIncome } from "./finance-kpi/kpi-income";
 import { KpiSurplusYear } from "./finance-kpi/kpi-surplus-year";
 import { IncomeExpenseChart } from "./income-expense-chart/income-expense-chart";
-import { BirthdaysWidget } from "./office/birthdays-widget";
+import { JemaatWidget } from "./jemaat/jemaat-widget";
 import { KpiBirthdays } from "./office/kpi-birthdays";
 import { KpiJemaatTotal } from "./office/kpi-jemaat-total";
 import { KpiTodayLoans } from "./office/kpi-today-loans";
@@ -140,13 +138,7 @@ export const WIDGETS: readonly Widget[] = [
     Component: KpiTodayLoans,
   },
 
-  {
-    id: "income-expense-chart",
-    slot: "main",
-    kind: "finance",
-    gate: [view(MENU.FINANCIAL_STATEMENT)],
-    Component: IncomeExpenseChart,
-  },
+  // Urutan kolom utama: yang menunggu tindakan saya dulu, baru jadwal, baru bacaan.
   {
     id: "payables",
     slot: "main",
@@ -160,6 +152,13 @@ export const WIDGETS: readonly Widget[] = [
     Component: PayablesWidget,
   },
   {
+    id: "income-expense-chart",
+    slot: "main",
+    kind: "finance",
+    gate: [view(MENU.FINANCIAL_STATEMENT)],
+    Component: IncomeExpenseChart,
+  },
+  {
     id: "budget-use",
     slot: "main",
     kind: "finance",
@@ -169,20 +168,28 @@ export const WIDGETS: readonly Widget[] = [
   },
 
   {
-    id: "agenda-week",
-    slot: "main",
-    kind: "umum",
-    gate: [view(MENU.IBADAH)],
-    Component: AgendaWeekWidget,
-  },
-  {
     id: "approvals",
     slot: "main",
     kind: "umum",
     gate: [view(MENU.APPROVAL_REQUEST)],
     Component: ApprovalsWidget,
   },
+  {
+    id: "agenda-week",
+    slot: "main",
+    kind: "umum",
+    gate: [view(MENU.IBADAH)],
+    Component: AgendaWeekWidget,
+  },
 
+  // Urutan kolom sisi mengikuti kolom utama: tugas pribadi, lalu jadwal, lalu bacaan.
+  {
+    id: "closing-readiness",
+    slot: "side",
+    kind: "finance",
+    gate: [view(MENU.FISCAL_PERIOD)],
+    Component: ClosingReadinessWidget,
+  },
   {
     id: "cash-accounts",
     slot: "side",
@@ -198,33 +205,7 @@ export const WIDGETS: readonly Widget[] = [
     gate: [view(MENU.FINANCIAL_STATEMENT)],
     Component: IncomeByTypeWidget,
   },
-  {
-    id: "closing-readiness",
-    slot: "side",
-    kind: "finance",
-    gate: [view(MENU.FISCAL_PERIOD)],
-    Component: ClosingReadinessWidget,
-  },
-  {
-    id: "agenda",
-    slot: "side",
-    kind: "finance",
-    gate: [view(MENU.IBADAH)],
-    Component: AgendaWidget,
-  },
 
-  {
-    id: "birthdays",
-    slot: "side",
-    gate: [view(MENU.REPORT_JEMAAT)],
-    Component: BirthdaysWidget,
-  },
-  {
-    id: "announcements",
-    slot: "side",
-    gate: [],
-    Component: AnnouncementsWidget,
-  },
   {
     id: "tugas-saya",
     slot: "side",
@@ -238,12 +219,16 @@ export const WIDGETS: readonly Widget[] = [
     Component: LoanRoomsWidget,
   },
   {
-    id: "new-members",
+    id: "announcements",
     slot: "side",
-    kind: "umum",
+    gate: [],
+    Component: AnnouncementsWidget,
+  },
+  {
+    id: "jemaat",
+    slot: "side",
     gate: [view(MENU.REPORT_JEMAAT)],
-    isDummy: true,
-    Component: NewMembersWidget,
+    Component: JemaatWidget,
   },
 ];
 

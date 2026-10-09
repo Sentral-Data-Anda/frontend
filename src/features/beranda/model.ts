@@ -7,13 +7,6 @@ const hourFormat = new Intl.DateTimeFormat("en-GB", {
   timeZone: APP_TIMEZONE,
 });
 
-const clockFormat = new Intl.DateTimeFormat("en-GB", {
-  hour: "2-digit",
-  minute: "2-digit",
-  hourCycle: "h23",
-  timeZone: APP_TIMEZONE,
-});
-
 const longDateFormat = new Intl.DateTimeFormat("id-ID", {
   weekday: "long",
   day: "numeric",
@@ -35,17 +28,6 @@ export function greetingOf(now: Date): string {
 
   return "Selamat malam";
 }
-
-export const toClockKey = (now: Date): string => clockFormat.format(now);
-
-export const findNextService = <T extends { startTime: string }>(
-  items: readonly T[],
-  now: Date,
-): T | undefined => {
-  const clock = toClockKey(now);
-
-  return items.find((item) => item.startTime >= clock);
-};
 
 export const addDaysKey = (key: string, days: number): string => {
   const date = new Date(`${key}T00:00:00Z`);
