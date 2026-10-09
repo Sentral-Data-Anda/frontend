@@ -46,7 +46,11 @@ export const DashboardGrid = (props: PropTypes) => {
         <div
           className={cn(
             "grid items-start gap-4",
-            isSplit && "@min-[82rem]:@max-[120rem]:grid-cols-2",
+            // Di jendela dua kolom keduanya diregangkan setinggi baris supaya kaki
+            // kolom rata: kolom yang isinya lebih pendek membagi sisa tinggi ke
+            // kartunya, bukan menyisakan lubang di bawah.
+            isSplit &&
+              "@min-[82rem]:@max-[120rem]:grid-cols-2 @min-[82rem]:@max-[120rem]:items-stretch",
           )}
         >
           {main.length ? (
