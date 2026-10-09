@@ -76,6 +76,7 @@ export const AgendaWeekWidget = () => {
   return (
     <DashboardCard
       title="Agenda Mingguan"
+      isScrollable
       query={{
         isPending: ibadah.isPending || (isEventShown && events.isPending),
         isFetching: ibadah.isFetching || events.isFetching,

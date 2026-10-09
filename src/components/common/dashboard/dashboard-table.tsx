@@ -48,7 +48,7 @@ export function DashboardTable({
             role="row"
             className={cn(
               TABLE_HEAD_LINE_ON_CARD,
-              "grid grid-cols-(--cols) gap-3 px-2.5 pr-7 pb-2",
+              "bg-card sticky top-0 z-10 grid grid-cols-(--cols) gap-3 px-2.5 pr-7 pb-2",
             )}
           >
             {columns.map((column) => (

@@ -78,7 +78,7 @@ export const ApprovalsWidget = () => {
       actionLabel="Semua"
       actionHref={QUEUE_HREF}
       query={query}
-      minHeight="min-h-36"
+      minHeight="min-h-56"
     >
       {rows.length === 0 ? (
         <EmptyState isCompact title="Tidak ada yang menunggu" />

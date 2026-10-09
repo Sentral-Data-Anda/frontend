@@ -14,8 +14,13 @@ const SIDE_SPLIT =
 const MAIN_STACKED =
   "@min-[104rem]:has-[>*:nth-child(2)]:grid-cols-2 @min-[150rem]:has-[>*:nth-child(3)]:grid-cols-3 @min-[104rem]:[&>*]:mx-auto @min-[104rem]:[&>*]:w-full @min-[104rem]:[&>*]:max-w-[90rem]";
 
+// Di jendela dua kolom, kolom utama jadi flex setinggi baris dan kartu terakhirnya
+// menyerap sisa tinggi, sehingga kaki kedua kolom rata ketika kartu yang panjang
+// (`isScrollable`) sudah berhenti di batas tingginya. Batas itu dilepas untuk kartu
+// terakhir: kalau ia sendiri yang panjang, ia mengikuti tinggi kolom sisi dan
+// menggulir di dalam, bukan menyisakan lubang di bawah kolom utama.
 const MAIN_SPLIT =
-  "@min-[120rem]:has-[>*:nth-child(2)]:grid-cols-2 @min-[150rem]:has-[>*:nth-child(3)]:grid-cols-3 @min-[120rem]:[&>*]:mx-auto @min-[120rem]:[&>*]:w-full @min-[120rem]:[&>*]:max-w-[90rem]";
+  "@min-[82rem]:@max-[120rem]:flex @min-[82rem]:@max-[120rem]:h-full @min-[82rem]:@max-[120rem]:flex-col @min-[82rem]:@max-[120rem]:[&>*:last-child]:flex-1 @min-[82rem]:@max-[120rem]:[&>*:last-child]:max-h-none! @min-[120rem]:has-[>*:nth-child(2)]:grid-cols-2 @min-[150rem]:has-[>*:nth-child(3)]:grid-cols-3 @min-[120rem]:[&>*]:mx-auto @min-[120rem]:[&>*]:w-full @min-[120rem]:[&>*]:max-w-[90rem]";
 
 interface PropTypes {
   kpi?: ReactNode;

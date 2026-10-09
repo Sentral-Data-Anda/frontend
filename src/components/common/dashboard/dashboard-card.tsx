@@ -20,6 +20,7 @@ export function DashboardCard({
   trailing,
   query,
   isDummy = false,
+  isScrollable = false,
   minHeight = "min-h-24",
   children,
 }: {
@@ -29,11 +30,18 @@ export function DashboardCard({
   trailing?: ReactNode;
   query?: QueryState;
   isDummy?: boolean;
+  isScrollable?: boolean;
   minHeight?: string;
   children: ReactNode;
 }) {
   return (
-    <Panel label={title} className="p-4 lg:p-6">
+    <Panel
+      label={title}
+      className={cn(
+        "p-4 lg:p-6",
+        isScrollable && "lg:flex lg:max-h-[32rem] lg:min-h-[20rem] lg:flex-col",
+      )}
+    >
       <div className="mb-4 flex min-h-6 items-center justify-between gap-3">
         <h2
           className={cn(
@@ -60,37 +68,45 @@ export function DashboardCard({
         </div>
       </div>
 
-      {query?.isPending ? (
-        <div
-          role="status"
-          aria-label={`Memuat ${title}`}
-          className={cn("space-y-3", minHeight)}
-        >
-          <span className="bg-skeleton block h-3 w-3/4 animate-pulse rounded-control" />
-          <span className="bg-skeleton block h-3 w-1/2 animate-pulse rounded-control" />
-          <span className="bg-skeleton block h-3 w-2/3 animate-pulse rounded-control" />
-        </div>
-      ) : query?.error ? (
-        <p
-          role="alert"
-          className={cn(
-            "text-muted-foreground flex items-center gap-2 text-body",
-            minHeight,
-          )}
-        >
-          Gagal memuat.
-          <button
-            type="button"
-            disabled={query.isFetching}
-            onClick={() => void query.refetch()}
-            className="text-foreground focus-visible:ring-ring inline-flex min-h-6 items-center rounded-control font-medium underline-offset-2 outline-none hover:underline focus-visible:ring-2 disabled:no-underline disabled:opacity-60"
+      <div
+        className={
+          isScrollable
+            ? "-mx-2.5 px-2.5 lg:min-h-0 lg:flex-1 lg:overflow-x-clip lg:overflow-y-auto"
+            : undefined
+        }
+      >
+        {query?.isPending ? (
+          <div
+            role="status"
+            aria-label={`Memuat ${title}`}
+            className={cn("space-y-3", minHeight)}
           >
-            {query.isFetching ? "Memuat…" : "Coba lagi"}
-          </button>
-        </p>
-      ) : (
-        children
-      )}
+            <span className="bg-skeleton block h-3 w-3/4 animate-pulse rounded-control" />
+            <span className="bg-skeleton block h-3 w-1/2 animate-pulse rounded-control" />
+            <span className="bg-skeleton block h-3 w-2/3 animate-pulse rounded-control" />
+          </div>
+        ) : query?.error ? (
+          <p
+            role="alert"
+            className={cn(
+              "text-muted-foreground flex items-center gap-2 text-body",
+              minHeight,
+            )}
+          >
+            Gagal memuat.
+            <button
+              type="button"
+              disabled={query.isFetching}
+              onClick={() => void query.refetch()}
+              className="text-foreground focus-visible:ring-ring inline-flex min-h-6 items-center rounded-control font-medium underline-offset-2 outline-none hover:underline focus-visible:ring-2 disabled:no-underline disabled:opacity-60"
+            >
+              {query.isFetching ? "Memuat…" : "Coba lagi"}
+            </button>
+          </p>
+        ) : (
+          children
+        )}
+      </div>
     </Panel>
   );
 }
