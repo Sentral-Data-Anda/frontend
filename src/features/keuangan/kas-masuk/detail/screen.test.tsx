@@ -20,7 +20,7 @@ const actions: { current: MenuAction[] } = { current: [] };
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: () => {} }),
-  usePathname: () => "/keuangan/kas-masuk/bkm-0001",
+  usePathname: () => "/finance/kas-masuk/bkm-0001",
   useSearchParams: () => new URLSearchParams(),
 }));
 

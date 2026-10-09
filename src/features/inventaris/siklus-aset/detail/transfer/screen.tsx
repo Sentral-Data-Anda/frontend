@@ -24,7 +24,7 @@ interface PropTypes {
 export const TransferDetailScreen = (props: PropTypes) => {
   const { code } = props;
 
-  const { isCanView } = useMenuAccess(MENU.SIKLUS_ASET);
+  const { isCanView } = useMenuAccess(MENU.ASSET_TRANSACTION);
   const backHref = kindReturnHref(useListReturn(CYCLE_LIST_PATH), "pindah");
   const detail = useTransferDetail(isCanView ? code : undefined);
   const row = detail.data;

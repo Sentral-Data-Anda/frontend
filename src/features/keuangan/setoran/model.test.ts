@@ -159,15 +159,15 @@ describe("tautan perbaikan", () => {
     const period = new FetchError(400, "Bulan apa pun", [], "PERIOD_CLOSED");
     const inactive = new FetchError(400, "Apa pun", [], "ACCOUNT_INACTIVE");
 
-    expect(fixLinkOf(period)?.href).toBe("/keuangan/periode-fiskal");
-    expect(fixLinkOf(inactive)?.href).toBe("/keuangan/akun");
+    expect(fixLinkOf(period)?.href).toBe("/finance/fiscal-period");
+    expect(fixLinkOf(inactive)?.href).toBe("/finance/chart-of-account");
     expect(fixLinkOf(new FetchError(400, "Periode Sudah Ditutup"))).toBeNull();
   });
 });
 
 describe("rute", () => {
   test("tanpa /ubah: setoran dikoreksi lewat batal lalu catat ulang", () => {
-    const entries = readdirSync("src/app/(app)/keuangan/setoran/[code]");
+    const entries = readdirSync("src/app/(app)/finance/bank-deposit/[code]");
 
     expect(entries).not.toContain("ubah");
   });

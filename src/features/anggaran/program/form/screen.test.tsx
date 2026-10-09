@@ -29,7 +29,7 @@ const replaced: string[] = [];
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
-  usePathname: () => "/anggaran/program/baru",
+  usePathname: () => "/budgeting/program/baru",
   useSearchParams: () => new URLSearchParams(),
 }));
 

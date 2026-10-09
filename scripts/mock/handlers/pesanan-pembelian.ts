@@ -417,7 +417,7 @@ export const pesananPembelianMock: MockHandler = async (ctx) => {
   if (!match) return null;
 
   const [, code, actionName] = match;
-  const can = (action: MockAction) => ctx.can(MENU.PESANAN_PEMBELIAN, action);
+  const can = (action: MockAction) => ctx.can(MENU.PURCHASE_ORDER, action);
 
   if (actionName) {
     const action = ACTIONS[actionName as keyof typeof ACTIONS];
@@ -447,7 +447,7 @@ export const pesananPembelianMock: MockHandler = async (ctx) => {
       );
     }
 
-    if (!can("VIEW") && !ctx.can(MENU.PENERIMAAN_BARANG, "VIEW")) {
+    if (!can("VIEW") && !ctx.can(MENU.GOODS_RECEIPT, "VIEW")) {
       return denied();
     }
 

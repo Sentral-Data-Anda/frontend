@@ -6,7 +6,7 @@ import { collapseSpaces } from "@/lib/name";
 
 import type { TipeCuti, TipeCutiPayload } from "./types";
 
-export const TIPE_CUTI_LIST_PATH = menuHref(MENU.SDM, MENU.TIPE_CUTI);
+export const TIPE_CUTI_LIST_PATH = menuHref(MENU.HR, MENU.LEAVE_TYPE);
 
 // Lebar isian, bukan aturan: be-sada hanya menuntut bilangan bulat > 0, dan
 // batas jatah adalah kebijakan gereja — bukan angka yang SADA karang (§0.2).

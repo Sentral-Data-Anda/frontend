@@ -14,7 +14,7 @@ const ROOT = new URL("../../../../", import.meta.url).pathname;
 
 const OWNED = "src/features/keuangan/persembahan/";
 
-const ROUTES = "src/app/(app)/keuangan/persembahan/";
+const ROUTES = "src/app/(app)/finance/persembahan/";
 
 const readSources = async () => {
   const files: { path: string; text: string }[] = [];

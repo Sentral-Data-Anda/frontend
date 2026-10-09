@@ -114,7 +114,7 @@ export const ProgramDetailScreen = (props: PropTypes) => {
   if (!isCanView) {
     return (
       <div className="pb-8">
-        <PageHeader title={TITLE} backHref={domainHref(MENU.ANGGARAN)} />
+        <PageHeader title={TITLE} backHref={domainHref(MENU.BUDGETING)} />
 
         <EmptyState
           title="Anda tidak memiliki akses ke Program"

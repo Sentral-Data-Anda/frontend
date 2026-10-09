@@ -10,13 +10,13 @@ import { NO_VIEW } from "../model";
 import { PaymentListContent } from "./list-content";
 
 export const PaymentListScreen = () => {
-  const { isCanView } = useMenuAccess(MENU.PEMBAYARAN);
+  const { isCanView } = useMenuAccess(MENU.PAYMENT);
 
   return isCanView ? (
     <PaymentListContent />
   ) : (
     <div className="pb-6">
-      <PageHeader title="Pembayaran" backHref={domainHref(MENU.KEUANGAN)} />
+      <PageHeader title="Pembayaran" backHref={domainHref(MENU.FINANCE)} />
       <EmptyState
         title="Anda tidak memiliki akses ke Pembayaran"
         description={NO_VIEW}

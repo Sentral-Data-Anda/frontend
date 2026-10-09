@@ -125,7 +125,7 @@ describe("guard per aksi", () => {
       "POST",
       "/jurnal/posting-persembahan?dryRun=1",
       rangeOf(),
-      (slug, action) => slug === MENU.JURNAL && action === "VIEW",
+      (slug, action) => slug === MENU.JOURNAL_ENTRY && action === "VIEW",
     );
 
     expect(response?.status).toBe(403);

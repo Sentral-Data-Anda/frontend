@@ -22,7 +22,7 @@ const search = { current: new URLSearchParams() };
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: () => undefined }),
-  usePathname: () => "/pengadaan/penerimaan-barang",
+  usePathname: () => "/procurement/goods-receipt",
   useSearchParams: () => search.current,
 }));
 

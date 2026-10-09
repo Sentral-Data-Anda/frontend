@@ -59,7 +59,7 @@ export const OpnameDetailScreen = (props: PropTypes) => {
   const { isCanView, isCanUpdate, isCanDelete } = useMenuAccess(
     MENU.STOK_OPNAME,
   );
-  const stockAccess = useMenuAccess(MENU.BARANG_PERSEDIAAN);
+  const stockAccess = useMenuAccess(MENU.STOCK_ITEM);
   const listReturn = useListReturn(OPNAME_LIST_PATH);
   const detail = useOpnameDetail(isCanView ? code : undefined);
   const action = useOpnameAction(code);
@@ -101,7 +101,7 @@ export const OpnameDetailScreen = (props: PropTypes) => {
   if (!isCanView) {
     return (
       <div className="pb-8">
-        <PageHeader title={TITLE} backHref={domainHref(MENU.INVENTARIS)} />
+        <PageHeader title={TITLE} backHref={domainHref(MENU.INVENTORY)} />
         <EmptyState
           title="Anda tidak memiliki akses ke Stok Opname"
           description="Hubungi administrator bila Anda memang seharusnya memegang akses ini."

@@ -39,7 +39,7 @@ const CONDITION_OPTIONS = [
 const SOURCE_OPTIONS = [ALL, ...optionsOf(SOURCE_LABEL)];
 
 export const BarangListContent = () => {
-  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.BARANG);
+  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.ASSET_MASTER);
   const listParams = useListParams({ filters: LIST_FILTERS });
   const assetList = useAssetList(listParams);
   const types = useDdlOptions("type-item", "id", listParams.filters.tipe);
@@ -56,7 +56,7 @@ export const BarangListContent = () => {
             ? undefined
             : `${assetList.totalData} barang`
         }
-        backHref={domainHref(MENU.INVENTARIS)}
+        backHref={domainHref(MENU.FIXED_ASSET)}
         action={
           <>
             <LabelLink

@@ -69,7 +69,7 @@ export const InvoiceDetailScreen = (props: PropTypes) => {
   const router = useRouter();
   const toast = useToast();
   const { isCanView, isCanUpdate, isCanDelete } = useMenuAccess(
-    MENU.FAKTUR_SUPPLIER,
+    MENU.SUPPLIER_INVOICE,
   );
   const listReturn = useListReturn(INVOICE_LIST_PATH);
   const detail = useInvoiceDetail(isCanView ? publicId : undefined);

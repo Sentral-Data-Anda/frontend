@@ -9,7 +9,7 @@ const search: { current: string } = { current: "" };
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: () => {} }),
-  usePathname: () => "/inventaris/barang/label",
+  usePathname: () => "/fixed-asset/asset-master/label",
   useSearchParams: () => new URLSearchParams(search.current),
 }));
 
@@ -151,7 +151,7 @@ describe("cetak label barang", () => {
 
   test("QR berupa SVG untuk kode ber-_ dan -", () => {
     const { container } = render(
-      <QrCode value="https://sada.example/inventaris/barang/AST_0001_0002-0001" />,
+      <QrCode value="https://sada.example/fixed-asset/asset-master/AST_0001_0002-0001" />,
     );
 
     expect(container.querySelector("svg path, svg rect")).toBeTruthy();

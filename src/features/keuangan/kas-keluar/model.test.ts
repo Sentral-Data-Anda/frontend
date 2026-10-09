@@ -354,7 +354,7 @@ describe("errorFixOf", () => {
       new FetchError(400, "apa saja", [], "PERIOD_CLOSED"),
     );
 
-    expect(fix?.href).toBe("/keuangan/periode-fiskal");
+    expect(fix?.href).toBe("/finance/fiscal-period");
   });
 
   test("teks galat tanpa code tidak pernah ditebak", () => {
@@ -385,8 +385,8 @@ describe("errorFixOf: gerbang anggaran", () => {
       new FetchError(400, "apa saja", [], "BUDGET_REPORT_PENDING"),
     );
 
-    expect(fix?.menu).toBe("LAPORAN_BUDGET");
-    expect(fix?.href).toContain("/anggaran/laporan-budget");
+    expect(fix?.menu).toBe("BUDGET_REALIZATION");
+    expect(fix?.href).toContain("/report/budget-realization");
   });
 
   test("kata laporan atau budget TANPA code tidak pernah memicu tautannya", () => {

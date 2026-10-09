@@ -29,7 +29,7 @@ const params = { current: new URLSearchParams() };
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
-  usePathname: () => "/keuangan/periode-fiskal",
+  usePathname: () => "/finance/fiscal-period",
   useSearchParams: () => params.current,
 }));
 
@@ -195,7 +195,7 @@ describe("daftar per tahun", () => {
 
     fireEvent.click(screen.getByRole("tab", { name: String(YEAR - 1) }));
 
-    expect(replaced.at(-1)).toBe(`/keuangan/periode-fiskal?tahun=${YEAR - 1}`);
+    expect(replaced.at(-1)).toBe(`/finance/fiscal-period?tahun=${YEAR - 1}`);
   });
 
   test("bulan berdraf memakai penanda draf", async () => {

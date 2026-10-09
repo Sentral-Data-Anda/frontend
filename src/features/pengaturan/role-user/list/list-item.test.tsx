@@ -49,7 +49,7 @@ describe("baris HP", () => {
       screen
         .getByRole("link", { name: "Ubah Operator Sistem" })
         .getAttribute("href"),
-    ).toBe("/pengaturan/role-user/3/ubah");
+    ).toBe("/settings/user-role/3/ubah");
     expect(document.querySelector('[data-row-id="3"]')).not.toBeNull();
   });
 
@@ -74,7 +74,7 @@ describe("konfigurasi tabel", () => {
         .filter((column) => column.isSecondary)
         .map((column) => column.key),
     ).toEqual(["userCount"]);
-    expect(table.getRowHref?.(ROLE)).toBe("/pengaturan/role-user/3/ubah");
+    expect(table.getRowHref?.(ROLE)).toBe("/settings/user-role/3/ubah");
     expect(roleUserTable(false).getRowHref).toBeUndefined();
   });
 });

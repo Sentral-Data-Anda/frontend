@@ -25,11 +25,11 @@ export const SatuanList = () => {
             ? undefined
             : `${satuanList.totalData} satuan`
         }
-        backHref={domainHref(MENU.INVENTARIS)}
+        backHref={domainHref(MENU.INVENTORY)}
         action={
           isCanCreate ? (
             <PageHeaderAdd
-              href={createHref(MENU.INVENTARIS, MENU.SATUAN)}
+              href={createHref(MENU.INVENTORY, MENU.SATUAN)}
               label="Tambah satuan"
             />
           ) : null

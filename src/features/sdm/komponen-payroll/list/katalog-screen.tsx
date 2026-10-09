@@ -10,13 +10,13 @@ import { NO_VIEW_DESCRIPTION, NO_VIEW_TITLE } from "../model";
 import { KatalogList } from "./katalog-list";
 
 export const KatalogListScreen = () => {
-  const { isCanView } = useMenuAccess(MENU.KOMPONEN_PAYROLL);
+  const { isCanView } = useMenuAccess(MENU.PAYROLL_COMPONENT);
 
   if (isCanView) return <KatalogList />;
 
   return (
     <div className="pb-6">
-      <PageHeader title="Komponen Payroll" backHref={domainHref(MENU.SDM)} />
+      <PageHeader title="Komponen Payroll" backHref={domainHref(MENU.HR)} />
 
       <EmptyState title={NO_VIEW_TITLE} description={NO_VIEW_DESCRIPTION} />
     </div>

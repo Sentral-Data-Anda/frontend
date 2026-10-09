@@ -38,10 +38,10 @@ const renderHome = (menu: MenuNode[]) =>
   );
 
 describe("angka kas di Beranda", () => {
-  test("tanpa LAPORAN_KEUANGAN VIEW tidak dirender", () => {
+  test("tanpa FINANCIAL_STATEMENT VIEW tidak dirender", () => {
     renderHome([
       {
-        ...node(MENU.KEUANGAN, []),
+        ...node(MENU.FINANCE, []),
         children: [node(MENU.KAS_MASUK, ["VIEW"])],
       },
     ]);
@@ -49,12 +49,12 @@ describe("angka kas di Beranda", () => {
     expect(screen.queryByText("Saldo kas & bank")).toBeNull();
   });
 
-  test("dengan LAPORAN_KEUANGAN VIEW dirender", () => {
+  test("dengan FINANCIAL_STATEMENT VIEW dirender", () => {
     renderHome([
       {
-        ...node(MENU.KEUANGAN, []),
+        ...node(MENU.FINANCE, []),
         children: [
-          node(MENU.LAPORAN_KEUANGAN, ["VIEW"]),
+          node(MENU.FINANCIAL_STATEMENT, ["VIEW"]),
           node(MENU.KAS_KELUAR, ["VIEW"]),
         ],
       },

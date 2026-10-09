@@ -20,7 +20,7 @@ import { RecurringBadge } from "./recurring-badge";
 const keyOf = (holiday: HolidayRow) => String(holiday.id);
 
 const editHrefOf = (holiday: HolidayRow) =>
-  editHref(MENU.PENGATURAN, MENU.HARI_LIBUR, keyOf(holiday));
+  editHref(MENU.SETTINGS, MENU.HOLIDAY, keyOf(holiday));
 
 const saveFocus = (holiday: HolidayRow) =>
   saveListFocus(HARI_LIBUR_LIST_PATH, keyOf(holiday));

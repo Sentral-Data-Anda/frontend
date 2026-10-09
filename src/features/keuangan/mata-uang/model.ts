@@ -21,15 +21,15 @@ import type {
   RateSource,
 } from "./types";
 
-export const MATA_UANG_LIST_PATH = menuHref(MENU.KEUANGAN, MENU.MATA_UANG);
+export const MATA_UANG_LIST_PATH = menuHref(MENU.FINANCE, MENU.CURRENCY);
 
-export const MATA_UANG_CREATE_PATH = createHref(MENU.KEUANGAN, MENU.MATA_UANG);
+export const MATA_UANG_CREATE_PATH = createHref(MENU.FINANCE, MENU.CURRENCY);
 
 export const currencyDetailHref = (code: string) =>
-  detailHref(MENU.KEUANGAN, MENU.MATA_UANG, code);
+  detailHref(MENU.FINANCE, MENU.CURRENCY, code);
 
 export const currencyEditHref = (code: string) =>
-  editHref(MENU.KEUANGAN, MENU.MATA_UANG, code);
+  editHref(MENU.FINANCE, MENU.CURRENCY, code);
 
 export const rateCreateHref = (code: string) =>
   `${currencyDetailHref(code)}/kurs/baru`;

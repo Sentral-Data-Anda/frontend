@@ -55,10 +55,10 @@ const postedTextOf = (result: PostingResult) =>
 
 export const PostingAsetScreen = () => {
   const toast = useToast();
-  const { isCanView, isCanCreate } = useMenuAccess(MENU.JURNAL);
+  const { isCanView, isCanCreate } = useMenuAccess(MENU.JOURNAL_ENTRY);
   // Izin aset dihitung di sini, bukan di dalam RefusedList: hook tidak bisa
   // dipanggil bersyarat, dan dokumen yang ditolak di sini dijaga menu lain.
-  const asetAccess = useMenuAccess(MENU.BARANG);
+  const asetAccess = useMenuAccess(MENU.ASSET_MASTER);
   const [bulan, setBulan] = useState(() => todayJakarta().slice(0, 7));
   const [outcome, setOutcome] = useState<Outcome | null>(null);
   const posting = usePostAset();

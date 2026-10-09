@@ -19,7 +19,7 @@ const replaced: string[] = [];
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
-  usePathname: () => "/anggaran/pagu-anggaran/baru",
+  usePathname: () => "/budgeting/budget/baru",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -249,17 +249,15 @@ describe("form pagu anggaran", () => {
     onFillAmount("45000000");
     await onConfirm();
 
-    await waitFor(() =>
-      expect(replaced).toEqual(["/anggaran/pagu-anggaran/pga-1"]),
-    );
+    await waitFor(() => expect(replaced).toEqual(["/budgeting/budget/pga-1"]));
     expect(calls.find((call) => call.method === "POST")?.body).toEqual({
       bapelId: 2,
       year: YEAR,
       amount: "45000000",
     });
-    expect(
-      window.sessionStorage.getItem("list-focus:/anggaran/pagu-anggaran"),
-    ).toBe("pga-1");
+    expect(window.sessionStorage.getItem("list-focus:/budgeting/budget")).toBe(
+      "pga-1",
+    );
   });
 
   test("ubah: konfirmasi hapus berbunyi dihapus permanen", async () => {
@@ -421,7 +419,7 @@ describe("mode batch", () => {
 
     await onConfirm();
 
-    await waitFor(() => expect(replaced).toEqual(["/anggaran/pagu-anggaran"]));
+    await waitFor(() => expect(replaced).toEqual(["/budgeting/budget"]));
     expect(calls.find((call) => call.method === "POST")?.body).toEqual({
       year: YEAR,
       items: [{ bapelId: 2, amount: "1000000" }],

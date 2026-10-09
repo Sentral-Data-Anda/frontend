@@ -23,7 +23,7 @@ interface PropTypes {
 export const GateAlert = (props: PropTypes) => {
   const { bapelId, bapelName, expenseDate } = props;
 
-  const { isCanView } = useMenuAccess(MENU.LAPORAN_BUDGET);
+  const { isCanView } = useMenuAccess(MENU.BUDGET_REALIZATION);
   const { year, month } = previousMonthOf(expenseDate);
   const compliance = useGateCompliance(bapelId, year, month);
   const row = compliance.data;

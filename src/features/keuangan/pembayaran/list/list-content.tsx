@@ -36,7 +36,7 @@ export const PaymentListContent = () => {
             ? undefined
             : `${paymentList.totalData} pembayaran`
         }
-        backHref={domainHref(MENU.KEUANGAN)}
+        backHref={domainHref(MENU.FINANCE)}
       />
 
       <PostingNote />

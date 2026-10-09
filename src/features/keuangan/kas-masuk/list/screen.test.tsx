@@ -20,7 +20,7 @@ const query: { current: string } = { current: "" };
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: () => {} }),
-  usePathname: () => "/keuangan/kas-masuk",
+  usePathname: () => "/finance/kas-masuk",
   useSearchParams: () => new URLSearchParams(query.current),
 }));
 
@@ -140,7 +140,7 @@ describe("ReceiptListScreen", () => {
     const shortcut = screen.getByLabelText("Catat pencairan payment gateway");
 
     expect(shortcut.getAttribute("href")).toBe(
-      "/keuangan/kas-masuk/baru?pencairan=1",
+      "/finance/kas-masuk/baru?pencairan=1",
     );
   });
 

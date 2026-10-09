@@ -22,7 +22,7 @@ const DDL: Record<
   }
 > = {
   "permintaan-pembelian": {
-    menus: [MENU.PESANAN_PEMBELIAN],
+    menus: [MENU.PURCHASE_ORDER],
     empty: "Permintaan Pembelian Tidak Ditemukan",
     rows: (params) =>
       purchaseRequestDdl({
@@ -31,7 +31,7 @@ const DDL: Record<
       }),
   },
   "pesanan-pembelian": {
-    menus: [MENU.PENERIMAAN_BARANG, MENU.PESANAN_PEMBELIAN],
+    menus: [MENU.GOODS_RECEIPT, MENU.PURCHASE_ORDER],
     empty: "Pesanan Pembelian Tidak Ditemukan",
     rows: (params) =>
       purchaseOrderDdl({
@@ -42,13 +42,13 @@ const DDL: Record<
       }),
   },
   currency: {
-    menus: [MENU.PESANAN_PEMBELIAN, MENU.MATA_UANG],
+    menus: [MENU.PURCHASE_ORDER, MENU.CURRENCY],
     empty: "Mata Uang Tidak Ditemukan",
     rows: currencyDdl,
   },
 };
 
-const KURS_MENUS: MenuSlug[] = [MENU.PESANAN_PEMBELIAN, MENU.MATA_UANG];
+const KURS_MENUS: MenuSlug[] = [MENU.PURCHASE_ORDER, MENU.CURRENCY];
 
 const ddl = (ctx: MockContext, name: string) => {
   const entry = DDL[name];

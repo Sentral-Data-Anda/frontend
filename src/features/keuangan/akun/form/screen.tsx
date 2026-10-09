@@ -53,7 +53,7 @@ export const AccountFormScreen = (props: PropTypes) => {
   const toast = useToast();
   const isEdit = Boolean(code);
   const { isCanView, isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
-    MENU.AKUN,
+    MENU.CHART_OF_ACCOUNT,
   );
   const listReturn = useListReturn(AKUN_LIST_PATH);
   const leaveHref = code ? accountDetailHref(code) : listReturn;

@@ -615,7 +615,7 @@ export const programMock: MockHandler = (ctx) => {
 
   const [, id, segment] = match;
   const can = (action: MockAction) => ctx.can(MENU.PROGRAM, action);
-  const scope = komisiScopeOf(ctx.isAdmin, ctx.can(MENU.PAGU_ANGGARAN, "VIEW"));
+  const scope = komisiScopeOf(ctx.isAdmin, ctx.can(MENU.BUDGET, "VIEW"));
   const isWrite = ctx.method !== "GET";
 
   if (isWrite && process.env.MOCK_SAVE_ERROR) {

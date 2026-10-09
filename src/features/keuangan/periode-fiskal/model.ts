@@ -8,14 +8,14 @@ import { PERIOD_STATUS_LABEL, type PeriodStatus } from "@/types/keuangan";
 import type { FiscalPeriod, FiscalPeriodDetail } from "./types";
 
 export const PERIODE_FISKAL_LIST_PATH = menuHref(
-  MENU.KEUANGAN,
-  MENU.PERIODE_FISKAL,
+  MENU.FINANCE,
+  MENU.FISCAL_PERIOD,
 );
 
 export const periodHref = (id: string) =>
-  detailHref(MENU.KEUANGAN, MENU.PERIODE_FISKAL, id);
+  detailHref(MENU.FINANCE, MENU.FISCAL_PERIOD, id);
 
-const JURNAL_PATH = menuHref(MENU.KEUANGAN, MENU.JURNAL);
+const JURNAL_PATH = menuHref(MENU.FINANCE, MENU.JOURNAL_ENTRY);
 
 export const draftJournalHref = (
   period: Pick<FiscalPeriod, "year" | "month">,
@@ -23,7 +23,7 @@ export const draftJournalHref = (
 
 export const POSTING_PERSEMBAHAN_PATH = `${JURNAL_PATH}/posting-persembahan`;
 
-export const APPROVED_EXPENSE_PATH = `${menuHref(MENU.KEUANGAN, MENU.KAS_KELUAR)}?status=APPROVED`;
+export const APPROVED_EXPENSE_PATH = `${menuHref(MENU.FINANCE, MENU.KAS_KELUAR)}?status=APPROVED`;
 
 export { DETAIL_LINK as LINK_CLASS } from "@/components/common/display";
 

@@ -29,7 +29,7 @@ import { KontrakListItem, kontrakTable } from "./list-item";
 const ALL_OPTION = { value: "", label: "Semua karyawan" };
 
 export const KontrakListContent = () => {
-  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.KONTRAK_KARYAWAN);
+  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.EMPLOYEE_CONTRACT);
   const listParams = useListParams({ filters: FILTERS });
   const contracts = useKontrakList(listParams);
   const karyawan = useDdlOptions("karyawan");
@@ -44,7 +44,7 @@ export const KontrakListContent = () => {
             ? undefined
             : `${contracts.totalData} kontrak`
         }
-        backHref={domainHref(MENU.SDM)}
+        backHref={domainHref(MENU.HR)}
         action={
           isCanCreate ? (
             <PageHeaderAdd href={CREATE_PATH} label="Tambah kontrak" />

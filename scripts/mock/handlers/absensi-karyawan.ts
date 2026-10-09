@@ -325,7 +325,7 @@ export const absensiKaryawanMock: MockHandler = async (context) => {
 
   const publicId = path.match(/^\/absensi-karyawan\/([^/]+)$/)?.[1];
 
-  if (!can(MENU.ABSENSI_KARYAWAN, actionOf(method))) return denied();
+  if (!can(MENU.ATTENDANCE, actionOf(method))) return denied();
 
   if (method !== "GET" && process.env.MOCK_ABSENSI_SAVE_ERROR === "500") {
     return json({ status: 500, error: "Kesalahan server." }, 500);

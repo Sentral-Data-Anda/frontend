@@ -596,7 +596,7 @@ export const laporanKeuanganMock: MockHandler = (ctx) => {
   }
 
   if (method !== "GET") return null;
-  if (!can(MENU.LAPORAN_KEUANGAN, "VIEW")) return denied();
+  if (!can(MENU.FINANCIAL_STATEMENT, "VIEW")) return denied();
   if (process.env.MOCK_500) return serverError();
 
   if (path === "/laporan-keuangan/neraca") return onNeraca(url);

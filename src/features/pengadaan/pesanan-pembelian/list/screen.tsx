@@ -8,7 +8,7 @@ import { useMenuAccess } from "@/features/auth";
 import { OrderListContent } from "./list-content";
 
 export const OrderListScreen = () => {
-  const { isCanView } = useMenuAccess(MENU.PESANAN_PEMBELIAN);
+  const { isCanView } = useMenuAccess(MENU.PURCHASE_ORDER);
 
   return isCanView ? (
     <OrderListContent />
@@ -16,7 +16,7 @@ export const OrderListScreen = () => {
     <div className="pb-6">
       <PageHeader
         title="Pesanan Pembelian"
-        backHref={domainHref(MENU.PENGADAAN)}
+        backHref={domainHref(MENU.PROCUREMENT)}
       />
       <EmptyState
         title="Anda tidak memiliki akses ke Pesanan Pembelian"

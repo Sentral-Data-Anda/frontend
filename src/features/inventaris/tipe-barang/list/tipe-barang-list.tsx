@@ -11,7 +11,7 @@ import { useTipeBarangList } from "../api";
 import { TipeBarangListItemRow, tipeBarangTable } from "./list-item";
 
 export const TipeBarangList = () => {
-  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.TIPE_BARANG);
+  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.ITEM_CATEGORY);
   const listParams = useListParams();
   const tipeBarangList = useTipeBarangList(listParams);
   const isSearched = Boolean(listParams.search);
@@ -25,11 +25,11 @@ export const TipeBarangList = () => {
             ? undefined
             : `${tipeBarangList.totalData} tipe`
         }
-        backHref={domainHref(MENU.INVENTARIS)}
+        backHref={domainHref(MENU.INVENTORY)}
         action={
           isCanCreate ? (
             <PageHeaderAdd
-              href={createHref(MENU.INVENTARIS, MENU.TIPE_BARANG)}
+              href={createHref(MENU.INVENTORY, MENU.ITEM_CATEGORY)}
               label="Tambah tipe barang"
             />
           ) : null

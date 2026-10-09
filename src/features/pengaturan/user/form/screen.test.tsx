@@ -20,7 +20,7 @@ const replaced: string[] = [];
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
-  usePathname: () => "/pengaturan/user/baru",
+  usePathname: () => "/settings/user/baru",
   useSearchParams: () => new URLSearchParams(),
 }));
 

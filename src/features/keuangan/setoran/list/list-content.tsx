@@ -18,7 +18,7 @@ const LIST_FILTERS = {
 } satisfies ListFilterSchema;
 
 export const TransferListContent = () => {
-  const { isCanCreate } = useMenuAccess(MENU.SETORAN);
+  const { isCanCreate } = useMenuAccess(MENU.BANK_DEPOSIT);
   const listParams = useListParams({ filters: LIST_FILTERS });
   const transferList = useTransferList(listParams);
   const isNarrowed = Boolean(listParams.search) || listParams.isFiltered;
@@ -35,7 +35,7 @@ export const TransferListContent = () => {
             ? undefined
             : `${transferList.totalData} setoran`
         }
-        backHref={domainHref(MENU.KEUANGAN)}
+        backHref={domainHref(MENU.FINANCE)}
         action={isCanCreate ? <TransferAddMenu /> : null}
       />
 

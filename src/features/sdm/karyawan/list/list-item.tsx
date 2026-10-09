@@ -19,7 +19,7 @@ const STATUS_VARIANT = {
 } as const;
 
 const editHrefOf = (row: Karyawan) =>
-  editHref(MENU.SDM, MENU.KARYAWAN, row.code);
+  editHref(MENU.HR, MENU.EMPLOYEE, row.code);
 
 const saveFocus = (row: Karyawan) =>
   saveListFocus(KARYAWAN_LIST_PATH, row.code);

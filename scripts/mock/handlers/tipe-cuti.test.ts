@@ -44,7 +44,7 @@ const onCall = async (
   } = {},
 ) => {
   const url = new URL(`http://localhost:5003/api/v1${target}`);
-  const granted = options.granted ?? { [MENU.TIPE_CUTI]: ALL };
+  const granted = options.granted ?? { [MENU.LEAVE_TYPE]: ALL };
 
   const response = await tipeCutiMock({
     request: new Request(url, {
@@ -150,7 +150,7 @@ describe("gerbang izin", () => {
   test("VIEW tanpa CREATE: POST 403", async () => {
     const result = await onCall("POST", "/tipe-cuti", {
       body: VALID,
-      granted: { [MENU.TIPE_CUTI]: ["VIEW"] },
+      granted: { [MENU.LEAVE_TYPE]: ["VIEW"] },
     });
 
     expect(result?.status).toBe(403);
@@ -158,7 +158,7 @@ describe("gerbang izin", () => {
 
   test("VIEW tanpa DELETE: DELETE 403", async () => {
     const result = await onCall("DELETE", "/tipe-cuti/TCT-0001", {
-      granted: { [MENU.TIPE_CUTI]: ["VIEW", "UPDATE"] },
+      granted: { [MENU.LEAVE_TYPE]: ["VIEW", "UPDATE"] },
     });
 
     expect(result?.status).toBe(403);
@@ -325,18 +325,18 @@ describe("/ddl/tipe-cuti", () => {
     expect(rows.map((row) => row.code)).not.toContain("TCT-0004");
   });
 
-  test("guard any-of: CUTI VIEW saja cukup, nol grant 403", async () => {
+  test("guard any-of: LEAVE VIEW saja cukup, nol grant 403", async () => {
     expect(
       (
         await onCall("GET", "/ddl/tipe-cuti", {
-          granted: { [MENU.CUTI]: ["VIEW"] },
+          granted: { [MENU.LEAVE]: ["VIEW"] },
         })
       )?.status,
     ).toBe(200);
     expect(
       (
         await onCall("GET", "/ddl/tipe-cuti", {
-          granted: { [MENU.KARYAWAN]: ["VIEW"] },
+          granted: { [MENU.EMPLOYEE]: ["VIEW"] },
         })
       )?.status,
     ).toBe(403);

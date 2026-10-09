@@ -321,14 +321,14 @@ export const karyawanMock: MockHandler = async (ctx) => {
 
   if (path === "/ddl/karyawan" && method === "GET") {
     // Any-of lima menu, sama seperti be-sada `dropdown_list.route.ts`: satu
-    // role boleh memegang CUTI CREATE tanpa KARYAWAN VIEW dan tetap harus bisa
+    // role boleh memegang LEAVE CREATE tanpa KARYAWAN VIEW dan tetap harus bisa
     // mengisi formnya.
     const isAllowed = [
-      MENU.KARYAWAN,
-      MENU.CUTI,
-      MENU.KONTRAK_KARYAWAN,
-      MENU.ABSENSI_KARYAWAN,
-      MENU.KOMPONEN_PAYROLL,
+      MENU.EMPLOYEE,
+      MENU.LEAVE,
+      MENU.EMPLOYEE_CONTRACT,
+      MENU.ATTENDANCE,
+      MENU.PAYROLL_COMPONENT,
     ].some((slug) => can(slug, "VIEW"));
 
     if (!isAllowed) return denied();
@@ -369,7 +369,7 @@ export const karyawanMock: MockHandler = async (ctx) => {
           ? "DELETE"
           : "VIEW";
 
-  if (!can(MENU.KARYAWAN, action)) return denied();
+  if (!can(MENU.EMPLOYEE, action)) return denied();
 
   if (path === "/karyawan" && method === "GET") {
     if (process.env.MOCK_500) {

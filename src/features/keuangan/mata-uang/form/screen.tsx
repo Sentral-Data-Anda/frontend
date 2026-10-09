@@ -52,7 +52,7 @@ export const CurrencyFormScreen = (props: PropTypes) => {
   const toast = useToast();
   const isEdit = Boolean(code);
   const { isCanView, isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
-    MENU.MATA_UANG,
+    MENU.CURRENCY,
   );
   const listReturn = useListReturn(MATA_UANG_LIST_PATH);
   const leaveHref = code ? currencyDetailHref(code) : listReturn;

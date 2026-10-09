@@ -28,7 +28,7 @@ const granted: { current: Record<string, MenuAction[]> } = { current: {} };
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: () => {} }),
-  usePathname: () => "/keuangan/kas-keluar/doc-7",
+  usePathname: () => "/finance/kas-keluar/doc-7",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -143,16 +143,14 @@ describe("keadaan persetujuan", () => {
     cleanup();
     onRender(expenseDetail({ approval: expenseApproval() }), {
       [MENU.KAS_KELUAR]: FULL,
-      [MENU.PERMINTAAN_PERSETUJUAN]: ["VIEW"],
+      [MENU.APPROVAL_REQUEST]: ["VIEW"],
     });
 
     expect(
       (await screen.findByRole("link", { name: "PST-2026-0007" })).getAttribute(
         "href",
       ),
-    ).toBe(
-      "/persetujuan/permintaan-persetujuan/0b5e7a00-0000-4000-a000-000000000007",
-    );
+    ).toBe("/approval/approval-request/0b5e7a00-0000-4000-a000-000000000007");
   });
 });
 
@@ -238,14 +236,14 @@ describe("entri jurnal", () => {
           status: "POSTED",
         },
       }),
-      { [MENU.KAS_KELUAR]: FULL, [MENU.JURNAL]: ["VIEW"] },
+      { [MENU.KAS_KELUAR]: FULL, [MENU.JOURNAL_ENTRY]: ["VIEW"] },
     );
 
     expect(
       (await screen.findByRole("link", { name: "JRN-2026-0031" })).getAttribute(
         "href",
       ),
-    ).toBe("/keuangan/jurnal/jrn-0031");
+    ).toBe("/finance/journal-entry/jrn-0031");
   });
 
   test("draf: tidak ada baris entri jurnal", async () => {
@@ -503,8 +501,8 @@ const onRenderPayFailure = (
   failure: { error: string; code?: string },
   access: Record<string, MenuAction[]> = {
     [MENU.KAS_KELUAR]: FULL,
-    [MENU.LAPORAN_BUDGET]: ["VIEW"],
-    [MENU.PERIODE_FISKAL]: ["VIEW"],
+    [MENU.BUDGET_REALIZATION]: ["VIEW"],
+    [MENU.FISCAL_PERIOD]: ["VIEW"],
   },
 ) => {
   granted.current = access;
@@ -557,7 +555,7 @@ describe("penolakan Bayar bercabang pada code", () => {
       name: "Lihat Laporan Budget",
     });
 
-    expect(link.getAttribute("href")).toContain("/anggaran/laporan-budget");
+    expect(link.getAttribute("href")).toContain("/report/budget-realization");
     expect(link.getAttribute("href")).toContain("komisi=2");
     expect(link.getAttribute("href")).toContain("tahun=2026");
     expect(link.getAttribute("href")).toContain("bulan=8");
@@ -585,7 +583,7 @@ describe("penolakan Bayar bercabang pada code", () => {
     expect(screen.queryByRole("link", { name: /Lihat/ })).toBeNull();
   });
 
-  test("tanpa LAPORAN_BUDGET VIEW: spanduknya tetap, tautannya tidak dirender", async () => {
+  test("tanpa BUDGET_REALIZATION VIEW: spanduknya tetap, tautannya tidak dirender", async () => {
     onRenderPayFailure(
       { error: "Belum disetujui", code: "BUDGET_REPORT_PENDING" },
       { [MENU.KAS_KELUAR]: FULL },
@@ -609,7 +607,7 @@ describe("penolakan Bayar bercabang pada code", () => {
       name: "Lihat Periode Fiskal",
     });
 
-    expect(link.getAttribute("href")).toBe("/keuangan/periode-fiskal");
+    expect(link.getAttribute("href")).toBe("/finance/fiscal-period");
     expect(
       screen.queryByRole("link", { name: "Lihat Laporan Budget" }),
     ).toBeNull();

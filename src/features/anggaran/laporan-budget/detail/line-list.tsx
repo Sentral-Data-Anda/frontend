@@ -48,7 +48,7 @@ interface PropTypes {
 export const LineList = (props: PropTypes) => {
   const { lines } = props;
 
-  const account = useMenuAccess(MENU.AKUN);
+  const account = useMenuAccess(MENU.CHART_OF_ACCOUNT);
   const program = useMenuAccess(MENU.PROGRAM);
   const expense = useMenuAccess(MENU.KAS_KELUAR);
   const total = sumAmounts(lines.map((line) => line.amount));

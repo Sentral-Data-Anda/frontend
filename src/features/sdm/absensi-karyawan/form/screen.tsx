@@ -54,7 +54,7 @@ export const AbsensiFormScreen = (props: PropTypes) => {
   const toast = useToast();
   const isEdit = Boolean(publicId);
   const { isCanView, isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
-    MENU.ABSENSI_KARYAWAN,
+    MENU.ATTENDANCE,
   );
   const listReturn = useListReturn(ABSENSI_LIST_PATH);
   const [rejectedField, setRejectedField] = useState<string | null>(null);

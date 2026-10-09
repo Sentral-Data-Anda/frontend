@@ -8,7 +8,7 @@ const actions: { current: MenuAction[] } = { current: [] };
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: () => {} }),
-  usePathname: () => "/kejemaatan/report-jemaat",
+  usePathname: () => "/report/report-jemaat",
   useSearchParams: () => new URLSearchParams("bulan=3"),
 }));
 

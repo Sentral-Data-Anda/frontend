@@ -20,7 +20,10 @@ import type {
 
 type BadgeVariant = ComponentProps<typeof Badge>["variant"];
 
-export const CYCLE_LIST_PATH = menuHref(MENU.INVENTARIS, MENU.SIKLUS_ASET);
+export const CYCLE_LIST_PATH = menuHref(
+  MENU.FIXED_ASSET,
+  MENU.ASSET_TRANSACTION,
+);
 
 export const KIND_PARAM = "jenis";
 
@@ -65,14 +68,14 @@ export const kindReturnHref = (saved: string, kind: CycleKind) => {
 };
 
 export const assetHref = (code: string) =>
-  detailHref(MENU.INVENTARIS, MENU.BARANG, code);
+  detailHref(MENU.FIXED_ASSET, MENU.ASSET_MASTER, code);
 
 export const approvalHref = (publicId: string) =>
-  detailHref(MENU.PERSETUJUAN, MENU.PERMINTAAN_PERSETUJUAN, publicId);
+  detailHref(MENU.APPROVAL, MENU.APPROVAL_REQUEST, publicId);
 
 export const APPROVAL_SETTING_PATH = menuHref(
-  MENU.PERSETUJUAN,
-  MENU.SETELAN_PERSETUJUAN,
+  MENU.APPROVAL,
+  MENU.APPROVAL_WORKFLOW,
 );
 
 export const MAINTENANCE_STATUS_LABEL: Record<MaintenanceStatus, string> = {

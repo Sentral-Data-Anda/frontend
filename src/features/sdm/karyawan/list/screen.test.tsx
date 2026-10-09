@@ -21,19 +21,19 @@ const actions: { current: MenuAction[] } = { current: [] };
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: () => undefined }),
-  usePathname: () => "/sdm/karyawan",
+  usePathname: () => "/hr/employee",
   useSearchParams: () => new URLSearchParams(search.current),
 }));
 
 /**
  * Mock SADAR-SLUG, dan ia harus begitu: factory yang mengabaikan argumennya
- * membuat `useMenuAccess(MENU.CUTI)` di ketiga layar ini tetap hijau, yaitu
+ * membuat `useMenuAccess(MENU.LEAVE)` di ketiga layar ini tetap hijau, yaitu
  * persis kelas bug yang `useMenuAccess` ada untuk mencegah. Hibah hanya
- * diberikan ke `MENU.KARYAWAN`, jadi slug lain mengembalikan nol aksi.
+ * diberikan ke `MENU.EMPLOYEE`, jadi slug lain mengembalikan nol aksi.
  */
 mock.module("@/features/auth/use-menu-access", () => ({
   useMenuAccess: (slug: string) => {
-    const granted = slug === MENU.KARYAWAN ? actions.current : [];
+    const granted = slug === MENU.EMPLOYEE ? actions.current : [];
 
     return {
       isCanView: granted.includes("VIEW"),
@@ -116,7 +116,7 @@ describe("gerbang izin", () => {
     expect(screen.queryByRole("link", { name: "Tambah karyawan" })).toBeNull();
   });
 
-  test("dengan CREATE: tombol tambah menunjuk /sdm/karyawan/baru", async () => {
+  test("dengan CREATE: tombol tambah menunjuk /hr/employee/baru", async () => {
     onRenderList(["VIEW", "CREATE"]);
 
     await screen.findByText("8 karyawan");
@@ -124,7 +124,7 @@ describe("gerbang izin", () => {
       screen
         .getByRole("link", { name: "Tambah karyawan" })
         .getAttribute("href"),
-    ).toBe("/sdm/karyawan/baru");
+    ).toBe("/hr/employee/baru");
   });
 
   test("tanpa UPDATE: nol tautan ubah di baris", async () => {
@@ -142,7 +142,7 @@ describe("gerbang izin", () => {
       screen
         .getByRole("link", { name: "Ubah Gideon Tampubolon" })
         .getAttribute("href"),
-    ).toBe("/sdm/karyawan/KRY-0003/ubah");
+    ).toBe("/hr/employee/KRY-0003/ubah");
   });
 });
 

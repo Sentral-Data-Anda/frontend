@@ -104,7 +104,7 @@ describe("mock /setelan-akuntansi", () => {
 
   test("guard VIEW dan UPDATE terpisah", async () => {
     const can = (slug: string, action: MockAction) =>
-      slug === MENU.SETELAN_AKUNTANSI && action === "VIEW";
+      slug === MENU.ACCOUNTING_SETTING && action === "VIEW";
 
     expect(
       (await onCall("GET", "/setelan-akuntansi", undefined, can))?.status,

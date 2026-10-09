@@ -14,7 +14,7 @@ import type { SetelanItem } from "../types";
 import { ConfigStatus } from "./config-status";
 
 const editHrefOf = (item: SetelanItem) =>
-  editHref(MENU.PERSETUJUAN, MENU.SETELAN_PERSETUJUAN, item.publicId);
+  editHref(MENU.APPROVAL, MENU.APPROVAL_WORKFLOW, item.publicId);
 
 const saveFocus = (item: SetelanItem) =>
   saveListFocus(SETELAN_LIST_PATH, item.publicId);

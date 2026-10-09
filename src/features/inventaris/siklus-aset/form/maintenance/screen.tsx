@@ -58,7 +58,7 @@ export const MaintenanceFormScreen = (props: PropTypes) => {
   const toast = useToast();
   const isEdit = Boolean(code);
   const { isCanView, isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
-    MENU.SIKLUS_ASET,
+    MENU.ASSET_TRANSACTION,
   );
   const listReturn = kindReturnHref(
     useListReturn(CYCLE_LIST_PATH),

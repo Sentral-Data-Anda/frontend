@@ -51,7 +51,7 @@ export const ProgramListContent = () => {
             ? yearLabel || undefined
             : `${yearLabel} · ${programList.totalData} usulan`
         }
-        backHref={domainHref(MENU.ANGGARAN)}
+        backHref={domainHref(MENU.BUDGETING)}
         action={
           isCanCreate ? (
             <PageHeaderAdd href={PROGRAM_CREATE_PATH} label="Tambah program" />

@@ -79,7 +79,7 @@ export const PayablesWidget = () => {
           ? `Semua (${state.rows.length})`
           : "Keuangan"
       }
-      actionHref={domainHref(MENU.KEUANGAN)}
+      actionHref={domainHref(MENU.FINANCE)}
       query={state}
       minHeight="min-h-48"
     >

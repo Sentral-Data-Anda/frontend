@@ -17,7 +17,7 @@ const search = { current: "" };
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: () => undefined }),
-  usePathname: () => "/pengaturan/hari-libur",
+  usePathname: () => "/settings/holiday",
   useSearchParams: () => new URLSearchParams(search.current),
 }));
 

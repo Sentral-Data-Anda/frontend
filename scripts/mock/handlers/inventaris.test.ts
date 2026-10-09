@@ -303,7 +303,7 @@ describe("pelepasan", () => {
       positions: [],
       jemaatName: "Maria Hutapea",
     });
-    const grants = [MENU.PERMINTAAN_PERSETUJUAN];
+    const grants = [MENU.APPROVAL_REQUEST];
     const printer = assetNamed("Printer Canon G2010");
     const pending = DISPOSAL.find(
       (row) => row.assetId === printer.id && row.status === "PENDING",
@@ -341,17 +341,18 @@ describe("handler inventaris", () => {
       (await call(inventarisMock, "/ddl/unit", [MENU.RUANG]))?.status,
     ).toBe(403);
     expect(
-      (await call(inventarisMock, "/ddl/unit", [MENU.BARANG_PERSEDIAAN]))
-        ?.status,
+      (await call(inventarisMock, "/ddl/unit", [MENU.STOCK_ITEM]))?.status,
     ).toBe(200);
     expect(
       await call(inventarisMock, "/ddl/asset?filter=tidak-ada", [
-        MENU.SIKLUS_ASET,
+        MENU.ASSET_TRANSACTION,
       ]),
     ).toEqual({
       status: 404,
       body: { status: 404, error: "Barang Tidak Ditemukan" },
     });
-    expect(await call(inventarisMock, "/ddl/jemaat", [MENU.BARANG])).toBeNull();
+    expect(
+      await call(inventarisMock, "/ddl/jemaat", [MENU.ASSET_MASTER]),
+    ).toBeNull();
   });
 });

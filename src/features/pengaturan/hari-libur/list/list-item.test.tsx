@@ -29,7 +29,7 @@ describe("baris HP", () => {
     onRenderRow(true);
 
     const action = screen.getByRole("link", { name: "Ubah Hari Kemerdekaan" });
-    expect(action.getAttribute("href")).toBe("/pengaturan/hari-libur/9/ubah");
+    expect(action.getAttribute("href")).toBe("/settings/holiday/9/ubah");
   });
 
   test("tanpa UPDATE: tidak ada aksi ubah sama sekali", () => {
@@ -75,7 +75,7 @@ describe("konfigurasi tabel", () => {
       ["Tipe", "minmax(0,1fr)", false],
       ["Berulang", "minmax(0,0.75fr)", true],
     ]);
-    expect(table.getRowHref?.(HOLIDAY)).toBe("/pengaturan/hari-libur/9/ubah");
+    expect(table.getRowHref?.(HOLIDAY)).toBe("/settings/holiday/9/ubah");
     expect(holidayTable(false).getRowHref).toBeUndefined();
   });
 });

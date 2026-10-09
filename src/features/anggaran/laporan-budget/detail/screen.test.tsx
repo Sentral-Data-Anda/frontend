@@ -24,7 +24,7 @@ const actions: { current: Record<string, MenuAction[]> } = { current: {} };
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: () => {} }),
-  usePathname: () => "/anggaran/laporan-budget/lpb-0001",
+  usePathname: () => "/report/budget-realization/lpb-0001",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -151,7 +151,7 @@ const report = (
 
 const onRender = (
   detail: BudgetReportDetail,
-  granted: Record<string, MenuAction[]> = { LAPORAN_BUDGET: ALL },
+  granted: Record<string, MenuAction[]> = { BUDGET_REALIZATION: ALL },
 ) => {
   actions.current = granted;
 
@@ -276,8 +276,8 @@ describe("ringkasan per program", () => {
 describe("rincian menaut dengan kunci yang benar", () => {
   test("akun memakai code, program dan Kas Keluar memakai publicId", async () => {
     onRender(report(), {
-      LAPORAN_BUDGET: ALL,
-      AKUN: ["VIEW"] as MenuAction[],
+      BUDGET_REALIZATION: ALL,
+      CHART_OF_ACCOUNT: ["VIEW"] as MenuAction[],
       PROGRAM: ["VIEW"] as MenuAction[],
       KAS_KELUAR: ["VIEW"] as MenuAction[],
     });
@@ -288,13 +288,13 @@ describe("rincian menaut dengan kunci yang benar", () => {
       node.getAttribute("href"),
     );
 
-    expect(hrefs).toContain("/keuangan/akun/5-110");
-    expect(hrefs).toContain("/anggaran/program/prg-0001");
-    expect(hrefs).toContain("/keuangan/kas-keluar/bkk-0011");
+    expect(hrefs).toContain("/finance/chart-of-account/5-110");
+    expect(hrefs).toContain("/budgeting/program/prg-0001");
+    expect(hrefs).toContain("/finance/kas-keluar/bkk-0011");
   });
 
   test("tanpa izin menu tujuan, kodenya tetap terbaca sebagai teks", async () => {
-    onRender(report(), { LAPORAN_BUDGET: ALL });
+    onRender(report(), { BUDGET_REALIZATION: ALL });
 
     await screen.findByText("Sewa tempat retret");
 
@@ -302,7 +302,7 @@ describe("rincian menaut dengan kunci yang benar", () => {
       node.getAttribute("href"),
     );
 
-    expect(hrefs).not.toContain("/keuangan/akun/5-110");
+    expect(hrefs).not.toContain("/finance/chart-of-account/5-110");
     expect(screen.getAllByText(/5-110 · Beban Administrasi/).length).toBe(2);
   });
 });
@@ -457,7 +457,7 @@ describe("aksi status", () => {
   });
 
   test("tombol Cetak selalu ada untuk pemegang VIEW", async () => {
-    onRender(report(), { LAPORAN_BUDGET: ["VIEW"] as MenuAction[] });
+    onRender(report(), { BUDGET_REALIZATION: ["VIEW"] as MenuAction[] });
 
     expect(await screen.findByRole("button", { name: "Cetak" })).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Ajukan" })).toBeNull();

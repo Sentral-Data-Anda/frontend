@@ -28,7 +28,7 @@ interface PropTypes {
 export const RealisationPanel = (props: PropTypes) => {
   const { usage, disbursed, bapelId } = props;
 
-  const { isCanView: isCanViewReport } = useMenuAccess(MENU.LAPORAN_BUDGET);
+  const { isCanView: isCanViewReport } = useMenuAccess(MENU.BUDGET_REALIZATION);
   const { isCanView: isCanViewExpense } = useMenuAccess(MENU.KAS_KELUAR);
 
   const parts = usage.parts.map((part) => ({

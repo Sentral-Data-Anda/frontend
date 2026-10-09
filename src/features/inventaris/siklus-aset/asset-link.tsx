@@ -16,7 +16,7 @@ interface PropTypes {
 export const AssetLink = (props: PropTypes) => {
   const { asset } = props;
 
-  const { isCanView } = useMenuAccess(MENU.BARANG);
+  const { isCanView } = useMenuAccess(MENU.ASSET_MASTER);
 
   return (
     <>

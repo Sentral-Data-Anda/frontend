@@ -17,7 +17,7 @@ interface PropTypes {
 export const ReceiptPanel = (props: PropTypes) => {
   const { order } = props;
 
-  const { isCanView } = useMenuAccess(MENU.PENERIMAAN_BARANG);
+  const { isCanView } = useMenuAccess(MENU.GOODS_RECEIPT);
   const { receipts } = order;
 
   return (

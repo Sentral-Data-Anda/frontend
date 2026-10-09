@@ -17,7 +17,7 @@ const LIST_FILTERS = { tahun: { api: "year" } } satisfies ListFilterSchema;
 const YEAR_OPTIONS = yearOptions();
 
 export const PenyusutanListContent = () => {
-  const { isCanCreate } = useMenuAccess(MENU.PENYUSUTAN);
+  const { isCanCreate } = useMenuAccess(MENU.DEPRECIATION);
   const listParams = useListParams({ filters: LIST_FILTERS });
   const runList = useRunList(listParams);
 
@@ -30,11 +30,11 @@ export const PenyusutanListContent = () => {
             ? undefined
             : `${runList.totalData} periode`
         }
-        backHref={domainHref(MENU.INVENTARIS)}
+        backHref={domainHref(MENU.FIXED_ASSET)}
         action={
           isCanCreate ? (
             <PageHeaderAdd
-              href={createHref(MENU.INVENTARIS, MENU.PENYUSUTAN)}
+              href={createHref(MENU.FIXED_ASSET, MENU.DEPRECIATION)}
               label="Buka periode"
               text="Buka periode"
             />

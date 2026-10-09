@@ -41,7 +41,7 @@ export const TipeBarangSection = (props: PropTypes) => {
   // for it even disabled, because `/ddl/account` does not list Tipe Barang
   // among its menus and would answer 403 — so there would be nothing to show.
   const { isCanUpdate: isCanSetAccounts } = useMenuAccess(
-    MENU.SETELAN_AKUNTANSI,
+    MENU.ACCOUNTING_SETTING,
   );
 
   return (

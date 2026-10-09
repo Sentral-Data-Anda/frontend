@@ -32,14 +32,14 @@ interface PropTypes {
 
 const SECTIONS: CashFlowSection[] = ["OPERASI", "INVESTASI", "PENDANAAN"];
 
-const AKUN_PATH = menuHref(MENU.KEUANGAN, MENU.AKUN);
+const AKUN_PATH = menuHref(MENU.FINANCE, MENU.CHART_OF_ACCOUNT);
 
 const AMOUNT = "shrink-0 pl-3 text-right tabular-nums";
 
 export const CashFlowStatement = (props: PropTypes) => {
   const { month, onPickMonth } = props;
 
-  const accountAccess = useMenuAccess(MENU.AKUN);
+  const accountAccess = useMenuAccess(MENU.CHART_OF_ACCOUNT);
   const options = monthOptions();
   const range = monthRange(month);
   const report = useArusKas(range.startDate, range.endDate);

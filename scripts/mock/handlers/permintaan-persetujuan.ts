@@ -912,13 +912,13 @@ export const createPermintaanPersetujuanMock = (
     const [, publicId, verb] = match;
 
     if (method === "PUT" && publicId && verb) {
-      if (!can(MENU.PERMINTAAN_PERSETUJUAN, "UPDATE")) return denied();
+      if (!can(MENU.APPROVAL_REQUEST, "UPDATE")) return denied();
 
       return act(request, publicId, verb as "setujui" | "tolak" | "tarik");
     }
 
     if (method !== "GET" || verb) return null;
-    if (!can(MENU.PERMINTAAN_PERSETUJUAN, "VIEW")) return denied();
+    if (!can(MENU.APPROVAL_REQUEST, "VIEW")) return denied();
 
     if (!publicId) {
       if (process.env.MOCK_500) return fail(500, "Kesalahan server.");

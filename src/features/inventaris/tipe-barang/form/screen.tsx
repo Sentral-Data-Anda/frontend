@@ -53,7 +53,7 @@ export const TipeBarangFormScreen = (props: PropTypes) => {
   const toast = useToast();
   const isEdit = Boolean(code);
   const { isCanView, isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
-    MENU.TIPE_BARANG,
+    MENU.ITEM_CATEGORY,
   );
   const listReturn = useListReturn(TIPE_BARANG_LIST_PATH);
   const [rejectedField, setRejectedField] = useState<string | null>(null);

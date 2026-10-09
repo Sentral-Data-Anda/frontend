@@ -23,8 +23,8 @@ interface PropTypes {
 export const SummaryPanel = (props: PropTypes) => {
   const { expense } = props;
 
-  const { isCanView: isCanViewAccount } = useMenuAccess(MENU.AKUN);
-  const { isCanView: isCanViewJournal } = useMenuAccess(MENU.JURNAL);
+  const { isCanView: isCanViewAccount } = useMenuAccess(MENU.CHART_OF_ACCOUNT);
+  const { isCanView: isCanViewJournal } = useMenuAccess(MENU.JOURNAL_ENTRY);
   const account = expense.paidFromAccount;
   const accountText = `${account.code} — ${account.name}`;
   const { journal } = expense;

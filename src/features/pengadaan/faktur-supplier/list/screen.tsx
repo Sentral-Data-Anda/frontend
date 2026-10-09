@@ -8,7 +8,7 @@ import { useMenuAccess } from "@/features/auth";
 import { InvoiceListContent } from "./list-content";
 
 export const InvoiceListScreen = () => {
-  const { isCanView } = useMenuAccess(MENU.FAKTUR_SUPPLIER);
+  const { isCanView } = useMenuAccess(MENU.SUPPLIER_INVOICE);
 
   return isCanView ? (
     <InvoiceListContent />
@@ -16,7 +16,7 @@ export const InvoiceListScreen = () => {
     <div className="pb-6">
       <PageHeader
         title="Faktur Supplier"
-        backHref={domainHref(MENU.PENGADAAN)}
+        backHref={domainHref(MENU.PROCUREMENT)}
       />
       <EmptyState
         title="Anda tidak memiliki akses ke Faktur Supplier"

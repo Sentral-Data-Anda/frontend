@@ -21,7 +21,7 @@ import { penetapanTable, PenetapanListItemRow } from "./penetapan-item";
 const ALL_OPTION = { value: "", label: "Semua" };
 
 export const PenetapanList = () => {
-  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.KOMPONEN_PAYROLL);
+  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.PAYROLL_COMPONENT);
   const listParams = useListParams({ filters: PENETAPAN_FILTERS });
   const assignments = usePenetapanList(listParams);
   const karyawan = useDdlOptions("karyawan");
@@ -36,7 +36,7 @@ export const PenetapanList = () => {
             ? undefined
             : `${assignments.totalData} penetapan`
         }
-        backHref={domainHref(MENU.SDM)}
+        backHref={domainHref(MENU.HR)}
         action={
           isCanCreate ? (
             <PageHeaderAdd

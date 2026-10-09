@@ -45,8 +45,8 @@ const POSTING_ICON = {
 } as const;
 
 export const JournalListContent = () => {
-  const { isCanCreate } = useMenuAccess(MENU.JURNAL);
-  const accountAccess = useMenuAccess(MENU.AKUN);
+  const { isCanCreate } = useMenuAccess(MENU.JOURNAL_ENTRY);
+  const accountAccess = useMenuAccess(MENU.CHART_OF_ACCOUNT);
   const listParams = useListParams({ filters: JOURNAL_FILTERS });
   const journalList = useJournalList(listParams);
   const accounts = useDdlOptions<AccountRow>(
@@ -79,7 +79,7 @@ export const JournalListContent = () => {
             ? undefined
             : `${journalList.totalData} entri`
         }
-        backHref={domainHref(MENU.KEUANGAN)}
+        backHref={domainHref(MENU.FINANCE)}
         action={
           isCanCreate && !isBookEmpty ? (
             <PageHeaderAdd
@@ -168,7 +168,7 @@ export const JournalListContent = () => {
             isAccountMissing ? (
               accountAccess.isCanView ? (
                 <Link
-                  href={menuHref(MENU.KEUANGAN, MENU.AKUN)}
+                  href={menuHref(MENU.FINANCE, MENU.CHART_OF_ACCOUNT)}
                   className={cn(
                     buttonVariants({ variant: "outline" }),
                     "cursor-pointer",

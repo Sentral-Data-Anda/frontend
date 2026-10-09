@@ -52,7 +52,7 @@ export const SetelanFormScreen = (props: PropTypes) => {
   const toast = useToast();
   const isEdit = Boolean(id);
   const { isCanView, isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
-    MENU.SETELAN_PERSETUJUAN,
+    MENU.APPROVAL_WORKFLOW,
   );
   const listReturn = useListReturn(SETELAN_LIST_PATH);
   const [rejectedField, setRejectedField] = useState<string | null>(null);

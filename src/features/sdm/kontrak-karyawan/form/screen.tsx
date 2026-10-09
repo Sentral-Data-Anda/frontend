@@ -59,7 +59,7 @@ export const KontrakFormScreen = (props: PropTypes) => {
   const toast = useToast();
   const isEdit = Boolean(code);
   const { isCanView, isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
-    MENU.KONTRAK_KARYAWAN,
+    MENU.EMPLOYEE_CONTRACT,
   );
   const listReturn = useListReturn(LIST_PATH);
   const [rejectedField, setRejectedField] = useState<string | null>(null);

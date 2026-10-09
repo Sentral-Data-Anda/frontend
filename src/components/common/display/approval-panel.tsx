@@ -44,11 +44,11 @@ export const ApprovalPanel = <S extends ApprovalStepView>(
 ) => {
   const { approval, pendingText, renderStep, alert, children } = props;
 
-  const { isCanView } = useMenuAccess(MENU.PERMINTAAN_PERSETUJUAN);
+  const { isCanView } = useMenuAccess(MENU.APPROVAL_REQUEST);
 
   const href = detailHref(
-    MENU.PERSETUJUAN,
-    MENU.PERMINTAAN_PERSETUJUAN,
+    MENU.APPROVAL,
+    MENU.APPROVAL_REQUEST,
     approval.publicId,
   );
 

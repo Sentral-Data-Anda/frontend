@@ -23,7 +23,7 @@ interface PropTypes {
 export const IncomeStatement = (props: PropTypes) => {
   const { month, onPickMonth } = props;
 
-  const accountAccess = useMenuAccess(MENU.AKUN);
+  const accountAccess = useMenuAccess(MENU.CHART_OF_ACCOUNT);
   const options = monthOptions();
   const range = monthRange(month);
   const surplus = useSurplusDefisit(range.startDate, range.endDate);

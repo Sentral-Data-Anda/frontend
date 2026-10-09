@@ -11,7 +11,7 @@ import { useRoleUserList } from "../api";
 import { RoleUserListItemRow, roleUserTable } from "./list-item";
 
 export const RoleUserListScreen = () => {
-  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.ROLE_USER);
+  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.USER_ROLE);
   const listParams = useListParams();
   const roleList = useRoleUserList(listParams);
 
@@ -24,11 +24,11 @@ export const RoleUserListScreen = () => {
             ? undefined
             : `${roleList.totalData} role`
         }
-        backHref={domainHref(MENU.PENGATURAN)}
+        backHref={domainHref(MENU.SETTINGS)}
         action={
           isCanCreate ? (
             <PageHeaderAdd
-              href={createHref(MENU.PENGATURAN, MENU.ROLE_USER)}
+              href={createHref(MENU.SETTINGS, MENU.USER_ROLE)}
               label="Tambah role"
             />
           ) : null

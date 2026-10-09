@@ -17,7 +17,7 @@ const actions: { current: Record<string, MenuAction[]> } = { current: {} };
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: () => undefined }),
-  usePathname: () => "/keuangan/persembahan/PSB-2026-0001",
+  usePathname: () => "/finance/persembahan/PSB-2026-0001",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -175,12 +175,12 @@ describe("ringkasan", () => {
 
   test("periode tampil sebagai bulan; entri jurnal bertaut bila punya akses", async () => {
     onMockApi();
-    onRender({ PERSEMBAHAN: ["VIEW"], JURNAL: ["VIEW"] });
+    onRender({ PERSEMBAHAN: ["VIEW"], JOURNAL_ENTRY: ["VIEW"] });
 
     expect(await screen.findByText("September 2026")).toBeTruthy();
     expect(
       screen.getByRole("link", { name: /JRN-2026-0002/ }).getAttribute("href"),
-    ).toBe("/keuangan/jurnal/jrn-0002");
+    ).toBe("/finance/journal-entry/jrn-0002");
   });
 
   test("pemberi anonim tampil Anonim, bukan sel kosong", async () => {
@@ -207,7 +207,7 @@ describe("batalkan", () => {
 
   test("dengan alasan: konfirmasi menyebut pembalikan, lalu POST /void", async () => {
     const calls = onMockApi();
-    onRender({ PERSEMBAHAN: ["VIEW", "DELETE"], JURNAL: ["VIEW"] });
+    onRender({ PERSEMBAHAN: ["VIEW", "DELETE"], JOURNAL_ENTRY: ["VIEW"] });
 
     await onVoid("Terhitung dua kali.");
 
@@ -232,10 +232,10 @@ describe("batalkan", () => {
       screen
         .getByRole("link", { name: /entri pembalik JRN-2026-0007/ })
         .getAttribute("href"),
-    ).toBe("/keuangan/jurnal/jrn-0007");
+    ).toBe("/finance/journal-entry/jrn-0007");
   });
 
-  test("tanpa JURNAL VIEW: pembatalan terbaca, tanpa tautan pembalik", async () => {
+  test("tanpa JOURNAL_ENTRY VIEW: pembatalan terbaca, tanpa tautan pembalik", async () => {
     onMockApi({
       ...ROW,
       status: "VOID",
@@ -270,7 +270,7 @@ describe("batalkan", () => {
       error: "Periode Fiskal September 2026 Sudah Ditutup",
       code: "PERIOD_CLOSED",
     });
-    onRender({ PERSEMBAHAN: ["VIEW", "DELETE"], PERIODE_FISKAL: ["VIEW"] });
+    onRender({ PERSEMBAHAN: ["VIEW", "DELETE"], FISCAL_PERIOD: ["VIEW"] });
 
     await onVoid("Terhitung dua kali.");
     fireEvent.click(screen.getByRole("button", { name: "Ya" }));
@@ -286,7 +286,7 @@ describe("batalkan", () => {
       screen
         .getByRole("link", { name: "Lihat periode fiskal" })
         .getAttribute("href"),
-    ).toBe("/keuangan/periode-fiskal");
+    ).toBe("/finance/fiscal-period");
     expect(
       screen.getByRole("button", { name: "Batalkan persembahan" }),
     ).toBeTruthy();

@@ -49,7 +49,7 @@ export const HolidayFormScreen = (props: PropTypes) => {
   const toast = useToast();
   const isEdit = Boolean(id);
   const { isCanView, isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
-    MENU.HARI_LIBUR,
+    MENU.HOLIDAY,
   );
   const listReturn = useListReturn(HARI_LIBUR_LIST_PATH);
   const [rejectedField, setRejectedField] = useState<string | null>(null);

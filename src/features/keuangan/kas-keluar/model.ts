@@ -26,29 +26,29 @@ import type { CashExpenseDetail, ExpenseState } from "./types";
 
 type BadgeVariant = ComponentProps<typeof Badge>["variant"];
 
-export const EXPENSE_LIST_PATH = menuHref(MENU.KEUANGAN, MENU.KAS_KELUAR);
+export const EXPENSE_LIST_PATH = menuHref(MENU.FINANCE, MENU.KAS_KELUAR);
 
-export const EXPENSE_CREATE_PATH = createHref(MENU.KEUANGAN, MENU.KAS_KELUAR);
+export const EXPENSE_CREATE_PATH = createHref(MENU.FINANCE, MENU.KAS_KELUAR);
 
 export const expenseHref = (publicId: string) =>
-  detailHref(MENU.KEUANGAN, MENU.KAS_KELUAR, publicId);
+  detailHref(MENU.FINANCE, MENU.KAS_KELUAR, publicId);
 
 export const expenseEditHref = (publicId: string) =>
-  editHref(MENU.KEUANGAN, MENU.KAS_KELUAR, publicId);
+  editHref(MENU.FINANCE, MENU.KAS_KELUAR, publicId);
 
 export const approvalHref = (publicId: string) =>
-  detailHref(MENU.PERSETUJUAN, MENU.PERMINTAAN_PERSETUJUAN, publicId);
+  detailHref(MENU.APPROVAL, MENU.APPROVAL_REQUEST, publicId);
 
 // Rute Jurnal hanya menerima publicId; kodenya untuk dibaca, bukan dirute.
 export const journalHref = (publicId: string) =>
-  detailHref(MENU.KEUANGAN, MENU.JURNAL, publicId);
+  detailHref(MENU.FINANCE, MENU.JOURNAL_ENTRY, publicId);
 
 export const accountHref = (code: string) =>
-  detailHref(MENU.KEUANGAN, MENU.AKUN, code);
+  detailHref(MENU.FINANCE, MENU.CHART_OF_ACCOUNT, code);
 
-export const PERIOD_PATH = menuHref(MENU.KEUANGAN, MENU.PERIODE_FISKAL);
+export const PERIOD_PATH = menuHref(MENU.FINANCE, MENU.FISCAL_PERIOD);
 
-const REPORT_PATH = menuHref(MENU.ANGGARAN, MENU.LAPORAN_BUDGET);
+const REPORT_PATH = menuHref(MENU.REPORT, MENU.BUDGET_REALIZATION);
 
 /** M−1 dari `expenseDate`, dengan Januari mundur ke Desember tahun sebelumnya. */
 export const previousMonthOf = (expenseDate: string) => {
@@ -73,9 +73,9 @@ export const reportCreateHref = (
   year: number,
   month: number,
 ) =>
-  `${createHref(MENU.ANGGARAN, MENU.LAPORAN_BUDGET)}?komisi=${bapelId}&tahun=${year}&bulan=${month}`;
+  `${createHref(MENU.REPORT, MENU.BUDGET_REALIZATION)}?komisi=${bapelId}&tahun=${year}&bulan=${month}`;
 
-export const ACCOUNT_PATH = menuHref(MENU.KEUANGAN, MENU.AKUN);
+export const ACCOUNT_PATH = menuHref(MENU.FINANCE, MENU.CHART_OF_ACCOUNT);
 
 export const NO_VIEW =
   "Hubungi administrator bila Anda memang seharusnya memegang akses ini.";
@@ -408,29 +408,29 @@ export type ErrorFix = { menu: MenuSlug; href: string; label: string };
 
 const ERROR_FIX: Record<string, ErrorFix> = {
   PERIOD_NOT_OPEN: {
-    menu: MENU.PERIODE_FISKAL,
+    menu: MENU.FISCAL_PERIOD,
     href: PERIOD_PATH,
     label: "Buka periode fiskal",
   },
   PERIOD_CLOSED: {
-    menu: MENU.PERIODE_FISKAL,
+    menu: MENU.FISCAL_PERIOD,
     href: PERIOD_PATH,
     label: "Lihat Periode Fiskal",
   },
   PERIOD_CLOSED_UNDER_LOCK: {
-    menu: MENU.PERIODE_FISKAL,
+    menu: MENU.FISCAL_PERIOD,
     href: PERIOD_PATH,
     label: "Lihat Periode Fiskal",
   },
   ACCOUNT_INACTIVE: {
-    menu: MENU.AKUN,
+    menu: MENU.CHART_OF_ACCOUNT,
     href: ACCOUNT_PATH,
     label: "Lihat Akun",
   },
   // Tanpa tautan tetap: `errorFixOf` menggantinya dengan tautan tersaring
   // komisi + bulan begitu pemanggilnya tahu dokumennya.
   BUDGET_REPORT_PENDING: {
-    menu: MENU.LAPORAN_BUDGET,
+    menu: MENU.BUDGET_REALIZATION,
     href: REPORT_PATH,
     label: "Lihat Laporan Budget",
   },

@@ -24,7 +24,7 @@
  *                                         sekretariat | bendahara | majelis | operator |
  *                                         koordinator | panitia.
  *                                         Lihat `scripts/mock-dashboard.ts`.
- *   MOCK_MAJELIS_NO_FINANCE=1           → majelis tanpa LAPORAN_KEUANGAN
+ *   MOCK_MAJELIS_NO_FINANCE=1           → majelis tanpa FINANCIAL_STATEMENT
  *   MOCK_DELAY_MS=3000 bun run dev:mock → semua jawaban ditunda 3 detik (layar tunggu)
  *   MOCK_EMPTY=1 bun run dev:mock       → SEMUA daftar kosong (404 ala be-sada):
  *                                         keadaan kosong tiap layar dan tiap widget
@@ -246,7 +246,7 @@ const jemaatDetail = (row: (typeof rows)[number]) => {
 
 if (process.env.MOCK_SINGLE_LEAF) {
   TREE[MENU.PERIBADAHAN] = [MENU.IBADAH];
-  delete TREE[MENU.PENGATURAN];
+  delete TREE[MENU.SETTINGS];
 }
 
 const persona = currentPersona();

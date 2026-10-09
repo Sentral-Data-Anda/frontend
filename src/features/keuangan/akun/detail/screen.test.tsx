@@ -20,7 +20,7 @@ const granted: { current: Record<string, MenuAction[]> } = { current: {} };
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: () => {} }),
-  usePathname: () => "/keuangan/akun/1",
+  usePathname: () => "/finance/chart-of-account/1",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -110,7 +110,7 @@ const onRender = (
 
 describe("halaman akun", () => {
   test("ringkasan: kode, nama, tipe, induk, status", async () => {
-    onRender({ [MENU.AKUN]: ["VIEW"] }, CHILD);
+    onRender({ [MENU.CHART_OF_ACCOUNT]: ["VIEW"] }, CHILD);
 
     expect(await screen.findByText("Kode")).toBeTruthy();
     expect(screen.getByText("Tipe")).toBeTruthy();
@@ -120,55 +120,55 @@ describe("halaman akun", () => {
   });
 
   test("akun utama ditulis apa adanya, tanpa tautan induk", async () => {
-    onRender({ [MENU.AKUN]: ["VIEW"] });
+    onRender({ [MENU.CHART_OF_ACCOUNT]: ["VIEW"] });
 
     expect(await screen.findByText("Akun utama")).toBeTruthy();
   });
 
   test("Ubah hanya dengan UPDATE; halaman baca tidak punya Hapus", async () => {
-    onRender({ [MENU.AKUN]: ["VIEW", "DELETE"] });
+    onRender({ [MENU.CHART_OF_ACCOUNT]: ["VIEW", "DELETE"] });
 
     await screen.findByText("Kode");
     expect(screen.queryByRole("link", { name: "Ubah" })).toBeNull();
     expect(screen.queryByRole("button", { name: "Hapus" })).toBeNull();
 
     cleanup();
-    onRender({ [MENU.AKUN]: ["VIEW", "UPDATE", "DELETE"] });
+    onRender({ [MENU.CHART_OF_ACCOUNT]: ["VIEW", "UPDATE", "DELETE"] });
 
     expect(await screen.findByRole("link", { name: "Ubah" })).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Hapus" })).toBeNull();
   });
 
   test("buku besar hanya ditawarkan dengan izin Laporan Keuangan", async () => {
-    onRender({ [MENU.AKUN]: ["VIEW"] });
+    onRender({ [MENU.CHART_OF_ACCOUNT]: ["VIEW"] });
 
     await screen.findByText("Kode");
     expect(screen.queryByRole("link", { name: "Lihat buku besar" })).toBeNull();
 
     cleanup();
     onRender({
-      [MENU.AKUN]: ["VIEW"],
-      [MENU.LAPORAN_KEUANGAN]: ["VIEW"],
+      [MENU.CHART_OF_ACCOUNT]: ["VIEW"],
+      [MENU.FINANCIAL_STATEMENT]: ["VIEW"],
     });
 
     expect(
       (
         await screen.findByRole("link", { name: "Lihat buku besar" })
       ).getAttribute("href"),
-    ).toBe("/keuangan/laporan-keuangan?tab=buku-besar&code=1");
+    ).toBe("/report/financial-statement?tab=buku-besar&code=1");
   });
 });
 
 describe("sub akun", () => {
   test("anaknya terdaftar di panel sendiri", async () => {
-    onRender({ [MENU.AKUN]: ["VIEW"] });
+    onRender({ [MENU.CHART_OF_ACCOUNT]: ["VIEW"] });
 
     expect(await screen.findByLabelText("Lihat akun 1-100 Kas")).toBeTruthy();
   });
 
   test("tanpa anak: teks muted, tanpa permintaan daftar", async () => {
     let isListed = false;
-    granted.current = { [MENU.AKUN]: ["VIEW"] };
+    granted.current = { [MENU.CHART_OF_ACCOUNT]: ["VIEW"] };
     globalThis.fetch = (async (input: RequestInfo | URL) => {
       if (String(input).includes("parentAccountId")) isListed = true;
 

@@ -52,7 +52,7 @@ describe("selectWidgets", () => {
   test("gate: semua syarat harus dipegang, aksinya persis", () => {
     const widgets = [
       widget("dua-izin", "main", [
-        { slug: MENU.LAPORAN_KEUANGAN, action: "VIEW" },
+        { slug: MENU.FINANCIAL_STATEMENT, action: "VIEW" },
         { slug: MENU.KAS_KELUAR, action: "VIEW" },
       ]),
       widget("create", "main", [{ slug: MENU.KAS_KELUAR, action: "CREATE" }]),
@@ -65,7 +65,7 @@ describe("selectWidgets", () => {
     const both = [
       domain([
         leaf(MENU.KAS_KELUAR, ["VIEW"]),
-        leaf(MENU.LAPORAN_KEUANGAN, ["VIEW"]),
+        leaf(MENU.FINANCIAL_STATEMENT, ["VIEW"]),
       ]),
     ];
     expect(ids(selectWidgets(both, widgets, true).main)).toEqual([
@@ -237,7 +237,7 @@ describe("persona dev:mock", () => {
       "kpi-surplus-year",
       "kpi-payables",
     ]);
-    // `budget-use` masuk karena bendahara kini memegang PAGU_ANGGARAN
+    // `budget-use` masuk karena bendahara kini memegang BUDGET
     // (keputusan user: pagu milik majelis DAN bendahara). Widget-nya masih
     // `isDummy`, jadi ia hanya tampil di luar production.
     expect(main).toEqual([
@@ -328,7 +328,7 @@ describe("persona dev:mock", () => {
 describe("selectWidgets: pilihan tampilan", () => {
   const menu = [
     domain([
-      leaf(MENU.LAPORAN_KEUANGAN, ["VIEW"]),
+      leaf(MENU.FINANCIAL_STATEMENT, ["VIEW"]),
       leaf(MENU.KAS_KELUAR, ["VIEW"]),
       leaf(MENU.IBADAH, ["VIEW"]),
     ]),

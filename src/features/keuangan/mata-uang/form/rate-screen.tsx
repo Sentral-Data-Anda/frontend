@@ -58,7 +58,7 @@ export const RateFormScreen = (props: PropTypes) => {
   const toast = useToast();
   const isEdit = Boolean(id);
   const { isCanView, isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
-    MENU.MATA_UANG,
+    MENU.CURRENCY,
   );
   const isAllowed = isEdit ? isCanUpdate : isCanCreate;
   const currencyCode = code.toUpperCase();

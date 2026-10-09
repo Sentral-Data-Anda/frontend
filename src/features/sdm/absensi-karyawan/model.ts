@@ -17,7 +17,7 @@ import {
   type AbsensiKaryawanPayload,
 } from "./types";
 
-export const ABSENSI_LIST_PATH = menuHref(MENU.SDM, MENU.ABSENSI_KARYAWAN);
+export const ABSENSI_LIST_PATH = menuHref(MENU.HR, MENU.ATTENDANCE);
 
 export const NOUN = "absensi karyawan";
 

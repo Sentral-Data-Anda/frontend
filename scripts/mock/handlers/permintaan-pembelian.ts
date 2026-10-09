@@ -406,8 +406,7 @@ export const permintaanPembelianMock: MockHandler = async (ctx) => {
 
   const code = match[1] ? decodeURIComponent(match[1]) : undefined;
   const actionName = match[2] as keyof typeof ACTIONS | undefined;
-  const can = (action: MockAction) =>
-    ctx.can(MENU.PERMINTAAN_PEMBELIAN, action);
+  const can = (action: MockAction) => ctx.can(MENU.PURCHASE_REQUEST, action);
 
   if (actionName && code) {
     const action = ACTIONS[actionName];

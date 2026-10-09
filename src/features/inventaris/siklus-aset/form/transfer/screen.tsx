@@ -42,7 +42,7 @@ import { TransferSection } from "./transfer-section";
 export const TransferFormScreen = () => {
   const router = useRouter();
   const toast = useToast();
-  const { isCanView, isCanCreate } = useMenuAccess(MENU.SIKLUS_ASET);
+  const { isCanView, isCanCreate } = useMenuAccess(MENU.ASSET_TRANSACTION);
   const listReturn = kindReturnHref(useListReturn(CYCLE_LIST_PATH), "pindah");
   const [rejectedField, setRejectedField] = useState<string | null>(null);
   const [pickAsset, setPickAsset] = useState<AssetOption>();

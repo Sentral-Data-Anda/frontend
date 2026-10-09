@@ -14,7 +14,7 @@ export const SatuanListScreen = () => {
 
   return (
     <div className="pb-6">
-      <PageHeader title="Satuan" backHref={domainHref(MENU.INVENTARIS)} />
+      <PageHeader title="Satuan" backHref={domainHref(MENU.INVENTORY)} />
 
       <EmptyState
         title="Anda tidak memiliki akses ke Satuan"

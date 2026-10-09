@@ -517,7 +517,7 @@ export const siklusAsetMock: MockHandler = async (ctx) => {
     Boolean(match[3]),
   );
   if (!route) return null;
-  if (!ctx.can(MENU.SIKLUS_ASET, route.action)) return denied();
+  if (!ctx.can(MENU.ASSET_TRANSACTION, route.action)) return denied();
   if (ctx.method !== "GET") {
     const error = saveError();
     if (error) return error;

@@ -39,16 +39,16 @@ const CRUD: MenuAction[] = ["VIEW", "CREATE", "UPDATE", "DELETE"];
 // Tabel aksi per menu dari brief role-user (MENU_ACTIONS be-sada, B1).
 const ACTIONS: Partial<Record<MenuSlug, MenuAction[]>> = {
   [MENU.ACTIVITY_LOG]: V,
-  [MENU.LAPORAN_KEUANGAN]: V,
+  [MENU.FINANCIAL_STATEMENT]: V,
   [MENU.REPORT_JEMAAT]: V,
-  [MENU.MUTASI_STOK]: VC,
-  [MENU.PEMBAYARAN]: VC,
-  [MENU.PENERIMAAN_BARANG]: VC,
+  [MENU.STOCK_MOVEMENT]: VC,
+  [MENU.PAYMENT]: VC,
+  [MENU.GOODS_RECEIPT]: VC,
   [MENU.PENDAFTARAN_EVENT]: ["VIEW", "CREATE", "DELETE"],
   [MENU.PERSEMBAHAN]: ["VIEW", "CREATE", "DELETE"],
-  [MENU.PERIODE_FISKAL]: ["VIEW", "CREATE", "UPDATE"],
-  [MENU.PERMINTAAN_PERSETUJUAN]: ["VIEW", "UPDATE"],
-  [MENU.SETELAN_AKUNTANSI]: ["VIEW", "UPDATE"],
+  [MENU.FISCAL_PERIOD]: ["VIEW", "CREATE", "UPDATE"],
+  [MENU.APPROVAL_REQUEST]: ["VIEW", "UPDATE"],
+  [MENU.ACCOUNTING_SETTING]: ["VIEW", "UPDATE"],
   [MENU.USER]: [...CRUD, "RESET"],
 };
 
@@ -250,7 +250,7 @@ export const roleUserMock: MockHandler = async ({
 
   if (path !== "/role" && !path.startsWith("/role/")) return null;
 
-  if (!can(MENU.ROLE_USER, ACTION_BY_METHOD[method] ?? "VIEW")) {
+  if (!can(MENU.USER_ROLE, ACTION_BY_METHOD[method] ?? "VIEW")) {
     return denied();
   }
 

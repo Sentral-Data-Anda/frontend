@@ -21,7 +21,7 @@ const call = async (path: string, granted: MockAction[] = ["VIEW"]) => {
     path: url.pathname.replace("/api/v1", ""),
     method: "GET",
     can: (slug, action) =>
-      slug === MENU.LAPORAN_KEUANGAN && granted.includes(action),
+      slug === MENU.FINANCIAL_STATEMENT && granted.includes(action),
     isAdmin: false,
     sessionCode: "test",
   };

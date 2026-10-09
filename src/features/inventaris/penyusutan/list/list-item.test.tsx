@@ -30,7 +30,7 @@ describe("baris periode", () => {
       screen
         .getByRole("link", { name: "Lihat penyusutan Agustus 2026" })
         .getAttribute("href"),
-    ).toBe("/inventaris/penyusutan/PNY-2026-0003");
+    ).toBe("/fixed-asset/depreciation/PNY-2026-0003");
   });
 
   test("draf belum dihitung: tanpa total dan jumlah barang", () => {

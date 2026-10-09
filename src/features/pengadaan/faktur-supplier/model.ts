@@ -16,18 +16,21 @@ import type {
   PaymentPayload,
 } from "./types";
 
-export const INVOICE_LIST_PATH = menuHref(MENU.PENGADAAN, MENU.FAKTUR_SUPPLIER);
+export const INVOICE_LIST_PATH = menuHref(
+  MENU.PROCUREMENT,
+  MENU.SUPPLIER_INVOICE,
+);
 
 export const INVOICE_CREATE_PATH = createHref(
-  MENU.PENGADAAN,
-  MENU.FAKTUR_SUPPLIER,
+  MENU.PROCUREMENT,
+  MENU.SUPPLIER_INVOICE,
 );
 
 export const invoiceHref = (publicId: string) =>
-  detailHref(MENU.PENGADAAN, MENU.FAKTUR_SUPPLIER, publicId);
+  detailHref(MENU.PROCUREMENT, MENU.SUPPLIER_INVOICE, publicId);
 
 export const invoiceEditHref = (publicId: string) =>
-  editHref(MENU.PENGADAAN, MENU.FAKTUR_SUPPLIER, publicId);
+  editHref(MENU.PROCUREMENT, MENU.SUPPLIER_INVOICE, publicId);
 
 export const NO_VIEW = "Peran Anda tidak memiliki akses ke Faktur Supplier.";
 

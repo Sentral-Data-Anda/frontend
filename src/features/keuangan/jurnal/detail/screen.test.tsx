@@ -26,7 +26,7 @@ const actions: { current: MenuAction[] } = { current: [] };
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: () => {}, push: () => {} }),
-  usePathname: () => "/keuangan/jurnal/jrn-1",
+  usePathname: () => "/finance/journal-entry/jrn-1",
   useSearchParams: () => new URLSearchParams(),
 }));
 

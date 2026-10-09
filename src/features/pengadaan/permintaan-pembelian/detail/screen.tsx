@@ -52,7 +52,7 @@ export const RequestDetailScreen = (props: PropTypes) => {
 
   const router = useRouter();
   const toast = useToast();
-  const { isCanView } = useMenuAccess(MENU.PERMINTAAN_PEMBELIAN);
+  const { isCanView } = useMenuAccess(MENU.PURCHASE_REQUEST);
   const listReturn = useListReturn(REQUEST_LIST_PATH);
   const detail = useRequestDetail(isCanView ? code : undefined);
   const action = useRequestAction(code);
@@ -94,7 +94,7 @@ export const RequestDetailScreen = (props: PropTypes) => {
   if (!isCanView) {
     return (
       <div className="pb-8">
-        <PageHeader title={TITLE} backHref={domainHref(MENU.PENGADAAN)} />
+        <PageHeader title={TITLE} backHref={domainHref(MENU.PROCUREMENT)} />
         <EmptyState
           title="Anda tidak memiliki akses ke Permintaan Pembelian"
           description="Hubungi administrator bila Anda memang seharusnya memegang akses ini."

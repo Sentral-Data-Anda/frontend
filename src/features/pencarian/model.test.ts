@@ -21,7 +21,7 @@ const keluarga = leaf("6", MENU.KELUARGA, "Keluarga");
 
 const keuangan: MenuNode = {
   publicId: "1",
-  slug: "KEUANGAN",
+  slug: "FINANCE",
   name: "Keuangan",
   order: 1,
   action: [],

@@ -430,7 +430,7 @@ export const kontrakKaryawanMock: MockHandler = async (context) => {
 
   if (path !== BASE && !path.startsWith(`${BASE}/`)) return null;
 
-  if (!can(MENU.KONTRAK_KARYAWAN, actionOf(method))) return denied();
+  if (!can(MENU.EMPLOYEE_CONTRACT, actionOf(method))) return denied();
 
   if (method === "GET" && isStepUpBlocked()) return stepUpRequired();
 

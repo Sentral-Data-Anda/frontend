@@ -26,7 +26,7 @@ const TYPE_FILTER_OPTIONS = [
 ];
 
 export const HolidayListScreen = () => {
-  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.HARI_LIBUR);
+  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.HOLIDAY);
   const listParams = useListParams({ filters: LIST_FILTERS });
   const holidayList = useHolidayList(listParams);
 
@@ -39,11 +39,11 @@ export const HolidayListScreen = () => {
             ? undefined
             : `${holidayList.totalData} hari libur`
         }
-        backHref={domainHref(MENU.PENGATURAN)}
+        backHref={domainHref(MENU.SETTINGS)}
         action={
           isCanCreate ? (
             <PageHeaderAdd
-              href={createHref(MENU.PENGATURAN, MENU.HARI_LIBUR)}
+              href={createHref(MENU.SETTINGS, MENU.HOLIDAY)}
               label="Tambah hari libur"
             />
           ) : null

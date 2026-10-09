@@ -28,9 +28,9 @@ export const DESCRIPTION_MAX = 250;
 
 export { DETAIL_LINK as TEXT_LINK } from "@/components/common/display";
 
-export const JURNAL_LIST_PATH = menuHref(MENU.KEUANGAN, MENU.JURNAL);
+export const JURNAL_LIST_PATH = menuHref(MENU.FINANCE, MENU.JOURNAL_ENTRY);
 
-export const JURNAL_CREATE_PATH = createHref(MENU.KEUANGAN, MENU.JURNAL);
+export const JURNAL_CREATE_PATH = createHref(MENU.FINANCE, MENU.JOURNAL_ENTRY);
 
 export const POSTING_PERSEMBAHAN_PATH = `${JURNAL_LIST_PATH}/posting-persembahan`;
 
@@ -56,32 +56,32 @@ export const POSTING_LINKS = [
 ] as const;
 
 export const journalHref = (publicId: string) =>
-  detailHref(MENU.KEUANGAN, MENU.JURNAL, publicId);
+  detailHref(MENU.FINANCE, MENU.JOURNAL_ENTRY, publicId);
 
 export const journalEditHref = (publicId: string) =>
-  editHref(MENU.KEUANGAN, MENU.JURNAL, publicId);
+  editHref(MENU.FINANCE, MENU.JOURNAL_ENTRY, publicId);
 
 export const accountHref = (code: string) =>
-  detailHref(MENU.KEUANGAN, MENU.AKUN, code);
+  detailHref(MENU.FINANCE, MENU.CHART_OF_ACCOUNT, code);
 
-export const PERIODE_FISKAL_PATH = menuHref(MENU.KEUANGAN, MENU.PERIODE_FISKAL);
+export const PERIODE_FISKAL_PATH = menuHref(MENU.FINANCE, MENU.FISCAL_PERIOD);
 
 export const persembahanHref = (code: string) =>
-  detailHref(MENU.KEUANGAN, MENU.PERSEMBAHAN, code);
+  detailHref(MENU.FINANCE, MENU.PERSEMBAHAN, code);
 
 export const asetHref = (code: string) =>
-  detailHref(MENU.INVENTARIS, MENU.BARANG, code);
+  detailHref(MENU.FIXED_ASSET, MENU.ASSET_MASTER, code);
 
 // Penolakan mutasi persediaan menyebut kode BARANGNYA, bukan kode mutasinya:
 // sebuah mutasi tidak punya kode sendiri — dia baris di kartu stok — dan yang
 // harus diperbaiki memang harga barangnya.
 export const barangPersediaanHref = (code: string) =>
-  detailHref(MENU.INVENTARIS, MENU.BARANG_PERSEDIAAN, code);
+  detailHref(MENU.INVENTORY, MENU.STOCK_ITEM, code);
 
 // Faktur dan pembayaran yang ditolak sama-sama menyebut KODE FAKTUR sebagai
 // subjeknya, jadi satu tautan cukup untuk keduanya.
 export const fakturHref = (code: string) =>
-  detailHref(MENU.PENGADAAN, MENU.FAKTUR_SUPPLIER, code);
+  detailHref(MENU.PROCUREMENT, MENU.SUPPLIER_INVOICE, code);
 
 export const monthListHref = (year: number, month: number) =>
   `${JURNAL_LIST_PATH}?bulan=${year}-${String(month).padStart(2, "0")}`;
@@ -179,51 +179,51 @@ type Fix = {
 
 const FIX_BY_CODE: Record<string, Fix> = {
   OFFERING_TYPE_NO_ACCOUNT: {
-    href: menuHref(MENU.KEUANGAN, MENU.TIPE_PERSEMBAHAN),
+    href: menuHref(MENU.FINANCE, MENU.TIPE_PERSEMBAHAN),
     label: "Buka Tipe Persembahan",
     menu: MENU.TIPE_PERSEMBAHAN,
   },
   SETTING_EMPTY: {
-    href: menuHref(MENU.KEUANGAN, MENU.SETELAN_AKUNTANSI),
+    href: menuHref(MENU.FINANCE, MENU.ACCOUNTING_SETTING),
     label: "Buka Setelan Akuntansi",
-    menu: MENU.SETELAN_AKUNTANSI,
+    menu: MENU.ACCOUNTING_SETTING,
   },
   ACCOUNT_INACTIVE: {
-    href: menuHref(MENU.KEUANGAN, MENU.AKUN),
+    href: menuHref(MENU.FINANCE, MENU.CHART_OF_ACCOUNT),
     label: "Buka Akun",
-    menu: MENU.AKUN,
+    menu: MENU.CHART_OF_ACCOUNT,
   },
   PERIOD_NOT_OPEN: {
-    href: menuHref(MENU.KEUANGAN, MENU.PERIODE_FISKAL),
+    href: menuHref(MENU.FINANCE, MENU.FISCAL_PERIOD),
     label: "Buka Periode Fiskal",
-    menu: MENU.PERIODE_FISKAL,
+    menu: MENU.FISCAL_PERIOD,
   },
   PERIOD_CLOSED: {
-    href: menuHref(MENU.KEUANGAN, MENU.PERIODE_FISKAL),
+    href: menuHref(MENU.FINANCE, MENU.FISCAL_PERIOD),
     label: "Buka Periode Fiskal",
-    menu: MENU.PERIODE_FISKAL,
+    menu: MENU.FISCAL_PERIOD,
   },
   // Tanpa baris ini kolom Perbaikan kosong untuk setiap aset yang ditolak, dan
   // kolom itu ada justru untuk mengatakan ke mana memperbaikinya. Terlihat saat
   // meninjau layarnya, bukan saat membaca kodenya.
   ASSET_NO_COST: {
-    href: menuHref(MENU.INVENTARIS, MENU.BARANG),
+    href: menuHref(MENU.FIXED_ASSET, MENU.ASSET_MASTER),
     label: "Buka Barang",
-    menu: MENU.BARANG,
+    menu: MENU.ASSET_MASTER,
   },
   // Pembayaran yang fakturnya belum dibukukan: yang harus diperbaiki adalah
   // fakturnya, bukan pembayarannya, jadi tautannya ke Faktur Supplier.
   INVOICE_NOT_POSTED: {
-    href: menuHref(MENU.PENGADAAN, MENU.FAKTUR_SUPPLIER),
+    href: menuHref(MENU.PROCUREMENT, MENU.SUPPLIER_INVOICE),
     label: "Buka Faktur Supplier",
-    menu: MENU.FAKTUR_SUPPLIER,
+    menu: MENU.SUPPLIER_INVOICE,
   },
   // Mutasi tanpa nilai: yang diperbaiki adalah harga BARANGNYA, bukan
   // mutasinya — sebuah mutasi tidak bisa diubah, dan memang tidak seharusnya.
   STOCK_NO_COST: {
-    href: menuHref(MENU.INVENTARIS, MENU.BARANG_PERSEDIAAN),
+    href: menuHref(MENU.INVENTORY, MENU.STOCK_ITEM),
     label: "Buka Barang Persediaan",
-    menu: MENU.BARANG_PERSEDIAAN,
+    menu: MENU.STOCK_ITEM,
   },
 };
 

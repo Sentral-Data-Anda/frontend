@@ -30,7 +30,7 @@ export const SupplierDetailScreen = (props: PropTypes) => {
   const { code } = props;
 
   const { isCanView, isCanUpdate } = useMenuAccess(MENU.SUPPLIER);
-  const orderAccess = useMenuAccess(MENU.PESANAN_PEMBELIAN);
+  const orderAccess = useMenuAccess(MENU.PURCHASE_ORDER);
   const listReturn = useListReturn(SUPPLIER_LIST_PATH);
   const detail = useSupplierDetail(isCanView ? code : undefined);
   const supplier = detail.data;
@@ -40,7 +40,7 @@ export const SupplierDetailScreen = (props: PropTypes) => {
   if (!isCanView) {
     return (
       <div className="pb-8">
-        <PageHeader title={TITLE} backHref={domainHref(MENU.PENGADAAN)} />
+        <PageHeader title={TITLE} backHref={domainHref(MENU.PROCUREMENT)} />
         <EmptyState
           title="Anda tidak memiliki akses ke Supplier"
           description="Hubungi administrator bila Anda memang seharusnya memegang akses ini."

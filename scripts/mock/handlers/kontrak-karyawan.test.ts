@@ -149,12 +149,12 @@ describe("bacaan gaji", () => {
     "KTR-0005",
   ];
 
-  test("GET / mengembalikan tepat baris benihnya, dengan KONTRAK_KARYAWAN VIEW", async () => {
+  test("GET / mengembalikan tepat baris benihnya, dengan EMPLOYEE_CONTRACT VIEW", async () => {
     const result = await onCall(
       "GET",
       "/kontrak-karyawan?limit=100",
       undefined,
-      only(MENU.KONTRAK_KARYAWAN),
+      only(MENU.EMPLOYEE_CONTRACT),
     );
 
     expect(result?.status).toBe(200);
@@ -162,8 +162,8 @@ describe("bacaan gaji", () => {
     expect(result?.body.totalData).toBe(SEEDED.length);
   });
 
-  test("GET / tanpa KONTRAK_KARYAWAN VIEW mengembalikan nol baris", async () => {
-    for (const slug of [MENU.PAYROLL, MENU.KARYAWAN, MENU.KOMPONEN_PAYROLL]) {
+  test("GET / tanpa EMPLOYEE_CONTRACT VIEW mengembalikan nol baris", async () => {
+    for (const slug of [MENU.PAYROLL, MENU.EMPLOYEE, MENU.PAYROLL_COMPONENT]) {
       const result = await onCall(
         "GET",
         "/kontrak-karyawan?limit=100",
@@ -181,7 +181,7 @@ describe("bacaan gaji", () => {
       "GET",
       "/kontrak-karyawan/KTR-0001",
       undefined,
-      only(MENU.KONTRAK_KARYAWAN),
+      only(MENU.EMPLOYEE_CONTRACT),
     );
 
     expect(result?.status).toBe(200);
@@ -193,8 +193,8 @@ describe("bacaan gaji", () => {
     expect(Array.isArray(result?.body.data)).toBe(false);
   });
 
-  test("GET /:code tanpa KONTRAK_KARYAWAN VIEW mengembalikan nol baris", async () => {
-    for (const slug of [MENU.PAYROLL, MENU.KARYAWAN, MENU.KOMPONEN_PAYROLL]) {
+  test("GET /:code tanpa EMPLOYEE_CONTRACT VIEW mengembalikan nol baris", async () => {
+    for (const slug of [MENU.PAYROLL, MENU.EMPLOYEE, MENU.PAYROLL_COMPONENT]) {
       const result = await onCall(
         "GET",
         "/kontrak-karyawan/KTR-0001",
@@ -220,7 +220,7 @@ describe("gerbang izin", () => {
           "GET",
           "/kontrak-karyawan",
           undefined,
-          only(MENU.KONTRAK_KARYAWAN),
+          only(MENU.EMPLOYEE_CONTRACT),
         )
       )?.status,
     ).toBe(200);

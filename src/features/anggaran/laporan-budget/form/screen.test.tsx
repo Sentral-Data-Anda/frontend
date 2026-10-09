@@ -31,7 +31,7 @@ const replaced: string[] = [];
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
-  usePathname: () => "/anggaran/laporan-budget/baru",
+  usePathname: () => "/report/budget-realization/baru",
   useSearchParams: () => new URLSearchParams(query.current),
 }));
 
@@ -223,7 +223,7 @@ const onRender = (
   publicId?: string,
   prefill: Prefill = PREFILL,
   detail: BudgetReportDetail | null = DETAIL,
-  granted: Record<string, MenuAction[]> = { LAPORAN_BUDGET: ALL },
+  granted: Record<string, MenuAction[]> = { BUDGET_REALIZATION: ALL },
 ) => {
   actions.current = granted;
   const calls = onMockApi(prefill, detail);

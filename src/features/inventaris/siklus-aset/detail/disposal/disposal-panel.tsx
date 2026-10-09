@@ -33,9 +33,7 @@ interface PropTypes {
 export const DisposalPanel = (props: PropTypes) => {
   const { row } = props;
 
-  const { isCanView: isCanViewApproval } = useMenuAccess(
-    MENU.PERMINTAAN_PERSETUJUAN,
-  );
+  const { isCanView: isCanViewApproval } = useMenuAccess(MENU.APPROVAL_REQUEST);
   const approvalText = row.approval
     ? `${row.approval.code} · ${APPROVAL_STATUS_LABEL[row.approval.status]}`
     : null;

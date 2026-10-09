@@ -55,7 +55,7 @@ export const ReceiptFormScreen = () => {
   const searchParams = useSearchParams();
   const toast = useToast();
   const queryClient = useQueryClient();
-  const { isCanView, isCanCreate } = useMenuAccess(MENU.PENERIMAAN_BARANG);
+  const { isCanView, isCanCreate } = useMenuAccess(MENU.GOODS_RECEIPT);
   const listReturn = useListReturn(RECEIPT_LIST_PATH);
   const saveReceipt = useSaveReceipt();
   const orders = useOpenOrders(isCanCreate);

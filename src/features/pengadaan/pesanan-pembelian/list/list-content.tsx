@@ -19,7 +19,7 @@ const LIST_FILTERS = {
 } satisfies ListFilterSchema;
 
 export const OrderListContent = () => {
-  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.PESANAN_PEMBELIAN);
+  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.PURCHASE_ORDER);
   const listParams = useListParams({ filters: LIST_FILTERS });
   const orderList = useOrderList(listParams);
   const suppliers = useDdlOptions(
@@ -38,7 +38,7 @@ export const OrderListContent = () => {
             ? undefined
             : `${orderList.totalData} pesanan`
         }
-        backHref={domainHref(MENU.PENGADAAN)}
+        backHref={domainHref(MENU.PROCUREMENT)}
         action={
           isCanCreate ? (
             <PageHeaderAdd

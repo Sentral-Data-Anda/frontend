@@ -29,7 +29,7 @@ export const SummaryPanel = (props: PropTypes) => {
   const { order } = props;
 
   const supplierAccess = useMenuAccess(MENU.SUPPLIER);
-  const requestAccess = useMenuAccess(MENU.PERMINTAAN_PEMBELIAN);
+  const requestAccess = useMenuAccess(MENU.PURCHASE_REQUEST);
   const isValas = isForeign(order.currencyCode);
   const request = order.purchaseRequest;
 

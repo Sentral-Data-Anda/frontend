@@ -168,7 +168,7 @@ describe("mock /type-item", () => {
 
   test("guard per aksi; path lain bukan milik handler", async () => {
     const viewOnly = (slug: string, action: MockAction) =>
-      slug === MENU.TIPE_BARANG && action === "VIEW";
+      slug === MENU.ITEM_CATEGORY && action === "VIEW";
 
     expect(
       (await onCall("GET", "/type-item", undefined, viewOnly))?.status,

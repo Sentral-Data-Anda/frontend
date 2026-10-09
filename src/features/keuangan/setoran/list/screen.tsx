@@ -8,13 +8,13 @@ import { useMenuAccess } from "@/features/auth";
 import { TransferListContent } from "./list-content";
 
 export const TransferListScreen = () => {
-  const { isCanView } = useMenuAccess(MENU.SETORAN);
+  const { isCanView } = useMenuAccess(MENU.BANK_DEPOSIT);
 
   return isCanView ? (
     <TransferListContent />
   ) : (
     <div className="pb-6">
-      <PageHeader title="Setoran" backHref={domainHref(MENU.KEUANGAN)} />
+      <PageHeader title="Setoran" backHref={domainHref(MENU.FINANCE)} />
       <EmptyState
         title="Anda tidak memiliki akses ke Setoran"
         description="Hubungi administrator bila Anda memang seharusnya memegang akses ini."

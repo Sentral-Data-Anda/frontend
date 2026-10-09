@@ -12,7 +12,7 @@ import { SettingListItemRow, settingTable } from "./list-item";
 import { ReadinessAlert } from "./readiness-alert";
 
 export const SettingListContent = () => {
-  const { isCanUpdate } = useMenuAccess(MENU.SETELAN_AKUNTANSI);
+  const { isCanUpdate } = useMenuAccess(MENU.ACCOUNTING_SETTING);
   const settingList = useSettingList();
 
   return (
@@ -24,7 +24,7 @@ export const SettingListContent = () => {
             ? undefined
             : readinessSubtitle(settingList.settings)
         }
-        backHref={domainHref(MENU.KEUANGAN)}
+        backHref={domainHref(MENU.FINANCE)}
       />
 
       <ReadinessAlert settings={settingList.settings} />

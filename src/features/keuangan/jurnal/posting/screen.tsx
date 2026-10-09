@@ -54,7 +54,7 @@ const postedTextOf = (result: PostingResult) =>
 
 export const PostingPersembahanScreen = () => {
   const toast = useToast();
-  const { isCanView, isCanCreate } = useMenuAccess(MENU.JURNAL);
+  const { isCanView, isCanCreate } = useMenuAccess(MENU.JOURNAL_ENTRY);
   // Izinnya dihitung di sini, bukan di dalam RefusedList: dokumen yang berbeda
   // dijaga menu yang berbeda, dan hook tidak bisa dipanggil bersyarat.
   const persembahanAccess = useMenuAccess(MENU.PERSEMBAHAN);

@@ -5,7 +5,7 @@ import { collapseSpaces } from "@/lib/name";
 
 import type { Satuan, SatuanPayload } from "./types";
 
-export const SATUAN_LIST_PATH = menuHref(MENU.INVENTARIS, MENU.SATUAN);
+export const SATUAN_LIST_PATH = menuHref(MENU.INVENTORY, MENU.SATUAN);
 
 export const satuanFormSchema = z.object({
   name: z

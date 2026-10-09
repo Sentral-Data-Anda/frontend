@@ -695,7 +695,7 @@ export const cutiMock: MockHandler = async ({
   if (path !== "/cuti" && !path.startsWith("/cuti/")) return null;
 
   if (path === "/cuti/sisa-jatah" && method === "GET") {
-    if (!can(MENU.CUTI, "VIEW")) return denied();
+    if (!can(MENU.LEAVE, "VIEW")) return denied();
 
     return quota(url);
   }
@@ -704,7 +704,7 @@ export const cutiMock: MockHandler = async ({
   const [code, segment] = tail.split("/");
   const suffix = segment ? `/${segment}` : "";
 
-  if (!can(MENU.CUTI, actionOf(method, suffix))) return denied();
+  if (!can(MENU.LEAVE, actionOf(method, suffix))) return denied();
 
   if (method !== "GET" && process.env.MOCK_CUTI_SAVE_ERROR === "500") {
     return json({ status: 500, error: "Kesalahan server." }, 500);

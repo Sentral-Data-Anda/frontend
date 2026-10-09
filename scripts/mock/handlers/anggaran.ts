@@ -18,7 +18,7 @@ const DDL: Record<
   }
 > = {
   program: {
-    menus: [MENU.PROGRAM, MENU.LAPORAN_BUDGET],
+    menus: [MENU.PROGRAM, MENU.BUDGET_REALIZATION],
     empty: "Program Tidak Ditemukan",
     rows: programDdl,
   },

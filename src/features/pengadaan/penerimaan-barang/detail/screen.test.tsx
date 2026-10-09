@@ -43,7 +43,7 @@ const grants: { current: Partial<Record<MenuSlug, MenuAction[]>> } = {
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: () => undefined }),
-  usePathname: () => `/pengadaan/penerimaan-barang/${KERTAS_RECEIPT.code}`,
+  usePathname: () => `/procurement/goods-receipt/${KERTAS_RECEIPT.code}`,
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -163,8 +163,8 @@ describe("halaman penerimaan", () => {
     viewport.onResize(false);
     const code = receiveChairs(5);
     onRender(code, {
-      PENERIMAAN_BARANG: ["VIEW"],
-      BARANG: ["VIEW", "UPDATE"],
+      GOODS_RECEIPT: ["VIEW"],
+      ASSET_MASTER: ["VIEW", "UPDATE"],
     });
 
     expect(
@@ -184,11 +184,11 @@ describe("halaman penerimaan", () => {
       screen
         .getByRole("link", { name: "Lengkapi data barang" })
         .getAttribute("href"),
-    ).toMatch(/^\/inventaris\/barang\/AST_.+\/ubah$/);
+    ).toMatch(/^\/fixed-asset\/asset-master\/AST_.+\/ubah$/);
   });
 
   test("tanpa VIEW Barang/Persediaan: kode tanpa tautan; lampiran tampil", async () => {
-    onRender(KERTAS_RECEIPT.code, { PENERIMAAN_BARANG: ["VIEW"] });
+    onRender(KERTAS_RECEIPT.code, { GOODS_RECEIPT: ["VIEW"] });
 
     expect(
       await screen.findByText("Dus kertas agak basah di satu sisi."),
@@ -204,7 +204,7 @@ describe("halaman penerimaan", () => {
   });
 
   test("tidak ada: keadaan tidak ditemukan", async () => {
-    onRender("GRN-2026-9999", { PENERIMAAN_BARANG: ["VIEW"] });
+    onRender("GRN-2026-9999", { GOODS_RECEIPT: ["VIEW"] });
 
     expect(
       await screen.findByText(/penerimaan barang tidak ditemukan/i),

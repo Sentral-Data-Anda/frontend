@@ -30,7 +30,9 @@ interface PropTypes {
 export const StockSection = (props: PropTypes) => {
   const { form, isDisabled, item } = props;
 
-  const { isCanCreate: isCanCreateMovement } = useMenuAccess(MENU.MUTASI_STOK);
+  const { isCanCreate: isCanCreateMovement } = useMenuAccess(
+    MENU.STOCK_MOVEMENT,
+  );
   const unitId = useWatch({ control: form.control, name: "unitId" });
   const units = useDdlOptions("unit", "id");
   const unitName = units.options.find(

@@ -233,7 +233,7 @@ export const akunMock: MockHandler = async ({
 
   const code = path.match(/^\/account\/([^/]+)$/)?.[1];
 
-  if (!can(MENU.AKUN, actionOf(method))) return denied();
+  if (!can(MENU.CHART_OF_ACCOUNT, actionOf(method))) return denied();
 
   if (method !== "GET" && process.env.MOCK_ACCOUNT_SAVE_ERROR === "500") {
     return json({ status: 500, error: "Kesalahan server." }, 500);

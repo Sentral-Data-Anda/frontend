@@ -14,7 +14,7 @@ import { CUTI_LIST_PATH, rangeTextOf } from "../model";
 import type { Cuti } from "../types";
 import { CutiStatusBadge } from "../ui";
 
-const detailHrefOf = (row: Cuti) => detailHref(MENU.SDM, MENU.CUTI, row.code);
+const detailHrefOf = (row: Cuti) => detailHref(MENU.HR, MENU.LEAVE, row.code);
 
 const saveFocus = (row: Cuti) => saveListFocus(CUTI_LIST_PATH, row.code);
 

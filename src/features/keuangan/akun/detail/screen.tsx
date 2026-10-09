@@ -30,8 +30,8 @@ interface PropTypes {
 export const AccountDetailScreen = (props: PropTypes) => {
   const { code } = props;
 
-  const { isCanView, isCanUpdate } = useMenuAccess(MENU.AKUN);
-  const ledger = useMenuAccess(MENU.LAPORAN_KEUANGAN);
+  const { isCanView, isCanUpdate } = useMenuAccess(MENU.CHART_OF_ACCOUNT);
+  const ledger = useMenuAccess(MENU.FINANCIAL_STATEMENT);
   const listReturn = useListReturn(AKUN_LIST_PATH);
   const detail = useAccountDetail(isCanView ? code : undefined);
   const account = detail.data;
@@ -41,7 +41,7 @@ export const AccountDetailScreen = (props: PropTypes) => {
   if (!isCanView) {
     return (
       <div className="pb-8">
-        <PageHeader title={TITLE} backHref={domainHref(MENU.KEUANGAN)} />
+        <PageHeader title={TITLE} backHref={domainHref(MENU.FINANCE)} />
 
         <EmptyState
           title="Anda tidak memiliki akses ke Akun"

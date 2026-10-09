@@ -8,7 +8,7 @@ import { useMenuAccess } from "@/features/auth";
 import { SettingListContent } from "./list-content";
 
 export const SettingListScreen = () => {
-  const { isCanView } = useMenuAccess(MENU.SETELAN_AKUNTANSI);
+  const { isCanView } = useMenuAccess(MENU.ACCOUNTING_SETTING);
 
   if (isCanView) return <SettingListContent />;
 
@@ -16,7 +16,7 @@ export const SettingListScreen = () => {
     <div className="pb-6">
       <PageHeader
         title="Setelan Akuntansi"
-        backHref={domainHref(MENU.KEUANGAN)}
+        backHref={domainHref(MENU.FINANCE)}
       />
 
       <EmptyState

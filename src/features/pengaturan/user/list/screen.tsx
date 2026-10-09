@@ -28,11 +28,11 @@ export const UserListScreen = () => {
             ? undefined
             : `${userList.totalData} akun`
         }
-        backHref={domainHref(MENU.PENGATURAN)}
+        backHref={domainHref(MENU.SETTINGS)}
         action={
           isCanCreate ? (
             <PageHeaderAdd
-              href={createHref(MENU.PENGATURAN, MENU.USER)}
+              href={createHref(MENU.SETTINGS, MENU.USER)}
               label="Tambah akun"
             />
           ) : null

@@ -165,14 +165,16 @@ describe("isReversible", () => {
 describe("fixOfCode", () => {
   test("setiap kode penolakan menunjuk layar yang memperbaikinya", () => {
     expect(fixOfCode("OFFERING_TYPE_NO_ACCOUNT")?.href).toBe(
-      "/keuangan/tipe-persembahan",
+      "/finance/tipe-persembahan",
     );
     expect(fixOfCode("SETTING_EMPTY")?.href).toBe(
-      "/keuangan/setelan-akuntansi",
+      "/finance/accounting-setting",
     );
-    expect(fixOfCode("ACCOUNT_INACTIVE")?.href).toBe("/keuangan/akun");
-    expect(fixOfCode("PERIOD_NOT_OPEN")?.href).toBe("/keuangan/periode-fiskal");
-    expect(fixOfCode("PERIOD_CLOSED")?.href).toBe("/keuangan/periode-fiskal");
+    expect(fixOfCode("ACCOUNT_INACTIVE")?.href).toBe(
+      "/finance/chart-of-account",
+    );
+    expect(fixOfCode("PERIOD_NOT_OPEN")?.href).toBe("/finance/fiscal-period");
+    expect(fixOfCode("PERIOD_CLOSED")?.href).toBe("/finance/fiscal-period");
   });
 
   test("kode yang tidak dikenali tidak menebak tautan", () => {
@@ -387,9 +389,9 @@ describe("perbaikan mutasi persediaan", () => {
    */
   test("STOCK_NO_COST menautkan ke Barang Persediaan", () => {
     expect(fixOfCode("STOCK_NO_COST")).toEqual({
-      href: "/inventaris/barang-persediaan",
+      href: "/inventory/stock-item",
       label: "Buka Barang Persediaan",
-      menu: "BARANG_PERSEDIAAN",
+      menu: "STOCK_ITEM",
     });
   });
 });

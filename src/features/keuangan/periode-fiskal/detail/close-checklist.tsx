@@ -30,7 +30,7 @@ interface PropTypes {
 export const CloseChecklist = (props: PropTypes) => {
   const { period } = props;
 
-  const journal = useMenuAccess(MENU.JURNAL);
+  const journal = useMenuAccess(MENU.JOURNAL_ENTRY);
   const expense = useMenuAccess(MENU.KAS_KELUAR);
   const checks: Check[] = [];
 

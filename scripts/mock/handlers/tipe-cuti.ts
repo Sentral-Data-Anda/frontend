@@ -257,7 +257,7 @@ export const tipeCutiMock: MockHandler = async ({
   can,
 }) => {
   if (path === "/ddl/tipe-cuti" && method === "GET") {
-    if (!can(MENU.TIPE_CUTI, "VIEW") && !can(MENU.CUTI, "VIEW")) {
+    if (!can(MENU.LEAVE_TYPE, "VIEW") && !can(MENU.LEAVE, "VIEW")) {
       return denied();
     }
 
@@ -268,7 +268,7 @@ export const tipeCutiMock: MockHandler = async ({
 
   const code = path.match(/^\/tipe-cuti\/([^/]+)$/)?.[1];
 
-  if (!can(MENU.TIPE_CUTI, actionOf(method))) return denied();
+  if (!can(MENU.LEAVE_TYPE, actionOf(method))) return denied();
 
   if (method !== "GET" && process.env.MOCK_TIPE_CUTI_SAVE_ERROR === "500") {
     return json({ status: 500, error: "Kesalahan server." }, 500);

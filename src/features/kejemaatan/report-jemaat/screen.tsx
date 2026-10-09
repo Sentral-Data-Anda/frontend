@@ -18,10 +18,7 @@ export const ReportJemaatScreen = () => {
 
   return (
     <div className="pb-6">
-      <PageHeader
-        title="Laporan Jemaat"
-        backHref={domainHref(MENU.KEJEMAATAN)}
-      />
+      <PageHeader title="Laporan Jemaat" backHref={domainHref(MENU.REPORT)} />
 
       {isCanView ? (
         <ReportBody

@@ -5,7 +5,7 @@ import { MENU, menuHref } from "@/config/menu";
 
 import type { UserDetail, UserPayload } from "./types";
 
-export const USER_LIST_PATH = menuHref(MENU.PENGATURAN, MENU.USER);
+export const USER_LIST_PATH = menuHref(MENU.SETTINGS, MENU.USER);
 
 export const UNUSED_JEMAAT_ID = 0;
 

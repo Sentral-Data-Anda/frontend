@@ -48,8 +48,8 @@ export const TransferFormScreen = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const toast = useToast();
-  const { isCanView, isCanCreate } = useMenuAccess(MENU.SETORAN);
-  const accountAccess = useMenuAccess(MENU.AKUN);
+  const { isCanView, isCanCreate } = useMenuAccess(MENU.BANK_DEPOSIT);
+  const accountAccess = useMenuAccess(MENU.CHART_OF_ACCOUNT);
   const listReturn = useListReturn(TRANSFER_LIST_PATH);
   const accounts = useAssetAccounts();
   const saveTransfer = useSaveTransfer();

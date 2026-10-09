@@ -37,10 +37,10 @@ interface PropTypes {
 export const ReceiptDetailScreen = (props: PropTypes) => {
   const { code } = props;
 
-  const { isCanView } = useMenuAccess(MENU.PENERIMAAN_BARANG);
-  const orderAccess = useMenuAccess(MENU.PESANAN_PEMBELIAN);
-  const assetAccess = useMenuAccess(MENU.BARANG);
-  const stockAccess = useMenuAccess(MENU.BARANG_PERSEDIAAN);
+  const { isCanView } = useMenuAccess(MENU.GOODS_RECEIPT);
+  const orderAccess = useMenuAccess(MENU.PURCHASE_ORDER);
+  const assetAccess = useMenuAccess(MENU.ASSET_MASTER);
+  const stockAccess = useMenuAccess(MENU.STOCK_ITEM);
   const listReturn = useListReturn(RECEIPT_LIST_PATH);
   const detail = useReceiptDetail(isCanView ? code : undefined);
   const receipt = detail.data;
@@ -50,7 +50,7 @@ export const ReceiptDetailScreen = (props: PropTypes) => {
   if (!isCanView) {
     return (
       <div className="pb-8">
-        <PageHeader title={TITLE} backHref={domainHref(MENU.PENGADAAN)} />
+        <PageHeader title={TITLE} backHref={domainHref(MENU.PROCUREMENT)} />
         <EmptyState
           title="Anda tidak memiliki akses ke Penerimaan Barang"
           description="Hubungi administrator bila Anda memang seharusnya memegang akses ini."

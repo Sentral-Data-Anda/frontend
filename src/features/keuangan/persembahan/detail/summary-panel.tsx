@@ -26,7 +26,7 @@ interface PropTypes {
 export const SummaryPanel = (props: PropTypes) => {
   const { row } = props;
 
-  const journalAccess = useMenuAccess(MENU.JURNAL);
+  const journalAccess = useMenuAccess(MENU.JOURNAL_ENTRY);
   const journalText = row.journal
     ? `${row.journal.code} · ${JOURNAL_STATUS_LABEL[row.journal.status]}`
     : null;

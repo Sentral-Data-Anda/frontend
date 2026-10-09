@@ -27,7 +27,7 @@ const actions: { current: Record<string, MenuAction[]> } = { current: {} };
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: () => {}, push: () => {} }),
-  usePathname: () => "/keuangan/pembayaran/posting-pembayaran",
+  usePathname: () => "/finance/payment/posting-pembayaran",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -148,18 +148,18 @@ const onPreview = async () => {
   await waitFor(() => expect(postButton().disabled).toBe(false));
 };
 
-const FULL = { JURNAL: ["VIEW", "CREATE"] as MenuAction[] };
+const FULL = { JOURNAL_ENTRY: ["VIEW", "CREATE"] as MenuAction[] };
 
 describe("PostingPembayaranScreen", () => {
-  test("gerbangnya JURNAL CREATE, bukan PEMBAYARAN", () => {
-    onRenderPosting({ PEMBAYARAN: ["VIEW", "CREATE"], JURNAL: ["VIEW"] });
+  test("gerbangnya JOURNAL_ENTRY CREATE, bukan PAYMENT", () => {
+    onRenderPosting({ PAYMENT: ["VIEW", "CREATE"], JOURNAL_ENTRY: ["VIEW"] });
 
     expect(screen.getByText("Tidak bisa memposting pembayaran")).toBeTruthy();
     expect(screen.getByText(/izinnya adalah izin membuat jurnal/)).toBeTruthy();
   });
 
   test("tanpa akses jurnal sama sekali, alasannya berbeda", () => {
-    onRenderPosting({ PEMBAYARAN: ["VIEW"] });
+    onRenderPosting({ PAYMENT: ["VIEW"] });
 
     expect(
       screen.getByText("Peran Anda tidak memiliki akses ke Pembayaran."),
@@ -232,7 +232,7 @@ describe("PostingPembayaranScreen", () => {
 
   test("alasan penolakan dirender dengan tautan perbaikannya, per kode", async () => {
     onRenderPosting(
-      { ...FULL, SETELAN_AKUNTANSI: ["VIEW"], PERIODE_FISKAL: ["VIEW"] },
+      { ...FULL, ACCOUNTING_SETTING: ["VIEW"], FISCAL_PERIOD: ["VIEW"] },
       REFUSED,
     );
     await onPreview();
@@ -241,17 +241,17 @@ describe("PostingPembayaranScreen", () => {
       screen
         .getAllByRole("link", { name: "Buka Setelan Akuntansi" })[0]
         .getAttribute("href"),
-    ).toBe("/keuangan/setelan-akuntansi");
+    ).toBe("/finance/accounting-setting");
     expect(
       screen
         .getAllByRole("link", { name: "Buka Periode Fiskal" })[0]
         .getAttribute("href"),
-    ).toBe("/keuangan/periode-fiskal");
+    ).toBe("/finance/fiscal-period");
   });
 
   test("kode yang tidak dikenali menampilkan pesan server tanpa menebak tautan", async () => {
     onRenderPosting(
-      { ...FULL, SETELAN_AKUNTANSI: ["VIEW"], AKUN: ["VIEW"] },
+      { ...FULL, ACCOUNTING_SETTING: ["VIEW"], CHART_OF_ACCOUNT: ["VIEW"] },
       REFUSED,
     );
     await onPreview();

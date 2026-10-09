@@ -9,15 +9,15 @@ import {
   type ReportTab,
 } from "./types";
 
-export const LAPORAN_PATH = menuHref(MENU.KEUANGAN, MENU.LAPORAN_KEUANGAN);
+export const LAPORAN_PATH = menuHref(MENU.REPORT, MENU.FINANCIAL_STATEMENT);
 
-export const JURNAL_CREATE_PATH = createHref(MENU.KEUANGAN, MENU.JURNAL);
+export const JURNAL_CREATE_PATH = createHref(MENU.FINANCE, MENU.JOURNAL_ENTRY);
 
 export const accountHref = (code: string) =>
-  detailHref(MENU.KEUANGAN, MENU.AKUN, code);
+  detailHref(MENU.FINANCE, MENU.CHART_OF_ACCOUNT, code);
 
 export const journalHref = (publicId: string) =>
-  detailHref(MENU.KEUANGAN, MENU.JURNAL, publicId);
+  detailHref(MENU.FINANCE, MENU.JOURNAL_ENTRY, publicId);
 
 export const ledgerHref = (code: string, month: string) =>
   `${LAPORAN_PATH}?tab=buku-besar&akun=${encodeURIComponent(code)}&bulan=${month}`;

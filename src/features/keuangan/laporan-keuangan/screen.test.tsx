@@ -28,7 +28,7 @@ const query: { current: string } = { current: "" };
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: () => {} }),
-  usePathname: () => "/keuangan/laporan-keuangan",
+  usePathname: () => "/report/financial-statement",
   useSearchParams: () => new URLSearchParams(query.current),
 }));
 
@@ -239,7 +239,7 @@ const ok = (data: unknown) =>
   Response.json({ status: 200, message: "Berhasil", data });
 
 const onRender = (
-  granted: Record<string, MenuAction[]> = { LAPORAN_KEUANGAN: ["VIEW"] },
+  granted: Record<string, MenuAction[]> = { FINANCIAL_STATEMENT: ["VIEW"] },
 ) => {
   grants.current = granted;
   globalThis.fetch = ((input: RequestInfo | URL) => {
@@ -444,16 +444,16 @@ describe("buku besar", () => {
 
   test("baris merutekan lewat publicId, bukan kode entri", async () => {
     query.current = "tab=buku-besar&akun=1-100";
-    onRender({ LAPORAN_KEUANGAN: ["VIEW"], JURNAL: ["VIEW"] });
+    onRender({ FINANCIAL_STATEMENT: ["VIEW"], JOURNAL_ENTRY: ["VIEW"] });
 
     const link = await screen.findByRole("link", {
       name: "Entri jurnal JRN-2026-0002",
     });
 
-    expect(link.getAttribute("href")).toBe("/keuangan/jurnal/jrn-0002");
+    expect(link.getAttribute("href")).toBe("/finance/journal-entry/jrn-0002");
   });
 
-  test("tanpa JURNAL VIEW barisnya tidak menaut", async () => {
+  test("tanpa JOURNAL_ENTRY VIEW barisnya tidak menaut", async () => {
     query.current = "tab=buku-besar&akun=1-100";
     onRender();
 
@@ -620,7 +620,7 @@ describe("arus kas", () => {
   test("tanpa akun kas: menyebut perbaikannya, bukan menawarkan coba lagi", async () => {
     state.arusKas = null;
     query.current = "tab=arus-kas";
-    onRender({ LAPORAN_KEUANGAN: ["VIEW"], AKUN: ["VIEW"] });
+    onRender({ FINANCIAL_STATEMENT: ["VIEW"], CHART_OF_ACCOUNT: ["VIEW"] });
 
     expect(
       await screen.findByText("Belum ada akun yang ditandai kas."),
@@ -632,7 +632,7 @@ describe("arus kas", () => {
   test("tanpa izin Akun, sebabnya tetap terbaca tanpa tautan", async () => {
     state.arusKas = null;
     query.current = "tab=arus-kas";
-    onRender({ LAPORAN_KEUANGAN: ["VIEW"] });
+    onRender({ FINANCIAL_STATEMENT: ["VIEW"] });
 
     expect(
       await screen.findByText("Belum ada akun yang ditandai kas."),

@@ -11,7 +11,7 @@ const ROOT = new URL("../../../../", import.meta.url).pathname;
 
 const OWNED = "src/features/anggaran/laporan-budget/";
 
-const ROUTES = "src/app/(app)/anggaran/laporan-budget/";
+const ROUTES = "src/app/(app)/report/budget-realization/";
 
 const HANDLER = "scripts/mock/handlers/laporan-budget.ts";
 

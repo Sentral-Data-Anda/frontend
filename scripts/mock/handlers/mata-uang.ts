@@ -391,7 +391,7 @@ export const mataUangMock: MockHandler = (ctx) => {
   const { path, method, can } = ctx;
 
   if (path !== "/mata-uang" && !path.startsWith("/mata-uang/")) return null;
-  if (!can(MENU.MATA_UANG, actionOf(method))) return denied();
+  if (!can(MENU.CURRENCY, actionOf(method))) return denied();
   if (method !== "GET" && process.env.MOCK_CURRENCY_SAVE_ERROR === "500") {
     return serverError();
   }

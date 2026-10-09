@@ -10,22 +10,22 @@ import { PAYMENT_STATUS_LABEL, type PaymentStatus } from "@/types/keuangan";
 
 import type { Payment, PaymentPurpose, PostingRange } from "./types";
 
-export const PAYMENT_LIST_PATH = menuHref(MENU.KEUANGAN, MENU.PEMBAYARAN);
+export const PAYMENT_LIST_PATH = menuHref(MENU.FINANCE, MENU.PAYMENT);
 
 export const PAYMENT_POSTING_PATH = `${PAYMENT_LIST_PATH}/posting-pembayaran`;
 
-export const POSTING_PERSEMBAHAN_PATH = `${menuHref(MENU.KEUANGAN, MENU.JURNAL)}/posting-persembahan`;
+export const POSTING_PERSEMBAHAN_PATH = `${menuHref(MENU.FINANCE, MENU.JOURNAL_ENTRY)}/posting-persembahan`;
 
-export const KAS_MASUK_CREATE_PATH = `${menuHref(MENU.KEUANGAN, MENU.KAS_MASUK)}/${FORM_SEGMENT.create}`;
+export const KAS_MASUK_CREATE_PATH = `${menuHref(MENU.FINANCE, MENU.KAS_MASUK)}/${FORM_SEGMENT.create}`;
 
 export const paymentHref = (publicId: string) =>
-  detailHref(MENU.KEUANGAN, MENU.PEMBAYARAN, publicId);
+  detailHref(MENU.FINANCE, MENU.PAYMENT, publicId);
 
 export const journalHref = (publicId: string) =>
-  detailHref(MENU.KEUANGAN, MENU.JURNAL, publicId);
+  detailHref(MENU.FINANCE, MENU.JOURNAL_ENTRY, publicId);
 
 export const persembahanHref = (code: string) =>
-  detailHref(MENU.KEUANGAN, MENU.PERSEMBAHAN, code);
+  detailHref(MENU.FINANCE, MENU.PERSEMBAHAN, code);
 
 export { DETAIL_LINK as TEXT_LINK } from "@/components/common/display";
 
@@ -140,24 +140,24 @@ type Fix = {
 
 const FIX_BY_CODE: Record<string, Fix> = {
   SETTING_EMPTY: {
-    href: menuHref(MENU.KEUANGAN, MENU.SETELAN_AKUNTANSI),
+    href: menuHref(MENU.FINANCE, MENU.ACCOUNTING_SETTING),
     label: "Buka Setelan Akuntansi",
-    menu: MENU.SETELAN_AKUNTANSI,
+    menu: MENU.ACCOUNTING_SETTING,
   },
   ACCOUNT_INACTIVE: {
-    href: menuHref(MENU.KEUANGAN, MENU.AKUN),
+    href: menuHref(MENU.FINANCE, MENU.CHART_OF_ACCOUNT),
     label: "Buka Akun",
-    menu: MENU.AKUN,
+    menu: MENU.CHART_OF_ACCOUNT,
   },
   PERIOD_NOT_OPEN: {
-    href: menuHref(MENU.KEUANGAN, MENU.PERIODE_FISKAL),
+    href: menuHref(MENU.FINANCE, MENU.FISCAL_PERIOD),
     label: "Buka Periode Fiskal",
-    menu: MENU.PERIODE_FISKAL,
+    menu: MENU.FISCAL_PERIOD,
   },
   PERIOD_CLOSED: {
-    href: menuHref(MENU.KEUANGAN, MENU.PERIODE_FISKAL),
+    href: menuHref(MENU.FINANCE, MENU.FISCAL_PERIOD),
     label: "Buka Periode Fiskal",
-    menu: MENU.PERIODE_FISKAL,
+    menu: MENU.FISCAL_PERIOD,
   },
 };
 

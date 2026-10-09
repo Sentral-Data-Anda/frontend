@@ -493,7 +493,7 @@ export const komponenPayrollMock: MockHandler = async (context) => {
   const { request, url, path, method, can } = context;
 
   if (path === "/ddl/komponen-payroll" && method === "GET") {
-    if (!can(MENU.KOMPONEN_PAYROLL, "VIEW")) return denied();
+    if (!can(MENU.PAYROLL_COMPONENT, "VIEW")) return denied();
     if (process.env.MOCK_DDL_EMPTY) {
       return json(
         { status: 404, error: "Komponen Payroll Tidak Ditemukan" },
@@ -540,7 +540,7 @@ export const komponenPayrollMock: MockHandler = async (context) => {
 
   if (path !== BASE && !path.startsWith(`${BASE}/`)) return null;
 
-  if (!can(MENU.KOMPONEN_PAYROLL, actionOf(method))) return denied();
+  if (!can(MENU.PAYROLL_COMPONENT, actionOf(method))) return denied();
 
   if (method !== "GET" && process.env.MOCK_KPY_SAVE_ERROR === "500") {
     return serverError();

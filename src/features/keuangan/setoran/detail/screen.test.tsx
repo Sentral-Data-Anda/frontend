@@ -18,14 +18,14 @@ const journalActions: { current: MenuAction[] } = { current: ["VIEW"] };
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: () => {} }),
-  usePathname: () => "/keuangan/setoran/STR-2026-0001",
+  usePathname: () => "/finance/bank-deposit/STR-2026-0001",
   useSearchParams: () => new URLSearchParams(),
 }));
 
 mock.module("@/features/auth/use-menu-access", () => ({
   useMenuAccess: (slug: string) => {
     const granted =
-      slug === "JURNAL" ? journalActions.current : actions.current;
+      slug === "JOURNAL_ENTRY" ? journalActions.current : actions.current;
 
     return {
       isCanView: granted.includes("VIEW"),
@@ -160,7 +160,7 @@ describe("ringkasan", () => {
 
     const link = await screen.findByRole("link", { name: "JRN-2026-0007" });
 
-    expect(link.getAttribute("href")).toBe("/keuangan/jurnal/jrn-0007");
+    expect(link.getAttribute("href")).toBe("/finance/journal-entry/jrn-0007");
   });
 
   test("tanpa akses Jurnal kodenya tampil tanpa tautan", async () => {
@@ -265,7 +265,7 @@ describe("aksi status", () => {
       screen
         .getByRole("link", { name: "Buka Periode Fiskal" })
         .getAttribute("href"),
-    ).toBe("/keuangan/periode-fiskal");
+    ).toBe("/finance/fiscal-period");
   });
 });
 

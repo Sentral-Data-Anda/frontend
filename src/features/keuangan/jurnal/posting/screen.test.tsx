@@ -27,7 +27,7 @@ const actions: { current: MenuAction[] } = { current: [] };
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: () => {}, push: () => {} }),
-  usePathname: () => "/keuangan/jurnal/posting-persembahan",
+  usePathname: () => "/finance/journal-entry/posting-persembahan",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -213,9 +213,9 @@ describe("PostingPersembahanScreen", () => {
       name: "Buka Setelan Akuntansi",
     })[0];
 
-    expect(typeLink.getAttribute("href")).toBe("/keuangan/tipe-persembahan");
+    expect(typeLink.getAttribute("href")).toBe("/finance/tipe-persembahan");
     expect(settingLink.getAttribute("href")).toBe(
-      "/keuangan/setelan-akuntansi",
+      "/finance/accounting-setting",
     );
   });
 

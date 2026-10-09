@@ -14,7 +14,7 @@ const ROOT = new URL("../../../../", import.meta.url).pathname;
 
 const OWNED = "src/features/keuangan/pembayaran/";
 
-const ROUTES = "src/app/(app)/keuangan/pembayaran/";
+const ROUTES = "src/app/(app)/finance/payment/";
 
 /**
  * Daftar ini sengaja kosong: kebocoran yang pernah ada sudah ditutup di

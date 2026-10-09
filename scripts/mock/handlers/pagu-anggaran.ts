@@ -321,7 +321,7 @@ export const paguAnggaranMock: MockHandler = (ctx) => {
   if (!match) return null;
 
   const [, id] = match;
-  const can = (action: MockAction) => ctx.can(MENU.PAGU_ANGGARAN, action);
+  const can = (action: MockAction) => ctx.can(MENU.BUDGET, action);
   const isWrite = ctx.method !== "GET";
 
   if (isWrite && process.env.MOCK_SAVE_ERROR) {

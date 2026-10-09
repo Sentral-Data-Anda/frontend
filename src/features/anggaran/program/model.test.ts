@@ -284,11 +284,11 @@ describe("peta code ke perbaikan", () => {
     expect(
       errorFixOf(new FetchError(400, "apa saja", [], "CEILING_MISSING"), TARGET)
         ?.href,
-    ).toBe("/anggaran/pagu-anggaran?komisi=2&tahun=2026");
+    ).toBe("/budgeting/budget?komisi=2&tahun=2026");
     expect(
       errorFixOf(new FetchError(400, "apa saja", [], "NO_WORKFLOW"), TARGET)
         ?.href,
-    ).toBe("/persetujuan/setelan-persetujuan");
+    ).toBe("/approval/approval-workflow");
   });
 
   test("pesan yang memuat kata kuncinya tanpa code tidak memicu tautan", () => {

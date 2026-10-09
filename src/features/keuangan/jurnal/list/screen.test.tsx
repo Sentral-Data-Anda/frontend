@@ -21,7 +21,7 @@ const query: { current: string } = { current: "" };
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: () => {} }),
-  usePathname: () => "/keuangan/jurnal",
+  usePathname: () => "/finance/journal-entry",
   useSearchParams: () => new URLSearchParams(query.current),
 }));
 
@@ -208,10 +208,10 @@ describe("JournalListScreen", () => {
    * Rute tanpa tautan sama dengan rute yang tidak ada.
    */
   test.each([
-    ["Persembahan", "/keuangan/jurnal/posting-persembahan"],
-    ["Aset sumbangan", "/keuangan/jurnal/posting-aset"],
-    ["Pengadaan", "/keuangan/jurnal/posting-pengadaan"],
-    ["Persediaan", "/keuangan/jurnal/posting-persediaan"],
+    ["Persembahan", "/finance/journal-entry/posting-persembahan"],
+    ["Aset sumbangan", "/finance/journal-entry/posting-aset"],
+    ["Pengadaan", "/finance/journal-entry/posting-pengadaan"],
+    ["Persediaan", "/finance/journal-entry/posting-persediaan"],
   ])("izin create membuka jalan ke Posting %s", async (label, href) => {
     onRenderList(["VIEW", "CREATE"]);
 

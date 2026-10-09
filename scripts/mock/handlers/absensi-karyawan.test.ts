@@ -42,8 +42,7 @@ const onCall = (
     url,
     path: url.pathname.replace(/^\/api\/v1/, ""),
     method,
-    can: (slug, action) =>
-      slug === MENU.ABSENSI_KARYAWAN && granted.includes(action),
+    can: (slug, action) => slug === MENU.ATTENDANCE && granted.includes(action),
     isAdmin: false,
     sessionCode: "test",
   });

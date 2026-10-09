@@ -34,7 +34,7 @@ interface PropTypes {
 export const BarangLabelScreen = (props: PropTypes) => {
   const { siteUrl } = props;
 
-  const { isCanView } = useMenuAccess(MENU.BARANG);
+  const { isCanView } = useMenuAccess(MENU.ASSET_MASTER);
   const searchParams = useSearchParams();
   const listReturn = useListReturn(BARANG_LIST_PATH);
   const source = useMemo(() => labelSourceOf(searchParams), [searchParams]);

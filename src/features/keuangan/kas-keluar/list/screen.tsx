@@ -16,7 +16,7 @@ export const ExpenseListScreen = () => {
     <ExpenseListContent />
   ) : (
     <div className="pb-6">
-      <PageHeader title="Kas Keluar" backHref={domainHref(MENU.KEUANGAN)} />
+      <PageHeader title="Kas Keluar" backHref={domainHref(MENU.FINANCE)} />
       <EmptyState
         title="Anda tidak memiliki akses ke Kas Keluar"
         description={NO_VIEW}

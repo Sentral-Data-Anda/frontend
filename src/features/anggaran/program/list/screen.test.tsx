@@ -29,7 +29,7 @@ const params: { current: URLSearchParams } = { current: new URLSearchParams() };
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
-  usePathname: () => "/anggaran/program",
+  usePathname: () => "/budgeting/program",
   useSearchParams: () => params.current,
 }));
 
@@ -167,7 +167,7 @@ describe("daftar program", () => {
       name: "Lihat usulan Retret Pemuda Regional",
     });
 
-    expect(link.getAttribute("href")).toBe("/anggaran/program/prg-0001");
+    expect(link.getAttribute("href")).toBe("/budgeting/program/prg-0001");
     expect(screen.getByText(`PRG-${YEAR}-0001 · Komisi Pemuda`)).toBeTruthy();
   });
 
@@ -194,7 +194,7 @@ describe("daftar program", () => {
 
     fireEvent.click(await screen.findByRole("tab", { name: "Menunggu" }));
 
-    expect(replaced[0]).toBe("/anggaran/program?status=PENDING_APPROVAL");
+    expect(replaced[0]).toBe("/budgeting/program?status=PENDING_APPROVAL");
   });
 
   test("status di URL dikirim sebagai status + isPendingApproval ke API", async () => {

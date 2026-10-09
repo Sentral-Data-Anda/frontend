@@ -38,7 +38,7 @@ interface PropTypes {
 export const ReportActions = (props: PropTypes) => {
   const { report, pendingAction, onPick } = props;
 
-  const { isCanUpdate, isCanDelete } = useMenuAccess(MENU.LAPORAN_BUDGET);
+  const { isCanUpdate, isCanDelete } = useMenuAccess(MENU.BUDGET_REALIZATION);
   const state = reportStateOf(report);
   const isBusy = pendingAction !== null;
   const isDraft = state === "DRAFT";

@@ -12,7 +12,7 @@ import {
   type RoleUserPayload,
 } from "./types";
 
-export const ROLE_USER_LIST_PATH = menuHref(MENU.PENGATURAN, MENU.ROLE_USER);
+export const ROLE_USER_LIST_PATH = menuHref(MENU.SETTINGS, MENU.USER_ROLE);
 
 export const ACCESS_REQUIRED =
   "Pilih minimal satu izin, atau jadikan Akses penuh.";

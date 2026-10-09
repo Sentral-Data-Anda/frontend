@@ -12,7 +12,7 @@ import {
   type HolidayType,
 } from "./types";
 
-export const HARI_LIBUR_LIST_PATH = menuHref(MENU.PENGATURAN, MENU.HARI_LIBUR);
+export const HARI_LIBUR_LIST_PATH = menuHref(MENU.SETTINGS, MENU.HOLIDAY);
 
 const HOLIDAY_TYPES = Object.keys(HOLIDAY_TYPE_LABEL) as [
   HolidayType,

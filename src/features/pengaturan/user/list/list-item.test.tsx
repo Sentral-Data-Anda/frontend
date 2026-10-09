@@ -32,7 +32,7 @@ describe("baris HP", () => {
       screen
         .getByRole("link", { name: "Buka akun Gabriel Tampubolon" })
         .getAttribute("href"),
-    ).toBe("/pengaturan/user/USR-0007/ubah");
+    ).toBe("/settings/user/USR-0007/ubah");
     expect(document.querySelector('[data-row-id="USR-0007"]')).not.toBeNull();
   });
 });
@@ -51,7 +51,7 @@ describe("konfigurasi tabel", () => {
         .filter((column) => column.isSecondary)
         .map((column) => column.key),
     ).toEqual(["lastLogin"]);
-    expect(userTable.getRowHref?.(USER)).toBe("/pengaturan/user/USR-0007/ubah");
+    expect(userTable.getRowHref?.(USER)).toBe("/settings/user/USR-0007/ubah");
   });
 
   test("belum pernah masuk tertulis, bukan kosong", () => {

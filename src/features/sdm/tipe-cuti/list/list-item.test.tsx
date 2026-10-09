@@ -41,7 +41,7 @@ describe("baris HP", () => {
       screen
         .getByRole("link", { name: "Ubah Cuti Tahunan" })
         .getAttribute("href"),
-    ).toBe("/sdm/tipe-cuti/TCT-0001/ubah");
+    ).toBe("/hr/leave-type/TCT-0001/ubah");
   });
 
   test("tanpa UPDATE: tidak ada aksi ubah, status tetap tampil", () => {
@@ -122,7 +122,7 @@ describe("konfigurasi tabel", () => {
 
   test("tautan baris hanya dengan UPDATE", () => {
     expect(tipeCutiTable(true).getRowHref?.(ROW)).toBe(
-      "/sdm/tipe-cuti/TCT-0001/ubah",
+      "/hr/leave-type/TCT-0001/ubah",
     );
     expect(tipeCutiTable(false).getRowHref).toBeUndefined();
   });

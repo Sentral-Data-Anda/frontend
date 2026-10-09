@@ -5,14 +5,14 @@ import { MENU, editHref, menuHref } from "@/config/menu";
 import type { AccountingSetting, AccountingSettingPayload } from "./types";
 
 export const SETELAN_AKUNTANSI_LIST_PATH = menuHref(
-  MENU.KEUANGAN,
-  MENU.SETELAN_AKUNTANSI,
+  MENU.FINANCE,
+  MENU.ACCOUNTING_SETTING,
 );
 
-export const AKUN_LIST_PATH = menuHref(MENU.KEUANGAN, MENU.AKUN);
+export const AKUN_LIST_PATH = menuHref(MENU.FINANCE, MENU.CHART_OF_ACCOUNT);
 
 export const settingEditHref = (key: string) =>
-  editHref(MENU.KEUANGAN, MENU.SETELAN_AKUNTANSI, key);
+  editHref(MENU.FINANCE, MENU.ACCOUNTING_SETTING, key);
 
 export const NO_VIEW = "Peran Anda tidak memiliki akses ke Setelan Akuntansi.";
 

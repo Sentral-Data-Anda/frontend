@@ -23,14 +23,14 @@ const replaced: string[] = [];
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
-  usePathname: () => "/sdm/absensi-karyawan/baru",
+  usePathname: () => "/hr/attendance/baru",
   useSearchParams: () => new URLSearchParams(),
 }));
 
-/** Sadar-slug: hibah hanya berlaku untuk ABSENSI_KARYAWAN. */
+/** Sadar-slug: hibah hanya berlaku untuk ATTENDANCE. */
 mock.module("@/features/auth/use-menu-access", () => ({
   useMenuAccess: (slug: string) => {
-    const granted = slug === MENU.ABSENSI_KARYAWAN ? actions.current : [];
+    const granted = slug === MENU.ATTENDANCE ? actions.current : [];
 
     return {
       isCanView: granted.includes("VIEW"),

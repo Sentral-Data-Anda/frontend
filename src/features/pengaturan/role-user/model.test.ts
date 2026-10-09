@@ -220,21 +220,21 @@ describe("pohon menu-options → grup", () => {
   test("urut order, aksi di luar kolom dibuang, grup tanpa menu hilang", () => {
     const groups = toAccessGroups([
       {
-        ...leaf("PENGATURAN", [], 2),
+        ...leaf("SETTINGS", [], 2),
         isGroup: true,
-        children: [leaf("ROLE_USER", ["VIEW"], 2), leaf("USER", ["VIEW"], 1)],
+        children: [leaf("USER_ROLE", ["VIEW"], 2), leaf("USER", ["VIEW"], 1)],
       },
       {
-        ...leaf("PERSETUJUAN", [], 1),
+        ...leaf("APPROVAL", [], 1),
         isGroup: true,
         children: [leaf("SETELAN", ["APPROVE"])],
       },
     ]);
 
-    expect(groups.map((group) => group.slug)).toEqual(["PENGATURAN"]);
+    expect(groups.map((group) => group.slug)).toEqual(["SETTINGS"]);
     expect(groups[0].children.map((menu) => menu.slug)).toEqual([
       "USER",
-      "ROLE_USER",
+      "USER_ROLE",
     ]);
   });
 });

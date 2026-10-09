@@ -9,22 +9,25 @@ import { type CashStatus } from "@/types/keuangan";
 
 import type { Transfer, TransferAccountOption, TransferPayload } from "./types";
 
-export const TRANSFER_LIST_PATH = menuHref(MENU.KEUANGAN, MENU.SETORAN);
+export const TRANSFER_LIST_PATH = menuHref(MENU.FINANCE, MENU.BANK_DEPOSIT);
 
-export const TRANSFER_CREATE_PATH = createHref(MENU.KEUANGAN, MENU.SETORAN);
+export const TRANSFER_CREATE_PATH = createHref(MENU.FINANCE, MENU.BANK_DEPOSIT);
 
 export const transferHref = (code: string) =>
-  detailHref(MENU.KEUANGAN, MENU.SETORAN, code);
+  detailHref(MENU.FINANCE, MENU.BANK_DEPOSIT, code);
 
-export const ACCOUNT_LIST_PATH = menuHref(MENU.KEUANGAN, MENU.AKUN);
+export const ACCOUNT_LIST_PATH = menuHref(MENU.FINANCE, MENU.CHART_OF_ACCOUNT);
 
-export const ACCOUNT_CREATE_PATH = createHref(MENU.KEUANGAN, MENU.AKUN);
+export const ACCOUNT_CREATE_PATH = createHref(
+  MENU.FINANCE,
+  MENU.CHART_OF_ACCOUNT,
+);
 
-export const PERIOD_LIST_PATH = menuHref(MENU.KEUANGAN, MENU.PERIODE_FISKAL);
+export const PERIOD_LIST_PATH = menuHref(MENU.FINANCE, MENU.FISCAL_PERIOD);
 
 // Rute Jurnal hanya menerima publicId; kodenya untuk dibaca, bukan dirute.
 export const journalHref = (publicId: string) =>
-  detailHref(MENU.KEUANGAN, MENU.JURNAL, publicId);
+  detailHref(MENU.FINANCE, MENU.JOURNAL_ENTRY, publicId);
 
 export const TRANSFER_INFO =
   "Setoran memindahkan uang antar akun gereja sendiri. Uangnya tidak bertambah dan tidak berkurang, jadi setoran tidak pernah muncul sebagai pengeluaran di laporan.";

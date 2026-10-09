@@ -14,7 +14,7 @@ export const OpnameListScreen = () => {
     <OpnameListContent />
   ) : (
     <div className="pb-6">
-      <PageHeader title="Stok Opname" backHref={domainHref(MENU.INVENTARIS)} />
+      <PageHeader title="Stok Opname" backHref={domainHref(MENU.INVENTORY)} />
       <EmptyState
         title="Anda tidak memiliki akses ke Stok Opname"
         description="Hubungi administrator bila Anda memang seharusnya memegang akses ini."

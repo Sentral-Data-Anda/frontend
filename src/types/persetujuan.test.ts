@@ -37,10 +37,10 @@ describe("jenis dokumen persetujuan", () => {
 describe("tautan halaman dokumen", () => {
   test("permintaan pembelian dan pelepasan barang punya halaman", () => {
     expect(approvalDocumentHref("PURCHASE_REQUEST", ref("PRQ-2026-0001"))).toBe(
-      "/pengadaan/permintaan-pembelian/PRQ-2026-0001",
+      "/procurement/purchase-request/PRQ-2026-0001",
     );
     expect(approvalDocumentHref("ASSET_DISPOSAL", ref("SKA-2026-0003"))).toBe(
-      "/inventaris/siklus-aset/pelepasan/SKA-2026-0003",
+      "/fixed-asset/asset-transaction/pelepasan/SKA-2026-0003",
     );
   });
 
@@ -66,17 +66,17 @@ describe("kas keluar bertaut lewat publicId", () => {
         publicId: "ce-9f2a",
         code: "KK-2026-0001",
       }),
-    ).toBe("/keuangan/kas-keluar/ce-9f2a");
+    ).toBe("/finance/kas-keluar/ce-9f2a");
   });
 });
 
 describe("dokumen anggaran bertaut lewat publicId", () => {
   const cases = [
-    ["PROGRAM", "/anggaran/program/prg-7c11", "PRG-2026-0004"],
-    ["PROGRAM_MENDADAK", "/anggaran/program/prg-7c11", "PRG-2026-0004"],
+    ["PROGRAM", "/budgeting/program/prg-7c11", "PRG-2026-0004"],
+    ["PROGRAM_MENDADAK", "/budgeting/program/prg-7c11", "PRG-2026-0004"],
     [
       "BUDGET_USAGE_REPORT",
-      "/anggaran/laporan-budget/prg-7c11",
+      "/report/budget-realization/prg-7c11",
       "LPB-2026-0002",
     ],
   ] as const;

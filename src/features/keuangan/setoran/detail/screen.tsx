@@ -55,8 +55,10 @@ export const TransferDetailScreen = (props: PropTypes) => {
   const { code } = props;
 
   const toast = useToast();
-  const { isCanView, isCanCreate, isCanDelete } = useMenuAccess(MENU.SETORAN);
-  const journalAccess = useMenuAccess(MENU.JURNAL);
+  const { isCanView, isCanCreate, isCanDelete } = useMenuAccess(
+    MENU.BANK_DEPOSIT,
+  );
+  const journalAccess = useMenuAccess(MENU.JOURNAL_ENTRY);
   const listReturn = useListReturn(TRANSFER_LIST_PATH);
   const detail = useTransferDetail(isCanView ? code : undefined);
   const action = useTransferAction(code);
@@ -98,7 +100,7 @@ export const TransferDetailScreen = (props: PropTypes) => {
   if (!isCanView) {
     return (
       <div className="pb-8">
-        <PageHeader title={TITLE} backHref={domainHref(MENU.KEUANGAN)} />
+        <PageHeader title={TITLE} backHref={domainHref(MENU.FINANCE)} />
         <EmptyState
           title="Anda tidak memiliki akses ke Setoran"
           description="Hubungi administrator bila Anda memang seharusnya memegang akses ini."

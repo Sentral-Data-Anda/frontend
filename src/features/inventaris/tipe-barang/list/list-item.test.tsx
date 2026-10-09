@@ -30,7 +30,7 @@ describe("baris HP", () => {
 
     const action = screen.getByRole("link", { name: "Ubah Elektronik" });
     expect(action.getAttribute("href")).toBe(
-      "/inventaris/tipe-barang/TYP_ITM-0001/ubah",
+      "/inventory/item-category/TYP_ITM-0001/ubah",
     );
   });
 
@@ -61,7 +61,7 @@ describe("konfigurasi tabel", () => {
       ["Kode", "minmax(0,1fr)"],
     ]);
     expect(table.getRowHref?.(TIPE)).toBe(
-      "/inventaris/tipe-barang/TYP_ITM-0001/ubah",
+      "/inventory/item-category/TYP_ITM-0001/ubah",
     );
     expect(tipeBarangTable(false).getRowHref).toBeUndefined();
   });

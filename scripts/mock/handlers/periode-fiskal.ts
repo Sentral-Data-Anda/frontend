@@ -114,7 +114,7 @@ export const periodeFiskalMock: MockHandler = async (ctx) => {
   if (path !== "/periode-fiskal" && !path.startsWith("/periode-fiskal/")) {
     return null;
   }
-  if (!can(MENU.PERIODE_FISKAL, actionOf(method))) return denied();
+  if (!can(MENU.FISCAL_PERIOD, actionOf(method))) return denied();
 
   if (path === "/periode-fiskal" && method === "GET") {
     if (process.env.MOCK_500) return serverError();

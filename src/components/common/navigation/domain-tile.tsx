@@ -15,17 +15,17 @@ const tintOf = (slug: string) => TINT[DOMAIN_TINT[slug] ?? "primary"];
 
 const DOMAIN_TINT: Record<string, keyof typeof TINT> = {
   [MENU.KEJEMAATAN]: "primary",
-  [MENU.INVENTARIS]: "primary",
-  [MENU.PERSETUJUAN]: "primary",
-  [MENU.PENGATURAN]: "primary",
+  [MENU.INVENTORY]: "primary",
+  [MENU.APPROVAL]: "primary",
+  [MENU.SETTINGS]: "primary",
   [MENU.PELAYANAN]: "secondary",
-  [MENU.PENGADAAN]: "secondary",
+  [MENU.PROCUREMENT]: "secondary",
   [MENU.PERIBADAHAN]: "secondary",
   [MENU.KEGIATAN]: "warning",
-  [MENU.KEUANGAN]: "warning",
-  [MENU.ANGGARAN]: "warning",
+  [MENU.FINANCE]: "warning",
+  [MENU.BUDGETING]: "warning",
   [MENU.FASILITAS]: "success",
-  [MENU.SDM]: "success",
+  [MENU.HR]: "success",
 };
 
 const ICON_SIZE = {

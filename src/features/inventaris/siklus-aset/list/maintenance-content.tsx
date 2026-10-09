@@ -21,7 +21,7 @@ const STATUS_OPTIONS = [
 ];
 
 export const MaintenanceContent = () => {
-  const { isCanUpdate } = useMenuAccess(MENU.SIKLUS_ASET);
+  const { isCanUpdate } = useMenuAccess(MENU.ASSET_TRANSACTION);
   const listParams = useListParams({ filters: LIST_FILTERS });
   const list = useMaintenanceList(listParams);
   const isFiltered = Boolean(listParams.search) || listParams.isFiltered;

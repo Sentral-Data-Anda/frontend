@@ -55,12 +55,12 @@ const postedTextOf = (result: PostingResult) =>
 
 export const PostingPengadaanScreen = () => {
   const toast = useToast();
-  const { isCanView, isCanCreate } = useMenuAccess(MENU.JURNAL);
+  const { isCanView, isCanCreate } = useMenuAccess(MENU.JOURNAL_ENTRY);
   // Izin faktur dihitung di sini, bukan di dalam RefusedList: hook tidak bisa
   // dipanggil bersyarat, dan dokumen yang ditolak di sini dijaga menu lain.
   // Faktur maupun pembayaran sama-sama menyebut KODE FAKTUR sebagai subjeknya,
   // jadi satu tautan cukup untuk keduanya.
-  const fakturAccess = useMenuAccess(MENU.FAKTUR_SUPPLIER);
+  const fakturAccess = useMenuAccess(MENU.SUPPLIER_INVOICE);
   const [bulan, setBulan] = useState(() => todayJakarta().slice(0, 7));
   const [outcome, setOutcome] = useState<Outcome | null>(null);
   const posting = usePostPengadaan();

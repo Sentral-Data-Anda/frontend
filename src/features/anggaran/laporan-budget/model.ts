@@ -27,37 +27,34 @@ import type {
   ReportApprovalStep,
 } from "./types";
 
-export const REPORT_LIST_PATH = menuHref(MENU.ANGGARAN, MENU.LAPORAN_BUDGET);
+export const REPORT_LIST_PATH = menuHref(MENU.REPORT, MENU.BUDGET_REALIZATION);
 
 export const REPORT_CREATE_PATH = createHref(
-  MENU.ANGGARAN,
-  MENU.LAPORAN_BUDGET,
+  MENU.REPORT,
+  MENU.BUDGET_REALIZATION,
 );
 
 export const reportDetailHref = (publicId: string) =>
-  detailHref(MENU.ANGGARAN, MENU.LAPORAN_BUDGET, publicId);
+  detailHref(MENU.REPORT, MENU.BUDGET_REALIZATION, publicId);
 
 export const reportEditHref = (publicId: string) =>
-  editHref(MENU.ANGGARAN, MENU.LAPORAN_BUDGET, publicId);
+  editHref(MENU.REPORT, MENU.BUDGET_REALIZATION, publicId);
 
 export const approvalHref = (publicId: string) =>
-  detailHref(MENU.PERSETUJUAN, MENU.PERMINTAAN_PERSETUJUAN, publicId);
+  detailHref(MENU.APPROVAL, MENU.APPROVAL_REQUEST, publicId);
 
 export const accountHref = (code: string) =>
-  detailHref(MENU.KEUANGAN, MENU.AKUN, code);
+  detailHref(MENU.FINANCE, MENU.CHART_OF_ACCOUNT, code);
 
 export const programHref = (publicId: string) =>
-  detailHref(MENU.ANGGARAN, MENU.PROGRAM, publicId);
+  detailHref(MENU.BUDGETING, MENU.PROGRAM, publicId);
 
 export const expenseHref = (publicId: string) =>
-  detailHref(MENU.KEUANGAN, MENU.KAS_KELUAR, publicId);
+  detailHref(MENU.FINANCE, MENU.KAS_KELUAR, publicId);
 
 export const ROLE_JEMAAT_PATH = menuHref(MENU.KEJEMAATAN, MENU.ROLE_JEMAAT);
 
-export const WORKFLOW_PATH = menuHref(
-  MENU.PERSETUJUAN,
-  MENU.SETELAN_PERSETUJUAN,
-);
+export const WORKFLOW_PATH = menuHref(MENU.APPROVAL, MENU.APPROVAL_WORKFLOW);
 
 export const createForHref = (bapelId: number, month: string) =>
   `${REPORT_CREATE_PATH}?komisi=${bapelId}&bulan=${month}`;
@@ -268,7 +265,7 @@ export type ErrorFix = { menu: MenuSlug; label: string; href: string };
 
 const ERROR_FIX: Record<string, ErrorFix> = {
   NO_WORKFLOW: {
-    menu: MENU.SETELAN_PERSETUJUAN,
+    menu: MENU.APPROVAL_WORKFLOW,
     label: "Lihat Setelan Alur Persetujuan",
     href: WORKFLOW_PATH,
   },
@@ -278,9 +275,9 @@ const ERROR_FIX: Record<string, ErrorFix> = {
     href: ROLE_JEMAAT_PATH,
   },
   ACCOUNT_INACTIVE: {
-    menu: MENU.AKUN,
+    menu: MENU.CHART_OF_ACCOUNT,
     label: "Lihat Akun",
-    href: menuHref(MENU.KEUANGAN, MENU.AKUN),
+    href: menuHref(MENU.FINANCE, MENU.CHART_OF_ACCOUNT),
   },
 };
 

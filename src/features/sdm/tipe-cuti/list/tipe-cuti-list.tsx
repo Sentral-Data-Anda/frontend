@@ -15,7 +15,7 @@ const EMPTY_DESCRIPTION =
   "Gereja yang menentukan jenis cutinya sendiri. Yang lazim dipakai: cuti tahunan, sakit, melahirkan, menikah, dan duka — tambahkan yang berlaku di sini beserta jatah harinya.";
 
 export const TipeCutiList = () => {
-  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.TIPE_CUTI);
+  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.LEAVE_TYPE);
   const listParams = useListParams();
   const tipeCutiList = useTipeCutiList(listParams);
   const isSearched = Boolean(listParams.search);
@@ -29,11 +29,11 @@ export const TipeCutiList = () => {
             ? undefined
             : `${tipeCutiList.totalData} tipe cuti`
         }
-        backHref={domainHref(MENU.SDM)}
+        backHref={domainHref(MENU.HR)}
         action={
           isCanCreate ? (
             <PageHeaderAdd
-              href={createHref(MENU.SDM, MENU.TIPE_CUTI)}
+              href={createHref(MENU.HR, MENU.LEAVE_TYPE)}
               label="Tambah tipe cuti"
             />
           ) : null

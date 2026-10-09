@@ -92,10 +92,10 @@ export const OrderFormScreen = (props: PropTypes) => {
   const toast = useToast();
   const isEdit = Boolean(code);
   const { isCanView, isCanCreate, isCanUpdate } = useMenuAccess(
-    MENU.PESANAN_PEMBELIAN,
+    MENU.PURCHASE_ORDER,
   );
-  const requestAccess = useMenuAccess(MENU.PERMINTAAN_PEMBELIAN);
-  const currencyAccess = useMenuAccess(MENU.MATA_UANG);
+  const requestAccess = useMenuAccess(MENU.PURCHASE_REQUEST);
+  const currencyAccess = useMenuAccess(MENU.CURRENCY);
   const isAllowed = isEdit ? isCanUpdate : isCanCreate;
   const listReturn = useListReturn(ORDER_LIST_PATH);
   const leaveHref = code ? orderHref(code) : listReturn;

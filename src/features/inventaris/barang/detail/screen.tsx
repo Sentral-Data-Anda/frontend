@@ -33,8 +33,8 @@ interface PropTypes {
 export const BarangDetailScreen = (props: PropTypes) => {
   const { code } = props;
 
-  const { isCanView, isCanUpdate } = useMenuAccess(MENU.BARANG);
-  const { isCanView: isCanViewCycle } = useMenuAccess(MENU.SIKLUS_ASET);
+  const { isCanView, isCanUpdate } = useMenuAccess(MENU.ASSET_MASTER);
+  const { isCanView: isCanViewCycle } = useMenuAccess(MENU.ASSET_TRANSACTION);
   const listReturn = useListReturn(BARANG_LIST_PATH);
   const detail = useAssetDetail(isCanView ? code : undefined);
   const asset = detail.data;
@@ -44,7 +44,7 @@ export const BarangDetailScreen = (props: PropTypes) => {
   if (!isCanView) {
     return (
       <div className="pb-8">
-        <PageHeader title={TITLE} backHref={domainHref(MENU.INVENTARIS)} />
+        <PageHeader title={TITLE} backHref={domainHref(MENU.FIXED_ASSET)} />
         <EmptyState
           title="Anda tidak memiliki akses ke Barang"
           description="Hubungi administrator bila Anda memang seharusnya memegang akses ini."

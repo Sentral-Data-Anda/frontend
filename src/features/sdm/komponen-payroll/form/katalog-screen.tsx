@@ -58,7 +58,7 @@ export const KatalogFormScreen = (props: PropTypes) => {
   const toast = useToast();
   const isEdit = Boolean(code);
   const { isCanView, isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
-    MENU.KOMPONEN_PAYROLL,
+    MENU.PAYROLL_COMPONENT,
   );
   const listReturn = useListReturn(KATALOG_LIST_PATH);
   const [rejectedField, setRejectedField] = useState<string | null>(null);

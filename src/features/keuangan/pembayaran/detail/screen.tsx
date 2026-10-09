@@ -27,9 +27,9 @@ interface PropTypes {
 export const PaymentDetailScreen = (props: PropTypes) => {
   const { publicId } = props;
 
-  const { isCanView } = useMenuAccess(MENU.PEMBAYARAN);
+  const { isCanView } = useMenuAccess(MENU.PAYMENT);
   const persembahanAccess = useMenuAccess(MENU.PERSEMBAHAN);
-  const journalAccess = useMenuAccess(MENU.JURNAL);
+  const journalAccess = useMenuAccess(MENU.JOURNAL_ENTRY);
   const listReturn = useListReturn(PAYMENT_LIST_PATH);
   const detail = usePaymentDetail(isCanView ? publicId : undefined);
   const payment = detail.data;
@@ -39,7 +39,7 @@ export const PaymentDetailScreen = (props: PropTypes) => {
   if (!isCanView) {
     return (
       <div className="pb-8">
-        <PageHeader title={TITLE} backHref={domainHref(MENU.KEUANGAN)} />
+        <PageHeader title={TITLE} backHref={domainHref(MENU.FINANCE)} />
         <EmptyState
           title="Anda tidak memiliki akses ke Pembayaran"
           description={NO_VIEW}

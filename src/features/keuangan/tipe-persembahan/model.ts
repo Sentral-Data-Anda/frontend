@@ -6,19 +6,19 @@ import { collapseSpaces } from "@/lib/name";
 import type { OfferingType, OfferingTypePayload } from "./types";
 
 export const TIPE_PERSEMBAHAN_LIST_PATH = menuHref(
-  MENU.KEUANGAN,
+  MENU.FINANCE,
   MENU.TIPE_PERSEMBAHAN,
 );
 
 export const TIPE_PERSEMBAHAN_CREATE_PATH = createHref(
-  MENU.KEUANGAN,
+  MENU.FINANCE,
   MENU.TIPE_PERSEMBAHAN,
 );
 
-export const AKUN_LIST_PATH = menuHref(MENU.KEUANGAN, MENU.AKUN);
+export const AKUN_LIST_PATH = menuHref(MENU.FINANCE, MENU.CHART_OF_ACCOUNT);
 
 export const offeringTypeEditHref = (code: string) =>
-  editHref(MENU.KEUANGAN, MENU.TIPE_PERSEMBAHAN, code);
+  editHref(MENU.FINANCE, MENU.TIPE_PERSEMBAHAN, code);
 
 export const NO_VIEW = "Peran Anda tidak memiliki akses ke Tipe Persembahan.";
 

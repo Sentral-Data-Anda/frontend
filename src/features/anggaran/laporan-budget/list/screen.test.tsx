@@ -20,7 +20,7 @@ const search: { current: string } = { current: "" };
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: () => {} }),
-  usePathname: () => "/anggaran/laporan-budget",
+  usePathname: () => "/report/budget-realization",
   useSearchParams: () => new URLSearchParams(search.current),
 }));
 
@@ -74,7 +74,7 @@ const report = (next: Partial<BudgetReport> = {}): BudgetReport => ({
 
 const onRender = (
   rows: BudgetReport[],
-  granted: Record<string, MenuAction[]> = { LAPORAN_BUDGET: ALL },
+  granted: Record<string, MenuAction[]> = { BUDGET_REALIZATION: ALL },
 ) => {
   const calls: string[] = [];
 
@@ -122,7 +122,9 @@ describe("daftar laporan", () => {
       name: "Lihat laporan September 2026 Komisi Pemuda",
     });
 
-    expect(link.getAttribute("href")).toBe("/anggaran/laporan-budget/lpb-0001");
+    expect(link.getAttribute("href")).toBe(
+      "/report/budget-realization/lpb-0001",
+    );
     expect(screen.getAllByText(/LPB-2026-0001/).length).toBeGreaterThan(0);
   });
 

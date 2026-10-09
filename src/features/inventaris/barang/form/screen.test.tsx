@@ -32,7 +32,7 @@ mock.module("next/navigation", () => ({
     replace: (href: string) => replaced.push(href),
     push: () => undefined,
   }),
-  usePathname: () => "/inventaris/barang/baru",
+  usePathname: () => "/fixed-asset/asset-master/baru",
   useSearchParams: () => new URLSearchParams(),
 }));
 

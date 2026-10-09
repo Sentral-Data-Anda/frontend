@@ -51,7 +51,7 @@ export const KaryawanFormScreen = (props: PropTypes) => {
   const toast = useToast();
   const isEdit = Boolean(code);
   const { isCanView, isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
-    MENU.KARYAWAN,
+    MENU.EMPLOYEE,
   );
   const listReturn = useListReturn(KARYAWAN_LIST_PATH);
   const [rejectedField, setRejectedField] = useState<string | null>(null);

@@ -24,7 +24,7 @@ interface PropTypes {
 export const ListHeader = (props: PropTypes) => {
   const { kind, totalData, listParams } = props;
 
-  const { isCanCreate, isCanDelete } = useMenuAccess(MENU.SIKLUS_ASET);
+  const { isCanCreate, isCanDelete } = useMenuAccess(MENU.ASSET_TRANSACTION);
   const isCanAdd = kind === "pelepasan" ? isCanDelete : isCanCreate;
 
   const onPickKind = (next: string) =>
@@ -39,7 +39,7 @@ export const ListHeader = (props: PropTypes) => {
             ? undefined
             : `${totalData} ${KIND_NOUN[kind]}`
         }
-        backHref={domainHref(MENU.INVENTARIS)}
+        backHref={domainHref(MENU.FIXED_ASSET)}
         action={
           isCanAdd ? (
             <PageHeaderAdd

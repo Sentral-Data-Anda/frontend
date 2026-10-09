@@ -44,7 +44,7 @@ export const PermintaanRejectScreen = (props: PropTypes) => {
 
   const router = useRouter();
   const toast = useToast();
-  const { isCanView, isCanUpdate } = useMenuAccess(MENU.PERMINTAAN_PERSETUJUAN);
+  const { isCanView, isCanUpdate } = useMenuAccess(MENU.APPROVAL_REQUEST);
   const listReturn = useListReturn(PERMINTAAN_LIST_PATH);
   const detail = usePermintaanDetail(id, isCanUpdate);
   const reject = useReject(id);
@@ -63,11 +63,7 @@ export const PermintaanRejectScreen = (props: PropTypes) => {
   const { isDirty, isSubmitting, submitCount } = form.formState;
   const rootError = form.formState.errors.root?.message;
   const request = detail.data;
-  const backHref = detailHref(
-    MENU.PERSETUJUAN,
-    MENU.PERMINTAAN_PERSETUJUAN,
-    id,
-  );
+  const backHref = detailHref(MENU.APPROVAL, MENU.APPROVAL_REQUEST, id);
 
   const onLeave = () => router.replace(backHref);
 

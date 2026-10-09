@@ -14,7 +14,7 @@ const grants: { current: Partial<Record<MenuSlug, MenuAction[]>> } = {
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: () => {} }),
-  usePathname: () => "/pengadaan/supplier/SUP-0001",
+  usePathname: () => "/procurement/supplier/SUP-0001",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -114,17 +114,17 @@ describe("halaman supplier", () => {
     ).toBeNull();
   });
 
-  test("tautan pesanan hanya dengan PESANAN_PEMBELIAN VIEW; hapus tidak di halaman ini", async () => {
+  test("tautan pesanan hanya dengan PURCHASE_ORDER VIEW; hapus tidak di halaman ini", async () => {
     onRender({
       [MENU.SUPPLIER]: ["VIEW", "UPDATE", "DELETE"],
-      [MENU.PESANAN_PEMBELIAN]: ["VIEW"],
+      [MENU.PURCHASE_ORDER]: ["VIEW"],
     });
 
     expect(
       (
         await screen.findByRole("link", { name: "Lihat pesanan supplier ini" })
       ).getAttribute("href"),
-    ).toBe("/pengadaan/pesanan-pembelian?supplier=1");
+    ).toBe("/procurement/purchase-order?supplier=1");
     expect(
       screen.getByRole("link", { name: "Ubah" }).getAttribute("href"),
     ).toBe(supplierEditHref(CODE));

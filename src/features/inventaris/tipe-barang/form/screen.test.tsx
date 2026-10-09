@@ -19,12 +19,12 @@ const replaced: string[] = [];
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
-  usePathname: () => "/inventaris/tipe-barang/baru",
+  usePathname: () => "/inventory/item-category/baru",
   useSearchParams: () => new URLSearchParams(),
 }));
 
 // Sadar MENU, bukan satu jawaban untuk semua. Layar ini menanyakan dua menu
-// yang berbeda -- TIPE_BARANG untuk form-nya, SETELAN_AKUNTANSI untuk ketiga
+// yang berbeda -- ITEM_CATEGORY untuk form-nya, ACCOUNTING_SETTING untuk ketiga
 // akunnya -- dan mock yang mengabaikan menu mana yang ditanya membuat
 // pemisahan wewenang itu tak teruji sama sekali. `accounting` default-nya
 // KOSONG, jadi test yang tidak menyebutnya memakai peran paling sempit.
@@ -33,7 +33,7 @@ const accounting: { current: MenuAction[] } = { current: [] };
 mock.module("@/features/auth/use-menu-access", () => ({
   useMenuAccess: (menu: string) => {
     const granted =
-      menu === "SETELAN_AKUNTANSI" ? accounting.current : actions.current;
+      menu === "ACCOUNTING_SETTING" ? accounting.current : actions.current;
 
     return {
       isCanView: granted.includes("VIEW"),
@@ -434,9 +434,9 @@ describe("hapus", () => {
 /**
  * Siapa yang boleh mengarahkan akun tipe barang.
  *
- * Form ini dijaga TIPE_BARANG, tapi ketiga akun itu memutuskan ke mana
+ * Form ini dijaga ITEM_CATEGORY, tapi ketiga akun itu memutuskan ke mana
  * penyusutan mendarat di buku besar — dan server menolak perubahannya kepada
- * siapa pun tanpa SETELAN_AKUNTANSI UPDATE. Picker yang ditampilkan ke
+ * siapa pun tanpa ACCOUNTING_SETTING UPDATE. Picker yang ditampilkan ke
  * petugas inventaris hanya akan menghadiahi mereka 403 sesudah diisi.
  */
 describe("akun akuntansi pada form", () => {

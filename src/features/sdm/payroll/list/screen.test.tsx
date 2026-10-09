@@ -39,7 +39,7 @@ const granted: { current: Record<string, MenuAction[]> } = { current: {} };
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: () => {}, push: () => {} }),
-  usePathname: () => "/sdm/payroll",
+  usePathname: () => "/hr/payroll",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -154,7 +154,7 @@ describe("gerbang izin daftar penggajian", () => {
 
   // Gerbang yang menjaga menu TETANGGA lolos kalau mocknya mengabaikan slug.
   test("VIEW di menu lain tidak membuka layar ini", () => {
-    granted.current = { [MENU.KONTRAK_KARYAWAN]: ["VIEW", "CREATE"] };
+    granted.current = { [MENU.EMPLOYEE_CONTRACT]: ["VIEW", "CREATE"] };
 
     render(
       <QueryClientProvider

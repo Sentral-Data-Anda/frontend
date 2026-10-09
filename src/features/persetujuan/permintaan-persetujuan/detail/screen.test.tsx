@@ -157,11 +157,11 @@ describe("tautan dokumen", () => {
       screen
         .getByRole("link", { name: "Lihat permintaan pembelian" })
         .getAttribute("href"),
-    ).toBe("/pengadaan/permintaan-pembelian/PRQ-2026-0004");
+    ).toBe("/procurement/purchase-request/PRQ-2026-0004");
   });
 
   test("tanpa VIEW menu dokumen: tanpa tautan", async () => {
-    access.hidden.add("PERMINTAAN_PEMBELIAN");
+    access.hidden.add("PURCHASE_REQUEST");
     onMockApi(purchaseRequest());
     onRender();
     await onLoaded();
@@ -189,7 +189,7 @@ describe("tautan dokumen", () => {
       screen
         .getByRole("link", { name: "Lihat kas keluar" })
         .getAttribute("href"),
-    ).toBe("/keuangan/kas-keluar/doc-1");
+    ).toBe("/finance/kas-keluar/doc-1");
   });
 
   test("tanpa VIEW kas keluar: tanpa tautan", async () => {

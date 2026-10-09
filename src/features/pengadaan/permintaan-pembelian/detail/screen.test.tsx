@@ -38,7 +38,7 @@ mock.module("next/navigation", () => ({
     replace: (href: string) => replaced.push(href),
     push: () => undefined,
   }),
-  usePathname: () => "/pengadaan/permintaan-pembelian/PRQ",
+  usePathname: () => "/procurement/purchase-request/PRQ",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -105,7 +105,7 @@ afterEach(() => {
 const onRender = (
   code: string,
   granted: Partial<Record<MenuSlug, MenuAction[]>> = {
-    [MENU.PERMINTAAN_PEMBELIAN]: ALL,
+    [MENU.PURCHASE_REQUEST]: ALL,
   },
 ) => {
   grants.current = granted;
@@ -155,7 +155,7 @@ describe("aksi per status", () => {
 
   test("Draf tanpa UPDATE/DELETE: tanpa aksi", async () => {
     const row = rowOf("DRAFT");
-    onRender(row.code, { [MENU.PERMINTAAN_PEMBELIAN]: ["VIEW", "CREATE"] });
+    onRender(row.code, { [MENU.PURCHASE_REQUEST]: ["VIEW", "CREATE"] });
 
     await screen.findByRole("heading", { name: row.purpose });
     expect(
@@ -185,7 +185,7 @@ describe("aksi per status", () => {
     expect(actionNames()).toEqual(["Ajukan ulang"]);
     expect(
       screen.getByRole("link", { name: "Ajukan ulang" }).getAttribute("href"),
-    ).toBe(`/pengadaan/permintaan-pembelian/baru?salin=${row.code}`);
+    ).toBe(`/procurement/purchase-request/baru?salin=${row.code}`);
     expect(screen.getByText(/Catatan penolak: Kas komisi/)).toBeTruthy();
     expect(
       within(
@@ -197,14 +197,14 @@ describe("aksi per status", () => {
   test("Disetujui: Buat pesanan hanya dengan PESANAN CREATE", async () => {
     const row = rowOf("APPROVED");
     onRender(row.code, {
-      [MENU.PERMINTAAN_PEMBELIAN]: ALL,
-      [MENU.PESANAN_PEMBELIAN]: ["VIEW", "CREATE"],
+      [MENU.PURCHASE_REQUEST]: ALL,
+      [MENU.PURCHASE_ORDER]: ["VIEW", "CREATE"],
     });
 
     await screen.findByRole("region", { name: "Aksi permintaan" });
     expect(
       screen.getByRole("link", { name: "Buat pesanan" }).getAttribute("href"),
-    ).toBe(`/pengadaan/pesanan-pembelian/baru?permintaan=${row.code}`);
+    ).toBe(`/procurement/purchase-order/baru?permintaan=${row.code}`);
     expect(screen.getByText(/ dari Rp /)).toBeTruthy();
     cleanup();
 
@@ -215,21 +215,21 @@ describe("aksi per status", () => {
 });
 
 describe("tautan persetujuan", () => {
-  test("tertaut hanya dengan PERMINTAAN_PERSETUJUAN VIEW", async () => {
+  test("tertaut hanya dengan APPROVAL_REQUEST VIEW", async () => {
     const row = rowOf("REJECTED");
     const approval = row.approvals.at(-1);
     onRender(row.code, {
-      [MENU.PERMINTAAN_PEMBELIAN]: ["VIEW"],
-      [MENU.PERMINTAAN_PERSETUJUAN]: ["VIEW"],
+      [MENU.PURCHASE_REQUEST]: ["VIEW"],
+      [MENU.APPROVAL_REQUEST]: ["VIEW"],
     });
 
     const link = await screen.findByRole("link", { name: /· Ditolak/ });
     expect(link.getAttribute("href")).toBe(
-      `/persetujuan/permintaan-persetujuan/${approval?.publicId}`,
+      `/approval/approval-request/${approval?.publicId}`,
     );
     cleanup();
 
-    onRender(row.code, { [MENU.PERMINTAAN_PEMBELIAN]: ["VIEW"] });
+    onRender(row.code, { [MENU.PURCHASE_REQUEST]: ["VIEW"] });
     await screen.findByText(/· Ditolak/);
     expect(screen.queryByRole("link", { name: /· Ditolak/ })).toBeNull();
   });

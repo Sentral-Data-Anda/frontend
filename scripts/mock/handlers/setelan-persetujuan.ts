@@ -507,7 +507,7 @@ export const setelanPersetujuanMock: MockHandler = async ({
   if (path === "/ddl/jabatan-jemaat") {
     if (method !== "GET") return null;
     if (
-      !can(MENU.SETELAN_PERSETUJUAN, "VIEW") &&
+      !can(MENU.APPROVAL_WORKFLOW, "VIEW") &&
       !can(MENU.ROLE_JEMAAT, "VIEW")
     ) {
       return denied();
@@ -528,7 +528,7 @@ export const setelanPersetujuanMock: MockHandler = async ({
     return null;
   }
   if (id !== "" && method === "POST") return null;
-  if (!can(MENU.SETELAN_PERSETUJUAN, action)) return denied();
+  if (!can(MENU.APPROVAL_WORKFLOW, action)) return denied();
 
   if (id === "") {
     if (method === "POST") return save(request);

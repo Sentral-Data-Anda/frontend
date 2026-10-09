@@ -125,7 +125,7 @@ export const PayrollDetailScreen = (props: PropTypes) => {
   if (!isCanView) {
     return (
       <div className="pb-8">
-        <PageHeader title={TITLE} backHref={domainHref(MENU.SDM)} />
+        <PageHeader title={TITLE} backHref={domainHref(MENU.HR)} />
 
         <EmptyState title={NO_VIEW_TITLE} description={NO_VIEW_DESCRIPTION} />
       </div>

@@ -5,7 +5,7 @@
  * Layar staf hanya membaca: pembuatan invoice selalu sesi jemaat, dan tidak ada
  * reissue maupun refund. POST/PUT/DELETE lain karena itu 404, bukan 405.
  *
- * Daftar di-scope ke sesi: pemegang PEMBAYARAN VIEW yang bukan bendahara hanya
+ * Daftar di-scope ke sesi: pemegang PAYMENT VIEW yang bukan bendahara hanya
  * melihat pembayarannya sendiri, karena nama pemberi dan nominalnya hanya boleh
  * dibaca bendahara dan pemberinya.
  *
@@ -430,14 +430,14 @@ export const pembayaranMock: MockHandler = async (ctx) => {
   if (path === "/jurnal/posting-pembayaran") {
     if (method !== "POST") return null;
 
-    return can(MENU.JURNAL, "CREATE")
+    return can(MENU.JOURNAL_ENTRY, "CREATE")
       ? onPost(url, await readBody(request))
       : denied();
   }
 
   if (path !== "/pembayaran" && !path.startsWith("/pembayaran/")) return null;
   if (method !== "GET") return fail(404, NOT_FOUND);
-  if (!can(MENU.PEMBAYARAN, "VIEW")) return denied();
+  if (!can(MENU.PAYMENT, "VIEW")) return denied();
 
   const isTreasury = ctx.isAdmin || can(MENU.PERSEMBAHAN, "VIEW");
 

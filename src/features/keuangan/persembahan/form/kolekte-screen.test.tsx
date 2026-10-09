@@ -16,7 +16,7 @@ const replaced: string[] = [];
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
-  usePathname: () => "/keuangan/persembahan/kolekte",
+  usePathname: () => "/finance/persembahan/kolekte",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -239,7 +239,7 @@ describe("batch", () => {
     expect(calls[0]?.url).toBe("/api/v1/persembahan/batch");
     expect(calls[0]?.method).toBe("POST");
     expect((calls[0]?.body as { items: unknown[] }).items).toHaveLength(2);
-    await waitFor(() => expect(replaced).toEqual(["/keuangan/persembahan"]));
+    await waitFor(() => expect(replaced).toEqual(["/finance/persembahan"]));
   });
 
   test("satu baris ditolak: galat di baris itu, seluruh isian tetap ada", async () => {
@@ -294,7 +294,7 @@ describe("batch", () => {
       screen
         .getByRole("link", { name: "Lihat periode fiskal" })
         .getAttribute("href"),
-    ).toBe("/keuangan/periode-fiskal");
+    ).toBe("/finance/fiscal-period");
     expect(replaced).toEqual([]);
   });
 });

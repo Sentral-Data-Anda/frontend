@@ -63,8 +63,8 @@ const SALARY_MARKER = new RegExp(`\\b(${SALARY_FIELDS.join("|")})\\b`);
 const SALARY_SCREENS = [
   "src/features/sdm/kontrak-karyawan/",
   "src/features/sdm/payroll/",
-  "src/app/(app)/sdm/kontrak-karyawan/",
-  "src/app/(app)/sdm/payroll/",
+  "src/app/(app)/hr/employee-contract/",
+  "src/app/(app)/hr/payroll/",
   "scripts/mock/handlers/kontrak-karyawan.ts",
   "scripts/mock/handlers/kontrak-karyawan.test.ts",
   "scripts/mock/handlers/payroll.ts",
@@ -98,8 +98,8 @@ const scanSources = async () => {
 // §1 — PERILAKU. Satu bacaan gaji = satu menu; yang dinyatakan adalah barisnya.
 describe("gaji per orang: siapa yang bisa membacanya", () => {
   const SALARY_MENUS = [
-    MENU.KONTRAK_KARYAWAN,
-    MENU.KOMPONEN_PAYROLL,
+    MENU.EMPLOYEE_CONTRACT,
+    MENU.PAYROLL_COMPONENT,
     MENU.PAYROLL,
   ];
 
@@ -117,9 +117,9 @@ describe("gaji per orang: siapa yang bisa membacanya", () => {
    */
   test("himpunan menu gaji itu tepat tiga, dan ini ketiganya", () => {
     expect([...SALARY_MENUS].sort()).toEqual([
-      MENU.KOMPONEN_PAYROLL,
-      MENU.KONTRAK_KARYAWAN,
+      MENU.EMPLOYEE_CONTRACT,
       MENU.PAYROLL,
+      MENU.PAYROLL_COMPONENT,
     ]);
   });
 
@@ -134,31 +134,31 @@ describe("gaji per orang: siapa yang bisa membacanya", () => {
   // jejak. Kedelapan daun SDM dinyatakan sekaligus, jadi slug yang berpindah
   // dari himpunan gaji ke himpunan non-gaji tetap mengubah baris di sini.
   test("matriks grant SDM, kedelapan daun, setiap persona", () => {
-    const rows = TREE[MENU.SDM].flatMap((slug) =>
+    const rows = TREE[MENU.HR].flatMap((slug) =>
       viewersOf(slug).map((persona) => `${persona} · ${slug}`),
     );
 
     expect(rows.sort()).toEqual([
-      "admin · ABSENSI_KARYAWAN",
-      "admin · CUTI",
-      "admin · KARYAWAN",
-      "admin · KOMPONEN_PAYROLL",
-      "admin · KONTRAK_KARYAWAN",
-      // §0a.1: Pajak PPh21 disembunyikan dengan TIDAK DIBERIKAN ke siapa pun.
+      "admin · ATTENDANCE",
+      "admin · EMPLOYEE",
+      "admin · EMPLOYEE_CONTRACT",
+      "admin · LEAVE",
+      "admin · LEAVE_TYPE",
+      // §0a.1: PPh21 disembunyikan dengan TIDAK DIBERIKAN ke siapa pun.
       // `admin` memegangnya karena `grants: null` berarti seluruh pohon — jadi
       // di bawah MOCK_PERSONA=admin kotaknya dirender dan 404. Itu disengaja;
       // jangan membangun layarnya, jangan mencabut slug-nya.
       "admin · PAJAK_PPH21",
       "admin · PAYROLL",
-      "admin · TIPE_CUTI",
-      "bendahara · KARYAWAN",
-      "bendahara · KOMPONEN_PAYROLL",
-      "bendahara · KONTRAK_KARYAWAN",
+      "admin · PAYROLL_COMPONENT",
+      "bendahara · EMPLOYEE",
+      "bendahara · EMPLOYEE_CONTRACT",
       "bendahara · PAYROLL",
-      "sekretariat · ABSENSI_KARYAWAN",
-      "sekretariat · CUTI",
-      "sekretariat · KARYAWAN",
-      "sekretariat · TIPE_CUTI",
+      "bendahara · PAYROLL_COMPONENT",
+      "sekretariat · ATTENDANCE",
+      "sekretariat · EMPLOYEE",
+      "sekretariat · LEAVE",
+      "sekretariat · LEAVE_TYPE",
     ]);
   });
 

@@ -59,11 +59,11 @@ export type Widget = {
 
 const view = (slug: MenuSlug): WidgetGate => ({ slug, action: "VIEW" });
 
-const CASH_DESK = [view(MENU.LAPORAN_KEUANGAN), view(MENU.KAS_KELUAR)];
+const CASH_DESK = [view(MENU.FINANCIAL_STATEMENT), view(MENU.KAS_KELUAR)];
 
 const PAYABLE_SOURCES = [
   view(MENU.KAS_KELUAR),
-  view(MENU.FAKTUR_SUPPLIER),
+  view(MENU.SUPPLIER_INVOICE),
   view(MENU.PAYROLL),
 ];
 
@@ -72,7 +72,7 @@ export const WIDGETS: readonly Widget[] = [
     id: "kpi-cash-balance",
     slot: "kpi",
     group: "finance",
-    gate: [view(MENU.LAPORAN_KEUANGAN)],
+    gate: [view(MENU.FINANCIAL_STATEMENT)],
     isDummy: true,
     Component: KpiCashBalance,
   },
@@ -94,7 +94,7 @@ export const WIDGETS: readonly Widget[] = [
     id: "kpi-surplus-year",
     slot: "kpi",
     group: "finance",
-    gate: [view(MENU.LAPORAN_KEUANGAN)],
+    gate: [view(MENU.FINANCIAL_STATEMENT)],
     Component: KpiSurplusYear,
   },
   {
@@ -138,7 +138,7 @@ export const WIDGETS: readonly Widget[] = [
     id: "kpi-waiting-approvals",
     slot: "kpi",
     group: "umum",
-    gate: [view(MENU.PERMINTAAN_PERSETUJUAN)],
+    gate: [view(MENU.APPROVAL_REQUEST)],
     Component: KpiWaitingApprovals,
   },
   {
@@ -153,7 +153,7 @@ export const WIDGETS: readonly Widget[] = [
     id: "income-expense-chart",
     slot: "main",
     kind: "finance",
-    gate: [view(MENU.LAPORAN_KEUANGAN)],
+    gate: [view(MENU.FINANCIAL_STATEMENT)],
     Component: IncomeExpenseChart,
   },
   {
@@ -163,8 +163,8 @@ export const WIDGETS: readonly Widget[] = [
     gate: [],
     gateAny: [
       ...PAYABLE_SOURCES,
-      view(MENU.PERMINTAAN_PERSETUJUAN),
-      view(MENU.PEMBAYARAN),
+      view(MENU.APPROVAL_REQUEST),
+      view(MENU.PAYMENT),
     ],
     Component: PayablesWidget,
   },
@@ -172,7 +172,7 @@ export const WIDGETS: readonly Widget[] = [
     id: "budget-use",
     slot: "main",
     kind: "finance",
-    gate: [view(MENU.PAGU_ANGGARAN)],
+    gate: [view(MENU.BUDGET)],
     isDummy: true,
     Component: BudgetUseWidget,
   },
@@ -188,7 +188,7 @@ export const WIDGETS: readonly Widget[] = [
     id: "approvals",
     slot: "main",
     kind: "umum",
-    gate: [view(MENU.PERMINTAAN_PERSETUJUAN)],
+    gate: [view(MENU.APPROVAL_REQUEST)],
     Component: ApprovalsWidget,
   },
   {
@@ -203,7 +203,7 @@ export const WIDGETS: readonly Widget[] = [
     id: "cash-accounts",
     slot: "side",
     kind: "finance",
-    gate: [view(MENU.LAPORAN_KEUANGAN)],
+    gate: [view(MENU.FINANCIAL_STATEMENT)],
     isDummy: true,
     Component: CashAccountsWidget,
   },
@@ -211,14 +211,14 @@ export const WIDGETS: readonly Widget[] = [
     id: "income-by-type",
     slot: "side",
     kind: "finance",
-    gate: [view(MENU.LAPORAN_KEUANGAN)],
+    gate: [view(MENU.FINANCIAL_STATEMENT)],
     Component: IncomeByTypeWidget,
   },
   {
     id: "closing-readiness",
     slot: "side",
     kind: "finance",
-    gate: [view(MENU.PERIODE_FISKAL)],
+    gate: [view(MENU.FISCAL_PERIOD)],
     Component: ClosingReadinessWidget,
   },
   {
@@ -319,17 +319,17 @@ export function selectWidgets(
 const HEADER_ACTIONS: readonly (HeaderAction & { gate: WidgetGate })[] = [
   {
     label: "Buka antrean persetujuan",
-    href: menuHref(MENU.PERSETUJUAN, MENU.PERMINTAAN_PERSETUJUAN),
-    gate: view(MENU.PERMINTAAN_PERSETUJUAN),
+    href: menuHref(MENU.APPROVAL, MENU.APPROVAL_REQUEST),
+    gate: view(MENU.APPROVAL_REQUEST),
   },
   {
     label: "Catat kas keluar",
-    href: menuHref(MENU.KEUANGAN, MENU.KAS_KELUAR),
+    href: menuHref(MENU.FINANCE, MENU.KAS_KELUAR),
     gate: { slug: MENU.KAS_KELUAR, action: "CREATE" },
   },
   {
     label: "Input persembahan",
-    href: menuHref(MENU.KEUANGAN, MENU.PERSEMBAHAN),
+    href: menuHref(MENU.FINANCE, MENU.PERSEMBAHAN),
     gate: { slug: MENU.PERSEMBAHAN, action: "CREATE" },
   },
   {
@@ -344,13 +344,13 @@ const HEADER_ACTIONS: readonly (HeaderAction & { gate: WidgetGate })[] = [
   },
   {
     label: "Ajukan program",
-    href: menuHref(MENU.ANGGARAN, MENU.PROGRAM),
+    href: menuHref(MENU.BUDGETING, MENU.PROGRAM),
     gate: { slug: MENU.PROGRAM, action: "CREATE" },
   },
   {
     label: "Buat laporan pemakaian",
-    href: menuHref(MENU.ANGGARAN, MENU.LAPORAN_BUDGET),
-    gate: { slug: MENU.LAPORAN_BUDGET, action: "CREATE" },
+    href: menuHref(MENU.REPORT, MENU.BUDGET_REALIZATION),
+    gate: { slug: MENU.BUDGET_REALIZATION, action: "CREATE" },
   },
 ];
 

@@ -21,23 +21,23 @@ import { CASH_RECEIPT_STATUS_LABEL, type CashStatus } from "@/types/keuangan";
 
 import type { CashReceiptDetail, CashReceiptPayload } from "./types";
 
-export const KAS_MASUK_LIST_PATH = menuHref(MENU.KEUANGAN, MENU.KAS_MASUK);
+export const KAS_MASUK_LIST_PATH = menuHref(MENU.FINANCE, MENU.KAS_MASUK);
 
-export const KAS_MASUK_CREATE_PATH = createHref(MENU.KEUANGAN, MENU.KAS_MASUK);
+export const KAS_MASUK_CREATE_PATH = createHref(MENU.FINANCE, MENU.KAS_MASUK);
 
 export const GATEWAY_PARAM = "pencairan";
 
 export const KAS_MASUK_GATEWAY_PATH = `${KAS_MASUK_CREATE_PATH}?${GATEWAY_PARAM}=1`;
 
 export const receiptHref = (publicId: string) =>
-  detailHref(MENU.KEUANGAN, MENU.KAS_MASUK, publicId);
+  detailHref(MENU.FINANCE, MENU.KAS_MASUK, publicId);
 
 export const receiptEditHref = (publicId: string) =>
-  editHref(MENU.KEUANGAN, MENU.KAS_MASUK, publicId);
+  editHref(MENU.FINANCE, MENU.KAS_MASUK, publicId);
 
 // Rute Jurnal hanya menerima publicId; kodenya untuk dibaca, bukan dirute.
 export const journalHref = (publicId: string) =>
-  detailHref(MENU.KEUANGAN, MENU.JURNAL, publicId);
+  detailHref(MENU.FINANCE, MENU.JOURNAL_ENTRY, publicId);
 
 export { DETAIL_LINK as TEXT_LINK } from "@/components/common/display";
 
@@ -111,20 +111,20 @@ export function toReceiptApiFilters(
 type FixLink = { menu: MenuSlug; href: string; label: string };
 
 export const PERIOD_LINK: FixLink = {
-  menu: MENU.PERIODE_FISKAL,
-  href: menuHref(MENU.KEUANGAN, MENU.PERIODE_FISKAL),
+  menu: MENU.FISCAL_PERIOD,
+  href: menuHref(MENU.FINANCE, MENU.FISCAL_PERIOD),
   label: "Buka bulannya di Periode Fiskal",
 };
 
 export const SETTING_LINK: FixLink = {
-  menu: MENU.SETELAN_AKUNTANSI,
-  href: menuHref(MENU.KEUANGAN, MENU.SETELAN_AKUNTANSI),
+  menu: MENU.ACCOUNTING_SETTING,
+  href: menuHref(MENU.FINANCE, MENU.ACCOUNTING_SETTING),
   label: "Isi Setelan Akuntansi",
 };
 
 export const ACCOUNT_LINK: FixLink = {
-  menu: MENU.AKUN,
-  href: menuHref(MENU.KEUANGAN, MENU.AKUN),
+  menu: MENU.CHART_OF_ACCOUNT,
+  href: menuHref(MENU.FINANCE, MENU.CHART_OF_ACCOUNT),
   label: "Lihat daftar Akun",
 };
 

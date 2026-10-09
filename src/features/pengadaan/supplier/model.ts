@@ -11,18 +11,18 @@ import { collapseSpaces } from "@/lib/name";
 
 import type { Supplier, SupplierPayload } from "./types";
 
-export const SUPPLIER_LIST_PATH = menuHref(MENU.PENGADAAN, MENU.SUPPLIER);
+export const SUPPLIER_LIST_PATH = menuHref(MENU.PROCUREMENT, MENU.SUPPLIER);
 
-export const SUPPLIER_CREATE_PATH = createHref(MENU.PENGADAAN, MENU.SUPPLIER);
+export const SUPPLIER_CREATE_PATH = createHref(MENU.PROCUREMENT, MENU.SUPPLIER);
 
 export const supplierDetailHref = (code: string) =>
-  detailHref(MENU.PENGADAAN, MENU.SUPPLIER, code);
+  detailHref(MENU.PROCUREMENT, MENU.SUPPLIER, code);
 
 export const supplierEditHref = (code: string) =>
-  editHref(MENU.PENGADAAN, MENU.SUPPLIER, code);
+  editHref(MENU.PROCUREMENT, MENU.SUPPLIER, code);
 
 export const supplierOrdersHref = (id: number) =>
-  `${menuHref(MENU.PENGADAAN, MENU.PESANAN_PEMBELIAN)}?supplier=${id}`;
+  `${menuHref(MENU.PROCUREMENT, MENU.PURCHASE_ORDER)}?supplier=${id}`;
 
 export const IS_ACTIVE_PARAM: Record<string, string> = {
   aktif: "true",

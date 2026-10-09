@@ -24,7 +24,7 @@ mock.module("next/navigation", () => ({
     replace: (href: string) => replaced.push(href),
     push: () => {},
   }),
-  usePathname: () => "/sdm/payroll/PYR-2026-0003",
+  usePathname: () => "/hr/payroll/PYR-2026-0003",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -483,7 +483,7 @@ describe("privasi detail", () => {
           name: "Buka slip gaji Andreas Sitanggang SLP-2026-0001",
         })
         .getAttribute("href"),
-    ).toBe("/sdm/payroll/PYR-2026-0003/slip/SLP-2026-0001");
+    ).toBe("/hr/payroll/PYR-2026-0003/slip/SLP-2026-0001");
   });
 
   // be-sada meng-`include` payslips tanpa `orderBy`; panelnya yang menstabilkan.
@@ -510,9 +510,9 @@ describe("privasi detail", () => {
         .getAllByRole("link", { name: /^Buka slip gaji / })
         .map((node) => node.getAttribute("href")),
     ).toEqual([
-      "/sdm/payroll/PYR-2026-0003/slip/SLP-2026-0001",
-      "/sdm/payroll/PYR-2026-0003/slip/SLP-2026-0002",
-      "/sdm/payroll/PYR-2026-0003/slip/SLP-2026-0003",
+      "/hr/payroll/PYR-2026-0003/slip/SLP-2026-0001",
+      "/hr/payroll/PYR-2026-0003/slip/SLP-2026-0002",
+      "/hr/payroll/PYR-2026-0003/slip/SLP-2026-0003",
     ]);
   });
 
@@ -530,12 +530,12 @@ describe("privasi detail", () => {
 
   /**
    * KEDUA cabang, karena baris jurnal punya dua: tautan bila pembaca memegang
-   * JURNAL VIEW, teks polos bila tidak. Menguji satu saja membuat nominal yang
+   * JOURNAL_ENTRY VIEW, teks polos bila tidak. Menguji satu saja membuat nominal yang
    * ditanam di cabang lain lolos — diukur, bukan dibayangkan.
    */
   test.each([
-    ["dengan JURNAL VIEW", true],
-    ["tanpa JURNAL VIEW", false],
+    ["dengan JOURNAL_ENTRY VIEW", true],
+    ["tanpa JOURNAL_ENTRY VIEW", false],
   ])("nol nominal per orang di baris jurnal, %s", async (_label, isGranted) => {
     onMockApi(
       detail("PAID", {
@@ -545,7 +545,7 @@ describe("privasi detail", () => {
     );
     granted.current = {
       [MENU.PAYROLL]: ALL,
-      ...(isGranted ? { [MENU.JURNAL]: ["VIEW" as MenuAction] } : {}),
+      ...(isGranted ? { [MENU.JOURNAL_ENTRY]: ["VIEW" as MenuAction] } : {}),
     };
 
     render(

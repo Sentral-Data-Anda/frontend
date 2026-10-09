@@ -66,7 +66,7 @@ export const BarangFormScreen = (props: PropTypes) => {
   const toast = useToast();
   const isEdit = Boolean(code);
   const { isCanView, isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
-    MENU.BARANG,
+    MENU.ASSET_MASTER,
   );
   const listReturn = useListReturn(BARANG_LIST_PATH);
   const [rejectedField, setRejectedField] = useState<string | null>(null);

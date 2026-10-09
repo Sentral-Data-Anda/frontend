@@ -10,7 +10,7 @@ const actions: { current: Record<string, MenuAction[]> } = { current: {} };
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: () => undefined, push: () => undefined }),
-  usePathname: () => "/keuangan/pembayaran/pay-0001",
+  usePathname: () => "/finance/payment/pay-0001",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -93,9 +93,9 @@ const onRender = (
 };
 
 const FULL = {
-  PEMBAYARAN: ["VIEW"] as MenuAction[],
+  PAYMENT: ["VIEW"] as MenuAction[],
   PERSEMBAHAN: ["VIEW"] as MenuAction[],
-  JURNAL: ["VIEW"] as MenuAction[],
+  JOURNAL_ENTRY: ["VIEW"] as MenuAction[],
   KAS_MASUK: ["VIEW", "CREATE"] as MenuAction[],
 };
 
@@ -126,7 +126,7 @@ describe("halaman pembayaran", () => {
       screen
         .getByRole("link", { name: "Catat pencairan di Kas Masuk" })
         .getAttribute("href"),
-    ).toBe("/keuangan/kas-masuk/baru");
+    ).toBe("/finance/kas-masuk/baru");
   });
 
   test("belum lunas: tanpa catatan pencairan", async () => {
@@ -158,15 +158,15 @@ describe("halaman pembayaran", () => {
       (await screen.findByRole("link", { name: "PSB-2026-0021" })).getAttribute(
         "href",
       ),
-    ).toBe("/keuangan/persembahan/PSB-2026-0021");
+    ).toBe("/finance/persembahan/PSB-2026-0021");
     expect(
       screen.getByRole("link", { name: "JRN-2026-0009" }).getAttribute("href"),
-    ).toBe("/keuangan/jurnal/jrn-0009");
+    ).toBe("/finance/journal-entry/jrn-0009");
   });
 
   test("tanpa izin tetangganya, kodenya tetap terbaca tanpa tautan", async () => {
     onRender(
-      { PEMBAYARAN: ["VIEW"] },
+      { PAYMENT: ["VIEW"] },
       {
         ...PAYMENT,
         journal: {

@@ -14,7 +14,7 @@ const grants: { current: Partial<Record<MenuSlug, MenuAction[]>> } = {
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: () => {} }),
-  usePathname: () => "/inventaris/barang-persediaan/BRP-0009",
+  usePathname: () => "/inventory/stock-item/BRP-0009",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -152,7 +152,7 @@ describe("halaman barang persediaan", () => {
   });
 
   test("stok, harga beli terakhir; riwayat dan Catat mutasi hanya dengan izin Mutasi Stok", async () => {
-    onRender({ BARANG_PERSEDIAAN: ["VIEW"] });
+    onRender({ STOCK_ITEM: ["VIEW"] });
 
     const stock = await screen.findByRole("region", { name: "Stok" });
     expect(within(stock).getByText("120")).toBeTruthy();
@@ -165,8 +165,8 @@ describe("halaman barang persediaan", () => {
 
     cleanup();
     onRender({
-      BARANG_PERSEDIAAN: ["VIEW", "UPDATE"],
-      MUTASI_STOK: ["VIEW", "CREATE"],
+      STOCK_ITEM: ["VIEW", "UPDATE"],
+      STOCK_MOVEMENT: ["VIEW", "CREATE"],
     });
 
     const history = await screen.findByRole("region", { name: "Riwayat stok" });
@@ -196,7 +196,7 @@ describe("halaman barang persediaan", () => {
    * yang tidak pernah cocok dengan buku besar.
    */
   test("harga rata-rata dan nilai persediaannya ditampilkan", async () => {
-    onRender({ BARANG_PERSEDIAAN: ["VIEW"] });
+    onRender({ STOCK_ITEM: ["VIEW"] });
 
     await screen.findByRole("region", { name: "Stok" });
 
@@ -215,7 +215,7 @@ describe("halaman barang persediaan", () => {
    */
   test("tanpa harga rata-rata, akibatnya disebut", async () => {
     onRender(
-      { BARANG_PERSEDIAAN: ["VIEW"] },
+      { STOCK_ITEM: ["VIEW"] },
       { item: { ...ITEM, avgUnitPrice: null } },
     );
 
@@ -225,10 +225,7 @@ describe("halaman barang persediaan", () => {
   });
 
   test("lebih dari 10 mutasi: Lihat semua mutasi", async () => {
-    onRender(
-      { BARANG_PERSEDIAAN: ["VIEW"], MUTASI_STOK: ["VIEW"] },
-      { total: 14 },
-    );
+    onRender({ STOCK_ITEM: ["VIEW"], STOCK_MOVEMENT: ["VIEW"] }, { total: 14 });
 
     expect(
       (
@@ -239,14 +236,14 @@ describe("halaman barang persediaan", () => {
 
   test("riwayat kosong dan gagal", async () => {
     onRender(
-      { BARANG_PERSEDIAAN: ["VIEW"], MUTASI_STOK: ["VIEW"] },
+      { STOCK_ITEM: ["VIEW"], STOCK_MOVEMENT: ["VIEW"] },
       { movements: [] },
     );
     expect(await screen.findByText("Belum ada mutasi.")).toBeTruthy();
 
     cleanup();
     onRender(
-      { BARANG_PERSEDIAAN: ["VIEW"], MUTASI_STOK: ["VIEW"] },
+      { STOCK_ITEM: ["VIEW"], STOCK_MOVEMENT: ["VIEW"] },
       { movements: 500 },
     );
     expect(await screen.findByText("Riwayat stok gagal dimuat.")).toBeTruthy();
@@ -254,7 +251,7 @@ describe("halaman barang persediaan", () => {
   });
 
   test("404: data tidak ditemukan", async () => {
-    onRender({ BARANG_PERSEDIAAN: ["VIEW"] }, { item: null });
+    onRender({ STOCK_ITEM: ["VIEW"] }, { item: null });
 
     expect(
       await screen.findByText("Data barang persediaan tidak ditemukan"),

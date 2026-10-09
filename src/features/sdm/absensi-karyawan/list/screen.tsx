@@ -10,13 +10,13 @@ import { TITLE } from "../model";
 import { AbsensiListContent } from "./list-content";
 
 export const AbsensiListScreen = () => {
-  const { isCanView } = useMenuAccess(MENU.ABSENSI_KARYAWAN);
+  const { isCanView } = useMenuAccess(MENU.ATTENDANCE);
 
   if (isCanView) return <AbsensiListContent />;
 
   return (
     <div className="pb-6">
-      <PageHeader title={TITLE} backHref={domainHref(MENU.SDM)} />
+      <PageHeader title={TITLE} backHref={domainHref(MENU.HR)} />
 
       <EmptyState
         title="Anda tidak memiliki akses ke Absensi Karyawan"

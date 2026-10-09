@@ -49,7 +49,7 @@ export const ExpenseListContent = () => {
             ? undefined
             : `${expenseList.totalData} kas keluar`
         }
-        backHref={domainHref(MENU.KEUANGAN)}
+        backHref={domainHref(MENU.FINANCE)}
         action={
           isCanCreate ? (
             <PageHeaderAdd

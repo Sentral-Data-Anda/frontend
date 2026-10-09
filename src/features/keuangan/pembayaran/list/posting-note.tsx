@@ -18,7 +18,7 @@ import {
 const LINK = cn(buttonVariants({ variant: "outline" }), "cursor-pointer");
 
 export const PostingNote = () => {
-  const { isCanCreate } = useMenuAccess(MENU.JURNAL);
+  const { isCanCreate } = useMenuAccess(MENU.JOURNAL_ENTRY);
 
   return (
     <Panel className="mx-gutter mb-4">

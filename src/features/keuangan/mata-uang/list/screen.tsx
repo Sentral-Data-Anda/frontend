@@ -8,13 +8,13 @@ import { useMenuAccess } from "@/features/auth";
 import { CurrencyListContent } from "./list-content";
 
 export const CurrencyListScreen = () => {
-  const { isCanView } = useMenuAccess(MENU.MATA_UANG);
+  const { isCanView } = useMenuAccess(MENU.CURRENCY);
 
   if (isCanView) return <CurrencyListContent />;
 
   return (
     <div className="pb-6">
-      <PageHeader title="Mata Uang" backHref={domainHref(MENU.KEUANGAN)} />
+      <PageHeader title="Mata Uang" backHref={domainHref(MENU.FINANCE)} />
 
       <EmptyState
         title="Anda tidak memiliki akses ke Mata Uang"

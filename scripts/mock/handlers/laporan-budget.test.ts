@@ -570,10 +570,10 @@ describe("periode fiskal tidak pernah menyentuh laporan", () => {
 });
 
 describe("lingkup komisi", () => {
-  // Tanpa `PAGU_ANGGARAN` VIEW dan tanpa jabatan komisi, lingkupnya himpunan
+  // Tanpa `BUDGET` VIEW dan tanpa jabatan komisi, lingkupnya himpunan
   // kosong — gagal tertutup, bukan terbuka.
   const asKomisi = (slug: string, action: MockAction) =>
-    slug === MENU.LAPORAN_BUDGET || action !== "VIEW";
+    slug === MENU.BUDGET_REALIZATION || action !== "VIEW";
 
   const asPagu = () => true;
 
@@ -589,7 +589,7 @@ describe("lingkup komisi", () => {
     expect(response?.status).toBe(404);
   });
 
-  test("pemegang PAGU_ANGGARAN VIEW melihat setiap komisi", async () => {
+  test("pemegang BUDGET VIEW melihat setiap komisi", async () => {
     const response = await onCall(
       "GET",
       "/laporan-budget?limit=50",

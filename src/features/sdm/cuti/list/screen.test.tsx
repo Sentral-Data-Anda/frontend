@@ -16,7 +16,7 @@ const search = { current: "" };
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: () => {}, push: () => {} }),
-  usePathname: () => "/sdm/cuti",
+  usePathname: () => "/hr/leave",
   useSearchParams: () => new URLSearchParams(search.current),
 }));
 
@@ -151,7 +151,7 @@ afterEach(() => {
 });
 
 describe("gerbang izin daftar cuti", () => {
-  test("tanpa CUTI VIEW: keadaan tanpa akses, tanpa permintaan", () => {
+  test("tanpa LEAVE VIEW: keadaan tanpa akses, tanpa permintaan", () => {
     let isFetched = false;
     globalThis.fetch = (() => {
       isFetched = true;
@@ -171,7 +171,7 @@ describe("gerbang izin daftar cuti", () => {
       return Promise.resolve(Response.json({}));
     }) as unknown as typeof fetch;
 
-    onRender({ [MENU.TIPE_CUTI]: ["VIEW", "CREATE"] });
+    onRender({ [MENU.LEAVE_TYPE]: ["VIEW", "CREATE"] });
 
     expect(screen.getByText("Anda tidak memiliki akses ke Cuti")).toBeTruthy();
     expect(isFetched).toBe(false);
@@ -179,7 +179,7 @@ describe("gerbang izin daftar cuti", () => {
 
   test("tanpa CREATE: tombol ajukan tidak ada di DOM", async () => {
     onMockApi();
-    onRender({ [MENU.CUTI]: ["VIEW"] });
+    onRender({ [MENU.LEAVE]: ["VIEW"] });
 
     await screen.findAllByText("Ani Wijaya");
     expect(screen.queryByLabelText("Ajukan cuti")).toBeNull();
@@ -187,7 +187,7 @@ describe("gerbang izin daftar cuti", () => {
 
   test("dengan CREATE: tombol ajukan dirender", async () => {
     onMockApi();
-    onRender({ [MENU.CUTI]: ["VIEW", "CREATE"] });
+    onRender({ [MENU.LEAVE]: ["VIEW", "CREATE"] });
 
     await screen.findAllByText("Ani Wijaya");
     expect(screen.getByLabelText("Ajukan cuti")).toBeTruthy();
@@ -210,7 +210,7 @@ describe("§0.3 no. 4 — alasan tidak pernah di daftar", () => {
   ])("alasan tidak ada di DOM — %s", async (_label, isWide) => {
     const viewport = onStubViewport(isWide);
     onMockApi();
-    const view = onRender({ [MENU.CUTI]: ["VIEW"] });
+    const view = onRender({ [MENU.LEAVE]: ["VIEW"] });
 
     await screen.findAllByText("Ani Wijaya");
 
@@ -233,7 +233,7 @@ describe("§0.3 no. 4 — alasan tidak pernah di daftar", () => {
 
   test("tipe cuti BOLEH tampil: bendahara harus bisa membedakannya", async () => {
     onMockApi();
-    onRender({ [MENU.CUTI]: ["VIEW"] });
+    onRender({ [MENU.LEAVE]: ["VIEW"] });
 
     expect((await screen.findAllByText(/Cuti Tahunan/)).length).toBeGreaterThan(
       0,
@@ -244,14 +244,14 @@ describe("§0.3 no. 4 — alasan tidak pernah di daftar", () => {
 describe("daftar", () => {
   test("subjudul menghitung pengajuan, bukan baris halaman", async () => {
     onMockApi();
-    onRender({ [MENU.CUTI]: ["VIEW"] });
+    onRender({ [MENU.LEAVE]: ["VIEW"] });
 
     expect(await screen.findByText("2 pengajuan cuti")).toBeTruthy();
   });
 
   test("hari ditampilkan lewat formatDays, termasuk setengah hari", async () => {
     onMockApi();
-    onRender({ [MENU.CUTI]: ["VIEW"] });
+    onRender({ [MENU.LEAVE]: ["VIEW"] });
 
     await screen.findAllByText("Ani Wijaya");
     expect(screen.getAllByText(/0,5 hari/).length).toBeGreaterThan(0);
@@ -259,7 +259,7 @@ describe("daftar", () => {
 
   test("tab status lengkap dan tanpa Draf", async () => {
     onMockApi();
-    onRender({ [MENU.CUTI]: ["VIEW"] });
+    onRender({ [MENU.LEAVE]: ["VIEW"] });
 
     const tabs = await screen.findAllByRole("tab");
 
@@ -274,7 +274,7 @@ describe("daftar", () => {
 
   test("tanpa kotak cari: be-sada belum punya ?filter untuk cuti", async () => {
     onMockApi();
-    onRender({ [MENU.CUTI]: ["VIEW"] });
+    onRender({ [MENU.LEAVE]: ["VIEW"] });
 
     await screen.findAllByText("Ani Wijaya");
     expect(screen.queryByRole("searchbox")).toBeNull();
@@ -283,7 +283,7 @@ describe("daftar", () => {
   test("filter layar jadi parameter be-sada: karyawanId, leaveTypeId, status", async () => {
     search.current = "karyawan=2&tipe=3&status=APPROVED&page=2";
     const urls = onMockApi();
-    onRender({ [MENU.CUTI]: ["VIEW"] });
+    onRender({ [MENU.LEAVE]: ["VIEW"] });
 
     await waitFor(() => expect(urls.length).toBeGreaterThan(0));
 
@@ -297,7 +297,7 @@ describe("daftar", () => {
 
   test("404 kosong dirender sebagai keadaan kosong, bukan galat", async () => {
     onMockApi([]);
-    onRender({ [MENU.CUTI]: ["VIEW"] });
+    onRender({ [MENU.LEAVE]: ["VIEW"] });
 
     await waitFor(() =>
       expect(screen.getByText("Belum ada pengajuan cuti")).toBeTruthy(),

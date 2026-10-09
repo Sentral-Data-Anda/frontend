@@ -8,13 +8,13 @@ import { useMenuAccess } from "@/features/auth";
 import { TipeBarangList } from "./tipe-barang-list";
 
 export const TipeBarangListScreen = () => {
-  const { isCanView } = useMenuAccess(MENU.TIPE_BARANG);
+  const { isCanView } = useMenuAccess(MENU.ITEM_CATEGORY);
 
   if (isCanView) return <TipeBarangList />;
 
   return (
     <div className="pb-6">
-      <PageHeader title="Tipe Barang" backHref={domainHref(MENU.INVENTARIS)} />
+      <PageHeader title="Tipe Barang" backHref={domainHref(MENU.INVENTORY)} />
 
       <EmptyState
         title="Anda tidak memiliki akses ke Tipe Barang"

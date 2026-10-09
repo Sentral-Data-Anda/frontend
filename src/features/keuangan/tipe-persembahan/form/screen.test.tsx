@@ -19,7 +19,7 @@ const replaced: string[] = [];
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
-  usePathname: () => "/keuangan/tipe-persembahan/baru",
+  usePathname: () => "/finance/tipe-persembahan/baru",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -207,7 +207,7 @@ describe("akun pendapatan", () => {
 
     const link = await screen.findByRole("link", { name: "Buat akun dulu" });
 
-    expect(link.getAttribute("href")).toBe("/keuangan/akun");
+    expect(link.getAttribute("href")).toBe("/finance/chart-of-account");
   });
 });
 
@@ -272,7 +272,7 @@ describe("simpan", () => {
       screen
         .getByRole("link", { name: "Perbaiki di Akun" })
         .getAttribute("href"),
-    ).toBe("/keuangan/akun");
+    ).toBe("/finance/chart-of-account");
   });
 });
 

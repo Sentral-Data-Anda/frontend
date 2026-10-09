@@ -19,7 +19,9 @@ interface PropTypes {
 export const StockPanel = (props: PropTypes) => {
   const { item } = props;
 
-  const { isCanCreate: isCanCreateMovement } = useMenuAccess(MENU.MUTASI_STOK);
+  const { isCanCreate: isCanCreateMovement } = useMenuAccess(
+    MENU.STOCK_MOVEMENT,
+  );
 
   return (
     <Panel

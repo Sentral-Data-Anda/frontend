@@ -48,9 +48,9 @@ export const PenyusutanDetailScreen = (props: PropTypes) => {
   const router = useRouter();
   const toast = useToast();
   const { isCanView, isCanUpdate, isCanDelete } = useMenuAccess(
-    MENU.PENYUSUTAN,
+    MENU.DEPRECIATION,
   );
-  const { isCanView: isCanViewAsset } = useMenuAccess(MENU.BARANG);
+  const { isCanView: isCanViewAsset } = useMenuAccess(MENU.ASSET_MASTER);
   const listReturn = useListReturn(PENYUSUTAN_LIST_PATH);
   const detail = useRunDetail(isCanView ? code : undefined);
   const runAction = useRunAction(code);
@@ -113,7 +113,7 @@ export const PenyusutanDetailScreen = (props: PropTypes) => {
   if (!isCanView) {
     return (
       <div className="pb-8">
-        <PageHeader title={TITLE} backHref={domainHref(MENU.INVENTARIS)} />
+        <PageHeader title={TITLE} backHref={domainHref(MENU.FIXED_ASSET)} />
         <EmptyState
           title="Anda tidak memiliki akses ke Penyusutan"
           description="Hubungi administrator bila Anda memerlukan akses ini."

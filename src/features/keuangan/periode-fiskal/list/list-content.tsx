@@ -28,7 +28,7 @@ const MONTHS_IN_YEAR = 12;
 const TITLE = "Periode Fiskal";
 
 export const PeriodListContent = () => {
-  const { isCanCreate } = useMenuAccess(MENU.PERIODE_FISKAL);
+  const { isCanCreate } = useMenuAccess(MENU.FISCAL_PERIOD);
   const toast = useToast();
   const isDialogOpen = useBoolean();
   const listParams = useListParams({
@@ -65,7 +65,7 @@ export const PeriodListContent = () => {
             ? undefined
             : `${periodList.totalData} periode`
         }
-        backHref={domainHref(MENU.KEUANGAN)}
+        backHref={domainHref(MENU.FINANCE)}
         action={
           isCanCreate ? (
             <Button type="button" onClick={isDialogOpen.onTrue}>

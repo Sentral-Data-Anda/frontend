@@ -18,7 +18,7 @@ const replaced: string[] = [];
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
-  usePathname: () => "/keuangan/setoran/baru",
+  usePathname: () => "/finance/bank-deposit/baru",
   useSearchParams: () => new URLSearchParams(query.current),
 }));
 
@@ -174,7 +174,7 @@ describe("simpan", () => {
     fireEvent.click(await screen.findByRole("button", { name: "Ya" }));
 
     await waitFor(() =>
-      expect(replaced).toEqual(["/keuangan/setoran/STR-2026-0004"]),
+      expect(replaced).toEqual(["/finance/bank-deposit/STR-2026-0004"]),
     );
     expect(calls.find((call) => call.method === "POST")?.body).toEqual({
       transferDate: todayJakarta(),
@@ -242,7 +242,7 @@ describe("simpan", () => {
       screen
         .getByRole("link", { name: "Buka Periode Fiskal" })
         .getAttribute("href"),
-    ).toBe("/keuangan/periode-fiskal");
+    ).toBe("/finance/fiscal-period");
   });
 });
 

@@ -18,7 +18,7 @@ const LIST_FILTERS = {
 } satisfies ListFilterSchema;
 
 export const CutiList = () => {
-  const { isCanCreate } = useMenuAccess(MENU.CUTI);
+  const { isCanCreate } = useMenuAccess(MENU.LEAVE);
   const listParams = useListParams({ filters: LIST_FILTERS });
   const cutiList = useCutiList(listParams);
   const karyawan = useDdlOptions("karyawan", "id", listParams.filters.karyawan);
@@ -34,11 +34,11 @@ export const CutiList = () => {
             ? undefined
             : `${cutiList.totalData} pengajuan cuti`
         }
-        backHref={domainHref(MENU.SDM)}
+        backHref={domainHref(MENU.HR)}
         action={
           isCanCreate ? (
             <PageHeaderAdd
-              href={createHref(MENU.SDM, MENU.CUTI)}
+              href={createHref(MENU.HR, MENU.LEAVE)}
               label="Ajukan cuti"
             />
           ) : null

@@ -29,30 +29,27 @@ import {
   type StockItemOption,
 } from "./types";
 
-export const RECEIPT_LIST_PATH = menuHref(
-  MENU.PENGADAAN,
-  MENU.PENERIMAAN_BARANG,
-);
+export const RECEIPT_LIST_PATH = menuHref(MENU.PROCUREMENT, MENU.GOODS_RECEIPT);
 
 export const RECEIPT_CREATE_PATH = createHref(
-  MENU.PENGADAAN,
-  MENU.PENERIMAAN_BARANG,
+  MENU.PROCUREMENT,
+  MENU.GOODS_RECEIPT,
 );
 
 export const receiptHref = (code: string) =>
-  detailHref(MENU.PENGADAAN, MENU.PENERIMAAN_BARANG, code);
+  detailHref(MENU.PROCUREMENT, MENU.GOODS_RECEIPT, code);
 
 export const orderHref = (code: string) =>
-  detailHref(MENU.PENGADAAN, MENU.PESANAN_PEMBELIAN, code);
+  detailHref(MENU.PROCUREMENT, MENU.PURCHASE_ORDER, code);
 
 export const assetHref = (code: string) =>
-  detailHref(MENU.INVENTARIS, MENU.BARANG, code);
+  detailHref(MENU.FIXED_ASSET, MENU.ASSET_MASTER, code);
 
 export const assetEditHref = (code: string) =>
-  editHref(MENU.INVENTARIS, MENU.BARANG, code);
+  editHref(MENU.FIXED_ASSET, MENU.ASSET_MASTER, code);
 
 export const stockItemHref = (code: string) =>
-  detailHref(MENU.INVENTARIS, MENU.BARANG_PERSEDIAAN, code);
+  detailHref(MENU.INVENTORY, MENU.STOCK_ITEM, code);
 
 export const MAX_ATTACHMENTS = 3;
 

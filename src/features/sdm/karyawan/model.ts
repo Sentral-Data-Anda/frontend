@@ -11,9 +11,9 @@ import {
   type KaryawanPayload,
 } from "./types";
 
-export const KARYAWAN_LIST_PATH = menuHref(MENU.SDM, MENU.KARYAWAN);
+export const KARYAWAN_LIST_PATH = menuHref(MENU.HR, MENU.EMPLOYEE);
 
-export const KARYAWAN_CREATE_PATH = createHref(MENU.SDM, MENU.KARYAWAN);
+export const KARYAWAN_CREATE_PATH = createHref(MENU.HR, MENU.EMPLOYEE);
 
 export const EMPTY_TITLE = "Belum ada karyawan";
 

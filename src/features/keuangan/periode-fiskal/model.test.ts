@@ -85,14 +85,14 @@ describe("teks", () => {
 describe("tautan", () => {
   test("draf jurnal tertaut ke bulan periode ini", () => {
     expect(draftJournalHref(PERIOD)).toBe(
-      "/keuangan/jurnal?status=DRAFT&year=2026&month=3",
+      "/finance/journal-entry?status=DRAFT&year=2026&month=3",
     );
   });
 
   test("pesan tutup berurutan menunjuk tahun yang harus dibuka", () => {
     expect(yearInMessage("Tutup Februari 2026 Terlebih Dahulu")).toBe("2026");
     expect(yearInMessage("Periode Sudah Tertutup")).toBeNull();
-    expect(listYearHref("2026")).toBe("/keuangan/periode-fiskal?tahun=2026");
+    expect(listYearHref("2026")).toBe("/finance/fiscal-period?tahun=2026");
   });
 });
 

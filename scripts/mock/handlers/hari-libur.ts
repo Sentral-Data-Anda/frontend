@@ -224,7 +224,7 @@ export const hariLiburMock: MockHandler = async ({
           ? "DELETE"
           : "VIEW";
 
-  if (!can(MENU.HARI_LIBUR, action)) return denied();
+  if (!can(MENU.HOLIDAY, action)) return denied();
 
   if (
     (method === "POST" || method === "PUT") &&

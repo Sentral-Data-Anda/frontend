@@ -47,7 +47,7 @@ export const SettingFormScreen = (props: PropTypes) => {
 
   const router = useRouter();
   const toast = useToast();
-  const { isCanView, isCanUpdate } = useMenuAccess(MENU.SETELAN_AKUNTANSI);
+  const { isCanView, isCanUpdate } = useMenuAccess(MENU.ACCOUNTING_SETTING);
   const [rejectedField, setRejectedField] = useState<string | null>(null);
   const settingList = useSettingList();
   const saveSetting = useSaveSetting(settingKey);

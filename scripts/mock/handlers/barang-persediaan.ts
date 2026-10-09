@@ -324,7 +324,7 @@ export const barangPersediaanMock: MockHandler = async ({
   const action = ACTION[method];
   const isRouted = code ? method !== "POST" : ["GET", "POST"].includes(method);
   if (!action || !isRouted) return null;
-  if (!can(MENU.BARANG_PERSEDIAAN, action)) return denied();
+  if (!can(MENU.STOCK_ITEM, action)) return denied();
 
   if (method !== "GET" && process.env.MOCK_STOCK_ITEM_SAVE_ERROR === "500") {
     return serverError();

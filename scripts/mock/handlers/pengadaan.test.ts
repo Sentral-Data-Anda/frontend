@@ -51,10 +51,10 @@ const rowsOf = (body: Body) => body.data as Record<string, unknown>[];
 describe("ddl pengadaan", () => {
   test("permintaan pembelian: dijaga Pesanan, hanya yang disetujui", async () => {
     const denied = await call(pengadaanMock, "/ddl/permintaan-pembelian", [
-      MENU.MUTASI_STOK,
+      MENU.STOCK_MOVEMENT,
     ]);
     const allowed = await call(pengadaanMock, "/ddl/permintaan-pembelian", [
-      MENU.PESANAN_PEMBELIAN,
+      MENU.PURCHASE_ORDER,
     ]);
 
     expect(denied?.status).toBe(403);
@@ -66,7 +66,7 @@ describe("ddl pengadaan", () => {
 
   test("pesanan terbuka untuk Penerimaan", async () => {
     const open = await call(pengadaanMock, "/ddl/pesanan-pembelian?terbuka=1", [
-      MENU.PENERIMAAN_BARANG,
+      MENU.GOODS_RECEIPT,
     ]);
     const statuses = rowsOf(open?.body ?? { status: 0 }).map(
       (row) => row.status,
@@ -81,7 +81,7 @@ describe("ddl pengadaan", () => {
   });
 
   test("mata uang dan kurs", async () => {
-    const grants = [MENU.PESANAN_PEMBELIAN];
+    const grants = [MENU.PURCHASE_ORDER];
     const currency = await call(pengadaanMock, "/ddl/currency", grants);
     const usd = await call(
       pengadaanMock,
@@ -125,12 +125,12 @@ describe("ddl pengadaan", () => {
 
   test("guard ddl Inventaris diperluas untuk form Pengadaan", async () => {
     for (const path of ["/ddl/type-item", "/ddl/unit", "/ddl/supplier"]) {
-      const result = await call(inventarisMock, path, [MENU.PESANAN_PEMBELIAN]);
+      const result = await call(inventarisMock, path, [MENU.PURCHASE_ORDER]);
       expect(result?.status).toBe(200);
     }
 
     const stock = await call(inventarisMock, "/ddl/barang-persediaan", [
-      MENU.PENERIMAAN_BARANG,
+      MENU.GOODS_RECEIPT,
     ]);
     expect(rowsOf(stock?.body ?? { status: 0 })[0]?.unit).toHaveProperty("id");
   });
@@ -142,7 +142,7 @@ describe("persetujuan permintaan pembelian", () => {
     positions: [{ name: "Bendahara", bapelId: 1 }],
     jemaatName: "Maria Hutapea",
   });
-  const all = [MENU.PERMINTAAN_PERSETUJUAN];
+  const all = [MENU.APPROVAL_REQUEST];
 
   const approvalOf = (purpose: string) => {
     const request = PURCHASE_REQUEST.find((row) => row.purpose === purpose);

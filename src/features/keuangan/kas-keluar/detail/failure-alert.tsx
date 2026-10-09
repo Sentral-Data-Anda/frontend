@@ -19,14 +19,14 @@ interface PropTypes {
 export const FailureAlert = (props: PropTypes) => {
   const { title, error, expense } = props;
 
-  const { isCanView: isCanViewPeriod } = useMenuAccess(MENU.PERIODE_FISKAL);
-  const { isCanView: isCanViewAccount } = useMenuAccess(MENU.AKUN);
-  const { isCanView: isCanViewReport } = useMenuAccess(MENU.LAPORAN_BUDGET);
+  const { isCanView: isCanViewPeriod } = useMenuAccess(MENU.FISCAL_PERIOD);
+  const { isCanView: isCanViewAccount } = useMenuAccess(MENU.CHART_OF_ACCOUNT);
+  const { isCanView: isCanViewReport } = useMenuAccess(MENU.BUDGET_REALIZATION);
   const fix = errorFixOf(error);
   const GRANTED: Partial<Record<string, boolean>> = {
-    [MENU.PERIODE_FISKAL]: isCanViewPeriod,
-    [MENU.AKUN]: isCanViewAccount,
-    [MENU.LAPORAN_BUDGET]: isCanViewReport,
+    [MENU.FISCAL_PERIOD]: isCanViewPeriod,
+    [MENU.CHART_OF_ACCOUNT]: isCanViewAccount,
+    [MENU.BUDGET_REALIZATION]: isCanViewReport,
   };
   const isFixVisible = fix !== null && GRANTED[fix.menu] === true;
 
@@ -35,7 +35,7 @@ export const FailureAlert = (props: PropTypes) => {
   // dapat spanduknya sendiri; satu spanduk gabungan mengirim keduanya ke tempat
   // yang salah. Pemilihannya lewat `code`, tidak pernah lewat prosa.
   const href =
-    fix?.menu === MENU.LAPORAN_BUDGET && expense?.bapelId
+    fix?.menu === MENU.BUDGET_REALIZATION && expense?.bapelId
       ? reportFilterHref(
           expense.bapelId,
           previousMonthOf(expense.expenseDate.slice(0, 10)).year,

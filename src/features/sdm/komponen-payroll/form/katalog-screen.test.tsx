@@ -20,7 +20,7 @@ const sent: { method: string; body: unknown }[] = [];
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
-  usePathname: () => "/sdm/komponen-payroll/baru",
+  usePathname: () => "/hr/payroll-component/baru",
   useSearchParams: () => new URLSearchParams(),
 }));
 

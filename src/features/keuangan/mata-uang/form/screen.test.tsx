@@ -19,7 +19,7 @@ const replaced: string[] = [];
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
-  usePathname: () => "/keuangan/mata-uang/baru",
+  usePathname: () => "/finance/currency/baru",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -189,7 +189,7 @@ describe("form mata uang", () => {
     });
     await onConfirmSave();
 
-    await waitFor(() => expect(replaced).toEqual(["/keuangan/mata-uang/USD"]));
+    await waitFor(() => expect(replaced).toEqual(["/finance/currency/USD"]));
     expect(calls.find((call) => call.method === "PUT")?.body).toEqual({
       code: "USD",
       name: "Dolar AS",
@@ -337,7 +337,7 @@ describe("hapus di form ubah", () => {
     ).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Ya" }));
 
-    await waitFor(() => expect(replaced).toEqual(["/keuangan/mata-uang/USD"]));
+    await waitFor(() => expect(replaced).toEqual(["/finance/currency/USD"]));
     expect(calls.some((call) => call.method === "DELETE")).toBe(true);
   });
 

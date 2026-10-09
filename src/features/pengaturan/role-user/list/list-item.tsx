@@ -12,7 +12,7 @@ import { ROLE_USER_LIST_PATH } from "../model";
 import { ROLE_KIND_LABEL, type RoleUserItem } from "../types";
 
 const editHrefOf = (role: RoleUserItem) =>
-  editHref(MENU.PENGATURAN, MENU.ROLE_USER, String(role.id));
+  editHref(MENU.SETTINGS, MENU.USER_ROLE, String(role.id));
 
 const saveFocus = (role: RoleUserItem) =>
   saveListFocus(ROLE_USER_LIST_PATH, String(role.id));

@@ -34,7 +34,7 @@ const KEMARIN = addDays(TODAY, -9);
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
-  usePathname: () => "/sdm/cuti/CTI-0001",
+  usePathname: () => "/hr/leave/CTI-0001",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -152,7 +152,7 @@ afterEach(() => {
 });
 
 describe("gerbang izin detail", () => {
-  test("tanpa CUTI VIEW: keadaan tanpa akses, tanpa permintaan", () => {
+  test("tanpa LEAVE VIEW: keadaan tanpa akses, tanpa permintaan", () => {
     let isFetched = false;
     globalThis.fetch = (() => {
       isFetched = true;
@@ -167,7 +167,7 @@ describe("gerbang izin detail", () => {
 
   test("tanpa UPDATE: Ajukan dan Ubah tidak ada di DOM", async () => {
     onMockApi();
-    onRender({ [MENU.CUTI]: ["VIEW"] });
+    onRender({ [MENU.LEAVE]: ["VIEW"] });
 
     await screen.findByText(REASON);
     expect(
@@ -178,7 +178,7 @@ describe("gerbang izin detail", () => {
 
   test("tanpa DELETE: Hapus tidak ada di DOM", async () => {
     onMockApi();
-    onRender({ [MENU.CUTI]: ["VIEW", "UPDATE"] });
+    onRender({ [MENU.LEAVE]: ["VIEW", "UPDATE"] });
 
     await screen.findByText(REASON);
     expect(screen.queryByRole("button", { name: "Hapus" })).toBeNull();
@@ -190,8 +190,8 @@ describe("gerbang izin detail", () => {
   test("UPDATE atas menu LAIN tidak membuka aksi cuti", async () => {
     onMockApi();
     onRender({
-      [MENU.CUTI]: ["VIEW"],
-      [MENU.PERMINTAAN_PERSETUJUAN]: ["VIEW", "UPDATE"],
+      [MENU.LEAVE]: ["VIEW"],
+      [MENU.APPROVAL_REQUEST]: ["VIEW", "UPDATE"],
     });
 
     await screen.findByText(REASON);
@@ -204,7 +204,7 @@ describe("gerbang izin detail", () => {
 describe("§0.3 no. 4 — detail satu-satunya tempat alasan hidup", () => {
   test("alasan dirender penuh, tidak dipotong", async () => {
     onMockApi();
-    const view = onRender({ [MENU.CUTI]: ["VIEW"] });
+    const view = onRender({ [MENU.LEAVE]: ["VIEW"] });
 
     const node = await screen.findByText(REASON);
 
@@ -218,7 +218,7 @@ describe("§0.3 no. 4 — detail satu-satunya tempat alasan hidup", () => {
     onMockApi({
       detail: { ...DETAIL, status: "REJECTED", rejectedReason: refusal },
     });
-    onRender({ [MENU.CUTI]: ["VIEW"] });
+    onRender({ [MENU.LEAVE]: ["VIEW"] });
 
     const node = await screen.findByText(refusal);
     expect(node.textContent).toBe(refusal);
@@ -226,7 +226,7 @@ describe("§0.3 no. 4 — detail satu-satunya tempat alasan hidup", () => {
 
   test("penolakan tanpa catatan dikatakan, bukan dibiarkan kosong", async () => {
     onMockApi({ detail: { ...DETAIL, status: "REJECTED" } });
-    onRender({ [MENU.CUTI]: ["VIEW"] });
+    onRender({ [MENU.LEAVE]: ["VIEW"] });
 
     expect(await screen.findByText(/tidak disertai catatan/)).toBeTruthy();
   });
@@ -235,7 +235,7 @@ describe("§0.3 no. 4 — detail satu-satunya tempat alasan hidup", () => {
 describe("sisa jatah tidak pernah negatif DI LAYAR", () => {
   test("jatah yang terlampaui dirender 0 hari, dengan hitungan jujurnya", async () => {
     onMockApi();
-    const view = onRender({ [MENU.CUTI]: ["VIEW"] });
+    const view = onRender({ [MENU.LEAVE]: ["VIEW"] });
 
     await waitFor(() => expect(screen.getByText("0 hari")).toBeTruthy());
 
@@ -257,7 +257,7 @@ describe("sisa jatah tidak pernah negatif DI LAYAR", () => {
         endDate: "2027-01-08T00:00:00.000Z",
       },
     });
-    onRender({ [MENU.CUTI]: ["VIEW"] });
+    onRender({ [MENU.LEAVE]: ["VIEW"] });
 
     await waitFor(() => expect(calls.quotaUrls.length).toBeGreaterThan(0));
 
@@ -279,7 +279,7 @@ describe("sisa jatah tidak pernah negatif DI LAYAR", () => {
         remaining: null,
       },
     });
-    onRender({ [MENU.CUTI]: ["VIEW"] });
+    onRender({ [MENU.LEAVE]: ["VIEW"] });
 
     await waitFor(() => expect(screen.getByText("Tanpa batas")).toBeTruthy());
     expect(screen.getByText("Sudah diambil 66 hari (2026)")).toBeTruthy();
@@ -297,7 +297,7 @@ describe("tombol Batalkan dan tanggal mulai", () => {
 
   test("tampil saat cuti mulai SESUDAH hari ini", async () => {
     onMockApi({ detail: approved(BESOK) });
-    onRender({ [MENU.CUTI]: ["VIEW", "UPDATE", "DELETE"] });
+    onRender({ [MENU.LEAVE]: ["VIEW", "UPDATE", "DELETE"] });
 
     expect(
       await screen.findByRole("button", { name: "Batalkan cuti" }),
@@ -306,7 +306,7 @@ describe("tombol Batalkan dan tanggal mulai", () => {
 
   test("hilang saat cuti mulai HARI INI", async () => {
     onMockApi({ detail: approved(TODAY) });
-    onRender({ [MENU.CUTI]: ["VIEW", "UPDATE", "DELETE"] });
+    onRender({ [MENU.LEAVE]: ["VIEW", "UPDATE", "DELETE"] });
 
     await screen.findByText(REASON);
     expect(screen.queryByRole("button", { name: "Batalkan cuti" })).toBeNull();
@@ -314,7 +314,7 @@ describe("tombol Batalkan dan tanggal mulai", () => {
 
   test("hilang saat cuti sudah lewat", async () => {
     onMockApi({ detail: approved(KEMARIN) });
-    onRender({ [MENU.CUTI]: ["VIEW", "UPDATE", "DELETE"] });
+    onRender({ [MENU.LEAVE]: ["VIEW", "UPDATE", "DELETE"] });
 
     await screen.findByText(REASON);
     expect(screen.queryByRole("button", { name: "Batalkan cuti" })).toBeNull();
@@ -322,7 +322,7 @@ describe("tombol Batalkan dan tanggal mulai", () => {
 
   test("cuti yang disetujui tidak menawarkan Ubah atau Hapus", async () => {
     onMockApi({ detail: approved(BESOK) });
-    onRender({ [MENU.CUTI]: ["VIEW", "UPDATE", "DELETE"] });
+    onRender({ [MENU.LEAVE]: ["VIEW", "UPDATE", "DELETE"] });
 
     await screen.findByText(REASON);
     expect(screen.queryByRole("link", { name: "Ubah" })).toBeNull();
@@ -361,26 +361,26 @@ describe("persetujuan", () => {
 
   test("panel jejak dirender saat approval ada, dengan tahap dan nomor", async () => {
     onMockApi({ detail: withApproval });
-    onRender({ [MENU.CUTI]: ["VIEW"] });
+    onRender({ [MENU.LEAVE]: ["VIEW"] });
 
     expect(await screen.findByText("APR-0201")).toBeTruthy();
     expect(screen.getByText("Sekretaris Jemaat")).toBeTruthy();
     expect(screen.getByText("Menunggu persetujuan (1 dari 2)")).toBeTruthy();
   });
 
-  test("tanpa PERMINTAAN_PERSETUJUAN VIEW: kodenya teks, bukan tautan", async () => {
+  test("tanpa APPROVAL_REQUEST VIEW: kodenya teks, bukan tautan", async () => {
     onMockApi({ detail: withApproval });
-    onRender({ [MENU.CUTI]: ["VIEW"] });
+    onRender({ [MENU.LEAVE]: ["VIEW"] });
 
     await screen.findByText("APR-0201");
     expect(screen.queryByRole("link", { name: "APR-0201" })).toBeNull();
   });
 
-  test("dengan PERMINTAAN_PERSETUJUAN VIEW: kodenya bertaut", async () => {
+  test("dengan APPROVAL_REQUEST VIEW: kodenya bertaut", async () => {
     onMockApi({ detail: withApproval });
     onRender({
-      [MENU.CUTI]: ["VIEW"],
-      [MENU.PERMINTAAN_PERSETUJUAN]: ["VIEW"],
+      [MENU.LEAVE]: ["VIEW"],
+      [MENU.APPROVAL_REQUEST]: ["VIEW"],
     });
 
     expect(await screen.findByRole("link", { name: "APR-0201" })).toBeTruthy();
@@ -389,8 +389,8 @@ describe("persetujuan", () => {
   test("nol tombol setujui/tolak: SDM tidak menandatangani (§3)", async () => {
     onMockApi({ detail: withApproval });
     onRender({
-      [MENU.CUTI]: ["VIEW", "UPDATE", "DELETE"],
-      [MENU.PERMINTAAN_PERSETUJUAN]: ["VIEW", "UPDATE"],
+      [MENU.LEAVE]: ["VIEW", "UPDATE", "DELETE"],
+      [MENU.APPROVAL_REQUEST]: ["VIEW", "UPDATE"],
     });
 
     await screen.findByText("APR-0201");
@@ -400,7 +400,7 @@ describe("persetujuan", () => {
 
   test("sedang ditandatangani menutup Ajukan, Ubah, dan Hapus", async () => {
     onMockApi({ detail: withApproval });
-    onRender({ [MENU.CUTI]: ["VIEW", "UPDATE", "DELETE"] });
+    onRender({ [MENU.LEAVE]: ["VIEW", "UPDATE", "DELETE"] });
 
     await screen.findByText(REASON);
     expect(
@@ -416,7 +416,7 @@ describe("persetujuan", () => {
   test("tanpa approval di kawat: nol panel persetujuan, aksi tetap hidup", async () => {
     const { approval: _omitted, ...withoutApproval } = DETAIL;
     onMockApi({ detail: withoutApproval as Cuti });
-    onRender({ [MENU.CUTI]: ["VIEW", "UPDATE", "DELETE"] });
+    onRender({ [MENU.LEAVE]: ["VIEW", "UPDATE", "DELETE"] });
 
     await screen.findByText(REASON);
     expect(screen.queryByText("Persetujuan")).toBeNull();
@@ -431,7 +431,7 @@ describe("persetujuan", () => {
 describe("aksi", () => {
   test("Ajukan dikonfirmasi lewat preset bersama sebelum dikirim", async () => {
     const calls = onMockApi();
-    onRender({ [MENU.CUTI]: ["VIEW", "UPDATE"] });
+    onRender({ [MENU.LEAVE]: ["VIEW", "UPDATE"] });
 
     fireEvent.click(
       await screen.findByRole("button", { name: "Ajukan untuk persetujuan" }),
@@ -461,7 +461,7 @@ describe("aksi", () => {
         endDate: `${BESOK}T00:00:00.000Z`,
       },
     });
-    onRender({ [MENU.CUTI]: ["VIEW", "UPDATE", "DELETE"] });
+    onRender({ [MENU.LEAVE]: ["VIEW", "UPDATE", "DELETE"] });
 
     fireEvent.click(
       await screen.findByRole("button", { name: "Batalkan cuti" }),
@@ -473,7 +473,7 @@ describe("aksi", () => {
 
   test("Hapus memakai kalimat hapus dan kembali ke daftar", async () => {
     const calls = onMockApi();
-    onRender({ [MENU.CUTI]: ["VIEW", "UPDATE", "DELETE"] });
+    onRender({ [MENU.LEAVE]: ["VIEW", "UPDATE", "DELETE"] });
 
     fireEvent.click(await screen.findByRole("button", { name: "Hapus" }));
     expect(
@@ -484,12 +484,12 @@ describe("aksi", () => {
 
     await waitFor(() => expect(calls.length).toBe(1));
     expect(calls[0]?.method).toBe("DELETE");
-    await waitFor(() => expect(replaced.at(-1)).toBe("/sdm/cuti"));
+    await waitFor(() => expect(replaced.at(-1)).toBe("/hr/leave"));
   });
 
   test("kode di URL dilewatkan encodeURIComponent", async () => {
     const calls = onMockApi();
-    onRender({ [MENU.CUTI]: ["VIEW", "UPDATE"] }, "CTI 0001/../rahasia");
+    onRender({ [MENU.LEAVE]: ["VIEW", "UPDATE"] }, "CTI 0001/../rahasia");
 
     fireEvent.click(
       await screen.findByRole("button", { name: "Ajukan untuk persetujuan" }),
@@ -506,7 +506,7 @@ describe("aksi", () => {
 describe("nol ekspor dan nol prompt password (§0.3)", () => {
   test("tidak ada tombol ekspor, unduh, atau cetak", async () => {
     onMockApi();
-    onRender({ [MENU.CUTI]: ["VIEW", "UPDATE", "DELETE"] });
+    onRender({ [MENU.LEAVE]: ["VIEW", "UPDATE", "DELETE"] });
 
     await screen.findByText(REASON);
 
@@ -518,7 +518,7 @@ describe("nol ekspor dan nol prompt password (§0.3)", () => {
 
   test("tidak ada prompt password: Cuti nol angka gaji", async () => {
     onMockApi();
-    onRender({ [MENU.CUTI]: ["VIEW"] });
+    onRender({ [MENU.LEAVE]: ["VIEW"] });
 
     await screen.findByText(REASON);
     expect(screen.queryByLabelText(/password/i)).toBeNull();

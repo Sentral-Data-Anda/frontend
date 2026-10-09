@@ -8,7 +8,7 @@ import { useMenuAccess } from "@/features/auth";
 import { StockListContent } from "./list-content";
 
 export const StockListScreen = () => {
-  const { isCanView } = useMenuAccess(MENU.BARANG_PERSEDIAAN);
+  const { isCanView } = useMenuAccess(MENU.STOCK_ITEM);
 
   return isCanView ? (
     <StockListContent />
@@ -16,7 +16,7 @@ export const StockListScreen = () => {
     <div className="pb-6">
       <PageHeader
         title="Barang Persediaan"
-        backHref={domainHref(MENU.INVENTARIS)}
+        backHref={domainHref(MENU.INVENTORY)}
       />
       <EmptyState
         title="Anda tidak memiliki akses ke Barang Persediaan"

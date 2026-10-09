@@ -20,10 +20,8 @@ interface PropTypes {
 export const StatusLine = (props: PropTypes) => {
   const { disposal } = props;
 
-  const { isCanView: isCanViewCycle } = useMenuAccess(MENU.SIKLUS_ASET);
-  const { isCanView: isCanViewApproval } = useMenuAccess(
-    MENU.PERMINTAAN_PERSETUJUAN,
-  );
+  const { isCanView: isCanViewCycle } = useMenuAccess(MENU.ASSET_TRANSACTION);
+  const { isCanView: isCanViewApproval } = useMenuAccess(MENU.APPROVAL_REQUEST);
   const method = DISPOSAL_METHOD_LABEL[disposal.method];
 
   if (disposal.status === "APPROVED") {

@@ -59,7 +59,7 @@ const onCall = async (
   } = {},
 ) => {
   const url = new URL(`http://localhost:5007/api/v1${target}`);
-  const granted = options.granted ?? { [MENU.CUTI]: ALL };
+  const granted = options.granted ?? { [MENU.LEAVE]: ALL };
 
   const response = await cutiMock({
     request: new Request(url, {
@@ -157,8 +157,8 @@ describe("daftar", () => {
 });
 
 describe("gerbang izin per rute", () => {
-  test("tanpa CUTI VIEW: daftar, detail, dan sisa jatah ditolak", async () => {
-    const granted = { [MENU.TIPE_CUTI]: ALL };
+  test("tanpa LEAVE VIEW: daftar, detail, dan sisa jatah ditolak", async () => {
+    const granted = { [MENU.LEAVE_TYPE]: ALL };
 
     expect((await onCall("GET", "/cuti", { granted }))?.status).toBe(403);
     expect(
@@ -177,14 +177,14 @@ describe("gerbang izin per rute", () => {
     expect(
       (
         await onCall("POST", `/cuti/CTI-${YEAR}-0006/pengajuan`, {
-          granted: { [MENU.CUTI]: ["VIEW", "CREATE"] },
+          granted: { [MENU.LEAVE]: ["VIEW", "CREATE"] },
         })
       )?.status,
     ).toBe(403);
     expect(
       (
         await onCall("POST", `/cuti/CTI-${YEAR}-0006/pengajuan`, {
-          granted: { [MENU.CUTI]: ["VIEW", "UPDATE"] },
+          granted: { [MENU.LEAVE]: ["VIEW", "UPDATE"] },
         })
       )?.status,
     ).toBe(201);
@@ -198,7 +198,7 @@ describe("gerbang izin per rute", () => {
     expect(
       (
         await onCall("PUT", `/cuti/${code ?? `CTI-${YEAR}-0001`}/batal`, {
-          granted: { [MENU.CUTI]: ["VIEW", "UPDATE"] },
+          granted: { [MENU.LEAVE]: ["VIEW", "UPDATE"] },
         })
       )?.status,
     ).toBe(403);

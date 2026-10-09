@@ -17,10 +17,10 @@ import {
 
 import { amountOf, useWaitingApprovals, type ApprovalItem } from "../../api";
 
-const QUEUE_HREF = menuHref(MENU.PERSETUJUAN, MENU.PERMINTAAN_PERSETUJUAN);
+const QUEUE_HREF = menuHref(MENU.APPROVAL, MENU.APPROVAL_REQUEST);
 
 const detailHrefOf = (item: ApprovalItem) =>
-  detailHref(MENU.PERSETUJUAN, MENU.PERMINTAAN_PERSETUJUAN, item.publicId);
+  detailHref(MENU.APPROVAL, MENU.APPROVAL_REQUEST, item.publicId);
 
 const bapelOf = (item: ApprovalItem) =>
   item.steps.find((step) => step.order === item.currentOrder)?.approverBapel

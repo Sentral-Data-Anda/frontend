@@ -16,7 +16,7 @@ const renderTable = () =>
       rows={[
         {
           key: "KK-12",
-          href: "/keuangan/kas-keluar",
+          href: "/finance/kas-keluar",
           label: "KK-12 · Konsumsi retret",
           cells: [
             <TableTitle key="t" title="KK-12 · Konsumsi retret" />,
@@ -48,7 +48,7 @@ test("tabel lebar: kepala kolom + satu baris per data; baris bertautan satu targ
     within(table)
       .getByRole("link", { name: "KK-12 · Konsumsi retret" })
       .getAttribute("href"),
-  ).toBe("/keuangan/kas-keluar");
+  ).toBe("/finance/kas-keluar");
   expect(within(table).getAllByRole("link")).toHaveLength(1);
 });
 

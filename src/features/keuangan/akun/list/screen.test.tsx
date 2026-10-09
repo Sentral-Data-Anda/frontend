@@ -20,7 +20,7 @@ const query: { current: string } = { current: "" };
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: () => {} }),
-  usePathname: () => "/keuangan/akun",
+  usePathname: () => "/finance/chart-of-account",
   useSearchParams: () => new URLSearchParams(query.current),
 }));
 

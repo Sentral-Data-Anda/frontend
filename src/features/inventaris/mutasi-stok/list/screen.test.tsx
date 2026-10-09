@@ -19,7 +19,7 @@ const search: { current: string } = { current: "" };
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: () => {} }),
-  usePathname: () => "/inventaris/mutasi-stok",
+  usePathname: () => "/inventory/stock-movement",
   useSearchParams: () => new URLSearchParams(search.current),
 }));
 

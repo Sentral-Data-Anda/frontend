@@ -14,7 +14,7 @@ export const SupplierListScreen = () => {
     <SupplierListContent />
   ) : (
     <div className="pb-6">
-      <PageHeader title="Supplier" backHref={domainHref(MENU.PENGADAAN)} />
+      <PageHeader title="Supplier" backHref={domainHref(MENU.PROCUREMENT)} />
       <EmptyState
         title="Anda tidak memiliki akses ke Supplier"
         description="Hubungi administrator bila Anda memang seharusnya memegang akses ini."

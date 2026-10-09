@@ -51,7 +51,7 @@ const postedTextOf = (result: PostingResult) =>
 
 export const PostingPembayaranScreen = () => {
   const toast = useToast();
-  const { isCanView, isCanCreate } = useMenuAccess(MENU.JURNAL);
+  const { isCanView, isCanCreate } = useMenuAccess(MENU.JOURNAL_ENTRY);
   const [bulan, setBulan] = useState(() => todayJakarta().slice(0, 7));
   const [outcome, setOutcome] = useState<Outcome | null>(null);
   const posting = usePostPayment();

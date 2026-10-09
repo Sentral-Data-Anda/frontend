@@ -19,7 +19,7 @@ const replaced: string[] = [];
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
-  usePathname: () => "/keuangan/akun/baru",
+  usePathname: () => "/finance/chart-of-account/baru",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -197,7 +197,9 @@ describe("tambah", () => {
     fireEvent.click(screen.getByRole("button", { name: "Simpan" }));
     fireEvent.click(await screen.findByRole("button", { name: "Ya" }));
 
-    await waitFor(() => expect(replaced).toEqual(["/keuangan/akun/1-200"]));
+    await waitFor(() =>
+      expect(replaced).toEqual(["/finance/chart-of-account/1-200"]),
+    );
     expect(calls.find((call) => call.method === "POST")?.body).toEqual({
       code: "1-200",
       name: "Bank BCA",

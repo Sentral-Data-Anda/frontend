@@ -20,8 +20,8 @@ import type {
 type BadgeVariant = ComponentProps<typeof Badge>["variant"];
 
 export const PERMINTAAN_LIST_PATH = menuHref(
-  MENU.PERSETUJUAN,
-  MENU.PERMINTAAN_PERSETUJUAN,
+  MENU.APPROVAL,
+  MENU.APPROVAL_REQUEST,
 );
 
 export const VIEW_PARAM = "tampil";

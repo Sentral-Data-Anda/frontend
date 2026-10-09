@@ -6,8 +6,8 @@ import { collapseSpaces } from "@/lib/name";
 import type { TipeBarang, TipeBarangPayload } from "./types";
 
 export const TIPE_BARANG_LIST_PATH = menuHref(
-  MENU.INVENTARIS,
-  MENU.TIPE_BARANG,
+  MENU.INVENTORY,
+  MENU.ITEM_CATEGORY,
 );
 
 const NAME_ERROR = "Isi nama tipe, minimal 2 karakter";

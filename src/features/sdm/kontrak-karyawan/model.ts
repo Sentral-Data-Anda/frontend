@@ -14,12 +14,12 @@ import {
   type KontrakKaryawanPayload,
 } from "./types";
 
-export const LIST_PATH = menuHref(MENU.SDM, MENU.KONTRAK_KARYAWAN);
+export const LIST_PATH = menuHref(MENU.HR, MENU.EMPLOYEE_CONTRACT);
 
-export const CREATE_PATH = createHref(MENU.SDM, MENU.KONTRAK_KARYAWAN);
+export const CREATE_PATH = createHref(MENU.HR, MENU.EMPLOYEE_CONTRACT);
 
 export const contractEditHref = (code: string) =>
-  editHref(MENU.SDM, MENU.KONTRAK_KARYAWAN, code);
+  editHref(MENU.HR, MENU.EMPLOYEE_CONTRACT, code);
 
 export const FILTERS = {
   karyawan: { api: "karyawanId" },

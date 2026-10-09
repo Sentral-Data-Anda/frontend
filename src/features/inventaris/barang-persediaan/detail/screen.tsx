@@ -30,8 +30,8 @@ interface PropTypes {
 export const StockDetailScreen = (props: PropTypes) => {
   const { code } = props;
 
-  const { isCanView, isCanUpdate } = useMenuAccess(MENU.BARANG_PERSEDIAAN);
-  const { isCanView: isCanViewMovement } = useMenuAccess(MENU.MUTASI_STOK);
+  const { isCanView, isCanUpdate } = useMenuAccess(MENU.STOCK_ITEM);
+  const { isCanView: isCanViewMovement } = useMenuAccess(MENU.STOCK_MOVEMENT);
   const listReturn = useListReturn(STOCK_LIST_PATH);
   const detail = useStockDetail(isCanView ? code : undefined);
   const item = detail.data;
@@ -41,7 +41,7 @@ export const StockDetailScreen = (props: PropTypes) => {
   if (!isCanView) {
     return (
       <div className="pb-8">
-        <PageHeader title={TITLE} backHref={domainHref(MENU.INVENTARIS)} />
+        <PageHeader title={TITLE} backHref={domainHref(MENU.INVENTORY)} />
         <EmptyState
           title="Anda tidak memiliki akses ke Barang Persediaan"
           description="Hubungi administrator bila Anda memang seharusnya memegang akses ini."

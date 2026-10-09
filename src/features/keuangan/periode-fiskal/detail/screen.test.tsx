@@ -26,7 +26,7 @@ const access: { current: Record<string, MenuAction[]> } = { current: {} };
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: () => {} }),
-  usePathname: () => "/keuangan/periode-fiskal/3",
+  usePathname: () => "/finance/fiscal-period/3",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -119,8 +119,8 @@ afterEach(() => {
 const onRender = (
   period: FiscalPeriodDetail,
   granted: Record<string, MenuAction[]> = {
-    PERIODE_FISKAL: ["VIEW", "UPDATE"],
-    JURNAL: ["VIEW", "CREATE"],
+    FISCAL_PERIOD: ["VIEW", "UPDATE"],
+    JOURNAL_ENTRY: ["VIEW", "CREATE"],
     KAS_KELUAR: ["VIEW"],
   },
   failure?: Response,
@@ -153,7 +153,7 @@ describe("izin", () => {
   });
 
   test("tanpa UPDATE: tanpa tombol tutup atau buka kembali", async () => {
-    onRender(OPEN, { PERIODE_FISKAL: ["VIEW"] });
+    onRender(OPEN, { FISCAL_PERIOD: ["VIEW"] });
     await onLoaded();
 
     expect(screen.queryByRole("button", { name: "Tutup buku" })).toBeNull();
@@ -193,7 +193,7 @@ describe("tutup buku", () => {
       screen
         .getByRole("link", { name: "Lihat draf jurnal" })
         .getAttribute("href"),
-    ).toBe("/keuangan/jurnal?status=DRAFT&year=2026&month=3");
+    ).toBe("/finance/journal-entry?status=DRAFT&year=2026&month=3");
     expect(
       screen.getByRole("link", { name: "Posting persembahan" }),
     ).toBeTruthy();
@@ -208,10 +208,7 @@ describe("tutup buku", () => {
   });
 
   test("tanpa izin jurnal: peringatan tetap tampil tanpa tautan", async () => {
-    onRender(
-      { ...OPEN, draftCount: 2 },
-      { PERIODE_FISKAL: ["VIEW", "UPDATE"] },
-    );
+    onRender({ ...OPEN, draftCount: 2 }, { FISCAL_PERIOD: ["VIEW", "UPDATE"] });
     await onLoaded();
 
     expect(
@@ -226,8 +223,8 @@ describe("tutup buku", () => {
     onRender(
       OPEN,
       {
-        PERIODE_FISKAL: ["VIEW", "UPDATE"],
-        JURNAL: ["VIEW"],
+        FISCAL_PERIOD: ["VIEW", "UPDATE"],
+        JOURNAL_ENTRY: ["VIEW"],
         KAS_KELUAR: ["VIEW"],
       },
       Response.json(
@@ -247,7 +244,7 @@ describe("tutup buku", () => {
       screen
         .getByRole("link", { name: "Lihat periode tahun 2026" })
         .getAttribute("href"),
-    ).toBe("/keuangan/periode-fiskal?tahun=2026");
+    ).toBe("/finance/fiscal-period?tahun=2026");
   });
 });
 

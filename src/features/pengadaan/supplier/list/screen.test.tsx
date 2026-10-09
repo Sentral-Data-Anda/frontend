@@ -21,7 +21,7 @@ const search: { current: string } = { current: "" };
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: () => {} }),
-  usePathname: () => "/pengadaan/supplier",
+  usePathname: () => "/procurement/supplier",
   useSearchParams: () => new URLSearchParams(search.current),
 }));
 

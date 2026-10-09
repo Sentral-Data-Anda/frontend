@@ -29,7 +29,7 @@ interface PropTypes {
 export const CurrencyDetailScreen = (props: PropTypes) => {
   const { code } = props;
 
-  const { isCanView, isCanCreate, isCanUpdate } = useMenuAccess(MENU.MATA_UANG);
+  const { isCanView, isCanCreate, isCanUpdate } = useMenuAccess(MENU.CURRENCY);
   const listReturn = useListReturn(MATA_UANG_LIST_PATH);
   const detail = useCurrencyDetail(isCanView ? code : undefined);
   const currency = detail.data;
@@ -39,7 +39,7 @@ export const CurrencyDetailScreen = (props: PropTypes) => {
   if (!isCanView) {
     return (
       <div className="pb-8">
-        <PageHeader title={TITLE} backHref={domainHref(MENU.KEUANGAN)} />
+        <PageHeader title={TITLE} backHref={domainHref(MENU.FINANCE)} />
         <EmptyState
           title="Anda tidak memiliki akses ke Mata Uang"
           description="Hubungi administrator bila Anda memerlukan akses ini."

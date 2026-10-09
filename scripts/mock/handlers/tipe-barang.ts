@@ -129,7 +129,7 @@ export const tipeBarangMock: MockHandler = async ({
 
   const code = path.match(/^\/type-item\/([^/]+)$/)?.[1];
 
-  if (!can(MENU.TIPE_BARANG, actionOf(method))) return denied();
+  if (!can(MENU.ITEM_CATEGORY, actionOf(method))) return denied();
 
   if (method !== "GET" && process.env.MOCK_TYPE_ITEM_SAVE_ERROR === "500") {
     return json({ status: 500, error: "Kesalahan server." }, 500);

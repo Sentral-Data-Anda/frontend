@@ -11,9 +11,9 @@ type Grant = (slug: MenuSlug, action: MockAction) => boolean;
 const ALL: Grant = () => true;
 
 const TREASURY_ONLY: Grant = (slug) =>
-  slug === MENU.PEMBAYARAN || slug === MENU.PERSEMBAHAN;
+  slug === MENU.PAYMENT || slug === MENU.PERSEMBAHAN;
 
-const GIVER_ONLY: Grant = (slug) => slug === MENU.PEMBAYARAN;
+const GIVER_ONLY: Grant = (slug) => slug === MENU.PAYMENT;
 
 const call = (
   target: string,
@@ -153,11 +153,11 @@ describe("posting pembayaran event", () => {
     return { from: `${paidAt.slice(0, 7)}-01`, to: paidAt };
   };
 
-  test("digerbangi JURNAL CREATE, bukan PEMBAYARAN", async () => {
+  test("digerbangi JOURNAL_ENTRY CREATE, bukan PAYMENT", async () => {
     const response = await call("/jurnal/posting-pembayaran?dryRun=1", {
       method: "POST",
       body: range(),
-      can: (slug) => slug === MENU.PEMBAYARAN,
+      can: (slug) => slug === MENU.PAYMENT,
     });
 
     expect(response!.status).toBe(403);

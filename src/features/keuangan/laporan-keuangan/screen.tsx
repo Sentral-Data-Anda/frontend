@@ -34,7 +34,7 @@ const REPORT_FILTERS = {
 } satisfies ListFilterSchema;
 
 export const LaporanKeuanganScreen = () => {
-  const { isCanView } = useMenuAccess(MENU.LAPORAN_KEUANGAN);
+  const { isCanView } = useMenuAccess(MENU.FINANCIAL_STATEMENT);
   const listParams = useListParams({ filters: REPORT_FILTERS });
   const tab = readTab(listParams.filters.tab);
   const date = readDate(listParams.filters.tanggal);
@@ -47,7 +47,7 @@ export const LaporanKeuanganScreen = () => {
     <div className="pb-6">
       <PageHeader
         title="Laporan Keuangan"
-        backHref={domainHref(MENU.KEUANGAN)}
+        backHref={domainHref(MENU.REPORT)}
         action={
           isCanView ? (
             <Button

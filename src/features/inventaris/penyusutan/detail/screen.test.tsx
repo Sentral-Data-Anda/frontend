@@ -28,7 +28,7 @@ const replaced: string[] = [];
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
-  usePathname: () => "/inventaris/penyusutan/PNY-2026-0003",
+  usePathname: () => "/fixed-asset/depreciation/PNY-2026-0003",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -142,7 +142,7 @@ const onRender = (
   asset: MenuAction[] = [],
   failure?: Failure,
 ) => {
-  access.current = { PENYUSUTAN: granted, BARANG: asset };
+  access.current = { DEPRECIATION: granted, ASSET_MASTER: asset };
   onMockApi(run, failure);
 
   return render(
@@ -255,7 +255,9 @@ describe("aksi per status dan izin", () => {
     ).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Ya" }));
 
-    await waitFor(() => expect(replaced).toEqual(["/inventaris/penyusutan"]));
+    await waitFor(() =>
+      expect(replaced).toEqual(["/fixed-asset/depreciation"]),
+    );
     expect(calls).toEqual(["DELETE /penyusutan/PNY-2026-0003"]);
   });
 
@@ -313,7 +315,7 @@ describe("rincian", () => {
     viewport.onRestore();
   });
 
-  test("tautan barang hanya dengan BARANG VIEW", async () => {
+  test("tautan barang hanya dengan ASSET_MASTER VIEW", async () => {
     onRender(DONE);
     await onLoaded();
     expect(
@@ -327,7 +329,7 @@ describe("rincian", () => {
       screen
         .getByRole("link", { name: "Lihat barang Proyektor Epson" })
         .getAttribute("href"),
-    ).toBe("/inventaris/barang/AST_0001");
+    ).toBe("/fixed-asset/asset-master/AST_0001");
   });
 
   test("404 → FormNotFound", async () => {

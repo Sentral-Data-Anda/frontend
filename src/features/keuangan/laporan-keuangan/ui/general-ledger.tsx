@@ -144,7 +144,7 @@ export const GeneralLedger = (props: PropTypes) => {
     onPickLimit,
   } = props;
 
-  const journalAccess = useMenuAccess(MENU.JURNAL);
+  const journalAccess = useMenuAccess(MENU.JOURNAL_ENTRY);
   const accounts = useDdlOptions<AccountOption>("account");
   const range = monthRange(month);
   const ledger = useLedger({

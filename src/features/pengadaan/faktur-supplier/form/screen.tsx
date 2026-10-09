@@ -57,7 +57,7 @@ export const InvoiceFormScreen = (props: PropTypes) => {
   const toast = useToast();
   const isEdit = Boolean(publicId);
   const { isCanView, isCanCreate, isCanUpdate } = useMenuAccess(
-    MENU.FAKTUR_SUPPLIER,
+    MENU.SUPPLIER_INVOICE,
   );
   const isAllowed = isEdit ? isCanUpdate : isCanCreate;
   const listReturn = useListReturn(INVOICE_LIST_PATH);

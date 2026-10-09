@@ -62,7 +62,7 @@ export const PayrollListContent = () => {
             ? undefined
             : `${runs.totalData} periode penggajian`
         }
-        backHref={domainHref(MENU.SDM)}
+        backHref={domainHref(MENU.HR)}
         action={
           isCanCreate ? (
             <Button type="button" onClick={isOpening.onTrue}>

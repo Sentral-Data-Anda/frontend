@@ -27,7 +27,7 @@ const actions: { current: Record<string, MenuAction[]> } = { current: {} };
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: () => {} }),
-  usePathname: () => "/anggaran/program/prg-0001",
+  usePathname: () => "/budgeting/program/prg-0001",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -260,7 +260,7 @@ describe("halaman usulan: pagu", () => {
           isWithinCeiling: false,
         }),
       }),
-      { PROGRAM: ALL, PAGU_ANGGARAN: ["VIEW"] },
+      { PROGRAM: ALL, BUDGET: ["VIEW"] },
     );
 
     expect(
@@ -270,7 +270,7 @@ describe("halaman usulan: pagu", () => {
       screen
         .getAllByRole("link", { name: "Lihat Pagu Anggaran" })[0]
         ?.getAttribute("href"),
-    ).toBe(`/anggaran/pagu-anggaran?komisi=2&tahun=${YEAR}`);
+    ).toBe(`/budgeting/budget?komisi=2&tahun=${YEAR}`);
 
     const submit = screen.getByRole("button", { name: "Ajukan" });
 
@@ -301,7 +301,7 @@ describe("halaman usulan: galat ber-code", () => {
   test("NO_WORKFLOW memberi tautan Setelan Alur Persetujuan", async () => {
     onRender(
       program(),
-      { PROGRAM: ALL, SETELAN_PERSETUJUAN: ["VIEW"] },
+      { PROGRAM: ALL, APPROVAL_WORKFLOW: ["VIEW"] },
       {
         "POST /api/v1/program/prg-0001/pengajuan": failure(
           "NO_WORKFLOW",
@@ -323,7 +323,7 @@ describe("halaman usulan: galat ber-code", () => {
   test("pesan yang memuat kata alur tanpa code tidak memberi tautan", async () => {
     onRender(
       program(),
-      { PROGRAM: ALL, SETELAN_PERSETUJUAN: ["VIEW"] },
+      { PROGRAM: ALL, APPROVAL_WORKFLOW: ["VIEW"] },
       {
         "POST /api/v1/program/prg-0001/pengajuan": failure(
           null,
@@ -347,7 +347,7 @@ describe("halaman usulan: galat ber-code", () => {
   test("code yang tidak dikenal dirender sebagai kalimatnya tanpa tautan", async () => {
     onRender(
       program(),
-      { PROGRAM: ALL, SETELAN_PERSETUJUAN: ["VIEW"] },
+      { PROGRAM: ALL, APPROVAL_WORKFLOW: ["VIEW"] },
       {
         "POST /api/v1/program/prg-0001/pengajuan": failure(
           "SESUATU_BARU",
@@ -430,14 +430,14 @@ describe("halaman usulan: dua angka belanja", () => {
   test("Dilaporkan ke program ini dibaca dari laporan budget, bukan Kas Keluar atau jurnal", async () => {
     const calls = onRender(program(), {
       PROGRAM: ALL,
-      LAPORAN_BUDGET: ["VIEW"],
+      BUDGET_REALIZATION: ["VIEW"],
     });
 
     await screen.findAllByText("Dilaporkan ke program ini");
 
     expect(
       screen.getByRole("link", { name: /LPB-2026-0001/ }).getAttribute("href"),
-    ).toBe("/anggaran/laporan-budget/lpb-0001");
+    ).toBe("/report/budget-realization/lpb-0001");
     expect(calls.some((call) => call.url.includes("programId"))).toBe(false);
     expect(calls.some((call) => call.url.includes("/jurnal"))).toBe(false);
     expect(calls.some((call) => call.url.includes("/kas-keluar"))).toBe(false);

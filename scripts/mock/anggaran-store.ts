@@ -94,7 +94,7 @@ export const myBapelIds = (): number[] => [
 ];
 
 /**
- * `isCanViewPagu` = `ctx.can(MENU.PAGU_ANGGARAN, "VIEW")`.
+ * `isCanViewPagu` = `ctx.can(MENU.BUDGET, "VIEW")`.
  *
  * Tanpa kapabilitas itu dan tanpa jabatan, hasilnya himpunan kosong — **gagal
  * tertutup**, bukan terbuka.

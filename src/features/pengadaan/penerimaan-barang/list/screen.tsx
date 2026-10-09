@@ -8,7 +8,7 @@ import { useMenuAccess } from "@/features/auth";
 import { ReceiptListContent } from "./list-content";
 
 export const ReceiptListScreen = () => {
-  const { isCanView } = useMenuAccess(MENU.PENERIMAAN_BARANG);
+  const { isCanView } = useMenuAccess(MENU.GOODS_RECEIPT);
 
   return isCanView ? (
     <ReceiptListContent />
@@ -16,7 +16,7 @@ export const ReceiptListScreen = () => {
     <div className="pb-6">
       <PageHeader
         title="Penerimaan Barang"
-        backHref={domainHref(MENU.PENGADAAN)}
+        backHref={domainHref(MENU.PROCUREMENT)}
       />
       <EmptyState
         title="Anda tidak memiliki akses ke Penerimaan Barang"

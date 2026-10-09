@@ -39,7 +39,7 @@ import { AllocationListItem, allocationTable } from "./list-item";
 const TITLE = "Pagu Anggaran";
 
 export const AllocationListContent = () => {
-  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.PAGU_ANGGARAN);
+  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.BUDGET);
   const toast = useToast();
   const isDialogOpen = useBoolean();
   const listParams = useListParams({ filters: LIST_FILTERS });
@@ -75,7 +75,7 @@ export const AllocationListContent = () => {
             ? yearLabel || undefined
             : `${yearLabel} · ${allocationList.totalData} pagu`
         }
-        backHref={domainHref(MENU.ANGGARAN)}
+        backHref={domainHref(MENU.BUDGETING)}
         action={
           <div className="flex shrink-0 items-center gap-2">
             {isCanUpdate ? (

@@ -49,10 +49,8 @@ const LINK =
 export const DisposalFormScreen = () => {
   const router = useRouter();
   const toast = useToast();
-  const { isCanView, isCanDelete } = useMenuAccess(MENU.SIKLUS_ASET);
-  const { isCanView: isCanViewSetting } = useMenuAccess(
-    MENU.SETELAN_PERSETUJUAN,
-  );
+  const { isCanView, isCanDelete } = useMenuAccess(MENU.ASSET_TRANSACTION);
+  const { isCanView: isCanViewSetting } = useMenuAccess(MENU.APPROVAL_WORKFLOW);
   const listReturn = kindReturnHref(
     useListReturn(CYCLE_LIST_PATH),
     "pelepasan",

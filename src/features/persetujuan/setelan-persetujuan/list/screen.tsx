@@ -18,7 +18,7 @@ const LIST_FILTERS = {
 
 export const SetelanListScreen = () => {
   const { isCanView, isCanCreate, isCanUpdate } = useMenuAccess(
-    MENU.SETELAN_PERSETUJUAN,
+    MENU.APPROVAL_WORKFLOW,
   );
   const listParams = useListParams({ filters: LIST_FILTERS });
   const setelanList = useSetelanList(listParams);
@@ -32,11 +32,11 @@ export const SetelanListScreen = () => {
             ? undefined
             : `${setelanList.totalData} alur`
         }
-        backHref={domainHref(MENU.PERSETUJUAN)}
+        backHref={domainHref(MENU.APPROVAL)}
         action={
           isCanView && isCanCreate ? (
             <PageHeaderAdd
-              href={createHref(MENU.PERSETUJUAN, MENU.SETELAN_PERSETUJUAN)}
+              href={createHref(MENU.APPROVAL, MENU.APPROVAL_WORKFLOW)}
               label="Tambah alur"
             />
           ) : null

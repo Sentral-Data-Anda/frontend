@@ -60,7 +60,7 @@ export const JournalDetailScreen = (props: PropTypes) => {
 
   const router = useRouter();
   const toast = useToast();
-  const { isCanView } = useMenuAccess(MENU.JURNAL);
+  const { isCanView } = useMenuAccess(MENU.JOURNAL_ENTRY);
   const listReturn = useListReturn(JURNAL_LIST_PATH);
   const detail = useJournalDetail(isCanView ? publicId : undefined);
   const postJournal = usePostJournal(publicId);
@@ -118,7 +118,7 @@ export const JournalDetailScreen = (props: PropTypes) => {
   if (!isCanView) {
     return (
       <div className="pb-8">
-        <PageHeader title={TITLE} backHref={domainHref(MENU.KEUANGAN)} />
+        <PageHeader title={TITLE} backHref={domainHref(MENU.FINANCE)} />
         <EmptyState
           title="Anda tidak memiliki akses ke Jurnal"
           description={`${NO_VIEW} Hubungi administrator bila Anda memang seharusnya memegangnya.`}

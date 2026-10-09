@@ -23,7 +23,7 @@ const replaced: string[] = [];
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
-  usePathname: () => "/sdm/cuti/CTI-0006/ubah",
+  usePathname: () => "/hr/leave/CTI-0006/ubah",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -175,7 +175,7 @@ const onRenderForm = (
 
 const onRenderLoadedEdit = async (
   granted: Partial<Record<string, MenuAction[]>> = {
-    [MENU.CUTI]: ["VIEW", "UPDATE"],
+    [MENU.LEAVE]: ["VIEW", "UPDATE"],
   },
 ) => {
   onRenderForm(granted, "CTI-0006");
@@ -207,7 +207,7 @@ afterEach(() => {
 
 describe("gerbang izin rute form", () => {
   test("tanpa CREATE: rute /baru tidak merender form", () => {
-    onRenderForm({ [MENU.CUTI]: ["VIEW"] });
+    onRenderForm({ [MENU.LEAVE]: ["VIEW"] });
 
     expect(screen.getByText("Tidak bisa mengajukan cuti")).toBeTruthy();
     expect(
@@ -224,21 +224,21 @@ describe("gerbang izin rute form", () => {
       return Promise.resolve(Response.json({}));
     }) as unknown as typeof fetch;
 
-    onRenderForm({ [MENU.CUTI]: ["VIEW", "CREATE"] }, "CTI-0006");
+    onRenderForm({ [MENU.LEAVE]: ["VIEW", "CREATE"] }, "CTI-0006");
 
     expect(screen.getByText("Tidak bisa mengubah cuti")).toBeTruthy();
     expect(isFetched).toBe(false);
   });
 
   test("UPDATE atas menu LAIN tidak membuka form cuti", () => {
-    onRenderForm({ [MENU.TIPE_CUTI]: ["VIEW", "CREATE", "UPDATE"] });
+    onRenderForm({ [MENU.LEAVE_TYPE]: ["VIEW", "CREATE", "UPDATE"] });
 
     expect(screen.getByText("Tidak bisa mengajukan cuti")).toBeTruthy();
   });
 
   test("tanpa prompt password: Cuti nol angka gaji (§0.3 no. 2)", () => {
     onMockApi();
-    onRenderForm({ [MENU.CUTI]: ["VIEW", "CREATE"] });
+    onRenderForm({ [MENU.LEAVE]: ["VIEW", "CREATE"] });
 
     expect(screen.queryByLabelText(/password/i)).toBeNull();
     expect(screen.queryByText(/Data gaji/)).toBeNull();
@@ -251,7 +251,7 @@ describe("baris yang tidak lagi bisa diubah", () => {
   // situ mengirimnya ke layar yang salah, 100% kasus.
   test("baris yang sudah diproses: kalimatnya 'sudah diproses', bukan 'tarik'", async () => {
     onMockApi({ detail: { ...DETAIL, status: "APPROVED" } });
-    onRenderForm({ [MENU.CUTI]: ["VIEW", "UPDATE"] }, "CTI-0006");
+    onRenderForm({ [MENU.LEAVE]: ["VIEW", "UPDATE"] }, "CTI-0006");
 
     await waitFor(() =>
       expect(
@@ -267,7 +267,7 @@ describe("baris yang tidak lagi bisa diubah", () => {
   // administrator", dan keadaan ini bukan soal izin — petugasnya punya UPDATE.
   test("tidak menyuruh menghubungi administrator: ini bukan soal izin", async () => {
     onMockApi({ detail: { ...DETAIL, status: "APPROVED" } });
-    onRenderForm({ [MENU.CUTI]: ["VIEW", "UPDATE"] }, "CTI-0006");
+    onRenderForm({ [MENU.LEAVE]: ["VIEW", "UPDATE"] }, "CTI-0006");
 
     await waitFor(() => expect(screen.getByText(LOCKED_TITLE)).toBeTruthy());
 
@@ -276,7 +276,7 @@ describe("baris yang tidak lagi bisa diubah", () => {
   });
 
   test("keadaan tanpa IZIN tetap menyuruh menghubungi administrator", () => {
-    onRenderForm({ [MENU.CUTI]: ["VIEW"] });
+    onRenderForm({ [MENU.LEAVE]: ["VIEW"] });
 
     expect(screen.getByText("Tidak bisa mengajukan cuti")).toBeTruthy();
     expect(screen.getByText(/Hubungi administrator/i)).toBeTruthy();
@@ -295,7 +295,7 @@ describe("baris yang tidak lagi bisa diubah", () => {
         },
       },
     });
-    onRenderForm({ [MENU.CUTI]: ["VIEW", "UPDATE"] }, "CTI-0006");
+    onRenderForm({ [MENU.LEAVE]: ["VIEW", "UPDATE"] }, "CTI-0006");
 
     await waitFor(() =>
       expect(
@@ -353,7 +353,7 @@ describe("ringkasan: hitungan hari dan sisa jatah", () => {
         endDate: "2027-01-08T00:00:00.000Z",
       },
     });
-    onRenderForm({ [MENU.CUTI]: ["VIEW", "UPDATE"] }, "CTI-0006");
+    onRenderForm({ [MENU.LEAVE]: ["VIEW", "UPDATE"] }, "CTI-0006");
 
     await waitFor(() => expect(quotaUrls.length).toBeGreaterThan(0));
 

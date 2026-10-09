@@ -12,13 +12,16 @@ import {
   type RunPayload,
 } from "./types";
 
-export const PENYUSUTAN_LIST_PATH = menuHref(MENU.INVENTARIS, MENU.PENYUSUTAN);
+export const PENYUSUTAN_LIST_PATH = menuHref(
+  MENU.FIXED_ASSET,
+  MENU.DEPRECIATION,
+);
 
 export const runHref = (code: string) =>
-  detailHref(MENU.INVENTARIS, MENU.PENYUSUTAN, code);
+  detailHref(MENU.FIXED_ASSET, MENU.DEPRECIATION, code);
 
 export const assetHref = (code: string) =>
-  detailHref(MENU.INVENTARIS, MENU.BARANG, code);
+  detailHref(MENU.FIXED_ASSET, MENU.ASSET_MASTER, code);
 
 const PERIOD_FORMAT = new Intl.DateTimeFormat("id-ID", {
   month: "long",

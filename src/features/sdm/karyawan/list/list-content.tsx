@@ -17,7 +17,7 @@ import {
 import { KaryawanListItem, karyawanTable } from "./list-item";
 
 export const KaryawanListContent = () => {
-  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.KARYAWAN);
+  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.EMPLOYEE);
   const listParams = useListParams();
   const karyawanList = useKaryawanList(listParams);
   const isNarrowed = Boolean(listParams.search);
@@ -31,7 +31,7 @@ export const KaryawanListContent = () => {
             ? undefined
             : `${karyawanList.totalData} karyawan`
         }
-        backHref={domainHref(MENU.SDM)}
+        backHref={domainHref(MENU.HR)}
         action={
           isCanCreate ? (
             <PageHeaderAdd

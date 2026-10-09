@@ -100,7 +100,7 @@ export const ReceiptDetailScreen = (props: PropTypes) => {
   if (!isCanView) {
     return (
       <div className="pb-8">
-        <PageHeader title={TITLE} backHref={domainHref(MENU.KEUANGAN)} />
+        <PageHeader title={TITLE} backHref={domainHref(MENU.FINANCE)} />
         <EmptyState
           title="Anda tidak memiliki akses ke Kas Masuk"
           description={NO_VIEW}

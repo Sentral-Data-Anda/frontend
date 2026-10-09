@@ -243,7 +243,7 @@ export const mutasiStokMock: MockHandler = async ({
   if (path !== "/mutasi-stok") return null;
 
   if (method === "GET") {
-    if (!can(MENU.MUTASI_STOK, "VIEW")) return denied();
+    if (!can(MENU.STOCK_MOVEMENT, "VIEW")) return denied();
     if (process.env.MOCK_500 || process.env.MOCK_STOCK_MOVEMENT_500) {
       return serverError();
     }
@@ -258,7 +258,7 @@ export const mutasiStokMock: MockHandler = async ({
   }
 
   if (method !== "POST") return null;
-  if (!can(MENU.MUTASI_STOK, "CREATE")) return denied();
+  if (!can(MENU.STOCK_MOVEMENT, "CREATE")) return denied();
   if (process.env.MOCK_STOCK_MOVEMENT_SAVE_ERROR === "500")
     return serverError();
 

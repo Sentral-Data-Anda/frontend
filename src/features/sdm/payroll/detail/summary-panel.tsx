@@ -24,7 +24,7 @@ interface PropTypes {
 export const SummaryPanel = (props: PropTypes) => {
   const { run } = props;
 
-  const { isCanView: isCanViewJournal } = useMenuAccess(MENU.JURNAL);
+  const { isCanView: isCanViewJournal } = useMenuAccess(MENU.JOURNAL_ENTRY);
   const { journal } = run;
   // `markPaid` menjawab `journal: { code }` SAJA — tanpa `publicId`. Tautan di
   // bawah aman hanya karena `usePayrollAction` meng-invalidate detailnya alih-
@@ -89,8 +89,8 @@ export const SummaryPanel = (props: PropTypes) => {
               isCanViewJournal ? (
                 <Link
                   href={detailHref(
-                    MENU.KEUANGAN,
-                    MENU.JURNAL,
+                    MENU.FINANCE,
+                    MENU.JOURNAL_ENTRY,
                     journal.publicId,
                   )}
                   className={`tabular-nums ${DETAIL_LINK}`}

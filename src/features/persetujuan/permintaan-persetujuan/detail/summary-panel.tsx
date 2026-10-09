@@ -35,7 +35,7 @@ export const SummaryPanel = (props: PropTypes) => {
   const { document } = request;
   const documentMenu = APPROVAL_DOCUMENT_MENU[request.documentType];
   const { isCanView: isCanViewDocument } = useMenuAccess(
-    documentMenu ?? MENU.PERMINTAAN_PERSETUJUAN,
+    documentMenu ?? MENU.APPROVAL_REQUEST,
   );
   const documentHref =
     document && documentMenu && isCanViewDocument

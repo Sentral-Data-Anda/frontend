@@ -18,16 +18,16 @@ interface PropTypes {
 export const FailureAlert = (props: PropTypes) => {
   const { title, error, target } = props;
 
-  const ceiling = useMenuAccess(MENU.PAGU_ANGGARAN);
-  const workflow = useMenuAccess(MENU.SETELAN_PERSETUJUAN);
+  const ceiling = useMenuAccess(MENU.BUDGET);
+  const workflow = useMenuAccess(MENU.APPROVAL_WORKFLOW);
   const roleJemaat = useMenuAccess(MENU.ROLE_JEMAAT);
-  const account = useMenuAccess(MENU.AKUN);
+  const account = useMenuAccess(MENU.CHART_OF_ACCOUNT);
   const fix = errorFixOf(error, target);
   const gates: Partial<Record<MenuSlug, boolean>> = {
-    [MENU.PAGU_ANGGARAN]: ceiling.isCanView,
-    [MENU.SETELAN_PERSETUJUAN]: workflow.isCanView,
+    [MENU.BUDGET]: ceiling.isCanView,
+    [MENU.APPROVAL_WORKFLOW]: workflow.isCanView,
     [MENU.ROLE_JEMAAT]: roleJemaat.isCanView,
-    [MENU.AKUN]: account.isCanView,
+    [MENU.CHART_OF_ACCOUNT]: account.isCanView,
   };
   const isFixVisible = fix !== null && gates[fix.menu] === true;
 

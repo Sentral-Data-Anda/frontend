@@ -54,7 +54,9 @@ export const JournalFormScreen = (props: PropTypes) => {
   const router = useRouter();
   const toast = useToast();
   const isEdit = Boolean(publicId);
-  const { isCanView, isCanCreate, isCanUpdate } = useMenuAccess(MENU.JURNAL);
+  const { isCanView, isCanCreate, isCanUpdate } = useMenuAccess(
+    MENU.JOURNAL_ENTRY,
+  );
   const isAllowed = isEdit ? isCanUpdate : isCanCreate;
   const listReturn = useListReturn(JURNAL_LIST_PATH);
   const leaveHref = publicId ? journalHref(publicId) : listReturn;

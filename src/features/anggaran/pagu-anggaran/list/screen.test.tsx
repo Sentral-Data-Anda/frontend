@@ -29,7 +29,7 @@ const params: { current: URLSearchParams } = { current: new URLSearchParams() };
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
-  usePathname: () => "/anggaran/pagu-anggaran",
+  usePathname: () => "/budgeting/budget",
   useSearchParams: () => params.current,
 }));
 
@@ -219,7 +219,7 @@ describe("daftar pagu anggaran", () => {
     const tab = await screen.findByRole("tab", { name: String(YEAR + 1) });
     fireEvent.click(tab);
 
-    expect(replaced).toEqual([`/anggaran/pagu-anggaran?tahun=${YEAR + 1}`]);
+    expect(replaced).toEqual([`/budgeting/budget?tahun=${YEAR + 1}`]);
   });
 
   test("tahun dari URL bertahan dan dikirim sebagai year", async () => {

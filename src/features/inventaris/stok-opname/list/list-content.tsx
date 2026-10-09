@@ -34,7 +34,7 @@ export const OpnameListContent = () => {
             ? undefined
             : `${opnameList.totalData} stok opname`
         }
-        backHref={domainHref(MENU.INVENTARIS)}
+        backHref={domainHref(MENU.INVENTORY)}
         action={
           isCanCreate ? (
             <PageHeaderAdd

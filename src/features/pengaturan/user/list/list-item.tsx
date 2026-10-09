@@ -15,7 +15,7 @@ import type { UserListItem } from "../types";
 import { UserStatus } from "./user-status";
 
 const editHrefOf = (user: UserListItem) =>
-  editHref(MENU.PENGATURAN, MENU.USER, user.code);
+  editHref(MENU.SETTINGS, MENU.USER, user.code);
 
 const saveFocus = (user: UserListItem) =>
   saveListFocus(USER_LIST_PATH, user.code);

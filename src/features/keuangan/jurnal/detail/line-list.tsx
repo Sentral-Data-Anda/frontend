@@ -96,7 +96,7 @@ interface PropTypes {
 export const LineList = (props: PropTypes) => {
   const { entry, isRefreshing } = props;
 
-  const accountAccess = useMenuAccess(MENU.AKUN);
+  const accountAccess = useMenuAccess(MENU.CHART_OF_ACCOUNT);
   const balance = entryBalanceOf(entry);
 
   return (

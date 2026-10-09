@@ -19,7 +19,7 @@ const actions: { current: MenuAction[] } = { current: [] };
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: () => {} }),
-  usePathname: () => "/keuangan/mata-uang",
+  usePathname: () => "/finance/currency",
   useSearchParams: () => new URLSearchParams(),
 }));
 

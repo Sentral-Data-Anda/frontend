@@ -35,7 +35,7 @@ export const PermintaanDetailScreen = (props: PropTypes) => {
 
   const router = useRouter();
   const toast = useToast();
-  const { isCanView, isCanUpdate } = useMenuAccess(MENU.PERMINTAAN_PERSETUJUAN);
+  const { isCanView, isCanUpdate } = useMenuAccess(MENU.APPROVAL_REQUEST);
   const listReturn = useListReturn(PERMINTAAN_LIST_PATH);
   const detail = usePermintaanDetail(id, isCanView);
   const approve = useApprove(id);

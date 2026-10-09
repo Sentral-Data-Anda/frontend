@@ -255,7 +255,7 @@ describe("tautan perbaikan dan teks", () => {
   test("cabang pada code, bukan pada teks galat", () => {
     expect(
       fixLinkOf(new FetchError(400, "Apa saja", [], "PERIOD_CLOSED"))?.href,
-    ).toBe("/keuangan/periode-fiskal");
+    ).toBe("/finance/fiscal-period");
     expect(
       fixLinkOf(
         new FetchError(400, "Periode Fiskal Juli 2026 Sudah Ditutup", [], null),
@@ -263,7 +263,7 @@ describe("tautan perbaikan dan teks", () => {
     ).toBeNull();
     expect(
       fixLinkOf(new FetchError(400, "x", [], "OFFERING_TYPE_NO_ACCOUNT"))?.href,
-    ).toBe("/keuangan/tipe-persembahan");
+    ).toBe("/finance/tipe-persembahan");
   });
 
   test("subjudul menyebut jumlah dan total saringan aktif", () => {

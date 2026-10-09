@@ -35,7 +35,7 @@ const STATUS_OPTIONS = [
 ];
 
 export const AbsensiListContent = () => {
-  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.ABSENSI_KARYAWAN);
+  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.ATTENDANCE);
   const listParams = useListParams({ filters: ABSENSI_FILTERS });
   const absensiList = useAbsensiList(listParams);
   const karyawan = useDdlOptions("karyawan", "id");
@@ -51,11 +51,11 @@ export const AbsensiListContent = () => {
       <PageHeader
         title={TITLE}
         subtitle={subtitleOf(absensiList.totalData, listParams.filters)}
-        backHref={domainHref(MENU.SDM)}
+        backHref={domainHref(MENU.HR)}
         action={
           isCanCreate ? (
             <PageHeaderAdd
-              href={createHref(MENU.SDM, MENU.ABSENSI_KARYAWAN)}
+              href={createHref(MENU.HR, MENU.ATTENDANCE)}
               label="Tambah absensi karyawan"
             />
           ) : null

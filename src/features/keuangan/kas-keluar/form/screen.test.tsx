@@ -30,7 +30,7 @@ mock.module("next/navigation", () => ({
   useRouter: () => ({
     replace: (href: string) => replaced.push(href),
   }),
-  usePathname: () => "/keuangan/kas-keluar/baru",
+  usePathname: () => "/finance/kas-keluar/baru",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -474,7 +474,7 @@ describe("spanduk gerbang di form", () => {
     expect(await screen.findByText(/belum dibuat\./)).toBeTruthy();
     const link = screen.getByRole("link", { name: "Buat laporannya" });
     expect(link.getAttribute("href")).toContain("komisi=2");
-    expect(link.getAttribute("href")).toContain("/anggaran/laporan-budget");
+    expect(link.getAttribute("href")).toContain("/report/budget-realization");
   });
 
   test("laporan M-1 masih draf: spanduk + tautan melihatnya", async () => {

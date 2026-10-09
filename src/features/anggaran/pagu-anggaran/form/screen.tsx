@@ -65,7 +65,7 @@ export const AllocationFormScreen = (props: PropTypes) => {
   const toast = useToast();
   const isEdit = Boolean(publicId);
   const { isCanView, isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
-    MENU.PAGU_ANGGARAN,
+    MENU.BUDGET,
   );
   const isBatch = useBoolean();
   const listReturn = useListReturn(PAGU_LIST_PATH);

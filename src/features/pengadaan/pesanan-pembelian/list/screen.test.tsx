@@ -28,7 +28,7 @@ const search = { current: new URLSearchParams() };
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
-  usePathname: () => "/pengadaan/pesanan-pembelian",
+  usePathname: () => "/procurement/purchase-order",
   useSearchParams: () => search.current,
 }));
 
@@ -65,7 +65,7 @@ afterEach(() => {
 });
 
 const onRender = (actions: typeof ALL, query = "") => {
-  grants.current = { [MENU.PESANAN_PEMBELIAN]: actions };
+  grants.current = { [MENU.PURCHASE_ORDER]: actions };
   search.current = new URLSearchParams(query);
   renderWithQuery(<OrderListScreen />);
 };

@@ -60,7 +60,7 @@ export const CutiDetailScreen = (props: PropTypes) => {
 
   const router = useRouter();
   const toast = useToast();
-  const { isCanView } = useMenuAccess(MENU.CUTI);
+  const { isCanView } = useMenuAccess(MENU.LEAVE);
   const listReturn = useListReturn(CUTI_LIST_PATH);
   const detail = useCutiDetail(isCanView ? code : undefined);
   const action = useCutiAction(code);
@@ -87,7 +87,7 @@ export const CutiDetailScreen = (props: PropTypes) => {
   if (!isCanView) {
     return (
       <div className="pb-8">
-        <PageHeader title={TITLE} backHref={domainHref(MENU.SDM)} />
+        <PageHeader title={TITLE} backHref={domainHref(MENU.HR)} />
 
         <EmptyState
           title="Anda tidak memiliki akses ke Cuti"

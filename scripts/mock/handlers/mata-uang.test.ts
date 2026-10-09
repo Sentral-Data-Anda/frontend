@@ -139,7 +139,7 @@ describe("mock /mata-uang", () => {
 
   test("guard per aksi", async () => {
     const viewOnly = (slug: string, action: MockAction) =>
-      slug === MENU.MATA_UANG && action === "VIEW";
+      slug === MENU.CURRENCY && action === "VIEW";
 
     expect(
       (await onCall("GET", "/mata-uang", undefined, viewOnly))?.status,

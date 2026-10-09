@@ -23,22 +23,22 @@ import { onStubViewport } from "../../../../../tests/viewport";
 import type { PostingResult } from "../types";
 
 const actions: { current: MenuAction[] } = { current: [] };
-// Sadar MENU, bukan satu jawaban untuk semua: layar ini menanyakan JURNAL
-// untuk haknya memposting dan BARANG untuk boleh-tidaknya menautkan aset yang
+// Sadar MENU, bukan satu jawaban untuk semua: layar ini menanyakan JOURNAL_ENTRY
+// untuk haknya memposting dan ASSET_MASTER untuk boleh-tidaknya menautkan aset yang
 // ditolak. Mock yang mengabaikan menu mana yang ditanya membuat perbedaan itu
 // tak teruji.
 const faktur: { current: MenuAction[] } = { current: [] };
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: () => {}, push: () => {} }),
-  usePathname: () => "/keuangan/jurnal/posting-pengadaan",
+  usePathname: () => "/finance/journal-entry/posting-pengadaan",
   useSearchParams: () => new URLSearchParams(),
 }));
 
 mock.module("@/features/auth/use-menu-access", () => ({
   useMenuAccess: (menu: string) => {
     const granted =
-      menu === "FAKTUR_SUPPLIER" ? faktur.current : actions.current;
+      menu === "SUPPLIER_INVOICE" ? faktur.current : actions.current;
 
     return {
       isCanView: granted.includes("VIEW"),
@@ -245,7 +245,9 @@ describe("yang ditolak", () => {
     await onPreview();
 
     const link = screen.getByRole("link", { name: "PYS-2026-0001" });
-    expect(link.getAttribute("href")).toContain("/pengadaan/faktur-supplier/");
+    expect(link.getAttribute("href")).toContain(
+      "/procurement/supplier-invoice/",
+    );
   });
 
   test("tanpa Faktur Supplier kodenya tetap terbaca, tanpa tautan", async () => {

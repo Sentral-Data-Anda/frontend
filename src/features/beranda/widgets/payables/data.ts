@@ -90,7 +90,7 @@ export function buildPayables(
         kind: "Faktur",
         amount: amountOf(row.totalIDR) - amountOf(row.paidAmountIDR),
         status,
-        href: hrefOf(MENU.PENGADAAN, MENU.FAKTUR_SUPPLIER),
+        href: hrefOf(MENU.PROCUREMENT, MENU.SUPPLIER_INVOICE),
         isOverdue: dayKey(row.dueDate) < today,
         since: dayKey(row.dueDate),
         isPayable: true,
@@ -105,7 +105,7 @@ export function buildPayables(
       kind: "Kas keluar",
       amount: amountOf(row.totalAmount),
       status: { tone: "draft", label: "Draf" },
-      href: hrefOf(MENU.KEUANGAN, MENU.KAS_KELUAR),
+      href: hrefOf(MENU.FINANCE, MENU.KAS_KELUAR),
       isOverdue: false,
       since: dayKey(row.expenseDate),
       isPayable: true,
@@ -122,7 +122,7 @@ export function buildPayables(
           : row.status === "CALCULATED"
             ? { tone: "draft", label: "Dihitung" }
             : { tone: "draft", label: "Draf" },
-      href: hrefOf(MENU.SDM, MENU.PAYROLL),
+      href: hrefOf(MENU.HR, MENU.PAYROLL),
       isOverdue: false,
       since: dayKey(row.createdAt),
       isPayable: true,
@@ -141,7 +141,7 @@ export function buildPayables(
       kind: APPROVAL_DOCUMENT_LABEL[row.documentType],
       amount: amountOf(row.amount) || null,
       status: { tone: "wait", label: "Menunggu" },
-      href: hrefOf(MENU.PERSETUJUAN, MENU.PERMINTAAN_PERSETUJUAN),
+      href: hrefOf(MENU.APPROVAL, MENU.APPROVAL_REQUEST),
       isOverdue: false,
       since: dayKey(toDateKey(new Date(row.submittedAt))),
       isPayable: false,
@@ -159,7 +159,7 @@ export function buildPayables(
         row.status === "FAILED"
           ? { tone: "due", label: "Gagal" }
           : { tone: "neutral", label: "Kedaluwarsa" },
-      href: hrefOf(MENU.KEUANGAN, MENU.PEMBAYARAN),
+      href: hrefOf(MENU.FINANCE, MENU.PAYMENT),
       isOverdue: false,
       since: dayKey(toDateKey(new Date(row.createdAt))),
       isPayable: false,
@@ -173,7 +173,7 @@ export function buildPayables(
             kind: "Jurnal",
             amount: null,
             status: { tone: "wait", label: "Buka" },
-            href: hrefOf(MENU.KEUANGAN, MENU.JURNAL),
+            href: hrefOf(MENU.FINANCE, MENU.JOURNAL_ENTRY),
             isOverdue: false,
             since: today,
             isPayable: false,
@@ -192,11 +192,11 @@ export function buildPayables(
 
 export function usePayables() {
   const cash = useMenuAccess(MENU.KAS_KELUAR).isCanView;
-  const invoice = useMenuAccess(MENU.FAKTUR_SUPPLIER).isCanView;
-  const approval = useMenuAccess(MENU.PERMINTAAN_PERSETUJUAN).isCanView;
-  const payment = useMenuAccess(MENU.PEMBAYARAN).isCanView;
+  const invoice = useMenuAccess(MENU.SUPPLIER_INVOICE).isCanView;
+  const approval = useMenuAccess(MENU.APPROVAL_REQUEST).isCanView;
+  const payment = useMenuAccess(MENU.PAYMENT).isCanView;
   const payroll = useMenuAccess(MENU.PAYROLL).isCanView;
-  const journal = useMenuAccess(MENU.JURNAL).isCanView;
+  const journal = useMenuAccess(MENU.JOURNAL_ENTRY).isCanView;
 
   const cashQ = useDraftCashExpenses(cash);
   const invoiceQ = useUnpaidInvoices(invoice);

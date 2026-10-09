@@ -369,7 +369,7 @@ export const setoranMock: MockHandler = async (ctx) => {
   if (!match) return null;
 
   const [, code, actionName] = match;
-  const can = (action: MockAction) => ctx.can(MENU.SETORAN, action);
+  const can = (action: MockAction) => ctx.can(MENU.BANK_DEPOSIT, action);
 
   if (actionName) {
     if (ctx.method !== "PUT") return null;

@@ -19,7 +19,7 @@ const CONTENT = {
 };
 
 export const CycleListScreen = () => {
-  const { isCanView } = useMenuAccess(MENU.SIKLUS_ASET);
+  const { isCanView } = useMenuAccess(MENU.ASSET_TRANSACTION);
   const kind = kindOf(useSearchParams().get(KIND_PARAM));
   const Content = CONTENT[kind];
 

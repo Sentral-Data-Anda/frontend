@@ -8,13 +8,13 @@ import { useMenuAccess } from "@/features/auth";
 import { AccountListContent } from "./list-content";
 
 export const AccountListScreen = () => {
-  const { isCanView } = useMenuAccess(MENU.AKUN);
+  const { isCanView } = useMenuAccess(MENU.CHART_OF_ACCOUNT);
 
   if (isCanView) return <AccountListContent />;
 
   return (
     <div className="pb-6">
-      <PageHeader title="Akun" backHref={domainHref(MENU.KEUANGAN)} />
+      <PageHeader title="Akun" backHref={domainHref(MENU.FINANCE)} />
 
       <EmptyState
         title="Anda tidak memiliki akses ke Akun"

@@ -19,7 +19,7 @@ const replaced: string[] = [];
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
-  usePathname: () => "/keuangan/setelan-akuntansi/PERSEMBAHAN_KAS/ubah",
+  usePathname: () => "/finance/accounting-setting/PERSEMBAHAN_KAS/ubah",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -212,7 +212,7 @@ describe("simpan", () => {
       screen
         .getByRole("link", { name: "Perbaiki di Akun" })
         .getAttribute("href"),
-    ).toBe("/keuangan/akun");
+    ).toBe("/finance/chart-of-account");
   });
 
   test("keterangan kunci jadi catatan bagian, kunci bukan field", async () => {

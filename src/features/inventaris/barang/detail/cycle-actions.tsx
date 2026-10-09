@@ -19,7 +19,7 @@ interface PropTypes {
 export const CycleActions = (props: PropTypes) => {
   const { code } = props;
 
-  const { isCanCreate, isCanDelete } = useMenuAccess(MENU.SIKLUS_ASET);
+  const { isCanCreate, isCanDelete } = useMenuAccess(MENU.ASSET_TRANSACTION);
 
   if (!isCanCreate && !isCanDelete) return null;
 

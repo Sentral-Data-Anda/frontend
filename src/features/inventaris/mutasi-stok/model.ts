@@ -15,14 +15,17 @@ import type {
   StockOption,
 } from "./types";
 
-export const MUTASI_LIST_PATH = menuHref(MENU.INVENTARIS, MENU.MUTASI_STOK);
+export const MUTASI_LIST_PATH = menuHref(MENU.INVENTORY, MENU.STOCK_MOVEMENT);
 
-export const MUTASI_CREATE_PATH = createHref(MENU.INVENTARIS, MENU.MUTASI_STOK);
+export const MUTASI_CREATE_PATH = createHref(
+  MENU.INVENTORY,
+  MENU.STOCK_MOVEMENT,
+);
 
-export const OPNAME_CREATE_PATH = createHref(MENU.INVENTARIS, MENU.STOK_OPNAME);
+export const OPNAME_CREATE_PATH = createHref(MENU.INVENTORY, MENU.STOK_OPNAME);
 
 export const stockItemHref = (code: string) =>
-  detailHref(MENU.INVENTARIS, MENU.BARANG_PERSEDIAAN, code);
+  detailHref(MENU.INVENTORY, MENU.STOCK_ITEM, code);
 
 export const TYPE_LABEL: Record<MovementType, string> = {
   IN: "Masuk",

@@ -4,7 +4,7 @@ import { afterEach, describe, expect, mock, test } from "bun:test";
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: () => undefined }),
-  usePathname: () => "/pengaturan/activity-log",
+  usePathname: () => "/settings/activity-log",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -54,7 +54,7 @@ describe("daftar log aktivitas", () => {
       name: "Lihat Hapus Jemaat #4",
     });
 
-    expect(row.getAttribute("href")).toBe("/pengaturan/activity-log/80");
+    expect(row.getAttribute("href")).toBe("/settings/activity-log/80");
     expect(screen.getByText(/Sistem/)).toBeTruthy();
     expect(screen.queryByRole("link", { name: /Tambah/ })).toBeNull();
     expect(screen.queryByRole("link", { name: /^Ubah/ })).toBeNull();

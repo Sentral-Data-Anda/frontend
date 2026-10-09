@@ -36,7 +36,7 @@ export const ReceiptListContent = () => {
             ? undefined
             : `${receiptList.totalData} kas masuk`
         }
-        backHref={domainHref(MENU.KEUANGAN)}
+        backHref={domainHref(MENU.FINANCE)}
         action={
           isCanCreate ? (
             <span className="flex items-center gap-2">

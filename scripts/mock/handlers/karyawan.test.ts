@@ -136,7 +136,7 @@ describe("mock /karyawan: izin", () => {
   test("tiap metode dijaga aksi menunya sendiri", async () => {
     const only =
       (allowed: MockAction) => (slug: MenuSlug, action: MockAction) =>
-        slug === MENU.KARYAWAN && action === allowed;
+        slug === MENU.EMPLOYEE && action === allowed;
 
     expect(
       (await onCall("GET", "/karyawan", undefined, only("VIEW")))?.status,
@@ -163,7 +163,7 @@ describe("mock /karyawan: izin", () => {
           "GET",
           "/karyawan",
           undefined,
-          (slug) => slug === MENU.CUTI,
+          (slug) => slug === MENU.LEAVE,
         )
       )?.status,
     ).toBe(403);
@@ -286,11 +286,11 @@ describe("mock /ddl/karyawan", () => {
 
   test("lima menu membukanya, menu di luar daftar tidak", async () => {
     for (const slug of [
-      MENU.KARYAWAN,
-      MENU.CUTI,
-      MENU.KONTRAK_KARYAWAN,
-      MENU.ABSENSI_KARYAWAN,
-      MENU.KOMPONEN_PAYROLL,
+      MENU.EMPLOYEE,
+      MENU.LEAVE,
+      MENU.EMPLOYEE_CONTRACT,
+      MENU.ATTENDANCE,
+      MENU.PAYROLL_COMPONENT,
     ]) {
       expect(
         (await onCall("GET", "/ddl/karyawan", undefined, only(slug)))?.status,

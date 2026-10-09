@@ -51,7 +51,7 @@ const call = async (
     path: url.pathname.replace("/api/v1", ""),
     method,
     can: (slug, action) =>
-      slug === MENU.PENERIMAAN_BARANG && granted.includes(action),
+      slug === MENU.GOODS_RECEIPT && granted.includes(action),
     isAdmin: false,
     sessionCode: "test",
   };

@@ -13,18 +13,18 @@ import { ACCOUNT_TYPES } from "@/types/keuangan";
 
 import type { Account, AccountPayload, AccountTreeRow } from "./types";
 
-export const AKUN_LIST_PATH = menuHref(MENU.KEUANGAN, MENU.AKUN);
+export const AKUN_LIST_PATH = menuHref(MENU.FINANCE, MENU.CHART_OF_ACCOUNT);
 
-export const AKUN_CREATE_PATH = createHref(MENU.KEUANGAN, MENU.AKUN);
+export const AKUN_CREATE_PATH = createHref(MENU.FINANCE, MENU.CHART_OF_ACCOUNT);
 
 export const accountDetailHref = (code: string) =>
-  detailHref(MENU.KEUANGAN, MENU.AKUN, code);
+  detailHref(MENU.FINANCE, MENU.CHART_OF_ACCOUNT, code);
 
 export const accountEditHref = (code: string) =>
-  editHref(MENU.KEUANGAN, MENU.AKUN, code);
+  editHref(MENU.FINANCE, MENU.CHART_OF_ACCOUNT, code);
 
 export const ledgerHref = (code: string) =>
-  `${menuHref(MENU.KEUANGAN, MENU.LAPORAN_KEUANGAN)}?tab=buku-besar&code=${encodeURIComponent(code)}`;
+  `${menuHref(MENU.REPORT, MENU.FINANCIAL_STATEMENT)}?tab=buku-besar&code=${encodeURIComponent(code)}`;
 
 export const NO_VIEW = "Peran Anda tidak memiliki akses ke Akun.";
 

@@ -8,7 +8,7 @@ import { useMenuAccess } from "@/features/auth";
 import { RequestListContent } from "./list-content";
 
 export const RequestListScreen = () => {
-  const { isCanView } = useMenuAccess(MENU.PERMINTAAN_PEMBELIAN);
+  const { isCanView } = useMenuAccess(MENU.PURCHASE_REQUEST);
 
   return isCanView ? (
     <RequestListContent />
@@ -16,7 +16,7 @@ export const RequestListScreen = () => {
     <div className="pb-6">
       <PageHeader
         title="Permintaan Pembelian"
-        backHref={domainHref(MENU.PENGADAAN)}
+        backHref={domainHref(MENU.PROCUREMENT)}
       />
       <EmptyState
         title="Anda tidak memiliki akses ke Permintaan Pembelian"

@@ -140,11 +140,13 @@ describe("rentang posting", () => {
 describe("perbaikan dicabangkan lewat kode, bukan prosa", () => {
   test("kode yang dikenal menautkan ke layar yang memperbaikinya", () => {
     expect(fixOfCode("SETTING_EMPTY")?.href).toBe(
-      "/keuangan/setelan-akuntansi",
+      "/finance/accounting-setting",
     );
-    expect(fixOfCode("ACCOUNT_INACTIVE")?.href).toBe("/keuangan/akun");
-    expect(fixOfCode("PERIOD_CLOSED")?.href).toBe("/keuangan/periode-fiskal");
-    expect(fixOfCode("PERIOD_NOT_OPEN")?.href).toBe("/keuangan/periode-fiskal");
+    expect(fixOfCode("ACCOUNT_INACTIVE")?.href).toBe(
+      "/finance/chart-of-account",
+    );
+    expect(fixOfCode("PERIOD_CLOSED")?.href).toBe("/finance/fiscal-period");
+    expect(fixOfCode("PERIOD_NOT_OPEN")?.href).toBe("/finance/fiscal-period");
   });
 
   test("kode kosong atau asing tidak menebak tautan", () => {

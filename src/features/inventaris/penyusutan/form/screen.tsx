@@ -41,7 +41,7 @@ const isPeriodError = (error: unknown) =>
 export const PenyusutanFormScreen = () => {
   const router = useRouter();
   const toast = useToast();
-  const { isCanView, isCanCreate } = useMenuAccess(MENU.PENYUSUTAN);
+  const { isCanView, isCanCreate } = useMenuAccess(MENU.DEPRECIATION);
   const listReturn = useListReturn(PENYUSUTAN_LIST_PATH);
   const [rejectedField, setRejectedField] = useState<string | null>(null);
   const openRun = useOpenRun();

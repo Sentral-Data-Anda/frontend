@@ -209,7 +209,7 @@ export const penyusutanMock: MockHandler = async (ctx) => {
   const match = path.match(/^\/penyusutan\/([^/]+)(?:\/(hitung|posting))?$/);
   if (path !== "/penyusutan" && !match) return null;
 
-  if (!ctx.can(MENU.PENYUSUTAN, ACTION[method] ?? "VIEW")) return denied();
+  if (!ctx.can(MENU.DEPRECIATION, ACTION[method] ?? "VIEW")) return denied();
 
   if (path === "/penyusutan") {
     if (method === "GET") return onList(url);

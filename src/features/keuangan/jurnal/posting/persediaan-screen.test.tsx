@@ -23,22 +23,21 @@ import { onStubViewport } from "../../../../../tests/viewport";
 import type { PostingResult } from "../types";
 
 const actions: { current: MenuAction[] } = { current: [] };
-// Sadar MENU, bukan satu jawaban untuk semua: layar ini menanyakan JURNAL
-// untuk haknya memposting dan BARANG_PERSEDIAAN untuk boleh-tidaknya menautkan
+// Sadar MENU, bukan satu jawaban untuk semua: layar ini menanyakan JOURNAL_ENTRY
+// untuk haknya memposting dan STOCK_ITEM untuk boleh-tidaknya menautkan
 // barang yang ditolak. Mock yang mengabaikan menu mana yang ditanya membuat
 // perbedaan itu tak teruji.
 const barang: { current: MenuAction[] } = { current: [] };
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: () => {}, push: () => {} }),
-  usePathname: () => "/keuangan/jurnal/posting-persediaan",
+  usePathname: () => "/finance/journal-entry/posting-persediaan",
   useSearchParams: () => new URLSearchParams(),
 }));
 
 mock.module("@/features/auth/use-menu-access", () => ({
   useMenuAccess: (menu: string) => {
-    const granted =
-      menu === "BARANG_PERSEDIAAN" ? barang.current : actions.current;
+    const granted = menu === "STOCK_ITEM" ? barang.current : actions.current;
 
     return {
       isCanView: granted.includes("VIEW"),
@@ -250,9 +249,7 @@ describe("yang ditolak", () => {
     await onPreview();
 
     const link = screen.getByRole("link", { name: "BRP-0004" });
-    expect(link.getAttribute("href")).toContain(
-      "/inventaris/barang-persediaan/",
-    );
+    expect(link.getAttribute("href")).toContain("/inventory/stock-item/");
   });
 
   test("tanpa Barang Persediaan kodenya tetap terbaca, tanpa tautan", async () => {

@@ -32,17 +32,20 @@ import type {
 
 export const MAX_DETAIL_PHOTOS = 4;
 
-export const BARANG_LIST_PATH = menuHref(MENU.INVENTARIS, MENU.BARANG);
+export const BARANG_LIST_PATH = menuHref(MENU.FIXED_ASSET, MENU.ASSET_MASTER);
 
-export const BARANG_CREATE_PATH = createHref(MENU.INVENTARIS, MENU.BARANG);
+export const BARANG_CREATE_PATH = createHref(
+  MENU.FIXED_ASSET,
+  MENU.ASSET_MASTER,
+);
 
 export const barangDetailHref = (code: string) =>
-  detailHref(MENU.INVENTARIS, MENU.BARANG, code);
+  detailHref(MENU.FIXED_ASSET, MENU.ASSET_MASTER, code);
 
 export const barangEditHref = (code: string) =>
-  editHref(MENU.INVENTARIS, MENU.BARANG, code);
+  editHref(MENU.FIXED_ASSET, MENU.ASSET_MASTER, code);
 
-const CYCLE_PATH = menuHref(MENU.INVENTARIS, MENU.SIKLUS_ASET);
+const CYCLE_PATH = menuHref(MENU.FIXED_ASSET, MENU.ASSET_TRANSACTION);
 
 export type CycleAction = "perawatan" | "pindah" | "pelepasan";
 
@@ -62,7 +65,7 @@ export const cycleListHref = (kind: CycleKind, code: string) =>
   `${CYCLE_PATH}?jenis=${CYCLE_TAB[kind]}&search=${encodeURIComponent(code)}`;
 
 export const approvalHref = (publicId: string) =>
-  detailHref(MENU.PERSETUJUAN, MENU.PERMINTAAN_PERSETUJUAN, publicId);
+  detailHref(MENU.APPROVAL, MENU.APPROVAL_REQUEST, publicId);
 
 export const CONDITION_LABEL: Record<AssetCondition, string> = {
   BAIK: "Baik",

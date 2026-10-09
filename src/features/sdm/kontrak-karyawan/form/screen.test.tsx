@@ -23,7 +23,7 @@ const replaced: string[] = [];
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
-  usePathname: () => "/sdm/kontrak-karyawan/baru",
+  usePathname: () => "/hr/employee-contract/baru",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -111,7 +111,7 @@ const onMockApi = (
 };
 
 const onRender = (actions: MenuAction[], code?: string) => {
-  granted.current = { [MENU.KONTRAK_KARYAWAN]: actions };
+  granted.current = { [MENU.EMPLOYEE_CONTRACT]: actions };
 
   return render(
     <QueryClientProvider

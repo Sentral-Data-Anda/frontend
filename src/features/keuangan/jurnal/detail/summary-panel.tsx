@@ -33,7 +33,7 @@ interface PropTypes {
 export const SummaryPanel = (props: PropTypes) => {
   const { entry } = props;
 
-  const periodAccess = useMenuAccess(MENU.PERIODE_FISKAL);
+  const periodAccess = useMenuAccess(MENU.FISCAL_PERIOD);
   const period = entry.fiscalPeriod;
 
   const relation = (

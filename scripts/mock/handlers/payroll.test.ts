@@ -122,9 +122,9 @@ describe("bacaan gaji", () => {
 
   test("GET / tanpa PAYROLL VIEW mengembalikan nol baris", async () => {
     for (const slug of [
-      MENU.KONTRAK_KARYAWAN,
-      MENU.KARYAWAN,
-      MENU.KOMPONEN_PAYROLL,
+      MENU.EMPLOYEE_CONTRACT,
+      MENU.EMPLOYEE,
+      MENU.PAYROLL_COMPONENT,
     ]) {
       const result = await onCall(
         "GET",
@@ -179,9 +179,9 @@ describe("bacaan gaji", () => {
 
   test("GET /:code tanpa PAYROLL VIEW mengembalikan nol baris", async () => {
     for (const slug of [
-      MENU.KONTRAK_KARYAWAN,
-      MENU.KARYAWAN,
-      MENU.KOMPONEN_PAYROLL,
+      MENU.EMPLOYEE_CONTRACT,
+      MENU.EMPLOYEE,
+      MENU.PAYROLL_COMPONENT,
     ]) {
       const result = await onCall(
         "GET",

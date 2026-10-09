@@ -196,7 +196,7 @@ describe("pesan server", () => {
 describe("tautan", () => {
   test("buku besar membawa kode akun", () => {
     expect(ledgerHref("1-100")).toBe(
-      "/keuangan/laporan-keuangan?tab=buku-besar&code=1-100",
+      "/report/financial-statement?tab=buku-besar&code=1-100",
     );
   });
 });

@@ -36,7 +36,7 @@ interface PropTypes {
 export const BalanceSheet = (props: PropTypes) => {
   const { date, month, onPickDate } = props;
 
-  const accountAccess = useMenuAccess(MENU.AKUN);
+  const accountAccess = useMenuAccess(MENU.CHART_OF_ACCOUNT);
   const neraca = useNeraca(date);
   const report = neraca.data;
   const query = {
@@ -83,7 +83,7 @@ export const BalanceSheet = (props: PropTypes) => {
           action={
             accountAccess.isCanCreate ? (
               <Link
-                href={createHref(MENU.KEUANGAN, MENU.AKUN)}
+                href={createHref(MENU.FINANCE, MENU.CHART_OF_ACCOUNT)}
                 className={cn(
                   buttonVariants({ variant: "outline" }),
                   "cursor-pointer",
@@ -93,7 +93,7 @@ export const BalanceSheet = (props: PropTypes) => {
               </Link>
             ) : accountAccess.isCanView ? (
               <Link
-                href={menuHref(MENU.KEUANGAN, MENU.AKUN)}
+                href={menuHref(MENU.FINANCE, MENU.CHART_OF_ACCOUNT)}
                 className={cn(
                   buttonVariants({ variant: "outline" }),
                   "cursor-pointer",

@@ -19,7 +19,7 @@ const actions: { current: MenuAction[] } = { current: [] };
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: () => {} }),
-  usePathname: () => "/sdm/komponen-payroll/karyawan/baru",
+  usePathname: () => "/hr/payroll-component/karyawan/baru",
   useSearchParams: () => new URLSearchParams(),
 }));
 

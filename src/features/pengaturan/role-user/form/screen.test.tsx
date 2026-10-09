@@ -42,7 +42,7 @@ const OPERATOR: Session = {
   ...ADMIN,
   roleUser: { name: "Operator Sistem", isAdmin: false },
   menu: [
-    node("ROLE_USER", ["VIEW", "CREATE", "UPDATE", "DELETE"]),
+    node("USER_ROLE", ["VIEW", "CREATE", "UPDATE", "DELETE"]),
     node("KELUARGA", ["VIEW"]),
   ],
 };
@@ -51,7 +51,7 @@ const session: { current: Session } = { current: ADMIN };
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
-  usePathname: () => "/pengaturan/role-user/baru",
+  usePathname: () => "/settings/user-role/baru",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -93,10 +93,10 @@ const OPTIONS: MenuOption[] = [
     ],
   },
   {
-    ...leaf("PENGATURAN", "Pengaturan", [], 2),
+    ...leaf("SETTINGS", "Pengaturan", [], 2),
     isGroup: true,
     children: [
-      leaf("ROLE_USER", "Role User", ["VIEW", "CREATE", "UPDATE", "DELETE"]),
+      leaf("USER_ROLE", "Role User", ["VIEW", "CREATE", "UPDATE", "DELETE"]),
     ],
   },
 ];
@@ -109,7 +109,7 @@ const DETAIL: RoleUserDetail = {
   userCount: 0,
   menuAccess: [
     { action: "VIEW", menu: { slug: "KELUARGA" } },
-    { action: "VIEW", menu: { slug: "ROLE_USER" } },
+    { action: "VIEW", menu: { slug: "USER_ROLE" } },
   ],
 };
 
@@ -318,7 +318,7 @@ describe("matriks", () => {
 
     session.current = {
       ...OPERATOR,
-      menu: [node("ROLE_USER", ["VIEW", "CREATE", "UPDATE", "DELETE"])],
+      menu: [node("USER_ROLE", ["VIEW", "CREATE", "UPDATE", "DELETE"])],
     };
     onMockApi();
 
@@ -404,7 +404,7 @@ describe("simpan", () => {
           name: "Operator Sistem",
           isAdmin: false,
           menuAccess: [
-            { slug: "ROLE_USER", actions: ["VIEW"] },
+            { slug: "USER_ROLE", actions: ["VIEW"] },
             { slug: "KELUARGA", actions: ["VIEW", "UPDATE"] },
           ],
         },

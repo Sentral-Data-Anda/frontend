@@ -16,7 +16,7 @@ export const ReceiptListScreen = () => {
     <ReceiptListContent />
   ) : (
     <div className="pb-6">
-      <PageHeader title={TITLE} backHref={domainHref(MENU.KEUANGAN)} />
+      <PageHeader title={TITLE} backHref={domainHref(MENU.FINANCE)} />
       <EmptyState
         title="Anda tidak memiliki akses ke Kas Masuk"
         description={NO_VIEW}

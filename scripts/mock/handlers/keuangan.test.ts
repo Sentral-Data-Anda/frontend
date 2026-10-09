@@ -76,7 +76,7 @@ describe("mock /periode-fiskal", () => {
     const result = await onCall(
       periodeFiskalMock,
       "/periode-fiskal",
-      (slug) => slug !== MENU.PERIODE_FISKAL,
+      (slug) => slug !== MENU.FISCAL_PERIOD,
     );
 
     expect(result?.status).toBe(403);

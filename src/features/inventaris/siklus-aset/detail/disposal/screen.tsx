@@ -36,7 +36,7 @@ export const DisposalDetailScreen = (props: PropTypes) => {
   const { code } = props;
 
   const toast = useToast();
-  const { isCanView, isCanDelete } = useMenuAccess(MENU.SIKLUS_ASET);
+  const { isCanView, isCanDelete } = useMenuAccess(MENU.ASSET_TRANSACTION);
   const backHref = kindReturnHref(useListReturn(CYCLE_LIST_PATH), "pelepasan");
   const detail = useDisposalDetail(isCanView ? code : undefined);
   const withdraw = useWithdrawDisposal(code);

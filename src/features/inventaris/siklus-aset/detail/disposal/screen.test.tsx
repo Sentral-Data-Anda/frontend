@@ -32,7 +32,7 @@ mock.module("next/navigation", () => ({
 mock.module("@/features/auth/use-menu-access", () => ({
   useMenuAccess: (slug: string) => {
     const granted =
-      slug === "PERMINTAAN_PERSETUJUAN" ? actions.approval : actions.current;
+      slug === "APPROVAL_REQUEST" ? actions.approval : actions.current;
 
     return {
       isCanView: granted.includes("VIEW"),
@@ -125,7 +125,7 @@ describe("halaman pelepasan", () => {
       name: /^PST-.* · Menunggu$/,
     });
     expect(link.getAttribute("href")).toMatch(
-      /^\/persetujuan\/permintaan-persetujuan\/0b5e7a00-/,
+      /^\/approval\/approval-request\/0b5e7a00-/,
     );
   });
 

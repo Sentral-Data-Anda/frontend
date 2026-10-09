@@ -12,7 +12,7 @@ import type {
   RemainingQuota,
 } from "./types";
 
-export const CUTI_LIST_PATH = menuHref(MENU.SDM, MENU.CUTI);
+export const CUTI_LIST_PATH = menuHref(MENU.HR, MENU.LEAVE);
 
 export const MAX_REASON = 250;
 

@@ -14,7 +14,7 @@ export const ProgramListScreen = () => {
 
   return (
     <div className="pb-6">
-      <PageHeader title="Program" backHref={domainHref(MENU.ANGGARAN)} />
+      <PageHeader title="Program" backHref={domainHref(MENU.BUDGETING)} />
 
       <EmptyState
         title="Anda tidak memiliki akses ke Program"

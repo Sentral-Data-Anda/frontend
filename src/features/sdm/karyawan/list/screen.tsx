@@ -8,13 +8,13 @@ import { useMenuAccess } from "@/features/auth";
 import { KaryawanListContent } from "./list-content";
 
 export const KaryawanListScreen = () => {
-  const { isCanView } = useMenuAccess(MENU.KARYAWAN);
+  const { isCanView } = useMenuAccess(MENU.EMPLOYEE);
 
   if (isCanView) return <KaryawanListContent />;
 
   return (
     <div className="pb-6">
-      <PageHeader title="Karyawan" backHref={domainHref(MENU.SDM)} />
+      <PageHeader title="Karyawan" backHref={domainHref(MENU.HR)} />
 
       <EmptyState
         title="Anda tidak memiliki akses ke Karyawan"

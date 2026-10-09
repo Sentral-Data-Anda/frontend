@@ -16,8 +16,8 @@ import {
 import type { SetelanItem, SetelanPayload, SetelanStep } from "./types";
 
 export const SETELAN_LIST_PATH = menuHref(
-  MENU.PERSETUJUAN,
-  MENU.SETELAN_PERSETUJUAN,
+  MENU.APPROVAL,
+  MENU.APPROVAL_WORKFLOW,
 );
 
 export const MAX_TIERS = 10;

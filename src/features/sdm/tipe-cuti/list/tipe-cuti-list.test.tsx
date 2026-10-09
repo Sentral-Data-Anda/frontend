@@ -20,7 +20,7 @@ const search: { current: string } = { current: "" };
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: () => {}, push: () => {} }),
-  usePathname: () => "/sdm/tipe-cuti",
+  usePathname: () => "/hr/leave-type",
   useSearchParams: () =>
     new URLSearchParams(search.current ? `search=${search.current}` : ""),
 }));
@@ -196,6 +196,6 @@ describe("daftar berisi", () => {
     onRenderList();
 
     const add = await screen.findByRole("link", { name: "Tambah tipe cuti" });
-    expect(add.getAttribute("href")).toBe("/sdm/tipe-cuti/baru");
+    expect(add.getAttribute("href")).toBe("/hr/leave-type/baru");
   });
 });

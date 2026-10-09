@@ -9,7 +9,7 @@ import { formatDate, formatDateShort, formatDateTime } from "@/lib/format";
 import type { ActionKind, ActivityLog, LogKind } from "./types";
 
 export const ACTIVITY_LOG_LIST_PATH = menuHref(
-  MENU.PENGATURAN,
+  MENU.SETTINGS,
   MENU.ACTIVITY_LOG,
 );
 

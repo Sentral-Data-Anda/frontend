@@ -18,8 +18,8 @@ import {
 import { MutasiListItemRow, mutasiTable } from "./list-item";
 
 export const MutasiListContent = () => {
-  const { isCanCreate } = useMenuAccess(MENU.MUTASI_STOK);
-  const { isCanView: isCanViewItem } = useMenuAccess(MENU.BARANG_PERSEDIAAN);
+  const { isCanCreate } = useMenuAccess(MENU.STOCK_MOVEMENT);
+  const { isCanView: isCanViewItem } = useMenuAccess(MENU.STOCK_ITEM);
   const listParams = useListParams({ filters: MUTASI_FILTERS });
   const mutasiList = useMutasiList(listParams);
   const isNarrowed = Boolean(listParams.search) || listParams.isFiltered;
@@ -34,7 +34,7 @@ export const MutasiListContent = () => {
             ? undefined
             : `${mutasiList.totalData} mutasi`
         }
-        backHref={domainHref(MENU.INVENTARIS)}
+        backHref={domainHref(MENU.INVENTORY)}
         action={
           isCanCreate ? (
             <PageHeaderAdd

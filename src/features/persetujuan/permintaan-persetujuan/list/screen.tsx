@@ -8,7 +8,7 @@ import { useMenuAccess } from "@/features/auth";
 import { PermintaanList } from "./permintaan-list";
 
 export const PermintaanListScreen = () => {
-  const { isCanView } = useMenuAccess(MENU.PERMINTAAN_PERSETUJUAN);
+  const { isCanView } = useMenuAccess(MENU.APPROVAL_REQUEST);
 
   if (isCanView) return <PermintaanList />;
 
@@ -16,7 +16,7 @@ export const PermintaanListScreen = () => {
     <div className="pb-6">
       <PageHeader
         title="Permintaan Persetujuan"
-        backHref={domainHref(MENU.PERSETUJUAN)}
+        backHref={domainHref(MENU.APPROVAL)}
       />
 
       <EmptyState

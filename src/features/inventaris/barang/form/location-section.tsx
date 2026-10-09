@@ -25,7 +25,7 @@ interface PropTypes {
 export const LocationSection = (props: PropTypes) => {
   const { form, isDisabled, saved, onLeaveTo } = props;
 
-  const { isCanCreate: isCanMove } = useMenuAccess(MENU.SIKLUS_ASET);
+  const { isCanCreate: isCanMove } = useMenuAccess(MENU.ASSET_TRANSACTION);
   const savedRoomId = form.formState.defaultValues?.roomId ?? "";
   const savedBapelId = form.formState.defaultValues?.bapelId ?? "";
   const rooms = useDdlOptions("room", "id", savedRoomId);

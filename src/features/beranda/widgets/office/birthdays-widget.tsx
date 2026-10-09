@@ -12,7 +12,7 @@ import { formatDayMonth, formatWeekdayShort } from "../../model";
 
 import { useWeekBirthdays } from "./data";
 
-const REPORT_JEMAAT_HREF = menuHref(MENU.KEJEMAATAN, MENU.REPORT_JEMAAT);
+const REPORT_JEMAAT_HREF = menuHref(MENU.REPORT, MENU.REPORT_JEMAAT);
 
 export const BirthdaysWidget = () => {
   const { days, query } = useWeekBirthdays();

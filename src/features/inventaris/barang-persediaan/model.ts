@@ -21,27 +21,21 @@ import type {
   StockStatus,
 } from "./types";
 
-export const STOCK_LIST_PATH = menuHref(
-  MENU.INVENTARIS,
-  MENU.BARANG_PERSEDIAAN,
-);
+export const STOCK_LIST_PATH = menuHref(MENU.INVENTORY, MENU.STOCK_ITEM);
 
-export const STOCK_CREATE_PATH = createHref(
-  MENU.INVENTARIS,
-  MENU.BARANG_PERSEDIAAN,
-);
+export const STOCK_CREATE_PATH = createHref(MENU.INVENTORY, MENU.STOCK_ITEM);
 
 export const stockDetailHref = (code: string) =>
-  detailHref(MENU.INVENTARIS, MENU.BARANG_PERSEDIAAN, code);
+  detailHref(MENU.INVENTORY, MENU.STOCK_ITEM, code);
 
 export const stockEditHref = (code: string) =>
-  editHref(MENU.INVENTARIS, MENU.BARANG_PERSEDIAAN, code);
+  editHref(MENU.INVENTORY, MENU.STOCK_ITEM, code);
 
 export const movementCreateHref = (code: string) =>
-  `${createHref(MENU.INVENTARIS, MENU.MUTASI_STOK)}?barang=${encodeURIComponent(code)}`;
+  `${createHref(MENU.INVENTORY, MENU.STOCK_MOVEMENT)}?barang=${encodeURIComponent(code)}`;
 
 export const movementListHref = (code: string) =>
-  `${menuHref(MENU.INVENTARIS, MENU.MUTASI_STOK)}?search=${encodeURIComponent(code)}`;
+  `${menuHref(MENU.INVENTORY, MENU.STOCK_MOVEMENT)}?search=${encodeURIComponent(code)}`;
 
 export const HISTORY_LIMIT = 10;
 

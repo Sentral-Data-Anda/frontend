@@ -73,7 +73,7 @@ export const ReportFormScreen = (props: PropTypes) => {
   const toast = useToast();
   const isEdit = Boolean(publicId);
   const { isCanView, isCanCreate, isCanUpdate } = useMenuAccess(
-    MENU.LAPORAN_BUDGET,
+    MENU.BUDGET_REALIZATION,
   );
   const isAllowed = isEdit ? isCanUpdate : isCanCreate;
   const listReturn = useListReturn(REPORT_LIST_PATH);

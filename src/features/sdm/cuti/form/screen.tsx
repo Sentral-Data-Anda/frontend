@@ -56,7 +56,7 @@ export const CutiFormScreen = (props: PropTypes) => {
   const router = useRouter();
   const toast = useToast();
   const isEdit = Boolean(code);
-  const { isCanView, isCanCreate, isCanUpdate } = useMenuAccess(MENU.CUTI);
+  const { isCanView, isCanCreate, isCanUpdate } = useMenuAccess(MENU.LEAVE);
   const listReturn = useListReturn(CUTI_LIST_PATH);
   const [rejectedField, setRejectedField] = useState<string | null>(null);
   const saveCuti = useSaveCuti(code);

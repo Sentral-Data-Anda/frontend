@@ -747,8 +747,8 @@ export const laporanBudgetMock: MockHandler = (ctx) => {
   if (!match) return null;
 
   const [, id, segment] = match;
-  const can = (action: MockAction) => ctx.can(MENU.LAPORAN_BUDGET, action);
-  const scope = komisiScopeOf(ctx.isAdmin, ctx.can(MENU.PAGU_ANGGARAN, "VIEW"));
+  const can = (action: MockAction) => ctx.can(MENU.BUDGET_REALIZATION, action);
+  const scope = komisiScopeOf(ctx.isAdmin, ctx.can(MENU.BUDGET, "VIEW"));
 
   if (ctx.method !== "GET" && process.env.MOCK_SAVE_ERROR) {
     return reportFailure(500, "Kesalahan server.");

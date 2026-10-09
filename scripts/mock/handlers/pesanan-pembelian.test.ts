@@ -81,7 +81,7 @@ const body = (extra: Record<string, unknown> = {}) => ({
 describe("baca", () => {
   test("detail boleh dengan VIEW Penerimaan saja; daftar tidak", async () => {
     const onlyReceiving = (slug: string, action: MockAction) =>
-      slug === MENU.PENERIMAAN_BARANG && action === "VIEW";
+      slug === MENU.GOODS_RECEIPT && action === "VIEW";
 
     expect(
       (await onCall(`/pesanan-pembelian/${orderAt(2).code}`, {}, onlyReceiving))

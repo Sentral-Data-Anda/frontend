@@ -47,7 +47,7 @@ export const PersembahanDetailScreen = (props: PropTypes) => {
 
   const toast = useToast();
   const { isCanView, isCanDelete } = useMenuAccess(MENU.PERSEMBAHAN);
-  const journalAccess = useMenuAccess(MENU.JURNAL);
+  const journalAccess = useMenuAccess(MENU.JOURNAL_ENTRY);
   const listReturn = useListReturn(PERSEMBAHAN_LIST_PATH);
   const detail = usePersembahanDetail(isCanView ? code : undefined);
   const voidPersembahan = useVoidPersembahan(code);
@@ -82,7 +82,7 @@ export const PersembahanDetailScreen = (props: PropTypes) => {
   if (!isCanView) {
     return (
       <div className="pb-8">
-        <PageHeader title={TITLE} backHref={domainHref(MENU.KEUANGAN)} />
+        <PageHeader title={TITLE} backHref={domainHref(MENU.FINANCE)} />
         <EmptyState
           title="Anda tidak memiliki akses ke Persembahan"
           description={NO_VIEW}

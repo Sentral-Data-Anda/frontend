@@ -20,7 +20,7 @@ const actions: { current: Record<string, MenuAction[]> } = { current: {} };
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: () => undefined }),
-  usePathname: () => "/keuangan/pembayaran",
+  usePathname: () => "/finance/payment",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -145,11 +145,11 @@ const onRender = (granted: Record<string, MenuAction[]>) => {
   );
 };
 
-const VIEWER = { PEMBAYARAN: ["VIEW"] as MenuAction[] };
+const VIEWER = { PAYMENT: ["VIEW"] as MenuAction[] };
 
 const POSTER = {
-  PEMBAYARAN: ["VIEW"] as MenuAction[],
-  JURNAL: ["VIEW", "CREATE"] as MenuAction[],
+  PAYMENT: ["VIEW"] as MenuAction[],
+  JOURNAL_ENTRY: ["VIEW", "CREATE"] as MenuAction[],
 };
 
 describe("gerbang izin", () => {
@@ -163,7 +163,7 @@ describe("gerbang izin", () => {
     expect(urls).toEqual([]);
   });
 
-  test("tanpa JURNAL CREATE: tombol posting tidak dirender", async () => {
+  test("tanpa JOURNAL_ENTRY CREATE: tombol posting tidak dirender", async () => {
     onMockApi();
     onRender(VIEWER);
 
@@ -178,7 +178,7 @@ describe("gerbang izin", () => {
     ).toBeNull();
   });
 
-  test("dengan JURNAL CREATE: kedua jalur posting terlihat", () => {
+  test("dengan JOURNAL_ENTRY CREATE: kedua jalur posting terlihat", () => {
     onMockApi();
     onRender(POSTER);
 
@@ -186,12 +186,12 @@ describe("gerbang izin", () => {
       screen
         .getByRole("link", { name: /Posting persembahan/ })
         .getAttribute("href"),
-    ).toBe("/keuangan/jurnal/posting-persembahan");
+    ).toBe("/finance/journal-entry/posting-persembahan");
     expect(
       screen
         .getByRole("link", { name: /Posting pendaftaran event/ })
         .getAttribute("href"),
-    ).toBe("/keuangan/pembayaran/posting-pembayaran");
+    ).toBe("/finance/payment/posting-pembayaran");
   });
 });
 
@@ -216,7 +216,7 @@ describe("daftar", () => {
       name: /Lihat pembayaran PAY-2026-0001/,
     });
 
-    expect(link.getAttribute("href")).toBe("/keuangan/pembayaran/pay-0001");
+    expect(link.getAttribute("href")).toBe("/finance/payment/pay-0001");
   });
 
   test("di buku benar untuk keempat kombinasi", async () => {

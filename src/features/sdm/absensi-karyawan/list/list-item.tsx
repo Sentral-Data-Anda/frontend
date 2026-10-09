@@ -17,7 +17,7 @@ import {
 } from "../types";
 
 const editHrefOf = (row: AbsensiKaryawan) =>
-  editHref(MENU.SDM, MENU.ABSENSI_KARYAWAN, row.publicId);
+  editHref(MENU.HR, MENU.ATTENDANCE, row.publicId);
 
 const saveFocus = (row: AbsensiKaryawan) =>
   saveListFocus(ABSENSI_LIST_PATH, row.publicId);

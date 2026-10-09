@@ -62,7 +62,7 @@ export const PermintaanList = () => {
             ? undefined
             : copy.subtitle(permintaanList.totalData)
         }
-        backHref={domainHref(MENU.PERSETUJUAN)}
+        backHref={domainHref(MENU.APPROVAL)}
       />
 
       <div className="px-gutter pb-3">

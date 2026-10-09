@@ -12,7 +12,7 @@ const granted: { current: Record<string, MenuAction[]> } = { current: {} };
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: () => {}, push: () => {} }),
-  usePathname: () => "/sdm/payroll/PYR-2026-0003/slip/SLP-2026-0001",
+  usePathname: () => "/hr/payroll/PYR-2026-0003/slip/SLP-2026-0001",
   useSearchParams: () => new URLSearchParams(),
 }));
 

@@ -30,7 +30,7 @@ import { ReportListItem, reportTable } from "./list-item";
 const TITLE = "Laporan Budget";
 
 export const ReportListContent = () => {
-  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.LAPORAN_BUDGET);
+  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.BUDGET_REALIZATION);
   const listParams = useListParams({ filters: LIST_FILTERS });
   const tab = listParams.filters.tab === PENDING_TAB ? PENDING_TAB : "";
   const reportList = useReportList(listParams);
@@ -52,7 +52,7 @@ export const ReportListContent = () => {
             ? undefined
             : `${reportList.totalData} laporan`
         }
-        backHref={domainHref(MENU.ANGGARAN)}
+        backHref={domainHref(MENU.REPORT)}
         action={
           isCanCreate ? (
             <PageHeaderAdd href={REPORT_CREATE_PATH} label="Tambah laporan" />

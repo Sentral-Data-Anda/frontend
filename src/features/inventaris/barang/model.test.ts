@@ -387,6 +387,6 @@ test("tampilan kecil", () => {
   expect(isWarrantyOver("2026-01-01T00:00:00.000Z", "2026-09-29")).toBe(true);
   expect(isWarrantyOver("2026-09-29T00:00:00.000Z", "2026-09-29")).toBe(false);
   expect(cycleListHref("mutasi", "AST_1-2")).toBe(
-    "/inventaris/siklus-aset?jenis=pindah&search=AST_1-2",
+    "/fixed-asset/asset-transaction?jenis=pindah&search=AST_1-2",
   );
 });

@@ -42,7 +42,7 @@ const actions: { current: MenuAction[] } = { current: [] };
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: () => undefined, push: () => undefined }),
-  usePathname: () => `/inventaris/stok-opname/${COMPLETED_BY_VIEWER}`,
+  usePathname: () => `/inventory/stok-opname/${COMPLETED_BY_VIEWER}`,
   useSearchParams: () => new URLSearchParams(),
 }));
 

@@ -8,13 +8,13 @@ import { useMenuAccess } from "@/features/auth";
 import { BarangListContent } from "./list-content";
 
 export const BarangListScreen = () => {
-  const { isCanView } = useMenuAccess(MENU.BARANG);
+  const { isCanView } = useMenuAccess(MENU.ASSET_MASTER);
 
   return isCanView ? (
     <BarangListContent />
   ) : (
     <div className="pb-6">
-      <PageHeader title="Barang" backHref={domainHref(MENU.INVENTARIS)} />
+      <PageHeader title="Barang" backHref={domainHref(MENU.FIXED_ASSET)} />
       <EmptyState
         title="Anda tidak memiliki akses ke Barang"
         description="Hubungi administrator bila Anda memang seharusnya memegang akses ini."

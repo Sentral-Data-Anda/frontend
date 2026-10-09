@@ -35,7 +35,7 @@ mock.module("next/navigation", () => ({
   useRouter: () => ({
     replace: (url: string) => void replaced.push(url),
   }),
-  usePathname: () => "/sdm/absensi-karyawan",
+  usePathname: () => "/hr/attendance",
   useSearchParams: () => new URLSearchParams(search.current),
 }));
 
@@ -46,7 +46,7 @@ mock.module("next/navigation", () => ({
  */
 mock.module("@/features/auth/use-menu-access", () => ({
   useMenuAccess: (slug: string) => {
-    const granted = slug === MENU.ABSENSI_KARYAWAN ? actions.current : [];
+    const granted = slug === MENU.ATTENDANCE ? actions.current : [];
 
     return {
       isCanView: granted.includes("VIEW"),
@@ -147,7 +147,7 @@ describe("gerbang VIEW", () => {
     globalThis.fetch = previous;
   });
 
-  // Mock di atas hanya memberi hibah ke ABSENSI_KARYAWAN, jadi layar yang
+  // Mock di atas hanya memberi hibah ke ATTENDANCE, jadi layar yang
   // menjaga slug lain merender keadaan tanpa akses di SETIAP test di bawah ini.
   test("dengan VIEW: daftar dirender, bukan keadaan tanpa akses", async () => {
     onRenderList(["VIEW"]);
@@ -177,7 +177,7 @@ describe("gerbang tambah dan ubah", () => {
       screen
         .getByRole("link", { name: "Tambah absensi karyawan" })
         .getAttribute("href"),
-    ).toBe("/sdm/absensi-karyawan/baru");
+    ).toBe("/hr/attendance/baru");
   });
 
   test("tanpa UPDATE: baris tidak bertaut ke form ubah", async () => {
@@ -196,7 +196,7 @@ describe("gerbang tambah dan ubah", () => {
     const links = screen.getAllByRole("link", { name: /^Ubah absensi/ });
     expect(links.length).toBeGreaterThan(0);
     expect(links[0].getAttribute("href")).toMatch(
-      /^\/sdm\/absensi-karyawan\/abs-\d{4}\/ubah$/,
+      /^\/hr\/attendance\/abs-\d{4}\/ubah$/,
     );
   });
 });

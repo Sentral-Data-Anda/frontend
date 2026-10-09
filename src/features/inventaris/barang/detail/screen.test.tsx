@@ -20,7 +20,7 @@ const grants: { current: Partial<Record<MenuSlug, MenuAction[]>> } = {
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: () => {} }),
-  usePathname: () => "/inventaris/barang/AST_0001_0001-0001",
+  usePathname: () => "/fixed-asset/asset-master/AST_0001_0001-0001",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -150,7 +150,7 @@ describe("halaman barang", () => {
   });
 
   test("nilai buku dengan akumulasi awal; garansi habis; tanpa foto", async () => {
-    onRender({ BARANG: ["VIEW"] });
+    onRender({ ASSET_MASTER: ["VIEW"] });
 
     const value = await screen.findByRole("region", {
       name: "Perolehan dan penyusutan",
@@ -169,7 +169,7 @@ describe("halaman barang", () => {
 
   test("donasi tanpa penyusutan: Nilai perolehan + pemberi, Tidak disusutkan", async () => {
     onRender(
-      { BARANG: ["VIEW"] },
+      { ASSET_MASTER: ["VIEW"] },
       {
         asset: {
           ...ASSET,
@@ -188,15 +188,18 @@ describe("halaman barang", () => {
     expect(screen.getByText("Tidak disusutkan")).toBeTruthy();
   });
 
-  test("riwayat hanya dengan SIKLUS_ASET VIEW; > 5 → Lihat semua", async () => {
-    const urls = onRender({ BARANG: ["VIEW"] });
+  test("riwayat hanya dengan ASSET_TRANSACTION VIEW; > 5 → Lihat semua", async () => {
+    const urls = onRender({ ASSET_MASTER: ["VIEW"] });
 
     await screen.findByText("Data barang");
     expect(screen.queryByText("Riwayat")).toBeNull();
     expect(urls.some((url) => url.includes("/siklus-aset/"))).toBe(false);
 
     cleanup();
-    const granted = onRender({ BARANG: ["VIEW"], SIKLUS_ASET: ["VIEW"] });
+    const granted = onRender({
+      ASSET_MASTER: ["VIEW"],
+      ASSET_TRANSACTION: ["VIEW"],
+    });
 
     expect(await screen.findByText("Servis 1")).toBeTruthy();
     expect(
@@ -211,13 +214,16 @@ describe("halaman barang", () => {
   });
 
   test("riwayat gagal: satu baris + Coba lagi per kelompok", async () => {
-    onRender({ BARANG: ["VIEW"], SIKLUS_ASET: ["VIEW"] }, { history: 500 });
+    onRender(
+      { ASSET_MASTER: ["VIEW"], ASSET_TRANSACTION: ["VIEW"] },
+      { history: 500 },
+    );
 
     expect(await screen.findAllByText("Riwayat gagal dimuat.")).toHaveLength(3);
   });
 
   test("aksi siklus per izin; Ubah dengan UPDATE", async () => {
-    onRender({ BARANG: ALL, SIKLUS_ASET: ["VIEW", "CREATE"] });
+    onRender({ ASSET_MASTER: ALL, ASSET_TRANSACTION: ["VIEW", "CREATE"] });
 
     expect(
       (
@@ -233,7 +239,7 @@ describe("halaman barang", () => {
     ).toBe(barangEditHref(CODE));
 
     cleanup();
-    onRender({ BARANG: ["VIEW"], SIKLUS_ASET: ["VIEW", "DELETE"] });
+    onRender({ ASSET_MASTER: ["VIEW"], ASSET_TRANSACTION: ["VIEW", "DELETE"] });
     expect(
       (
         await screen.findByRole("link", { name: "Ajukan pelepasan" })
@@ -245,9 +251,9 @@ describe("halaman barang", () => {
   test("menunggu pelepasan: baris status + tautan; tanpa aksi siklus dan Ubah", async () => {
     onRender(
       {
-        BARANG: ALL,
-        SIKLUS_ASET: ALL,
-        PERMINTAAN_PERSETUJUAN: ["VIEW"],
+        ASSET_MASTER: ALL,
+        ASSET_TRANSACTION: ALL,
+        APPROVAL_REQUEST: ["VIEW"],
       },
       {
         asset: {
@@ -287,7 +293,7 @@ describe("halaman barang", () => {
 
   test("dilepas: baris status tanggal + cara", async () => {
     onRender(
-      { BARANG: ["VIEW"] },
+      { ASSET_MASTER: ["VIEW"] },
       {
         asset: {
           ...ASSET,
@@ -309,7 +315,7 @@ describe("halaman barang", () => {
   });
 
   test("404: data barang tidak ditemukan", async () => {
-    onRender({ BARANG: ["VIEW"] }, { asset: null });
+    onRender({ ASSET_MASTER: ["VIEW"] }, { asset: null });
 
     expect(await screen.findByText("Data barang tidak ditemukan")).toBeTruthy();
   });

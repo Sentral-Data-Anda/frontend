@@ -36,7 +36,7 @@ describe("baris HP", () => {
     const link = screen.getByRole("link", { name: /Lihat stok opname Aula/ });
 
     expect(link.getAttribute("href")).toBe(
-      "/inventaris/stok-opname/OPN-2026-0005",
+      "/inventory/stok-opname/OPN-2026-0005",
     );
     expect(
       screen.getByText("29 September 2026 · 3 barang · 1 selisih"),
@@ -56,7 +56,7 @@ describe("baris HP", () => {
       screen
         .getByRole("link", { name: "Ubah stok opname OPN-2026-0005" })
         .getAttribute("href"),
-    ).toBe("/inventaris/stok-opname/OPN-2026-0005/ubah");
+    ).toBe("/inventory/stok-opname/OPN-2026-0005/ubah");
     cleanup();
 
     onRender(opname({ status: "COMPLETED" }), true);
@@ -84,6 +84,6 @@ test("tabel: kolom pensil hanya dengan UPDATE; baris ke halaman", () => {
       .map((column) => column.key),
   ).toEqual(["code"]);
   expect(opnameTable(false).getRowHref?.(opname())).toBe(
-    "/inventaris/stok-opname/OPN-2026-0005",
+    "/inventory/stok-opname/OPN-2026-0005",
   );
 });

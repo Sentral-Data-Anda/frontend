@@ -21,7 +21,7 @@ interface PropTypes {
 export const CutiActions = (props: PropTypes) => {
   const { cuti, today, isBusy, onPick } = props;
 
-  const { isCanUpdate, isCanDelete } = useMenuAccess(MENU.CUTI);
+  const { isCanUpdate, isCanDelete } = useMenuAccess(MENU.LEAVE);
   const isOpen = isEditable(cuti);
 
   return (
@@ -38,7 +38,7 @@ export const CutiActions = (props: PropTypes) => {
 
       {isCanUpdate && isOpen ? (
         <Link
-          href={editHref(MENU.SDM, MENU.CUTI, cuti.code)}
+          href={editHref(MENU.HR, MENU.LEAVE, cuti.code)}
           className={cn(
             buttonVariants({ variant: "outline" }),
             "cursor-pointer",

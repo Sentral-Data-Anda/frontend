@@ -11,7 +11,7 @@ import { SATUAN_LIST_PATH } from "../model";
 import type { Satuan } from "../types";
 
 const editHrefOf = (satuan: Satuan) =>
-  editHref(MENU.INVENTARIS, MENU.SATUAN, satuan.code);
+  editHref(MENU.INVENTORY, MENU.SATUAN, satuan.code);
 
 const saveFocus = (satuan: Satuan) =>
   saveListFocus(SATUAN_LIST_PATH, satuan.code);

@@ -24,7 +24,7 @@ import {
 import type { ApprovalListItem, ApprovalView } from "../types";
 
 const detailHrefOf = (item: ApprovalListItem) =>
-  detailHref(MENU.PERSETUJUAN, MENU.PERMINTAAN_PERSETUJUAN, item.publicId);
+  detailHref(MENU.APPROVAL, MENU.APPROVAL_REQUEST, item.publicId);
 
 const saveFocus = (item: ApprovalListItem) =>
   saveListFocus(PERMINTAAN_LIST_PATH, item.publicId);

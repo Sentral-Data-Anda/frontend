@@ -40,9 +40,9 @@ export const StatusActions = (props: PropTypes) => {
   const { request, pendingAction, onPick } = props;
 
   const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
-    MENU.PERMINTAAN_PEMBELIAN,
+    MENU.PURCHASE_REQUEST,
   );
-  const { isCanCreate: isCanOrder } = useMenuAccess(MENU.PESANAN_PEMBELIAN);
+  const { isCanCreate: isCanOrder } = useMenuAccess(MENU.PURCHASE_ORDER);
   const { status } = request;
   const isBusy = pendingAction !== null;
   const isDraft = status === "DRAFT";

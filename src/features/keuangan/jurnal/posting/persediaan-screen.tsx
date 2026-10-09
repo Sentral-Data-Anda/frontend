@@ -55,10 +55,10 @@ const postedTextOf = (result: PostingResult) =>
 
 export const PostingPersediaanScreen = () => {
   const toast = useToast();
-  const { isCanView, isCanCreate } = useMenuAccess(MENU.JURNAL);
+  const { isCanView, isCanCreate } = useMenuAccess(MENU.JOURNAL_ENTRY);
   // Izin barang persediaan dihitung di sini, bukan di dalam RefusedList: hook
   // tidak bisa dipanggil bersyarat, dan yang ditolak di sini dijaga menu lain.
-  const barangAccess = useMenuAccess(MENU.BARANG_PERSEDIAAN);
+  const barangAccess = useMenuAccess(MENU.STOCK_ITEM);
   const [bulan, setBulan] = useState(() => todayJakarta().slice(0, 7));
   const [outcome, setOutcome] = useState<Outcome | null>(null);
   const posting = usePostPersediaan();

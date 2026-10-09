@@ -20,7 +20,7 @@ const query: { current: string } = { current: "" };
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: () => {} }),
-  usePathname: () => "/keuangan/setoran",
+  usePathname: () => "/finance/bank-deposit",
   useSearchParams: () => new URLSearchParams(query.current),
 }));
 
@@ -156,21 +156,21 @@ describe("tombol tambah", () => {
           name: "Setor ke bank",
         })) as HTMLAnchorElement
       ).getAttribute("href"),
-    ).toBe("/keuangan/setoran/baru?dari=kas");
+    ).toBe("/finance/bank-deposit/baru?dari=kas");
     expect(
       (
         screen.getByRole("menuitem", {
           name: "Isi kas kecil",
         }) as HTMLAnchorElement
       ).getAttribute("href"),
-    ).toBe("/keuangan/setoran/baru?ke=kas-kecil");
+    ).toBe("/finance/bank-deposit/baru?ke=kas-kecil");
     expect(
       (
         screen.getByRole("menuitem", {
           name: "Pemindahan lain",
         }) as HTMLAnchorElement
       ).getAttribute("href"),
-    ).toBe("/keuangan/setoran/baru");
+    ).toBe("/finance/bank-deposit/baru");
   });
 
   test("tanpa CREATE tombolnya tidak ada", async () => {

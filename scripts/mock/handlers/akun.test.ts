@@ -101,7 +101,7 @@ describe("mock /account", () => {
 
   test("izin per aksi", async () => {
     const can = (slug: string, action: MockAction) =>
-      slug === MENU.AKUN && action === "VIEW";
+      slug === MENU.CHART_OF_ACCOUNT && action === "VIEW";
 
     expect((await onCall("GET", "/account", undefined, can))?.status).toBe(200);
     expect((await onCall("POST", "/account", VALID, can))?.status).toBe(403);

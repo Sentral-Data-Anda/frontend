@@ -35,36 +35,36 @@ export const STALE_RATE_DAYS = 7;
 
 export { DETAIL_LINK as TEXT_LINK } from "@/components/common/display";
 
-export const ORDER_LIST_PATH = menuHref(MENU.PENGADAAN, MENU.PESANAN_PEMBELIAN);
+export const ORDER_LIST_PATH = menuHref(MENU.PROCUREMENT, MENU.PURCHASE_ORDER);
 
 export const ORDER_CREATE_PATH = createHref(
-  MENU.PENGADAAN,
-  MENU.PESANAN_PEMBELIAN,
+  MENU.PROCUREMENT,
+  MENU.PURCHASE_ORDER,
 );
 
 export const orderHref = (code: string) =>
-  detailHref(MENU.PENGADAAN, MENU.PESANAN_PEMBELIAN, code);
+  detailHref(MENU.PROCUREMENT, MENU.PURCHASE_ORDER, code);
 
 export const orderEditHref = (code: string) =>
-  editHref(MENU.PENGADAAN, MENU.PESANAN_PEMBELIAN, code);
+  editHref(MENU.PROCUREMENT, MENU.PURCHASE_ORDER, code);
 
 export const supplierHref = (code: string) =>
-  detailHref(MENU.PENGADAAN, MENU.SUPPLIER, code);
+  detailHref(MENU.PROCUREMENT, MENU.SUPPLIER, code);
 
 export const requestHref = (code: string) =>
-  detailHref(MENU.PENGADAAN, MENU.PERMINTAAN_PEMBELIAN, code);
+  detailHref(MENU.PROCUREMENT, MENU.PURCHASE_REQUEST, code);
 
 export const receiptHref = (code: string) =>
-  detailHref(MENU.PENGADAAN, MENU.PENERIMAAN_BARANG, code);
+  detailHref(MENU.PROCUREMENT, MENU.GOODS_RECEIPT, code);
 
 export const receiptCreateHref = (code: string) =>
-  `${createHref(MENU.PENGADAAN, MENU.PENERIMAAN_BARANG)}?pesanan=${encodeURIComponent(code)}`;
+  `${createHref(MENU.PROCUREMENT, MENU.GOODS_RECEIPT)}?pesanan=${encodeURIComponent(code)}`;
 
 export const receiptListHref = (code: string) =>
-  `${menuHref(MENU.PENGADAAN, MENU.PENERIMAAN_BARANG)}?search=${encodeURIComponent(code)}`;
+  `${menuHref(MENU.PROCUREMENT, MENU.GOODS_RECEIPT)}?search=${encodeURIComponent(code)}`;
 
 export const currencyHref = (code: string) =>
-  detailHref(MENU.KEUANGAN, MENU.MATA_UANG, code);
+  detailHref(MENU.FINANCE, MENU.CURRENCY, code);
 
 export const STATUS_TABS = [
   { value: "", label: "Semua" },

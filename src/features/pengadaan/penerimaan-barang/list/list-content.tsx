@@ -17,7 +17,7 @@ const LIST_FILTERS = {
 } satisfies ListFilterSchema;
 
 export const ReceiptListContent = () => {
-  const { isCanCreate } = useMenuAccess(MENU.PENERIMAAN_BARANG);
+  const { isCanCreate } = useMenuAccess(MENU.GOODS_RECEIPT);
   const listParams = useListParams({ filters: LIST_FILTERS });
   const receiptList = useReceiptList(listParams);
   const isNarrowed = Boolean(listParams.search) || listParams.isFiltered;
@@ -31,7 +31,7 @@ export const ReceiptListContent = () => {
             ? undefined
             : `${receiptList.totalData} penerimaan`
         }
-        backHref={domainHref(MENU.PENGADAAN)}
+        backHref={domainHref(MENU.PROCUREMENT)}
         action={
           isCanCreate ? (
             <PageHeaderAdd

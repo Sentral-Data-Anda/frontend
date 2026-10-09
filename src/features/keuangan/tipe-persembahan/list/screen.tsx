@@ -16,7 +16,7 @@ export const OfferingTypeListScreen = () => {
     <div className="pb-6">
       <PageHeader
         title="Tipe Persembahan"
-        backHref={domainHref(MENU.KEUANGAN)}
+        backHref={domainHref(MENU.FINANCE)}
       />
 
       <EmptyState

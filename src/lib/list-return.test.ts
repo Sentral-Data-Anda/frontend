@@ -35,7 +35,7 @@ describe("readListReturn", () => {
   });
 
   test("menolak URL daftar lain", () => {
-    window.sessionStorage.setItem(`list-return:${LIST}`, "/keuangan/kas-masuk");
+    window.sessionStorage.setItem(`list-return:${LIST}`, "/finance/kas-masuk");
 
     expect(readListReturn(LIST)).toBe(LIST);
   });

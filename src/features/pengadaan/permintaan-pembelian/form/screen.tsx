@@ -61,7 +61,7 @@ export const RequestFormScreen = (props: PropTypes) => {
   const isEdit = Boolean(code);
   const copyCode = isEdit ? "" : (searchParams.get("salin") ?? "");
   const { isCanView, isCanCreate, isCanUpdate } = useMenuAccess(
-    MENU.PERMINTAAN_PEMBELIAN,
+    MENU.PURCHASE_REQUEST,
   );
   const isAllowed = isEdit ? isCanUpdate : isCanCreate;
   const listReturn = useListReturn(REQUEST_LIST_PATH);

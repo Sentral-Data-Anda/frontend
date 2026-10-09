@@ -40,7 +40,7 @@ interface PropTypes {
 export const CeilingPanel = (props: PropTypes) => {
   const { ceiling, bapelId, yearLabel, proposedAmount } = props;
 
-  const { isCanView } = useMenuAccess(MENU.PAGU_ANGGARAN);
+  const { isCanView } = useMenuAccess(MENU.BUDGET);
   const isMissing = isCeilingMissing(ceiling);
   const isExceeded = isCeilingExceeded(ceiling);
 

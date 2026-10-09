@@ -20,14 +20,14 @@ const replaced: string[] = [];
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
-  usePathname: () => "/sdm/karyawan/baru",
+  usePathname: () => "/hr/employee/baru",
   useSearchParams: () => new URLSearchParams(),
 }));
 
 /** Sadar-slug — alasannya di `list/screen.test.tsx`. */
 mock.module("@/features/auth/use-menu-access", () => ({
   useMenuAccess: (slug: string) => {
-    const granted = slug === MENU.KARYAWAN ? actions.current : [];
+    const granted = slug === MENU.EMPLOYEE ? actions.current : [];
 
     return {
       isCanView: granted.includes("VIEW"),

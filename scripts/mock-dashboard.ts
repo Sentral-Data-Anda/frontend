@@ -51,7 +51,7 @@ const REGISTRATION_ACTIONS: Action[] = KEJEMAATAN_ACTIONS.filter(
   (action) => action !== "UPDATE",
 );
 
-// be-sada MUTASI_STOK tanpa UPDATE dan DELETE; MOCK_NO_CREATE mencabut.
+// be-sada STOCK_MOVEMENT tanpa UPDATE dan DELETE; MOCK_NO_CREATE mencabut.
 const LEDGER_ACTIONS: Action[] = KEJEMAATAN_ACTIONS.filter(
   (action) => action === "VIEW" || action === "CREATE",
 );
@@ -61,17 +61,17 @@ const PERSEMBAHAN_ACTIONS: Action[] = KEJEMAATAN_ACTIONS.filter(
   (action) => action !== "UPDATE",
 );
 
-// be-sada PERIODE_FISKAL tanpa DELETE; tutup dan buka kembali sama-sama UPDATE.
+// be-sada FISCAL_PERIOD tanpa DELETE; tutup dan buka kembali sama-sama UPDATE.
 const PERIOD_ACTIONS: Action[] = KEJEMAATAN_ACTIONS.filter(
   (action) => action !== "DELETE",
 );
 
-// be-sada SETORAN tanpa UPDATE: setoran final, koreksi lewat batal.
+// be-sada BANK_DEPOSIT tanpa UPDATE: setoran final, koreksi lewat batal.
 const SETORAN_ACTIONS: Action[] = KEJEMAATAN_ACTIONS.filter(
   (action) => action !== "UPDATE",
 );
 
-// be-sada SETELAN_AKUNTANSI hanya VIEW + UPDATE: kunci lahir dari sync.
+// be-sada ACCOUNTING_SETTING hanya VIEW + UPDATE: kunci lahir dari sync.
 const SETTING_ACTIONS: Action[] = KEJEMAATAN_ACTIONS.filter(
   (action) => action === "VIEW" || action === "UPDATE",
 );
@@ -121,39 +121,39 @@ export const PERSONAS: Record<string, Persona> = {
       [MENU.PEMINJAMAN_RUANG]: KEJEMAATAN_ACTIONS,
       [MENU.RUANG]: KEJEMAATAN_ACTIONS,
       [MENU.PROGRAM]: LEDGER_ACTIONS,
-      [MENU.LAPORAN_BUDGET]: V,
-      // Biaya yang diterima user bersama scoping: tanpa PAGU_ANGGARAN VIEW,
+      [MENU.BUDGET_REALIZATION]: V,
+      // Biaya yang diterima user bersama scoping: tanpa BUDGET VIEW,
       // sekretariat tidak bisa menemukan usulan yang ia ketikkan untuk komisi
       // yang belum memakai aplikasi. Hibah itu sekaligus memperlihatkan
       // alokasi setiap komisi kepadanya.
-      [MENU.PAGU_ANGGARAN]: V,
-      [MENU.BARANG]: KEJEMAATAN_ACTIONS,
-      [MENU.TIPE_BARANG]: KEJEMAATAN_ACTIONS,
+      [MENU.BUDGET]: V,
+      [MENU.ASSET_MASTER]: KEJEMAATAN_ACTIONS,
+      [MENU.ITEM_CATEGORY]: KEJEMAATAN_ACTIONS,
       [MENU.SATUAN]: KEJEMAATAN_ACTIONS,
-      [MENU.BARANG_PERSEDIAAN]: KEJEMAATAN_ACTIONS,
-      [MENU.MUTASI_STOK]: LEDGER_ACTIONS,
+      [MENU.STOCK_ITEM]: KEJEMAATAN_ACTIONS,
+      [MENU.STOCK_MOVEMENT]: LEDGER_ACTIONS,
       [MENU.STOK_OPNAME]: KEJEMAATAN_ACTIONS,
-      [MENU.SIKLUS_ASET]: KEJEMAATAN_ACTIONS,
+      [MENU.ASSET_TRANSACTION]: KEJEMAATAN_ACTIONS,
       [MENU.SUPPLIER]: KEJEMAATAN_ACTIONS,
-      [MENU.PERMINTAAN_PEMBELIAN]: KEJEMAATAN_ACTIONS,
-      [MENU.PESANAN_PEMBELIAN]: KEJEMAATAN_ACTIONS,
-      [MENU.PENERIMAAN_BARANG]: LEDGER_ACTIONS,
-      [MENU.MATA_UANG]: V,
+      [MENU.PURCHASE_REQUEST]: KEJEMAATAN_ACTIONS,
+      [MENU.PURCHASE_ORDER]: KEJEMAATAN_ACTIONS,
+      [MENU.GOODS_RECEIPT]: LEDGER_ACTIONS,
+      [MENU.CURRENCY]: V,
       [MENU.PERSEMBAHAN]: LEDGER_ACTIONS,
       [MENU.KAS_MASUK]: LEDGER_ACTIONS,
       // SDM tanpa gaji: sekretariat mengurus orangnya, bukan bayarannya.
-      // KONTRAK_KARYAWAN, KOMPONEN_PAYROLL, dan PAYROLL sengaja TIDAK di sini
+      // EMPLOYEE_CONTRACT, PAYROLL_COMPONENT, dan PAYROLL sengaja TIDAK di sini
       // — ketiganya mengembalikan nominal per orang, dan U-C membatasinya ke
       // bendahara. Pasangan sekretariat/bendahara itulah yang membuat gerbang
       // VIEW tujuh layar SDM bisa dinilai dua arah lewat render.
-      [MENU.KARYAWAN]: KEJEMAATAN_ACTIONS,
-      [MENU.TIPE_CUTI]: KEJEMAATAN_ACTIONS,
-      [MENU.ABSENSI_KARYAWAN]: KEJEMAATAN_ACTIONS,
-      [MENU.CUTI]: KEJEMAATAN_ACTIONS,
+      [MENU.EMPLOYEE]: KEJEMAATAN_ACTIONS,
+      [MENU.LEAVE_TYPE]: KEJEMAATAN_ACTIONS,
+      [MENU.ATTENDANCE]: KEJEMAATAN_ACTIONS,
+      [MENU.LEAVE]: KEJEMAATAN_ACTIONS,
     },
   },
   // §3b, plus IBADAH/EVENT VIEW supaya Agenda dan "· 2 kebaktian" tampil, dan
-  // PERMINTAAN_PERSETUJUAN sebagai pengaju sekaligus penanda tangan tahap Bendahara.
+  // APPROVAL_REQUEST sebagai pengaju sekaligus penanda tangan tahap Bendahara.
   bendahara: {
     roleName: "Bendahara",
     isAdmin: false,
@@ -162,39 +162,39 @@ export const PERSONAS: Record<string, Persona> = {
       [MENU.PERSEMBAHAN]: PERSEMBAHAN_ACTIONS,
       [MENU.KAS_MASUK]: KEJEMAATAN_ACTIONS,
       [MENU.KAS_KELUAR]: KEJEMAATAN_ACTIONS,
-      [MENU.JURNAL]: KEJEMAATAN_ACTIONS,
-      [MENU.AKUN]: KEJEMAATAN_ACTIONS,
-      [MENU.PERIODE_FISKAL]: PERIOD_ACTIONS,
+      [MENU.JOURNAL_ENTRY]: KEJEMAATAN_ACTIONS,
+      [MENU.CHART_OF_ACCOUNT]: KEJEMAATAN_ACTIONS,
+      [MENU.FISCAL_PERIOD]: PERIOD_ACTIONS,
       [MENU.TIPE_PERSEMBAHAN]: KEJEMAATAN_ACTIONS,
-      [MENU.SETELAN_AKUNTANSI]: SETTING_ACTIONS,
-      [MENU.SETORAN]: SETORAN_ACTIONS,
-      [MENU.LAPORAN_KEUANGAN]: V,
-      [MENU.FAKTUR_SUPPLIER]: V,
-      [MENU.PEMBAYARAN]: V,
+      [MENU.ACCOUNTING_SETTING]: SETTING_ACTIONS,
+      [MENU.BANK_DEPOSIT]: SETORAN_ACTIONS,
+      [MENU.FINANCIAL_STATEMENT]: V,
+      [MENU.SUPPLIER_INVOICE]: V,
+      [MENU.PAYMENT]: V,
       // Tiga menu yang mengembalikan nominal per orang (§2.4). Hanya di sini.
       [MENU.PAYROLL]: KEJEMAATAN_ACTIONS,
-      [MENU.KONTRAK_KARYAWAN]: KEJEMAATAN_ACTIONS,
-      [MENU.KOMPONEN_PAYROLL]: KEJEMAATAN_ACTIONS,
+      [MENU.EMPLOYEE_CONTRACT]: KEJEMAATAN_ACTIONS,
+      [MENU.PAYROLL_COMPONENT]: KEJEMAATAN_ACTIONS,
       // Picker karyawan di form Kontrak, baca saja. Sepasang dengan grant
       // penuh sekretariat ini jadi satu-satunya tempat di mock yang menilai
       // "punya VIEW, tidak punya CREATE/UPDATE" dengan persona sungguhan.
-      [MENU.KARYAWAN]: V,
+      [MENU.EMPLOYEE]: V,
       [MENU.IBADAH]: V,
       [MENU.EVENT]: V,
-      [MENU.PERMINTAAN_PERSETUJUAN]: APPROVAL_ACTIONS,
-      [MENU.PENYUSUTAN]: KEJEMAATAN_ACTIONS,
-      [MENU.BARANG]: V,
+      [MENU.APPROVAL_REQUEST]: APPROVAL_ACTIONS,
+      [MENU.DEPRECIATION]: KEJEMAATAN_ACTIONS,
+      [MENU.ASSET_MASTER]: V,
       [MENU.SUPPLIER]: V,
-      [MENU.PERMINTAAN_PEMBELIAN]: V,
-      [MENU.PESANAN_PEMBELIAN]: V,
-      [MENU.MATA_UANG]: KEJEMAATAN_ACTIONS,
-      [MENU.PAGU_ANGGARAN]: KEJEMAATAN_ACTIONS,
+      [MENU.PURCHASE_REQUEST]: V,
+      [MENU.PURCHASE_ORDER]: V,
+      [MENU.CURRENCY]: KEJEMAATAN_ACTIONS,
+      [MENU.BUDGET]: KEJEMAATAN_ACTIONS,
       [MENU.PROGRAM]: V,
-      [MENU.LAPORAN_BUDGET]: V,
+      [MENU.BUDGET_REALIZATION]: V,
     },
   },
   // Pengurus komisi: mengusulkan program dan mempertanggungjawabkan
-  // pemakaiannya. Tanpa PAGU_ANGGARAN (keputusan user: komisi tidak melihat
+  // pemakaiannya. Tanpa BUDGET (keputusan user: komisi tidak melihat
   // alokasi komisi lain), dan Kas Keluar CREATE saja.
   komisi: {
     roleName: "Pengurus Komisi",
@@ -202,14 +202,14 @@ export const PERSONAS: Record<string, Persona> = {
     jemaatName: "Daniel Panggabean",
     grants: {
       [MENU.PROGRAM]: BUDGET_DOC_ACTIONS,
-      [MENU.LAPORAN_BUDGET]: BUDGET_DOC_ACTIONS,
+      [MENU.BUDGET_REALIZATION]: BUDGET_DOC_ACTIONS,
       [MENU.KAS_KELUAR]: KOMISI_EXPENSE_ACTIONS,
-      [MENU.PERMINTAAN_PERSETUJUAN]: APPROVAL_ACTIONS,
+      [MENU.APPROVAL_REQUEST]: APPROVAL_ACTIONS,
       [MENU.IBADAH]: V,
       [MENU.EVENT]: V,
     },
   },
-  // §3c, dengan LAPORAN_KEUANGAN (keputusan admin; tanpanya grid merapat).
+  // §3c, dengan FINANCIAL_STATEMENT (keputusan admin; tanpanya grid merapat).
   // Bendahara II (BA §7): mengajukan Kas Keluar supaya bendahara bisa
   // menandatanganinya — pengaju tidak pernah menandatangani permintaannya
   // sendiri. Tanpa Laporan Keuangan, jadi Beranda-nya tetap strip umum.
@@ -221,8 +221,8 @@ export const PERSONAS: Record<string, Persona> = {
       [MENU.KAS_KELUAR]: LEDGER_ACTIONS,
       [MENU.KAS_MASUK]: LEDGER_ACTIONS,
       [MENU.PERSEMBAHAN]: V,
-      [MENU.AKUN]: V,
-      [MENU.PERMINTAAN_PERSETUJUAN]: V,
+      [MENU.CHART_OF_ACCOUNT]: V,
+      [MENU.APPROVAL_REQUEST]: V,
       [MENU.DAFTAR_JEMAAT]: V,
     },
   },
@@ -231,34 +231,34 @@ export const PERSONAS: Record<string, Persona> = {
     isAdmin: false,
     jemaatName: "Pdt. Yohanes Simatupang",
     grants: {
-      [MENU.PERMINTAAN_PERSETUJUAN]: APPROVAL_ACTIONS,
-      [MENU.LAPORAN_KEUANGAN]: process.env.MOCK_MAJELIS_NO_FINANCE
+      [MENU.APPROVAL_REQUEST]: APPROVAL_ACTIONS,
+      [MENU.FINANCIAL_STATEMENT]: process.env.MOCK_MAJELIS_NO_FINANCE
         ? undefined
         : V,
-      [MENU.PAGU_ANGGARAN]: KEJEMAATAN_ACTIONS,
+      [MENU.BUDGET]: KEJEMAATAN_ACTIONS,
       [MENU.PROGRAM]: V,
-      [MENU.LAPORAN_BUDGET]: V,
+      [MENU.BUDGET_REALIZATION]: V,
       [MENU.IBADAH]: V,
       [MENU.EVENT]: V,
       [MENU.REPORT_JEMAAT]: V,
-      [MENU.PERMINTAAN_PEMBELIAN]: V,
+      [MENU.PURCHASE_REQUEST]: V,
     },
   },
   // Non-admin pemegang menu Pengaturan: be-sada menolak tambah akun dan
   // mengatur role (hanya admin), dan membatasi izin yang boleh diberikan ke
-  // izin yang dipegang sendiri. MOCK_NO_* mencabut aksi USER/ROLE_USER.
+  // izin yang dipegang sendiri. MOCK_NO_* mencabut aksi USER/USER_ROLE.
   operator: {
     roleName: "Operator Sistem",
     isAdmin: false,
     jemaatName: "Yosua Sembiring",
     grants: {
       [MENU.USER]: [...KEJEMAATAN_ACTIONS, "RESET"],
-      [MENU.ROLE_USER]: KEJEMAATAN_ACTIONS,
+      [MENU.USER_ROLE]: KEJEMAATAN_ACTIONS,
       [MENU.ACTIVITY_LOG]: V,
-      [MENU.HARI_LIBUR]: KEJEMAATAN_ACTIONS,
+      [MENU.HOLIDAY]: KEJEMAATAN_ACTIONS,
       [MENU.DAFTAR_JEMAAT]: V,
       [MENU.KELUARGA]: V,
-      [MENU.SETELAN_PERSETUJUAN]: KEJEMAATAN_ACTIONS,
+      [MENU.APPROVAL_WORKFLOW]: KEJEMAATAN_ACTIONS,
     },
   },
   // Pelayanan tanpa master: membuktikan ddl yang dijaga menu pemakai (B1, B2).
@@ -334,16 +334,16 @@ export const actionsOf = (persona: Persona, slug: string): Action[] =>
 
 /** Guard be-sada: `Authorization(MENU.X, "VIEW")`; admin melewatinya. */
 export const GUARD: Record<string, MenuSlug> = {
-  "/persetujuan": MENU.PERMINTAAN_PERSETUJUAN,
-  "/laporan-keuangan/neraca": MENU.LAPORAN_KEUANGAN,
-  "/laporan-keuangan/surplus-defisit": MENU.LAPORAN_KEUANGAN,
+  "/persetujuan": MENU.APPROVAL_REQUEST,
+  "/laporan-keuangan/neraca": MENU.FINANCIAL_STATEMENT,
+  "/laporan-keuangan/surplus-defisit": MENU.FINANCIAL_STATEMENT,
   "/kas-keluar": MENU.KAS_KELUAR,
-  "/pagu-anggaran": MENU.PAGU_ANGGARAN,
-  "/setelan-anggaran": MENU.PAGU_ANGGARAN,
+  "/pagu-anggaran": MENU.BUDGET,
+  "/setelan-anggaran": MENU.BUDGET,
   "/program": MENU.PROGRAM,
-  "/laporan-budget": MENU.LAPORAN_BUDGET,
-  "/faktur-supplier": MENU.FAKTUR_SUPPLIER,
-  "/pembayaran": MENU.PEMBAYARAN,
+  "/laporan-budget": MENU.BUDGET_REALIZATION,
+  "/faktur-supplier": MENU.SUPPLIER_INVOICE,
+  "/pembayaran": MENU.PAYMENT,
   "/payroll": MENU.PAYROLL,
   "/jemaat": MENU.DAFTAR_JEMAAT,
 };

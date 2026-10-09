@@ -34,8 +34,8 @@ export const ActionPanel = (props: PropTypes) => {
           <div className="flex flex-wrap justify-end gap-2">
             <Link
               href={rejectHref(
-                MENU.PERSETUJUAN,
-                MENU.PERMINTAAN_PERSETUJUAN,
+                MENU.APPROVAL,
+                MENU.APPROVAL_REQUEST,
                 request.publicId,
               )}
               aria-disabled={isBusy || undefined}

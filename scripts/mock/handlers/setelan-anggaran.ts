@@ -16,7 +16,7 @@ import {
 } from "../anggaran-store";
 import { denied, json, readBody, type MockHandler } from "../kit";
 
-const READ_MENUS = [MENU.PAGU_ANGGARAN, MENU.PROGRAM, MENU.LAPORAN_BUDGET];
+const READ_MENUS = [MENU.BUDGET, MENU.PROGRAM, MENU.BUDGET_REALIZATION];
 
 const failure = (
   status: number,
@@ -106,9 +106,9 @@ export const setelanAnggaranMock: MockHandler = async (ctx) => {
   if (ctx.path !== "/setelan-anggaran") return null;
 
   // Guard BACA any-of: `budgetYears` adalah satu-satunya sumber pilihan tahun,
-  // dan komisi sengaja tidak memegang PAGU_ANGGARAN. Dengan guard lama, komisi
+  // dan komisi sengaja tidak memegang BUDGET. Dengan guard lama, komisi
   // tidak bisa membuat program maupun laporan sama sekali. Tulis tetap
-  // PAGU_ANGGARAN UPDATE: membaca label tahun bukan melihat alokasi siapa pun.
+  // BUDGET UPDATE: membaca label tahun bukan melihat alokasi siapa pun.
   if (ctx.method === "GET") {
     const isCanRead = READ_MENUS.some((slug) => ctx.can(slug, "VIEW"));
 
@@ -116,9 +116,7 @@ export const setelanAnggaranMock: MockHandler = async (ctx) => {
   }
 
   if (ctx.method === "PUT") {
-    return ctx.can(MENU.PAGU_ANGGARAN, "UPDATE")
-      ? onUpdate(ctx.request)
-      : denied();
+    return ctx.can(MENU.BUDGET, "UPDATE") ? onUpdate(ctx.request) : denied();
   }
 
   return null;

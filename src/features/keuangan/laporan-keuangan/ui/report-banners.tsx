@@ -26,7 +26,7 @@ interface PropTypes {
 export const ReportBanners = (props: PropTypes) => {
   const { neraca } = props;
 
-  const { isCanCreate } = useMenuAccess(MENU.JURNAL);
+  const { isCanCreate } = useMenuAccess(MENU.JOURNAL_ENTRY);
 
   return (
     <div className="space-y-2 px-gutter pb-4">

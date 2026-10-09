@@ -22,31 +22,31 @@ const DDL: Record<
 > = {
   "type-item": {
     menus: [
-      MENU.TIPE_BARANG,
-      MENU.BARANG,
-      MENU.BARANG_PERSEDIAAN,
-      MENU.PESANAN_PEMBELIAN,
+      MENU.ITEM_CATEGORY,
+      MENU.ASSET_MASTER,
+      MENU.STOCK_ITEM,
+      MENU.PURCHASE_ORDER,
     ],
     empty: "Tipe Barang Tidak Ditemukan",
     rows: typeItemDdl,
   },
   unit: {
-    menus: [MENU.SATUAN, MENU.BARANG_PERSEDIAAN, MENU.PESANAN_PEMBELIAN],
+    menus: [MENU.SATUAN, MENU.STOCK_ITEM, MENU.PURCHASE_ORDER],
     empty: "Satuan Tidak Ditemukan",
     rows: unitDdl,
   },
   asset: {
-    menus: [MENU.SIKLUS_ASET, MENU.BARANG],
+    menus: [MENU.ASSET_TRANSACTION, MENU.ASSET_MASTER],
     empty: "Barang Tidak Ditemukan",
     rows: (params) =>
       assetDdl({ filter: params.get("filter") ?? "", limit: limitOf(params) }),
   },
   "barang-persediaan": {
     menus: [
-      MENU.BARANG_PERSEDIAAN,
-      MENU.MUTASI_STOK,
+      MENU.STOCK_ITEM,
+      MENU.STOCK_MOVEMENT,
       MENU.STOK_OPNAME,
-      MENU.PENERIMAAN_BARANG,
+      MENU.GOODS_RECEIPT,
     ],
     empty: "Barang Persediaan Tidak Ditemukan",
     rows: (params) =>
@@ -57,7 +57,7 @@ const DDL: Record<
       }),
   },
   supplier: {
-    menus: [MENU.SUPPLIER, MENU.SIKLUS_ASET, MENU.PESANAN_PEMBELIAN],
+    menus: [MENU.SUPPLIER, MENU.ASSET_TRANSACTION, MENU.PURCHASE_ORDER],
     empty: "Supplier Tidak Ditemukan",
     rows: supplierDdl,
   },

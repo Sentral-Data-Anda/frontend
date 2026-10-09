@@ -17,7 +17,7 @@ import type { ComplianceRow } from "../types";
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: () => {} }),
-  usePathname: () => "/anggaran/laporan-budget",
+  usePathname: () => "/report/budget-realization",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -115,7 +115,7 @@ describe("kepatuhan laporan per komisi", () => {
     const link = screen.getByRole("link", { name: "Tambah laporan" });
 
     expect(link.getAttribute("href")).toBe(
-      `/anggaran/laporan-budget/baru?komisi=4&bulan=${MONTH}`,
+      `/report/budget-realization/baru?komisi=4&bulan=${MONTH}`,
     );
   });
 
@@ -129,7 +129,7 @@ describe("kepatuhan laporan per komisi", () => {
     expect(await screen.findByText("Draf")).toBeTruthy();
     expect(
       screen.getByRole("link", { name: "LPB-2026-0001" }).getAttribute("href"),
-    ).toBe("/anggaran/laporan-budget/lpb-0001");
+    ).toBe("/report/budget-realization/lpb-0001");
     expect(screen.queryByRole("link", { name: "Tambah laporan" })).toBeNull();
   });
 

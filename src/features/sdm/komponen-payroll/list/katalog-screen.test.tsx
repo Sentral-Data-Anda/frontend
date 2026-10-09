@@ -11,7 +11,7 @@ const actions: { current: MenuAction[] } = { current: [] };
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: () => {}, push: () => {} }),
-  usePathname: () => "/sdm/komponen-payroll",
+  usePathname: () => "/hr/payroll-component",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -141,7 +141,7 @@ describe("baris PPH21 tampil tapi tidak bisa disunting", () => {
       screen
         .getByRole("link", { name: "Ubah Tunjangan Transport" })
         .getAttribute("href"),
-    ).toBe("/sdm/komponen-payroll/KPY-0001/ubah");
+    ).toBe("/hr/payroll-component/KPY-0001/ubah");
     expect(screen.queryByRole("link", { name: "Ubah PPh21" })).toBeNull();
     expect(screen.getByText("Dikelola sistem")).toBeTruthy();
 
@@ -155,7 +155,7 @@ describe("konfigurasi tabel katalog", () => {
     const table = katalogTable(true);
 
     expect(table.getRowHref?.(ROWS[0])).toBe(
-      "/sdm/komponen-payroll/KPY-0001/ubah",
+      "/hr/payroll-component/KPY-0001/ubah",
     );
     expect(table.getRowHref?.(ROWS[1])).toBeUndefined();
   });

@@ -22,27 +22,27 @@ import type {
   ProgramPayload,
 } from "./types";
 
-export const PROGRAM_LIST_PATH = menuHref(MENU.ANGGARAN, MENU.PROGRAM);
+export const PROGRAM_LIST_PATH = menuHref(MENU.BUDGETING, MENU.PROGRAM);
 
-export const PROGRAM_CREATE_PATH = createHref(MENU.ANGGARAN, MENU.PROGRAM);
+export const PROGRAM_CREATE_PATH = createHref(MENU.BUDGETING, MENU.PROGRAM);
 
 export const programDetailHref = (publicId: string) =>
-  detailHref(MENU.ANGGARAN, MENU.PROGRAM, publicId);
+  detailHref(MENU.BUDGETING, MENU.PROGRAM, publicId);
 
 export const programEditHref = (publicId: string) =>
-  editHref(MENU.ANGGARAN, MENU.PROGRAM, publicId);
+  editHref(MENU.BUDGETING, MENU.PROGRAM, publicId);
 
 export const approvalHref = (publicId: string) =>
-  detailHref(MENU.PERSETUJUAN, MENU.PERMINTAAN_PERSETUJUAN, publicId);
+  detailHref(MENU.APPROVAL, MENU.APPROVAL_REQUEST, publicId);
 
 export const reportDetailHref = (publicId: string) =>
-  detailHref(MENU.ANGGARAN, MENU.LAPORAN_BUDGET, publicId);
+  detailHref(MENU.REPORT, MENU.BUDGET_REALIZATION, publicId);
 
 export const ceilingHref = (bapelId: number, year: number) =>
-  `${menuHref(MENU.ANGGARAN, MENU.PAGU_ANGGARAN)}?komisi=${bapelId}&tahun=${year}`;
+  `${menuHref(MENU.BUDGETING, MENU.BUDGET)}?komisi=${bapelId}&tahun=${year}`;
 
 export const expenseHref = (bapelId: number) =>
-  `${menuHref(MENU.KEUANGAN, MENU.KAS_KELUAR)}?badan=${bapelId}`;
+  `${menuHref(MENU.FINANCE, MENU.KAS_KELUAR)}?badan=${bapelId}`;
 
 export const LIST_FILTERS = {
   tahun: { api: "year" },
@@ -259,19 +259,19 @@ export type FixTarget = { bapelId: number; year: number };
 
 const ERROR_FIX: Record<string, (target: FixTarget) => ErrorFix> = {
   CEILING_MISSING: (target) => ({
-    menu: MENU.PAGU_ANGGARAN,
+    menu: MENU.BUDGET,
     label: "Lihat Pagu Anggaran",
     href: ceilingHref(target.bapelId, target.year),
   }),
   CEILING_EXCEEDED: (target) => ({
-    menu: MENU.PAGU_ANGGARAN,
+    menu: MENU.BUDGET,
     label: "Lihat Pagu Anggaran",
     href: ceilingHref(target.bapelId, target.year),
   }),
   NO_WORKFLOW: () => ({
-    menu: MENU.SETELAN_PERSETUJUAN,
+    menu: MENU.APPROVAL_WORKFLOW,
     label: "Lihat Setelan Alur Persetujuan",
-    href: menuHref(MENU.PERSETUJUAN, MENU.SETELAN_PERSETUJUAN),
+    href: menuHref(MENU.APPROVAL, MENU.APPROVAL_WORKFLOW),
   }),
   NO_POSITION_HOLDER: () => ({
     menu: MENU.ROLE_JEMAAT,
@@ -279,9 +279,9 @@ const ERROR_FIX: Record<string, (target: FixTarget) => ErrorFix> = {
     href: menuHref(MENU.KEJEMAATAN, MENU.ROLE_JEMAAT),
   }),
   ACCOUNT_INACTIVE: () => ({
-    menu: MENU.AKUN,
+    menu: MENU.CHART_OF_ACCOUNT,
     label: "Lihat Akun",
-    href: menuHref(MENU.KEUANGAN, MENU.AKUN),
+    href: menuHref(MENU.FINANCE, MENU.CHART_OF_ACCOUNT),
   }),
 };
 

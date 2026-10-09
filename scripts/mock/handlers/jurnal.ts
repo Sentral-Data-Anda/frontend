@@ -1140,7 +1140,7 @@ export const jurnalMock: MockHandler = async (ctx) => {
   const match = path.match(/^\/jurnal\/([^/]+)(?:\/(post|reverse))?$/);
 
   if (path !== "/jurnal" && !match) return null;
-  if (!can(MENU.JURNAL, ACTION[method] ?? "VIEW")) return denied();
+  if (!can(MENU.JOURNAL_ENTRY, ACTION[method] ?? "VIEW")) return denied();
 
   if (path === "/jurnal") {
     if (method === "GET") return onList(url);

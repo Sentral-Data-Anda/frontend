@@ -22,7 +22,7 @@ const LIST_FILTERS = {
 } satisfies ListFilterSchema;
 
 export const InvoiceListContent = () => {
-  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.FAKTUR_SUPPLIER);
+  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.SUPPLIER_INVOICE);
   const listParams = useListParams({ filters: LIST_FILTERS });
   const invoiceList = useInvoiceList(listParams);
   const suppliers = useDdlOptions(
@@ -41,7 +41,7 @@ export const InvoiceListContent = () => {
             ? undefined
             : `${invoiceList.totalData} faktur`
         }
-        backHref={domainHref(MENU.PENGADAAN)}
+        backHref={domainHref(MENU.PROCUREMENT)}
         action={
           isCanCreate ? (
             <PageHeaderAdd

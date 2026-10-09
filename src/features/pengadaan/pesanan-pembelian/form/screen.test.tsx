@@ -42,7 +42,7 @@ mock.module("next/navigation", () => ({
     replace: (href: string) => replaced.push(href),
     push: () => undefined,
   }),
-  usePathname: () => "/pengadaan/pesanan-pembelian/baru",
+  usePathname: () => "/procurement/purchase-order/baru",
   useSearchParams: () => search.current,
 }));
 
@@ -141,7 +141,7 @@ const posted = () => calls.filter((call) => call.method !== "GET");
 
 describe("izin", () => {
   test("tanpa CREATE: keadaan tidak bisa menambah", () => {
-    onRender({ [MENU.PESANAN_PEMBELIAN]: ["VIEW"] });
+    onRender({ [MENU.PURCHASE_ORDER]: ["VIEW"] });
 
     expect(
       screen.getByText("Tidak bisa menambah pesanan pembelian"),
@@ -149,7 +149,7 @@ describe("izin", () => {
   });
 
   test("ubah pesanan Diterima sebagian: tidak bisa diubah", async () => {
-    onRender({ [MENU.PESANAN_PEMBELIAN]: ALL }, { code: orderAt(2).code });
+    onRender({ [MENU.PURCHASE_ORDER]: ALL }, { code: orderAt(2).code });
 
     expect(await screen.findByText("Pesanan tidak bisa diubah")).toBeTruthy();
   });
@@ -159,8 +159,8 @@ describe("tambah dari tautan permintaan", () => {
   test("barang disalin sekali dengan harga perkiraan IDR; simpan → halaman pesanan", async () => {
     onRender(
       {
-        [MENU.PESANAN_PEMBELIAN]: ALL,
-        [MENU.PERMINTAAN_PEMBELIAN]: ["VIEW"],
+        [MENU.PURCHASE_ORDER]: ALL,
+        [MENU.PURCHASE_REQUEST]: ["VIEW"],
       },
       { permintaan: RETRET.code.toLowerCase() },
     );
@@ -199,7 +199,7 @@ describe("tambah dari tautan permintaan", () => {
   });
 
   test("tanpa VIEW permintaan: permintaan terisi, barang tidak disalin", async () => {
-    onRender({ [MENU.PESANAN_PEMBELIAN]: ALL }, { permintaan: RETRET.code });
+    onRender({ [MENU.PURCHASE_ORDER]: ALL }, { permintaan: RETRET.code });
 
     expect(
       await screen.findByText("Tambah barang yang dibeli satu per satu."),
@@ -212,8 +212,8 @@ describe("tambah dari tautan permintaan", () => {
   test("salin hanya ditawarkan saat daftar kosong", async () => {
     onRender(
       {
-        [MENU.PESANAN_PEMBELIAN]: ALL,
-        [MENU.PERMINTAAN_PEMBELIAN]: ["VIEW"],
+        [MENU.PURCHASE_ORDER]: ALL,
+        [MENU.PURCHASE_REQUEST]: ["VIEW"],
       },
       { permintaan: RETRET.code },
     );
@@ -237,8 +237,8 @@ describe("tambah dari tautan permintaan", () => {
   test("melebihi perkiraan: dibandingkan dalam Rupiah dengan pesanan lain", async () => {
     onRender(
       {
-        [MENU.PESANAN_PEMBELIAN]: ALL,
-        [MENU.PERMINTAAN_PEMBELIAN]: ["VIEW"],
+        [MENU.PURCHASE_ORDER]: ALL,
+        [MENU.PURCHASE_REQUEST]: ["VIEW"],
       },
       { permintaan: KURSI.code },
     );
@@ -253,7 +253,7 @@ describe("tambah dari tautan permintaan", () => {
 
 describe("kurs pratinjau", () => {
   test("USD: kurs terbaru + total ganda; tanpa kurs pratinjau belum ada ≈ Rp", async () => {
-    onRender({ [MENU.PESANAN_PEMBELIAN]: ALL });
+    onRender({ [MENU.PURCHASE_ORDER]: ALL });
 
     await onPickSelect("Mata uang", "USD — Dolar Amerika");
 
@@ -263,10 +263,10 @@ describe("kurs pratinjau", () => {
     expect(screen.queryByText(/Kurs terakhir/)).toBeNull();
   });
 
-  test("SGD: kurs lebih dari 7 hari → peringatan, tautan hanya untuk MATA_UANG CREATE", async () => {
+  test("SGD: kurs lebih dari 7 hari → peringatan, tautan hanya untuk CURRENCY CREATE", async () => {
     onRender({
-      [MENU.PESANAN_PEMBELIAN]: ALL,
-      [MENU.MATA_UANG]: ["VIEW", "CREATE"],
+      [MENU.PURCHASE_ORDER]: ALL,
+      [MENU.CURRENCY]: ["VIEW", "CREATE"],
     });
 
     await onPickSelect("Mata uang", "SGD — Dolar Singapura");
@@ -278,13 +278,13 @@ describe("kurs pratinjau", () => {
     ).toBeTruthy();
     expect(
       screen.getByRole("link", { name: "Buka Mata Uang" }).getAttribute("href"),
-    ).toBe("/keuangan/mata-uang/SGD");
+    ).toBe("/finance/currency/SGD");
   });
 
   test("EUR tanpa kurs: galat + tautan bergerbang; simpan tetap aktif", async () => {
     onRender({
-      [MENU.PESANAN_PEMBELIAN]: ALL,
-      [MENU.MATA_UANG]: ["VIEW", "CREATE"],
+      [MENU.PURCHASE_ORDER]: ALL,
+      [MENU.CURRENCY]: ["VIEW", "CREATE"],
     });
 
     await onPickSelect("Mata uang", "EUR — Euro");
@@ -301,10 +301,10 @@ describe("kurs pratinjau", () => {
     ).toBe(false);
   });
 
-  test("EUR tanpa kurs, persona tanpa MATA_UANG CREATE: tanpa tautan", async () => {
+  test("EUR tanpa kurs, persona tanpa CURRENCY CREATE: tanpa tautan", async () => {
     onRender({
-      [MENU.PESANAN_PEMBELIAN]: ALL,
-      [MENU.MATA_UANG]: ["VIEW"],
+      [MENU.PURCHASE_ORDER]: ALL,
+      [MENU.CURRENCY]: ["VIEW"],
     });
 
     await onPickSelect("Mata uang", "EUR — Euro");
@@ -323,7 +323,7 @@ describe("ubah pesanan Dipesan", () => {
 
   test("peringatan memakai pesanan lain saja (tanpa pesanan ini)", async () => {
     onRender(
-      { [MENU.PESANAN_PEMBELIAN]: ALL },
+      { [MENU.PURCHASE_ORDER]: ALL },
       { code: orderAt(KURSI_ORDER).code },
     );
 
@@ -349,7 +349,7 @@ describe("ubah pesanan Dipesan", () => {
           )
         : null;
     onRender(
-      { [MENU.PESANAN_PEMBELIAN]: ALL },
+      { [MENU.PURCHASE_ORDER]: ALL },
       { code: orderAt(KURSI_ORDER).code },
     );
 
@@ -384,7 +384,7 @@ describe("ubah pesanan Dipesan", () => {
           )
         : null;
     onRender(
-      { [MENU.PESANAN_PEMBELIAN]: ALL },
+      { [MENU.PURCHASE_ORDER]: ALL },
       { code: orderAt(KURSI_ORDER).code },
     );
 
@@ -408,7 +408,7 @@ describe("ubah pesanan Dipesan", () => {
           )
         : null;
     onRender(
-      { [MENU.PESANAN_PEMBELIAN]: ALL },
+      { [MENU.PURCHASE_ORDER]: ALL },
       { code: orderAt(KURSI_ORDER).code },
     );
 

@@ -20,7 +20,7 @@ const actions: { current: Record<string, MenuAction[]> } = { current: {} };
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: () => {} }),
-  usePathname: () => "/anggaran/pagu-anggaran/pga-1",
+  usePathname: () => "/budgeting/budget/pga-1",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -153,7 +153,7 @@ const onRender = (granted: Record<string, MenuAction[]>) => {
 describe("halaman pagu anggaran", () => {
   test("lima angka, label tahun server, dan rentang tanggalnya penuh", async () => {
     onMockApi();
-    onRender({ PAGU_ANGGARAN: ["VIEW"] });
+    onRender({ BUDGET: ["VIEW"] });
 
     expect(
       await screen.findByText(`Pagu anggaran ${YEAR}/${YEAR + 1} label server`),
@@ -168,7 +168,7 @@ describe("halaman pagu anggaran", () => {
 
   test("kalimat tiga angka ada di halaman baca", async () => {
     onMockApi();
-    onRender({ PAGU_ANGGARAN: ["VIEW"] });
+    onRender({ BUDGET: ["VIEW"] });
     await screen.findByText(`Pagu anggaran ${YEAR}/${YEAR + 1} label server`);
 
     const note = screen.getByText(/^Program disetujui = /);
@@ -180,7 +180,7 @@ describe("halaman pagu anggaran", () => {
 
   test("batang memakai dilaporkan terhadap pagu", async () => {
     onMockApi();
-    onRender({ PAGU_ANGGARAN: ["VIEW"] });
+    onRender({ BUDGET: ["VIEW"] });
     await screen.findByText(`Pagu anggaran ${YEAR}/${YEAR + 1} label server`);
 
     expect(screen.getByRole("progressbar").getAttribute("aria-valuenow")).toBe(
@@ -190,11 +190,11 @@ describe("halaman pagu anggaran", () => {
 
   test("program tahun itu dirender apa adanya dan menaut dengan publicId", async () => {
     onMockApi();
-    onRender({ PAGU_ANGGARAN: ["VIEW"], PROGRAM: ["VIEW"] });
+    onRender({ BUDGET: ["VIEW"], PROGRAM: ["VIEW"] });
 
     const link = await screen.findByRole("link", { name: /Retret pemuda/ });
 
-    expect(link.getAttribute("href")).toBe("/anggaran/program/prg-1");
+    expect(link.getAttribute("href")).toBe("/budgeting/program/prg-1");
     expect(screen.getByText("Rp 7.500.000")).toBeTruthy();
     expect(screen.getByText("Rp 4.000.000")).toBeTruthy();
     expect(screen.getAllByText("Disetujui").length).toBe(1);
@@ -202,7 +202,7 @@ describe("halaman pagu anggaran", () => {
 
   test("tanpa PROGRAM VIEW: daftar program tidak diminta", async () => {
     const requested = onMockApi();
-    onRender({ PAGU_ANGGARAN: ["VIEW"] });
+    onRender({ BUDGET: ["VIEW"] });
     await screen.findByText(`Pagu anggaran ${YEAR}/${YEAR + 1} label server`);
 
     expect(screen.queryByText("Program tahun ini")).toBeNull();
@@ -213,30 +213,30 @@ describe("halaman pagu anggaran", () => {
 
   test("tahun tanpa program: keadaan kosong tanpa klaim cakupan", async () => {
     onMockApi([]);
-    onRender({ PAGU_ANGGARAN: ["VIEW"], PROGRAM: ["VIEW"] });
+    onRender({ BUDGET: ["VIEW"], PROGRAM: ["VIEW"] });
 
     expect(await screen.findByText("Belum ada program")).toBeTruthy();
   });
 
   test("ubah hanya dengan UPDATE", async () => {
     onMockApi();
-    onRender({ PAGU_ANGGARAN: ["VIEW"] });
+    onRender({ BUDGET: ["VIEW"] });
     await screen.findByText(`Pagu anggaran ${YEAR}/${YEAR + 1} label server`);
 
     expect(screen.queryByRole("link", { name: "Ubah" })).toBeNull();
 
     cleanup();
     onMockApi();
-    onRender({ PAGU_ANGGARAN: ["VIEW", "UPDATE"] });
+    onRender({ BUDGET: ["VIEW", "UPDATE"] });
 
     expect(
       (await screen.findByRole("link", { name: "Ubah" })).getAttribute("href"),
-    ).toBe("/anggaran/pagu-anggaran/pga-1/ubah");
+    ).toBe("/budgeting/budget/pga-1/ubah");
   });
 
   test("tanpa Hapus di halaman baca", async () => {
     onMockApi();
-    onRender({ PAGU_ANGGARAN: ["VIEW", "UPDATE", "DELETE"] });
+    onRender({ BUDGET: ["VIEW", "UPDATE", "DELETE"] });
     await screen.findByText(`Pagu anggaran ${YEAR}/${YEAR + 1} label server`);
 
     expect(screen.queryByRole("button", { name: "Hapus" })).toBeNull();

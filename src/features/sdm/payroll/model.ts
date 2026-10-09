@@ -5,10 +5,10 @@ import { monthLabel, todayJakarta } from "@/lib/date";
 
 import type { PayrollRun, PayrollRunDetail, Payslip } from "./types";
 
-export const LIST_PATH = menuHref(MENU.SDM, MENU.PAYROLL);
+export const LIST_PATH = menuHref(MENU.HR, MENU.PAYROLL);
 
 export const runHref = (code: string) =>
-  detailHref(MENU.SDM, MENU.PAYROLL, code);
+  detailHref(MENU.HR, MENU.PAYROLL, code);
 
 export const slipHref = (runCode: string, slipCode: string) =>
   `${runHref(runCode)}/slip/${encodeURIComponent(slipCode)}`;

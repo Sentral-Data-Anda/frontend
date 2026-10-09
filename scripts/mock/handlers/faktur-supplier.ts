@@ -107,7 +107,7 @@ export const fakturSupplierMock: MockHandler = async ({
     return null;
   }
 
-  if (!can(MENU.FAKTUR_SUPPLIER, ACTION[method] ?? "VIEW")) return denied();
+  if (!can(MENU.SUPPLIER_INVOICE, ACTION[method] ?? "VIEW")) return denied();
 
   if (method !== "GET" && process.env.MOCK_INVOICE_SAVE_ERROR === "500") {
     return serverError();

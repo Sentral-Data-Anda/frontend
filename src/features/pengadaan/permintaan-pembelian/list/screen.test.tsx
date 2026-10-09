@@ -22,7 +22,7 @@ const search = { current: new URLSearchParams() };
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
-  usePathname: () => "/pengadaan/permintaan-pembelian",
+  usePathname: () => "/procurement/purchase-request",
   useSearchParams: () => search.current,
 }));
 
@@ -159,7 +159,7 @@ describe("daftar", () => {
     fireEvent.click(screen.getByRole("tab", { name: "Ditolak" }));
 
     expect(replaced.at(-1)).toBe(
-      "/pengadaan/permintaan-pembelian?status=REJECTED",
+      "/procurement/purchase-request?status=REJECTED",
     );
   });
 });

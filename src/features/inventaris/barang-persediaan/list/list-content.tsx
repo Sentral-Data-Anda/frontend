@@ -19,7 +19,7 @@ import { StockListItemRow, persediaanTable } from "./list-item";
 const allOf = (label: string) => ({ value: "", label });
 
 export const StockListContent = () => {
-  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.BARANG_PERSEDIAAN);
+  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.STOCK_ITEM);
   const listParams = useListParams({ filters: STOCK_FILTERS });
   const stockList = useStockList(listParams);
   const types = useDdlOptions("type-item", "id", listParams.filters.tipe);
@@ -37,7 +37,7 @@ export const StockListContent = () => {
             ? undefined
             : `${stockList.totalData} barang`
         }
-        backHref={domainHref(MENU.INVENTARIS)}
+        backHref={domainHref(MENU.INVENTORY)}
         action={
           isCanCreate ? (
             <PageHeaderAdd

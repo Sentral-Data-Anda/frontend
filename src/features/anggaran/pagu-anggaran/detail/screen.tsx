@@ -29,7 +29,7 @@ interface PropTypes {
 export const AllocationDetailScreen = (props: PropTypes) => {
   const { publicId } = props;
 
-  const { isCanView, isCanUpdate } = useMenuAccess(MENU.PAGU_ANGGARAN);
+  const { isCanView, isCanUpdate } = useMenuAccess(MENU.BUDGET);
   const listReturn = useListReturn(PAGU_LIST_PATH);
   const detail = useAllocationDetail(isCanView ? publicId : undefined);
   const allocation = detail.data;
@@ -39,7 +39,7 @@ export const AllocationDetailScreen = (props: PropTypes) => {
   if (!isCanView) {
     return (
       <div className="pb-8">
-        <PageHeader title={TITLE} backHref={domainHref(MENU.ANGGARAN)} />
+        <PageHeader title={TITLE} backHref={domainHref(MENU.BUDGETING)} />
 
         <EmptyState
           title="Anda tidak memiliki akses ke Pagu Anggaran"

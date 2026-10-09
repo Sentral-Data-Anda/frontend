@@ -19,7 +19,7 @@ const actions: { current: Record<string, MenuAction[]> } = { current: {} };
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: () => undefined }),
-  usePathname: () => "/keuangan/persembahan",
+  usePathname: () => "/finance/persembahan",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -183,12 +183,12 @@ describe("gerbang izin", () => {
 
     expect(
       screen.getByRole("link", { name: "Catat Kolekte" }).getAttribute("href"),
-    ).toBe("/keuangan/persembahan/kolekte");
+    ).toBe("/finance/persembahan/kolekte");
     expect(
       screen
         .getByRole("link", { name: "Catat satu persembahan" })
         .getAttribute("href"),
-    ).toBe("/keuangan/persembahan/baru");
+    ).toBe("/finance/persembahan/baru");
   });
 });
 
@@ -216,17 +216,17 @@ describe("daftar", () => {
 
   test("kolom Jurnal: kode bertaut bila diposting, — bila belum", async () => {
     onMockApi();
-    onRender({ PERSEMBAHAN: ["VIEW"], JURNAL: ["VIEW"] });
+    onRender({ PERSEMBAHAN: ["VIEW"], JOURNAL_ENTRY: ["VIEW"] });
 
     expect(
       (await screen.findByRole("link", { name: "JRN-2026-0002" })).getAttribute(
         "href",
       ),
-    ).toBe("/keuangan/jurnal/jrn-0002");
+    ).toBe("/finance/journal-entry/jrn-0002");
     expect(screen.getAllByText("—").length).toBeGreaterThan(0);
   });
 
-  test("tanpa JURNAL VIEW: kode jurnal tampil tanpa tautan", async () => {
+  test("tanpa JOURNAL_ENTRY VIEW: kode jurnal tampil tanpa tautan", async () => {
     onMockApi();
     onRender({ PERSEMBAHAN: ["VIEW"] });
 

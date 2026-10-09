@@ -24,7 +24,7 @@ export const ActivityLogListScreen = () => {
             ? undefined
             : `${logList.totalData} catatan`
         }
-        backHref={domainHref(MENU.PENGATURAN)}
+        backHref={domainHref(MENU.SETTINGS)}
       />
 
       <ListToolbar

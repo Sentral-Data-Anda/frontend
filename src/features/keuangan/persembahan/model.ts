@@ -21,34 +21,34 @@ import {
 
 import type { OfferingTypeOption, PersembahanBatchPayload } from "./types";
 
-export const PERSEMBAHAN_LIST_PATH = menuHref(MENU.KEUANGAN, MENU.PERSEMBAHAN);
+export const PERSEMBAHAN_LIST_PATH = menuHref(MENU.FINANCE, MENU.PERSEMBAHAN);
 
 export const KOLEKTE_PATH = `${PERSEMBAHAN_LIST_PATH}/${FORM_SEGMENT.kolekte}`;
 
 export const PERSEMBAHAN_CREATE_PATH = `${PERSEMBAHAN_LIST_PATH}/${FORM_SEGMENT.create}`;
 
 export const persembahanHref = (code: string) =>
-  detailHref(MENU.KEUANGAN, MENU.PERSEMBAHAN, code);
+  detailHref(MENU.FINANCE, MENU.PERSEMBAHAN, code);
 
 // Rute Jurnal hanya menerima publicId; kodenya untuk dibaca, bukan dirute.
 export const journalHref = (publicId: string) =>
-  detailHref(MENU.KEUANGAN, MENU.JURNAL, publicId);
+  detailHref(MENU.FINANCE, MENU.JOURNAL_ENTRY, publicId);
 
-export const PERIODE_FISKAL_PATH = menuHref(MENU.KEUANGAN, MENU.PERIODE_FISKAL);
+export const PERIODE_FISKAL_PATH = menuHref(MENU.FINANCE, MENU.FISCAL_PERIOD);
 
 export const TIPE_PERSEMBAHAN_PATH = menuHref(
-  MENU.KEUANGAN,
+  MENU.FINANCE,
   MENU.TIPE_PERSEMBAHAN,
 );
 
 export const SETELAN_AKUNTANSI_PATH = menuHref(
-  MENU.KEUANGAN,
-  MENU.SETELAN_AKUNTANSI,
+  MENU.FINANCE,
+  MENU.ACCOUNTING_SETTING,
 );
 
-export const AKUN_PATH = menuHref(MENU.KEUANGAN, MENU.AKUN);
+export const AKUN_PATH = menuHref(MENU.FINANCE, MENU.CHART_OF_ACCOUNT);
 
-export const KAS_MASUK_CREATE_PATH = `${menuHref(MENU.KEUANGAN, MENU.KAS_MASUK)}/${FORM_SEGMENT.create}`;
+export const KAS_MASUK_CREATE_PATH = `${menuHref(MENU.FINANCE, MENU.KAS_MASUK)}/${FORM_SEGMENT.create}`;
 
 export const NO_VIEW = "Peran Anda tidak memiliki akses ke Persembahan.";
 
@@ -174,17 +174,17 @@ type FixLink = { menu: MenuSlug; href: string; label: string };
 
 const FIX_BY_CODE: Record<string, FixLink> = {
   PERIOD_NOT_OPEN: {
-    menu: MENU.PERIODE_FISKAL,
+    menu: MENU.FISCAL_PERIOD,
     href: PERIODE_FISKAL_PATH,
     label: "Buka periode fiskal",
   },
   PERIOD_CLOSED: {
-    menu: MENU.PERIODE_FISKAL,
+    menu: MENU.FISCAL_PERIOD,
     href: PERIODE_FISKAL_PATH,
     label: "Lihat periode fiskal",
   },
   PERIOD_CLOSED_UNDER_LOCK: {
-    menu: MENU.PERIODE_FISKAL,
+    menu: MENU.FISCAL_PERIOD,
     href: PERIODE_FISKAL_PATH,
     label: "Lihat periode fiskal",
   },
@@ -194,12 +194,12 @@ const FIX_BY_CODE: Record<string, FixLink> = {
     label: "Lengkapi tipe persembahan",
   },
   SETTING_EMPTY: {
-    menu: MENU.SETELAN_AKUNTANSI,
+    menu: MENU.ACCOUNTING_SETTING,
     href: SETELAN_AKUNTANSI_PATH,
     label: "Isi setelan akuntansi",
   },
   ACCOUNT_INACTIVE: {
-    menu: MENU.AKUN,
+    menu: MENU.CHART_OF_ACCOUNT,
     href: AKUN_PATH,
     label: "Lihat akun",
   },

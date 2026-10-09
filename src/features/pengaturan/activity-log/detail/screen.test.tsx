@@ -46,7 +46,7 @@ describe("detail log aktivitas", () => {
       screen
         .getByRole("link", { name: "Kembali ke log aktivitas" })
         .getAttribute("href"),
-    ).toBe("/pengaturan/activity-log");
+    ).toBe("/settings/activity-log");
   });
 
   test("judul aksi + data, dan hanya field yang berubah", async () => {

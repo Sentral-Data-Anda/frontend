@@ -16,7 +16,7 @@ import {
 } from "../types";
 
 const editHrefOf = (row: TipeCuti) =>
-  editHref(MENU.SDM, MENU.TIPE_CUTI, row.code);
+  editHref(MENU.HR, MENU.LEAVE_TYPE, row.code);
 
 const saveFocus = (row: TipeCuti) =>
   saveListFocus(TIPE_CUTI_LIST_PATH, row.code);

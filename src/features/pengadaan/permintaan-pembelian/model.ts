@@ -28,32 +28,32 @@ import {
 type BadgeVariant = ComponentProps<typeof Badge>["variant"];
 
 export const REQUEST_LIST_PATH = menuHref(
-  MENU.PENGADAAN,
-  MENU.PERMINTAAN_PEMBELIAN,
+  MENU.PROCUREMENT,
+  MENU.PURCHASE_REQUEST,
 );
 
 export const REQUEST_CREATE_PATH = createHref(
-  MENU.PENGADAAN,
-  MENU.PERMINTAAN_PEMBELIAN,
+  MENU.PROCUREMENT,
+  MENU.PURCHASE_REQUEST,
 );
 
 export const requestHref = (code: string) =>
-  detailHref(MENU.PENGADAAN, MENU.PERMINTAAN_PEMBELIAN, code);
+  detailHref(MENU.PROCUREMENT, MENU.PURCHASE_REQUEST, code);
 
 export const requestEditHref = (code: string) =>
-  editHref(MENU.PENGADAAN, MENU.PERMINTAAN_PEMBELIAN, code);
+  editHref(MENU.PROCUREMENT, MENU.PURCHASE_REQUEST, code);
 
 export const resubmitHref = (code: string) =>
   `${REQUEST_CREATE_PATH}?salin=${encodeURIComponent(code)}`;
 
 export const orderCreateHref = (code: string) =>
-  `${createHref(MENU.PENGADAAN, MENU.PESANAN_PEMBELIAN)}?permintaan=${encodeURIComponent(code)}`;
+  `${createHref(MENU.PROCUREMENT, MENU.PURCHASE_ORDER)}?permintaan=${encodeURIComponent(code)}`;
 
 export const orderHref = (code: string) =>
-  detailHref(MENU.PENGADAAN, MENU.PESANAN_PEMBELIAN, code);
+  detailHref(MENU.PROCUREMENT, MENU.PURCHASE_ORDER, code);
 
 export const approvalHref = (publicId: string) =>
-  detailHref(MENU.PERSETUJUAN, MENU.PERMINTAAN_PERSETUJUAN, publicId);
+  detailHref(MENU.APPROVAL, MENU.APPROVAL_REQUEST, publicId);
 
 export const REQUEST_STATUS_VARIANT: Record<RequestStatus, BadgeVariant> = {
   DRAFT: "neutral",

@@ -20,7 +20,7 @@ const LIST_FILTERS = {
 } satisfies ListFilterSchema;
 
 export const RequestListContent = () => {
-  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.PERMINTAAN_PEMBELIAN);
+  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.PURCHASE_REQUEST);
   const listParams = useListParams({ filters: LIST_FILTERS });
   const requestList = useRequestList(listParams);
   const bapels = useDdlOptions("bapel", "id", listParams.filters.badan);
@@ -35,7 +35,7 @@ export const RequestListContent = () => {
             ? undefined
             : `${requestList.totalData} permintaan`
         }
-        backHref={domainHref(MENU.PENGADAAN)}
+        backHref={domainHref(MENU.PROCUREMENT)}
         action={
           isCanCreate ? (
             <PageHeaderAdd

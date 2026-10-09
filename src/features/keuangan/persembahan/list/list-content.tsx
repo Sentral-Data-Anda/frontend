@@ -27,7 +27,7 @@ import { PersembahanListItemRow, persembahanTable } from "./list-item";
 
 export const PersembahanListContent = () => {
   const { isCanCreate } = useMenuAccess(MENU.PERSEMBAHAN);
-  const journalAccess = useMenuAccess(MENU.JURNAL);
+  const journalAccess = useMenuAccess(MENU.JOURNAL_ENTRY);
   const listParams = useListParams({ filters: PERSEMBAHAN_FILTERS });
   const persembahanList = usePersembahanList(listParams);
   const totals = usePersembahanTotals(listParams);
@@ -47,7 +47,7 @@ export const PersembahanListContent = () => {
             ? totalsSubtitle(totals.data.count, totals.data.total)
             : undefined
         }
-        backHref={domainHref(MENU.KEUANGAN)}
+        backHref={domainHref(MENU.FINANCE)}
         action={isCanCreate ? <KolekteAction /> : null}
       />
 

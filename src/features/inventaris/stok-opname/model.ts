@@ -19,18 +19,18 @@ import {
   type StockItemOption,
 } from "./types";
 
-export const OPNAME_LIST_PATH = menuHref(MENU.INVENTARIS, MENU.STOK_OPNAME);
+export const OPNAME_LIST_PATH = menuHref(MENU.INVENTORY, MENU.STOK_OPNAME);
 
-export const OPNAME_CREATE_PATH = createHref(MENU.INVENTARIS, MENU.STOK_OPNAME);
+export const OPNAME_CREATE_PATH = createHref(MENU.INVENTORY, MENU.STOK_OPNAME);
 
 export const opnameHref = (code: string) =>
-  detailHref(MENU.INVENTARIS, MENU.STOK_OPNAME, code);
+  detailHref(MENU.INVENTORY, MENU.STOK_OPNAME, code);
 
 export const opnameEditHref = (code: string) =>
-  editHref(MENU.INVENTARIS, MENU.STOK_OPNAME, code);
+  editHref(MENU.INVENTORY, MENU.STOK_OPNAME, code);
 
 export const stockItemHref = (code: string) =>
-  detailHref(MENU.INVENTARIS, MENU.BARANG_PERSEDIAAN, code);
+  detailHref(MENU.INVENTORY, MENU.STOCK_ITEM, code);
 
 export const WHOLE_CHURCH = "Seluruh gereja";
 

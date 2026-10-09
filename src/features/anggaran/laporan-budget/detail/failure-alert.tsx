@@ -17,14 +17,14 @@ interface PropTypes {
 export const FailureAlert = (props: PropTypes) => {
   const { title, error } = props;
 
-  const workflow = useMenuAccess(MENU.SETELAN_PERSETUJUAN);
+  const workflow = useMenuAccess(MENU.APPROVAL_WORKFLOW);
   const roleJemaat = useMenuAccess(MENU.ROLE_JEMAAT);
-  const account = useMenuAccess(MENU.AKUN);
+  const account = useMenuAccess(MENU.CHART_OF_ACCOUNT);
   const fix = errorFixOf(error);
   const gates: Partial<Record<MenuSlug, boolean>> = {
-    [MENU.SETELAN_PERSETUJUAN]: workflow.isCanView,
+    [MENU.APPROVAL_WORKFLOW]: workflow.isCanView,
     [MENU.ROLE_JEMAAT]: roleJemaat.isCanView,
-    [MENU.AKUN]: account.isCanView,
+    [MENU.CHART_OF_ACCOUNT]: account.isCanView,
   };
 
   return (

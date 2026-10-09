@@ -223,7 +223,7 @@ export const penerimaanBarangMock: MockHandler = async ({
     return null;
   }
 
-  if (!can(MENU.PENERIMAAN_BARANG, method === "POST" ? "CREATE" : "VIEW")) {
+  if (!can(MENU.GOODS_RECEIPT, method === "POST" ? "CREATE" : "VIEW")) {
     return denied();
   }
 

@@ -73,7 +73,7 @@ describe("pembacaan parameter", () => {
 describe("tautan", () => {
   test("buku besar membawa akun dan bulan", () => {
     expect(ledgerHref("1-100", "2026-03")).toBe(
-      "/keuangan/laporan-keuangan?tab=buku-besar&akun=1-100&bulan=2026-03",
+      "/report/financial-statement?tab=buku-besar&akun=1-100&bulan=2026-03",
     );
   });
 

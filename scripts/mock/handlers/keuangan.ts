@@ -16,20 +16,20 @@ const DDL: Record<
 > = {
   account: {
     menus: [
-      MENU.AKUN,
-      MENU.JURNAL,
-      MENU.SETELAN_AKUNTANSI,
+      MENU.CHART_OF_ACCOUNT,
+      MENU.JOURNAL_ENTRY,
+      MENU.ACCOUNTING_SETTING,
       MENU.TIPE_PERSEMBAHAN,
       MENU.KAS_MASUK,
       MENU.KAS_KELUAR,
-      MENU.SETORAN,
-      MENU.LAPORAN_KEUANGAN,
+      MENU.BANK_DEPOSIT,
+      MENU.FINANCIAL_STATEMENT,
     ],
     empty: "Akun Tidak Ditemukan",
     rows: accountDdl,
   },
   "tipe-persembahan": {
-    menus: [MENU.TIPE_PERSEMBAHAN, MENU.PERSEMBAHAN, MENU.PEMBAYARAN],
+    menus: [MENU.TIPE_PERSEMBAHAN, MENU.PERSEMBAHAN, MENU.PAYMENT],
     empty: "Tipe Persembahan Tidak Ditemukan",
     rows: typePersembahanDdl,
   },

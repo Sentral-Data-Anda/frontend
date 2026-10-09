@@ -28,7 +28,7 @@ type AccountOption = {
 };
 
 export const KatalogList = () => {
-  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.KOMPONEN_PAYROLL);
+  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.PAYROLL_COMPONENT);
   const listParams = useListParams({ filters: KATALOG_FILTERS });
   const components = useKomponenPayrollList(listParams);
   const accounts = useDdlOptions<AccountOption>("account");
@@ -54,7 +54,7 @@ export const KatalogList = () => {
             ? undefined
             : `${components.totalData} komponen`
         }
-        backHref={domainHref(MENU.SDM)}
+        backHref={domainHref(MENU.HR)}
         action={
           isCanCreate ? (
             <PageHeaderAdd href={KATALOG_CREATE_PATH} label="Tambah komponen" />

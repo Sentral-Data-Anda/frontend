@@ -59,7 +59,7 @@ export const RoleUserFormScreen = (props: PropTypes) => {
   const session = useSession();
   const isEdit = Boolean(id);
   const { isCanView, isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
-    MENU.ROLE_USER,
+    MENU.USER_ROLE,
   );
   const listReturn = useListReturn(ROLE_USER_LIST_PATH);
   const [rejectedField, setRejectedField] = useState<string | null>(null);

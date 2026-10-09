@@ -73,7 +73,7 @@ export const setelanAkuntansiMock: MockHandler = async ({
     return json({ status: 404, error: NOT_FOUND }, 404);
   }
 
-  if (!can(MENU.SETELAN_AKUNTANSI, method === "PUT" ? "UPDATE" : "VIEW")) {
+  if (!can(MENU.ACCOUNTING_SETTING, method === "PUT" ? "UPDATE" : "VIEW")) {
     return denied();
   }
 

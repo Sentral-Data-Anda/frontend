@@ -69,7 +69,7 @@ export function useRemainingQuota(
 
 /**
  * `GET /hari-libur/kalender` ada di `SELF_SERVICE`: setiap sesi boleh
- * membacanya tanpa `HARI_LIBUR` VIEW, dan ia sudah memekarkan `isRecurring`
+ * membacanya tanpa `HOLIDAY` VIEW, dan ia sudah memekarkan `isRecurring`
  * di server — ekspansi kedua di klien adalah kalender kedua yang bisa beda.
  */
 export function useHolidayCalendar(from: string, to: string) {

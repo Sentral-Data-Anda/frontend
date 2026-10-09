@@ -387,7 +387,7 @@ describe("mock pemilih", () => {
 describe("gerbang izin mock", () => {
   test("setiap aksi dijaga menunya sendiri", async () => {
     const viewOnly = (slug: string, action: MockAction) =>
-      slug === MENU.KOMPONEN_PAYROLL && action === "VIEW";
+      slug === MENU.PAYROLL_COMPONENT && action === "VIEW";
 
     expect(
       (await onCall("GET", "/komponen-payroll", undefined, viewOnly))?.status,

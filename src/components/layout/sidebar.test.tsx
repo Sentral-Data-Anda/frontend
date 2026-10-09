@@ -49,7 +49,7 @@ const MENU: MenuNode[] = [
     ],
   },
   {
-    ...leaf("KEUANGAN", "Keuangan"),
+    ...leaf("FINANCE", "Keuangan"),
     action: [],
     children: [leaf("KAS_MASUK", "Kas Masuk")],
   },
@@ -134,7 +134,7 @@ describe("SidebarNav", () => {
   });
 
   test("halaman domain membuka domainnya; semua domain satu grup accordion", () => {
-    render(<SidebarNav menu={MENU} pathname="/keuangan" />);
+    render(<SidebarNav menu={MENU} pathname="/finance" />);
 
     expect(domainOf("Keuangan").open).toBe(true);
     expect(domainOf("Kejemaatan").open).toBe(false);

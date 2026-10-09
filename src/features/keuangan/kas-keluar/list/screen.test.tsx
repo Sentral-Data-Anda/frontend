@@ -28,7 +28,7 @@ const search: { current: string } = { current: "" };
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: () => {} }),
-  usePathname: () => "/keuangan/kas-keluar",
+  usePathname: () => "/finance/kas-keluar",
   useSearchParams: () => new URLSearchParams(search.current),
 }));
 

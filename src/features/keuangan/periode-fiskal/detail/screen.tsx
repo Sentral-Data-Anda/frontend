@@ -44,7 +44,7 @@ export const PeriodDetailScreen = (props: PropTypes) => {
   const { id } = props;
 
   const toast = useToast();
-  const { isCanView, isCanUpdate } = useMenuAccess(MENU.PERIODE_FISKAL);
+  const { isCanView, isCanUpdate } = useMenuAccess(MENU.FISCAL_PERIOD);
   const listReturn = useListReturn(PERIODE_FISKAL_LIST_PATH);
   const detail = useFiscalPeriod(isCanView ? id : undefined);
   const closePeriod = useClosePeriod(id);
@@ -70,7 +70,7 @@ export const PeriodDetailScreen = (props: PropTypes) => {
   if (!isCanView) {
     return (
       <div className="pb-8">
-        <PageHeader title={TITLE} backHref={domainHref(MENU.KEUANGAN)} />
+        <PageHeader title={TITLE} backHref={domainHref(MENU.FINANCE)} />
 
         <EmptyState
           title="Anda tidak memiliki akses ke Periode Fiskal"

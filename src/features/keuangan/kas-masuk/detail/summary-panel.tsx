@@ -23,7 +23,7 @@ interface PropTypes {
 export const SummaryPanel = (props: PropTypes) => {
   const { receipt } = props;
 
-  const journalAccess = useMenuAccess(MENU.JURNAL);
+  const journalAccess = useMenuAccess(MENU.JOURNAL_ENTRY);
 
   return (
     <Panel label="Ringkasan kas masuk">

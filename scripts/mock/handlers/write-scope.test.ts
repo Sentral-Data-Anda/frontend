@@ -85,9 +85,9 @@ const ctxWith = (request: Request, url: URL, path: string, method: string) => ({
   url,
   path,
   method,
-  // Persona pengurus komisi: tidak memegang PAGU_ANGGARAN, jadi lingkupnya
+  // Persona pengurus komisi: tidak memegang BUDGET, jadi lingkupnya
   // sempit ke jabatannya.
-  can: (slug: string) => slug !== MENU.PAGU_ANGGARAN,
+  can: (slug: string) => slug !== MENU.BUDGET,
   isAdmin: false,
   sessionCode: "A-0184",
 });

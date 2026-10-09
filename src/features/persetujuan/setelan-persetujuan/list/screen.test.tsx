@@ -24,7 +24,7 @@ const actions: { current: MenuAction[] } = { current: [] };
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: () => undefined }),
-  usePathname: () => "/persetujuan/setelan-persetujuan",
+  usePathname: () => "/approval/approval-workflow",
   useSearchParams: () => new URLSearchParams(search.current),
 }));
 
@@ -142,7 +142,7 @@ describe("gerbang izin", () => {
         .getByRole("link", { name: "Lihat alur Kas keluar kecil" })
         .getAttribute("href"),
     ).toBe(
-      "/persetujuan/setelan-persetujuan/00000000-0000-4000-8000-000000000001/ubah",
+      "/approval/approval-workflow/00000000-0000-4000-8000-000000000001/ubah",
     );
   });
 

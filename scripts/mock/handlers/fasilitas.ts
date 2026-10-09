@@ -8,14 +8,14 @@ import { denied, json, type MockHandler } from "../kit";
 
 const ROOM_DDL_MENUS = [
   MENU.RUANG,
-  MENU.BARANG,
+  MENU.ASSET_MASTER,
   MENU.EVENT,
   MENU.PEMINJAMAN_RUANG,
   MENU.IBADAH,
-  MENU.BARANG_PERSEDIAAN,
+  MENU.STOCK_ITEM,
   MENU.STOK_OPNAME,
-  MENU.SIKLUS_ASET,
-  MENU.PESANAN_PEMBELIAN,
+  MENU.ASSET_TRANSACTION,
+  MENU.PURCHASE_ORDER,
 ] as const;
 
 export const fasilitasMock: MockHandler = (ctx) => {

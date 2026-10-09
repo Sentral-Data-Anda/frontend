@@ -38,7 +38,7 @@ mock.module("next/navigation", () => ({
     replace: (href: string) => replaced.push(href),
     push: () => undefined,
   }),
-  usePathname: () => "/pengadaan/pesanan-pembelian/x",
+  usePathname: () => "/procurement/purchase-order/x",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -79,8 +79,8 @@ afterEach(() => {
 });
 
 const OPERATOR = {
-  [MENU.PESANAN_PEMBELIAN]: ALL,
-  [MENU.PENERIMAAN_BARANG]: ["VIEW", "CREATE"] as typeof ALL,
+  [MENU.PURCHASE_ORDER]: ALL,
+  [MENU.GOODS_RECEIPT]: ["VIEW", "CREATE"] as typeof ALL,
 };
 
 const onRender = (granted: Record<string, typeof ALL>, index: number) => {
@@ -119,7 +119,7 @@ describe("aksi per status × izin", () => {
       screen
         .getByRole("link", { name: "Catat penerimaan" })
         .getAttribute("href"),
-    ).toBe(`/pengadaan/penerimaan-barang/baru?pesanan=${orderAt(KURSI).code}`);
+    ).toBe(`/procurement/goods-receipt/baru?pesanan=${orderAt(KURSI).code}`);
   });
 
   test("Diterima sebagian: catat penerimaan dan tutup saja", async () => {
@@ -129,13 +129,13 @@ describe("aksi per status × izin", () => {
   });
 
   test("lihat saja (bendahara): tanpa aksi", async () => {
-    await onRender({ [MENU.PESANAN_PEMBELIAN]: ["VIEW"] }, KURSI);
+    await onRender({ [MENU.PURCHASE_ORDER]: ["VIEW"] }, KURSI);
 
     expect(screen.queryByRole("region", { name: "Aksi pesanan" })).toBeNull();
   });
 
   test("tanpa CREATE penerimaan: tanpa Catat penerimaan", async () => {
-    await onRender({ [MENU.PESANAN_PEMBELIAN]: ALL }, PARTIAL);
+    await onRender({ [MENU.PURCHASE_ORDER]: ALL }, PARTIAL);
 
     expect(actionNames()).toEqual(["Tutup pesanan"]);
   });

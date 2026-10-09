@@ -27,10 +27,8 @@ interface PropTypes {
 export const SummaryPanel = (props: PropTypes) => {
   const { request } = props;
 
-  const { isCanView: isCanViewApproval } = useMenuAccess(
-    MENU.PERMINTAAN_PERSETUJUAN,
-  );
-  const { isCanView: isCanViewOrder } = useMenuAccess(MENU.PESANAN_PEMBELIAN);
+  const { isCanView: isCanViewApproval } = useMenuAccess(MENU.APPROVAL_REQUEST);
+  const { isCanView: isCanViewOrder } = useMenuAccess(MENU.PURCHASE_ORDER);
   const { approval } = request;
   const approvalText = approval
     ? `${approval.code} · ${APPROVAL_STATUS_LABEL[approval.status]}`

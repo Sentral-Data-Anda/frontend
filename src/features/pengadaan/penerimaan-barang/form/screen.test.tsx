@@ -50,7 +50,7 @@ mock.module("next/navigation", () => ({
     replace: (href: string) => replaced.push(href),
     push: () => undefined,
   }),
-  usePathname: () => "/pengadaan/penerimaan-barang/baru",
+  usePathname: () => "/procurement/goods-receipt/baru",
   useSearchParams: () => new URLSearchParams(search.current),
 }));
 
@@ -250,8 +250,8 @@ describe("muat baris", () => {
     expect(cards()).toHaveLength(1);
   });
 
-  test("peran hanya penerimaan (tanpa PESANAN_PEMBELIAN) tetap memuat baris pesanan", async () => {
-    serverMenus.current = [MENU.PENERIMAAN_BARANG];
+  test("peran hanya penerimaan (tanpa PURCHASE_ORDER) tetap memuat baris pesanan", async () => {
+    serverMenus.current = [MENU.GOODS_RECEIPT];
     await onOpenPrefilled(PO_SISA.code, 2);
 
     expect(orderFetches).toEqual([PO_SISA.code]);
@@ -338,7 +338,7 @@ describe("simpan", () => {
     await onAnswer("Ya");
 
     await waitFor(() =>
-      expect(replaced[0]).toMatch(/^\/pengadaan\/penerimaan-barang\/GRN-/),
+      expect(replaced[0]).toMatch(/^\/procurement\/goods-receipt\/GRN-/),
     );
     const [body] = posts;
 

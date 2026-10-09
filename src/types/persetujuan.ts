@@ -59,12 +59,12 @@ export const formatApprovalAmount = (
 export const APPROVAL_DOCUMENT_MENU: Partial<
   Record<ApprovalDocumentType, MenuSlug>
 > = {
-  PURCHASE_REQUEST: MENU.PERMINTAAN_PEMBELIAN,
-  ASSET_DISPOSAL: MENU.SIKLUS_ASET,
+  PURCHASE_REQUEST: MENU.PURCHASE_REQUEST,
+  ASSET_DISPOSAL: MENU.ASSET_TRANSACTION,
   CASH_EXPENSE: MENU.KAS_KELUAR,
   PROGRAM: MENU.PROGRAM,
   PROGRAM_MENDADAK: MENU.PROGRAM,
-  BUDGET_USAGE_REPORT: MENU.LAPORAN_BUDGET,
+  BUDGET_USAGE_REPORT: MENU.BUDGET_REALIZATION,
 };
 
 export type ApprovalDocumentRef = { publicId: string; code: string };
@@ -76,23 +76,23 @@ export const approvalDocumentHref = (
   document: ApprovalDocumentRef,
 ): string | null => {
   if (type === "PURCHASE_REQUEST") {
-    return detailHref(MENU.PENGADAAN, MENU.PERMINTAAN_PEMBELIAN, document.code);
+    return detailHref(MENU.PROCUREMENT, MENU.PURCHASE_REQUEST, document.code);
   }
 
   if (type === "ASSET_DISPOSAL") {
-    return `${menuHref(MENU.INVENTARIS, MENU.SIKLUS_ASET)}/pelepasan/${encodeURIComponent(document.code)}`;
+    return `${menuHref(MENU.FIXED_ASSET, MENU.ASSET_TRANSACTION)}/pelepasan/${encodeURIComponent(document.code)}`;
   }
 
   if (type === "CASH_EXPENSE") {
-    return detailHref(MENU.KEUANGAN, MENU.KAS_KELUAR, document.publicId);
+    return detailHref(MENU.FINANCE, MENU.KAS_KELUAR, document.publicId);
   }
 
   if (type === "PROGRAM" || type === "PROGRAM_MENDADAK") {
-    return detailHref(MENU.ANGGARAN, MENU.PROGRAM, document.publicId);
+    return detailHref(MENU.BUDGETING, MENU.PROGRAM, document.publicId);
   }
 
   if (type === "BUDGET_USAGE_REPORT") {
-    return detailHref(MENU.ANGGARAN, MENU.LAPORAN_BUDGET, document.publicId);
+    return detailHref(MENU.REPORT, MENU.BUDGET_REALIZATION, document.publicId);
   }
 
   return null;

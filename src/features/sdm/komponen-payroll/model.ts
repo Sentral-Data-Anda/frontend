@@ -21,12 +21,12 @@ import type {
   PenetapanPayload,
 } from "./types";
 
-export const KATALOG_LIST_PATH = menuHref(MENU.SDM, MENU.KOMPONEN_PAYROLL);
+export const KATALOG_LIST_PATH = menuHref(MENU.HR, MENU.PAYROLL_COMPONENT);
 
-export const KATALOG_CREATE_PATH = createHref(MENU.SDM, MENU.KOMPONEN_PAYROLL);
+export const KATALOG_CREATE_PATH = createHref(MENU.HR, MENU.PAYROLL_COMPONENT);
 
 export const katalogEditHref = (code: string) =>
-  editHref(MENU.SDM, MENU.KOMPONEN_PAYROLL, code);
+  editHref(MENU.HR, MENU.PAYROLL_COMPONENT, code);
 
 export const PENETAPAN_LIST_PATH = `${KATALOG_LIST_PATH}/karyawan`;
 

@@ -453,7 +453,7 @@ export const barangMock: MockHandler = async ({
   const [, , code, sub] = path.split("/");
   if (sub !== undefined) return null;
 
-  if (!can(MENU.BARANG, actionOf(method))) return denied();
+  if (!can(MENU.ASSET_MASTER, actionOf(method))) return denied();
 
   if (method !== "GET" && process.env.MOCK_ASSET_SAVE_ERROR === "500") {
     return serverError();

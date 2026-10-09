@@ -88,11 +88,14 @@ describe("isTabActive", () => {
 
   test("slug saudara berawalan sama tidak ikut aktif", () => {
     expect(
-      isTabActive("/inventaris/barang", "/inventaris/barang-persediaan/baru"),
+      isTabActive("/fixed-asset/asset-master", "/inventory/stock-item/baru"),
     ).toBe(false);
-    expect(isTabActive("/inventaris/barang", "/inventaris/barang/AST-1")).toBe(
-      true,
-    );
+    expect(
+      isTabActive(
+        "/fixed-asset/asset-master",
+        "/fixed-asset/asset-master/AST-1",
+      ),
+    ).toBe(true);
   });
 
   test("'/' aktif tepat di '/'", () => {

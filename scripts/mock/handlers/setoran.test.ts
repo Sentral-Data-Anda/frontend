@@ -271,13 +271,13 @@ describe("mock /setoran rute", () => {
     expect(await onCall("DELETE", `/setoran/${draftCode()}`)).toBeNull();
   });
 
-  test("guard memakai MENU.SETORAN", async () => {
+  test("guard memakai MENU.BANK_DEPOSIT", async () => {
     const slugs: string[] = [];
     await onCall("GET", "/setoran", undefined, (slug) => {
       slugs.push(slug);
       return true;
     });
 
-    expect(slugs).toEqual([MENU.SETORAN]);
+    expect(slugs).toEqual([MENU.BANK_DEPOSIT]);
   });
 });

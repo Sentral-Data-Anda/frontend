@@ -18,7 +18,7 @@ export const FixLink = (props: PropTypes) => {
   const { code, isPlain = false } = props;
 
   const fix = fixOfCode(code);
-  const { isCanView } = useMenuAccess(fix?.menu ?? MENU.JURNAL);
+  const { isCanView } = useMenuAccess(fix?.menu ?? MENU.JOURNAL_ENTRY);
 
   if (!fix || !isCanView) return null;
 

@@ -140,5 +140,5 @@ test("meta, rekening, dan tautan pesanan", () => {
       bankAccountName: null,
     }),
   ).toBe("");
-  expect(supplierOrdersHref(5)).toBe("/pengadaan/pesanan-pembelian?supplier=5");
+  expect(supplierOrdersHref(5)).toBe("/procurement/purchase-order?supplier=5");
 });

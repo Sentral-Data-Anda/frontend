@@ -27,7 +27,7 @@ export const SupplierListContent = () => {
             ? undefined
             : `${supplierList.totalData} supplier`
         }
-        backHref={domainHref(MENU.PENGADAAN)}
+        backHref={domainHref(MENU.PROCUREMENT)}
         action={
           isCanCreate ? (
             <PageHeaderAdd

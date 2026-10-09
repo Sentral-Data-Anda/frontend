@@ -22,18 +22,18 @@ import type {
   YearProgram,
 } from "./types";
 
-export const PAGU_LIST_PATH = menuHref(MENU.ANGGARAN, MENU.PAGU_ANGGARAN);
+export const PAGU_LIST_PATH = menuHref(MENU.BUDGETING, MENU.BUDGET);
 
-export const PAGU_CREATE_PATH = createHref(MENU.ANGGARAN, MENU.PAGU_ANGGARAN);
+export const PAGU_CREATE_PATH = createHref(MENU.BUDGETING, MENU.BUDGET);
 
 export const allocationDetailHref = (publicId: string) =>
-  detailHref(MENU.ANGGARAN, MENU.PAGU_ANGGARAN, publicId);
+  detailHref(MENU.BUDGETING, MENU.BUDGET, publicId);
 
 export const allocationEditHref = (publicId: string) =>
-  editHref(MENU.ANGGARAN, MENU.PAGU_ANGGARAN, publicId);
+  editHref(MENU.BUDGETING, MENU.BUDGET, publicId);
 
 export const programDetailHref = (publicId: string) =>
-  detailHref(MENU.ANGGARAN, MENU.PROGRAM, publicId);
+  detailHref(MENU.BUDGETING, MENU.PROGRAM, publicId);
 
 export const LIST_FILTERS = {
   tahun: { api: "year" },

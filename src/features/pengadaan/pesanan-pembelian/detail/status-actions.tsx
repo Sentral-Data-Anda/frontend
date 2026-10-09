@@ -29,8 +29,8 @@ interface PropTypes {
 export const StatusActions = (props: PropTypes) => {
   const { order, pendingAction, onPick } = props;
 
-  const { isCanUpdate, isCanDelete } = useMenuAccess(MENU.PESANAN_PEMBELIAN);
-  const receiptAccess = useMenuAccess(MENU.PENERIMAAN_BARANG);
+  const { isCanUpdate, isCanDelete } = useMenuAccess(MENU.PURCHASE_ORDER);
+  const receiptAccess = useMenuAccess(MENU.GOODS_RECEIPT);
   const isBusy = pendingAction !== null;
   const isFresh = isEditable(order);
   const isOpen =

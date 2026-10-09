@@ -11,7 +11,7 @@ import { TIPE_BARANG_LIST_PATH } from "../model";
 import type { TipeBarang } from "../types";
 
 const editHrefOf = (tipeBarang: TipeBarang) =>
-  editHref(MENU.INVENTARIS, MENU.TIPE_BARANG, tipeBarang.code);
+  editHref(MENU.INVENTORY, MENU.ITEM_CATEGORY, tipeBarang.code);
 
 const saveFocus = (tipeBarang: TipeBarang) =>
   saveListFocus(TIPE_BARANG_LIST_PATH, tipeBarang.code);

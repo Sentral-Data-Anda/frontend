@@ -40,7 +40,7 @@ export const IncomeExpenseChart = () => {
       title="Masuk vs keluar · 12 bulan"
       trailing={<Legend />}
       actionLabel="Laporan"
-      actionHref={menuHref(MENU.KEUANGAN, MENU.LAPORAN_KEUANGAN)}
+      actionHref={menuHref(MENU.REPORT, MENU.FINANCIAL_STATEMENT)}
       query={flow}
       minHeight="min-h-52"
     >

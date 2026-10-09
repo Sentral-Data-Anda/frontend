@@ -70,7 +70,7 @@ export const ReportDetailScreen = (props: PropTypes) => {
 
   const router = useRouter();
   const toast = useToast();
-  const { isCanView } = useMenuAccess(MENU.LAPORAN_BUDGET);
+  const { isCanView } = useMenuAccess(MENU.BUDGET_REALIZATION);
   const listReturn = useListReturn(REPORT_LIST_PATH);
   const detail = useReportDetail(isCanView ? publicId : undefined);
   const action = useReportAction(publicId);
@@ -97,7 +97,7 @@ export const ReportDetailScreen = (props: PropTypes) => {
   if (!isCanView) {
     return (
       <div className="pb-8">
-        <PageHeader title={TITLE} backHref={domainHref(MENU.ANGGARAN)} />
+        <PageHeader title={TITLE} backHref={domainHref(MENU.REPORT)} />
 
         <EmptyState
           title="Anda tidak memiliki akses ke Laporan Budget"

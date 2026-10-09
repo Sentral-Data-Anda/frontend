@@ -12,7 +12,7 @@ import { MATA_UANG_CREATE_PATH } from "../model";
 import { CurrencyListItemRow, currencyTable } from "./list-item";
 
 export const CurrencyListContent = () => {
-  const { isCanCreate } = useMenuAccess(MENU.MATA_UANG);
+  const { isCanCreate } = useMenuAccess(MENU.CURRENCY);
   const listParams = useListParams();
   const currencyList = useCurrencyList(listParams);
   const isSearched = Boolean(listParams.search);
@@ -26,7 +26,7 @@ export const CurrencyListContent = () => {
             ? undefined
             : `${currencyList.totalData} mata uang`
         }
-        backHref={domainHref(MENU.KEUANGAN)}
+        backHref={domainHref(MENU.FINANCE)}
         action={
           isCanCreate ? (
             <PageHeaderAdd

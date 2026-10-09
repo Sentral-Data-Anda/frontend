@@ -28,7 +28,7 @@ interface PropTypes {
 export const DetailFrame = (props: PropTypes) => {
   const { noun, backHref, query, children } = props;
 
-  const { isCanView } = useMenuAccess(MENU.SIKLUS_ASET);
+  const { isCanView } = useMenuAccess(MENU.ASSET_TRANSACTION);
   const isNotFound =
     query.error instanceof FetchError && query.error.status === 404;
 

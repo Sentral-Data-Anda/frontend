@@ -36,7 +36,7 @@ mock.module("next/navigation", () => ({
     replace: (href: string) => replaced.push(href),
     push: () => undefined,
   }),
-  usePathname: () => "/inventaris/mutasi-stok/baru",
+  usePathname: () => "/inventory/stock-movement/baru",
   useSearchParams: () => new URLSearchParams(search.current),
 }));
 
@@ -126,7 +126,7 @@ const onMockApi = (failure?: Failure) => {
 
 const onRenderForm = async (
   granted: Partial<Record<MenuSlug, MenuAction[]>> = {
-    MUTASI_STOK: ["VIEW", "CREATE"],
+    STOCK_MOVEMENT: ["VIEW", "CREATE"],
   },
   query = "barang=BRP-0002",
 ) => {
@@ -153,7 +153,7 @@ const onSave = () =>
 describe("form mutasi stok", () => {
   test("tanpa CREATE: bukan form", async () => {
     onMockApi();
-    await onRenderForm({ MUTASI_STOK: ["VIEW"] }, "");
+    await onRenderForm({ STOCK_MOVEMENT: ["VIEW"] }, "");
 
     expect(screen.getByText("Tidak bisa mencatat mutasi stok")).toBeTruthy();
     expect(

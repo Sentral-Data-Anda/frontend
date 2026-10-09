@@ -53,7 +53,7 @@ export const TipeCutiFormScreen = (props: PropTypes) => {
   const toast = useToast();
   const isEdit = Boolean(code);
   const { isCanView, isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
-    MENU.TIPE_CUTI,
+    MENU.LEAVE_TYPE,
   );
   const listReturn = useListReturn(TIPE_CUTI_LIST_PATH);
   const [rejectedField, setRejectedField] = useState<string | null>(null);

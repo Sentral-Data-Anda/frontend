@@ -448,7 +448,7 @@ describe("kunci bulan mulai", () => {
 });
 
 describe("lingkup komisi", () => {
-  test("kapabilitas PAGU_ANGGARAN VIEW melihat semua komisi", () => {
+  test("kapabilitas BUDGET VIEW melihat semua komisi", () => {
     expect(komisiScopeOf(false, true)).toEqual({ isAll: true });
     expect(isVisibleBapel(komisiScopeOf(false, true), 9999)).toBe(true);
   });

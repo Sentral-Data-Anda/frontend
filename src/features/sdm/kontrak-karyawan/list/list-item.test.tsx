@@ -77,7 +77,7 @@ describe("konfigurasi kolom", () => {
 
   test("tautan baris hanya dengan UPDATE", () => {
     expect(kontrakTable(true).getRowHref?.(CONTRACT)).toBe(
-      "/sdm/kontrak-karyawan/KTR-0003/ubah",
+      "/hr/employee-contract/KTR-0003/ubah",
     );
     expect(kontrakTable(false).getRowHref?.(CONTRACT)).toBeUndefined();
     expect(kontrakTable(true).getRowLabel?.(CONTRACT)).toBe(

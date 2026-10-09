@@ -27,7 +27,7 @@ export const OfferingTypeListContent = () => {
             ? undefined
             : `${offeringTypeList.totalData} tipe`
         }
-        backHref={domainHref(MENU.KEUANGAN)}
+        backHref={domainHref(MENU.FINANCE)}
         action={
           isCanCreate ? (
             <PageHeaderAdd

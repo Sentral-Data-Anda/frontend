@@ -8,13 +8,13 @@ import { useMenuAccess } from "@/features/auth";
 import { CutiList } from "./cuti-list";
 
 export const CutiListScreen = () => {
-  const { isCanView } = useMenuAccess(MENU.CUTI);
+  const { isCanView } = useMenuAccess(MENU.LEAVE);
 
   if (isCanView) return <CutiList />;
 
   return (
     <div className="pb-6">
-      <PageHeader title="Cuti" backHref={domainHref(MENU.SDM)} />
+      <PageHeader title="Cuti" backHref={domainHref(MENU.HR)} />
 
       <EmptyState
         title="Anda tidak memiliki akses ke Cuti"

@@ -8,13 +8,13 @@ import { useMenuAccess } from "@/features/auth";
 import { TipeCutiList } from "./tipe-cuti-list";
 
 export const TipeCutiListScreen = () => {
-  const { isCanView } = useMenuAccess(MENU.TIPE_CUTI);
+  const { isCanView } = useMenuAccess(MENU.LEAVE_TYPE);
 
   if (isCanView) return <TipeCutiList />;
 
   return (
     <div className="pb-6">
-      <PageHeader title="Tipe Cuti" backHref={domainHref(MENU.SDM)} />
+      <PageHeader title="Tipe Cuti" backHref={domainHref(MENU.HR)} />
 
       <EmptyState
         title="Anda tidak memiliki akses ke Tipe Cuti"

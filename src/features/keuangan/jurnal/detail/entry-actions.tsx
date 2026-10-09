@@ -35,7 +35,9 @@ interface PropTypes {
 export const EntryActions = (props: PropTypes) => {
   const { entry, pendingAction, onPick } = props;
 
-  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(MENU.JURNAL);
+  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+    MENU.JOURNAL_ENTRY,
+  );
   const isBusy = pendingAction !== null;
   const isDraft = isEditable(entry);
   const blockReason = isDraft ? postBlockReasonOf(entry) : null;

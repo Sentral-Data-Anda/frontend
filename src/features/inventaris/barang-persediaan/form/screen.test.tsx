@@ -34,7 +34,7 @@ mock.module("next/navigation", () => ({
     replace: (href: string) => replaced.push(href),
     push: () => undefined,
   }),
-  usePathname: () => "/inventaris/barang-persediaan/baru",
+  usePathname: () => "/inventory/stock-item/baru",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -153,7 +153,7 @@ const onRenderLoadedEdit = async (
   actions: MenuAction[] = ["VIEW", "UPDATE"],
   movement: MenuAction[] = [],
 ) => {
-  onRenderForm({ BARANG_PERSEDIAAN: actions, MUTASI_STOK: movement }, CODE);
+  onRenderForm({ STOCK_ITEM: actions, STOCK_MOVEMENT: movement }, CODE);
 
   await waitFor(() =>
     expect((screen.getByLabelText("Nama") as HTMLInputElement).value).toBe(
@@ -170,7 +170,7 @@ const onConfirm = async () => {
 describe("gerbang izin", () => {
   test("tanpa CREATE / UPDATE: bukan form", () => {
     onMockApi();
-    onRenderForm({ BARANG_PERSEDIAAN: ["VIEW"] });
+    onRenderForm({ STOCK_ITEM: ["VIEW"] });
 
     expect(
       screen.getByText("Tidak bisa menambah barang persediaan"),
@@ -180,7 +180,7 @@ describe("gerbang izin", () => {
     ).toBeTruthy();
 
     cleanup();
-    onRenderForm({ BARANG_PERSEDIAAN: ["VIEW", "CREATE"] }, CODE);
+    onRenderForm({ STOCK_ITEM: ["VIEW", "CREATE"] }, CODE);
     expect(
       screen.getByText("Tidak bisa mengubah barang persediaan"),
     ).toBeTruthy();
@@ -188,7 +188,7 @@ describe("gerbang izin", () => {
 
   test("tambah: stok awal; Hapus tidak ada", () => {
     onMockApi();
-    onRenderForm({ BARANG_PERSEDIAAN: ["VIEW", "CREATE", "DELETE"] });
+    onRenderForm({ STOCK_ITEM: ["VIEW", "CREATE", "DELETE"] });
 
     expect(screen.getByLabelText("Stok awal")).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Hapus" })).toBeNull();
@@ -213,7 +213,7 @@ describe("gerbang izin", () => {
 
   test("404: data tidak ditemukan", async () => {
     onMockApi();
-    onRenderForm({ BARANG_PERSEDIAAN: ["VIEW", "UPDATE"] }, "BRP-9999");
+    onRenderForm({ STOCK_ITEM: ["VIEW", "UPDATE"] }, "BRP-9999");
 
     expect(
       await screen.findByText("Data barang persediaan tidak ditemukan"),

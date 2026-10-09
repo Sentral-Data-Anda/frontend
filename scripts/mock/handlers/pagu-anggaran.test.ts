@@ -194,7 +194,7 @@ describe("mock /pagu-anggaran baca", () => {
       "GET",
       "/pagu-anggaran",
       undefined,
-      (slug, action) => !(slug === MENU.PAGU_ANGGARAN && action === "VIEW"),
+      (slug, action) => !(slug === MENU.BUDGET && action === "VIEW"),
     );
 
     expect(denied?.status).toBe(403);
@@ -322,7 +322,7 @@ describe("mock /pagu-anggaran tulis", () => {
 
   test("tulis tanpa izin aksinya: 403", async () => {
     const only = (allowed: MockAction) => (slug: string, action: MockAction) =>
-      slug !== MENU.PAGU_ANGGARAN || action === allowed;
+      slug !== MENU.BUDGET || action === allowed;
     const row = anyOf(YEAR);
 
     expect(

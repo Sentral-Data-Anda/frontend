@@ -24,7 +24,7 @@ import { ACCOUNT_STATUS_FILTER, ACCOUNT_TYPE_FILTER } from "../types";
 import { AccountListItemRow, accountTable } from "./list-item";
 
 export const AccountListContent = () => {
-  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.AKUN);
+  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.CHART_OF_ACCOUNT);
   const listParams = useListParams({ limit: 50, filters: ACCOUNT_FILTERS });
   const accountList = useAccountList(listParams);
   const isNarrowed = Boolean(listParams.search) || listParams.isFiltered;
@@ -44,7 +44,7 @@ export const AccountListContent = () => {
             ? undefined
             : `${accountList.totalData} akun`
         }
-        backHref={domainHref(MENU.KEUANGAN)}
+        backHref={domainHref(MENU.FINANCE)}
         action={
           isCanCreate && !isChartEmpty ? (
             <PageHeaderAdd href={AKUN_CREATE_PATH} label="Tambah akun" />

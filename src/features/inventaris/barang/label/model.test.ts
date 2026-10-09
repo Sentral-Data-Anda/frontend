@@ -39,17 +39,17 @@ describe("label barang", () => {
 
   test("tautan cetak membawa filter yang terisi saja", () => {
     expect(labelHrefOf({ search: "", status: "aktif", ruang: "2" })).toBe(
-      "/inventaris/barang/label?status=aktif&ruang=2",
+      "/fixed-asset/asset-master/label?status=aktif&ruang=2",
     );
     expect(labelHrefOf({ kode: "AST_0001_0002-0001" })).toBe(
-      "/inventaris/barang/label?kode=AST_0001_0002-0001",
+      "/fixed-asset/asset-master/label?kode=AST_0001_0002-0001",
     );
-    expect(labelHrefOf({})).toBe("/inventaris/barang/label");
+    expect(labelHrefOf({})).toBe("/fixed-asset/asset-master/label");
   });
 
   test("isi QR = URL halaman barang", () => {
     expect(labelUrlOf("https://sada.example/", "AST_0001_0002-0001")).toBe(
-      "https://sada.example/inventaris/barang/AST_0001_0002-0001",
+      "https://sada.example/fixed-asset/asset-master/AST_0001_0002-0001",
     );
   });
 

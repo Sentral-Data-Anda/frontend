@@ -23,7 +23,7 @@ import { ActionBadge } from "../ui/action-badge";
 const keyOf = (log: ActivityLogListItem) => String(log.id);
 
 const detailHrefOf = (log: ActivityLogListItem) =>
-  detailHref(MENU.PENGATURAN, MENU.ACTIVITY_LOG, keyOf(log));
+  detailHref(MENU.SETTINGS, MENU.ACTIVITY_LOG, keyOf(log));
 
 const saveFocus = (log: ActivityLogListItem) =>
   saveListFocus(ACTIVITY_LOG_LIST_PATH, keyOf(log));

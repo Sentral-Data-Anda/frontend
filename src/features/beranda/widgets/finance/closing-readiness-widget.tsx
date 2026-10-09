@@ -16,7 +16,7 @@ export const ClosingReadinessWidget = () => {
   const month = monthOf(now);
   const year = Number(toDateKey(now).slice(0, 4));
   const periods = useFiscalPeriods();
-  const isJournalShown = useMenuAccess(MENU.JURNAL).isCanView;
+  const isJournalShown = useMenuAccess(MENU.JOURNAL_ENTRY).isCanView;
   const journals = useDraftJournalCount(isJournalShown);
 
   const periodOf = (y: number, m: number) =>
@@ -72,7 +72,7 @@ export const ClosingReadinessWidget = () => {
         </span>
       }
       actionLabel="Periode fiskal"
-      actionHref={menuHref(MENU.KEUANGAN, MENU.PERIODE_FISKAL)}
+      actionHref={menuHref(MENU.FINANCE, MENU.FISCAL_PERIOD)}
       query={periods}
       minHeight="min-h-32"
     >

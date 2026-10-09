@@ -189,13 +189,13 @@ describe("sisa tak bertanda", () => {
         key: "a",
         label: "Komisi Anak",
         amount: "1000000",
-        href: "/anggaran/pagu-anggaran/a",
+        href: "/budgeting/budget/a",
       },
       {
         key: "b",
         label: "Komisi Pemuda",
         amount: "2000000",
-        href: "/anggaran/pagu-anggaran/b",
+        href: "/budgeting/budget/b",
       },
     ]);
   });

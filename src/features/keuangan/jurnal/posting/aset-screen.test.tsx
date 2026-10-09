@@ -23,21 +23,21 @@ import { onStubViewport } from "../../../../../tests/viewport";
 import type { PostingResult } from "../types";
 
 const actions: { current: MenuAction[] } = { current: [] };
-// Sadar MENU, bukan satu jawaban untuk semua: layar ini menanyakan JURNAL
-// untuk haknya memposting dan BARANG untuk boleh-tidaknya menautkan aset yang
+// Sadar MENU, bukan satu jawaban untuk semua: layar ini menanyakan JOURNAL_ENTRY
+// untuk haknya memposting dan ASSET_MASTER untuk boleh-tidaknya menautkan aset yang
 // ditolak. Mock yang mengabaikan menu mana yang ditanya membuat perbedaan itu
 // tak teruji.
 const barang: { current: MenuAction[] } = { current: [] };
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: () => {}, push: () => {} }),
-  usePathname: () => "/keuangan/jurnal/posting-aset",
+  usePathname: () => "/finance/journal-entry/posting-aset",
   useSearchParams: () => new URLSearchParams(),
 }));
 
 mock.module("@/features/auth/use-menu-access", () => ({
   useMenuAccess: (menu: string) => {
-    const granted = menu === "BARANG" ? barang.current : actions.current;
+    const granted = menu === "ASSET_MASTER" ? barang.current : actions.current;
 
     return {
       isCanView: granted.includes("VIEW"),
@@ -244,7 +244,7 @@ describe("yang ditolak", () => {
     await onPreview();
 
     const link = screen.getByRole("link", { name: "AST-2026-0009" });
-    expect(link.getAttribute("href")).toContain("/inventaris/barang/");
+    expect(link.getAttribute("href")).toContain("/fixed-asset/asset-master/");
   });
 
   test("tanpa Barang kodenya tetap terbaca, tanpa tautan", async () => {

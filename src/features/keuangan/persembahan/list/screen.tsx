@@ -16,7 +16,7 @@ export const PersembahanListScreen = () => {
     <PersembahanListContent />
   ) : (
     <div className="pb-6">
-      <PageHeader title="Persembahan" backHref={domainHref(MENU.KEUANGAN)} />
+      <PageHeader title="Persembahan" backHref={domainHref(MENU.FINANCE)} />
       <EmptyState
         title="Anda tidak memiliki akses ke Persembahan"
         description={NO_VIEW}

@@ -8,13 +8,13 @@ import { useMenuAccess } from "@/features/auth";
 import { AllocationListContent } from "./list-content";
 
 export const AllocationListScreen = () => {
-  const { isCanView } = useMenuAccess(MENU.PAGU_ANGGARAN);
+  const { isCanView } = useMenuAccess(MENU.BUDGET);
 
   if (isCanView) return <AllocationListContent />;
 
   return (
     <div className="pb-6">
-      <PageHeader title="Pagu Anggaran" backHref={domainHref(MENU.ANGGARAN)} />
+      <PageHeader title="Pagu Anggaran" backHref={domainHref(MENU.BUDGETING)} />
 
       <EmptyState
         title="Anda tidak memiliki akses ke Pagu Anggaran"

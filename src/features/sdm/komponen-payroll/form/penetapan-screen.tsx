@@ -56,7 +56,7 @@ export const PenetapanFormScreen = (props: PropTypes) => {
   const toast = useToast();
   const isEdit = Boolean(publicId);
   const { isCanView, isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
-    MENU.KOMPONEN_PAYROLL,
+    MENU.PAYROLL_COMPONENT,
   );
   const listReturn = useListReturn(PENETAPAN_LIST_PATH);
   const [rejectedField, setRejectedField] = useState<string | null>(null);

@@ -46,7 +46,7 @@ export const MutasiFormScreen = () => {
   const toast = useToast();
   const searchParams = useSearchParams();
   const presetCode = searchParams.get("barang") ?? "";
-  const { isCanView, isCanCreate } = useMenuAccess(MENU.MUTASI_STOK);
+  const { isCanView, isCanCreate } = useMenuAccess(MENU.STOCK_MOVEMENT);
   const listReturn = useListReturn(MUTASI_LIST_PATH);
   const [rejectedField, setRejectedField] = useState<string | null>(null);
   const createMutasi = useCreateMutasi();

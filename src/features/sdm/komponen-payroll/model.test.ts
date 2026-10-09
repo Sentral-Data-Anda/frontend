@@ -80,14 +80,14 @@ const fieldsOf = (values: KomponenFormValues | PenetapanFormValues) => {
 
 describe("rute dua layar", () => {
   test("katalog memakai code, penetapan memakai publicId", () => {
-    expect(KATALOG_LIST_PATH).toBe("/sdm/komponen-payroll");
+    expect(KATALOG_LIST_PATH).toBe("/hr/payroll-component");
     expect(katalogEditHref("KPY-0001")).toBe(
-      "/sdm/komponen-payroll/KPY-0001/ubah",
+      "/hr/payroll-component/KPY-0001/ubah",
     );
-    expect(PENETAPAN_LIST_PATH).toBe("/sdm/komponen-payroll/karyawan");
-    expect(PENETAPAN_CREATE_PATH).toBe("/sdm/komponen-payroll/karyawan/baru");
+    expect(PENETAPAN_LIST_PATH).toBe("/hr/payroll-component/karyawan");
+    expect(PENETAPAN_CREATE_PATH).toBe("/hr/payroll-component/karyawan/baru");
     expect(penetapanEditHref("a b/c")).toBe(
-      "/sdm/komponen-payroll/karyawan/a%20b%2Fc/ubah",
+      "/hr/payroll-component/karyawan/a%20b%2Fc/ubah",
     );
   });
 });

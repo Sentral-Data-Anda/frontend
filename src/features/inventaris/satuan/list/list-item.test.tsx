@@ -25,9 +25,7 @@ describe("baris HP", () => {
     onRenderRow(true);
 
     const action = screen.getByRole("link", { name: "Ubah Buah" });
-    expect(action.getAttribute("href")).toBe(
-      "/inventaris/satuan/UNT-0001/ubah",
-    );
+    expect(action.getAttribute("href")).toBe("/inventory/satuan/UNT-0001/ubah");
   });
 
   test("tanpa UPDATE: tidak ada aksi ubah sama sekali", () => {
@@ -55,7 +53,7 @@ describe("konfigurasi tabel", () => {
       ["Kode", "minmax(0,1fr)"],
     ]);
     expect(table.getRowHref?.(SATUAN_ROW)).toBe(
-      "/inventaris/satuan/UNT-0001/ubah",
+      "/inventory/satuan/UNT-0001/ubah",
     );
     expect(satuanTable(false).getRowHref).toBeUndefined();
   });
