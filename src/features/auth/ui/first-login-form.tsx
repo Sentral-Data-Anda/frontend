@@ -87,7 +87,7 @@ export const FirstLoginForm = (props: PropTypes) => {
         </p>
       ) : null}
 
-      <Button type="submit" className="w-full" disabled={isSubmitting}>
+      <Button type="submit" className="w-full" isLoading={isSubmitting}>
         {isSubmitting ? "Menyimpan…" : "Simpan password"}
       </Button>
     </form>

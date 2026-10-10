@@ -2,12 +2,26 @@
 
 import { Toast } from "@base-ui/react/toast";
 import { X } from "lucide-react";
+import { useEffect } from "react";
+
+import { connectToast } from "@/lib/toast-bus";
 
 export const useToast = Toast.useToastManager;
+
+/** Menyambungkan showToast() ke manajer toast; tidak merender apa pun. */
+function ToastBridge() {
+  const toast = Toast.useToastManager();
+
+  useEffect(() => connectToast((next) => toast.add(next)), [toast]);
+
+  return null;
+}
 
 export function ToastHost({ children }: { children: React.ReactNode }) {
   return (
     <Toast.Provider>
+      <ToastBridge />
+
       {children}
 
       <Toast.Portal>

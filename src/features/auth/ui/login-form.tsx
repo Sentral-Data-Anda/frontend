@@ -90,8 +90,8 @@ export const LoginForm = () => {
         </p>
       ) : null}
 
-      <Button type="submit" className="w-full" disabled={isSubmitting}>
-        {isSubmitting ? "Masuk…" : "Masuk"}
+      <Button type="submit" className="w-full" isLoading={isSubmitting}>
+        {isSubmitting ? "Memproses…" : "Masuk"}
       </Button>
     </form>
   );
