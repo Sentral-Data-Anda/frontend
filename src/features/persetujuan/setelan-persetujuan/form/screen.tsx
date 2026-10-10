@@ -185,6 +185,7 @@ export const SetelanFormScreen = (props: PropTypes) => {
               variant="destructive"
               disabled={isBusy || detail.isLoading}
               onClick={() => confirm.onOpen("delete")}
+              isLoading={deactivateSetelan.isPending}
             >
               {deactivateSetelan.isPending ? "Menonaktifkan…" : "Nonaktifkan"}
             </Button>
@@ -204,6 +205,7 @@ export const SetelanFormScreen = (props: PropTypes) => {
               ref={saveRef}
               type="submit"
               disabled={isBusy || detail.isLoading}
+              isLoading={isSubmitting}
             >
               {isSubmitting ? "Menyimpan…" : "Simpan"}
             </Button>

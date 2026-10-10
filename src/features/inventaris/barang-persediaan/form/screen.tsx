@@ -192,6 +192,7 @@ export const StockFormScreen = (props: PropTypes) => {
               variant="destructive"
               disabled={isLocked}
               onClick={() => confirm.onOpen("delete")}
+              isLoading={deleteStock.isPending}
             >
               {deleteStock.isPending ? "Menghapus…" : "Hapus"}
             </Button>
@@ -206,7 +207,12 @@ export const StockFormScreen = (props: PropTypes) => {
             Batal
           </Button>
 
-          <Button ref={saveRef} type="submit" disabled={isLocked}>
+          <Button
+            ref={saveRef}
+            type="submit"
+            disabled={isLocked}
+            isLoading={isSubmitting}
+          >
             {isSubmitting ? "Menyimpan…" : "Simpan"}
           </Button>
         </FormActions>
@@ -232,6 +238,7 @@ export const StockFormScreen = (props: PropTypes) => {
             variant="outline"
             disabled={detail.isFetching}
             onClick={onRetryDetail}
+            isLoading={detail.isFetching}
           >
             {detail.isFetching ? "Memuat…" : "Coba lagi"}
           </Button>

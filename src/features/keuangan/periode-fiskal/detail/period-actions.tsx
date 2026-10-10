@@ -29,7 +29,12 @@ export const PeriodActions = (props: PropTypes) => {
       </p>
 
       {isOpen ? (
-        <Button type="button" disabled={isPending} onClick={onCloseBook}>
+        <Button
+          type="button"
+          disabled={isPending}
+          onClick={onCloseBook}
+          isLoading={isPending}
+        >
           {isPending ? "Menutup…" : "Tutup buku"}
         </Button>
       ) : (

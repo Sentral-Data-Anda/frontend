@@ -30,6 +30,7 @@ export const CancelAction = (props: PropTypes) => {
             variant="destructive"
             disabled={isCancelling}
             onClick={onCancel}
+            isLoading={isCancelling}
           >
             {isCancelling ? "Membatalkan…" : "Batalkan pendaftaran"}
           </Button>

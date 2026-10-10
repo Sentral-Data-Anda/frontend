@@ -96,6 +96,7 @@ export const ItemSection = (props: PropTypes) => {
           disabled={isDisabled || isCopying}
           className="cursor-pointer disabled:cursor-not-allowed"
           onClick={onCopy}
+          isLoading={isCopying}
         >
           <Copy aria-hidden />
           {isCopying ? "Menyalin…" : "Salin barang dari permintaan"}

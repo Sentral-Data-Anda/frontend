@@ -81,6 +81,7 @@ export const RoomSchedule = (props: PropTypes) => {
             className="px-0"
             disabled={booking.isFetching}
             onClick={onRetry}
+            isLoading={booking.isFetching}
           >
             {booking.isFetching ? "Memuat…" : "Coba lagi"}
           </Button>

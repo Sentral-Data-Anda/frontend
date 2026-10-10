@@ -182,6 +182,7 @@ export const TipeCutiFormScreen = (props: PropTypes) => {
               variant="destructive"
               disabled={isBusy || detail.isLoading}
               onClick={() => confirm.onOpen("delete")}
+              isLoading={deleteTipeCuti.isPending}
             >
               {deleteTipeCuti.isPending ? "Menghapus…" : "Hapus"}
             </Button>
@@ -200,6 +201,7 @@ export const TipeCutiFormScreen = (props: PropTypes) => {
             ref={saveRef}
             type="submit"
             disabled={isBusy || detail.isLoading}
+            isLoading={isSubmitting}
           >
             {isSubmitting ? "Menyimpan…" : "Simpan"}
           </Button>

@@ -180,6 +180,7 @@ export const RoleJemaatFormScreen = (props: PropTypes) => {
               variant="destructive"
               disabled={isBusy || detail.isLoading}
               onClick={() => confirm.onOpen("delete")}
+              isLoading={deleteRole.isPending}
             >
               {deleteRole.isPending ? "Menghapus…" : "Hapus"}
             </Button>
@@ -198,6 +199,7 @@ export const RoleJemaatFormScreen = (props: PropTypes) => {
             ref={saveRef}
             type="submit"
             disabled={isBusy || detail.isLoading}
+            isLoading={isSubmitting}
           >
             {isSubmitting ? "Menyimpan…" : "Simpan"}
           </Button>

@@ -152,6 +152,7 @@ export const PenyusutanFormScreen = () => {
             ref={saveRef}
             type="submit"
             disabled={isSubmitting || latest.isPending}
+            isLoading={isSubmitting}
           >
             {isSubmitting ? "Menyimpan…" : "Simpan"}
           </Button>

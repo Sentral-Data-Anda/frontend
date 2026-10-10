@@ -60,7 +60,12 @@ export const PersembahanFormScreen = () => {
             Batal
           </Button>
 
-          <Button ref={saveRef} type="submit" disabled={isSubmitting}>
+          <Button
+            ref={saveRef}
+            type="submit"
+            disabled={isSubmitting}
+            isLoading={isSubmitting}
+          >
             {isSubmitting ? "Menyimpan…" : "Simpan"}
           </Button>
         </FormActions>

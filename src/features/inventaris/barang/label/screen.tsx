@@ -77,6 +77,7 @@ export const BarangLabelScreen = (props: PropTypes) => {
                   variant="outline"
                   disabled={labels.isFetching}
                   onClick={() => void labels.refetch()}
+                  isLoading={labels.isFetching}
                 >
                   {labels.isFetching ? "Memuat…" : "Coba lagi"}
                 </Button>

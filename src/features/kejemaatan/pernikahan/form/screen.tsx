@@ -205,6 +205,7 @@ export const MarriageFormScreen = (props: PropTypes) => {
               variant="destructive"
               disabled={isBusy || detail.isLoading}
               onClick={() => confirm.onOpen("delete")}
+              isLoading={deleteMarriage.isPending}
             >
               {deleteMarriage.isPending ? "Menghapus…" : "Hapus"}
             </Button>
@@ -223,6 +224,7 @@ export const MarriageFormScreen = (props: PropTypes) => {
             ref={saveRef}
             type="submit"
             disabled={isBusy || detail.isLoading}
+            isLoading={isSubmitting}
           >
             {isSubmitting ? "Menyimpan…" : "Simpan"}
           </Button>

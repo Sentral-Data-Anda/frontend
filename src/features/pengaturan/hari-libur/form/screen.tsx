@@ -177,6 +177,7 @@ export const HolidayFormScreen = (props: PropTypes) => {
               variant="destructive"
               disabled={isBusy || detail.isLoading}
               onClick={() => confirm.onOpen("delete")}
+              isLoading={deleteHoliday.isPending}
             >
               {deleteHoliday.isPending ? "Menghapus…" : "Hapus"}
             </Button>
@@ -195,6 +196,7 @@ export const HolidayFormScreen = (props: PropTypes) => {
             ref={saveRef}
             type="submit"
             disabled={isBusy || detail.isLoading}
+            isLoading={isSubmitting}
           >
             {isSubmitting ? "Menyimpan…" : "Simpan"}
           </Button>

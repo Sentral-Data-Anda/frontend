@@ -41,6 +41,7 @@ export const RangeSection = (props: PropTypes) => {
           type="button"
           disabled={isPending || !bulan}
           onClick={onPreview}
+          isLoading={isPending}
         >
           <Eye aria-hidden />
           {isPending ? "Memeriksa…" : "Lihat pratinjau"}

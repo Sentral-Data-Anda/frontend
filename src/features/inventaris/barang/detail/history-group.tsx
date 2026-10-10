@@ -46,6 +46,7 @@ export function HistoryGroup<T extends { code: string }>(props: PropTypes<T>) {
             variant="outline"
             disabled={history.isFetching}
             onClick={() => void history.refetch()}
+            isLoading={history.isFetching}
           >
             {history.isFetching ? "Memuat…" : "Coba lagi"}
           </Button>

@@ -51,6 +51,7 @@ export const VoidPanel = (props: PropTypes) => {
           variant="destructive"
           disabled={isBusy}
           onClick={onConfirm}
+          isLoading={isBusy}
         >
           {isBusy ? "Membatalkan…" : "Batalkan persembahan"}
         </Button>

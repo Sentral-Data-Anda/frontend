@@ -205,6 +205,7 @@ export const OfferingTypeFormScreen = (props: PropTypes) => {
               variant="destructive"
               disabled={isBusy || isHidden}
               onClick={() => confirm.onOpen("delete")}
+              isLoading={deleteOfferingType.isPending}
             >
               {deleteOfferingType.isPending ? "Menghapus…" : "Hapus"}
             </Button>
@@ -223,6 +224,7 @@ export const OfferingTypeFormScreen = (props: PropTypes) => {
             ref={saveRef}
             type="submit"
             disabled={isBusy || detail.isLoading}
+            isLoading={isSubmitting}
           >
             {isSubmitting ? "Menyimpan…" : "Simpan"}
           </Button>

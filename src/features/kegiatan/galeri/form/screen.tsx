@@ -188,6 +188,7 @@ export const GaleriFormScreen = (props: PropTypes) => {
               variant="destructive"
               disabled={isBusy || isDetailMissing}
               onClick={() => confirm.onOpen("delete")}
+              isLoading={deleteGaleri.isPending}
             >
               {deleteGaleri.isPending ? "Menghapus…" : "Hapus"}
             </Button>
@@ -206,6 +207,7 @@ export const GaleriFormScreen = (props: PropTypes) => {
             ref={saveRef}
             type="submit"
             disabled={isBusy || isDetailMissing}
+            isLoading={isSubmitting}
           >
             {isSubmitting ? "Menyimpan…" : "Simpan"}
           </Button>

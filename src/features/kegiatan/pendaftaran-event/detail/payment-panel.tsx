@@ -144,6 +144,7 @@ export const PaymentPanel = (props: PropTypes) => {
               variant="outline"
               disabled={isReissuing}
               onClick={onReissue}
+              isLoading={isReissuing}
             >
               <RefreshCw aria-hidden />
               {isReissuing ? "Membuat tagihan…" : "Buat ulang tagihan"}

@@ -171,6 +171,7 @@ export const RiwayatFormScreen = (props: PropTypes) => {
               variant="destructive"
               disabled={isBusy || detail.isLoading}
               onClick={() => confirm.onOpen("delete")}
+              isLoading={deleteRiwayat.isPending}
             >
               {deleteRiwayat.isPending ? "Menghapus…" : "Hapus"}
             </Button>
@@ -189,6 +190,7 @@ export const RiwayatFormScreen = (props: PropTypes) => {
             ref={saveRef}
             type="submit"
             disabled={isBusy || detail.isLoading}
+            isLoading={isSubmitting}
           >
             {isSubmitting ? "Menyimpan…" : "Simpan"}
           </Button>

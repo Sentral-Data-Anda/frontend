@@ -71,6 +71,7 @@ export const DetailFrame = (props: PropTypes) => {
             onClick={() => void query.refetch()}
             disabled={query.isFetching}
             className="mt-4"
+            isLoading={query.isFetching}
           >
             {query.isFetching ? "Memuat…" : "Coba lagi"}
           </Button>

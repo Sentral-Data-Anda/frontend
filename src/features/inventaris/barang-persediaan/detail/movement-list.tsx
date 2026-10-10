@@ -30,6 +30,7 @@ export const MovementList = (props: PropTypes) => {
           variant="outline"
           disabled={movements.isFetching}
           onClick={() => void movements.refetch()}
+          isLoading={movements.isFetching}
         >
           {movements.isFetching ? "Memuat…" : "Coba lagi"}
         </Button>

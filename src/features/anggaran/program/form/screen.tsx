@@ -199,6 +199,7 @@ export const ProgramFormScreen = (props: PropTypes) => {
             ref={saveRef}
             type="submit"
             disabled={isSubmitting || detail.isLoading}
+            isLoading={isSubmitting}
           >
             {isSubmitting ? "Menyimpan…" : "Simpan"}
           </Button>

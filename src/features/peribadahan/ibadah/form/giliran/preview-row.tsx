@@ -166,6 +166,7 @@ export const PreviewRow = memo(function PreviewRow(props: PropTypes) {
                 className="px-0"
                 disabled={isDisabled || address.isFetching}
                 onClick={onRetryAddress}
+                isLoading={address.isFetching}
               >
                 {address.isFetching ? "Memuat…" : "Coba lagi"}
               </Button>

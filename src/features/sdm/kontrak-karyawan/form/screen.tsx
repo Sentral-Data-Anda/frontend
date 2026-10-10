@@ -221,6 +221,7 @@ export const KontrakFormScreen = (props: PropTypes) => {
               variant="destructive"
               disabled={isBusy || detail.isLoading || isDetailBroken}
               onClick={() => confirm.onOpen("delete")}
+              isLoading={deleteContract.isPending}
             >
               {deleteContract.isPending ? "Menghapus…" : "Hapus"}
             </Button>
@@ -239,6 +240,7 @@ export const KontrakFormScreen = (props: PropTypes) => {
             ref={saveRef}
             type="submit"
             disabled={isBusy || detail.isLoading || isDetailBroken}
+            isLoading={isSubmitting}
           >
             {isSubmitting ? "Menyimpan…" : "Simpan"}
           </Button>
