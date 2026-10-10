@@ -204,6 +204,7 @@ export const JournalFormScreen = (props: PropTypes) => {
             ref={saveRef}
             type="submit"
             disabled={isSubmitting || isWaiting}
+            isLoading={isSubmitting}
           >
             {isSubmitting ? "Menyimpan…" : "Simpan draf"}
           </Button>
@@ -235,6 +236,7 @@ export const JournalFormScreen = (props: PropTypes) => {
             variant="outline"
             disabled={detail.isFetching}
             onClick={() => void detail.refetch()}
+            isLoading={detail.isFetching}
           >
             {detail.isFetching ? "Memuat…" : "Coba lagi"}
           </Button>

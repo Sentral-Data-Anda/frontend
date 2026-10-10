@@ -243,6 +243,7 @@ export const RequestFormScreen = (props: PropTypes) => {
             ref={saveRef}
             type="submit"
             disabled={isSubmitting || isWaiting}
+            isLoading={isSubmitting}
           >
             {isSubmitting ? "Menyimpan…" : "Simpan"}
           </Button>
@@ -271,6 +272,7 @@ export const RequestFormScreen = (props: PropTypes) => {
             variant="outline"
             disabled={detail.isFetching}
             onClick={() => void detail.refetch()}
+            isLoading={detail.isFetching}
           >
             {detail.isFetching ? "Memuat…" : "Coba lagi"}
           </Button>

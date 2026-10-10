@@ -243,6 +243,7 @@ export const ReceiptFormScreen = () => {
             ref={saveRef}
             type="submit"
             disabled={isSubmitting || isLoading.value}
+            isLoading={isSubmitting}
           >
             {isSubmitting ? "Menyimpan…" : "Simpan"}
           </Button>

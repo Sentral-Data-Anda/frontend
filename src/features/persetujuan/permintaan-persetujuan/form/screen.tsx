@@ -156,6 +156,7 @@ export const PermintaanRejectScreen = (props: PropTypes) => {
             type="submit"
             variant="destructive"
             disabled={isSubmitting || !request}
+            isLoading={isSubmitting}
           >
             {isSubmitting ? "Menolak…" : "Tolak permintaan"}
           </Button>
@@ -187,6 +188,7 @@ export const PermintaanRejectScreen = (props: PropTypes) => {
             variant="outline"
             disabled={detail.isFetching}
             onClick={() => void detail.refetch()}
+            isLoading={detail.isFetching}
           >
             {detail.isFetching ? "Memuat…" : "Coba lagi"}
           </Button>

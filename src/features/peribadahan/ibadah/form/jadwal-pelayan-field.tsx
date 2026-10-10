@@ -161,6 +161,7 @@ export const JadwalPelayanField = (props: PropTypes) => {
             className="-mx-1 h-auto min-h-6 px-1 text-body"
             disabled={isDisabled || rosters.isFetching}
             onClick={onRetry}
+            isLoading={rosters.isFetching}
           >
             {rosters.isFetching ? "Memuat…" : "Coba lagi"}
           </Button>

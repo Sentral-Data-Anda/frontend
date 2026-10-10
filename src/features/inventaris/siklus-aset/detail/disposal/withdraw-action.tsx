@@ -23,6 +23,7 @@ export const WithdrawAction = (props: PropTypes) => {
           variant="destructive"
           disabled={isWithdrawing}
           onClick={onWithdraw}
+          isLoading={isWithdrawing}
         >
           {isWithdrawing ? "Menarik…" : "Tarik pengajuan"}
         </Button>

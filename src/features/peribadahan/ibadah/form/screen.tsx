@@ -290,6 +290,7 @@ export const IbadahFormScreen = (props: PropTypes) => {
               variant="destructive"
               disabled={isLocked}
               onClick={() => confirm.onOpen("delete")}
+              isLoading={deleteIbadah.isPending}
             >
               {deleteIbadah.isPending ? "Menghapus…" : "Hapus"}
             </Button>
@@ -304,7 +305,12 @@ export const IbadahFormScreen = (props: PropTypes) => {
             Batal
           </Button>
 
-          <Button ref={saveRef} type="submit" disabled={isLocked}>
+          <Button
+            ref={saveRef}
+            type="submit"
+            disabled={isLocked}
+            isLoading={isSubmitting}
+          >
             {isSubmitting ? "Menyimpan…" : "Simpan"}
           </Button>
         </FormActions>
@@ -386,6 +392,7 @@ export const IbadahFormScreen = (props: PropTypes) => {
               variant="outline"
               disabled={detail.isFetching}
               onClick={onRetrySource}
+              isLoading={detail.isFetching}
             >
               {detail.isFetching ? "Memuat…" : "Coba lagi"}
             </Button>

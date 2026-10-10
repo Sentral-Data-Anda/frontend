@@ -186,6 +186,7 @@ export const CurrencyFormScreen = (props: PropTypes) => {
               variant="destructive"
               disabled={isBusy}
               onClick={() => confirm.onOpen("delete")}
+              isLoading={deleteCurrency.isPending}
             >
               {deleteCurrency.isPending ? "Menghapus…" : "Hapus"}
             </Button>
@@ -204,6 +205,7 @@ export const CurrencyFormScreen = (props: PropTypes) => {
             ref={saveRef}
             type="submit"
             disabled={isBusy || detail.isLoading}
+            isLoading={isSubmitting}
           >
             {isSubmitting ? "Menyimpan…" : "Simpan"}
           </Button>

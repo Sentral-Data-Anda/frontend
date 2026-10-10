@@ -185,6 +185,7 @@ export const KaryawanFormScreen = (props: PropTypes) => {
               variant="destructive"
               disabled={isBusy || detail.isLoading}
               onClick={() => confirm.onOpen("delete")}
+              isLoading={deleteKaryawan.isPending}
             >
               {deleteKaryawan.isPending ? "Menghapus…" : "Hapus"}
             </Button>
@@ -203,6 +204,7 @@ export const KaryawanFormScreen = (props: PropTypes) => {
             ref={saveRef}
             type="submit"
             disabled={isBusy || detail.isLoading}
+            isLoading={isSubmitting}
           >
             {isSubmitting ? "Menyimpan…" : "Simpan"}
           </Button>

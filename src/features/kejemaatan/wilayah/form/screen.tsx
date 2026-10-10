@@ -176,6 +176,7 @@ export const WilayahFormScreen = (props: PropTypes) => {
               variant="destructive"
               disabled={isBusy || detail.isLoading}
               onClick={() => confirm.onOpen("delete")}
+              isLoading={deleteWilayah.isPending}
             >
               {deleteWilayah.isPending ? "Menghapus…" : "Hapus"}
             </Button>
@@ -194,6 +195,7 @@ export const WilayahFormScreen = (props: PropTypes) => {
             ref={saveRef}
             type="submit"
             disabled={isBusy || detail.isLoading}
+            isLoading={isSubmitting}
           >
             {isSubmitting ? "Menyimpan…" : "Simpan"}
           </Button>

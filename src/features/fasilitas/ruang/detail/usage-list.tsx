@@ -32,6 +32,7 @@ export const UsageList = (props: PropTypes) => {
           variant="outline"
           disabled={usage.isFetching}
           onClick={() => void usage.refetch()}
+          isLoading={usage.isFetching}
         >
           {usage.isFetching ? "Memuat…" : "Coba lagi"}
         </Button>

@@ -179,6 +179,7 @@ export const SettingFormScreen = (props: PropTypes) => {
               variant="destructive"
               disabled={isBusy}
               onClick={() => confirm.onOpen("delete")}
+              isLoading={clearSetting.isPending}
             >
               {clearSetting.isPending ? "Mengosongkan…" : "Kosongkan setelan"}
             </Button>
@@ -197,6 +198,7 @@ export const SettingFormScreen = (props: PropTypes) => {
             ref={saveRef}
             type="submit"
             disabled={isBusy || settingList.isLoading}
+            isLoading={isSubmitting}
           >
             {isSubmitting ? "Menyimpan…" : "Simpan"}
           </Button>

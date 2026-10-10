@@ -23,6 +23,7 @@ export const SignOutButton = () => {
           "text-destructive border-destructive/40 hover:bg-[color-mix(in_oklch,var(--color-destructive)_6%,var(--color-card))] hover:border-destructive/60 hover:text-destructive focus-visible:border-destructive/60 focus-visible:ring-destructive/20 h-11",
           endActionSize,
         )}
+        isLoading={isPending.value}
       >
         <LogOut className="size-4" aria-hidden />
         {isPending.value ? "Keluar…" : "Keluar dari akun"}

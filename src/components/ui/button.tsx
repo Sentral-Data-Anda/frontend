@@ -1,5 +1,6 @@
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
 import { cva, type VariantProps } from "class-variance-authority";
+import { LoaderCircle } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -45,14 +46,27 @@ function Button({
   className,
   variant = "default",
   size = "default",
+  isLoading = false,
+  disabled,
+  children,
   ...props
-}: ButtonPrimitive.Props & VariantProps<typeof variants>) {
+}: ButtonPrimitive.Props &
+  VariantProps<typeof variants> & {
+    /** Menampilkan pemutar, mematikan tombol, dan menandainya sibuk. */
+    isLoading?: boolean;
+  }) {
   return (
     <ButtonPrimitive
       data-slot="button"
+      aria-busy={isLoading || undefined}
+      disabled={disabled || isLoading}
       className={cn(variants({ variant, size, className }))}
       {...props}
-    />
+    >
+      {isLoading ? <LoaderCircle className="animate-spin" aria-hidden /> : null}
+
+      {children}
+    </ButtonPrimitive>
   );
 }
 

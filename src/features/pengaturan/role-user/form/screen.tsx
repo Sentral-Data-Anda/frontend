@@ -202,6 +202,7 @@ export const RoleUserFormScreen = (props: PropTypes) => {
               variant="destructive"
               disabled={isBusy || isLoading}
               onClick={() => confirm.onOpen("delete")}
+              isLoading={deleteRole.isPending}
             >
               {deleteRole.isPending ? "Menghapus…" : "Hapus"}
             </Button>
@@ -217,7 +218,12 @@ export const RoleUserFormScreen = (props: PropTypes) => {
           </Button>
 
           {isReadOnly ? null : (
-            <Button ref={saveRef} type="submit" disabled={isBusy || isLoading}>
+            <Button
+              ref={saveRef}
+              type="submit"
+              disabled={isBusy || isLoading}
+              isLoading={isSubmitting}
+            >
               {isSubmitting ? "Menyimpan…" : "Simpan"}
             </Button>
           )}

@@ -180,6 +180,7 @@ export const KeluargaFormScreen = (props: PropTypes) => {
               variant="destructive"
               disabled={isBusy || detail.isLoading}
               onClick={() => confirm.onOpen("delete")}
+              isLoading={isDeleting}
             >
               {isDeleting ? "Menghapus…" : "Hapus"}
             </Button>
@@ -198,6 +199,7 @@ export const KeluargaFormScreen = (props: PropTypes) => {
             ref={saveRef}
             type="submit"
             disabled={isBusy || detail.isLoading}
+            isLoading={isSubmitting}
           >
             {isSubmitting ? "Menyimpan…" : "Simpan"}
           </Button>

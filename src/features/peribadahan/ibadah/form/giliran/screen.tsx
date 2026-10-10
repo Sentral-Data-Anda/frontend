@@ -431,6 +431,7 @@ export const GiliranScreen = () => {
               variant="outline"
               disabled={range.isFetching || isSaving}
               onClick={() => void onRefreshExisting()}
+              isLoading={range.isFetching}
             >
               {range.isFetching ? "Memuat…" : "Buat ulang pratinjau"}
             </Button>

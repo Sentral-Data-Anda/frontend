@@ -383,6 +383,7 @@ export const LoanFormScreen = (props: PropTypes) => {
                   variant="destructive"
                   disabled={isLocked}
                   onClick={() => confirm.onOpen("delete")}
+                  isLoading={deleteLoan.isPending}
                 >
                   {deleteLoan.isPending ? "Menghapus…" : "Hapus"}
                 </Button>
@@ -448,6 +449,7 @@ export const LoanFormScreen = (props: PropTypes) => {
               variant="outline"
               disabled={detail.isFetching}
               onClick={onRetryDetail}
+              isLoading={detail.isFetching}
             >
               {detail.isFetching ? "Memuat…" : "Coba lagi"}
             </Button>
@@ -508,6 +510,7 @@ export const LoanFormScreen = (props: PropTypes) => {
               variant="outline"
               disabled={check.isFetching || isBusy}
               onClick={onRecheck}
+              isLoading={check.isFetching}
             >
               {check.isFetching ? "Memeriksa…" : "Periksa ulang"}
             </Button>

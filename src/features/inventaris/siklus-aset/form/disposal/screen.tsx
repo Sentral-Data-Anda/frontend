@@ -149,7 +149,12 @@ export const DisposalFormScreen = () => {
             Batal
           </Button>
 
-          <Button ref={saveRef} type="submit" disabled={isSubmitting}>
+          <Button
+            ref={saveRef}
+            type="submit"
+            disabled={isSubmitting}
+            isLoading={isSubmitting}
+          >
             {isSubmitting ? "Mengajukan…" : "Ajukan"}
           </Button>
         </FormActions>

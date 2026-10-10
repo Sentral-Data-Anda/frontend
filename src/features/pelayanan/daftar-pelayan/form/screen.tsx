@@ -216,6 +216,7 @@ export const DaftarPelayanFormScreen = (props: PropTypes) => {
               variant="destructive"
               disabled={isBusy || detail.isLoading}
               onClick={() => confirm.onOpen("delete")}
+              isLoading={deletePelayan.isPending}
             >
               {deletePelayan.isPending ? "Menghapus…" : "Hapus"}
             </Button>
@@ -234,6 +235,7 @@ export const DaftarPelayanFormScreen = (props: PropTypes) => {
             ref={saveRef}
             type="submit"
             disabled={isBusy || detail.isLoading}
+            isLoading={isSubmitting}
           >
             {isSubmitting ? "Menyimpan…" : "Simpan"}
           </Button>

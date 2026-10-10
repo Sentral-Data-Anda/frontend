@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 
 import styles from "./loading-page.module.css";
+import { SadaLoader } from "./sada-loader";
 
 interface PropTypes {
   tone?: "default" | "brand";
@@ -21,11 +22,7 @@ export const LoadingPage = (props: PropTypes) => {
           : `${styles.page} bg-background text-muted-foreground`,
       )}
     >
-      <div className={styles.stage}>
-        <span className={`${styles.letter} ${styles.letterS}`} />
-        <span className={`${styles.letter} ${styles.letterA}`} />
-        <span className={`${styles.letter} ${styles.letterD}`} />
-      </div>
+      <SadaLoader />
 
       <span className="sr-only">Memuat…</span>
     </div>

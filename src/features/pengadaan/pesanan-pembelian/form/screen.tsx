@@ -358,6 +358,7 @@ export const OrderFormScreen = (props: PropTypes) => {
             disabled={
               isSubmitting || isWaiting || isCopying.value || isLinkedPending
             }
+            isLoading={isSubmitting}
           >
             {isSubmitting ? "Menyimpan…" : "Simpan"}
           </Button>
@@ -386,6 +387,7 @@ export const OrderFormScreen = (props: PropTypes) => {
             variant="outline"
             disabled={detail.isFetching}
             onClick={() => void detail.refetch()}
+            isLoading={detail.isFetching}
           >
             {detail.isFetching ? "Memuat…" : "Coba lagi"}
           </Button>

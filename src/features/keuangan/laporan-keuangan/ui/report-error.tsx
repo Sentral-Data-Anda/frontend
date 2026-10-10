@@ -26,6 +26,7 @@ export const ReportError = (props: PropTypes) => {
         className="cursor-pointer"
         disabled={query.isFetching}
         onClick={() => void query.refetch()}
+        isLoading={query.isFetching}
       >
         {query.isFetching ? "Memuat…" : "Coba lagi"}
       </Button>

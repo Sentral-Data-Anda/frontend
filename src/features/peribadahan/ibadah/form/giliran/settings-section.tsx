@@ -179,6 +179,7 @@ export const SettingsSection = (props: PropTypes) => {
             variant="outline"
             disabled={isDisabled || isBuilding}
             onClick={onBuild}
+            isLoading={isBuilding}
           >
             {isBuilding ? "Menyusun…" : "Buat pratinjau"}
           </Button>

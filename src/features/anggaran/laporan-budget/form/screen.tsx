@@ -265,6 +265,7 @@ export const ReportFormScreen = (props: PropTypes) => {
             ref={saveRef}
             type="submit"
             disabled={isSubmitting || isWaiting}
+            isLoading={isSubmitting}
           >
             {isSubmitting ? "Menyimpan…" : "Simpan"}
           </Button>

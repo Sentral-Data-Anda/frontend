@@ -323,6 +323,7 @@ export const UserFormScreen = (props: PropTypes) => {
                 variant="destructive"
                 disabled={isBusy || isLoading}
                 onClick={() => confirm.onOpen("delete")}
+                isLoading={deactivateUser.isPending}
               >
                 {deactivateUser.isPending ? "Menonaktifkan…" : "Nonaktifkan"}
               </Button>
@@ -368,6 +369,7 @@ export const UserFormScreen = (props: PropTypes) => {
                 ref={saveRef}
                 type="submit"
                 disabled={isBusy || isLoading || isNoAssignable}
+                isLoading={isSubmitting}
               >
                 {isSubmitting ? "Menyimpan…" : "Simpan"}
               </Button>

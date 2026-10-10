@@ -108,6 +108,7 @@ export const JadwalPelayanDetailScreen = (props: PropTypes) => {
             onClick={() => void detail.refetch()}
             disabled={detail.isFetching}
             className="mt-4"
+            isLoading={detail.isFetching}
           >
             {detail.isFetching ? "Memuat…" : "Coba lagi"}
           </Button>

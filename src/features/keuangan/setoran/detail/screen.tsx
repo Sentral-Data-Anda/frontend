@@ -135,6 +135,7 @@ export const TransferDetailScreen = (props: PropTypes) => {
                   variant="outline"
                   disabled={detail.isFetching}
                   onClick={() => void detail.refetch()}
+                  isLoading={detail.isFetching}
                 >
                   {detail.isFetching ? "Memuat…" : "Coba lagi"}
                 </Button>

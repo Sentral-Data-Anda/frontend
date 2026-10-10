@@ -180,6 +180,7 @@ export function DataList<T>({
             onClick={onRetry}
             disabled={isRefreshing}
             className="mt-4"
+            isLoading={isRefreshing}
           >
             {isRefreshing ? "Memuat…" : "Coba lagi"}
           </Button>

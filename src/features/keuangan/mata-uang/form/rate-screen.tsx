@@ -225,6 +225,7 @@ export const RateFormScreen = (props: PropTypes) => {
               variant="destructive"
               disabled={isBusy || isLoading}
               onClick={() => confirm.onOpen("delete")}
+              isLoading={deleteRate.isPending}
             >
               {deleteRate.isPending ? "Menghapus…" : "Hapus"}
             </Button>
@@ -239,7 +240,12 @@ export const RateFormScreen = (props: PropTypes) => {
             Batal
           </Button>
 
-          <Button ref={saveRef} type="submit" disabled={isBusy || isLoading}>
+          <Button
+            ref={saveRef}
+            type="submit"
+            disabled={isBusy || isLoading}
+            isLoading={isSubmitting}
+          >
             {isSubmitting ? "Menyimpan…" : "Simpan"}
           </Button>
         </FormActions>

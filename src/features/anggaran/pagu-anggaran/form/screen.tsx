@@ -239,6 +239,7 @@ export const AllocationFormScreen = (props: PropTypes) => {
               variant="destructive"
               disabled={isBusy}
               onClick={() => confirm.onOpen("delete")}
+              isLoading={deleteAllocation.isPending}
             >
               {deleteAllocation.isPending ? "Menghapus…" : "Hapus"}
             </Button>
@@ -257,6 +258,7 @@ export const AllocationFormScreen = (props: PropTypes) => {
             ref={saveRef}
             type="submit"
             disabled={isBusy || detail.isLoading}
+            isLoading={isSubmitting}
           >
             {isSubmitting ? "Menyimpan…" : "Simpan"}
           </Button>

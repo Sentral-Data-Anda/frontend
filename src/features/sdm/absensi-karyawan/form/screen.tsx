@@ -179,6 +179,7 @@ export const AbsensiFormScreen = (props: PropTypes) => {
               variant="destructive"
               disabled={isBusy || detail.isLoading}
               onClick={() => confirm.onOpen("delete")}
+              isLoading={deleteAbsensi.isPending}
             >
               {deleteAbsensi.isPending ? "Menghapus…" : "Hapus"}
             </Button>
@@ -197,6 +198,7 @@ export const AbsensiFormScreen = (props: PropTypes) => {
             ref={saveRef}
             type="submit"
             disabled={isBusy || detail.isLoading}
+            isLoading={isSubmitting}
           >
             {isSubmitting ? "Menyimpan…" : "Simpan"}
           </Button>

@@ -7,6 +7,7 @@ import {
   FORBIDDEN_MESSAGE,
   revealField,
 } from "./form-error";
+import { connectToast, type ToastInput } from "./toast-bus";
 
 type Recorded = { field: string; message?: string };
 
@@ -19,6 +20,63 @@ const onCollect = () => {
       calls.push({ field, message: error.message })) as never,
   };
 };
+
+const onCollectToast = () => {
+  const toasts: ToastInput[] = [];
+  const release = connectToast((toast) => toasts.push(toast));
+
+  return { toasts, release };
+};
+
+describe("galat tanpa field memunculkan toast", () => {
+  test("galat jaringan: toast dan root sepesan", () => {
+    const { calls, setError } = onCollect();
+    const { toasts, release } = onCollectToast();
+
+    const field = applyServerError(new Error("offline"), setError);
+    release();
+
+    expect(field).toBe("root");
+    expect(calls).toHaveLength(1);
+    expect(toasts).toEqual([
+      { title: calls[0].message as string, type: "error" },
+    ]);
+  });
+
+  test("403 polos: toast memakai pesan izin", async () => {
+    const { setError } = onCollect();
+    const failure = await onFail(403, {});
+    const { toasts, release } = onCollectToast();
+
+    applyServerError(failure, setError);
+    release();
+
+    expect(toasts).toEqual([{ title: FORBIDDEN_MESSAGE, type: "error" }]);
+  });
+
+  test("galat berfield tidak memunculkan toast", () => {
+    const { setError } = onCollect();
+    const { toasts, release } = onCollectToast();
+
+    applyServerError(
+      new FetchError(400, "Data Tidak Valid", [
+        { path: "name", message: "Nama wajib diisi" },
+      ]),
+      setError,
+    );
+    release();
+
+    expect(toasts).toEqual([]);
+  });
+
+  test("tanpa ToastHost terpasang, tidak melempar", () => {
+    const { setError } = onCollect();
+
+    expect(() =>
+      applyServerError(new Error("offline"), setError),
+    ).not.toThrow();
+  });
+});
 
 describe("applyServerError", () => {
   test("issues[] mendarat di fieldnya masing-masing (test wajib 6)", () => {

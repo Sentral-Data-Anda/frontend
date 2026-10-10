@@ -61,6 +61,7 @@ export const CancelPanel = (props: PropTypes) => {
           variant="destructive"
           disabled={isBusy}
           onClick={onSubmit}
+          isLoading={isBusy}
         >
           {isBusy ? "Membatalkan…" : "Lanjutkan pembatalan"}
         </Button>
