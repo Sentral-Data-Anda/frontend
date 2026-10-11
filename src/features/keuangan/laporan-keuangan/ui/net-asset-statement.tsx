@@ -2,11 +2,8 @@
 
 import { useEffect, useRef } from "react";
 
-import { SelectField } from "@/components/common/control";
 import { Panel } from "@/components/common/display";
-import { FormField } from "@/components/common/form";
 import { useBoolean } from "@/hooks/use-boolean";
-import { monthOptions, monthRange } from "@/lib/date";
 import { cn } from "@/lib/utils";
 
 import { usePerubahanAsetNeto } from "../api";
@@ -16,15 +13,18 @@ import {
   NET_ASSET_CLASS_LABEL,
   NET_ASSET_NOTE,
   money,
+  rangeLabel,
 } from "../model";
-import type { ByNetAssetClass } from "../types";
+import type { ByNetAssetClass, ReportRange } from "../types";
 
+import { PeriodFields } from "./period-fields";
 import { ReportError } from "./report-error";
 import { ReportFilters } from "./report-filters";
 
 interface PropTypes {
-  month: string;
-  onPickMonth: (value: string) => void;
+  range: ReportRange;
+  onPickFrom: (value: string) => void;
+  onPickTo: (value: string) => void;
 }
 
 type Row = {
@@ -37,11 +37,9 @@ type Row = {
 const CELL = "px-3 py-2 text-right tabular-nums";
 
 export const NetAssetStatement = (props: PropTypes) => {
-  const { month, onPickMonth } = props;
+  const { range, onPickFrom, onPickTo } = props;
 
-  const options = monthOptions();
-  const range = monthRange(month);
-  const report = usePerubahanAsetNeto(range.startDate, range.endDate);
+  const report = usePerubahanAsetNeto(range.from, range.to);
   const data = report.data;
   const query = {
     isPending: report.isPending,
@@ -49,8 +47,7 @@ export const NetAssetStatement = (props: PropTypes) => {
     error: report.error,
     refetch: report.refetch,
   };
-  const label =
-    options.find((option) => option.value === month)?.label ?? month;
+  const label = rangeLabel(range);
 
   // Diukur, bukan ditebak dari lebar layar. Breakpoint di layar fitur dilarang
   // di repo ini, dan mengukur justru lebih benar: petunjuknya muncul tepat
@@ -106,13 +103,12 @@ export const NetAssetStatement = (props: PropTypes) => {
   return (
     <div className="pb-6">
       <ReportFilters>
-        <FormField label="Bulan" htmlFor="aset-neto-month">
-          <SelectField
-            value={month}
-            onValueChange={onPickMonth}
-            options={options}
-          />
-        </FormField>
+        <PeriodFields
+          idPrefix="aset-neto"
+          range={range}
+          onPickFrom={onPickFrom}
+          onPickTo={onPickTo}
+        />
       </ReportFilters>
 
       <h2 className="hidden px-gutter pb-3 text-lead font-semibold print:block">

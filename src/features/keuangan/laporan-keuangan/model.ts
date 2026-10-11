@@ -1,11 +1,12 @@
 import { MENU, createHref, detailHref, menuHref } from "@/config/menu";
-import { todayJakarta, toDateInput } from "@/lib/date";
-import { formatAmount } from "@/lib/format";
+import { monthRange, todayJakarta, toDateInput } from "@/lib/date";
+import { formatAmount, formatDate } from "@/lib/format";
 
 import {
   REPORT_TABS,
   type AccountTreeRow,
   type ReportAccount,
+  type ReportRange,
   type ReportTab,
 } from "./types";
 
@@ -19,8 +20,8 @@ export const accountHref = (code: string) =>
 export const journalHref = (publicId: string) =>
   detailHref(MENU.FINANCE, MENU.JOURNAL_ENTRY, publicId);
 
-export const ledgerHref = (code: string, month: string) =>
-  `${LAPORAN_PATH}?tab=buku-besar&akun=${encodeURIComponent(code)}&bulan=${month}`;
+export const ledgerHref = (code: string, range: ReportRange) =>
+  `${LAPORAN_PATH}?tab=buku-besar&akun=${encodeURIComponent(code)}&dari=${range.from}&sampai=${range.to}`;
 
 export const readTab = (value: string): ReportTab =>
   REPORT_TABS.some((tab) => tab.value === value)
@@ -29,8 +30,28 @@ export const readTab = (value: string): ReportTab =>
 
 export const readDate = (value: string) => toDateInput(value) || todayJakarta();
 
-export const readMonth = (value: string) =>
-  /^\d{4}-\d{2}$/.test(value) ? value : todayJakarta().slice(0, 7);
+/**
+ * Periode laporan dari URL, selalu terpakai.
+ *
+ * Dulu layar ini hanya menyediakan pemilih bulan, padahal backend-nya sudah
+ * menerima rentang bebas sejak awal — jadi laporan setahun mustahil diminta
+ * walaupun angkanya bisa dihitung. Dua tanggal menggantikan daftar bulan:
+ * sebulan, setahun, atau rentang apa pun ditanyakan dengan kontrol yang sama.
+ *
+ * Bawaannya bulan berjalan, sama seperti sebelumnya, dan ujung yang terbalik
+ * dibetulkan dengan menukarnya ketimbang mengosongkan laporannya — rentang
+ * terbalik dijawab backend dengan 400, dan itu sepenuhnya salah ketik.
+ */
+export const readRange = (from: string, to: string): ReportRange => {
+  const thisMonth = monthRange(todayJakarta().slice(0, 7));
+  const start = toDateInput(from) || thisMonth.startDate;
+  const end = toDateInput(to) || thisMonth.endDate;
+
+  return end < start ? { from: end, to: start } : { from: start, to: end };
+};
+
+export const rangeLabel = (range: ReportRange) =>
+  `${formatDate(range.from)} \u2013 ${formatDate(range.to)}`;
 
 export const flattenTree = (
   nodes: readonly ReportAccount[],

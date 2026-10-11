@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils";
 
 import { useNeraca } from "../api";
 import { SURPLUS_HINT, accountHref, ledgerHref, money } from "../model";
+import type { ReportRange } from "../types";
 
 import { AccountTreePanel } from "./account-tree-panel";
 import { NetAssetRow } from "./net-asset-row";
@@ -29,12 +30,12 @@ import { SurplusRow } from "./surplus-row";
 
 interface PropTypes {
   date: string;
-  month: string;
+  range: ReportRange;
   onPickDate: (value: string) => void;
 }
 
 export const BalanceSheet = (props: PropTypes) => {
-  const { date, month, onPickDate } = props;
+  const { date, range, onPickDate } = props;
 
   const accountAccess = useMenuAccess(MENU.CHART_OF_ACCOUNT);
   const neraca = useNeraca(date);
@@ -51,7 +52,7 @@ export const BalanceSheet = (props: PropTypes) => {
     report.assets.length === 0 &&
     report.liabilities.length === 0 &&
     report.equity.length === 0;
-  const toLedger = (code: string) => ledgerHref(code, month);
+  const toLedger = (code: string) => ledgerHref(code, range);
   const toAccount = accountAccess.isCanView ? accountHref : undefined;
 
   return (

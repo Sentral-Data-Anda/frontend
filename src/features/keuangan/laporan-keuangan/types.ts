@@ -123,6 +123,9 @@ export const REPORT_TABS = [
 
 export type ReportTab = (typeof REPORT_TABS)[number]["value"];
 
+/** Periode laporan, kedua ujungnya tanggal ISO dan `from` tidak melewati `to`. */
+export type ReportRange = { from: string; to: string };
+
 export type ReportQuery = {
   isPending: boolean;
   isFetching: boolean;

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 
-import { AccountField, SelectField } from "@/components/common/control";
+import { AccountField } from "@/components/common/control";
 import { EmptyState } from "@/components/common/feedback";
 import { FormField } from "@/components/common/form";
 import {
@@ -14,7 +14,6 @@ import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { useDdlOptions } from "@/hooks/use-ddl-options";
 import { FetchError } from "@/lib/api/fetcher";
-import { monthOptions, monthRange } from "@/lib/date";
 import { formatDate } from "@/lib/format";
 
 import { useLedger } from "../api";
@@ -26,10 +25,12 @@ import {
   LEDGER_NO_ROW_TITLE,
   journalHref,
   money,
+  rangeLabel,
 } from "../model";
-import type { LedgerRow } from "../types";
+import type { LedgerRow, ReportRange } from "../types";
 
 import { LedgerBalance } from "./ledger-balance";
+import { PeriodFields } from "./period-fields";
 import { ReportFilters } from "./report-filters";
 
 type AccountOption = { id: number; code: string; name: string };
@@ -123,11 +124,12 @@ export const ledgerTable = (
 
 interface PropTypes {
   code: string;
-  month: string;
+  range: ReportRange;
   page: number;
   limit: number;
   onPickAccount: (code: string) => void;
-  onPickMonth: (value: string) => void;
+  onPickFrom: (value: string) => void;
+  onPickTo: (value: string) => void;
   onPickPage: (page: number) => void;
   onPickLimit: (limit: number) => void;
 }
@@ -135,30 +137,29 @@ interface PropTypes {
 export const GeneralLedger = (props: PropTypes) => {
   const {
     code,
-    month,
+    range,
     page,
     limit,
     onPickAccount,
-    onPickMonth,
+    onPickFrom,
+    onPickTo,
     onPickPage,
     onPickLimit,
   } = props;
 
   const journalAccess = useMenuAccess(MENU.JOURNAL_ENTRY);
   const accounts = useDdlOptions<AccountOption>("account");
-  const range = monthRange(month);
   const ledger = useLedger({
     code,
-    from: range.startDate,
-    to: range.endDate,
+    from: range.from,
+    to: range.to,
     page,
     limit,
   });
   const picked = accounts.rows.find((row) => row.code === code);
   const isMissing =
     ledger.error instanceof FetchError && ledger.error.status === 404;
-  const monthLabel =
-    monthOptions().find((option) => option.value === month)?.label ?? month;
+  const periodLabel = rangeLabel(range);
   const rows = ledger.data?.rows.map((row, index) => ({
     ...row,
     key: `${page}-${index}`,
@@ -183,13 +184,12 @@ export const GeneralLedger = (props: PropTypes) => {
           />
         </FormField>
 
-        <FormField label="Bulan" htmlFor="buku-besar-month">
-          <SelectField
-            value={month}
-            onValueChange={onPickMonth}
-            options={monthOptions()}
-          />
-        </FormField>
+        <PeriodFields
+          idPrefix="buku-besar"
+          range={range}
+          onPickFrom={onPickFrom}
+          onPickTo={onPickTo}
+        />
       </ReportFilters>
 
       <p className="text-muted-foreground px-gutter pb-4 text-body print:hidden">
@@ -210,7 +210,7 @@ export const GeneralLedger = (props: PropTypes) => {
         <div className="space-y-3">
           <h2 className="hidden px-gutter text-lead font-semibold print:block">
             Buku Besar {ledger.data?.account.code} {ledger.data?.account.name} ·{" "}
-            {monthLabel}
+            {periodLabel}
           </h2>
 
           <div className="px-gutter">
