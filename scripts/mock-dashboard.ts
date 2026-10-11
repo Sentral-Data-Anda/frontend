@@ -170,6 +170,7 @@ export const PERSONAS: Record<string, Persona> = {
       [MENU.BANK_DEPOSIT]: SETORAN_ACTIONS,
       [MENU.FINANCIAL_STATEMENT]: V,
       [MENU.ASSET_REPORT]: V,
+      [MENU.AP_AGING]: V,
       [MENU.SUPPLIER_INVOICE]: V,
       [MENU.PAYMENT]: V,
       // Tiga menu yang mengembalikan nominal per orang (§2.4). Hanya di sini.
@@ -337,6 +338,7 @@ export const actionsOf = (persona: Persona, slug: string): Action[] =>
 export const GUARD: Record<string, MenuSlug> = {
   "/persetujuan": MENU.APPROVAL_REQUEST,
   "/laporan-aset": MENU.ASSET_REPORT,
+  "/laporan-utang": MENU.AP_AGING,
   "/laporan-keuangan/neraca": MENU.FINANCIAL_STATEMENT,
   "/laporan-keuangan/surplus-defisit": MENU.FINANCIAL_STATEMENT,
   "/kas-keluar": MENU.KAS_KELUAR,

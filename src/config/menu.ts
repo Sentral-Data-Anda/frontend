@@ -166,6 +166,7 @@ export const MENU = {
   REPORT_JEMAAT: "REPORT_JEMAAT",
   FINANCIAL_STATEMENT: "FINANCIAL_STATEMENT",
   ASSET_REPORT: "ASSET_REPORT",
+  AP_AGING: "AP_AGING",
   BUDGET_REALIZATION: "BUDGET_REALIZATION",
 } as const;
 
@@ -251,6 +252,7 @@ export const MENU_DESCRIPTION: Partial<Record<MenuSlug, string>> = {
   [MENU.BUDGET_REALIZATION]: "Laporan pemakaian dana badan pelayanan bulanan",
   [MENU.ASSET_REPORT]:
     "Harga perolehan, penyusutan, dan nilai buku aset per tanggal",
+  [MENU.AP_AGING]: "Sisa utang per supplier, dibagi menurut umurnya",
   [MENU.BUDGET]: "Batas anggaran tahunan tiap badan pelayanan",
   [MENU.EMPLOYEE]: "Data pegawai kantor gereja",
   [MENU.LEAVE]: "Ajukan cuti dan lihat sisa jatah",
@@ -344,6 +346,7 @@ export const MENU_LEAF_ICON: Partial<Record<MenuSlug, LucideIcon>> = {
   [MENU.PROGRAM]: Lightbulb,
   [MENU.BUDGET_REALIZATION]: ChartColumn,
   [MENU.ASSET_REPORT]: Armchair,
+  [MENU.AP_AGING]: CalendarClock,
   [MENU.BUDGET]: Gauge,
 
   [MENU.EMPLOYEE]: Briefcase,
