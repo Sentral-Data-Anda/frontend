@@ -54,7 +54,8 @@ export const ListTabs = (props: PropTypes) => {
   };
 
   return (
-    <div className="@container px-gutter pb-3">
+    // Kendali, bukan isi: tidak ada gunanya di atas kertas.
+    <div className="@container px-gutter pb-3 print:hidden">
       <div
         ref={listRef}
         role="tablist"

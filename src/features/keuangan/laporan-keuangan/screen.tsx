@@ -68,14 +68,12 @@ export const LaporanKeuanganScreen = () => {
         <EmptyState title={NO_VIEW_TITLE} description={NO_VIEW_DESCRIPTION} />
       ) : (
         <>
-          <div className="print:hidden">
-            <ListTabs
-              label="Laporan keuangan"
-              value={tab}
-              options={REPORT_TABS}
-              onValueChange={onPickFilter("tab")}
-            />
-          </div>
+          <ListTabs
+            label="Laporan keuangan"
+            value={tab}
+            options={REPORT_TABS}
+            onValueChange={onPickFilter("tab")}
+          />
 
           {tab === "neraca" ? (
             <BalanceSheet

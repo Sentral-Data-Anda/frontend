@@ -12,7 +12,7 @@ import {
 } from "@/config/menu";
 import { FetchError } from "@/lib/api/fetcher";
 import { fromServerAttachment, newAttachments } from "@/lib/attachment";
-import { monthRange, todayJakarta } from "@/lib/date";
+import { monthLabel, monthRange, todayJakarta } from "@/lib/date";
 import { toFormData } from "@/lib/form-data";
 import { collapseSpaces } from "@/lib/name";
 import type { AttachmentValue } from "@/types/attachment";
@@ -195,6 +195,23 @@ export const toExpenseQuery = (
     },
   };
 };
+
+/**
+ * Periode dan penyaring yang menghasilkan daftar tercetak.
+ *
+ * Dicetak di bawah judulnya supaya lembarnya menyatakan sendiri isinya;
+ * selembar mutasi yang tersaring tidak bisa dibedakan dari sebulan penuh.
+ */
+export function printSubtitleOf(
+  filters: Record<string, string>,
+  search: string,
+) {
+  const month = filters.bulan ?? "";
+  const period =
+    month === ALL_MONTHS ? "Semua bulan" : monthLabel(month || currentMonth());
+
+  return search ? `${period} \u00b7 pencarian "${search}"` : period;
+}
 
 export const MAX_LINES = 50;
 export const MAX_NOTES = 3;
