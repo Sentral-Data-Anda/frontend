@@ -8,11 +8,19 @@ const SIDE_GRID =
 const SIDE_STACKED =
   "@min-[66rem]:grid-cols-3 @min-[66rem]:@max-[104rem]:[&>*:last-child:nth-child(3n+1)]:col-span-3 @min-[66rem]:@max-[104rem]:[&>*:last-child:nth-child(3n+2)]:col-span-2 @min-[104rem]:grid-cols-[repeat(auto-fit,minmax(24rem,1fr))]";
 
-// Pecah dua kolom mulai 3 kartu. Sisi tampilan Umum tinggal 4 kartu sejak Ulang
-// Tahun dan Jemaat Baru menyatu, dan sisi tampilan Keuangan tinggal 3 di production;
-// satu kolom membuat keduanya menjulang sempit dan lebih tinggi daripada layar.
+// Dua ambang yang berbeda, dan keduanya mengukur container akar.
+//
+// Mulai SPLIT_MIN akar terbelah jadi kolom utama dan kolom sisi, masing-masing
+// sekitar separuhnya. Di situ kolom sisi harus tetap satu kolom: membelahnya
+// lagi menyisakan sekitar 230px per kartu, cukup untuk memotong judul kartu
+// dan nama ruang jadi "Peminjaman Ruan…" dan "Aula Ser…".
+//
+// Baru di 82rem separuh akar cukup lebar untuk memuat dua kartu berdampingan,
+// dan itu pun hanya mulai tiga kartu — sisi tampilan Umum tinggal 4 kartu sejak
+// Ulang Tahun dan Jemaat Baru menyatu, dan sisi Keuangan tinggal 3 di
+// production; satu kolom membuat keduanya menjulang melewati tinggi layar.
 const SIDE_SPLIT =
-  "@min-[66rem]:@max-[82rem]:grid-cols-3 @min-[66rem]:@max-[82rem]:[&>*:last-child:nth-child(3n+1)]:col-span-3 @min-[66rem]:@max-[82rem]:[&>*:last-child:nth-child(3n+2)]:col-span-2 @min-[82rem]:@max-[120rem]:grid-cols-1 @min-[82rem]:@max-[120rem]:[&>*:last-child:nth-child(odd)]:col-span-1 @min-[82rem]:@max-[120rem]:has-[>*:nth-child(3)]:grid-cols-2 @min-[82rem]:@max-[120rem]:has-[>*:nth-child(3)]:[&>*:last-child:nth-child(odd)]:col-span-2 @min-[120rem]:grid-cols-[repeat(auto-fit,minmax(24rem,1fr))]";
+  "@min-[60rem]:@max-[120rem]:grid-cols-1 @min-[60rem]:@max-[120rem]:[&>*:last-child:nth-child(odd)]:col-span-1 @min-[82rem]:@max-[120rem]:has-[>*:nth-child(3)]:grid-cols-2 @min-[82rem]:@max-[120rem]:has-[>*:nth-child(3)]:[&>*:last-child:nth-child(odd)]:col-span-2 @min-[120rem]:grid-cols-[repeat(auto-fit,minmax(24rem,1fr))]";
 
 const MAIN_STACKED =
   "@min-[104rem]:has-[>*:nth-child(2)]:grid-cols-2 @min-[150rem]:has-[>*:nth-child(3)]:grid-cols-3 @min-[104rem]:[&>*]:mx-auto @min-[104rem]:[&>*]:w-full @min-[104rem]:[&>*]:max-w-[90rem]";
@@ -21,7 +29,7 @@ const MAIN_STACKED =
 // menyerap sisa tinggi, sehingga kaki kedua kolom rata ketika kartu yang panjang
 // (`isScrollable`) menyerap sisa tinggi kolom dan menggulir di dalam dirinya.
 const MAIN_SPLIT =
-  "@min-[82rem]:@max-[120rem]:flex @min-[82rem]:@max-[120rem]:h-full @min-[82rem]:@max-[120rem]:flex-col @min-[82rem]:@max-[120rem]:[&>*:last-child]:flex-1 @min-[120rem]:has-[>*:nth-child(2)]:grid-cols-2 @min-[150rem]:has-[>*:nth-child(3)]:grid-cols-3 @min-[120rem]:[&>*]:mx-auto @min-[120rem]:[&>*]:w-full @min-[120rem]:[&>*]:max-w-[90rem]";
+  "@min-[60rem]:@max-[120rem]:flex @min-[60rem]:@max-[120rem]:h-full @min-[60rem]:@max-[120rem]:flex-col @min-[60rem]:@max-[120rem]:[&>*:last-child]:flex-1 @min-[120rem]:has-[>*:nth-child(2)]:grid-cols-2 @min-[150rem]:has-[>*:nth-child(3)]:grid-cols-3 @min-[120rem]:[&>*]:mx-auto @min-[120rem]:[&>*]:w-full @min-[120rem]:[&>*]:max-w-[90rem]";
 
 interface PropTypes {
   kpi?: ReactNode;
@@ -70,11 +78,11 @@ export const DashboardGrid = (props: PropTypes) => {
             // kolom rata: kolom yang isinya lebih pendek membagi sisa tinggi ke
             // kartunya, bukan menyisakan lubang di bawah.
             isSplit &&
-              "@min-[82rem]:@max-[120rem]:grid-cols-2 @min-[82rem]:@max-[120rem]:items-stretch",
+              "@min-[60rem]:@max-[120rem]:grid-cols-2 @min-[60rem]:@max-[120rem]:items-stretch",
             // `grid-rows-1` (`minmax(0,1fr)`) memberi barisnya tinggi dari induknya,
             // bukan dari isinya, sehingga kartu `isScrollable` menyusut dan menggulir
             // alih-alih memanjangkan halaman.
-            isFullHeight && isSplit && "@min-[82rem]:@max-[120rem]:grid-rows-1",
+            isFullHeight && isSplit && "@min-[60rem]:@max-[120rem]:grid-rows-1",
           )}
         >
           {main.length ? (

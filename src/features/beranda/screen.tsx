@@ -23,7 +23,7 @@ import { formatLongDate, greetingOf, toDateKey } from "./model";
 import { NotificationBell } from "./ui/notification-bell";
 import { ViewPicker } from "./ui/view-picker";
 import { saveDashboardView, type DashboardView } from "./view";
-import { selectHeaderActions, selectWidgets } from "./widgets/registry";
+import { selectWidgets } from "./widgets/registry";
 
 interface PropTypes {
   defaultView?: DashboardView;
@@ -72,7 +72,6 @@ export const HomeScreen = (props: PropTypes) => {
       <DashboardHeader
         title={`${greetingOf(now)}, ${firstName}`}
         subtitle={`${formatLongDate(now)}${serviceCount > 0 ? ` · ${serviceCount} kebaktian` : ""}`}
-        actions={selectHeaderActions(session.menu)}
         picker={
           <ViewPicker
             value={widgets.view}

@@ -9,7 +9,6 @@ import type { DashboardView } from "../view";
 
 import {
   MAX_KPI,
-  selectHeaderActions,
   selectWidgets,
   WIDGETS,
   type KpiGroup,
@@ -380,23 +379,5 @@ describe("selectWidgets: pilihan tampilan", () => {
       expect(ids(hasil.main)).toEqual(ids(bawaan.main));
       expect(ids(hasil.kpi)).toEqual(ids(bawaan.kpi));
     }
-  });
-});
-
-describe("selectHeaderActions", () => {
-  test("tambah jadwal ibadah langsung membuka form tambah ibadah", () => {
-    const menu = [domain([leaf(MENU.IBADAH, ["VIEW", "CREATE"])])];
-
-    expect(selectHeaderActions(menu)).toEqual([
-      { label: "Tambah jadwal ibadah", href: "/peribadahan/ibadah/baru" },
-    ]);
-  });
-
-  test("buat pengumuman langsung membuka form tambah pengumuman", () => {
-    const menu = [domain([leaf(MENU.PENGUMUMAN, ["VIEW", "CREATE"])])];
-
-    expect(selectHeaderActions(menu)).toEqual([
-      { label: "Buat pengumuman", href: "/kegiatan/pengumuman/baru" },
-    ]);
   });
 });

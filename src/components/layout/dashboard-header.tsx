@@ -1,19 +1,12 @@
-import Link from "next/link";
-
-import { buttonVariants } from "@/components/common/control";
-
-export type HeaderAction = { label: string; href: string };
-
 interface PropTypes {
   title: string;
   subtitle: string;
-  actions: HeaderAction[];
   picker?: React.ReactNode;
   trailing?: React.ReactNode;
 }
 
 export const DashboardHeader = (props: PropTypes) => {
-  const { title, subtitle, actions, picker, trailing } = props;
+  const { title, subtitle, picker, trailing } = props;
 
   return (
     <header className="flex items-center gap-3 px-gutter lg:pt-4">
@@ -31,23 +24,8 @@ export const DashboardHeader = (props: PropTypes) => {
 
       {picker}
 
-      {actions.length || trailing ? (
+      {trailing ? (
         <div className="hidden shrink-0 items-center gap-2 lg:flex">
-          {actions
-            .slice(0, 2)
-            .reverse()
-            .map((action, index, list) => (
-              <Link
-                key={action.href}
-                href={action.href}
-                className={buttonVariants({
-                  variant: index === list.length - 1 ? "default" : "outline",
-                  className: "whitespace-nowrap",
-                })}
-              >
-                {action.label}
-              </Link>
-            ))}
           {trailing}
         </div>
       ) : null}
