@@ -54,3 +54,25 @@ describe("csvFileName", () => {
     expect(csvFileName(["Neraca", ""])).toBe("Neraca.csv");
   });
 });
+
+// Mengutip tidak menolong: Excel membuang kutipnya lalu menjalankan isinya,
+// dan keterangan maupun referensi semuanya diketik pengguna.
+describe("csvCell menolak rumus", () => {
+  test("teks berawalan pemicu rumus dijadikan teks", () => {
+    expect(csvCell("=1+1")).toBe('"\'=1+1"');
+    expect(csvCell("+62812")).toBe('"\'+62812"');
+    expect(csvCell("-SUM(A1)")).toBe('"\'-SUM(A1)"');
+    expect(csvCell("@SUM(A1)")).toBe('"\'@SUM(A1)"');
+    expect(csvCell("\tSUM(A1)")).toBe('"\'\tSUM(A1)"');
+  });
+
+  test("teks biasa tidak disentuh", () => {
+    expect(csvCell("Sewa gedung")).toBe('"Sewa gedung"');
+    expect(csvCell("BA-07/IX/2026")).toBe('"BA-07/IX/2026"');
+  });
+
+  // Angka lewat jalur angka, jadi nilai negatif tetap bisa dijumlahkan Excel.
+  test("angka negatif tetap angka", () => {
+    expect(csvCell(-5000)).toBe("-5000");
+  });
+});

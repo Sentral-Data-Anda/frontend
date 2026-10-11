@@ -20,14 +20,31 @@ const BOM = "﻿";
 
 const LEADING_ZERO = /^0\d+$/;
 
+/**
+ * Karakter yang membuat Excel memperlakukan sebuah sel sebagai rumus.
+ *
+ * Mengutip tidak menolongnya: tanda kutip dibuang saat berkasnya dibuka, lalu
+ * isinya dijalankan. Keterangan, referensi, dan nama akun semuanya diketik
+ * pengguna, jadi satu keterangan yang diawali "=" akan berjalan di komputer
+ * siapa pun yang membuka hasil ekspornya.
+ */
+const FORMULA_START = /^[=+\-@\t\r]/;
+
 const quote = (text: string) => `"${text.replace(/"/g, '""')}"`;
+
+/** Membuat sel dibaca sebagai teks, bukan rumus, tanpa mengubah isinya. */
+const defuse = (text: string) => (FORMULA_START.test(text) ? `'${text}` : text);
 
 export const csvCell = (value: string | number): string => {
   if (typeof value === "number") {
     return Number.isFinite(value) ? String(value).replace(".", ",") : "";
   }
 
-  return LEADING_ZERO.test(value) ? quote(`=${quote(value)}`) : quote(value);
+  // Satu-satunya rumus yang boleh ditulis adalah yang dibuat di sini, dari
+  // nilai yang sudah terbukti hanya angka.
+  return LEADING_ZERO.test(value)
+    ? quote(`=${quote(value)}`)
+    : quote(defuse(value));
 };
 
 export interface CsvColumn<T> {
