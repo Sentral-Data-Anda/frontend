@@ -324,6 +324,46 @@ describe("menu akun", () => {
     fetchSpy.mockRestore();
   });
 
+  // Dialog menutup seketika akan menyisakan layar diam selama permintaannya
+  // berjalan: tombol pemicunya cuma ikon kecil di sudut sidebar.
+  test("Keluar menahan dialognya terbuka dan menandai dirinya sibuk", async () => {
+    let release: (value: Response) => void = () => {};
+    const pending = new Promise<Response>((resolve) => {
+      release = resolve;
+    });
+
+    const fetchSpy = spyOn(globalThis, "fetch").mockReturnValue(pending);
+
+    renderSidebar(true);
+    await openMenu();
+
+    await act(async () =>
+      fireEvent.click(screen.getByRole("menuitem", { name: "Keluar" })),
+    );
+    await screen.findByRole("alertdialog");
+
+    const confirm = screen.getByRole("button", { name: /^Keluar/ });
+
+    await act(async () => fireEvent.click(confirm));
+
+    expect(screen.queryByRole("alertdialog")).not.toBeNull();
+
+    const busy = screen.getByRole("button", { name: /^Keluar/ });
+
+    expect(busy.getAttribute("aria-busy")).toBe("true");
+    expect(busy.hasAttribute("disabled")).toBe(true);
+    expect(
+      screen.getByRole("button", { name: "Batal" }).hasAttribute("disabled"),
+    ).toBe(true);
+
+    await act(async () => {
+      release(new Response(null, { status: 204 }));
+      await pending;
+    });
+
+    fetchSpy.mockRestore();
+  });
+
   test("Escape menutup menu dan mengembalikan fokus ke avatar", async () => {
     renderSidebar(true);
 
