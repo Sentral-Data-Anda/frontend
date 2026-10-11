@@ -66,6 +66,20 @@ beforeAll(async () => {
         );
       }
 
+      if (url.pathname === "/api/v1/sesi-mati") {
+        return Response.json(
+          { status: 401, error: "Unauthorized" },
+          { status: 401 },
+        );
+      }
+
+      if (url.pathname === "/api/v1/tanpa-izin") {
+        return Response.json(
+          { status: 403, error: "Forbidden" },
+          { status: 403 },
+        );
+      }
+
       return Response.json({ status: 200, message: "ok", data: null });
     },
   });
@@ -102,6 +116,52 @@ const onCall = (
 
   return { request, context: { params: Promise.resolve({ path }) } };
 };
+
+/** Nama cookie yang dihapus oleh respons, dibaca dari Set-Cookie-nya. */
+const clearedCookies = (response: Response) =>
+  response.headers
+    .getSetCookie()
+    .filter((cookie) => /Max-Age=0|Expires=Thu, 01 Jan 1970/i.test(cookie))
+    .map((cookie) => cookie.slice(0, cookie.indexOf("=")))
+    .sort();
+
+describe("sesi yang ditolak be-sada", () => {
+  // Proxy hanya menyegarkan token ketika cookie access-nya sudah hilang, jadi
+  // tanpa pembersihan ini perangkat yang sesinya dicabut terus mengirim token
+  // mati sampai cookienya kedaluwarsa sendiri, tanpa pernah keluar.
+  test("401 menghapus kedua cookie sesi", async () => {
+    const { request, context } = onCall("GET", ["v1", "sesi-mati"], {
+      cookie: "accessToken=abc; refreshToken=def",
+    });
+
+    const response = await route.GET(request as never, context as never);
+
+    expect(response.status).toBe(401);
+    expect(clearedCookies(response)).toEqual(["accessToken", "refreshToken"]);
+  });
+
+  test("403 tidak menghapus apa pun: izin kurang, sesinya masih sah", async () => {
+    const { request, context } = onCall("GET", ["v1", "tanpa-izin"], {
+      cookie: "accessToken=abc; refreshToken=def",
+    });
+
+    const response = await route.GET(request as never, context as never);
+
+    expect(response.status).toBe(403);
+    expect(clearedCookies(response)).toEqual([]);
+  });
+
+  test("200 tidak menghapus apa pun", async () => {
+    const { request, context } = onCall("GET", ["v1", "jemaat"], {
+      cookie: "accessToken=abc; refreshToken=def",
+    });
+
+    const response = await route.GET(request as never, context as never);
+
+    expect(response.status).toBe(200);
+    expect(clearedCookies(response)).toEqual([]);
+  });
+});
 
 describe("BFF", () => {
   test("meneruskan path dan query ke be-sada", async () => {
