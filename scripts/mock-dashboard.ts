@@ -169,6 +169,7 @@ export const PERSONAS: Record<string, Persona> = {
       [MENU.ACCOUNTING_SETTING]: SETTING_ACTIONS,
       [MENU.BANK_DEPOSIT]: SETORAN_ACTIONS,
       [MENU.FINANCIAL_STATEMENT]: V,
+      [MENU.ASSET_REPORT]: V,
       [MENU.SUPPLIER_INVOICE]: V,
       [MENU.PAYMENT]: V,
       // Tiga menu yang mengembalikan nominal per orang (§2.4). Hanya di sini.
@@ -335,6 +336,7 @@ export const actionsOf = (persona: Persona, slug: string): Action[] =>
 /** Guard be-sada: `Authorization(MENU.X, "VIEW")`; admin melewatinya. */
 export const GUARD: Record<string, MenuSlug> = {
   "/persetujuan": MENU.APPROVAL_REQUEST,
+  "/laporan-aset": MENU.ASSET_REPORT,
   "/laporan-keuangan/neraca": MENU.FINANCIAL_STATEMENT,
   "/laporan-keuangan/surplus-defisit": MENU.FINANCIAL_STATEMENT,
   "/kas-keluar": MENU.KAS_KELUAR,

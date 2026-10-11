@@ -70,6 +70,7 @@ export const TREE: Record<string, MenuSlug[]> = {
     MENU.REPORT_JEMAAT,
     MENU.FINANCIAL_STATEMENT,
     MENU.BUDGET_REALIZATION,
+    MENU.ASSET_REPORT,
   ],
   [MENU.HR]: [
     MENU.EMPLOYEE,
@@ -162,6 +163,7 @@ export const NAME: Record<MenuSlug, string> = {
   [MENU.REPORT_JEMAAT]: "Laporan Jemaat",
   [MENU.FINANCIAL_STATEMENT]: "Financial Statement",
   [MENU.BUDGET_REALIZATION]: "Budget Realization",
+  [MENU.ASSET_REPORT]: "Laporan Aset Tetap",
   [MENU.APPROVAL]: "Approval",
   [MENU.APPROVAL_REQUEST]: "Approval Request",
   [MENU.APPROVAL_WORKFLOW]: "Approval Workflow",
