@@ -83,12 +83,11 @@ export const ConfirmDialog = (props: PropTypes) => {
 
             {isClosedOnConfirm ? (
               <AlertDialog.Close
-                disabled={isPending}
-                aria-busy={isPending || undefined}
                 render={
                   <Button
                     type="button"
                     variant={isDestructive ? "destructive" : "default"}
+                    isLoading={isPending}
                   />
                 }
                 onClick={onConfirmClick}
@@ -99,8 +98,7 @@ export const ConfirmDialog = (props: PropTypes) => {
               <Button
                 type="button"
                 variant={isDestructive ? "destructive" : "default"}
-                disabled={isPending}
-                aria-busy={isPending || undefined}
+                isLoading={isPending}
                 onClick={onConfirmClick}
               >
                 {confirmLabel}
