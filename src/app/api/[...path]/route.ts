@@ -1,6 +1,11 @@
-import type { NextRequest } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 
-import { pickSessionCookies, stripCookieDomain } from "@/lib/api/cookie";
+import {
+  ACCESS_COOKIE,
+  pickSessionCookies,
+  REFRESH_COOKIE,
+  stripCookieDomain,
+} from "@/lib/api/cookie";
 import { env } from "@/lib/env";
 
 const HOP_BY_HOP_HEADERS = new Set([
@@ -126,7 +131,26 @@ const forwardToBackend = async (
   headers.set("cache-control", NO_STORE["cache-control"]);
   headers.delete("etag");
 
-  return new Response(upstream.body, { status: upstream.status, headers });
+  const response = new NextResponse(upstream.body, {
+    status: upstream.status,
+    headers,
+  });
+
+  // 401 berarti be-sada tidak lagi mengenali sesi ini — paling sering karena
+  // login di perangkat lain mencabutnya. Proxy hanya menyegarkan token ketika
+  // cookie access-nya sudah hilang, jadi tanpa pembersihan ini perangkat lama
+  // akan terus mengirim token yang sudah mati sampai cookie itu kedaluwarsa
+  // sendiri, menerima 401 berulang tanpa pernah keluar. Menghapusnya membuat
+  // permintaan berikutnya jatuh ke jalur login di src/proxy.ts.
+  //
+  // Hanya 401. 403 adalah soal izin pada sesi yang masih sah, dan mengeluarkan
+  // pengguna karena membuka menu yang tidak boleh diaksesnya akan keliru.
+  if (upstream.status === 401) {
+    response.cookies.delete(ACCESS_COOKIE);
+    response.cookies.delete(REFRESH_COOKIE);
+  }
+
+  return response;
 };
 
 export const GET = forwardToBackend;
