@@ -7,26 +7,30 @@ export const EXPENSE_PRINT_COLUMNS: readonly PrintColumn<CashExpense>[] = [
   {
     key: "expenseDate",
     header: "Tanggal",
-    cell: (row) => formatDate(row.expenseDate),
+    value: (row) => formatDate(row.expenseDate),
+    // Di kertas tanggal panjang lebih enak dibaca; di CSV yang dibutuhkan
+    // bentuk yang bisa diurutkan dan disaring Excel.
+    csv: (row) => row.expenseDate.slice(0, 10),
   },
-  { key: "code", header: "Kode", cell: (row) => row.code },
-  { key: "payee", header: "Penerima", cell: (row) => row.payee },
-  { key: "description", header: "Keterangan", cell: (row) => row.description },
+  { key: "code", header: "Kode", value: (row) => row.code },
+  { key: "payee", header: "Penerima", value: (row) => row.payee },
+  { key: "description", header: "Keterangan", value: (row) => row.description },
   {
     key: "paidFromAccount",
     header: "Akun kas",
-    cell: (row) => `${row.paidFromAccount.code} ${row.paidFromAccount.name}`,
+    value: (row) => `${row.paidFromAccount.code} ${row.paidFromAccount.name}`,
   },
   {
     key: "reference",
     header: "Referensi",
-    cell: (row) => row.reference ?? "—",
+    value: (row) => row.reference ?? "—",
   },
   {
     key: "totalAmount",
     header: "Jumlah",
     align: "end",
-    cell: (row) => formatAmount(row.totalAmount),
+    value: (row) => formatAmount(row.totalAmount),
+    csv: (row) => Number(row.totalAmount),
   },
 ];
 

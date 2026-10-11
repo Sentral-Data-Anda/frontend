@@ -11,6 +11,7 @@ import {
 } from "@/components/common/dashboard";
 import { EmptyState } from "@/components/common/feedback";
 import { FormField } from "@/components/common/form";
+import { CsvDownloadButton } from "@/components/common/list";
 import { MENU, createHref, menuHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { todayJakarta } from "@/lib/date";
@@ -18,6 +19,7 @@ import { formatDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 import { useNeraca } from "../api";
+import { onDownloadStatement, statementRows } from "../csv";
 import { SURPLUS_HINT, accountHref, ledgerHref, money } from "../model";
 import type { ReportRange } from "../types";
 
@@ -67,6 +69,31 @@ export const BalanceSheet = (props: PropTypes) => {
             label="Posisi tanggal"
           />
         </FormField>
+
+        <CsvDownloadButton
+          onDownload={() =>
+            onDownloadStatement(
+              ["Posisi-Keuangan", date],
+              statementRows([
+                {
+                  section: "Aset",
+                  nodes: report?.assets,
+                  total: report?.totals.assets,
+                },
+                {
+                  section: "Liabilitas",
+                  nodes: report?.liabilities,
+                  total: report?.totals.liabilities,
+                },
+                {
+                  section: "Ekuitas",
+                  nodes: report?.equity,
+                  total: report?.totals.equity,
+                },
+              ]),
+            )
+          }
+        />
       </ReportFilters>
 
       <h2 className="hidden px-gutter pb-3 text-lead font-semibold print:block">

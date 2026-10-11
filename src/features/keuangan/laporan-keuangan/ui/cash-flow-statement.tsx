@@ -5,12 +5,14 @@ import Link from "next/link";
 import { buttonVariants } from "@/components/common/control";
 import { Panel } from "@/components/common/display";
 import { FormAlert } from "@/components/common/form";
+import { CsvDownloadButton } from "@/components/common/list";
 import { MENU, menuHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { FetchError } from "@/lib/api/fetcher";
 import { cn } from "@/lib/utils";
 
 import { useArusKas } from "../api";
+import { onDownloadCashFlow, rangeFileName } from "../csv";
 import {
   CASH_FLOW_DERIVED_MESSAGE,
   CASH_FLOW_DERIVED_TITLE,
@@ -73,6 +75,20 @@ export const CashFlowStatement = (props: PropTypes) => {
           range={range}
           onPickFrom={onPickFrom}
           onPickTo={onPickTo}
+        />
+
+        <CsvDownloadButton
+          onDownload={() =>
+            onDownloadCashFlow(
+              ["Arus-Kas", rangeFileName(range)],
+              (data?.lines ?? []).map((line) => ({
+                section: line.section,
+                code: line.code,
+                name: line.name,
+                amount: line.amount,
+              })),
+            )
+          }
         />
       </ReportFilters>
 

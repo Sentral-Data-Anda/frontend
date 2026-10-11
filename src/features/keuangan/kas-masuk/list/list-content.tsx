@@ -1,17 +1,19 @@
 "use client";
 
 import {
+  CsvDownloadButton,
   DataList,
   ListTabs,
   ListToolbar,
   PrintListButton,
+  toCsvColumns,
   PrintSheet,
 } from "@/components/common/list";
 import { PageHeader, PageHeaderAdd } from "@/components/layout";
 import { MENU, domainHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
+import { useListExport } from "@/hooks/use-list-export";
 import { useListParams } from "@/hooks/use-list-params";
-import { usePrintList } from "@/hooks/use-print-list";
 
 import { fetchReceiptPage, RECEIPT_FILTERS, useReceiptList } from "../api";
 import {
@@ -35,7 +37,7 @@ export const ReceiptListContent = () => {
   const listParams = useListParams({ filters: RECEIPT_FILTERS });
   const receiptList = useReceiptList(listParams);
   const isNarrowed = Boolean(listParams.search) || listParams.isFiltered;
-  const print = usePrintList({
+  const print = useListExport({
     fetchPage: fetchReceiptPage,
     params: listParams,
   });
@@ -55,6 +57,15 @@ export const ReceiptListContent = () => {
             <PrintListButton
               isPending={print.isPending}
               onPrint={() => void print.onPrint()}
+            />
+            <CsvDownloadButton
+              isPending={print.isPending}
+              onDownload={() =>
+                void print.onExportCsv(toCsvColumns(RECEIPT_PRINT_COLUMNS), [
+                  TITLE,
+                  printSubtitleOf(listParams.filters, listParams.search),
+                ])
+              }
             />
             {isCanCreate ? (
               <>

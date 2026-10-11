@@ -6,17 +6,20 @@ import { AccountField } from "@/components/common/control";
 import { EmptyState } from "@/components/common/feedback";
 import { FormField } from "@/components/common/form";
 import {
+  CsvDownloadButton,
   DataList,
   DataListRow,
   type DataTableConfig,
 } from "@/components/common/list";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
+import { useBoolean } from "@/hooks/use-boolean";
 import { useDdlOptions } from "@/hooks/use-ddl-options";
 import { FetchError } from "@/lib/api/fetcher";
 import { formatDate } from "@/lib/format";
 
-import { useLedger } from "../api";
+import { fetchAllLedgerRows, useLedger } from "../api";
+import { onDownloadLedger, rangeFileName } from "../csv";
 import {
   LEDGER_EMPTY_DESCRIPTION,
   LEDGER_EMPTY_TITLE,
@@ -148,6 +151,7 @@ export const GeneralLedger = (props: PropTypes) => {
   } = props;
 
   const journalAccess = useMenuAccess(MENU.JOURNAL_ENTRY);
+  const isExporting = useBoolean();
   const accounts = useDdlOptions<AccountOption>("account");
   const ledger = useLedger({
     code,
@@ -168,6 +172,19 @@ export const GeneralLedger = (props: PropTypes) => {
     journalAccess.isCanView && row.entryPublicId
       ? journalHref(row.entryPublicId)
       : undefined;
+
+  const onExportCsv = async () => {
+    isExporting.onTrue();
+
+    try {
+      onDownloadLedger(
+        ["Buku-Besar", code, rangeFileName(range)],
+        await fetchAllLedgerRows({ code, from: range.from, to: range.to }),
+      );
+    } finally {
+      isExporting.onFalse();
+    }
+  };
 
   const onPickId = (value: string) =>
     onPickAccount(
@@ -190,6 +207,13 @@ export const GeneralLedger = (props: PropTypes) => {
           onPickFrom={onPickFrom}
           onPickTo={onPickTo}
         />
+
+        {code ? (
+          <CsvDownloadButton
+            isPending={isExporting.value}
+            onDownload={() => void onExportCsv()}
+          />
+        ) : null}
       </ReportFilters>
 
       <p className="text-muted-foreground px-gutter pb-4 text-body print:hidden">

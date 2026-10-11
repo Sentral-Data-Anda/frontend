@@ -4,7 +4,7 @@ import { afterEach, describe, expect, test } from "bun:test";
 import type { ListState } from "@/hooks/use-list-params";
 import type { ApiListResponse } from "@/types/api";
 
-import { usePrintList } from "./use-print-list";
+import { useListExport } from "./use-list-export";
 
 afterEach(cleanup);
 
@@ -70,12 +70,12 @@ const onStubPrint = () => {
   return calls;
 };
 
-describe("usePrintList", () => {
+describe("useListExport", () => {
   test("mengambil setiap halaman, bukan hanya yang terlihat di layar", async () => {
     const print = onStubPrint();
     const server = onServer(250);
     const { result } = renderHook(() =>
-      usePrintList<Row>({ fetchPage: server.fetchPage, params: onParams() }),
+      useListExport<Row>({ fetchPage: server.fetchPage, params: onParams() }),
     );
 
     await act(() => result.current.onPrint());
@@ -93,7 +93,7 @@ describe("usePrintList", () => {
     onStubPrint();
     const server = onServer(1);
     const { result } = renderHook(() =>
-      usePrintList<Row>({
+      useListExport<Row>({
         fetchPage: server.fetchPage,
         params: onParams({
           search: "toko",
@@ -115,7 +115,7 @@ describe("usePrintList", () => {
   test("kegagalan dilaporkan dan tidak membuka dialog cetak", async () => {
     const print = onStubPrint();
     const { result } = renderHook(() =>
-      usePrintList<Row>({
+      useListExport<Row>({
         fetchPage: () => Promise.reject(new Error("putus")),
         params: onParams(),
       }),

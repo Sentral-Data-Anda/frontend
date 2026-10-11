@@ -7,6 +7,7 @@ import { fetchOne } from "@/lib/api/fetcher";
 import type {
   ArusKas,
   BukuBesar,
+  LedgerRow,
   Neraca,
   PerubahanAsetNeto,
   SurplusDefisit,
@@ -76,6 +77,50 @@ export function useArusKas(from: string, to: string) {
   });
 }
 
+const ledgerQuery = (params: {
+  code: string;
+  from: string;
+  to: string;
+  page: number;
+  limit: number;
+}) =>
+  new URLSearchParams({
+    code: params.code,
+    from: params.from,
+    to: params.to,
+    page: String(params.page),
+    limit: String(params.limit),
+  }).toString();
+
+/**
+ * Seluruh baris buku besar untuk rentangnya, bukan halaman yang terlihat.
+ *
+ * Buku besar sebulan saja sudah melewati satu halaman, dan CSV yang berisi
+ * sepuluh baris pertama tidak bisa dipakai memeriksa apa pun.
+ */
+export async function fetchAllLedgerRows(params: {
+  code: string;
+  from: string;
+  to: string;
+}): Promise<LedgerRow[]> {
+  const collected: LedgerRow[] = [];
+  let page = 1;
+  let totalPage = 1;
+
+  // Batas yang sama dengan `MAX_PAGE_SIZE` di be-sada; di atasnya dipangkas.
+  while (page <= totalPage && page <= 500) {
+    const response = await fetchOne<BukuBesar>(
+      `${BASE}/buku-besar?${ledgerQuery({ ...params, page, limit: 100 })}`,
+    );
+
+    collected.push(...response.data.rows);
+    totalPage = response.data.totalPage;
+    page += 1;
+  }
+
+  return collected;
+}
+
 export function useLedger(params: {
   code: string;
   from: string;
@@ -83,13 +128,7 @@ export function useLedger(params: {
   page: number;
   limit: number;
 }) {
-  const query = new URLSearchParams({
-    code: params.code,
-    from: params.from,
-    to: params.to,
-    page: String(params.page),
-    limit: String(params.limit),
-  }).toString();
+  const query = ledgerQuery(params);
 
   return useQuery({
     queryKey: reportKeys.ledger(query),

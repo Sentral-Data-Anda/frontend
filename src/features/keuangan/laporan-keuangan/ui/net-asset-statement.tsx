@@ -3,10 +3,12 @@
 import { useEffect, useRef } from "react";
 
 import { Panel } from "@/components/common/display";
+import { CsvDownloadButton } from "@/components/common/list";
 import { useBoolean } from "@/hooks/use-boolean";
 import { cn } from "@/lib/utils";
 
 import { usePerubahanAsetNeto } from "../api";
+import { onDownloadNetAsset, rangeFileName } from "../csv";
 import {
   ASET_NETO_EMPTY_NOTE,
   ASET_NETO_SCROLL_HINT,
@@ -108,6 +110,12 @@ export const NetAssetStatement = (props: PropTypes) => {
           range={range}
           onPickFrom={onPickFrom}
           onPickTo={onPickTo}
+        />
+
+        <CsvDownloadButton
+          onDownload={() =>
+            onDownloadNetAsset(["Aset-Neto", rangeFileName(range)], rows)
+          }
         />
       </ReportFilters>
 

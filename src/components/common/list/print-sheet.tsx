@@ -1,11 +1,29 @@
 import type { ReactNode } from "react";
 
+import type { CsvColumn } from "@/lib/csv";
+
 export interface PrintColumn<T> {
   key: string;
   header: string;
   align?: "start" | "end";
-  cell: (row: T) => ReactNode;
+  /** Apa yang tercetak di kertas, sudah berformat. */
+  value: (row: T) => string;
+  /**
+   * Apa yang masuk ke CSV, bila berbeda. Kolom rupiah memberi angkanya di
+   * sini: "Rp 3.500.000" mendarat di Excel sebagai teks dan tidak bisa
+   * dijumlahkan, padahal menjumlahkan itulah gunanya berkas ini.
+   */
+  csv?: (row: T) => string | number;
 }
+
+/** Kolom yang sama, dibaca sebagai kolom CSV. */
+export const toCsvColumns = <T,>(
+  columns: readonly PrintColumn<T>[],
+): readonly CsvColumn<T>[] =>
+  columns.map((column) => ({
+    header: column.header,
+    value: column.csv ?? column.value,
+  }));
 
 interface PropTypes<T> {
   title: string;
@@ -65,7 +83,7 @@ export function PrintSheet<T>(props: PropTypes<T>) {
                     column.align === "end" ? "text-right tabular-nums" : ""
                   }`}
                 >
-                  {column.cell(row)}
+                  {column.value(row)}
                 </td>
               ))}
             </tr>

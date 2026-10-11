@@ -1,18 +1,20 @@
 "use client";
 
 import {
+  CsvDownloadButton,
   DataList,
   ListTabs,
   ListToolbar,
   PrintListButton,
+  toCsvColumns,
   PrintSheet,
 } from "@/components/common/list";
 import { PageHeader, PageHeaderAdd } from "@/components/layout";
 import { MENU, domainHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { useDdlOptions } from "@/hooks/use-ddl-options";
+import { useListExport } from "@/hooks/use-list-export";
 import { useListParams, type ListFilterSchema } from "@/hooks/use-list-params";
-import { usePrintList } from "@/hooks/use-print-list";
 import { monthOptions } from "@/lib/date";
 
 import { fetchExpensePage, useExpenseList } from "../api";
@@ -51,7 +53,7 @@ export const ExpenseListContent = () => {
   const isNarrowed = Boolean(listParams.search) || listParams.isFiltered;
   // Filter tab dan bulan diterjemahkan ke query API oleh toExpenseQuery; tanpa
   // itu lembar cetaknya akan memuat baris yang tidak ada di layar.
-  const print = usePrintList({
+  const print = useListExport({
     fetchPage: fetchExpensePage,
     params: {
       ...listParams,
@@ -74,6 +76,15 @@ export const ExpenseListContent = () => {
             <PrintListButton
               isPending={print.isPending}
               onPrint={() => void print.onPrint()}
+            />
+            <CsvDownloadButton
+              isPending={print.isPending}
+              onDownload={() =>
+                void print.onExportCsv(toCsvColumns(EXPENSE_PRINT_COLUMNS), [
+                  "Kas Keluar",
+                  printSubtitleOf(listParams.filters, listParams.search),
+                ])
+              }
             />
             {isCanCreate ? (
               <PageHeaderAdd

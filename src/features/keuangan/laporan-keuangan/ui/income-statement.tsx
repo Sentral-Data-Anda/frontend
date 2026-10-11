@@ -1,10 +1,12 @@
 "use client";
 
 import { DashboardGrid } from "@/components/common/dashboard";
+import { CsvDownloadButton } from "@/components/common/list";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 
 import { useSurplusDefisit } from "../api";
+import { onDownloadStatement, rangeFileName, statementRows } from "../csv";
 import { accountHref, ledgerHref, rangeLabel } from "../model";
 import type { ReportRange } from "../types";
 
@@ -44,6 +46,26 @@ export const IncomeStatement = (props: PropTypes) => {
           range={range}
           onPickFrom={onPickFrom}
           onPickTo={onPickTo}
+        />
+
+        <CsvDownloadButton
+          onDownload={() =>
+            onDownloadStatement(
+              ["Penghasilan", rangeFileName(range)],
+              statementRows([
+                {
+                  section: "Pendapatan",
+                  nodes: report?.income,
+                  total: report?.totals.income,
+                },
+                {
+                  section: "Beban",
+                  nodes: report?.expense,
+                  total: report?.totals.expense,
+                },
+              ]),
+            )
+          }
         />
       </ReportFilters>
 
