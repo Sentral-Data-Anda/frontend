@@ -22,12 +22,29 @@ const parseCookieHeader = (header: string): Map<string, string> => {
   return jar;
 };
 
-const onRefresh = async (cookieHeader: string): Promise<RefreshResult> => {
+const onRefresh = async (
+  cookieHeader: string,
+  client: ClientContext,
+): Promise<RefreshResult> => {
   let response: Response;
+
+  const headers = new Headers({ Cookie: pickSessionCookies(cookieHeader) });
+
+  // be-sada menulis user agent pemanggil pada sesi yang dibuatnya. Panggilan ini
+  // server ke server, jadi tanpa ini setiap rotasi menimpa perangkat yang
+  // benar-benar dipakai pengguna dengan user agent bawaan fetch.
+  //
+  // Hanya user agent. Alamat klien sengaja tidak diteruskan: `x-forwarded-for`
+  // datang dari klien dan bisa dikarang, sementara be-sada memasang
+  // `trust proxy` dan memakai `req.ip` sebagai kunci rate limiter — meneruskan
+  // header itu apa adanya berarti menyerahkan kunci itu kepada pemanggil.
+  // Merekam alamat klien yang sebenarnya butuh kontrak header tepercaya antara
+  // Vercel dan be-sada, bukan penerusan mentah.
+  if (client.userAgent) headers.set("user-agent", client.userAgent);
 
   try {
     response = await fetch(`${env.API_BASE_URL}/v1/auth/refresh-token`, {
-      headers: { Cookie: pickSessionCookies(cookieHeader) },
+      headers,
       cache: "no-store",
     });
   } catch {
@@ -57,15 +74,26 @@ const onRefresh = async (cookieHeader: string): Promise<RefreshResult> => {
   };
 };
 
+/** Yang dibawa agar sesi hasil rotasi tetap menunjuk perangkat yang benar. */
+export type ClientContext = {
+  userAgent?: string | null;
+};
+
+/** Membaca konteks klien dari permintaan yang masuk. */
+export const clientContextOf = (headers: Headers): ClientContext => ({
+  userAgent: headers.get("user-agent"),
+});
+
 export function refreshSession(
   cookieHeader: string,
   refreshToken: string,
+  client: ClientContext = {},
 ): Promise<RefreshResult> {
   const existing = inFlight.get(refreshToken);
 
   if (existing) return existing;
 
-  const attempt = onRefresh(cookieHeader).finally(() => {
+  const attempt = onRefresh(cookieHeader, client).finally(() => {
     inFlight.delete(refreshToken);
   });
 
