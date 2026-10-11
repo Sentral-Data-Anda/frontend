@@ -1,8 +1,10 @@
 import { NextResponse, type NextRequest } from "next/server";
 
+import { clientContextOf, refreshSession } from "@/features/auth/refresh";
 import {
   ACCESS_COOKIE,
   pickSessionCookies,
+  readCookie,
   REFRESH_COOKIE,
   stripCookieDomain,
 } from "@/lib/api/cookie";
@@ -36,19 +38,41 @@ const FORWARDED_REQUEST_HEADERS = [
 
 const METHODS_WITH_BODY = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 
-const buildForwardHeaders = (request: NextRequest): Headers => {
+const buildForwardHeaders = (
+  request: NextRequest,
+  cookieOverride?: string,
+): Headers => {
   const headers = new Headers();
 
   for (const name of FORWARDED_REQUEST_HEADERS) {
-    const value = request.headers.get(name);
+    const value =
+      name === "cookie"
+        ? (cookieOverride ?? request.headers.get(name))
+        : request.headers.get(name);
 
-    if (value !== null) {
+    if (value !== null && value !== undefined) {
       headers.set(name, name === "cookie" ? pickSessionCookies(value) : value);
     }
   }
 
   return headers;
 };
+
+// The two endpoints that own the session themselves. Retrying a refresh after
+// a refresh would replay the id it had just spent, and a logout that answered
+// 401 has already done what the caller asked for.
+const SESSION_PATHS = new Set(["v1/auth/refresh-token", "v1/auth/logout"]);
+
+/**
+ * Whether a 401 is worth one refresh and one retry.
+ *
+ * Only a GET. A request with a body streams it straight through
+ * (`duplex: "half"`), so by the time the answer arrives the body is spent and
+ * cannot be sent a second time without holding the whole upload in memory
+ * first.
+ */
+const isRetryable = (request: NextRequest, path: string[]): boolean =>
+  request.method === "GET" && !SESSION_PATHS.has(path.join("/"));
 
 // Jawaban be-sada berisi data pribadi; be-sada tidak memasang Cache-Control.
 const NO_STORE = { "cache-control": "private, no-store" };
@@ -86,18 +110,21 @@ const forwardToBackend = async (
   const isBodyAllowed =
     METHODS_WITH_BODY.has(request.method) && request.body !== null;
 
-  let upstream: Response;
-
-  try {
-    upstream = await fetch(target, {
+  const callBackend = (cookieOverride?: string) =>
+    fetch(target, {
       method: request.method,
-      headers: buildForwardHeaders(request),
+      headers: buildForwardHeaders(request, cookieOverride),
       body: isBodyAllowed ? request.body : undefined,
       ...(isBodyAllowed ? { duplex: "half" } : {}),
       redirect: "manual",
       // Kunci Data Cache Next adalah URL, bukan user.
       cache: "no-store",
     } as RequestInit & { duplex?: "half" });
+
+  let upstream: Response;
+
+  try {
+    upstream = await callBackend();
   } catch {
     return Response.json(
       {
@@ -106,6 +133,50 @@ const forwardToBackend = async (
       },
       { status: 502, headers: NO_STORE },
     );
+  }
+
+  // Cookie yang dibawa refresh, dipasang pada jawaban akhir supaya browser ikut
+  // memakai sesi yang baru.
+  let refreshSetCookie: string[] = [];
+
+  // src/proxy.ts hanya menyegarkan token ketika cookie access-nya sudah hilang
+  // dari browser. Cookie yang masih terpasang tapi ditolak be-sada — jam klien
+  // yang meleset dari jam server, atau SECRET_ACCESS_TOKEN yang berganti saat
+  // deploy — tidak pernah sampai ke jalur itu dan langsung mengeluarkan
+  // pengguna. Di sini 401-nya diberi satu kesempatan: segarkan sekali, ulangi
+  // sekali. Kalau sesinya memang sudah dicabut, refresh-nya ikut gagal dan
+  // pengguna tetap keluar seperti sebelumnya.
+  const refreshToken = readCookie(
+    request.headers.get("cookie"),
+    REFRESH_COOKIE,
+  );
+
+  if (upstream.status === 401 && refreshToken && isRetryable(request, path)) {
+    const refreshed = await refreshSession(
+      request.headers.get("cookie") ?? "",
+      refreshToken,
+      clientContextOf(request.headers),
+    );
+
+    if (refreshed) {
+      // Jawaban pertama dibuang seluruhnya, termasuk Set-Cookie penghapus sesi
+      // yang dikirim be-sada bersama 401-nya.
+      await upstream.body?.cancel().catch(() => {});
+
+      try {
+        upstream = await callBackend(refreshed.cookieHeader);
+        refreshSetCookie = refreshed.setCookie;
+      } catch {
+        return Response.json(
+          {
+            status: 502,
+            error:
+              "Layanan sedang tidak dapat dihubungi. Coba lagi sebentar lagi.",
+          },
+          { status: 502, headers: NO_STORE },
+        );
+      }
+    }
   }
 
   const headers = new Headers();
@@ -124,6 +195,10 @@ const forwardToBackend = async (
   // `.set()` di atas hanya menyisakan Set-Cookie terakhir.
   headers.delete("set-cookie");
 
+  for (const cookie of refreshSetCookie) {
+    headers.append("set-cookie", cookie);
+  }
+
   for (const cookie of upstream.headers.getSetCookie()) {
     headers.append("set-cookie", stripCookieDomain(cookie));
   }
@@ -136,12 +211,13 @@ const forwardToBackend = async (
     headers,
   });
 
-  // 401 berarti be-sada tidak lagi mengenali sesi ini — paling sering karena
-  // login di perangkat lain mencabutnya. Proxy hanya menyegarkan token ketika
-  // cookie access-nya sudah hilang, jadi tanpa pembersihan ini perangkat lama
-  // akan terus mengirim token yang sudah mati sampai cookie itu kedaluwarsa
-  // sendiri, menerima 401 berulang tanpa pernah keluar. Menghapusnya membuat
-  // permintaan berikutnya jatuh ke jalur login di src/proxy.ts.
+  // 401 yang bertahan sampai sini berarti be-sada benar-benar tidak mengenali
+  // sesi ini: percobaan menyegarkan di atas sudah gagal, atau permintaannya
+  // berbadan sehingga tidak bisa diulang. Paling sering karena login di
+  // perangkat lain mencabutnya. Tanpa pembersihan ini perangkat lama akan terus
+  // mengirim token yang sudah mati sampai cookie itu kedaluwarsa sendiri,
+  // menerima 401 berulang tanpa pernah keluar. Menghapusnya membuat permintaan
+  // berikutnya jatuh ke jalur login di src/proxy.ts.
   //
   // Hanya 401. 403 adalah soal izin pada sesi yang masih sah, dan mengeluarkan
   // pengguna karena membuka menu yang tidak boleh diaksesnya akan keliru.

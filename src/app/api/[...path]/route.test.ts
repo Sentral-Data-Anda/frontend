@@ -5,6 +5,8 @@ mock.module("server-only", () => ({}));
 let server: ReturnType<typeof Bun.serve>;
 let route: typeof import("./route");
 
+let callCount = 0;
+
 let lastRequest: {
   method: string;
   url: string;
@@ -18,6 +20,8 @@ beforeAll(async () => {
     port: 0,
     async fetch(request) {
       const url = new URL(request.url);
+
+      callCount += 1;
 
       lastRequest = {
         method: request.method,
@@ -64,6 +68,40 @@ beforeAll(async () => {
             ],
           },
         );
+      }
+
+      if (url.pathname === "/api/v1/auth/refresh-token") {
+        // Hanya satu id yang masih bisa disegarkan; sisanya sudah dicabut.
+        if (!request.headers.get("cookie")?.includes("refreshToken=hidup")) {
+          return Response.json(
+            { status: 401, error: "Unauthorized" },
+            { status: 401 },
+          );
+        }
+
+        return new Response(JSON.stringify({ status: 200 }), {
+          status: 200,
+          headers: [
+            ["content-type", "application/json"],
+            [
+              "set-cookie",
+              "accessToken=baru; Max-Age=900; Domain=api.sada.test; Path=/; HttpOnly",
+            ],
+          ],
+        });
+      }
+
+      // Menolak access token lama dan menerima yang baru, seperti be-sada saat
+      // token di cookie sudah kedaluwarsa menurut jamnya.
+      if (url.pathname === "/api/v1/kedaluwarsa") {
+        if (!request.headers.get("cookie")?.includes("accessToken=baru")) {
+          return Response.json(
+            { status: 401, error: "Unauthorized" },
+            { status: 401 },
+          );
+        }
+
+        return Response.json({ status: 200, message: "ok", data: null });
       }
 
       if (url.pathname === "/api/v1/sesi-mati") {
@@ -334,5 +372,81 @@ describe("BFF", () => {
     } finally {
       process.env.API_BASE_URL = reachable;
     }
+  });
+});
+
+describe("menyegarkan token saat kena 401", () => {
+  // src/proxy.ts hanya menyegarkan ketika cookie access-nya sudah hilang.
+  // Cookie yang masih terpasang tapi ditolak be-sada — jam klien meleset, atau
+  // SECRET_ACCESS_TOKEN berganti saat deploy — tidak pernah lewat jalur itu.
+  test("GET: segarkan sekali lalu ulangi, pengguna tidak dikeluarkan", async () => {
+    const { request, context } = onCall("GET", ["v1", "kedaluwarsa"], {
+      cookie: "accessToken=mati; refreshToken=hidup",
+    });
+
+    callCount = 0;
+
+    const response = await route.GET(request as never, context as never);
+
+    expect(response.status).toBe(200);
+    expect(clearedCookies(response)).toEqual([]);
+    // Permintaan pertama, refresh, lalu ulangan.
+    expect(callCount).toBe(3);
+    // Cookie baru diteruskan supaya browser ikut memakai sesi yang disegarkan.
+    expect(
+      response.headers
+        .getSetCookie()
+        .some((cookie) => cookie.startsWith("accessToken=baru")),
+    ).toBe(true);
+    // Domain milik be-sada tidak boleh ikut, cookienya harus jadi milik origin ini.
+    expect(response.headers.getSetCookie().join(";")).not.toContain("Domain=");
+  });
+
+  test("GET: refresh yang gagal tetap mengeluarkan pengguna", async () => {
+    const { request, context } = onCall("GET", ["v1", "kedaluwarsa"], {
+      cookie: "accessToken=mati; refreshToken=dicabut",
+    });
+
+    const response = await route.GET(request as never, context as never);
+
+    expect(response.status).toBe(401);
+    expect(clearedCookies(response)).toEqual(["accessToken", "refreshToken"]);
+  });
+
+  // Badan permintaan dialirkan langsung (`duplex: "half"`), jadi sesudah
+  // jawabannya tiba badan itu sudah habis dan tidak bisa dikirim ulang.
+  test("POST tidak diulang", async () => {
+    const { request, context } = onCall("POST", ["v1", "kedaluwarsa"], {
+      body: JSON.stringify({ a: 1 }),
+      cookie: "accessToken=mati; refreshToken=hidup",
+      headers: { "content-type": "application/json" },
+    });
+
+    callCount = 0;
+
+    const response = await route.POST(request as never, context as never);
+
+    expect(response.status).toBe(401);
+    expect(callCount).toBe(1);
+    expect(clearedCookies(response)).toEqual(["accessToken", "refreshToken"]);
+  });
+
+  // Menyegarkan sesudah menyegarkan berarti memakai ulang id yang baru saja
+  // ditukar, dan itulah yang dibaca be-sada sebagai pencurian token.
+  test("refresh-token sendiri tidak diulang", async () => {
+    const { request, context } = onCall(
+      "GET",
+      ["v1", "auth", "refresh-token"],
+      {
+        cookie: "accessToken=mati; refreshToken=dicabut",
+      },
+    );
+
+    callCount = 0;
+
+    const response = await route.GET(request as never, context as never);
+
+    expect(response.status).toBe(401);
+    expect(callCount).toBe(1);
   });
 });

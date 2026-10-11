@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-import { refreshSession } from "@/features/auth/refresh";
+import { clientContextOf, refreshSession } from "@/features/auth/refresh";
 import { ACCESS_COOKIE, REFRESH_COOKIE } from "@/lib/api/cookie";
 import { buildContentSecurityPolicy, generateNonce } from "@/lib/security/csp";
 
@@ -39,6 +39,7 @@ export async function proxy(request: NextRequest) {
     const refreshed = await refreshSession(
       request.headers.get("cookie") ?? "",
       refreshToken,
+      clientContextOf(request.headers),
     );
 
     if (!refreshed) {
