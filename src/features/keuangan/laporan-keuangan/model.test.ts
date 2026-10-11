@@ -1,13 +1,13 @@
 import { describe, expect, test } from "bun:test";
 
-import { todayJakarta } from "@/lib/date";
+import { monthRange, todayJakarta } from "@/lib/date";
 
 import {
   flattenTree,
   ledgerHref,
   money,
   readDate,
-  readMonth,
+  readRange,
   readTab,
 } from "./model";
 import type { ReportAccount } from "./types";
@@ -58,10 +58,38 @@ describe("pembacaan parameter", () => {
     expect(readTab("")).toBe("neraca");
   });
 
-  test("bulan kosong atau salah bentuk memakai bulan berjalan", () => {
-    expect(readMonth("2026-03")).toBe("2026-03");
-    expect(readMonth("2026")).toBe(todayJakarta().slice(0, 7));
-    expect(readMonth("")).toBe(todayJakarta().slice(0, 7));
+  test("rentang kosong memakai bulan berjalan", () => {
+    const thisMonth = monthRange(todayJakarta().slice(0, 7));
+
+    expect(readRange("", "")).toEqual({
+      from: thisMonth.startDate,
+      to: thisMonth.endDate,
+    });
+  });
+
+  test("rentang setahun dibaca apa adanya", () => {
+    expect(readRange("2026-01-01", "2026-12-31")).toEqual({
+      from: "2026-01-01",
+      to: "2026-12-31",
+    });
+  });
+
+  // Backend menjawab rentang terbalik dengan 400. Itu selalu salah ketik, dan
+  // menukarnya memberi laporan yang jelas dimaksud ketimbang pesan galat.
+  test("rentang terbalik ditukar, bukan ditolak", () => {
+    expect(readRange("2026-12-31", "2026-01-01")).toEqual({
+      from: "2026-01-01",
+      to: "2026-12-31",
+    });
+  });
+
+  test("satu ujung kosong tetap jatuh ke bulan berjalan", () => {
+    const thisMonth = monthRange(todayJakarta().slice(0, 7));
+
+    expect(readRange("2026-03-05", "")).toEqual({
+      from: "2026-03-05",
+      to: thisMonth.endDate,
+    });
   });
 
   test("tanggal kosong memakai hari ini", () => {
@@ -71,14 +99,16 @@ describe("pembacaan parameter", () => {
 });
 
 describe("tautan", () => {
-  test("buku besar membawa akun dan bulan", () => {
-    expect(ledgerHref("1-100", "2026-03")).toBe(
-      "/report/financial-statement?tab=buku-besar&akun=1-100&bulan=2026-03",
+  const range = { from: "2026-03-01", to: "2026-03-31" };
+
+  test("buku besar membawa akun dan rentangnya", () => {
+    expect(ledgerHref("1-100", range)).toBe(
+      "/report/financial-statement?tab=buku-besar&akun=1-100&dari=2026-03-01&sampai=2026-03-31",
     );
   });
 
   test("kode akun berkarakter khusus di-encode", () => {
-    expect(ledgerHref("1/100", "2026-03")).toContain("akun=1%2F100");
+    expect(ledgerHref("1/100", range)).toContain("akun=1%2F100");
   });
 });
 

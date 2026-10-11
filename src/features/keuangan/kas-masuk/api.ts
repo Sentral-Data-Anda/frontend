@@ -54,10 +54,14 @@ const invalidateReceipts = (
       : Promise.resolve(),
   ]);
 
+/** Satu halaman daftar, dipakai layar maupun penyiapan cetak. */
+export const fetchReceiptPage = (apiQuery: string) =>
+  fetchList<CashReceipt>(`/kas-masuk?${apiQuery}`);
+
 export function useReceiptList(params: ListState) {
   return useListQuery({
     queryKey: receiptKeys.lists(),
-    fetchPage: (apiQuery) => fetchList<CashReceipt>(`/kas-masuk?${apiQuery}`),
+    fetchPage: fetchReceiptPage,
     params: { ...params, apiFilters: toReceiptApiFilters(params.filters) },
   });
 }

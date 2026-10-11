@@ -6,6 +6,7 @@ export * from "./income-statement";
 export * from "./ledger-balance";
 export * from "./net-asset-row";
 export * from "./net-asset-statement";
+export * from "./period-fields";
 export * from "./report-banners";
 export * from "./report-error";
 export * from "./report-filters";

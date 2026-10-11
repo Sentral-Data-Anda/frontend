@@ -49,7 +49,8 @@ export const ListToolbar = (props: PropTypes) => {
   };
 
   return (
-    <div className="@container px-gutter pb-4">
+    // Kendali, bukan isi: tidak ada gunanya di atas kertas.
+    <div className="@container px-gutter pb-4 print:hidden">
       <div ref={rowRef} className="flex gap-2">
         {searchLabel ? (
           <SearchInput

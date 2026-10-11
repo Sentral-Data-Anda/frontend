@@ -1,32 +1,32 @@
 "use client";
 
-import { SelectField } from "@/components/common/control";
 import { DashboardGrid } from "@/components/common/dashboard";
-import { FormField } from "@/components/common/form";
+import { CsvDownloadButton } from "@/components/common/list";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
-import { monthOptions, monthRange } from "@/lib/date";
 
 import { useSurplusDefisit } from "../api";
-import { accountHref, ledgerHref } from "../model";
+import { onDownloadStatement, rangeFileName, statementRows } from "../csv";
+import { accountHref, ledgerHref, rangeLabel } from "../model";
+import type { ReportRange } from "../types";
 
 import { AccountTreePanel } from "./account-tree-panel";
+import { PeriodFields } from "./period-fields";
 import { ReportError } from "./report-error";
 import { ReportFilters } from "./report-filters";
 import { SurplusRow } from "./surplus-row";
 
 interface PropTypes {
-  month: string;
-  onPickMonth: (value: string) => void;
+  range: ReportRange;
+  onPickFrom: (value: string) => void;
+  onPickTo: (value: string) => void;
 }
 
 export const IncomeStatement = (props: PropTypes) => {
-  const { month, onPickMonth } = props;
+  const { range, onPickFrom, onPickTo } = props;
 
   const accountAccess = useMenuAccess(MENU.CHART_OF_ACCOUNT);
-  const options = monthOptions();
-  const range = monthRange(month);
-  const surplus = useSurplusDefisit(range.startDate, range.endDate);
+  const surplus = useSurplusDefisit(range.from, range.to);
   const report = surplus.data;
   const query = {
     isPending: surplus.isPending,
@@ -34,21 +34,39 @@ export const IncomeStatement = (props: PropTypes) => {
     error: surplus.error,
     refetch: surplus.refetch,
   };
-  const label =
-    options.find((option) => option.value === month)?.label ?? month;
-  const toLedger = (code: string) => ledgerHref(code, month);
+  const label = rangeLabel(range);
+  const toLedger = (code: string) => ledgerHref(code, range);
   const toAccount = accountAccess.isCanView ? accountHref : undefined;
 
   return (
     <div className="pb-6">
       <ReportFilters>
-        <FormField label="Bulan" htmlFor="laba-rugi-month">
-          <SelectField
-            value={month}
-            onValueChange={onPickMonth}
-            options={options}
-          />
-        </FormField>
+        <PeriodFields
+          idPrefix="laba-rugi"
+          range={range}
+          onPickFrom={onPickFrom}
+          onPickTo={onPickTo}
+        />
+
+        <CsvDownloadButton
+          onDownload={() =>
+            onDownloadStatement(
+              ["Penghasilan", rangeFileName(range)],
+              statementRows([
+                {
+                  section: "Pendapatan",
+                  nodes: report?.income,
+                  total: report?.totals.income,
+                },
+                {
+                  section: "Beban",
+                  nodes: report?.expense,
+                  total: report?.totals.expense,
+                },
+              ]),
+            )
+          }
+        />
       </ReportFilters>
 
       <h2 className="hidden px-gutter pb-3 text-lead font-semibold print:block">

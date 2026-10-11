@@ -10,6 +10,7 @@ import {
 } from "@/config/menu";
 import { FetchError } from "@/lib/api/fetcher";
 import {
+  monthLabel,
   monthOptions,
   monthRange,
   startOfMonth,
@@ -106,6 +107,27 @@ export function toReceiptApiFilters(
   if (bulan === MONTH_ALL) return { startDate: "", endDate: "" };
 
   return monthRange(bulan || startOfMonth(today).slice(0, 7));
+}
+
+/**
+ * Periode dan penyaring yang menghasilkan daftar tercetak.
+ *
+ * Dicetak di bawah judulnya supaya lembar yang dipegang majelis menyatakan
+ * sendiri isinya; tanpa itu, selembar mutasi yang tersaring tak bisa dibedakan
+ * dari mutasi sebulan penuh.
+ */
+export function printSubtitleOf(
+  filters: Record<string, string>,
+  search: string,
+  today: string = todayJakarta(),
+) {
+  const bulan = filters.bulan ?? "";
+  const period =
+    bulan === MONTH_ALL
+      ? "Semua bulan"
+      : monthLabel(bulan || startOfMonth(today).slice(0, 7));
+
+  return search ? `${period} \u00b7 pencarian "${search}"` : period;
 }
 
 type FixLink = { menu: MenuSlug; href: string; label: string };

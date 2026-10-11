@@ -2,16 +2,17 @@
 
 import Link from "next/link";
 
-import { SelectField, buttonVariants } from "@/components/common/control";
+import { buttonVariants } from "@/components/common/control";
 import { Panel } from "@/components/common/display";
-import { FormAlert, FormField } from "@/components/common/form";
+import { FormAlert } from "@/components/common/form";
+import { CsvDownloadButton } from "@/components/common/list";
 import { MENU, menuHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { FetchError } from "@/lib/api/fetcher";
-import { monthOptions, monthRange } from "@/lib/date";
 import { cn } from "@/lib/utils";
 
 import { useArusKas } from "../api";
+import { onDownloadCashFlow, rangeFileName } from "../csv";
 import {
   CASH_FLOW_DERIVED_MESSAGE,
   CASH_FLOW_DERIVED_TITLE,
@@ -19,15 +20,18 @@ import {
   CASH_FLOW_NO_ACCOUNT_TITLE,
   CASH_FLOW_SECTION_LABEL,
   money,
+  rangeLabel,
 } from "../model";
-import type { CashFlowSection } from "../types";
+import type { CashFlowSection, ReportRange } from "../types";
 
+import { PeriodFields } from "./period-fields";
 import { ReportError } from "./report-error";
 import { ReportFilters } from "./report-filters";
 
 interface PropTypes {
-  month: string;
-  onPickMonth: (value: string) => void;
+  range: ReportRange;
+  onPickFrom: (value: string) => void;
+  onPickTo: (value: string) => void;
 }
 
 const SECTIONS: CashFlowSection[] = ["OPERASI", "INVESTASI", "PENDANAAN"];
@@ -37,12 +41,10 @@ const AKUN_PATH = menuHref(MENU.FINANCE, MENU.CHART_OF_ACCOUNT);
 const AMOUNT = "shrink-0 pl-3 text-right tabular-nums";
 
 export const CashFlowStatement = (props: PropTypes) => {
-  const { month, onPickMonth } = props;
+  const { range, onPickFrom, onPickTo } = props;
 
   const accountAccess = useMenuAccess(MENU.CHART_OF_ACCOUNT);
-  const options = monthOptions();
-  const range = monthRange(month);
-  const report = useArusKas(range.startDate, range.endDate);
+  const report = useArusKas(range.from, range.to);
   const data = report.data;
   const query = {
     isPending: report.isPending,
@@ -50,8 +52,7 @@ export const CashFlowStatement = (props: PropTypes) => {
     error: report.error,
     refetch: report.refetch,
   };
-  const label =
-    options.find((option) => option.value === month)?.label ?? month;
+  const label = rangeLabel(range);
 
   // Satu-satunya laporan di modul ini yang menolak, dan penolakannya punya
   // perbaikan yang jelas — jadi dia tidak boleh jatuh ke layar galat umum,
@@ -69,13 +70,26 @@ export const CashFlowStatement = (props: PropTypes) => {
   return (
     <div className="pb-6">
       <ReportFilters>
-        <FormField label="Bulan" htmlFor="arus-kas-month">
-          <SelectField
-            value={month}
-            onValueChange={onPickMonth}
-            options={options}
-          />
-        </FormField>
+        <PeriodFields
+          idPrefix="arus-kas"
+          range={range}
+          onPickFrom={onPickFrom}
+          onPickTo={onPickTo}
+        />
+
+        <CsvDownloadButton
+          onDownload={() =>
+            onDownloadCashFlow(
+              ["Arus-Kas", rangeFileName(range)],
+              (data?.lines ?? []).map((line) => ({
+                section: line.section,
+                code: line.code,
+                name: line.name,
+                amount: line.amount,
+              })),
+            )
+          }
+        />
       </ReportFilters>
 
       <h2 className="hidden px-gutter pb-3 text-lead font-semibold print:block">

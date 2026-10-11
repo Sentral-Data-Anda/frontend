@@ -26,8 +26,10 @@ import { keluargaMock } from "./keluarga";
 import { keuanganMock } from "./keuangan";
 import { komponenPayrollMock } from "./komponen-payroll";
 import { kontrakKaryawanMock } from "./kontrak-karyawan";
+import { laporanAsetMock } from "./laporan-aset";
 import { laporanBudgetMock } from "./laporan-budget";
 import { laporanKeuanganMock } from "./laporan-keuangan";
+import { laporanUtangMock } from "./laporan-utang";
 import { masterJemaatMock } from "./master-jemaat";
 import { mataUangMock } from "./mata-uang";
 import { mutasiStokMock } from "./mutasi-stok";
@@ -140,6 +142,8 @@ export const MOCK_HANDLERS: MockHandler[] = [
   paguAnggaranMock,
   programMock,
   laporanBudgetMock,
+  laporanAsetMock,
+  laporanUtangMock,
   komponenPayrollMock,
   payrollMock,
   kontrakKaryawanMock,

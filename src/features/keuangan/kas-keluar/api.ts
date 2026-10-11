@@ -33,12 +33,16 @@ const REPORT_KEY = ["budget-report"] as const;
 const pathOf = (publicId?: string) =>
   publicId ? `${BASE}/${encodeURIComponent(publicId)}` : BASE;
 
+/** Satu halaman daftar, dipakai layar maupun penyiapan cetak. */
+export const fetchExpensePage = (apiQuery: string) =>
+  fetchList<CashExpense>(`${BASE}?${apiQuery}`);
+
 export function useExpenseList(params: ListState) {
   const query = toExpenseQuery(params.status, params.filters);
 
   return useListQuery({
     queryKey: expenseKeys.lists(),
-    fetchPage: (apiQuery) => fetchList<CashExpense>(`${BASE}?${apiQuery}`),
+    fetchPage: fetchExpensePage,
     params: { ...params, ...query },
   });
 }

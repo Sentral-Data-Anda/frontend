@@ -11,6 +11,7 @@ import {
 } from "@/components/common/dashboard";
 import { EmptyState } from "@/components/common/feedback";
 import { FormField } from "@/components/common/form";
+import { CsvDownloadButton } from "@/components/common/list";
 import { MENU, createHref, menuHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { todayJakarta } from "@/lib/date";
@@ -18,7 +19,9 @@ import { formatDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 import { useNeraca } from "../api";
+import { onDownloadStatement, statementRows } from "../csv";
 import { SURPLUS_HINT, accountHref, ledgerHref, money } from "../model";
+import type { ReportRange } from "../types";
 
 import { AccountTreePanel } from "./account-tree-panel";
 import { NetAssetRow } from "./net-asset-row";
@@ -29,12 +32,12 @@ import { SurplusRow } from "./surplus-row";
 
 interface PropTypes {
   date: string;
-  month: string;
+  range: ReportRange;
   onPickDate: (value: string) => void;
 }
 
 export const BalanceSheet = (props: PropTypes) => {
-  const { date, month, onPickDate } = props;
+  const { date, range, onPickDate } = props;
 
   const accountAccess = useMenuAccess(MENU.CHART_OF_ACCOUNT);
   const neraca = useNeraca(date);
@@ -51,7 +54,7 @@ export const BalanceSheet = (props: PropTypes) => {
     report.assets.length === 0 &&
     report.liabilities.length === 0 &&
     report.equity.length === 0;
-  const toLedger = (code: string) => ledgerHref(code, month);
+  const toLedger = (code: string) => ledgerHref(code, range);
   const toAccount = accountAccess.isCanView ? accountHref : undefined;
 
   return (
@@ -66,6 +69,31 @@ export const BalanceSheet = (props: PropTypes) => {
             label="Posisi tanggal"
           />
         </FormField>
+
+        <CsvDownloadButton
+          onDownload={() =>
+            onDownloadStatement(
+              ["Posisi-Keuangan", date],
+              statementRows([
+                {
+                  section: "Aset",
+                  nodes: report?.assets,
+                  total: report?.totals.assets,
+                },
+                {
+                  section: "Liabilitas",
+                  nodes: report?.liabilities,
+                  total: report?.totals.liabilities,
+                },
+                {
+                  section: "Ekuitas",
+                  nodes: report?.equity,
+                  total: report?.totals.equity,
+                },
+              ]),
+            )
+          }
+        />
       </ReportFilters>
 
       <h2 className="hidden px-gutter pb-3 text-lead font-semibold print:block">
