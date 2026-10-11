@@ -38,7 +38,7 @@ const TABS: Tab[] = [
     slug: MENU.JADWAL_PELAYAN,
   },
   {
-    label: "Warta",
+    label: "Pengumuman",
     href: menuHref(MENU.KEGIATAN, MENU.PENGUMUMAN),
     icon: Megaphone,
     slug: MENU.PENGUMUMAN,

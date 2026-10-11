@@ -9,7 +9,7 @@ const TABS: Tab[] = [
   { label: "Dashboard", href: "/", icon: House, slug: null },
   { label: "Ibadah", href: "/peribadahan/ibadah", icon: House, slug: "IBADAH" },
   {
-    label: "Warta",
+    label: "Pengumuman",
     href: "/kegiatan/pengumuman",
     icon: House,
     slug: "PENGUMUMAN",
@@ -58,7 +58,7 @@ const menuLengkap: MenuNode[] = [
 ];
 
 describe("getVisibleTabs", () => {
-  test("menu tanpa PENGUMUMAN membuang tab Warta tapi mempertahankan Dashboard", () => {
+  test("menu tanpa PENGUMUMAN membuang tabnya tapi mempertahankan Dashboard", () => {
     const tabs = getVisibleTabs(TABS, menuTanpaPengumuman);
 
     expect(tabs.map((tab) => tab.label)).toEqual(["Dashboard", "Ibadah"]);
@@ -70,7 +70,7 @@ describe("getVisibleTabs", () => {
     expect(tabs.map((tab) => tab.label)).toEqual([
       "Dashboard",
       "Ibadah",
-      "Warta",
+      "Pengumuman",
     ]);
   });
 });

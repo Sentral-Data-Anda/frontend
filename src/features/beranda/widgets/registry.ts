@@ -1,7 +1,6 @@
 import type { ComponentType } from "react";
 
-import type { HeaderAction } from "@/components/layout";
-import { MENU, type MenuSlug, createHref, menuHref } from "@/config/menu";
+import { MENU, type MenuSlug } from "@/config/menu";
 import { findMenuNode } from "@/lib/menu-tree";
 import type { MenuAction, MenuNode } from "@/types/menu";
 
@@ -261,46 +260,3 @@ export function selectWidgets(
     side: main.length ? side : side.slice(1),
   };
 }
-
-const HEADER_ACTIONS: readonly (HeaderAction & { gate: WidgetGate })[] = [
-  {
-    label: "Buka antrean persetujuan",
-    href: menuHref(MENU.APPROVAL, MENU.APPROVAL_REQUEST),
-    gate: view(MENU.APPROVAL_REQUEST),
-  },
-  {
-    label: "Catat kas keluar",
-    href: menuHref(MENU.FINANCE, MENU.KAS_KELUAR),
-    gate: { slug: MENU.KAS_KELUAR, action: "CREATE" },
-  },
-  {
-    label: "Input persembahan",
-    href: menuHref(MENU.FINANCE, MENU.PERSEMBAHAN),
-    gate: { slug: MENU.PERSEMBAHAN, action: "CREATE" },
-  },
-  {
-    label: "Buat pengumuman",
-    href: createHref(MENU.KEGIATAN, MENU.PENGUMUMAN),
-    gate: { slug: MENU.PENGUMUMAN, action: "CREATE" },
-  },
-  {
-    label: "Tambah jadwal ibadah",
-    href: createHref(MENU.PERIBADAHAN, MENU.IBADAH),
-    gate: { slug: MENU.IBADAH, action: "CREATE" },
-  },
-  {
-    label: "Ajukan program",
-    href: menuHref(MENU.BUDGETING, MENU.PROGRAM),
-    gate: { slug: MENU.PROGRAM, action: "CREATE" },
-  },
-  {
-    label: "Buat laporan pemakaian",
-    href: menuHref(MENU.REPORT, MENU.BUDGET_REALIZATION),
-    gate: { slug: MENU.BUDGET_REALIZATION, action: "CREATE" },
-  },
-];
-
-export const selectHeaderActions = (menu: MenuNode[]): HeaderAction[] =>
-  HEADER_ACTIONS.filter(({ gate }) => isGranted(menu, gate))
-    .slice(0, 2)
-    .map(({ label, href }) => ({ label, href }));
