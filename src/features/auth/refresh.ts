@@ -30,12 +30,17 @@ const onRefresh = async (
 
   const headers = new Headers({ Cookie: pickSessionCookies(cookieHeader) });
 
-  // be-sada records the caller's address and user agent on the session it
-  // creates. This call is server to server, so without these it records this
-  // server instead and every rotation overwrites the device the user actually
-  // signed in from with a datacenter address.
+  // be-sada menulis user agent pemanggil pada sesi yang dibuatnya. Panggilan ini
+  // server ke server, jadi tanpa ini setiap rotasi menimpa perangkat yang
+  // benar-benar dipakai pengguna dengan user agent bawaan fetch.
+  //
+  // Hanya user agent. Alamat klien sengaja tidak diteruskan: `x-forwarded-for`
+  // datang dari klien dan bisa dikarang, sementara be-sada memasang
+  // `trust proxy` dan memakai `req.ip` sebagai kunci rate limiter — meneruskan
+  // header itu apa adanya berarti menyerahkan kunci itu kepada pemanggil.
+  // Merekam alamat klien yang sebenarnya butuh kontrak header tepercaya antara
+  // Vercel dan be-sada, bukan penerusan mentah.
   if (client.userAgent) headers.set("user-agent", client.userAgent);
-  if (client.forwardedFor) headers.set("x-forwarded-for", client.forwardedFor);
 
   try {
     response = await fetch(`${env.API_BASE_URL}/v1/auth/refresh-token`, {
@@ -69,21 +74,14 @@ const onRefresh = async (
   };
 };
 
-/** What be-sada needs to keep the session pointing at the real device. */
+/** Yang dibawa agar sesi hasil rotasi tetap menunjuk perangkat yang benar. */
 export type ClientContext = {
   userAgent?: string | null;
-  forwardedFor?: string | null;
 };
 
-/**
- * Reads the client context off an incoming request.
- *
- * `x-forwarded-for` already carries the chain when one is present; falling back
- * to the single address keeps the local and self-hosted cases working.
- */
+/** Membaca konteks klien dari permintaan yang masuk. */
 export const clientContextOf = (headers: Headers): ClientContext => ({
   userAgent: headers.get("user-agent"),
-  forwardedFor: headers.get("x-forwarded-for") ?? headers.get("x-real-ip"),
 });
 
 export function refreshSession(
