@@ -72,25 +72,31 @@ export const IncomeExpenseChart = () => {
         })}
       </div>
 
-      <table className="sr-only">
-        <caption>Masuk dan keluar per bulan, {year}</caption>
-        <thead>
-          <tr>
-            <th scope="col">Bulan</th>
-            <th scope="col">Masuk</th>
-            <th scope="col">Keluar</th>
-          </tr>
-        </thead>
-        <tbody>
-          {flow.months.map((m, index) => (
-            <tr key={m.month}>
-              <th scope="row">{MONTH_LABEL[index]}</th>
-              <td>{formatRupiah(m.income)}</td>
-              <td>{formatRupiah(m.expense)}</td>
+      {/* `sr-only` tidak cukup pada elemen tabel: tinggi pada kotak tabel
+          dihitung sebagai tinggi minimum dan `overflow` diabaikan, jadi
+          tabelnya tetap setinggi isinya dan ikut memanjangkan halaman.
+          Pembungkusnya yang disembunyikan. */}
+      <div className="sr-only">
+        <table>
+          <caption>Masuk dan keluar per bulan, {year}</caption>
+          <thead>
+            <tr>
+              <th scope="col">Bulan</th>
+              <th scope="col">Masuk</th>
+              <th scope="col">Keluar</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {flow.months.map((m, index) => (
+              <tr key={m.month}>
+                <th scope="row">{MONTH_LABEL[index]}</th>
+                <td>{formatRupiah(m.income)}</td>
+                <td>{formatRupiah(m.expense)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </DashboardCard>
   );
 };

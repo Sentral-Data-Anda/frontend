@@ -31,6 +31,14 @@ const MAIN_STACKED =
 const MAIN_SPLIT =
   "@min-[60rem]:@max-[120rem]:flex @min-[60rem]:@max-[120rem]:h-full @min-[60rem]:@max-[120rem]:flex-col @min-[60rem]:@max-[120rem]:[&>*:last-child]:flex-1 @min-[120rem]:has-[>*:nth-child(2)]:grid-cols-2 @min-[150rem]:has-[>*:nth-child(3)]:grid-cols-3 @min-[120rem]:[&>*]:mx-auto @min-[120rem]:[&>*]:w-full @min-[120rem]:[&>*]:max-w-[90rem]";
 
+// Di jendela dua kolom tinggi kolom sudah dikunci setinggi baris. Tanpa ini
+// isinya cuma meluber keluar kotak dan memanjangkan halaman, sehingga yang
+// menggulir justru seluruh layar beserta sidebar-nya. `min-h-0` membuat kolom
+// boleh lebih pendek daripada isinya, dan `overscroll-contain` menahan gulirnya
+// supaya tidak merembet ke halaman ketika sudah mentok.
+const COLUMN_SCROLL =
+  "@min-[60rem]:@max-[120rem]:min-h-0 @min-[60rem]:@max-[120rem]:overflow-y-auto @min-[60rem]:@max-[120rem]:overscroll-contain";
+
 interface PropTypes {
   kpi?: ReactNode;
   between?: ReactNode;
@@ -90,6 +98,11 @@ export const DashboardGrid = (props: PropTypes) => {
               className={cn(
                 "grid min-w-0 gap-4",
                 isStacked ? MAIN_STACKED : MAIN_SPLIT,
+                // Kartu `isScrollable` menyerap sisa tinggi, tapi penyerapannya
+                // berhenti di `min-h-64`. Di layar pendek sisa tingginya kurang
+                // dari itu dan kolomnya tetap meluber, jadi kolom ini pun
+                // menggulir sendiri sebagai batas terakhir.
+                isFullHeight && isSplit && COLUMN_SCROLL,
               )}
             >
               {main}
@@ -97,7 +110,17 @@ export const DashboardGrid = (props: PropTypes) => {
           ) : null}
           {side.length ? (
             <div
-              className={cn(SIDE_GRID, isStacked ? SIDE_STACKED : SIDE_SPLIT)}
+              className={cn(
+                SIDE_GRID,
+                isStacked ? SIDE_STACKED : SIDE_SPLIT,
+                // Kolom utama menyerap sisa tinggi lewat kartu `isScrollable`
+                // terakhirnya; kolom sisi tidak punya padanannya karena
+                // kartunya pendek-pendek dan tidak ada satu pun yang pantas
+                // ditunjuk sebagai penyerap. Jadi kolomnya sendiri yang
+                // menggulir: tingginya terkunci setinggi baris dan isinya yang
+                // bergerak, bukan halamannya.
+                isFullHeight && isSplit && COLUMN_SCROLL,
+              )}
             >
               {side}
             </div>
