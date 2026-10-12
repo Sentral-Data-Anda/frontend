@@ -9,18 +9,41 @@ import {
   type UseFormReturn,
 } from "react-hook-form";
 
-import { AccountField, AmountInput, Input } from "@/components/common/control";
+import {
+  AccountField,
+  AmountInput,
+  Input,
+  SelectField,
+} from "@/components/common/control";
 import { formatAmount } from "@/lib/format";
 
 import { useAccountLabel } from "../journal-lines/use-account-label";
 import { LineItemCard } from "../line-items/line-item-card";
 import { useLineItemErrors } from "../line-items/use-line-item-errors";
 
-export const CASH_LINE_FIELDS = ["accountId", "amount", "description"] as const;
+export const CASH_LINE_FIELDS = [
+  "accountId",
+  "amount",
+  "description",
+  "loanId",
+  "loanPortion",
+] as const;
 
 export type CashLineField = (typeof CASH_LINE_FIELDS)[number];
 
 const LABEL = "text-muted-foreground mb-1 block text-caption";
+
+/**
+ * Bagian cicilan yang dibayar sebuah baris.
+ *
+ * Hanya bagian pokok yang mengurangi sisa pinjaman, jadi ia dipilih per baris
+ * dan bukan per dokumen: satu cicilan berbunga punya dua baris yang menunjuk
+ * pinjaman yang sama dengan bagian yang berbeda.
+ */
+const PORTION_OPTIONS = [
+  { value: "PRINCIPAL", label: "Pokok" },
+  { value: "INTEREST", label: "Bunga" },
+];
 
 interface PropTypes<T extends FieldValues> {
   form: UseFormReturn<T>;
@@ -28,10 +51,24 @@ interface PropTypes<T extends FieldValues> {
   index: number;
   isDisabled?: boolean;
   onRemove: (index: number) => void;
+  /**
+   * Pinjaman yang boleh ditunjuk baris ini. Dioper dari fitur, bukan diambil
+   * di sini: komponen bersama tidak mengimpor fitur. Tanpa prop ini kedua
+   * kolomnya tidak muncul sama sekali, sehingga layar yang tidak mengenal
+   * pinjaman tidak berubah.
+   */
+  loanOptions?: readonly { value: string; label: string }[];
 }
 
 export function CashLineRow<T extends FieldValues>(props: PropTypes<T>) {
-  const { form, name, index, isDisabled = false, onRemove } = props;
+  const {
+    form,
+    name,
+    index,
+    isDisabled = false,
+    onRemove,
+    loanOptions,
+  } = props;
 
   const path = `${name}.${index}`;
   const line = useWatch({ control: form.control, name: path as FieldPath<T> });
@@ -116,6 +153,65 @@ export function CashLineRow<T extends FieldValues>(props: PropTypes<T>) {
           )}
         />,
       )}
+
+      {loanOptions === undefined
+        ? null
+        : cell(
+            "loanId",
+            "Pinjaman",
+            "flex-[2_1_14rem]",
+            <Controller
+              control={form.control}
+              name={`${path}.loanId` as FieldPath<T>}
+              render={({ field: control }) => (
+                <SelectField
+                  {...ariaOf("loanId")}
+                  value={String(control.value ?? "")}
+                  onValueChange={(value) => {
+                    control.onChange(value);
+
+                    // Keduanya terisi atau keduanya kosong. Membiarkan
+                    // bagiannya tertinggal saat pinjamannya dilepas mengirim
+                    // bentuk yang ditolak server dan basis data.
+                    if (!value) {
+                      form.setValue(
+                        `${path}.loanPortion` as FieldPath<T>,
+                        "" as never,
+                      );
+                    }
+                  }}
+                  options={[
+                    { value: "", label: "Bukan pinjaman" },
+                    ...loanOptions,
+                  ]}
+                  placeholder="Bukan pinjaman"
+                  disabled={isDisabled}
+                />
+              )}
+            />,
+          )}
+
+      {loanOptions === undefined || !line.loanId
+        ? null
+        : cell(
+            "loanPortion",
+            "Bagian",
+            "flex-[1_1_9rem]",
+            <Controller
+              control={form.control}
+              name={`${path}.loanPortion` as FieldPath<T>}
+              render={({ field: control }) => (
+                <SelectField
+                  {...ariaOf("loanPortion")}
+                  value={String(control.value ?? "")}
+                  onValueChange={control.onChange}
+                  options={PORTION_OPTIONS}
+                  disabled={isDisabled}
+                  placeholder="Pilih bagian"
+                />
+              )}
+            />,
+          )}
 
       {cell(
         "description",

@@ -51,6 +51,7 @@ import { permintaanPersetujuanMock } from "./permintaan-persetujuan";
 import { pernikahanMock } from "./pernikahan";
 import { persembahanMock } from "./persembahan";
 import { pesananPembelianMock } from "./pesanan-pembelian";
+import { pinjamanMock } from "./pinjaman";
 import { programMock } from "./program";
 import { reportJemaatMock } from "./report-jemaat";
 import { riwayatJemaatMock } from "./riwayat-jemaat";
@@ -144,6 +145,7 @@ export const MOCK_HANDLERS: MockHandler[] = [
   laporanBudgetMock,
   laporanAsetMock,
   laporanUtangMock,
+  pinjamanMock,
   komponenPayrollMock,
   payrollMock,
   kontrakKaryawanMock,

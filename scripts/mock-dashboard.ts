@@ -171,6 +171,7 @@ export const PERSONAS: Record<string, Persona> = {
       [MENU.FINANCIAL_STATEMENT]: V,
       [MENU.ASSET_REPORT]: V,
       [MENU.AP_AGING]: V,
+      [MENU.LOAN]: KEJEMAATAN_ACTIONS,
       [MENU.SUPPLIER_INVOICE]: V,
       [MENU.PAYMENT]: V,
       // Tiga menu yang mengembalikan nominal per orang (§2.4). Hanya di sini.
@@ -339,6 +340,7 @@ export const GUARD: Record<string, MenuSlug> = {
   "/persetujuan": MENU.APPROVAL_REQUEST,
   "/laporan-aset": MENU.ASSET_REPORT,
   "/laporan-utang": MENU.AP_AGING,
+  "/pinjaman": MENU.LOAN,
   "/laporan-keuangan/neraca": MENU.FINANCIAL_STATEMENT,
   "/laporan-keuangan/surplus-defisit": MENU.FINANCIAL_STATEMENT,
   "/kas-keluar": MENU.KAS_KELUAR,

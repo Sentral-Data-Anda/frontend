@@ -1,11 +1,17 @@
 import type { CashStatus, JournalRef } from "@/types/keuangan";
 
+/** Bagian cicilan yang dibayar sebuah baris. Hanya bagian pokok yang
+ *  mengurangi sisa pinjaman. */
+export type LoanPortion = "PRINCIPAL" | "INTEREST";
+
 export type CashReceiptLine = {
   publicId: string;
   accountId: number;
   account: { code: string; name: string };
   amount: string;
   description: string | null;
+  loanId: number | null;
+  loanPortion: LoanPortion | null;
 };
 
 export type CashReceipt = {

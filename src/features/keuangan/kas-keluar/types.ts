@@ -3,6 +3,10 @@ import type { ServerAttachment } from "@/types/attachment";
 import type { BapelChoice, CashStatus, JournalRef } from "@/types/keuangan";
 import type { ApprovalStatus } from "@/types/persetujuan";
 
+/** Bagian cicilan yang dibayar sebuah baris. Hanya bagian pokok yang
+ *  mengurangi sisa pinjaman. */
+export type LoanPortion = "PRINCIPAL" | "INTEREST";
+
 export type ExpenseApproval = {
   publicId: string;
   code: string;
@@ -17,6 +21,8 @@ export type ExpenseLine = {
   account: { code: string; name: string };
   amount: string;
   description: string | null;
+  loanId: number | null;
+  loanPortion: LoanPortion | null;
 };
 
 export type CashExpense = {

@@ -86,6 +86,8 @@ const detail = (next: Partial<CashReceiptDetail> = {}): CashReceiptDetail => ({
       account: { code: "4-200", name: "Sewa Gedung" },
       amount: "3500000",
       description: "Sewa aula",
+      loanId: null,
+      loanPortion: null,
     },
   ],
   journal: null,

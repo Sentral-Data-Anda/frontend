@@ -39,6 +39,8 @@ export const expenseDetail = (
       account: { code: "5-100", name: "Beban Listrik dan Air" },
       amount: "3200000",
       description: "Servis dan penggantian impeler",
+      loanId: null,
+      loanPortion: null,
     },
   ],
   attachments: [],

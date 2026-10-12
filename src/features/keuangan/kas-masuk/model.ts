@@ -20,7 +20,11 @@ import { collapseSpaces } from "@/lib/name";
 import { sumAmounts } from "@/lib/number";
 import { CASH_RECEIPT_STATUS_LABEL, type CashStatus } from "@/types/keuangan";
 
-import type { CashReceiptDetail, CashReceiptPayload } from "./types";
+import type {
+  CashReceiptDetail,
+  CashReceiptPayload,
+  LoanPortion,
+} from "./types";
 
 export const KAS_MASUK_LIST_PATH = menuHref(MENU.FINANCE, MENU.KAS_MASUK);
 
@@ -177,6 +181,11 @@ const lineSchema = z.object({
   accountId: z.string(),
   amount: z.string(),
   description: z.string(),
+  // Pinjaman yang dibayar baris ini, dan bagian mana darinya. Kosong pada
+  // baris biasa. Keduanya terisi atau keduanya kosong — server dan basis data
+  // menolak bentuk lain.
+  loanId: z.string(),
+  loanPortion: z.string(),
 });
 
 export type ReceiptLine = z.infer<typeof lineSchema>;
@@ -185,6 +194,8 @@ export const newReceiptLine = (description = ""): ReceiptLine => ({
   accountId: "",
   amount: "",
   description,
+  loanId: "",
+  loanPortion: "",
 });
 
 export const receiptFormSchema = z
@@ -275,9 +286,8 @@ export const gatewayReceiptForm = (
   description: "Pencairan persembahan online dari payment gateway",
   lines: [
     {
+      ...newReceiptLine(GATEWAY_GROSS_DESCRIPTION),
       accountId: gatewayAccountId === null ? "" : String(gatewayAccountId),
-      amount: "",
-      description: GATEWAY_GROSS_DESCRIPTION,
     },
     newReceiptLine(GATEWAY_FEE_DESCRIPTION),
   ],
@@ -297,6 +307,8 @@ export const toReceiptForm = (
     accountId: String(line.accountId),
     amount: line.amount,
     description: line.description ?? "",
+    loanId: line.loanId === null ? "" : String(line.loanId),
+    loanPortion: line.loanPortion ?? "",
   })),
 });
 
@@ -320,6 +332,9 @@ export const toReceiptPayload = (
     accountId: Number(line.accountId),
     amount: Number(line.amount),
     description: orNull(line.description),
+    // Dikirim null bersama-sama: separuh pasangan ini ditolak server.
+    loanId: line.loanId ? Number(line.loanId) : null,
+    loanPortion: line.loanId ? (line.loanPortion as LoanPortion) : null,
   })),
 });
 

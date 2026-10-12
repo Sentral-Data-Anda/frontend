@@ -234,6 +234,10 @@ export const expenseFormSchema = z
         accountId: z.string(),
         amount: z.string(),
         description: z.string(),
+        // Pinjaman yang dibayar baris ini, dan bagian mana darinya. Kosong
+        // pada baris biasa; keduanya terisi atau keduanya kosong.
+        loanId: z.string(),
+        loanPortion: z.string(),
       }),
     ),
     attachments: z.array(z.custom<AttachmentValue>()),
@@ -305,6 +309,8 @@ export const emptyLine = (): ExpenseLineValues => ({
   accountId: "",
   amount: "",
   description: "",
+  loanId: "",
+  loanPortion: "",
 });
 
 export const emptyExpenseForm = (
@@ -338,6 +344,8 @@ export const toExpenseForm = (
     accountId: String(line.accountId),
     amount: String(Number(line.amount)),
     description: line.description ?? "",
+    loanId: line.loanId === null ? "" : String(line.loanId),
+    loanPortion: line.loanPortion ?? "",
   })),
   attachments: detail.attachments.map(fromServerAttachment),
 });
@@ -358,6 +366,9 @@ export const toExpenseFormData = (values: ExpenseFormValues, isEdit: boolean) =>
           accountId: Number(line.accountId),
           amount: Number(line.amount),
           description: collapseSpaces(line.description) || null,
+          // Dikirim null bersama-sama: separuh pasangan ini ditolak server.
+          loanId: line.loanId ? Number(line.loanId) : null,
+          loanPortion: line.loanId ? line.loanPortion : null,
         })),
       ),
       keepFiles: isEdit
