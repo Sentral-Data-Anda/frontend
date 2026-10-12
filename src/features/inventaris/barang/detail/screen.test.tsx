@@ -80,6 +80,9 @@ const ASSET: AssetDetail = {
     bookValue: "6499999.96",
     lastPeriod: { year: 2026, month: 7 },
   },
+  // Aset ini tidak melewati pengadaan, seperti setiap aset yang dicatat
+  // tangan. Selalu dibawa server, jadi fixture ini juga membawanya.
+  acquisition: null,
 };
 
 const MAINTENANCE = Array.from({ length: 5 }, (_, index) => ({

@@ -10,6 +10,7 @@ import {
   kursPreview,
   noRateMessage,
   purchaseOrderDdl,
+  purchaseOrderItemDdl,
   purchaseRequestDdl,
 } from "../pengadaan-store";
 
@@ -40,6 +41,14 @@ const DDL: Record<
         supplierId: Number(params.get("supplierId")) || null,
         limit: Number(params.get("limit")) || null,
       }),
+  },
+  // Dijaga oleh menu yang FORMNYA memakainya: rincian pesanan disalin dari
+  // form Faktur Supplier.
+  "pesanan-pembelian-item": {
+    menus: [MENU.SUPPLIER_INVOICE, MENU.PURCHASE_ORDER],
+    empty: "Baris Pesanan Pembelian Tidak Ditemukan",
+    rows: (params) =>
+      purchaseOrderItemDdl(Number(params.get("purchaseOrderId")) || 0),
   },
   currency: {
     menus: [MENU.PURCHASE_ORDER, MENU.CURRENCY],

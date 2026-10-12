@@ -11,6 +11,8 @@ import {
 import { ControlField, FormSection, FormWide } from "@/components/common/form";
 import { useDdlOptions } from "@/hooks/use-ddl-options";
 
+import { useOrderOptions } from "../api";
+
 import { type InvoiceForm } from "./form-options";
 
 interface PropTypes {
@@ -24,8 +26,9 @@ export const InvoiceSection = (props: PropTypes) => {
   const { form, isDisabled } = props;
 
   const supplierId = useWatch({ control: form.control, name: "supplierId" });
+  const items = useWatch({ control: form.control, name: "items" });
   const suppliers = useDdlOptions<Option>("supplier", "id", supplierId);
-  const orders = useDdlOptions("pesanan-pembelian", "id");
+  const orders = useOrderOptions();
   const currencies = useDdlOptions("currency", "code");
 
   return (
@@ -67,8 +70,8 @@ export const InvoiceSection = (props: PropTypes) => {
               id="purchaseOrderId"
               value={field.value}
               onValueChange={field.onChange}
-              options={orders.options}
-              isLoading={orders.isLoading}
+              options={orders.data ?? []}
+              isLoading={orders.isFetching}
               isClearable
               disabled={isDisabled}
               placeholder="Pilih pesanan"
@@ -128,26 +131,32 @@ export const InvoiceSection = (props: PropTypes) => {
 
       <FormSection
         legend="Akuntansi"
-        note="Dipakai saat faktur ini diposting ke jurnal. Dibiarkan kosong, faktur dibebankan ke akun Beban Pengadaan di Setelan Akuntansi."
+        note={
+          (items?.length ?? 0) > 0
+            ? "Faktur ini punya rincian, jadi akun debitnya dibaca per baris di bawah. Satu akun untuk seluruh faktur tidak dipakai."
+            : "Dipakai saat faktur ini diposting ke jurnal. Dibiarkan kosong, faktur dibebankan ke akun Beban Pengadaan di Setelan Akuntansi."
+        }
         disabled={isDisabled}
       >
-        <FormWide>
-          <ControlField
-            control={form.control}
-            name="expenseAccountId"
-            label="Dibebankan ke akun"
-          >
-            {(field) => (
-              <AccountField
-                value={field.value}
-                onValueChange={field.onChange}
-                isClearable
-                disabled={isDisabled}
-                placeholder="Pilih akun beban atau aset"
-              />
-            )}
-          </ControlField>
-        </FormWide>
+        {(items?.length ?? 0) > 0 ? null : (
+          <FormWide>
+            <ControlField
+              control={form.control}
+              name="expenseAccountId"
+              label="Dibebankan ke akun"
+            >
+              {(field) => (
+                <AccountField
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  isClearable
+                  disabled={isDisabled}
+                  placeholder="Pilih akun beban atau aset"
+                />
+              )}
+            </ControlField>
+          </FormWide>
+        )}
       </FormSection>
     </>
   );

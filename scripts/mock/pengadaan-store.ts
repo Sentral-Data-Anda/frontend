@@ -756,7 +756,11 @@ order({
   ],
 });
 
-order({
+// Pesanan yang berisi aset tetap DAN persediaan sekaligus: proyektor masuk
+// akun Aset Tetap, kertas HVS masuk Beban Persediaan. Ini kasus yang membuat
+// satu akun per faktur tidak cukup, jadi dia yang dipakai menyemai faktur
+// berincian di bawah.
+const PO_CAMPURAN = order({
   status: "PARTIALLY_RECEIVED",
   supplierId: 1,
   purchaseRequestId: PR_PROYEKTOR.id,
@@ -1194,6 +1198,50 @@ export const purchaseOrderDdl = (params: {
   return params.limit ? rows.slice(0, params.limit) : rows;
 };
 
+/**
+ * Baris sebuah pesanan, untuk menyalin rinciannya ke Faktur Supplier.
+ *
+ * `suggestedAccountId` adalah SARAN: mengikuti apa yang barisnya sudah jadi di
+ * Penerimaan Barang bila sudah diterima, dan jatuh ke akun aset tipe barangnya
+ * lalu akun persediaannya bila belum. Null bila tipe itu belum punya akun —
+ * form tetap mewajibkan akun dipilih.
+ */
+/** Satu baris pesanan, dari pesanan mana pun. */
+export const orderItemOf = (id: number) =>
+  PURCHASE_ORDER.flatMap((row) => row.items).find((item) => item.id === id);
+
+export const purchaseOrderItemDdl = (purchaseOrderId: number) => {
+  const order = purchaseOrderOf(purchaseOrderId);
+  if (!order) return [];
+
+  const received = GOODS_RECEIPT.filter(
+    (row) => row.purchaseOrderId === order.id,
+  ).flatMap((row) => row.items);
+
+  return order.items.map((line) => {
+    const taken = received.filter((one) => one.purchaseOrderItemId === line.id);
+    const type = typeItemOf(line.typeId);
+    const becameAsset = taken.some((one) => one.assetId !== null);
+    const becameStock = taken.some((one) => one.stockItemId !== null);
+
+    const suggestedAccountId = becameAsset
+      ? (type?.assetAccountId ?? null)
+      : becameStock
+        ? (type?.inventoryExpenseAccountId ?? null)
+        : (type?.assetAccountId ?? type?.inventoryExpenseAccountId ?? null);
+
+    return {
+      id: line.id,
+      name: line.name,
+      quantity: line.quantity,
+      unitPrice: money(line.unitPrice),
+      amount: money(line.unitPrice * line.quantity),
+      typeName: type?.name ?? "",
+      suggestedAccountId,
+    };
+  });
+};
+
 export const goodsReceiptView = (row: GoodsReceiptRow, isDetail = false) => {
   const orderRow = PURCHASE_ORDER.find(
     (item) => item.id === row.purchaseOrderId,
@@ -1561,6 +1609,22 @@ export type SupplierPaymentRow = {
   note: string | null;
 };
 
+/**
+ * Satu baris faktur: apa yang dibeli, berapa, dan ke akun mana dibebankan.
+ *
+ * Opsional. Faktur tanpa baris dibebankan ke satu akun lewat
+ * `expenseAccountId` — bentuk setiap faktur yang tercatat sebelum rincian ada.
+ */
+export type InvoiceItemRow = {
+  id: number;
+  publicId: string;
+  name: string;
+  amountForeign: string;
+  amountIDR: string;
+  accountId: number;
+  purchaseOrderItemId: number | null;
+};
+
 export type SupplierInvoiceRow = Live & {
   id: number;
   publicId: string;
@@ -1578,9 +1642,51 @@ export type SupplierInvoiceRow = Live & {
   totalIDR: string;
   status: SupplierInvoiceStatus;
   paidAmountIDR: string;
+  items: InvoiceItemRow[];
 };
 
 export const SUPPLIER_INVOICE: SupplierInvoiceRow[] = [];
+
+let invoiceItemCount = 0;
+
+/**
+ * Rupiah per baris, dengan baris terakhir menyerap selisih pembulatannya —
+ * sama seperti `allocateIDR` di server. Jumlah baris harus sama dengan total
+ * header, kalau tidak jurnalnya tidak balance.
+ */
+export const invoiceItems = (
+  seeds: readonly {
+    name: string;
+    amountForeign: number;
+    accountId: number;
+    purchaseOrderItemId?: number | null;
+  }[],
+  exchangeRate: number,
+  totalIDR: number,
+): InvoiceItemRow[] => {
+  const shares = seeds.map(
+    (seed) => Math.round(seed.amountForeign * exchangeRate * 100) / 100,
+  );
+  const drift = totalIDR - shares.reduce((total, share) => total + share, 0);
+
+  return seeds.map((seed, index) => {
+    invoiceItemCount += 1;
+
+    return {
+      id: invoiceItemCount,
+      publicId: uuid("e970", invoiceItemCount),
+      name: seed.name,
+      amountForeign: money(seed.amountForeign),
+      amountIDR: money(
+        index === shares.length - 1
+          ? (shares[index] ?? 0) + drift
+          : (shares[index] ?? 0),
+      ),
+      accountId: seed.accountId,
+      purchaseOrderItemId: seed.purchaseOrderItemId ?? null,
+    };
+  });
+};
 
 export const SUPPLIER_PAYMENT: SupplierPaymentRow[] = [];
 
@@ -1593,8 +1699,14 @@ export const paymentsOfInvoice = (invoiceId: number) =>
 const invoice = (
   seed: Omit<
     SupplierInvoiceRow,
-    "id" | "publicId" | "code" | "deletedAt" | "exchangeRate" | "totalIDR"
-  > & { exchangeRate?: number },
+    | "id"
+    | "publicId"
+    | "code"
+    | "deletedAt"
+    | "exchangeRate"
+    | "totalIDR"
+    | "items"
+  > & { exchangeRate?: number; items?: InvoiceItemRow[] },
 ) => {
   const id = SUPPLIER_INVOICE.length + 1;
   const rate = seed.exchangeRate ?? 1;
@@ -1605,6 +1717,7 @@ const invoice = (
     deletedAt: null,
     exchangeRate: rate,
     totalIDR: money(Number(seed.totalForeignCurrency) * rate),
+    items: [],
     ...seed,
   };
   SUPPLIER_INVOICE.push(row);
@@ -1671,6 +1784,40 @@ const SEBAGIAN = invoice({
   totalForeignCurrency: money(12_000_000),
   status: "PARTIALLY_PAID",
   paidAmountIDR: money(4_000_000),
+});
+
+// Faktur berincian: satu faktur yang membebankan proyektor ke Aset Tetap dan
+// kertas ke Beban Persediaan. Barisnya menunjuk baris pesanannya, jadi aset
+// yang sudah terbentuk di Penerimaan Barang bisa ditelusuri sampai ke sini.
+invoice({
+  supplierInvoiceNumber: "FK/2026/0930",
+  supplierId: 1,
+  purchaseOrderId: PO_CAMPURAN.id,
+  expenseAccountId: null,
+  invoiceDate: monthStart(-1),
+  dueDate: day(28),
+  currencyCode: "IDR",
+  totalForeignCurrency: money(18_040_000),
+  status: "AWAITING_PAYMENT",
+  paidAmountIDR: money(0),
+  items: invoiceItems(
+    [
+      {
+        name: "Proyektor Epson EB-X51",
+        amountForeign: 17_000_000,
+        accountId: 8,
+        purchaseOrderItemId: PO_CAMPURAN.items[0]?.id ?? null,
+      },
+      {
+        name: "Kertas HVS A4",
+        amountForeign: 1_040_000,
+        accountId: 29,
+        purchaseOrderItemId: PO_CAMPURAN.items[1]?.id ?? null,
+      },
+    ],
+    1,
+    18_040_000,
+  ),
 });
 
 const LUNAS = invoice({

@@ -3,12 +3,29 @@ import { describe, expect, test } from "bun:test";
 import {
   invoiceFormSchema,
   isRetractable,
+  itemsSumText,
+  orderItemsToForm,
   outstandingOf,
   toInvoicePayload,
   toPaymentPayload,
+  type InvoiceFormValues,
+  type InvoiceItemValues,
 } from "./model";
+import type { OrderItemOption } from "./types";
 
-const form = (overrides: Record<string, string> = {}) => ({
+const item = (
+  overrides: Partial<InvoiceItemValues> = {},
+): InvoiceItemValues => ({
+  name: "Kendaraan operasional",
+  amountForeign: "1000000",
+  accountId: "61",
+  purchaseOrderItemId: "",
+  ...overrides,
+});
+
+const form = (
+  overrides: Partial<InvoiceFormValues> = {},
+): InvoiceFormValues => ({
   supplierInvoiceNumber: "FK/2026/1",
   supplierId: "1",
   purchaseOrderId: "",
@@ -17,10 +34,11 @@ const form = (overrides: Record<string, string> = {}) => ({
   dueDate: "2026-03-20",
   currencyCode: "IDR",
   totalForeignCurrency: "1000000",
+  items: [],
   ...overrides,
 });
 
-const issuesOf = (overrides: Record<string, string>) => {
+const issuesOf = (overrides: Partial<InvoiceFormValues>) => {
   const parsed = invoiceFormSchema.safeParse(form(overrides));
 
   return parsed.success
@@ -64,6 +82,89 @@ describe("toInvoicePayload", () => {
     expect(
       toInvoicePayload(form({ purchaseOrderId: "7", expenseAccountId: "24" })),
     ).toMatchObject({ purchaseOrderId: 7, expenseAccountId: 24 });
+  });
+
+  /**
+   * Akun header dan rincian tidak boleh terisi bersamaan -- server menolaknya.
+   * Layarnya menyembunyikan field itu begitu ada rincian, jadi yang terkirim
+   * bukan pilihan yang dibuang diam-diam.
+   */
+  test("akun header dikosongkan saat ada rincian", () => {
+    const payload = toInvoicePayload(
+      form({ expenseAccountId: "24", items: [item()] }),
+    );
+
+    expect(payload.expenseAccountId).toBeNull();
+    expect(payload.items).toEqual([
+      {
+        name: "Kendaraan operasional",
+        amountForeign: 1000000,
+        accountId: 61,
+        purchaseOrderItemId: null,
+      },
+    ]);
+  });
+
+  test("baris pesanan terisi jadi angka", () => {
+    expect(
+      toInvoicePayload(form({ items: [item({ purchaseOrderItemId: "101" })] }))
+        .items[0],
+    ).toMatchObject({ purchaseOrderItemId: 101 });
+  });
+});
+
+describe("rincian faktur", () => {
+  test("jumlah rincian yang sama dengan total lolos", () => {
+    expect(
+      issuesOf({
+        totalForeignCurrency: "1000000",
+        items: [
+          item({ amountForeign: "900000" }),
+          item({ amountForeign: "100000" }),
+        ],
+      }),
+    ).toEqual([]);
+  });
+
+  test("jumlah rincian yang tidak sama dengan total ditolak di rincian", () => {
+    expect(
+      issuesOf({
+        totalForeignCurrency: "1000000",
+        items: [item({ amountForeign: "900000" })],
+      }),
+    ).toEqual(["items"]);
+  });
+
+  test("nominal rincian nol atau kurang ditolak", () => {
+    expect(
+      issuesOf({
+        totalForeignCurrency: "1000000",
+        items: [item({ amountForeign: "0" })],
+      }),
+    ).toContain("items.0.amountForeign");
+  });
+
+  /**
+   * Empat desimal, bukan sen: nominal rincian boleh pecahan mata uang asing,
+   * dan menjumlahkannya dalam sen akan menolak faktur yang sebenarnya pas.
+   */
+  test("menjumlahkan empat desimal tanpa lewat float", () => {
+    expect(
+      issuesOf({
+        totalForeignCurrency: "300.0003",
+        items: [
+          item({ amountForeign: "100.0001" }),
+          item({ amountForeign: "100.0001" }),
+          item({ amountForeign: "100.0001" }),
+        ],
+      }),
+    ).toEqual([]);
+  });
+
+  test("ringkasan jumlah rincian memangkas nol di belakang", () => {
+    expect(itemsSumText([item({ amountForeign: "100.5000" })])).toBe("100.5");
+    expect(itemsSumText([item({ amountForeign: "100" })])).toBe("100");
+    expect(itemsSumText([])).toBe("0");
   });
 });
 
@@ -129,5 +230,47 @@ describe("toPaymentPayload", () => {
       reference: null,
       note: null,
     });
+  });
+});
+
+describe("orderItemsToForm", () => {
+  const line = (overrides: Partial<OrderItemOption> = {}): OrderItemOption => ({
+    id: 101,
+    name: "Proyektor Epson EB-X51",
+    quantity: 2,
+    unitPrice: "8500000",
+    amount: "17000000",
+    typeName: "Elektronik",
+    suggestedAccountId: 8,
+    ...overrides,
+  });
+
+  test("menyalin nama, nominal, akun saran, dan tautan barisnya", () => {
+    expect(orderItemsToForm([line()])).toEqual([
+      {
+        name: "Proyektor Epson EB-X51",
+        amountForeign: "17000000",
+        accountId: "8",
+        purchaseOrderItemId: "101",
+      },
+    ]);
+  });
+
+  /**
+   * Tipe barang yang belum punya akun tidak ditebak: menebak atas nama
+   * bendahara akan membebankan kendaraan ke alat tulis tanpa ada yang memilih.
+   */
+  test("akun kosong bila tipe barangnya belum punya akun", () => {
+    expect(
+      orderItemsToForm([line({ suggestedAccountId: null })])[0],
+    ).toMatchObject({ accountId: "" });
+  });
+
+  test("nominal baris adalah total barisnya, bukan harga satuannya", () => {
+    expect(
+      orderItemsToForm([
+        line({ quantity: 3, unitPrice: "100", amount: "300" }),
+      ])[0]?.amountForeign,
+    ).toBe("300");
   });
 });

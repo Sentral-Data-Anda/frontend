@@ -8,6 +8,7 @@ import { Button, buttonVariants } from "@/components/common/control";
 import {
   DescriptionItem,
   DescriptionList,
+  PANEL_TITLE,
   Panel,
 } from "@/components/common/display";
 import { EmptyState, useToast } from "@/components/common/feedback";
@@ -148,7 +149,9 @@ export const InvoiceDetailScreen = (props: PropTypes) => {
       />
 
       <Panel label="Ringkasan">
-        <DescriptionList>
+        <h2 className={`${PANEL_TITLE} px-gutter pt-4`}>Ringkasan</h2>
+
+        <DescriptionList className="px-gutter py-2">
           <DescriptionItem label="Status">
             <InvoiceStatusBadge status={invoice.status} />
           </DescriptionItem>
@@ -162,9 +165,11 @@ export const InvoiceDetailScreen = (props: PropTypes) => {
             {invoice.purchaseOrder?.code ?? "—"}
           </DescriptionItem>
           <DescriptionItem label="Dibebankan ke" isWide>
-            {invoice.expenseAccount
-              ? `${invoice.expenseAccount.code} — ${invoice.expenseAccount.name}`
-              : "Belum dipilih — ikut akun Beban Pengadaan"}
+            {invoice.items.length
+              ? "Per rincian — lihat daftar di bawah"
+              : invoice.expenseAccount
+                ? `${invoice.expenseAccount.code} — ${invoice.expenseAccount.name}`
+                : "Belum dipilih — ikut akun Beban Pengadaan"}
           </DescriptionItem>
           <DescriptionItem label="Total">
             {formatAmount(invoice.totalIDR)}
@@ -178,7 +183,41 @@ export const InvoiceDetailScreen = (props: PropTypes) => {
         </DescriptionList>
       </Panel>
 
+      <Panel label="Rincian">
+        <h2 className={`${PANEL_TITLE} px-gutter pt-4`}>Rincian</h2>
+
+        {invoice.items.length === 0 ? (
+          <p className="text-muted-foreground px-gutter py-4 text-body">
+            Faktur ini tanpa rincian, jadi seluruhnya dibebankan ke satu akun.
+          </p>
+        ) : (
+          <DataList
+            items={invoice.items}
+            getKey={(item) => item.publicId}
+            label="Daftar rincian faktur"
+          >
+            {(item) => (
+              <DataListRow
+                id={item.publicId}
+                title={item.name}
+                meta={[
+                  `${item.account.code} — ${item.account.name}`,
+                  item.purchaseOrderItem
+                    ? `Pesanan: ${item.purchaseOrderItem.name}`
+                    : null,
+                  formatAmount(item.amountIDR),
+                ]
+                  .filter(Boolean)
+                  .join(" · ")}
+              />
+            )}
+          </DataList>
+        )}
+      </Panel>
+
       <Panel label="Pembayaran">
+        <h2 className={`${PANEL_TITLE} px-gutter pt-4`}>Pembayaran</h2>
+
         {invoice.payments.length === 0 ? (
           <p className="text-muted-foreground px-gutter py-4 text-body">
             Belum ada pembayaran untuk faktur ini.

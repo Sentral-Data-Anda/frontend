@@ -18,6 +18,7 @@ import {
   isLive,
   nextId,
   roomRowOf,
+  supplierOf,
   typeItemOf,
   type AcquisitionSource,
   type AssetCondition,
@@ -26,6 +27,14 @@ import {
 } from "../inventaris-store";
 import { denied, json, list, type MockHandler } from "../kit";
 import { filesOf, putMedia, readMultipart } from "../media";
+import {
+  GOODS_RECEIPT,
+  SUPPLIER_INVOICE,
+  isLive as isInvoiceLive,
+  money as moneyOf,
+  orderItemOf,
+  purchaseOrderOf,
+} from "../pengadaan-store";
 
 type Issue = { path: string; message: string };
 
@@ -76,6 +85,66 @@ const findRow = (code: string) =>
   ASSET.find(
     (row) => isLive(row) && row.code.toLowerCase() === code.toLowerCase(),
   );
+
+/**
+ * Dari mana sebuah aset datang, dibaca dari rantai yang sudah ada:
+ * penerimaan barang yang membuatnya, baris pesanannya, lalu faktur-faktur atas
+ * pesanan itu.
+ *
+ * Tidak ada kolom dari aset ke faktur — persis seperti di server. Fakturnya
+ * BERUPA DAFTAR: satu pesanan bisa ditagih beberapa kali, atau belum sama
+ * sekali.
+ */
+const acquisitionOf = (assetId: number) => {
+  const receipt = GOODS_RECEIPT.find((row) =>
+    row.items.some((item) => item.assetId === assetId),
+  );
+  if (!receipt) return null;
+
+  const taken = receipt.items.find((item) => item.assetId === assetId);
+  const line = taken ? orderItemOf(taken.purchaseOrderItemId) : undefined;
+  const order = purchaseOrderOf(receipt.purchaseOrderId);
+  if (!line || !order) return null;
+
+  const supplier = supplierOf(order.supplierId);
+
+  return {
+    goodsReceipt: {
+      publicId: receipt.publicId,
+      code: receipt.code,
+      receivedDate: receipt.receivedDate,
+    },
+    purchaseOrderItem: {
+      name: line.name,
+      quantity: line.quantity,
+      unitPrice: moneyOf(line.unitPrice),
+      purchaseOrder: {
+        publicId: order.publicId,
+        code: order.code,
+        orderDate: order.orderDate,
+        currencyCode: order.currencyCode,
+        supplier: supplier
+          ? {
+              publicId: supplier.publicId,
+              code: supplier.code,
+              name: supplier.name,
+            }
+          : null,
+        invoices: SUPPLIER_INVOICE.filter(
+          (invoice) =>
+            isInvoiceLive(invoice) && invoice.purchaseOrderId === order.id,
+        ).map((invoice) => ({
+          publicId: invoice.publicId,
+          code: invoice.code,
+          supplierInvoiceNumber: invoice.supplierInvoiceNumber,
+          invoiceDate: invoice.invoiceDate,
+          totalIDR: invoice.totalIDR,
+          status: invoice.status,
+        })),
+      },
+    },
+  };
+};
 
 const savedView = (row: AssetRow) => {
   const { depreciation: _depreciation, ...view } = assetView(row, true);
@@ -559,7 +628,11 @@ export const barangMock: MockHandler = async ({
     return json({
       status: 200,
       message: "Berhasil Mendapatkan Barang",
-      data: assetView(row, true),
+      data: {
+        ...assetView(row, true),
+        acquisition:
+          row.acquisitionSource === "PURCHASE" ? acquisitionOf(row.id) : null,
+      },
     });
   }
 
