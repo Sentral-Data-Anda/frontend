@@ -13,11 +13,14 @@ import {
   SUPPLIER_INVOICE,
   SUPPLIER_PAYMENT,
   currencyOf,
+  invoiceItems,
   isLive,
   money,
+  orderItemOf,
   paymentsOfInvoice,
   purchaseOrderOf,
   supplierInvoiceOf,
+  type InvoiceItemRow,
   type SupplierInvoiceRow,
 } from "../pengadaan-store";
 
@@ -46,6 +49,89 @@ const paymentView = (row: (typeof SUPPLIER_PAYMENT)[number]) => ({
   note: row.note,
   account: accountRef(row.accountId),
 });
+
+const itemView = (row: InvoiceItemRow) => {
+  const line =
+    row.purchaseOrderItemId === null
+      ? undefined
+      : orderItemOf(row.purchaseOrderItemId);
+
+  return {
+    publicId: row.publicId,
+    name: row.name,
+    amountForeign: row.amountForeign,
+    amountIDR: row.amountIDR,
+    accountId: row.accountId,
+    account: accountRef(row.accountId),
+    purchaseOrderItemId: row.purchaseOrderItemId,
+    purchaseOrderItem: line
+      ? {
+          publicId: line.publicId,
+          name: line.name,
+          quantity: line.quantity,
+          unitPrice: money(line.unitPrice),
+        }
+      : null,
+  };
+};
+
+/**
+ * Rincian dari body, dengan rupiah per baris dan baris terakhir menyerap
+ * pembulatannya — seperti `allocateIDR` di server.
+ *
+ * Ditolak kalau jumlahnya tidak sama dengan total faktur, dan kalau akun
+ * header ikut terisi: dua jawaban atas satu pertanyaan.
+ */
+const itemsFromBody = (
+  body: Record<string, unknown>,
+  exchangeRate: number,
+  totalIDR: number,
+) => {
+  const seeds = Array.isArray(body.items) ? body.items : [];
+
+  return invoiceItems(
+    seeds.map((seed) => {
+      const line = seed as Record<string, unknown>;
+
+      return {
+        name: String(line.name ?? ""),
+        amountForeign: Number(line.amountForeign ?? 0),
+        accountId: Number(line.accountId ?? 0),
+        purchaseOrderItemId:
+          (line.purchaseOrderItemId as number | null) ?? null,
+      };
+    }),
+    exchangeRate,
+    totalIDR,
+  );
+};
+
+const itemsIssue = (body: Record<string, unknown>) => {
+  const seeds = Array.isArray(body.items) ? body.items : [];
+  if (!seeds.length) return null;
+
+  const sum = seeds.reduce(
+    (total, seed) =>
+      total + Number((seed as Record<string, unknown>).amountForeign ?? 0),
+    0,
+  );
+
+  if (Math.abs(sum - Number(body.totalForeignCurrency ?? 0)) > 0.00005) {
+    return {
+      path: "items",
+      message: "Jumlah Rincian Harus Sama Dengan Total Faktur",
+    };
+  }
+
+  if (body.expenseAccountId !== null && body.expenseAccountId !== undefined) {
+    return {
+      path: "expenseAccountId",
+      message: "Akun Beban Header Tidak Dipakai Bila Faktur Punya Rincian",
+    };
+  }
+
+  return null;
+};
 
 const view = (row: SupplierInvoiceRow) => {
   const order = row.purchaseOrderId
@@ -76,6 +162,7 @@ const view = (row: SupplierInvoiceRow) => {
     totalForeignCurrency: row.totalForeignCurrency,
     totalIDR: row.totalIDR,
     paidAmountIDR: row.paidAmountIDR,
+    items: row.items.map(itemView),
     payments: paymentsOfInvoice(row.id).map(paymentView),
   };
 };
@@ -140,6 +227,9 @@ export const fakturSupplierMock: MockHandler = async ({
 
   if (path === "/faktur-supplier" && method === "POST") {
     const body = await readBody<Record<string, unknown>>(request);
+    const issue = itemsIssue(body);
+    if (issue) return fieldError(issue.path, issue.message);
+
     const id = SUPPLIER_INVOICE.length + 1;
     const total = money(Number(body.totalForeignCurrency ?? 0));
     const row: SupplierInvoiceRow = {
@@ -158,6 +248,7 @@ export const fakturSupplierMock: MockHandler = async ({
       totalIDR: total,
       status: "DRAFT",
       paidAmountIDR: money(0),
+      items: itemsFromBody(body, 1, Number(total)),
       deletedAt: null,
     };
     SUPPLIER_INVOICE.push(row);
@@ -195,6 +286,9 @@ export const fakturSupplierMock: MockHandler = async ({
     }
 
     const body = await readBody<Record<string, unknown>>(request);
+    const issue = itemsIssue(body);
+    if (issue) return fieldError(issue.path, issue.message);
+
     const total = money(Number(body.totalForeignCurrency ?? 0));
     Object.assign(row, {
       supplierInvoiceNumber: String(body.supplierInvoiceNumber ?? ""),
@@ -206,6 +300,7 @@ export const fakturSupplierMock: MockHandler = async ({
       currencyCode: String(body.currencyCode ?? "IDR"),
       totalForeignCurrency: total,
       totalIDR: total,
+      items: itemsFromBody(body, 1, Number(total)),
     });
 
     return json({

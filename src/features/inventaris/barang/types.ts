@@ -64,6 +64,46 @@ export type AssetDetail = Omit<Asset, "disposal"> & {
     bookValue: string;
     lastPeriod: Period | null;
   } | null;
+  /**
+   * Dari mana aset ini datang, untuk aset yang dibeli lewat pengadaan.
+   *
+   * Null untuk aset sumbangan, hibah, atau yang dicatat tangan tanpa melewati
+   * Penerimaan Barang. Fakturnya BERUPA DAFTAR: satu pesanan bisa ditagih
+   * dalam beberapa faktur, dan bisa juga belum ditagih sama sekali.
+   */
+  acquisition: AssetAcquisition | null;
+};
+
+type SupplierRef = { publicId: string; code: string; name: string };
+
+export type AcquisitionInvoice = {
+  publicId: string;
+  code: string;
+  supplierInvoiceNumber: string;
+  invoiceDate: string;
+  totalIDR: string;
+  status: string;
+};
+
+export type AssetAcquisition = {
+  goodsReceipt: {
+    publicId: string;
+    code: string;
+    receivedDate: string;
+  };
+  purchaseOrderItem: {
+    name: string;
+    quantity: number;
+    unitPrice: string;
+    purchaseOrder: {
+      publicId: string;
+      code: string;
+      orderDate: string;
+      currencyCode: string;
+      supplier: SupplierRef;
+      invoices: AcquisitionInvoice[];
+    };
+  };
 };
 
 export type CycleKind = "perawatan" | "mutasi" | "pelepasan";

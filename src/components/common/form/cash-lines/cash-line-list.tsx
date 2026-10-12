@@ -24,6 +24,8 @@ interface PropTypes<T extends FieldValues> {
   onRemove: (index: number) => void;
   error?: string;
   errorId?: string;
+  /** Diteruskan apa adanya ke tiap baris. Lihat CashLineRow. */
+  loanOptions?: readonly { value: string; label: string }[];
 }
 
 export function CashLineList<T extends FieldValues>(props: PropTypes<T>) {
@@ -36,6 +38,7 @@ export function CashLineList<T extends FieldValues>(props: PropTypes<T>) {
     onRemove,
     error,
     errorId,
+    loanOptions,
   } = props;
 
   const lines = useWatch({ control: form.control, name: name as FieldPath<T> });
@@ -66,6 +69,7 @@ export function CashLineList<T extends FieldValues>(props: PropTypes<T>) {
             index={index}
             isDisabled={isDisabled}
             onRemove={onRemove}
+            loanOptions={loanOptions}
           />
         ))}
       </LineItemList>

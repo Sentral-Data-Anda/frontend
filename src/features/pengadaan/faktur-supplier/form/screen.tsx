@@ -41,6 +41,7 @@ import {
 } from "../model";
 
 import { InvoiceSection } from "./invoice-section";
+import { ItemSection } from "./item-section";
 
 const NOUN = "faktur supplier";
 
@@ -225,6 +226,7 @@ export const InvoiceFormScreen = (props: PropTypes) => {
 
       <div className={isWaiting ? "hidden" : undefined}>
         <InvoiceSection form={form} isDisabled={isSubmitting} />
+        <ItemSection form={form} isDisabled={isSubmitting} />
       </div>
 
       <div className="space-y-3 px-gutter pb-4 empty:hidden">

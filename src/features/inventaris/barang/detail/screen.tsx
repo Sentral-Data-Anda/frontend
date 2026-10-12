@@ -17,6 +17,7 @@ import { useAssetDetail } from "../api";
 import { LabelLink, labelHrefOf } from "../label";
 import { BARANG_LIST_PATH, barangEditHref, isActiveAsset } from "../model";
 
+import { AcquisitionPanel } from "./acquisition-panel";
 import { CycleActions } from "./cycle-actions";
 import { DataPanel } from "./data-panel";
 import { HistoryPanel } from "./history-panel";
@@ -164,6 +165,9 @@ export const BarangDetailScreen = (props: PropTypes) => {
         <div className="flex min-w-0 flex-[999_1_32rem] flex-col gap-4">
           <DataPanel asset={asset} />
           <ValuePanel asset={asset} />
+          {asset.acquisition ? (
+            <AcquisitionPanel acquisition={asset.acquisition} />
+          ) : null}
           {isActive ? <CycleActions code={asset.code} /> : null}
         </div>
 

@@ -35,8 +35,20 @@ const values = (next: Partial<ReceiptFormValues> = {}): ReceiptFormValues => ({
   bapelId: "3",
   description: "  Sewa   gedung ",
   lines: [
-    { accountId: "20", amount: "3500000", description: " Sewa aula " },
-    { accountId: "7", amount: "15000.50", description: "" },
+    {
+      accountId: "20",
+      amount: "3500000",
+      description: " Sewa aula ",
+      loanId: "",
+      loanPortion: "",
+    },
+    {
+      accountId: "7",
+      amount: "15000.50",
+      description: "",
+      loanId: "",
+      loanPortion: "",
+    },
   ],
   ...next,
 });
@@ -62,6 +74,8 @@ const detail = (next: Partial<CashReceiptDetail> = {}): CashReceiptDetail => ({
       account: { code: "4-200", name: "Sewa Gedung" },
       amount: "3500000",
       description: "Sewa aula",
+      loanId: null,
+      loanPortion: null,
     },
     {
       publicId: "bkml-2",
@@ -69,6 +83,8 @@ const detail = (next: Partial<CashReceiptDetail> = {}): CashReceiptDetail => ({
       account: { code: "1-400", name: "Selisih Kas" },
       amount: "15000.50",
       description: null,
+      loanId: null,
+      loanPortion: null,
     },
   ],
   journal: null,
@@ -114,8 +130,20 @@ describe("receiptFormSchema", () => {
     const result = receiptFormSchema.safeParse(
       values({
         lines: [
-          { accountId: "", amount: "0", description: "" },
-          { accountId: "7", amount: "", description: "a".repeat(251) },
+          {
+            accountId: "",
+            amount: "0",
+            description: "",
+            loanId: "",
+            loanPortion: "",
+          },
+          {
+            accountId: "7",
+            amount: "",
+            description: "a".repeat(251),
+            loanId: "",
+            loanPortion: "",
+          },
         ],
       }),
     );

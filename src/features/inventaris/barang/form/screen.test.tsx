@@ -81,6 +81,9 @@ const DETAIL: AssetDetail = {
     bookValue: "8500000.00",
     lastPeriod: null,
   },
+  // Aset ini tidak melewati pengadaan, seperti setiap aset yang dicatat
+  // tangan. Selalu dibawa server, jadi fixture ini juga membawanya.
+  acquisition: null,
 };
 
 type Call = { method: string; url: string; body?: FormData };

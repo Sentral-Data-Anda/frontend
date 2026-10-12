@@ -15,6 +15,8 @@ import type {
   Invoice,
   InvoiceAction,
   InvoicePayload,
+  OrderItemOption,
+  OrderOption,
   PaymentPayload,
 } from "./types";
 
@@ -53,6 +55,49 @@ export function useInvoiceDetail(publicId: string | undefined) {
     queryFn: () => fetchOne<Invoice>(pathOf(publicId as string)),
     enabled: Boolean(publicId),
     staleTime: 0,
+    retry: false,
+    select: (response) => response.data,
+  });
+}
+
+/**
+ * Pesanan yang sebuah faktur boleh menyusul.
+ *
+ * Tidak lewat `useDdlOptions`: helper itu memberi label dari `row.name`, dan
+ * sebuah pesanan tidak punya nama — hasilnya enam pilihan kosong, yang persis
+ * terjadi sebelum ini. Labelnya dirakit di sini dari kode dan suppliernya.
+ */
+export function useOrderOptions() {
+  return useQuery({
+    queryKey: ["ddl", "pesanan-pembelian"] as const,
+    queryFn: () => fetchList<OrderOption>("/ddl/pesanan-pembelian"),
+    staleTime: 10 * 60_000,
+    retry: false,
+    select: (response) =>
+      response.data.map((row) => ({
+        value: String(row.id),
+        label: row.supplier ? `${row.code} — ${row.supplier.name}` : row.code,
+        hint: `${row.status} · ${row.currencyCode}`,
+      })),
+  });
+}
+
+/**
+ * Baris pesanan yang fakturnya menyusul, untuk menyalin rinciannya.
+ *
+ * Lewat ddl, bukan mengimpor fitur Pesanan Pembelian: fitur tidak saling
+ * mengimpor. Tidak memakai `useDdlOptions` karena ini bukan dropdown — yang
+ * dipakai adalah barisnya untuk mengisi form, bukan `{ value, label }`.
+ */
+export function useOrderItems(purchaseOrderId: string) {
+  return useQuery({
+    queryKey: ["ddl", "pesanan-pembelian-item", purchaseOrderId] as const,
+    queryFn: () =>
+      fetchList<OrderItemOption>(
+        `/ddl/pesanan-pembelian-item?purchaseOrderId=${encodeURIComponent(purchaseOrderId)}`,
+      ),
+    enabled: purchaseOrderId !== "",
+    staleTime: 10 * 60_000,
     retry: false,
     select: (response) => response.data,
   });

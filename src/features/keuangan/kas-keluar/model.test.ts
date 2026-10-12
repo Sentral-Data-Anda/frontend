@@ -41,7 +41,15 @@ const values = (next: Partial<ExpenseFormValues> = {}): ExpenseFormValues => ({
   paidFromAccountId: "2",
   description: "Tagihan  listrik",
   bapelChoice: "BUKAN_KOMISI",
-  lines: [{ accountId: "22", amount: "1850000", description: "Listrik" }],
+  lines: [
+    {
+      accountId: "22",
+      amount: "1850000",
+      description: "Listrik",
+      loanId: "",
+      loanPortion: "",
+    },
+  ],
   ...next,
 });
 
@@ -163,7 +171,13 @@ describe("toExpenseFormData", () => {
     const body = toExpenseFormData(values(), false);
 
     expect(JSON.parse(String(body.get("lines")))).toEqual([
-      { accountId: 22, amount: 1850000, description: "Listrik" },
+      {
+        accountId: 22,
+        amount: 1850000,
+        description: "Listrik",
+        loanId: null,
+        loanPortion: null,
+      },
     ]);
     expect(body.get("totalAmount")).toBeNull();
     expect(body.get("total")).toBeNull();
@@ -230,7 +244,17 @@ describe("expenseFormSchema", () => {
 
   test("nominal nol dan pos kosong ditolak per baris", () => {
     const paths = pathsOf(
-      values({ lines: [{ accountId: "", amount: "0", description: "" }] }),
+      values({
+        lines: [
+          {
+            accountId: "",
+            amount: "0",
+            description: "",
+            loanId: "",
+            loanPortion: "",
+          },
+        ],
+      }),
     );
 
     expect(paths).toContain("lines.0.accountId");

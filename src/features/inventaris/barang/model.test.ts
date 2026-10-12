@@ -88,6 +88,9 @@ const DETAIL: AssetDetail = {
     bookValue: "50000000.00",
     lastPeriod: { year: 2026, month: 8 },
   },
+  // Aset ini tidak melewati pengadaan, seperti setiap aset yang dicatat
+  // tangan. Selalu dibawa server, jadi fixture ini juga membawanya.
+  acquisition: null,
 };
 
 describe("assetStatusOf", () => {

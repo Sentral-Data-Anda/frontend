@@ -288,6 +288,10 @@ describe("simpan", () => {
         accountId: 22,
         amount: 3200000,
         description: "Servis dan penggantian impeler",
+        // Dikirim null, bukan dihilangkan: server membedakan null dari field
+        // yang tidak dikirim, dan separuh pasangan ini ditolaknya.
+        loanId: null,
+        loanPortion: null,
       },
     ]);
     expect(JSON.parse(String(body.get("keepFiles")))).toEqual([]);

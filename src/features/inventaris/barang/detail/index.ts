@@ -1,3 +1,4 @@
+export * from "./acquisition-panel";
 export * from "./cycle-actions";
 export * from "./data-panel";
 export * from "./history-group";
