@@ -41,6 +41,18 @@ export const AgendaWeekWidget = () => {
   const events = useEventRange(days[0], days[6], isEventShown);
 
   const rows = buildAgenda(ibadah.data ?? [], events.data ?? [], days);
+
+  /**
+   * Sumber yang gagal dimuat, disebut namanya.
+   *
+   * Ibadah dan kegiatan dimuat terpisah, dan sebelumnya satu yang gagal
+   * menghapus keduanya dari layar. Yang berhasil tetap tampil; yang gagal
+   * disebut, bukan dibiarkan senyap.
+   */
+  const failed = [
+    ibadah.error ? "Ibadah" : null,
+    isEventShown && events.error ? "Kegiatan" : null,
+  ].filter((name): name is string => name !== null);
   const tableRows: TableRow[] = rows.map((row) => ({
     key: row.key,
     href: row.href,
@@ -80,12 +92,14 @@ export const AgendaWeekWidget = () => {
       query={{
         isPending: ibadah.isPending || (isEventShown && events.isPending),
         isFetching: ibadah.isFetching || events.isFetching,
-        error: ibadah.error ?? events.error,
+        // Hanya error kalau tidak ada satu baris pun yang berhasil dimuat.
+        error: rows.length ? null : (ibadah.error ?? events.error),
         refetch: () => {
           void ibadah.refetch();
           if (isEventShown) void events.refetch();
         },
       }}
+      isEmpty={rows.length === 0}
       minHeight="min-h-48"
       trailing={
         <span className="flex items-center gap-1">
@@ -117,11 +131,22 @@ export const AgendaWeekWidget = () => {
           title="Tidak ada ibadah atau kegiatan minggu ini"
         />
       ) : (
-        <DashboardTable
-          label="Agenda Mingguan"
-          columns={COLUMNS}
-          rows={tableRows}
-        />
+        <>
+          <DashboardTable
+            label="Agenda Mingguan"
+            columns={COLUMNS}
+            rows={tableRows}
+          />
+
+          {failed.length ? (
+            <p
+              role="status"
+              className="text-muted-foreground px-2.5 pt-3 text-caption"
+            >
+              {failed.join(", ")} gagal dimuat.
+            </p>
+          ) : null}
+        </>
       )}
     </DashboardCard>
   );

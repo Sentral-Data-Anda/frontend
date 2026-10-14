@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { buildPayables, dueLabel } from "./data";
+import { buildPayables, dueLabel, payableState } from "./data";
 
 const now = new Date("2026-09-22T03:00:00Z");
 
@@ -104,5 +104,44 @@ describe("buildPayables", () => {
     const [row] = buildPayables({ isUnpostedShown: true }, now);
     expect(row.isDummy).toBe(true);
     expect(row.kind).toBe("Jurnal");
+  });
+});
+
+describe("payableState", () => {
+  const boom = new Error("500");
+  const sources = (...errors: (Error | null)[]) =>
+    errors.map((error, index) => ({ label: `Sumber ${index + 1}`, error }));
+
+  test("tidak ada yang gagal: tidak ada error, tidak ada sebutan", () => {
+    expect(payableState(3, sources(null, null))).toEqual({
+      failed: [],
+      error: null,
+    });
+  });
+
+  /**
+   * Inti perbaikannya: satu sumber gagal tidak boleh menghapus baris yang
+   * sumber lain berhasil muat. Kartunya tetap menampilkan daftarnya, dan yang
+   * gagal disebut namanya.
+   */
+  test("sebagian gagal tapi ada baris: tetap tampil, yang gagal disebut", () => {
+    expect(payableState(2, sources(boom, null, boom))).toEqual({
+      failed: ["Sumber 1", "Sumber 3"],
+      error: null,
+    });
+  });
+
+  test("gagal dan tidak ada satu baris pun: kartunya menyerah", () => {
+    expect(payableState(0, sources(boom, null))).toEqual({
+      failed: ["Sumber 1"],
+      error: boom,
+    });
+  });
+
+  test("tidak ada baris tapi juga tidak ada yang gagal: kosong, bukan error", () => {
+    expect(payableState(0, sources(null, null))).toEqual({
+      failed: [],
+      error: null,
+    });
   });
 });
