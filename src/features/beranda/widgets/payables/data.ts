@@ -190,6 +190,31 @@ export function buildPayables(
   );
 }
 
+/**
+ * Apa yang layar tampilkan ketika sebagian sumbernya gagal.
+ *
+ * Lima sumber dijadikan satu daftar, dan sebelumnya satu saja yang gagal
+ * mengubah seluruh kartu menjadi "Gagal memuat": empat sumber yang baik-baik
+ * saja ikut lenyap dari layar, dan tidak ada yang memberi tahu bendahara yang
+ * mana yang bermasalah. Sekarang yang berhasil tetap tampil dan yang gagal
+ * disebut namanya; kartunya baru menyerah ketika tidak ada satu baris pun yang
+ * berhasil dimuat.
+ *
+ * 404 tidak pernah sampai ke sini: `fetchList` sudah membacanya sebagai daftar
+ * kosong, bukan kegagalan.
+ */
+export function payableState(
+  rowCount: number,
+  sources: readonly { label: string; error: Error | null }[],
+): { failed: string[]; error: Error | null } {
+  const broken = sources.filter((source) => source.error !== null);
+
+  return {
+    failed: broken.map((source) => source.label),
+    error: rowCount > 0 ? null : (broken[0]?.error ?? null),
+  };
+}
+
 export function usePayables() {
   const cash = useMenuAccess(MENU.KAS_KELUAR).isCanView;
   const invoice = useMenuAccess(MENU.SUPPLIER_INVOICE).isCanView;
@@ -205,13 +230,14 @@ export function usePayables() {
   const payrollQ = useOpenPayrolls(payroll);
 
   const active = [
-    [cash, cashQ],
-    [invoice, invoiceQ],
-    [approval, approvalQ],
-    [payment, paymentQ],
-    [payroll, payrollQ],
+    ["Kas keluar", cash, cashQ],
+    ["Faktur supplier", invoice, invoiceQ],
+    ["Persetujuan", approval, approvalQ],
+    ["Pembayaran", payment, paymentQ],
+    ["Payroll", payroll, payrollQ],
   ] as const;
-  const live = active.filter(([isOn]) => isOn).map(([, query]) => query);
+  const live = active.filter(([, isOn]) => isOn);
+  const queries = live.map(([, , query]) => query);
 
   const rows = buildPayables(
     {
@@ -225,11 +251,17 @@ export function usePayables() {
     new Date(),
   );
 
+  const { failed, error } = payableState(
+    rows.length,
+    live.map(([label, , query]) => ({ label, error: query.error })),
+  );
+
   return {
     rows,
-    isPending: live.some((query) => query.isPending),
-    isFetching: live.some((query) => query.isFetching),
-    error: live.find((query) => query.error)?.error ?? null,
-    refetch: () => live.forEach((query) => void query.refetch()),
+    failed,
+    error,
+    isPending: queries.some((query) => query.isPending),
+    isFetching: queries.some((query) => query.isFetching),
+    refetch: () => queries.forEach((query) => void query.refetch()),
   };
 }

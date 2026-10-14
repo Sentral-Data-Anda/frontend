@@ -78,16 +78,38 @@ export const PayablesWidget = () => {
       actionLabel="Semua"
       actionHref={domainHref(MENU.FINANCE)}
       query={state}
+      isEmpty={rows.length === 0}
       minHeight="min-h-48"
     >
       {rows.length === 0 ? (
         <EmptyState isCompact title="Tidak ada yang perlu diselesaikan" />
       ) : (
-        <DashboardTable
-          label="Perlu Diselesaikan"
-          columns={COLUMNS}
-          rows={tableRows}
-        />
+        <>
+          <DashboardTable
+            label="Perlu Diselesaikan"
+            columns={COLUMNS}
+            rows={tableRows}
+          />
+
+          {/* Sebagian sumber gagal, sisanya tampil. Namanya disebut supaya
+              jelas apa yang kurang, bukan dibiarkan senyap. */}
+          {state.failed.length ? (
+            <p
+              role="status"
+              className="text-muted-foreground px-2.5 pt-3 text-caption"
+            >
+              {state.failed.join(", ")} gagal dimuat.{" "}
+              <button
+                type="button"
+                disabled={state.isFetching}
+                onClick={() => state.refetch()}
+                className="text-foreground focus-visible:ring-ring rounded-control font-medium underline-offset-2 outline-none hover:underline focus-visible:ring-2 disabled:no-underline disabled:opacity-60"
+              >
+                {state.isFetching ? "Memuat…" : "Coba lagi"}
+              </button>
+            </p>
+          ) : null}
+        </>
       )}
     </DashboardCard>
   );

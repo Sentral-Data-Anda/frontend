@@ -21,6 +21,8 @@ export function DashboardCard({
   query,
   isDummy = false,
   isScrollable = false,
+  isFilling = false,
+  isEmpty = false,
   minHeight = "min-h-24",
   children,
 }: {
@@ -31,6 +33,28 @@ export function DashboardCard({
   query?: QueryState;
   isDummy?: boolean;
   isScrollable?: boolean;
+  /**
+   * Isinya ikut setinggi kartunya, bukan setinggi dirinya sendiri.
+   *
+   * Kartu terakhir di kolom utama diregangkan supaya kaki kedua kolom rata.
+   * Isi yang tingginya tetap -- grafik, misalnya -- tidak ikut meregang, dan
+   * sisanya menjadi lubang kosong di dalam kartu. Dengan ini isinya yang
+   * memakai ruang itu.
+   *
+   * `isScrollable` sudah mencakupnya; prop ini untuk isi yang mengisi tanpa
+   * perlu menggulir.
+   */
+  isFilling?: boolean;
+  /**
+   * Isinya berupa keadaan kosong, bukan daftar.
+   *
+   * Dipakai kartu yang menyerap sisa tinggi kolom (`isScrollable`): kartu itu
+   * sengaja diregangkan supaya kaki kedua kolom rata, dan ketika isinya cuma
+   * satu kalimat "tidak ada apa-apa", kalimat itu menempel di atas dengan
+   * ratusan piksel kosong di bawahnya. Ditengahkan, tingginya terbaca sebagai
+   * kartu yang memang lapang, bukan kartu yang rusak.
+   */
+  isEmpty?: boolean;
   minHeight?: string;
   children: ReactNode;
 }) {
@@ -39,7 +63,8 @@ export function DashboardCard({
       label={title}
       className={cn(
         "p-4 lg:p-6",
-        isScrollable && "lg:flex lg:min-h-64 lg:flex-col lg:overflow-hidden",
+        (isScrollable || isFilling) && "lg:flex lg:flex-col",
+        isScrollable && "lg:min-h-64 lg:overflow-hidden",
       )}
     >
       <div className="mb-4 flex min-h-6 items-center justify-between gap-3">
@@ -69,11 +94,16 @@ export function DashboardCard({
       </div>
 
       <div
-        className={
-          isScrollable
-            ? "-mx-2.5 px-2.5 lg:min-h-0 lg:flex-1 lg:overflow-x-clip lg:overflow-y-auto"
-            : undefined
-        }
+        className={cn(
+          (isScrollable || isFilling) && "lg:min-h-0 lg:flex-1",
+          isScrollable &&
+            "-mx-2.5 px-2.5 lg:overflow-x-clip lg:overflow-y-auto",
+          // Aman dipasang bersama `overflow-y-auto` justru karena hanya berlaku
+          // saat isinya kosong: `justify-center` memotong bagian atas isi yang
+          // lebih tinggi daripada kotaknya, dan satu kalimat tidak akan pernah
+          // setinggi itu.
+          (isEmpty || query?.error) && "flex flex-col justify-center",
+        )}
       >
         {query?.isPending ? (
           <div
@@ -89,7 +119,10 @@ export function DashboardCard({
           <p
             role="alert"
             className={cn(
-              "text-muted-foreground flex items-center gap-2 text-body",
+              // Ditengahkan dua arah: pada kartu yang diregangkan, pesan yang
+              // rata kiri di tengah ketinggian terbaca seperti teks nyasar,
+              // bukan seperti keadaan yang disengaja.
+              "text-muted-foreground flex h-full flex-wrap items-center justify-center gap-x-2 gap-y-1 text-center text-body",
               minHeight,
             )}
           >

@@ -37,7 +37,31 @@ const MAIN_SPLIT =
 // boleh lebih pendek daripada isinya, dan `overscroll-contain` menahan gulirnya
 // supaya tidak merembet ke halaman ketika sudah mentok.
 const COLUMN_SCROLL =
-  "@min-[60rem]:@max-[120rem]:min-h-0 @min-[60rem]:@max-[120rem]:overflow-y-auto @min-[60rem]:@max-[120rem]:overscroll-contain";
+  "relative @min-[60rem]:@max-[120rem]:min-h-0 @min-[60rem]:@max-[120rem]:overflow-y-auto @min-[60rem]:@max-[120rem]:overscroll-contain";
+
+// Di bawah 60rem kolomnya tidak terbelah, jadi COLUMN_SCROLL tidak berlaku --
+// padahal tingginya SUDAH dikunci sejak `lg:` (viewport 1024px). Selisih dua
+// ambang itu nyata: antara viewport 1024 dan sekitar 1280, isi kartu meluber
+// keluar kotak yang tingginya terkunci dan yang menggulir justru seluruh
+// dokumen, membawa serta sidebar-nya.
+//
+// Keduanya tidak bisa disamakan: `lg:` mengukur viewport sedangkan 60rem
+// mengukur container, dan sidebar yang dilipat mengubah lebar container pada
+// viewport yang sama. Jadi yang ditutup adalah selisihnya, di sini, dengan
+// seluruh isi dashboard menggulir sebagai satu blok.
+//
+// 59.9375rem, bukan 60rem: `@max-` bersifat inklusif, dan tepat di 60rem
+// keduanya akan menyala sekaligus.
+//
+// `relative` pada kedua kotak gulir, dan itu bukan hiasan: `sr-only` memakai
+// `position: absolute`, dan sebuah elemen absolut mencari leluhur TERPOSISI
+// sebagai blok penampungnya. Tanpa `relative` penampungnya adalah `html`
+// sendiri, sehingga label pembaca layar di dalam kartu LOLOS dari kotak gulir
+// mana pun dan ikut menentukan tinggi dokumen -- halamannya menggulir persis
+// sampai label terakhir, dan `overflow: hidden` di leluhur mana pun tidak
+// menahannya karena bukan leluhur itu yang menjadi penampungnya.
+const STACKED_SCROLL =
+  "relative @max-[59.9375rem]:min-h-0 @max-[59.9375rem]:overflow-y-auto @max-[59.9375rem]:overscroll-contain";
 
 interface PropTypes {
   kpi?: ReactNode;
@@ -91,6 +115,7 @@ export const DashboardGrid = (props: PropTypes) => {
             // bukan dari isinya, sehingga kartu `isScrollable` menyusut dan menggulir
             // alih-alih memanjangkan halaman.
             isFullHeight && isSplit && "@min-[60rem]:@max-[120rem]:grid-rows-1",
+            isFullHeight && STACKED_SCROLL,
           )}
         >
           {main.length ? (
