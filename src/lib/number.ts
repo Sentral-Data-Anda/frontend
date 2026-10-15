@@ -72,25 +72,84 @@ const scaledOf = (value: string) => {
   };
 };
 
-/**
- * Jumlah x harga sebagai string desimal, dihitung dengan BigInt (float rusak di
- * atas 15 digit). Dibulatkan setengah-naik ke sen; kosong/nol/bukan angka -> null.
- */
-export const lineAmountText = (quantity: string, price: string) => {
-  const a = scaledOf(quantity);
-  const b = scaledOf(price);
+type Scaled = { digits: bigint; scale: number };
 
-  if (!a || !b) return null;
+const productOf = (values: readonly string[]): Scaled | null => {
+  let digits = BigInt(1);
+  let scale = 0;
 
-  const product = a.digits * b.digits;
-  const excess = a.scale + b.scale - 2;
+  for (const value of values) {
+    const part = scaledOf(value);
+
+    if (!part) return null;
+
+    digits *= part.digits;
+    scale += part.scale;
+  }
+
+  return { digits, scale };
+};
+
+const plusScaled = (a: Scaled, b: Scaled): Scaled => {
+  const scale = Math.max(a.scale, b.scale);
+  const lift = (one: Scaled) =>
+    one.digits * BigInt(10) ** BigInt(scale - one.scale);
+
+  return { digits: lift(a) + lift(b), scale };
+};
+
+const centsOf = ({ digits, scale }: Scaled) => {
+  const excess = scale - 2;
   const divisor = BigInt(10) ** BigInt(Math.max(excess, 0));
-  const cents =
-    excess > 0
-      ? (product + divisor / BigInt(2)) / divisor
-      : product * BigInt(10) ** BigInt(-excess);
+
+  return excess > 0
+    ? (digits + divisor / BigInt(2)) / divisor
+    : digits * BigInt(10) ** BigInt(-excess);
+};
+
+/**
+ * Hasil kali beberapa desimal sebagai string, dihitung dengan BigInt (float
+ * rusak di atas 15 digit). Dibulatkan setengah-naik ke sen SEKALI di akhir;
+ * kosong/nol/bukan angka -> null.
+ *
+ * Lebih dari dua faktor dipakai untuk baris mata uang asing: jumlah x harga
+ * satuan x kurs. Mengalikan dua lalu dua lagi membulatkan uang yang sama dua
+ * kali dan menghasilkan angka yang berbeda dari be-sada.
+ */
+export const lineAmountText = (...values: string[]) => {
+  if (values.length === 0) return null;
+
+  const product = productOf(values);
+
+  if (!product) return null;
+
+  const cents = centsOf(product);
 
   return cents > ZERO ? fromCents(cents) : null;
+};
+
+/**
+ * Jumlah dari beberapa hasil kali, dibulatkan setengah-naik ke sen SEKALI di
+ * akhir -- bukan per baris.
+ *
+ * Itu yang be-sada lakukan (`toItemRows` menumpuk `unitPrice x quantity x
+ * exchangeRate` lalu `toDecimalPlaces(2)` satu kali), dan membulatkan per baris
+ * lalu menjumlahkan membulatkan uang yang sama dua kali: total di layar akan
+ * berbeda beberapa sen dari total yang disimpan server.
+ *
+ * Kelompok yang belum bisa dibaca dilewati, bukan membatalkan totalnya: ini
+ * dipakai sebagai ringkasan hidup sementara orang masih mengisi barisnya.
+ */
+export const sumProductsText = (groups: readonly (readonly string[])[]) => {
+  let total: Scaled = { digits: ZERO, scale: 0 };
+
+  for (const group of groups) {
+    const product = productOf(group);
+
+    if (product) total = plusScaled(total, product);
+  }
+
+  return fromCents(centsOf(total));
 };
 
 export type BalanceLine = { debit: string; credit: string };

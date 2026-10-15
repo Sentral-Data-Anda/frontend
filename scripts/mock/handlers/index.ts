@@ -54,6 +54,7 @@ import { pesananPembelianMock } from "./pesanan-pembelian";
 import { pinjamanMock } from "./pinjaman";
 import { programMock } from "./program";
 import { reportJemaatMock } from "./report-jemaat";
+import { returPembelianMock } from "./retur-pembelian";
 import { riwayatJemaatMock } from "./riwayat-jemaat";
 import { roleJemaatMock } from "./role-jemaat";
 import { rolePelayanMock } from "./role-pelayan";
@@ -127,6 +128,7 @@ export const MOCK_HANDLERS: MockHandler[] = [
   fakturSupplierMock,
   pesananPembelianMock,
   penerimaanBarangMock,
+  returPembelianMock,
   mataUangMock,
   akunMock,
   setelanAkuntansiMock,

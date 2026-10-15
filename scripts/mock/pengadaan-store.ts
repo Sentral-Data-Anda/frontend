@@ -1854,3 +1854,536 @@ payment({
 });
 
 void MENUNGGU;
+
+/**
+ * Retur Pembelian: barang yang pulang ke supplier pengirimnya.
+ *
+ * Nilainya dihitung pada harga baris pesanan dan kurs pesanan itu, bukan kurs
+ * hari ini — sama seperti `retur_pembelian.service.ts`, dan dijumlahkan dulu
+ * lalu dibulatkan sekali supaya tidak membulatkan uang yang sama dua kali.
+ *
+ * Menyelesaikan retur mengeluarkan stok lewat `applyMovement` dan mencabut aset
+ * dengan `deletedAt`; `DisposalMethod` tidak punya nilai untuk "dikembalikan"
+ * dan gereja tidak pernah benar-benar memilikinya.
+ */
+export type PurchaseReturnStatus =
+  "DRAFT" | "SUBMITTED" | "COMPLETED" | "CANCELLED";
+
+export type PurchaseReturnItem = {
+  id: number;
+  publicId: string;
+  goodsReceiptItemId: number;
+  quantity: number;
+  reason: string | null;
+};
+
+export type PurchaseReturnRow = Live & {
+  publicId: string;
+  code: string;
+  goodsReceiptId: number;
+  supplierId: number;
+  returnDate: string;
+  reason: string;
+  status: PurchaseReturnStatus;
+  approvedAt: string | null;
+  createdAt: string;
+  items: PurchaseReturnItem[];
+  approvals: ApprovalRef[];
+};
+
+export type ReturnLineInput = {
+  goodsReceiptItemId: number;
+  quantity: number;
+  reason: string | null;
+};
+
+export const PURCHASE_RETURN: PurchaseReturnRow[] = [];
+
+let returnItemCount = 0;
+
+const returnLine = (seed: ReturnLineInput): PurchaseReturnItem => {
+  returnItemCount += 1;
+
+  return {
+    id: returnItemCount,
+    publicId: uuid("ea00", returnItemCount),
+    ...seed,
+  };
+};
+
+export const purchaseReturnByPublicId = (publicId: string) =>
+  PURCHASE_RETURN.find((row) => isLive(row) && row.publicId === publicId);
+
+export const latestReturnApprovalOf = (row: PurchaseReturnRow) =>
+  row.approvals.at(-1) ?? null;
+
+const receiptLineOf = (goodsReceiptItemId: number) =>
+  GOODS_RECEIPT.flatMap((receipt) =>
+    receipt.items.map((item) => ({ receipt, item })),
+  ).find((one) => one.item.id === goodsReceiptItemId);
+
+const orderLineOfReceiptItem = (goodsReceiptItemId: number) => {
+  const found = receiptLineOf(goodsReceiptItemId);
+  if (!found) return null;
+
+  const order = PURCHASE_ORDER.find(
+    (row) => row.id === found.receipt.purchaseOrderId,
+  );
+  const line = order?.items.find(
+    (one) => one.id === found.item.purchaseOrderItemId,
+  );
+
+  return order && line ? { order, line, item: found.item } : null;
+};
+
+/** Berapa dari tiap baris penerimaan yang sudah dipulangkan retur lain. */
+export const returnedTotalsOf = (goodsReceiptId: number, exceptId?: number) => {
+  const totals = new Map<number, number>();
+
+  for (const row of PURCHASE_RETURN) {
+    if (row.deletedAt !== null) continue;
+    if (row.goodsReceiptId !== goodsReceiptId) continue;
+    if (row.status === "CANCELLED") continue;
+    if (exceptId !== undefined && row.id === exceptId) continue;
+
+    for (const item of row.items) {
+      totals.set(
+        item.goodsReceiptItemId,
+        (totals.get(item.goodsReceiptItemId) ?? 0) + item.quantity,
+      );
+    }
+  }
+
+  return totals;
+};
+
+const returnTotalOf = (row: PurchaseReturnRow) => {
+  let total = 0;
+
+  for (const item of row.items) {
+    const found = orderLineOfReceiptItem(item.goodsReceiptItemId);
+
+    if (found) {
+      total += found.line.unitPrice * item.quantity * found.order.exchangeRate;
+    }
+  }
+
+  return round2(total);
+};
+
+export const returnTotalIdr = returnTotalOf;
+
+export const purchaseReturnView = (row: PurchaseReturnRow) => {
+  const receipt = GOODS_RECEIPT.find((one) => one.id === row.goodsReceiptId);
+  const supplier = SUPPLIER.find((one) => one.id === row.supplierId);
+
+  return {
+    publicId: row.publicId,
+    code: row.code,
+    status: row.status,
+    returnDate: iso(row.returnDate),
+    reason: row.reason,
+    totalIDR: money(returnTotalOf(row)),
+    approvedAt: row.approvedAt,
+    createdAt: row.createdAt,
+    supplier: named(supplier, "d800", row.supplierId),
+    goodsReceipt: receipt
+      ? {
+          publicId: receipt.publicId,
+          code: receipt.code,
+          receivedDate: iso(receipt.receivedDate),
+        }
+      : null,
+    items: row.items.map((item) => {
+      const found = orderLineOfReceiptItem(item.goodsReceiptItemId);
+
+      return {
+        publicId: item.publicId,
+        goodsReceiptItemId: item.goodsReceiptItemId,
+        quantity: item.quantity,
+        reason: item.reason,
+        goodsReceiptItem: found
+          ? {
+              publicId: found.item.publicId,
+              quantityReceived: found.item.quantityReceived,
+              assetId: found.item.assetId,
+              stockItemId: found.item.stockItemId,
+              purchaseOrderItem: {
+                name: found.line.name,
+                unitPrice: decimal(found.line.unitPrice, 4),
+              },
+            }
+          : null,
+      };
+    }),
+  };
+};
+
+// Urutan cek = retur_pembelian.service.ts `toItemRows`; semua dicek sebelum menulis.
+const buildReturnLines = (
+  input: { goodsReceiptId: number; items: readonly ReturnLineInput[] },
+  exceptId?: number,
+): { lines: PurchaseReturnItem[] } | { failure: Failure } => {
+  const receipt = GOODS_RECEIPT.find((row) => row.id === input.goodsReceiptId);
+  if (!receipt) {
+    return {
+      failure: { status: 404, message: "Penerimaan Barang Tidak Ditemukan" },
+    };
+  }
+
+  const ids = input.items.map((item) => item.goodsReceiptItemId);
+  if (new Set(ids).size !== ids.length) {
+    return {
+      failure: {
+        status: 400,
+        message:
+          "Baris Penerimaan Yang Sama Tidak Boleh Diretur Dua Kali Dalam Satu Retur",
+      },
+    };
+  }
+
+  const byId = new Map(receipt.items.map((item) => [item.id, item]));
+  const already = returnedTotalsOf(receipt.id, exceptId);
+  const lines: PurchaseReturnItem[] = [];
+
+  for (const item of input.items) {
+    const line = byId.get(item.goodsReceiptItemId);
+    if (!line) {
+      return {
+        failure: { status: 404, message: "Baris Penerimaan Tidak Ditemukan" },
+      };
+    }
+
+    const sentBack = already.get(line.id) ?? 0;
+    if (sentBack + item.quantity > line.quantityReceived) {
+      const name =
+        orderLineOfReceiptItem(line.id)?.line.name ?? "Baris penerimaan";
+
+      return {
+        failure: {
+          status: 400,
+          message: `Jumlah Retur Untuk ${name} Melebihi Jumlah Yang Diterima (diterima ${line.quantityReceived}, sudah diretur ${sentBack})`,
+        },
+      };
+    }
+
+    lines.push(
+      returnLine({
+        goodsReceiptItemId: line.id,
+        quantity: item.quantity,
+        reason: item.reason,
+      }),
+    );
+  }
+
+  return { lines };
+};
+
+export const createReturn = (input: {
+  goodsReceiptId: number;
+  returnDate: string;
+  reason: string;
+  items: readonly ReturnLineInput[];
+}): { row: PurchaseReturnRow } | { failure: Failure } => {
+  const built = buildReturnLines(input);
+  if ("failure" in built) return built;
+
+  const receipt = GOODS_RECEIPT.find((row) => row.id === input.goodsReceiptId);
+  const order = PURCHASE_ORDER.find(
+    (row) => row.id === receipt?.purchaseOrderId,
+  );
+  const id = PURCHASE_RETURN.length + 1;
+  const row: PurchaseReturnRow = {
+    id,
+    publicId: uuid("ea10", id),
+    code: codeOf("RTR", { yearly: true }),
+    goodsReceiptId: input.goodsReceiptId,
+    supplierId: order?.supplierId ?? 0,
+    returnDate: input.returnDate,
+    reason: input.reason,
+    status: "DRAFT",
+    approvedAt: null,
+    createdAt: new Date().toISOString(),
+    deletedAt: null,
+    items: built.lines,
+    approvals: [],
+  };
+
+  PURCHASE_RETURN.push(row);
+
+  return { row };
+};
+
+export const updateReturn = (
+  row: PurchaseReturnRow,
+  input: {
+    goodsReceiptId: number;
+    returnDate: string;
+    reason: string;
+    items: readonly ReturnLineInput[];
+  },
+): { row: PurchaseReturnRow } | { failure: Failure } => {
+  if (row.status !== "DRAFT") {
+    return {
+      failure: {
+        status: 400,
+        message: "Hanya Retur Berstatus Draft Yang Dapat Diubah Atau Diajukan",
+      },
+    };
+  }
+
+  const built = buildReturnLines(input, row.id);
+  if ("failure" in built) return built;
+
+  const receipt = GOODS_RECEIPT.find((one) => one.id === input.goodsReceiptId);
+  const order = PURCHASE_ORDER.find(
+    (one) => one.id === receipt?.purchaseOrderId,
+  );
+
+  Object.assign(row, {
+    goodsReceiptId: input.goodsReceiptId,
+    supplierId: order?.supplierId ?? row.supplierId,
+    returnDate: input.returnDate,
+    reason: input.reason,
+    items: built.lines,
+  });
+
+  return { row };
+};
+
+export const submitReturn = (
+  row: PurchaseReturnRow,
+): { row: PurchaseReturnRow } | { failure: Failure } => {
+  if (row.status !== "DRAFT") {
+    return {
+      failure: {
+        status: 400,
+        message: "Hanya Retur Berstatus Draft Yang Dapat Diubah Atau Diajukan",
+      },
+    };
+  }
+  if (process.env.MOCK_RETURN_NO_WORKFLOW) {
+    return {
+      failure: {
+        status: 400,
+        message: "Belum Ada Alur Persetujuan Untuk Dokumen Dengan Nominal Ini",
+      },
+    };
+  }
+
+  row.approvals.push(
+    newApproval("PENDING", new Date().toISOString(), SESSION_USER_ID),
+  );
+  row.status = "SUBMITTED";
+
+  // Jalur ajukan -> selesaikan bisa ditelusuri tanpa membuka layar Persetujuan.
+  if (process.env.MOCK_RETURN_APPROVED) {
+    const approval = latestReturnApprovalOf(row);
+    if (approval) approval.status = "APPROVED";
+    row.approvedAt = new Date().toISOString();
+  }
+
+  return { row };
+};
+
+export const completeReturn = (
+  row: PurchaseReturnRow,
+): { row: PurchaseReturnRow } | { failure: Failure } => {
+  if (row.status !== "SUBMITTED" || row.approvedAt === null) {
+    return {
+      failure: {
+        status: 400,
+        message: "Retur Ini Belum Disetujui Atau Sudah Diselesaikan",
+      },
+    };
+  }
+
+  for (const item of row.items) {
+    const found = receiptLineOf(item.goodsReceiptItemId);
+    if (!found) continue;
+
+    const { assetId, stockItemId } = found.item;
+
+    if (assetId !== null) {
+      const asset = ASSET.find((one) => one.id === assetId);
+      if (asset) asset.deletedAt = new Date().toISOString();
+      continue;
+    }
+
+    if (stockItemId === null) continue;
+
+    const moved = applyMovement(stockItemId, {
+      type: "OUT",
+      source: "PURCHASE_RETURN",
+      quantity: item.quantity,
+      movementDate: row.returnDate,
+      note: `Retur pembelian ${row.code}`,
+    });
+
+    if ("failure" in moved) return moved;
+  }
+
+  row.status = "COMPLETED";
+
+  return { row };
+};
+
+export const cancelReturn = (
+  row: PurchaseReturnRow,
+): { row: PurchaseReturnRow } | { failure: Failure } => {
+  if (row.status === "COMPLETED") {
+    return {
+      failure: {
+        status: 400,
+        message: "Retur Ini Sudah Selesai Dan Tidak Dapat Dibatalkan",
+      },
+    };
+  }
+  if (row.status === "CANCELLED") {
+    return { failure: { status: 400, message: "Retur Ini Sudah Dibatalkan" } };
+  }
+
+  const approval = latestReturnApprovalOf(row);
+  if (approval?.status === "PENDING") approval.status = "CANCELLED";
+  row.status = "CANCELLED";
+
+  return { row };
+};
+
+export const deleteReturn = (
+  row: PurchaseReturnRow,
+): { row: PurchaseReturnRow } | { failure: Failure } => {
+  if (row.status !== "DRAFT") {
+    return {
+      failure: {
+        status: 400,
+        message: "Hanya Retur Berstatus Draft Yang Dapat Diubah Atau Diajukan",
+      },
+    };
+  }
+
+  row.deletedAt = new Date().toISOString();
+
+  return { row };
+};
+
+export const decidePurchaseReturn = (
+  key: string,
+  decision: Exclude<ApprovalState, "PENDING">,
+  note: string | null = null,
+) => {
+  const row = PURCHASE_RETURN.find(
+    (item) =>
+      item.publicId === key ||
+      item.approvals.some((approval) => approval.publicId === key),
+  );
+  const approval = row ? latestReturnApprovalOf(row) : null;
+  if (!row || !approval || approval.status !== "PENDING") return null;
+
+  approval.status = decision;
+  approval.note = decision === "REJECTED" ? note : null;
+
+  // Hanya persetujuan yang menulis ke returnya, dan hanya saat disetujui.
+  // Ditolak atau ditarik TIDAK mengembalikannya ke draf: `documentHook.ts`
+  // sengaja tidak menulis apa pun, jadi retur itu tetap SUBMITTED dan satu-
+  // satunya jalan keluarnya adalah membatalkannya.
+  if (decision === "APPROVED") row.approvedAt = new Date().toISOString();
+
+  return row;
+};
+
+// Satu retur per status supaya tiap keadaan layar bisa dibuka tanpa menjalani
+// alur persetujuannya. COMPLETED TIDAK ikut di-seed: menyelesaikan retur
+// memindahkan stok sungguhan, dan itu akan menggeser saldo yang brief-brief
+// Inventaris sudah memakunya. Keadaan itu satu klik jauhnya dari retur yang
+// sudah disetujui di bawah, dan klik itu memindahkan stoknya dengan benar.
+const seedReturn = (input: {
+  receiptIndex: number;
+  lines: { itemIndex: number; quantity: number; reason?: string }[];
+  reason: string;
+  returnDate: string;
+  status: PurchaseReturnStatus;
+  isApproved?: boolean;
+}) => {
+  const receipt = GOODS_RECEIPT[input.receiptIndex];
+  if (!receipt) return;
+
+  const created = createReturn({
+    goodsReceiptId: receipt.id,
+    returnDate: input.returnDate,
+    reason: input.reason,
+    items: input.lines.flatMap((line) => {
+      const item = receipt.items[line.itemIndex];
+
+      return item
+        ? [
+            {
+              goodsReceiptItemId: item.id,
+              quantity: line.quantity,
+              reason: line.reason ?? null,
+            },
+          ]
+        : [];
+    }),
+  });
+
+  if ("failure" in created) return;
+
+  const row = created.row;
+  row.createdAt = stamp(input.returnDate);
+
+  if (input.status === "DRAFT") return;
+
+  if (input.status === "CANCELLED") {
+    cancelReturn(row);
+    return;
+  }
+
+  row.approvals.push(
+    newApproval("PENDING", stamp(input.returnDate), SESSION_USER_ID),
+  );
+  row.status = "SUBMITTED";
+
+  if (input.status === "SUBMITTED" && !input.isApproved) return;
+
+  const approval = latestReturnApprovalOf(row);
+  if (approval) approval.status = "APPROVED";
+  row.approvedAt = stamp(addDays(input.returnDate, 1));
+
+  if (input.status === "COMPLETED") completeReturn(row);
+};
+
+seedReturn({
+  receiptIndex: 0,
+  lines: [
+    { itemIndex: 0, quantity: 2, reason: "Dus basah, kertas bergelombang" },
+  ],
+  reason: "Kertas HVS tiba dalam keadaan basah",
+  returnDate: day(-3),
+  status: "DRAFT",
+});
+
+seedReturn({
+  receiptIndex: 0,
+  lines: [{ itemIndex: 1, quantity: 3 }],
+  reason: "Tiga buku kidung salah cetak",
+  returnDate: day(-6),
+  status: "SUBMITTED",
+});
+
+seedReturn({
+  receiptIndex: 2,
+  lines: [{ itemIndex: 0, quantity: 1, reason: "Lampu proyektor mati" }],
+  reason: "Proyektor mati sejak pemakaian pertama",
+  returnDate: day(-9),
+  status: "SUBMITTED",
+  isApproved: true,
+});
+
+seedReturn({
+  receiptIndex: 0,
+  lines: [{ itemIndex: 0, quantity: 1 }],
+  reason: "Salah hitung saat membuat retur",
+  returnDate: day(-20),
+  status: "CANCELLED",
+});

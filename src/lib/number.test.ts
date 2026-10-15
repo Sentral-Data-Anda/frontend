@@ -6,6 +6,7 @@ import {
   lineAmount,
   lineAmountText,
   sumAmounts,
+  sumProductsText,
   toDecimal,
   toDigits,
 } from "./number";
@@ -117,6 +118,51 @@ describe("lineAmountText", () => {
     expect(lineAmountText("0", "185000")).toBeNull();
     expect(lineAmountText("-2", "5")).toBeNull();
     expect(lineAmountText("a", "5")).toBeNull();
+  });
+
+  test("tiga faktor dibulatkan sekali, bukan dua kali", () => {
+    // 3 x 10.0050 = 30.0150 tepat; dibulatkan dulu jadi 30.02 lalu dikali 2
+    // memberi 60.04, satu sen lebih dari yang be-sada simpan.
+    expect(lineAmountText("3", "10.0050", "2")).toBe("60.03");
+    expect(lineAmountText("2", "1500.5000", "15250.750000")).toBe(
+      "45767500.75",
+    );
+  });
+});
+
+describe("sumProductsText", () => {
+  test("membulatkan sekali di akhir, bukan per baris", () => {
+    // Per baris: 0.01 + 0.01 + 0.01 = 0.03. Sekali di akhir: 0.015 -> 0.02.
+    expect(
+      sumProductsText([
+        ["1", "0.005"],
+        ["1", "0.005"],
+        ["1", "0.005"],
+      ]),
+    ).toBe("0.02");
+  });
+
+  test("tiga faktor, skala berbeda antar baris", () => {
+    expect(
+      sumProductsText([
+        ["2", "1000.5000", "15000.500000"],
+        ["1", "250.2500", "15000.500000"],
+      ]),
+    ).toBe("33769875.63");
+  });
+
+  test("baris yang belum terisi dilewati, bukan membatalkan total", () => {
+    expect(
+      sumProductsText([
+        ["2", "150000", "1"],
+        ["", "150000", "1"],
+        ["3", "", "1"],
+      ]),
+    ).toBe("300000");
+  });
+
+  test("tanpa baris sama sekali menjadi nol", () => {
+    expect(sumProductsText([])).toBe("0");
   });
 });
 

@@ -10,6 +10,7 @@ import {
   GOODS_RECEIPT,
   PURCHASE_ORDER,
   PURCHASE_REQUEST,
+  PURCHASE_RETURN,
   TODAY,
   copyPurchaseRequest,
   CURRENCY,
@@ -24,8 +25,15 @@ import {
   purchaseOrderView,
   purchaseRequestDdl,
   purchaseRequestView,
+  purchaseReturnView,
+  cancelReturn,
+  completeReturn,
+  createReturn,
+  deleteReturn,
   rateOn,
   receiveGoods,
+  returnedTotalsOf,
+  submitReturn,
   submitPurchaseRequest,
 } from "./pengadaan-store";
 
@@ -43,6 +51,7 @@ const snapshot = <T extends object>(rows: T[]) => {
 const restores = [
   PURCHASE_REQUEST,
   PURCHASE_ORDER,
+  PURCHASE_RETURN,
   GOODS_RECEIPT,
   ASSET,
   STOCK_ITEM,
@@ -378,5 +387,204 @@ describe("receiveGoods", () => {
       `Penerimaan ${result.receipt.code}`,
     );
     expect(kursi.status).toBe("PARTIALLY_RECEIVED");
+  });
+});
+
+describe("retur pembelian", () => {
+  const receiptWith = (predicate: (stockItemId: number | null) => boolean) => {
+    const found = GOODS_RECEIPT.find((row) =>
+      row.items.some((item) => predicate(item.stockItemId)),
+    );
+    if (!found) throw new Error("penerimaan seed tidak ada");
+
+    return found;
+  };
+
+  const onApprove = (row: (typeof PURCHASE_RETURN)[number]) => {
+    submitReturn(row);
+    row.approvedAt = new Date().toISOString();
+  };
+
+  test("nilai retur memakai harga baris dan kurs pesanannya", () => {
+    const receipt = receiptWith((stockItemId) => stockItemId !== null);
+    const line = receipt.items[0];
+    const order = PURCHASE_ORDER.find(
+      (row) => row.id === receipt.purchaseOrderId,
+    );
+    const orderLine = order?.items.find(
+      (one) => one.id === line?.purchaseOrderItemId,
+    );
+    if (!line || !order || !orderLine) throw new Error("seed");
+
+    const result = createReturn({
+      goodsReceiptId: receipt.id,
+      returnDate: TODAY,
+      reason: "Dua rim bergelombang",
+      items: [{ goodsReceiptItemId: line.id, quantity: 2, reason: null }],
+    });
+
+    expect("row" in result).toBe(true);
+    if (!("row" in result)) return;
+
+    expect(purchaseReturnView(result.row).totalIDR).toBe(
+      decimal(
+        Math.round(orderLine.unitPrice * 2 * order.exchangeRate * 100) / 100,
+        2,
+      ),
+    );
+    expect(result.row.status).toBe("DRAFT");
+  });
+
+  // Meretur sembilan lalu dua dari sepuluh adalah satu kelebihan, dan tidak
+  // ada satu pun retur yang salah bila dilihat sendiri-sendiri.
+  test("tolak: melebihi sisa setelah menghitung retur sebelumnya", () => {
+    const receipt = receiptWith((stockItemId) => stockItemId !== null);
+    const line = receipt.items[0];
+    if (!line) throw new Error("seed");
+
+    const sisa =
+      line.quantityReceived - (returnedTotalsOf(receipt.id).get(line.id) ?? 0);
+    const result = createReturn({
+      goodsReceiptId: receipt.id,
+      returnDate: TODAY,
+      reason: "Melebihi sisa",
+      items: [
+        { goodsReceiptItemId: line.id, quantity: sisa + 1, reason: null },
+      ],
+    });
+
+    expect("failure" in result).toBe(true);
+    if ("failure" in result) {
+      expect(result.failure.status).toBe(400);
+      expect(result.failure.message).toContain("Melebihi Jumlah Yang Diterima");
+    }
+  });
+
+  test("tolak: baris penerimaan yang sama dua kali dalam satu retur", () => {
+    const receipt = receiptWith((stockItemId) => stockItemId !== null);
+    const line = receipt.items[0];
+    if (!line) throw new Error("seed");
+
+    const result = createReturn({
+      goodsReceiptId: receipt.id,
+      returnDate: TODAY,
+      reason: "Baris ganda",
+      items: [
+        { goodsReceiptItemId: line.id, quantity: 1, reason: null },
+        { goodsReceiptItemId: line.id, quantity: 1, reason: null },
+      ],
+    });
+
+    expect("failure" in result).toBe(true);
+    if ("failure" in result) {
+      expect(result.failure.message).toContain("Tidak Boleh Diretur Dua Kali");
+    }
+  });
+
+  test("tolak: selesaikan sebelum disetujui", () => {
+    const receipt = receiptWith((stockItemId) => stockItemId !== null);
+    const line = receipt.items[0];
+    if (!line) throw new Error("seed");
+
+    const created = createReturn({
+      goodsReceiptId: receipt.id,
+      returnDate: TODAY,
+      reason: "Belum disetujui",
+      items: [{ goodsReceiptItemId: line.id, quantity: 1, reason: null }],
+    });
+    if (!("row" in created)) throw new Error("seed");
+
+    expect(completeReturn(created.row)).toHaveProperty("failure");
+    submitReturn(created.row);
+    expect(completeReturn(created.row)).toHaveProperty("failure");
+  });
+
+  test("selesai: stok keluar lewat mutasi dengan sumber PURCHASE_RETURN", () => {
+    const receipt = receiptWith((stockItemId) => stockItemId !== null);
+    const line = receipt.items.find((item) => item.stockItemId !== null);
+    if (!line?.stockItemId) throw new Error("seed");
+
+    const stock = STOCK_ITEM.find((row) => row.id === line.stockItemId);
+    if (!stock) throw new Error("seed");
+
+    const before = stock.quantity;
+    const movements = STOCK_MOVEMENT.length;
+    const created = createReturn({
+      goodsReceiptId: receipt.id,
+      // Hari ini, bukan tanggal penerimaannya: mutasi tidak boleh mendahului
+      // mutasi terakhir barang itu.
+      returnDate: TODAY,
+      reason: "Satu rim dipulangkan",
+      items: [{ goodsReceiptItemId: line.id, quantity: 1, reason: null }],
+    });
+    if (!("row" in created)) throw new Error("seed");
+
+    onApprove(created.row);
+    const done = completeReturn(created.row);
+
+    expect(done).toHaveProperty("row");
+    expect(created.row.status).toBe("COMPLETED");
+    expect(stock.quantity).toBe(before - 1);
+    expect(STOCK_MOVEMENT).toHaveLength(movements + 1);
+    expect(STOCK_MOVEMENT.at(-1)?.source).toBe("PURCHASE_RETURN");
+    expect(STOCK_MOVEMENT.at(-1)?.type).toBe("OUT");
+    expect(STOCK_MOVEMENT.at(-1)?.balanceAfter).toBe(before - 1);
+  });
+
+  // `DisposalMethod` tidak punya nilai untuk "dikembalikan", dan gereja tidak
+  // pernah benar-benar memilikinya: asetnya dicabut, bukan dilepas.
+  test("selesai: barang aset dicabut dari daftar, bukan dilepas", () => {
+    const row = PURCHASE_RETURN.find(
+      (one) =>
+        one.status === "SUBMITTED" &&
+        one.items.some((item) => {
+          const line = GOODS_RECEIPT.flatMap((receipt) => receipt.items).find(
+            (one) => one.id === item.goodsReceiptItemId,
+          );
+
+          return line?.assetId !== null && line?.assetId !== undefined;
+        }),
+    );
+    if (!row) throw new Error("seed");
+
+    const assetId = GOODS_RECEIPT.flatMap((receipt) => receipt.items).find(
+      (line) => line.id === row.items[0]?.goodsReceiptItemId,
+    )?.assetId;
+    const asset = ASSET.find((one) => one.id === assetId);
+    if (!asset) throw new Error("seed");
+
+    row.approvedAt = new Date().toISOString();
+
+    expect(completeReturn(row)).toHaveProperty("row");
+    expect(row.status).toBe("COMPLETED");
+    expect(asset.deletedAt).not.toBeNull();
+  });
+
+  test("tolak: batalkan yang sudah selesai, hapus yang bukan draf", () => {
+    const done = PURCHASE_RETURN.find((row) => row.status === "COMPLETED");
+    if (!done) throw new Error("seed");
+
+    expect(cancelReturn(done)).toHaveProperty("failure");
+    expect(deleteReturn(done)).toHaveProperty("failure");
+  });
+
+  test("batalkan draf menutup pengajuannya juga", () => {
+    const receipt = receiptWith((stockItemId) => stockItemId !== null);
+    const line = receipt.items[0];
+    if (!line) throw new Error("seed");
+
+    const created = createReturn({
+      goodsReceiptId: receipt.id,
+      returnDate: TODAY,
+      reason: "Salah hitung",
+      items: [{ goodsReceiptItemId: line.id, quantity: 1, reason: null }],
+    });
+    if (!("row" in created)) throw new Error("seed");
+
+    submitReturn(created.row);
+    cancelReturn(created.row);
+
+    expect(created.row.status).toBe("CANCELLED");
+    expect(created.row.approvals.at(-1)?.status).toBe("CANCELLED");
   });
 });
