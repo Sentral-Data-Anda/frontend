@@ -108,7 +108,7 @@ export const RequestDetailScreen = (props: PropTypes) => {
       <FormNotFound
         noun="permintaan pembelian"
         backHref={listReturn}
-        backLabel="Kembali ke Permintaan Pembelian"
+        backLabel="Kembali ke Purchase Request"
       />
     );
   }

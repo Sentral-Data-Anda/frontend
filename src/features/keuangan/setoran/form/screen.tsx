@@ -141,7 +141,7 @@ export const TransferFormScreen = () => {
           isCanView ? "Peran Anda hanya bisa melihat setoran." : NO_VIEW
         }
         backHref={listReturn}
-        backLabel="Kembali ke Setoran"
+        backLabel="Kembali ke Bank Deposit"
       />
     );
   }
@@ -172,7 +172,7 @@ export const TransferFormScreen = () => {
       }
       header={
         <PageHeader
-          title="Catat Setoran"
+          title="Catat Bank Deposit"
           backHref={listReturn}
           isBackPersistent
           onBack={confirm.onBack(isDirty)}

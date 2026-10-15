@@ -9,7 +9,7 @@ import {
 } from "@/features/persetujuan/permintaan-persetujuan/list";
 
 export const metadata: Metadata = {
-  title: "Permintaan Persetujuan",
+  title: "Approval Request",
 };
 
 export default function Page() {

@@ -210,7 +210,7 @@ describe("gerbang izin rute form", () => {
     ).toBeTruthy();
     expect(
       screen
-        .getByRole("link", { name: "Kembali ke Absensi Karyawan" })
+        .getByRole("link", { name: "Kembali ke Attendance" })
         .getAttribute("href"),
     ).toBe(ABSENSI_LIST_PATH);
   });

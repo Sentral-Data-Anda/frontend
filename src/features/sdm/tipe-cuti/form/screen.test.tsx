@@ -167,7 +167,7 @@ describe("gerbang izin rute form", () => {
     expect(screen.getByText("Tidak bisa menambah tipe cuti")).toBeTruthy();
     expect(
       screen
-        .getByRole("link", { name: "Kembali ke Tipe Cuti" })
+        .getByRole("link", { name: "Kembali ke Leave Type" })
         .getAttribute("href"),
     ).toBe(TIPE_CUTI_LIST_PATH);
     expect(screen.queryByLabelText("Nama")).toBeNull();

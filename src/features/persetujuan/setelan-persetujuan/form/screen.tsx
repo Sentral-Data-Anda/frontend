@@ -157,7 +157,7 @@ export const SetelanFormScreen = (props: PropTypes) => {
         title={isEdit ? "Tidak bisa membuka alur" : "Tidak bisa menambah alur"}
         description={"Peran Anda hanya bisa melihat alur persetujuan."}
         backHref={SETELAN_LIST_PATH}
-        backLabel="Kembali ke Setelan Alur Persetujuan"
+        backLabel="Kembali ke Approval Workflow"
         isCanView={isCanView}
       />
     );
@@ -168,7 +168,7 @@ export const SetelanFormScreen = (props: PropTypes) => {
       <FormNotFound
         noun="alur persetujuan"
         backHref={listReturn}
-        backLabel="Kembali ke Setelan Alur Persetujuan"
+        backLabel="Kembali ke Approval Workflow"
       />
     );
   }

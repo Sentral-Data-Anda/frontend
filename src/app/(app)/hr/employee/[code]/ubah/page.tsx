@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { KaryawanFormScreen } from "@/features/sdm/karyawan/form";
 
 export const metadata: Metadata = {
-  title: "Ubah Karyawan",
+  title: "Ubah Employee",
 };
 
 export default async function Page({

@@ -9,7 +9,7 @@ import {
 } from "@/features/pengaturan/activity-log/list";
 
 export const metadata: Metadata = {
-  title: "Log Aktivitas",
+  title: "Activity Log",
 };
 
 export default function Page() {

@@ -4,7 +4,7 @@ import { PageContainer } from "@/components/layout";
 import { PenyusutanDetailScreen } from "@/features/inventaris/penyusutan/detail";
 
 export const metadata: Metadata = {
-  title: "Penyusutan",
+  title: "Depreciation",
 };
 
 export default async function Page({

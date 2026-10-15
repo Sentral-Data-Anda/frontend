@@ -40,7 +40,7 @@ import { InvoiceStatusBadge } from "../ui";
 
 import { PaymentDialog } from "./payment-dialog";
 
-const BACK_LABEL = "Kembali ke Faktur Supplier";
+const BACK_LABEL = "Kembali ke Supplier Invoice";
 
 const ACTION_TEXT: Record<
   Exclude<InvoiceAction, "terbitkan">,

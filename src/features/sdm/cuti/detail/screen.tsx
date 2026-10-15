@@ -102,7 +102,7 @@ export const CutiDetailScreen = (props: PropTypes) => {
       <FormNotFound
         noun="pengajuan cuti"
         backHref={listReturn}
-        backLabel="Kembali ke Cuti"
+        backLabel="Kembali ke Leave"
       />
     );
   }

@@ -151,7 +151,7 @@ export const MutasiFormScreen = () => {
         description="Peran Anda hanya bisa melihat mutasi stok."
         isCanView={isCanView}
         backHref={MUTASI_LIST_PATH}
-        backLabel="Kembali ke Mutasi Stok"
+        backLabel="Kembali ke Stock Movement"
       />
     );
   }

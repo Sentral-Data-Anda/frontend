@@ -5,7 +5,7 @@ import { LoadingGlobal } from "@/components/common/feedback";
 import { ReceiptFormScreen } from "@/features/pengadaan/penerimaan-barang/form";
 
 export const metadata: Metadata = {
-  title: "Catat Penerimaan Barang",
+  title: "Catat Goods Receipt",
 };
 
 export default function Page() {

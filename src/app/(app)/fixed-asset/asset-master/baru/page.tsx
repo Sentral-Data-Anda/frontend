@@ -5,7 +5,7 @@ import { LoadingGlobal } from "@/components/common/feedback";
 import { BarangFormScreen } from "@/features/inventaris/barang/form";
 
 export const metadata: Metadata = {
-  title: "Tambah Barang",
+  title: "Tambah Asset Master",
 };
 
 export default function Page() {

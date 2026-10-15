@@ -212,7 +212,7 @@ export const AllocationFormScreen = (props: PropTypes) => {
             : NO_VIEW
         }
         backHref={leaveHref}
-        backLabel="Kembali ke Pagu Anggaran"
+        backLabel="Kembali ke Budget"
       />
     );
   }
@@ -222,7 +222,7 @@ export const AllocationFormScreen = (props: PropTypes) => {
       <FormNotFound
         noun="pagu anggaran"
         backHref={listReturn}
-        backLabel="Kembali ke Pagu Anggaran"
+        backLabel="Kembali ke Budget"
       />
     );
   }
@@ -266,7 +266,7 @@ export const AllocationFormScreen = (props: PropTypes) => {
       }
       header={
         <PageHeader
-          title={isEdit ? "Ubah Pagu Anggaran" : "Tambah Pagu Anggaran"}
+          title={isEdit ? "Ubah Budget" : "Tambah Budget"}
           subtitle={detail.data?.bapel?.name ?? undefined}
           backHref={leaveHref}
           isBackPersistent

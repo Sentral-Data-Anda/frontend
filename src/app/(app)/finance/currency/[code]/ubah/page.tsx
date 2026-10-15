@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { CurrencyFormScreen } from "@/features/keuangan/mata-uang/form";
 
 export const metadata: Metadata = {
-  title: "Ubah Mata Uang",
+  title: "Ubah Currency",
 };
 
 export default async function Page({

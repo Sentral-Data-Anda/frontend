@@ -53,7 +53,7 @@ export const PaymentDetailScreen = (props: PropTypes) => {
       <FormNotFound
         noun="pembayaran"
         backHref={listReturn}
-        backLabel="Kembali ke Pembayaran"
+        backLabel="Kembali ke Payment"
       />
     );
   }

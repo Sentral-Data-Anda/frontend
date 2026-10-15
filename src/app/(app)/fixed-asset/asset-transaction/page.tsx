@@ -9,7 +9,7 @@ import {
 } from "@/features/inventaris/siklus-aset/list";
 
 export const metadata: Metadata = {
-  title: "Siklus Aset",
+  title: "Asset Transaction",
 };
 
 export default async function Page({

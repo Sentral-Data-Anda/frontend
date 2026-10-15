@@ -9,7 +9,7 @@ import {
 } from "@/features/pengadaan/pesanan-pembelian/list";
 
 export const metadata: Metadata = {
-  title: "Pesanan Pembelian",
+  title: "Purchase Order",
 };
 
 export default function Page() {

@@ -6,7 +6,7 @@ import { PageContainer } from "@/components/layout";
 import { AllocationDetailScreen } from "@/features/anggaran/pagu-anggaran/detail";
 
 export const metadata: Metadata = {
-  title: "Pagu Anggaran",
+  title: "Budget",
 };
 
 export default async function Page({

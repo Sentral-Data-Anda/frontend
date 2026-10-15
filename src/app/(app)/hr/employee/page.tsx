@@ -9,7 +9,7 @@ import {
 } from "@/features/sdm/karyawan/list";
 
 export const metadata: Metadata = {
-  title: "Karyawan",
+  title: "Employee",
 };
 
 export default function Page() {

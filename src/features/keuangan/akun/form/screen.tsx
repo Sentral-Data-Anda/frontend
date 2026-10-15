@@ -172,7 +172,7 @@ export const AccountFormScreen = (props: PropTypes) => {
           isCanView ? "Peran Anda hanya bisa melihat daftar akun." : NO_VIEW
         }
         backHref={leaveHref}
-        backLabel="Kembali ke Akun"
+        backLabel="Kembali ke Chart of Account"
       />
     );
   }
@@ -182,7 +182,7 @@ export const AccountFormScreen = (props: PropTypes) => {
       <FormNotFound
         noun="akun"
         backHref={listReturn}
-        backLabel="Kembali ke Akun"
+        backLabel="Kembali ke Chart of Account"
       />
     );
   }
@@ -226,7 +226,7 @@ export const AccountFormScreen = (props: PropTypes) => {
       }
       header={
         <PageHeader
-          title={isEdit ? "Ubah Akun" : "Tambah Akun"}
+          title={isEdit ? "Ubah Chart of Account" : "Tambah Chart of Account"}
           subtitle={
             detail.data ? `${detail.data.code} — ${detail.data.name}` : code
           }

@@ -117,7 +117,7 @@ export const TransferFormScreen = () => {
         title="Tidak bisa memindahkan barang"
         description="Peran Anda hanya bisa melihat siklus aset."
         backHref={cycleListHref("pindah")}
-        backLabel="Kembali ke Siklus Aset"
+        backLabel="Kembali ke Asset Transaction"
       />
     );
   }

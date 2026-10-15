@@ -154,7 +154,7 @@ describe("gerbang izin form kontrak", () => {
     expect(screen.getByText("Tidak bisa menambah kontrak")).toBeTruthy();
     expect(
       screen
-        .getByRole("link", { name: "Kembali ke Kontrak Karyawan" })
+        .getByRole("link", { name: "Kembali ke Employee Contract" })
         .getAttribute("href"),
     ).toBe(LIST_PATH);
     expect(screen.queryByLabelText("Berlaku dari")).toBeNull();
@@ -436,7 +436,7 @@ describe("penanda data gaji dan nol jalur ekspor", () => {
     onRender(["VIEW", "UPDATE"], "KTR-0001");
 
     await onLoaded();
-    expect(screen.getByText("Ubah Kontrak Karyawan")).toBeTruthy();
+    expect(screen.getByText("Ubah Employee Contract")).toBeTruthy();
     expect(screen.queryByText(/Ubah Kontrak Karyawan.*Rp/)).toBeNull();
   });
 

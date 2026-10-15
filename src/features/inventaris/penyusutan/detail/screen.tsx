@@ -127,7 +127,7 @@ export const PenyusutanDetailScreen = (props: PropTypes) => {
       <FormNotFound
         noun="periode penyusutan"
         backHref={listReturn}
-        backLabel="Kembali ke Penyusutan"
+        backLabel="Kembali ke Depreciation"
       />
     );
   }

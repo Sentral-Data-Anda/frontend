@@ -146,7 +146,7 @@ export const JournalFormScreen = (props: PropTypes) => {
           isCanView ? "Peran Anda hanya bisa melihat jurnal." : NO_VIEW
         }
         backHref={leaveHref}
-        backLabel="Kembali ke Jurnal"
+        backLabel="Kembali ke Journal Entry"
       />
     );
   }
@@ -156,7 +156,7 @@ export const JournalFormScreen = (props: PropTypes) => {
       <FormNotFound
         noun={NOUN}
         backHref={listReturn}
-        backLabel="Kembali ke Jurnal"
+        backLabel="Kembali ke Journal Entry"
       />
     );
   }
@@ -165,7 +165,7 @@ export const JournalFormScreen = (props: PropTypes) => {
     return (
       <div className="pb-8">
         <PageHeader
-          title="Ubah Entri Jurnal"
+          title="Ubah Journal Entry"
           subtitle={entry.code}
           backHref={journalHref(publicId)}
           isBackPersistent
@@ -212,7 +212,7 @@ export const JournalFormScreen = (props: PropTypes) => {
       }
       header={
         <PageHeader
-          title={isEdit ? "Ubah Entri Jurnal" : "Tambah Entri Jurnal"}
+          title={isEdit ? "Ubah Journal Entry" : "Tambah Journal Entry"}
           subtitle={entry?.code}
           backHref={leaveHref}
           isBackPersistent

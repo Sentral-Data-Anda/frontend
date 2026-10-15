@@ -15,11 +15,11 @@ export const ReturnListScreen = () => {
   ) : (
     <div className="pb-6">
       <PageHeader
-        title="Retur Pembelian"
+        title="Purchase Return"
         backHref={domainHref(MENU.PROCUREMENT)}
       />
       <EmptyState
-        title="Anda tidak memiliki akses ke Retur Pembelian"
+        title="Anda tidak memiliki akses ke Purchase Return"
         description="Hubungi administrator bila Anda memang seharusnya memegang akses ini."
       />
     </div>

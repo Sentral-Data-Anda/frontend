@@ -5,7 +5,7 @@ import { LoadingGlobal } from "@/components/common/feedback";
 import { ReturnFormScreen } from "@/features/pengadaan/retur-pembelian/form";
 
 export const metadata: Metadata = {
-  title: "Ubah Retur Pembelian",
+  title: "Ubah Purchase Return",
 };
 
 export default async function Page({

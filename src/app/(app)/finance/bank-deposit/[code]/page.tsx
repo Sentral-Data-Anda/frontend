@@ -6,7 +6,7 @@ import { PageContainer } from "@/components/layout";
 import { TransferDetailScreen } from "@/features/keuangan/setoran/detail";
 
 export const metadata: Metadata = {
-  title: "Setoran",
+  title: "Bank Deposit",
 };
 
 export default async function Page({

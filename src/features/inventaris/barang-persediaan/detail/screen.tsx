@@ -55,7 +55,7 @@ export const StockDetailScreen = (props: PropTypes) => {
       <FormNotFound
         noun="barang persediaan"
         backHref={listReturn}
-        backLabel="Kembali ke Barang Persediaan"
+        backLabel="Kembali ke Stock Item"
       />
     );
   }

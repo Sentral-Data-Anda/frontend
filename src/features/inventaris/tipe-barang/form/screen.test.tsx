@@ -83,7 +83,7 @@ describe("gerbang izin rute form", () => {
     ).toBeTruthy();
     expect(
       screen
-        .getByRole("link", { name: "Kembali ke Tipe Barang" })
+        .getByRole("link", { name: "Kembali ke Item Category" })
         .getAttribute("href"),
     ).toBe(TIPE_BARANG_LIST_PATH);
     expect(screen.queryByLabelText("Nama")).toBeNull();

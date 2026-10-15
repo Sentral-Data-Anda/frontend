@@ -158,7 +158,7 @@ export const KaryawanFormScreen = (props: PropTypes) => {
         description="Peran Anda hanya bisa melihat data karyawan."
         isCanView={isCanView}
         backHref={KARYAWAN_LIST_PATH}
-        backLabel="Kembali ke Karyawan"
+        backLabel="Kembali ke Employee"
       />
     );
   }
@@ -168,7 +168,7 @@ export const KaryawanFormScreen = (props: PropTypes) => {
       <FormNotFound
         noun="karyawan"
         backHref={listReturn}
-        backLabel="Kembali ke Karyawan"
+        backLabel="Kembali ke Employee"
       />
     );
   }
@@ -212,7 +212,7 @@ export const KaryawanFormScreen = (props: PropTypes) => {
       }
       header={
         <PageHeader
-          title={isEdit ? "Ubah Karyawan" : "Tambah Karyawan"}
+          title={isEdit ? "Ubah Employee" : "Tambah Employee"}
           subtitle={detail.data?.name}
           backHref={listReturn}
           isBackPersistent

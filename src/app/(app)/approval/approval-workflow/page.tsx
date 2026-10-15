@@ -9,7 +9,7 @@ import {
 } from "@/features/persetujuan/setelan-persetujuan/list";
 
 export const metadata: Metadata = {
-  title: "Setelan Alur Persetujuan",
+  title: "Approval Workflow",
 };
 
 export default function Page() {

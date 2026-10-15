@@ -217,10 +217,10 @@ export const ReceiptFormScreen = () => {
         description={
           isCanView
             ? "Peran Anda hanya bisa melihat penerimaan barang."
-            : "Peran Anda tidak memegang akses Penerimaan Barang."
+            : "Peran Anda tidak memegang akses Goods Receipt."
         }
         backHref={listReturn}
-        backLabel="Kembali ke Penerimaan Barang"
+        backLabel="Kembali ke Goods Receipt"
       />
     );
   }
@@ -251,7 +251,7 @@ export const ReceiptFormScreen = () => {
       }
       header={
         <PageHeader
-          title="Catat Penerimaan Barang"
+          title="Catat Goods Receipt"
           backHref={listReturn}
           isBackPersistent
           onBack={confirm.onBack(isDirty)}

@@ -155,7 +155,7 @@ export const TipeCutiFormScreen = (props: PropTypes) => {
         description="Peran Anda hanya bisa melihat data tipe cuti."
         isCanView={isCanView}
         backHref={TIPE_CUTI_LIST_PATH}
-        backLabel="Kembali ke Tipe Cuti"
+        backLabel="Kembali ke Leave Type"
       />
     );
   }
@@ -165,7 +165,7 @@ export const TipeCutiFormScreen = (props: PropTypes) => {
       <FormNotFound
         noun="tipe cuti"
         backHref={listReturn}
-        backLabel="Kembali ke Tipe Cuti"
+        backLabel="Kembali ke Leave Type"
       />
     );
   }
@@ -209,7 +209,7 @@ export const TipeCutiFormScreen = (props: PropTypes) => {
       }
       header={
         <PageHeader
-          title={isEdit ? "Ubah Tipe Cuti" : "Tambah Tipe Cuti"}
+          title={isEdit ? "Ubah Leave Type" : "Tambah Leave Type"}
           subtitle={detail.data?.name ?? code}
           backHref={listReturn}
           isBackPersistent

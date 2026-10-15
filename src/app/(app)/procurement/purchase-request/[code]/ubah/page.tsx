@@ -5,7 +5,7 @@ import { LoadingGlobal } from "@/components/common/feedback";
 import { RequestFormScreen } from "@/features/pengadaan/permintaan-pembelian/form";
 
 export const metadata: Metadata = {
-  title: "Ubah Permintaan Pembelian",
+  title: "Ubah Purchase Request",
 };
 
 export default async function Page({

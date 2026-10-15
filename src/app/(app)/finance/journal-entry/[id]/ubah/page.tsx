@@ -5,7 +5,7 @@ import { LoadingGlobal } from "@/components/common/feedback";
 import { JournalFormScreen } from "@/features/keuangan/jurnal/form";
 
 export const metadata: Metadata = {
-  title: "Ubah Entri Jurnal",
+  title: "Ubah Journal Entry",
 };
 
 export default async function Page({

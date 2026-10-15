@@ -107,7 +107,7 @@ export const PostingAsetScreen = () => {
         title="Tidak bisa memposting aset"
         description={isCanView ? NO_POSTING_ACCESS : NO_VIEW}
         backHref={JURNAL_LIST_PATH}
-        backLabel="Kembali ke Jurnal"
+        backLabel="Kembali ke Journal Entry"
       />
     );
   }

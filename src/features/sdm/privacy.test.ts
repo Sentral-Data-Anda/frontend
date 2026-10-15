@@ -131,9 +131,9 @@ describe("gaji per orang: siapa yang bisa membacanya", () => {
   );
 
   // Kuantifier §1: tanpa ini, menghapus satu slug dari SALARY_MENUS lolos tanpa
-  // jejak. Kedelapan daun SDM dinyatakan sekaligus, jadi slug yang berpindah
+  // jejak. Ketujuh daun SDM dinyatakan sekaligus, jadi slug yang berpindah
   // dari himpunan gaji ke himpunan non-gaji tetap mengubah baris di sini.
-  test("matriks grant SDM, kedelapan daun, setiap persona", () => {
+  test("matriks grant SDM, ketujuh daun, setiap persona", () => {
     const rows = TREE[MENU.HR].flatMap((slug) =>
       viewersOf(slug).map((persona) => `${persona} · ${slug}`),
     );
@@ -144,11 +144,6 @@ describe("gaji per orang: siapa yang bisa membacanya", () => {
       "admin · EMPLOYEE_CONTRACT",
       "admin · LEAVE",
       "admin · LEAVE_TYPE",
-      // §0a.1: PPh21 disembunyikan dengan TIDAK DIBERIKAN ke siapa pun.
-      // `admin` memegangnya karena `grants: null` berarti seluruh pohon — jadi
-      // di bawah MOCK_PERSONA=admin kotaknya dirender dan 404. Itu disengaja;
-      // jangan membangun layarnya, jangan mencabut slug-nya.
-      "admin · PAJAK_PPH21",
       "admin · PAYROLL",
       "admin · PAYROLL_COMPONENT",
       "bendahara · EMPLOYEE",

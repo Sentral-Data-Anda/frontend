@@ -112,7 +112,7 @@ describe("daftar retur pembelian", () => {
     onRenderList([]);
 
     expect(
-      screen.getByText("Anda tidak memiliki akses ke Retur Pembelian"),
+      screen.getByText("Anda tidak memiliki akses ke Purchase Return"),
     ).toBeTruthy();
   });
 

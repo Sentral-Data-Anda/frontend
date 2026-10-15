@@ -4,7 +4,7 @@ import { PageContainer } from "@/components/layout";
 import { PermintaanDetailScreen } from "@/features/persetujuan/permintaan-persetujuan/detail";
 
 export const metadata: Metadata = {
-  title: "Detail Permintaan Persetujuan",
+  title: "Detail Approval Request",
 };
 
 export default async function Page({

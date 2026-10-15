@@ -9,7 +9,7 @@ import {
 } from "@/features/keuangan/pembayaran/list";
 
 export const metadata: Metadata = {
-  title: "Pembayaran",
+  title: "Payment",
 };
 
 export default function Page() {

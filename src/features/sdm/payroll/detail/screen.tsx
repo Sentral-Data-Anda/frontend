@@ -162,7 +162,7 @@ export const PayrollDetailScreen = (props: PropTypes) => {
       <FormNotFound
         noun="penggajian"
         backHref={listReturn}
-        backLabel="Kembali ke Penggajian"
+        backLabel="Kembali ke Payroll"
       />
     );
   }

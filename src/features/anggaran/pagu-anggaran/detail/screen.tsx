@@ -54,7 +54,7 @@ export const AllocationDetailScreen = (props: PropTypes) => {
       <FormNotFound
         noun="pagu anggaran"
         backHref={listReturn}
-        backLabel="Kembali ke Pagu Anggaran"
+        backLabel="Kembali ke Budget"
       />
     );
   }

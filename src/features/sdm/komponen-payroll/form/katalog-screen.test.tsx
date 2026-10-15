@@ -121,7 +121,7 @@ describe("gerbang izin form katalog", () => {
     expect(screen.getByText("Tidak bisa menambah komponen")).toBeTruthy();
     expect(
       screen
-        .getByRole("link", { name: "Kembali ke Komponen Payroll" })
+        .getByRole("link", { name: "Kembali ke Payroll Component" })
         .getAttribute("href"),
     ).toBe(KATALOG_LIST_PATH);
     expect(screen.queryByLabelText("Nama")).toBeNull();

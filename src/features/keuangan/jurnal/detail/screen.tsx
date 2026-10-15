@@ -132,7 +132,7 @@ export const JournalDetailScreen = (props: PropTypes) => {
       <FormNotFound
         noun="entri jurnal"
         backHref={listReturn}
-        backLabel="Kembali ke Jurnal"
+        backLabel="Kembali ke Journal Entry"
       />
     );
   }

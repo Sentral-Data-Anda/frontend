@@ -9,7 +9,7 @@ import {
 } from "@/features/inventaris/mutasi-stok/list";
 
 export const metadata: Metadata = {
-  title: "Mutasi Stok",
+  title: "Stock Movement",
 };
 
 export default function Page() {

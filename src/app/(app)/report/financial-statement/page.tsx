@@ -6,7 +6,7 @@ import { PageContainer } from "@/components/layout";
 import { LaporanKeuanganScreen } from "@/features/keuangan/laporan-keuangan";
 
 export const metadata: Metadata = {
-  title: "Laporan Keuangan",
+  title: "Financial Statement",
 };
 
 export default function Page() {

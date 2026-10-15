@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { AccountFormScreen } from "@/features/keuangan/akun/form";
 
 export const metadata: Metadata = {
-  title: "Ubah Akun",
+  title: "Ubah Chart of Account",
 };
 
 export default async function Page({

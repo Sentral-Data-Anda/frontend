@@ -47,7 +47,7 @@ export const DetailFrame = (props: PropTypes) => {
       <FormNotFound
         noun={noun}
         backHref={backHref}
-        backLabel="Kembali ke Siklus Aset"
+        backLabel="Kembali ke Asset Transaction"
       />
     );
   }

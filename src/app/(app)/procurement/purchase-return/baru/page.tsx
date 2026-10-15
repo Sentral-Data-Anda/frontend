@@ -5,7 +5,7 @@ import { LoadingGlobal } from "@/components/common/feedback";
 import { ReturnFormScreen } from "@/features/pengadaan/retur-pembelian/form";
 
 export const metadata: Metadata = {
-  title: "Tambah Retur Pembelian",
+  title: "Tambah Purchase Return",
 };
 
 export default function Page() {

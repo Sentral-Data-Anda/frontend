@@ -64,7 +64,7 @@ export const ReceiptDetailScreen = (props: PropTypes) => {
       <FormNotFound
         noun="penerimaan barang"
         backHref={listReturn}
-        backLabel="Kembali ke Penerimaan Barang"
+        backLabel="Kembali ke Goods Receipt"
       />
     );
   }

@@ -130,7 +130,7 @@ export const DisposalFormScreen = () => {
         title="Tidak bisa mengajukan pelepasan barang"
         description="Peran Anda hanya bisa melihat siklus aset."
         backHref={cycleListHref("pelepasan")}
-        backLabel="Kembali ke Siklus Aset"
+        backLabel="Kembali ke Asset Transaction"
       />
     );
   }

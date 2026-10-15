@@ -132,7 +132,7 @@ export const PermintaanRejectScreen = (props: PropTypes) => {
       <FormNotFound
         noun="permintaan persetujuan"
         backHref={listReturn}
-        backLabel="Kembali ke Permintaan Persetujuan"
+        backLabel="Kembali ke Approval Request"
       />
     );
   }

@@ -364,7 +364,7 @@ describe("ajukan ulang", () => {
 
     expect(
       await screen.findByRole("heading", {
-        name: "Tambah Permintaan Pembelian",
+        name: "Tambah Purchase Request",
       }),
     ).toBeTruthy();
     await waitFor(() => expect(field("purpose")).toBeTruthy());

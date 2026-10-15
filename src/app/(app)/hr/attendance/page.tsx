@@ -9,7 +9,7 @@ import {
 } from "@/features/sdm/absensi-karyawan/list";
 
 export const metadata: Metadata = {
-  title: "Absensi Karyawan",
+  title: "Attendance",
 };
 
 export default function Page() {

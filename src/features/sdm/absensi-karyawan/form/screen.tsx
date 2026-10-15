@@ -41,7 +41,7 @@ import {
 
 import { AbsensiSection } from "./absensi-section";
 
-const BACK_LABEL = "Kembali ke Absensi Karyawan";
+const BACK_LABEL = "Kembali ke Attendance";
 
 interface PropTypes {
   publicId?: string;
@@ -206,7 +206,7 @@ export const AbsensiFormScreen = (props: PropTypes) => {
       }
       header={
         <PageHeader
-          title={isEdit ? "Ubah Absensi Karyawan" : "Tambah Absensi Karyawan"}
+          title={isEdit ? "Ubah Attendance" : "Tambah Attendance"}
           subtitle={
             detail.data
               ? `${detail.data.karyawan.name} · ${formatDate(detail.data.date)}`

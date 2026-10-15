@@ -4,7 +4,7 @@ import { PageContainer } from "@/components/layout";
 import { BarangDetailScreen } from "@/features/inventaris/barang/detail";
 
 export const metadata: Metadata = {
-  title: "Barang",
+  title: "Asset Master",
 };
 
 export default async function Page({

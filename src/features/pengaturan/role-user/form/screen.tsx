@@ -174,7 +174,7 @@ export const RoleUserFormScreen = (props: PropTypes) => {
         title={isEdit ? "Tidak bisa mengubah role" : "Tidak bisa menambah role"}
         description={"Peran Anda hanya bisa melihat data role user."}
         backHref={ROLE_USER_LIST_PATH}
-        backLabel="Kembali ke Role User"
+        backLabel="Kembali ke User Role"
         isCanView={isCanView}
       />
     );
@@ -185,7 +185,7 @@ export const RoleUserFormScreen = (props: PropTypes) => {
       <FormNotFound
         noun="role"
         backHref={listReturn}
-        backLabel="Kembali ke Role User"
+        backLabel="Kembali ke User Role"
       />
     );
   }

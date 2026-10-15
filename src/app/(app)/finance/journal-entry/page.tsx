@@ -9,7 +9,7 @@ import {
 } from "@/features/keuangan/jurnal/list";
 
 export const metadata: Metadata = {
-  title: "Jurnal",
+  title: "Journal Entry",
 };
 
 export default function Page() {

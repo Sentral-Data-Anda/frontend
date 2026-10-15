@@ -59,7 +59,7 @@ export const BarangDetailScreen = (props: PropTypes) => {
       <FormNotFound
         noun="barang"
         backHref={listReturn}
-        backLabel="Kembali ke Barang"
+        backLabel="Kembali ke Asset Master"
       />
     );
   }
