@@ -41,10 +41,14 @@ import {
 import { denied, json, list, readBody, type MockHandler } from "../kit";
 import {
   PURCHASE_REQUEST,
+  PURCHASE_RETURN,
   decidePurchaseRequest,
+  decidePurchaseReturn,
   requestTotalIdr,
+  returnTotalIdr,
   type ApprovalRef,
   type PurchaseRequestRow,
+  type PurchaseReturnRow,
 } from "../pengadaan-store";
 
 type StepStatus = Exclude<ApprovalStatus, "CANCELLED">;
@@ -529,6 +533,55 @@ const purchaseRequestRow = (
   };
 };
 
+const daysSince = (submittedAt: string) =>
+  Math.max(
+    0,
+    Math.round(
+      (Date.parse(TODAY) - Date.parse(submittedAt.slice(0, 10))) / 86_400_000,
+    ),
+  );
+
+// Retur milik gereja, bukan komisi: barangnya dibeli terpusat dan kreditnya
+// pulang terpusat, jadi satu tahap Bendahara tanpa jenjang nominal.
+const purchaseReturnRow = (
+  returnRow: PurchaseReturnRow,
+  approval: ApprovalRef,
+): Row => {
+  const acts: Act[] =
+    approval.status === "APPROVED"
+      ? [{ status: "APPROVED", by: 15 }]
+      : approval.status === "REJECTED"
+        ? [
+            {
+              status: "REJECTED",
+              by: 15,
+              note: approval.note ?? "Retur ditolak.",
+            },
+          ]
+        : [];
+  const row = makeRow(approval.id, {
+    type: "PURCHASE_RETURN",
+    amount: returnTotalIdr(returnRow),
+    by: approval.submittedBy,
+    daysAgo: daysSince(approval.submittedAt),
+    tiers: [BENDAHARA],
+    acts,
+    title: returnRow.reason,
+    isCancelled: approval.status === "CANCELLED",
+  });
+
+  return {
+    ...row,
+    publicId: approval.publicId,
+    code: approval.code,
+    document: {
+      publicId: returnRow.publicId,
+      code: returnRow.code,
+      title: returnRow.reason,
+    },
+  };
+};
+
 const many = (roleUserId: number): Row[] =>
   Array.from({ length: 150 }, (_, index) =>
     makeRow(100 + index, {
@@ -601,6 +654,26 @@ export const createPermintaanPersetujuanMock = (
     }
   };
 
+  const syncPurchaseReturns = () => {
+    for (const returnRow of PURCHASE_RETURN) {
+      for (const approval of returnRow.approvals) {
+        const existing = rows.find((row) => row.publicId === approval.publicId);
+        if (!existing) {
+          rows.push(purchaseReturnRow(returnRow, approval));
+          continue;
+        }
+        if (existing.status === "PENDING" && approval.status === "CANCELLED") {
+          const now = new Date().toISOString();
+          Object.assign(existing, {
+            status: "CANCELLED",
+            completedAt: now,
+            updatedAt: now,
+          });
+        }
+      }
+    }
+  };
+
   const writeBack = (row: Row, note: string | null = null) => {
     if (row.status === "PENDING") return;
     if (row.documentType === "ASSET_DISPOSAL") {
@@ -608,6 +681,9 @@ export const createPermintaanPersetujuanMock = (
     }
     if (row.documentType === "PURCHASE_REQUEST") {
       decidePurchaseRequest(row.publicId, row.status, note);
+    }
+    if (row.documentType === "PURCHASE_RETURN") {
+      decidePurchaseReturn(row.publicId, row.status, note);
     }
   };
 
@@ -908,6 +984,7 @@ export const createPermintaanPersetujuanMock = (
 
     syncDisposals();
     syncPurchaseRequests();
+    syncPurchaseReturns();
 
     const [, publicId, verb] = match;
 

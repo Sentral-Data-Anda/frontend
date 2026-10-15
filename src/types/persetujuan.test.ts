@@ -45,10 +45,16 @@ describe("tautan halaman dokumen", () => {
   });
 
   test("dokumen tanpa layar tidak bertaut", () => {
-    expect(
-      approvalDocumentHref("PURCHASE_RETURN", ref("RTR-2026-0001")),
-    ).toBeNull();
     expect(approvalDocumentHref("LOAN_ROOM", ref("PRG-2026-0001"))).toBeNull();
+  });
+
+  test("retur pembelian bertaut lewat publicId", () => {
+    expect(
+      approvalDocumentHref("PURCHASE_RETURN", {
+        publicId: "pr-7c31",
+        code: "RTR-2026-0001",
+      }),
+    ).toBe("/procurement/purchase-return/pr-7c31");
   });
 
   test("setiap dokumen bertaut punya menu penjaga", () => {

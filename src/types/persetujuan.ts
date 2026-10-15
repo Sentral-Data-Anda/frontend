@@ -65,12 +65,13 @@ export const APPROVAL_DOCUMENT_MENU: Partial<
   PROGRAM: MENU.PROGRAM,
   PROGRAM_MENDADAK: MENU.PROGRAM,
   BUDGET_USAGE_REPORT: MENU.BUDGET_REALIZATION,
+  PURCHASE_RETURN: MENU.PURCHASE_RETURN,
 };
 
 export type ApprovalDocumentRef = { publicId: string; code: string };
 
 // Kunci rute berbeda per modul be-sada: Permintaan Pembelian dan Pelepasan memakai
-// kode, Kas Keluar dan ketiga dokumen Anggaran memakai publicId.
+// kode, Kas Keluar, Retur Pembelian, dan ketiga dokumen Anggaran memakai publicId.
 export const approvalDocumentHref = (
   type: ApprovalDocumentType,
   document: ApprovalDocumentRef,
@@ -85,6 +86,14 @@ export const approvalDocumentHref = (
 
   if (type === "CASH_EXPENSE") {
     return detailHref(MENU.FINANCE, MENU.KAS_KELUAR, document.publicId);
+  }
+
+  if (type === "PURCHASE_RETURN") {
+    return detailHref(
+      MENU.PROCUREMENT,
+      MENU.PURCHASE_RETURN,
+      document.publicId,
+    );
   }
 
   if (type === "PROGRAM" || type === "PROGRAM_MENDADAK") {

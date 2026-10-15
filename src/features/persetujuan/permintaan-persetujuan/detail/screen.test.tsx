@@ -173,11 +173,23 @@ describe("tautan dokumen", () => {
   });
 
   test("dokumen tanpa layar: tanpa tautan", async () => {
-    onMockApi(approvalDetail({ documentType: "PURCHASE_RETURN" }));
+    onMockApi(approvalDetail({ documentType: "LOAN_ROOM" }));
     onRender();
     await onLoaded();
 
     expect(screen.queryByRole("link", { name: /^Lihat / })).toBeNull();
+  });
+
+  test("retur pembelian bertaut lewat publicId dokumen", async () => {
+    onMockApi(approvalDetail({ documentType: "PURCHASE_RETURN" }));
+    onRender();
+    await onLoaded();
+
+    expect(
+      screen
+        .getByRole("link", { name: "Lihat retur pembelian" })
+        .getAttribute("href"),
+    ).toBe("/procurement/purchase-return/doc-1");
   });
 
   test("kas keluar bertaut lewat publicId dokumen", async () => {
