@@ -43,7 +43,7 @@ import { ReturnSection } from "./return-section";
 
 const NOUN = "retur pembelian";
 
-const BACK_LABEL = "Kembali ke Retur Pembelian";
+const BACK_LABEL = "Kembali ke Purchase Return";
 
 interface PropTypes {
   publicId?: string;
@@ -84,7 +84,7 @@ export const ReturnFormScreen = (props: PropTypes) => {
   const row = detail.data;
   const isWaiting = isEdit && !row;
   const backHref = publicId ? returnHref(publicId) : listReturn;
-  const title = isEdit ? "Ubah Retur Pembelian" : "Tambah Retur Pembelian";
+  const title = isEdit ? "Ubah Purchase Return" : "Tambah Purchase Return";
   const pinnedLabel = row?.supplier
     ? `${row.goodsReceipt?.code ?? ""} — ${row.supplier.name}`
     : (row?.goodsReceipt?.code ?? "");

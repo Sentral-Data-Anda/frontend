@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { StockFormScreen } from "@/features/inventaris/barang-persediaan/form";
 
 export const metadata: Metadata = {
-  title: "Ubah Barang Persediaan",
+  title: "Ubah Stock Item",
 };
 
 export default async function Page({

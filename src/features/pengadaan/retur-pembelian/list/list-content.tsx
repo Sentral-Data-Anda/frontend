@@ -32,7 +32,7 @@ export const ReturnListContent = () => {
   return (
     <div className="pb-6">
       <PageHeader
-        title="Retur Pembelian"
+        title="Purchase Return"
         subtitle={
           returnList.totalData === undefined
             ? undefined

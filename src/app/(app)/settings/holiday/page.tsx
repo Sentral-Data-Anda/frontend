@@ -9,7 +9,7 @@ import {
 } from "@/features/pengaturan/hari-libur/list";
 
 export const metadata: Metadata = {
-  title: "Hari Libur",
+  title: "Holiday",
 };
 
 export default function Page() {

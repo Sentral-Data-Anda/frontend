@@ -126,7 +126,7 @@ describe("buka periode", () => {
     ).toBeTruthy();
     expect(
       screen
-        .getByRole("link", { name: "Kembali ke Penyusutan" })
+        .getByRole("link", { name: "Kembali ke Depreciation" })
         .getAttribute("href"),
     ).toBe(PENYUSUTAN_LIST_PATH);
     expect(posted).toEqual([]);

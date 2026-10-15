@@ -5,7 +5,7 @@ import { LoadingGlobal } from "@/components/common/feedback";
 import { MutasiFormScreen } from "@/features/inventaris/mutasi-stok/form";
 
 export const metadata: Metadata = {
-  title: "Catat Mutasi Stok",
+  title: "Catat Stock Movement",
 };
 
 export default function Page() {

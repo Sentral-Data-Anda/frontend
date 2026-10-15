@@ -4,7 +4,7 @@ import { PageContainer } from "@/components/layout";
 import { ReceiptDetailScreen } from "@/features/pengadaan/penerimaan-barang/detail";
 
 export const metadata: Metadata = {
-  title: "Penerimaan Barang",
+  title: "Goods Receipt",
 };
 
 export default async function Page({

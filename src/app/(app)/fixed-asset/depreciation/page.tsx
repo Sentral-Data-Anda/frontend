@@ -9,7 +9,7 @@ import {
 } from "@/features/inventaris/penyusutan/list";
 
 export const metadata: Metadata = {
-  title: "Penyusutan",
+  title: "Depreciation",
 };
 
 export default function Page() {

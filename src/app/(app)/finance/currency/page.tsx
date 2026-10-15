@@ -9,7 +9,7 @@ import {
 } from "@/features/keuangan/mata-uang/list";
 
 export const metadata: Metadata = {
-  title: "Mata Uang",
+  title: "Currency",
 };
 
 export default function Page() {

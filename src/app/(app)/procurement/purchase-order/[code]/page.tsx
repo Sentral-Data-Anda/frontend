@@ -4,7 +4,7 @@ import { PageContainer } from "@/components/layout";
 import { OrderDetailScreen } from "@/features/pengadaan/pesanan-pembelian/detail";
 
 export const metadata: Metadata = {
-  title: "Pesanan Pembelian",
+  title: "Purchase Order",
 };
 
 export default async function Page({

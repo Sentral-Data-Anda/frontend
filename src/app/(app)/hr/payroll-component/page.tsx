@@ -9,7 +9,7 @@ import {
 } from "@/features/sdm/komponen-payroll/list";
 
 export const metadata: Metadata = {
-  title: "Komponen Payroll",
+  title: "Payroll Component",
 };
 
 export default function Page() {

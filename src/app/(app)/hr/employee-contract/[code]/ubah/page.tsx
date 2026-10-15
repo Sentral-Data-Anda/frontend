@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { KontrakFormScreen } from "@/features/sdm/kontrak-karyawan/form";
 
 export const metadata: Metadata = {
-  title: "Ubah Kontrak Karyawan",
+  title: "Ubah Employee Contract",
 };
 
 export default async function Page({

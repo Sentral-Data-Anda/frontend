@@ -9,7 +9,7 @@ import {
 } from "@/features/inventaris/barang-persediaan/list";
 
 export const metadata: Metadata = {
-  title: "Barang Persediaan",
+  title: "Stock Item",
 };
 
 export default function Page() {

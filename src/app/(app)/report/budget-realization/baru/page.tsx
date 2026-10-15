@@ -5,7 +5,7 @@ import { LoadingGlobal } from "@/components/common/feedback";
 import { ReportFormScreen } from "@/features/anggaran/laporan-budget/form";
 
 export const metadata: Metadata = {
-  title: "Tambah Laporan Budget",
+  title: "Tambah Budget Realization",
 };
 
 export default function Page() {

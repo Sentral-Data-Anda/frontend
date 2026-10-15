@@ -27,7 +27,7 @@ import { ItemList } from "./item-list";
 import { StatusActions } from "./status-actions";
 import { SummaryPanel } from "./summary-panel";
 
-const TITLE = "Retur Pembelian";
+const TITLE = "Purchase Return";
 
 const FAILURE_TITLE: Record<ReturnAction, string> = {
   pengajuan: "Retur belum diajukan.",
@@ -87,7 +87,7 @@ export const ReturnDetailScreen = (props: PropTypes) => {
       <div className="pb-8">
         <PageHeader title={TITLE} backHref={domainHref(MENU.PROCUREMENT)} />
         <EmptyState
-          title="Anda tidak memiliki akses ke Retur Pembelian"
+          title="Anda tidak memiliki akses ke Purchase Return"
           description="Hubungi administrator bila Anda memang seharusnya memegang akses ini."
         />
       </div>
@@ -99,7 +99,7 @@ export const ReturnDetailScreen = (props: PropTypes) => {
       <FormNotFound
         noun="retur pembelian"
         backHref={listReturn}
-        backLabel="Kembali ke Retur Pembelian"
+        backLabel="Kembali ke Purchase Return"
       />
     );
   }

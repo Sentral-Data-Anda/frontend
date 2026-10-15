@@ -112,7 +112,7 @@ export const ReportDetailScreen = (props: PropTypes) => {
       <FormNotFound
         noun={NOUN}
         backHref={listReturn}
-        backLabel="Kembali ke Laporan Budget"
+        backLabel="Kembali ke Budget Realization"
       />
     );
   }

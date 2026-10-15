@@ -100,7 +100,7 @@ export const PostingPembayaranScreen = () => {
         title="Tidak bisa memposting pembayaran"
         description={isCanView ? NO_POSTING_ACCESS : NO_VIEW}
         backHref={PAYMENT_LIST_PATH}
-        backLabel="Kembali ke Pembayaran"
+        backLabel="Kembali ke Payment"
       />
     );
   }

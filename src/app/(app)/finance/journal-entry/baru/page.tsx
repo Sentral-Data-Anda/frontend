@@ -5,7 +5,7 @@ import { LoadingGlobal } from "@/components/common/feedback";
 import { JournalFormScreen } from "@/features/keuangan/jurnal/form";
 
 export const metadata: Metadata = {
-  title: "Tambah Entri Jurnal",
+  title: "Tambah Journal Entry",
 };
 
 export default function Page() {

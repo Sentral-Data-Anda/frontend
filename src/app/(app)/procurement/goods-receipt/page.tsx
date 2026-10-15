@@ -9,7 +9,7 @@ import {
 } from "@/features/pengadaan/penerimaan-barang/list";
 
 export const metadata: Metadata = {
-  title: "Penerimaan Barang",
+  title: "Goods Receipt",
 };
 
 export default function Page() {

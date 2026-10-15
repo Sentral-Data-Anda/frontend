@@ -9,7 +9,7 @@ import {
 } from "@/features/keuangan/setelan-akuntansi/list";
 
 export const metadata: Metadata = {
-  title: "Setelan Akuntansi",
+  title: "Accounting Setting",
 };
 
 export default function Page() {

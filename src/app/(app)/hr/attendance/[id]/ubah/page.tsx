@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { AbsensiFormScreen } from "@/features/sdm/absensi-karyawan/form";
 
 export const metadata: Metadata = {
-  title: "Ubah Absensi Karyawan",
+  title: "Ubah Attendance",
 };
 
 export default async function Page({

@@ -110,7 +110,7 @@ export const PostingPersembahanScreen = () => {
             : NO_VIEW
         }
         backHref={JURNAL_LIST_PATH}
-        backLabel="Kembali ke Jurnal"
+        backLabel="Kembali ke Journal Entry"
       />
     );
   }

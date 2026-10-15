@@ -9,7 +9,7 @@ import {
 } from "@/features/anggaran/laporan-budget/list";
 
 export const metadata: Metadata = {
-  title: "Laporan Budget",
+  title: "Budget Realization",
 };
 
 export default function Page() {

@@ -129,7 +129,7 @@ export const PenyusutanFormScreen = () => {
         description="Peran Anda hanya bisa melihat penyusutan."
         isCanView={isCanView}
         backHref={PENYUSUTAN_LIST_PATH}
-        backLabel="Kembali ke Penyusutan"
+        backLabel="Kembali ke Depreciation"
       />
     );
   }

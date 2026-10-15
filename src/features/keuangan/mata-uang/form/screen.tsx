@@ -159,7 +159,7 @@ export const CurrencyFormScreen = (props: PropTypes) => {
           isCanView ? "Peran Anda hanya bisa melihat data mata uang." : NO_VIEW
         }
         backHref={leaveHref}
-        backLabel="Kembali ke Mata Uang"
+        backLabel="Kembali ke Currency"
       />
     );
   }
@@ -169,7 +169,7 @@ export const CurrencyFormScreen = (props: PropTypes) => {
       <FormNotFound
         noun="mata uang"
         backHref={listReturn}
-        backLabel="Kembali ke Mata Uang"
+        backLabel="Kembali ke Currency"
       />
     );
   }
@@ -213,7 +213,7 @@ export const CurrencyFormScreen = (props: PropTypes) => {
       }
       header={
         <PageHeader
-          title={isEdit ? "Ubah Mata Uang" : "Tambah Mata Uang"}
+          title={isEdit ? "Ubah Currency" : "Tambah Currency"}
           subtitle={
             detail.data ? `${detail.data.code} — ${detail.data.name}` : code
           }

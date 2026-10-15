@@ -6,7 +6,7 @@ import { PageContainer } from "@/components/layout";
 import { PayrollDetailScreen } from "@/features/sdm/payroll/detail";
 
 export const metadata: Metadata = {
-  title: "Penggajian",
+  title: "Payroll",
 };
 
 export default async function Page({

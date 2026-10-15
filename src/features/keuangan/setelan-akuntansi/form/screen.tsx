@@ -152,7 +152,7 @@ export const SettingFormScreen = (props: PropTypes) => {
             : NO_VIEW
         }
         backHref={SETELAN_AKUNTANSI_LIST_PATH}
-        backLabel="Kembali ke Setelan Akuntansi"
+        backLabel="Kembali ke Accounting Setting"
       />
     );
   }
@@ -162,7 +162,7 @@ export const SettingFormScreen = (props: PropTypes) => {
       <FormNotFound
         noun="setelan"
         backHref={SETELAN_AKUNTANSI_LIST_PATH}
-        backLabel="Kembali ke Setelan Akuntansi"
+        backLabel="Kembali ke Accounting Setting"
       />
     );
   }

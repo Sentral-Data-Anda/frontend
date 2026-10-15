@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { PermintaanRejectScreen } from "@/features/persetujuan/permintaan-persetujuan/form";
 
 export const metadata: Metadata = {
-  title: "Tolak Permintaan Persetujuan",
+  title: "Tolak Approval Request",
 };
 
 export default async function Page({

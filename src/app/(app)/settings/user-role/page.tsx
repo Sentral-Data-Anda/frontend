@@ -9,7 +9,7 @@ import {
 } from "@/features/pengaturan/role-user/list";
 
 export const metadata: Metadata = {
-  title: "Role User",
+  title: "User Role",
 };
 
 export default function Page() {

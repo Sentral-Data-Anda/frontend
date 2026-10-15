@@ -85,7 +85,7 @@ export const PeriodDetailScreen = (props: PropTypes) => {
       <FormNotFound
         noun="periode fiskal"
         backHref={listReturn}
-        backLabel="Kembali ke Periode Fiskal"
+        backLabel="Kembali ke Fiscal Period"
       />
     );
   }

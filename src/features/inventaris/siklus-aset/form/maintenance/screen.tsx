@@ -174,7 +174,7 @@ export const MaintenanceFormScreen = (props: PropTypes) => {
         }
         description="Peran Anda hanya bisa melihat siklus aset."
         backHref={cycleListHref("perawatan")}
-        backLabel="Kembali ke Siklus Aset"
+        backLabel="Kembali ke Asset Transaction"
       />
     );
   }
@@ -184,7 +184,7 @@ export const MaintenanceFormScreen = (props: PropTypes) => {
       <FormNotFound
         noun="perawatan"
         backHref={listReturn}
-        backLabel="Kembali ke Siklus Aset"
+        backLabel="Kembali ke Asset Transaction"
       />
     );
   }

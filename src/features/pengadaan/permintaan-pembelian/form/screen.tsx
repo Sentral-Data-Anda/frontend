@@ -90,10 +90,10 @@ export const RequestFormScreen = (props: PropTypes) => {
   const isWaiting = (isEdit && !detail.data) || isCopyWaiting;
   const backHref = code ? requestHref(code) : listReturn;
   const title = isEdit
-    ? "Ubah Permintaan Pembelian"
+    ? "Ubah Purchase Request"
     : copied
       ? `Ajukan ulang ${copied.code}`
-      : "Tambah Permintaan Pembelian";
+      : "Tambah Purchase Request";
 
   const onLeave = () => router.replace(backHref);
 
@@ -172,7 +172,7 @@ export const RequestFormScreen = (props: PropTypes) => {
         description="Peran Anda hanya bisa melihat permintaan pembelian."
         isCanView={isCanView}
         backHref={backHref}
-        backLabel="Kembali ke Permintaan Pembelian"
+        backLabel="Kembali ke Purchase Request"
       />
     );
   }
@@ -182,7 +182,7 @@ export const RequestFormScreen = (props: PropTypes) => {
       <FormNotFound
         noun={NOUN}
         backHref={listReturn}
-        backLabel="Kembali ke Permintaan Pembelian"
+        backLabel="Kembali ke Purchase Request"
       />
     );
   }

@@ -49,7 +49,6 @@ import {
   Package,
   PackageCheck,
   PackageOpen,
-  Percent,
   Plane,
   ReceiptText,
   RefreshCw,
@@ -155,7 +154,6 @@ export const MENU = {
   ATTENDANCE: "ATTENDANCE",
   PAYROLL: "PAYROLL",
   PAYROLL_COMPONENT: "PAYROLL_COMPONENT",
-  PAJAK_PPH21: "PAJAK_PPH21",
 
   APPROVAL_REQUEST: "APPROVAL_REQUEST",
   APPROVAL_WORKFLOW: "APPROVAL_WORKFLOW",
@@ -265,7 +263,6 @@ export const MENU_DESCRIPTION: Partial<Record<MenuSlug, string>> = {
   [MENU.ATTENDANCE]: "Kehadiran harian pegawai",
   [MENU.PAYROLL]: "Hitung dan ajukan gaji bulanan",
   [MENU.PAYROLL_COMPONENT]: "Tunjangan dan potongan gaji",
-  [MENU.PAJAK_PPH21]: "Tarif potongan pajak gaji per tahun",
   [MENU.APPROVAL_REQUEST]: "Dokumen yang menunggu tanda tangan",
   [MENU.APPROVAL_WORKFLOW]: "Tentukan siapa menyetujui dokumen",
   [MENU.USER]: "Kelola akun login pengguna",
@@ -361,7 +358,6 @@ export const MENU_LEAF_ICON: Partial<Record<MenuSlug, LucideIcon>> = {
   [MENU.ATTENDANCE]: UserCheck,
   [MENU.PAYROLL]: Banknote,
   [MENU.PAYROLL_COMPONENT]: Calculator,
-  [MENU.PAJAK_PPH21]: Percent,
 
   [MENU.APPROVAL_REQUEST]: Inbox,
   [MENU.APPROVAL_WORKFLOW]: Workflow,

@@ -4,7 +4,7 @@ import { PageContainer } from "@/components/layout";
 import { ActivityLogDetailScreen } from "@/features/pengaturan/activity-log/detail";
 
 export const metadata: Metadata = {
-  title: "Detail Log Aktivitas",
+  title: "Detail Activity Log",
 };
 
 export default async function Page({

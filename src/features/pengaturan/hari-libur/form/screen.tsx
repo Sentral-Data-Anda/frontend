@@ -149,7 +149,7 @@ export const HolidayFormScreen = (props: PropTypes) => {
         }
         description={"Peran Anda hanya bisa melihat data hari libur."}
         backHref={HARI_LIBUR_LIST_PATH}
-        backLabel="Kembali ke Hari Libur"
+        backLabel="Kembali ke Holiday"
         isCanView={isCanView}
       />
     );
@@ -160,7 +160,7 @@ export const HolidayFormScreen = (props: PropTypes) => {
       <FormNotFound
         noun="hari libur"
         backHref={listReturn}
-        backLabel="Kembali ke Hari Libur"
+        backLabel="Kembali ke Holiday"
       />
     );
   }
@@ -204,7 +204,7 @@ export const HolidayFormScreen = (props: PropTypes) => {
       }
       header={
         <PageHeader
-          title={isEdit ? "Ubah Hari Libur" : "Tambah Hari Libur"}
+          title={isEdit ? "Ubah Holiday" : "Tambah Holiday"}
           subtitle={detail.data?.name}
           backHref={listReturn}
           isBackPersistent

@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { AllocationFormScreen } from "@/features/anggaran/pagu-anggaran/form";
 
 export const metadata: Metadata = {
-  title: "Ubah Pagu Anggaran",
+  title: "Ubah Budget",
 };
 
 export default async function Page({

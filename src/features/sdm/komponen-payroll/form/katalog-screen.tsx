@@ -45,7 +45,7 @@ import {
 import { AkuntansiSection } from "./akuntansi-section";
 import { KomponenSection } from "./komponen-section";
 
-const BACK_LABEL = "Kembali ke Komponen Payroll";
+const BACK_LABEL = "Kembali ke Payroll Component";
 
 interface PropTypes {
   code?: string;
@@ -225,7 +225,7 @@ export const KatalogFormScreen = (props: PropTypes) => {
       }
       header={
         <PageHeader
-          title={isEdit ? "Ubah Komponen Payroll" : "Tambah Komponen Payroll"}
+          title={isEdit ? "Ubah Payroll Component" : "Tambah Payroll Component"}
           subtitle={detail.data?.name ?? code}
           backHref={listReturn}
           isBackPersistent

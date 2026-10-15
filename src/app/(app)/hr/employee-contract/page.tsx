@@ -9,7 +9,7 @@ import {
 } from "@/features/sdm/kontrak-karyawan/list";
 
 export const metadata: Metadata = {
-  title: "Kontrak Karyawan",
+  title: "Employee Contract",
 };
 
 export default function Page() {

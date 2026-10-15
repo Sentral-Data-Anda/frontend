@@ -46,7 +46,7 @@ import { EmployeeSection } from "./employee-section";
 import { JobSection } from "./job-section";
 import { PeriodSection } from "./period-section";
 
-const BACK_LABEL = "Kembali ke Kontrak Karyawan";
+const BACK_LABEL = "Kembali ke Employee Contract";
 
 interface PropTypes {
   code?: string;
@@ -173,7 +173,7 @@ export const KontrakFormScreen = (props: PropTypes) => {
     return (
       <div className="pb-6">
         <PageHeader
-          title="Ubah Kontrak Karyawan"
+          title="Ubah Employee Contract"
           backHref={listReturn}
           isBackPersistent
           action={<SalaryDataBadge />}
@@ -248,7 +248,7 @@ export const KontrakFormScreen = (props: PropTypes) => {
       }
       header={
         <PageHeader
-          title={isEdit ? "Ubah Kontrak Karyawan" : "Tambah Kontrak Karyawan"}
+          title={isEdit ? "Ubah Employee Contract" : "Tambah Employee Contract"}
           subtitle={detail.data?.karyawan.name}
           backHref={listReturn}
           isBackPersistent

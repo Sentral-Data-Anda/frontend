@@ -114,7 +114,7 @@ export const TransferDetailScreen = (props: PropTypes) => {
       <FormNotFound
         noun="setoran"
         backHref={listReturn}
-        backLabel="Kembali ke Setoran"
+        backLabel="Kembali ke Bank Deposit"
       />
     );
   }

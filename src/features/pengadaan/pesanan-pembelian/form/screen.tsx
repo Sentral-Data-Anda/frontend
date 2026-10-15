@@ -298,7 +298,7 @@ export const OrderFormScreen = (props: PropTypes) => {
         description="Peran Anda hanya bisa melihat pesanan pembelian."
         isCanView={isCanView}
         backHref={leaveHref}
-        backLabel="Kembali ke Pesanan Pembelian"
+        backLabel="Kembali ke Purchase Order"
       />
     );
   }
@@ -308,7 +308,7 @@ export const OrderFormScreen = (props: PropTypes) => {
       <FormNotFound
         noun={NOUN}
         backHref={listReturn}
-        backLabel="Kembali ke Pesanan Pembelian"
+        backLabel="Kembali ke Purchase Order"
       />
     );
   }
@@ -317,7 +317,7 @@ export const OrderFormScreen = (props: PropTypes) => {
     return (
       <div className="pb-8">
         <PageHeader
-          title="Ubah Pesanan Pembelian"
+          title="Ubah Purchase Order"
           subtitle={code}
           backHref={orderHref(code)}
           isBackPersistent
@@ -366,7 +366,7 @@ export const OrderFormScreen = (props: PropTypes) => {
       }
       header={
         <PageHeader
-          title={isEdit ? "Ubah Pesanan Pembelian" : "Tambah Pesanan Pembelian"}
+          title={isEdit ? "Ubah Purchase Order" : "Tambah Purchase Order"}
           subtitle={code}
           backHref={leaveHref}
           isBackPersistent

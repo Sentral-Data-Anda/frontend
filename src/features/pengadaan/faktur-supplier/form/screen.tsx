@@ -45,7 +45,7 @@ import { ItemSection } from "./item-section";
 
 const NOUN = "faktur supplier";
 
-const BACK_LABEL = "Kembali ke Faktur Supplier";
+const BACK_LABEL = "Kembali ke Supplier Invoice";
 
 interface PropTypes {
   publicId?: string;
@@ -81,7 +81,7 @@ export const InvoiceFormScreen = (props: PropTypes) => {
   const invoice = detail.data;
   const isWaiting = isEdit && !invoice;
   const backHref = publicId ? invoiceHref(publicId) : listReturn;
-  const title = isEdit ? "Ubah Faktur Supplier" : "Tambah Faktur Supplier";
+  const title = isEdit ? "Ubah Supplier Invoice" : "Tambah Supplier Invoice";
   const isOpenForEdit = invoice ? isEditable(invoice) : true;
 
   const onLeave = () => router.replace(backHref);

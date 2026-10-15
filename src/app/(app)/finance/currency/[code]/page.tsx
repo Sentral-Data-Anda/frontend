@@ -6,7 +6,7 @@ import { PageContainer } from "@/components/layout";
 import { CurrencyDetailScreen } from "@/features/keuangan/mata-uang/detail";
 
 export const metadata: Metadata = {
-  title: "Mata Uang",
+  title: "Currency",
 };
 
 export default async function Page({

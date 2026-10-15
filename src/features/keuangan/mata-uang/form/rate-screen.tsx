@@ -183,7 +183,7 @@ export const RateFormScreen = (props: PropTypes) => {
         noun={isEdit ? "kurs" : "mata uang"}
         backHref={isEdit ? backHref : MATA_UANG_LIST_PATH}
         backLabel={
-          isEdit ? `Kembali ke ${currencyCode}` : "Kembali ke Mata Uang"
+          isEdit ? `Kembali ke ${currencyCode}` : "Kembali ke Currency"
         }
       />
     );

@@ -9,7 +9,7 @@ import {
 } from "@/features/sdm/tipe-cuti/list";
 
 export const metadata: Metadata = {
-  title: "Tipe Cuti",
+  title: "Leave Type",
 };
 
 export default function Page() {

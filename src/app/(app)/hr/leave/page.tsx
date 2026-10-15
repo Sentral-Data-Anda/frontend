@@ -6,7 +6,7 @@ import { PageContainer } from "@/components/layout";
 import { CutiListScreen, cutiTable } from "@/features/sdm/cuti/list";
 
 export const metadata: Metadata = {
-  title: "Cuti",
+  title: "Leave",
 };
 
 export default function Page() {

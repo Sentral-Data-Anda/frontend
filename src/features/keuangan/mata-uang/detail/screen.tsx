@@ -53,7 +53,7 @@ export const CurrencyDetailScreen = (props: PropTypes) => {
       <FormNotFound
         noun="mata uang"
         backHref={listReturn}
-        backLabel="Kembali ke Mata Uang"
+        backLabel="Kembali ke Currency"
       />
     );
   }

@@ -4,7 +4,7 @@ import { PageContainer } from "@/components/layout";
 import { JournalDetailScreen } from "@/features/keuangan/jurnal/detail";
 
 export const metadata: Metadata = {
-  title: "Jurnal",
+  title: "Journal Entry",
 };
 
 export default async function Page({

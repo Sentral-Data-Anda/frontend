@@ -7,7 +7,7 @@ import { PayrollListScreen, payrollTable } from "@/features/sdm/payroll/list";
 
 // Nol gaji di judul tab (SDM §0.3 no. 5): "Penggajian", titik.
 export const metadata: Metadata = {
-  title: "Penggajian",
+  title: "Payroll",
 };
 
 export default function Page() {

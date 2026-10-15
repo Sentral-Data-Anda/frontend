@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { SettingFormScreen } from "@/features/keuangan/setelan-akuntansi/form";
 
 export const metadata: Metadata = {
-  title: "Ubah Setelan Akuntansi",
+  title: "Ubah Accounting Setting",
 };
 
 export default async function Page({

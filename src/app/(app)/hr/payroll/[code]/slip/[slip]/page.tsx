@@ -7,7 +7,7 @@ import { PayslipScreen } from "@/features/sdm/payroll/detail";
 
 // Nol nama dan nol nominal di judul tab (SDM §0.3 no. 5).
 export const metadata: Metadata = {
-  title: "Penggajian",
+  title: "Payroll",
 };
 
 export default async function Page({

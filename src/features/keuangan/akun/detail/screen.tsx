@@ -56,7 +56,7 @@ export const AccountDetailScreen = (props: PropTypes) => {
       <FormNotFound
         noun="akun"
         backHref={listReturn}
-        backLabel="Kembali ke Akun"
+        backLabel="Kembali ke Chart of Account"
       />
     );
   }

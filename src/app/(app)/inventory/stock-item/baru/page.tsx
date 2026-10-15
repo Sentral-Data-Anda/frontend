@@ -5,7 +5,7 @@ import { LoadingGlobal } from "@/components/common/feedback";
 import { StockFormScreen } from "@/features/inventaris/barang-persediaan/form";
 
 export const metadata: Metadata = {
-  title: "Tambah Barang Persediaan",
+  title: "Tambah Stock Item",
 };
 
 export default function Page() {

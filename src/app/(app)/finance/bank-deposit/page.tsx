@@ -9,7 +9,7 @@ import {
 } from "@/features/keuangan/setoran/list";
 
 export const metadata: Metadata = {
-  title: "Setoran",
+  title: "Bank Deposit",
 };
 
 export default function Page() {

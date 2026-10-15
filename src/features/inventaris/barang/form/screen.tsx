@@ -210,7 +210,7 @@ export const BarangFormScreen = (props: PropTypes) => {
         description="Peran Anda hanya bisa melihat data barang."
         isCanView={isCanView}
         backHref={BARANG_LIST_PATH}
-        backLabel="Kembali ke Barang"
+        backLabel="Kembali ke Asset Master"
       />
     );
   }
@@ -220,7 +220,7 @@ export const BarangFormScreen = (props: PropTypes) => {
       <FormNotFound
         noun="barang"
         backHref={listReturn}
-        backLabel="Kembali ke Barang"
+        backLabel="Kembali ke Asset Master"
       />
     );
   }
@@ -276,7 +276,7 @@ export const BarangFormScreen = (props: PropTypes) => {
       }
       header={
         <PageHeader
-          title={isEdit ? "Ubah Barang" : "Tambah Barang"}
+          title={isEdit ? "Ubah Asset Master" : "Tambah Asset Master"}
           subtitle={saved ? `${saved.name} · ${saved.code}` : code}
           backHref={listReturn}
           isBackPersistent

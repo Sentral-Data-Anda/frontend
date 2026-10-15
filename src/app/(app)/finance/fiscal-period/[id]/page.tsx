@@ -4,7 +4,7 @@ import { PageContainer } from "@/components/layout";
 import { PeriodDetailScreen } from "@/features/keuangan/periode-fiskal/detail";
 
 export const metadata: Metadata = {
-  title: "Periode Fiskal",
+  title: "Fiscal Period",
 };
 
 export default async function Page({

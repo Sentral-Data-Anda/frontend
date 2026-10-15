@@ -6,7 +6,7 @@ import { PageContainer } from "@/components/layout";
 import { PaymentDetailScreen } from "@/features/keuangan/pembayaran/detail";
 
 export const metadata: Metadata = {
-  title: "Pembayaran",
+  title: "Payment",
 };
 
 export default async function Page({

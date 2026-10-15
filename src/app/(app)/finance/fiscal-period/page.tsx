@@ -9,7 +9,7 @@ import {
 } from "@/features/keuangan/periode-fiskal/list";
 
 export const metadata: Metadata = {
-  title: "Periode Fiskal",
+  title: "Fiscal Period",
 };
 
 export default function Page() {

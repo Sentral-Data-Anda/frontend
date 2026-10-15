@@ -4,7 +4,7 @@ import { PageContainer } from "@/components/layout";
 import { ReturnDetailScreen } from "@/features/pengadaan/retur-pembelian/detail";
 
 export const metadata: Metadata = {
-  title: "Retur Pembelian",
+  title: "Purchase Return",
 };
 
 export default async function Page({

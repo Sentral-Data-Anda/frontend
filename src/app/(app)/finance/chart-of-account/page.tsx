@@ -6,7 +6,7 @@ import { PageContainer } from "@/components/layout";
 import { AccountListScreen, accountTable } from "@/features/keuangan/akun/list";
 
 export const metadata: Metadata = {
-  title: "Akun",
+  title: "Chart of Account",
 };
 
 export default function Page() {

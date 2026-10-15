@@ -59,7 +59,7 @@ import { ReportSection } from "./report-section";
 
 const NOUN = "laporan pemakaian budget";
 
-const BACK_LABEL = "Kembali ke Laporan Budget";
+const BACK_LABEL = "Kembali ke Budget Realization";
 
 interface PropTypes {
   publicId?: string;
@@ -106,7 +106,9 @@ export const ReportFormScreen = (props: PropTypes) => {
   const prefillKey = `${pickBapel}|${pickMonth}`;
   const isWaiting = isEdit && !report;
   const isLocked = report ? reportStateOf(report) !== "DRAFT" : false;
-  const title = isEdit ? "Ubah Laporan Budget" : "Tambah Laporan Budget";
+  const title = isEdit
+    ? "Ubah Budget Realization"
+    : "Tambah Budget Realization";
   const prefillTotal = prefill.data?.total ?? "0";
   const isPrefillEmpty =
     !isEdit && prefill.data !== undefined && prefill.data.lines.length === 0;

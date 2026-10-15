@@ -9,7 +9,7 @@ import {
 } from "@/features/anggaran/pagu-anggaran/list";
 
 export const metadata: Metadata = {
-  title: "Pagu Anggaran",
+  title: "Budget",
 };
 
 export default function Page() {

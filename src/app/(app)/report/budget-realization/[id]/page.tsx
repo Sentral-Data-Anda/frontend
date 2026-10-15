@@ -6,7 +6,7 @@ import { PageContainer } from "@/components/layout";
 import { ReportDetailScreen } from "@/features/anggaran/laporan-budget/detail";
 
 export const metadata: Metadata = {
-  title: "Laporan Budget",
+  title: "Budget Realization",
 };
 
 export default async function Page({

@@ -4,7 +4,7 @@ import { PageContainer } from "@/components/layout";
 import { RequestDetailScreen } from "@/features/pengadaan/permintaan-pembelian/detail";
 
 export const metadata: Metadata = {
-  title: "Permintaan Pembelian",
+  title: "Purchase Request",
 };
 
 export default async function Page({

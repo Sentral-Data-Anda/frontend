@@ -107,7 +107,7 @@ export const PostingPersediaanScreen = () => {
         title="Tidak bisa memposting mutasi persediaan"
         description={isCanView ? NO_POSTING_ACCESS : NO_VIEW}
         backHref={JURNAL_LIST_PATH}
-        backLabel="Kembali ke Jurnal"
+        backLabel="Kembali ke Journal Entry"
       />
     );
   }

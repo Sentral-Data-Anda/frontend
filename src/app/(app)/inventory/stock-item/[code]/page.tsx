@@ -4,7 +4,7 @@ import { PageContainer } from "@/components/layout";
 import { StockDetailScreen } from "@/features/inventaris/barang-persediaan/detail";
 
 export const metadata: Metadata = {
-  title: "Barang Persediaan",
+  title: "Stock Item",
 };
 
 export default async function Page({

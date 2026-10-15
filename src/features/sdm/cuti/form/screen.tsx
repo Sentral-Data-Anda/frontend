@@ -44,7 +44,7 @@ import {
 import { RequestSection } from "./request-section";
 import { SummarySection } from "./summary-section";
 
-const BACK_LABEL = "Kembali ke Cuti";
+const BACK_LABEL = "Kembali ke Leave";
 
 interface PropTypes {
   code?: string;

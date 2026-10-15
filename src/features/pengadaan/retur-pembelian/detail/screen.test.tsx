@@ -243,7 +243,7 @@ describe("keadaan", () => {
     onRender("ret-apa-pun", {});
 
     expect(
-      screen.getByText("Anda tidak memiliki akses ke Retur Pembelian"),
+      screen.getByText("Anda tidak memiliki akses ke Purchase Return"),
     ).toBeTruthy();
   });
 

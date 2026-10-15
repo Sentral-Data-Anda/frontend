@@ -9,7 +9,7 @@ import {
 } from "@/features/pengadaan/retur-pembelian/list";
 
 export const metadata: Metadata = {
-  title: "Retur Pembelian",
+  title: "Purchase Return",
 };
 
 export default function Page() {

@@ -165,7 +165,7 @@ export const StockFormScreen = (props: PropTypes) => {
         description="Peran Anda hanya bisa melihat data barang persediaan."
         isCanView={isCanView}
         backHref={STOCK_LIST_PATH}
-        backLabel="Kembali ke Barang Persediaan"
+        backLabel="Kembali ke Stock Item"
       />
     );
   }
@@ -175,7 +175,7 @@ export const StockFormScreen = (props: PropTypes) => {
       <FormNotFound
         noun="barang persediaan"
         backHref={listReturn}
-        backLabel="Kembali ke Barang Persediaan"
+        backLabel="Kembali ke Stock Item"
       />
     );
   }
@@ -219,7 +219,7 @@ export const StockFormScreen = (props: PropTypes) => {
       }
       header={
         <PageHeader
-          title={isEdit ? "Ubah Barang Persediaan" : "Tambah Barang Persediaan"}
+          title={isEdit ? "Ubah Stock Item" : "Tambah Stock Item"}
           subtitle={detail.data?.name ?? code}
           backHref={listReturn}
           isBackPersistent

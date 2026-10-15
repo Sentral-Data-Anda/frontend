@@ -212,7 +212,7 @@ describe("gerbang izin rute form", () => {
     expect(screen.getByText("Tidak bisa mengajukan cuti")).toBeTruthy();
     expect(
       screen
-        .getByRole("link", { name: "Kembali ke Cuti" })
+        .getByRole("link", { name: "Kembali ke Leave" })
         .getAttribute("href"),
     ).toBe(CUTI_LIST_PATH);
   });
@@ -272,7 +272,7 @@ describe("baris yang tidak lagi bisa diubah", () => {
     await waitFor(() => expect(screen.getByText(LOCKED_TITLE)).toBeTruthy());
 
     expect(screen.queryByText(/Hubungi administrator/i)).toBeNull();
-    expect(screen.getByRole("link", { name: "Kembali ke Cuti" })).toBeTruthy();
+    expect(screen.getByRole("link", { name: "Kembali ke Leave" })).toBeTruthy();
   });
 
   test("keadaan tanpa IZIN tetap menyuruh menghubungi administrator", () => {

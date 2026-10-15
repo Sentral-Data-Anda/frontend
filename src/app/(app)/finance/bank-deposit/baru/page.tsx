@@ -5,7 +5,7 @@ import { LoadingGlobal } from "@/components/common/feedback";
 import { TransferFormScreen } from "@/features/keuangan/setoran/form";
 
 export const metadata: Metadata = {
-  title: "Catat Setoran",
+  title: "Catat Bank Deposit",
 };
 
 export default function Page() {

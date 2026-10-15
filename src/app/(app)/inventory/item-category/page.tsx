@@ -9,7 +9,7 @@ import {
 } from "@/features/inventaris/tipe-barang/list";
 
 export const metadata: Metadata = {
-  title: "Tipe Barang",
+  title: "Item Category",
 };
 
 export default function Page() {

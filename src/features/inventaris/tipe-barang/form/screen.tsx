@@ -157,7 +157,7 @@ export const TipeBarangFormScreen = (props: PropTypes) => {
         description="Peran Anda hanya bisa melihat data tipe barang."
         isCanView={isCanView}
         backHref={TIPE_BARANG_LIST_PATH}
-        backLabel="Kembali ke Tipe Barang"
+        backLabel="Kembali ke Item Category"
       />
     );
   }
@@ -167,7 +167,7 @@ export const TipeBarangFormScreen = (props: PropTypes) => {
       <FormNotFound
         noun="tipe barang"
         backHref={listReturn}
-        backLabel="Kembali ke Tipe Barang"
+        backLabel="Kembali ke Item Category"
       />
     );
   }
@@ -211,7 +211,7 @@ export const TipeBarangFormScreen = (props: PropTypes) => {
       }
       header={
         <PageHeader
-          title={isEdit ? "Ubah Tipe Barang" : "Tambah Tipe Barang"}
+          title={isEdit ? "Ubah Item Category" : "Tambah Item Category"}
           subtitle={detail.data?.name ?? code}
           backHref={listReturn}
           isBackPersistent

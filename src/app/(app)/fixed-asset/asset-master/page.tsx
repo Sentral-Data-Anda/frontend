@@ -9,7 +9,7 @@ import {
 } from "@/features/inventaris/barang/list";
 
 export const metadata: Metadata = {
-  title: "Barang",
+  title: "Asset Master",
 };
 
 export default function Page() {
