@@ -12,11 +12,14 @@ import {
 const ref = (code: string) => ({ publicId: `pub-${code}`, code });
 
 describe("jenis dokumen persetujuan", () => {
-  test("sepuluh jenis, urutan enum be-sada, semuanya berlabel", () => {
-    expect(APPROVAL_DOCUMENT_TYPES).toHaveLength(10);
+  test("sembilan jenis, urutan enum be-sada, semuanya berlabel", () => {
+    // Sembilan, bukan sepuluh: LOAN_ROOM keluar dari enum be-sada lewat migrasi
+    // 20261016100000, karena Peminjaman Ruang tidak meminta tanda tangan sama
+    // sekali. Urutan di sini adalah urutan `schema.prisma`.
+    expect(APPROVAL_DOCUMENT_TYPES).toHaveLength(9);
     expect(APPROVAL_DOCUMENT_TYPES.slice(-3)).toEqual([
+      "PAYROLL_RUN",
       "PURCHASE_RETURN",
-      "LOAN_ROOM",
       "ASSET_DISPOSAL",
     ]);
     expect(Object.keys(APPROVAL_DOCUMENT_LABEL)).toEqual([
@@ -45,7 +48,13 @@ describe("tautan halaman dokumen", () => {
   });
 
   test("dokumen tanpa layar tidak bertaut", () => {
-    expect(approvalDocumentHref("LOAN_ROOM", ref("PRG-2026-0001"))).toBeNull();
+    // LOAN_ROOM dulu contohnya, dan tidak ada lagi sejak 20261016100000. Cuti
+    // tetap jenis yang tidak punya halaman dokumen di fe-sada —
+    // `APPROVAL_DOCUMENT_MENU` tidak memuatnya, dan test berikutnya menjaga
+    // bahwa bertaut atau tidaknya selalu mengikuti daftar menu itu.
+    expect(
+      approvalDocumentHref("LEAVE_REQUEST", ref("CUT-2026-0001")),
+    ).toBeNull();
   });
 
   test("retur pembelian bertaut lewat publicId", () => {

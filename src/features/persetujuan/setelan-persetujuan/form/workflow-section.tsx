@@ -1,11 +1,9 @@
 "use client";
 
-import { useWatch } from "react-hook-form";
-
 import { Input, SelectField, optionsOf } from "@/components/common/control";
 import { ControlField, FormSection } from "@/components/common/form";
 
-import { documentOptionsFor } from "../model";
+import { DOCUMENT_FORM_OPTIONS } from "../model";
 import { SETELAN_STATUS_LABEL } from "../types";
 
 import type { SetelanForm } from "./form-options";
@@ -19,11 +17,6 @@ interface PropTypes {
 
 export const WorkflowSection = (props: PropTypes) => {
   const { form, isDisabled } = props;
-
-  const documentType = useWatch({
-    control: form.control,
-    name: "documentType",
-  });
 
   return (
     <FormSection legend="Alur" disabled={isDisabled}>
@@ -45,7 +38,7 @@ export const WorkflowSection = (props: PropTypes) => {
           <SelectField
             value={field.value}
             onValueChange={field.onChange}
-            options={documentOptionsFor(documentType)}
+            options={DOCUMENT_FORM_OPTIONS}
             disabled={isDisabled}
             placeholder="Pilih jenis dokumen"
           />

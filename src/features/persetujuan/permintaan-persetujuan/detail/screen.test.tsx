@@ -173,7 +173,10 @@ describe("tautan dokumen", () => {
   });
 
   test("dokumen tanpa layar: tanpa tautan", async () => {
-    onMockApi(approvalDetail({ documentType: "LOAN_ROOM" }));
+    // LOAN_ROOM dulu dipakai di sini; jenis itu tidak ada lagi sejak
+    // 20261016100000. Cuti tetap jenis yang tidak punya halaman dokumen, jadi
+    // layar ini tidak menawarkan tautan apa pun untuknya.
+    onMockApi(approvalDetail({ documentType: "LEAVE_REQUEST" }));
     onRender();
     await onLoaded();
 

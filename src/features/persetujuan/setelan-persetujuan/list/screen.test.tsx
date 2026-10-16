@@ -110,7 +110,12 @@ describe("filter", () => {
   });
 
   test("filter tanpa hasil: kosong karena filter + Hapus filter", async () => {
-    onRenderList(["VIEW"], "jenis=LOAN_ROOM");
+    // Dulu test ini menyaring LOAN_ROOM: jenis yang dikenal filter tapi tidak
+    // punya baris satu pun. Sejak 20261016100000 jenis itu tidak ada lagi, dan
+    // setiap jenis yang tersisa punya baris di mock, jadi "tanpa hasil" dibuat
+    // dari dua filter yang tidak bertemu — jenis Penggajian, status nonaktif
+    // (satu-satunya alur nonaktif adalah Kas Keluar).
+    onRenderList(["VIEW"], "jenis=PAYROLL_RUN&status=false");
 
     expect(
       await screen.findByText(
