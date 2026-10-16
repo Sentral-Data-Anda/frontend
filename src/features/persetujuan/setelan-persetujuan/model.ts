@@ -22,27 +22,22 @@ export const SETELAN_LIST_PATH = menuHref(
 
 export const MAX_TIERS = 10;
 
-export const CONFIGURABLE_DOCUMENT_TYPES = APPROVAL_DOCUMENT_TYPES.filter(
-  (type) => type !== "LOAN_ROOM",
-);
-
 const toOption = (type: ApprovalDocumentType): SelectOption => ({
   value: type,
   label: APPROVAL_DOCUMENT_LABEL[type],
 });
 
-export const DOCUMENT_FORM_OPTIONS = CONFIGURABLE_DOCUMENT_TYPES.map(toOption);
-
-export const documentOptionsFor = (current: string): SelectOption[] =>
-  current === "LOAN_ROOM"
-    ? [
-        ...DOCUMENT_FORM_OPTIONS,
-        {
-          value: current,
-          label: `${APPROVAL_DOCUMENT_LABEL.LOAN_ROOM} (tidak dipakai lagi)`,
-        },
-      ]
-    : DOCUMENT_FORM_OPTIONS;
+/**
+ * Setiap jenis yang dideklarasikan enum, tanpa kecuali.
+ *
+ * Dulu daftar ini menyaring LOAN_ROOM keluar, dan pilihan yang tersimpan untuk
+ * jenis itu ditambahi keterangan "(tidak dipakai lagi)" supaya alur lama tetap
+ * bisa dibaca. Sejak 20261016100000 nilainya tidak ada lagi di enum dan setelan
+ * lamanya dihapus migrasi, jadi tidak ada lagi yang perlu disaring atau
+ * ditemani: pilihan form, pilihan filter, dan enum be-sada sekarang himpunan
+ * yang sama.
+ */
+export const DOCUMENT_FORM_OPTIONS = APPROVAL_DOCUMENT_TYPES.map(toOption);
 
 export const DOCUMENT_FILTER_OPTIONS: SelectOption[] = [
   { value: "", label: "Semua jenis dokumen" },
@@ -127,7 +122,7 @@ export function withSavedJabatan(
 }
 
 const isConfigurable = (value: string) =>
-  (CONFIGURABLE_DOCUMENT_TYPES as readonly string[]).includes(value);
+  (APPROVAL_DOCUMENT_TYPES as readonly string[]).includes(value);
 
 const DIGITS = /^\d*$/;
 

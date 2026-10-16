@@ -61,11 +61,13 @@ describe("skema form", () => {
     expect(errorsOf({ name: "a".repeat(100) }).name).toBeUndefined();
   });
 
-  test("jenis dokumen wajib; LOAN_ROOM tidak bisa disimpan", () => {
+  test("jenis dokumen wajib; yang tidak dideklarasikan ditolak", () => {
     expect(errorsOf({ documentType: "" }).documentType).toBe(
       "Pilih jenis dokumen.",
     );
-    expect(errorsOf({ documentType: "LOAN_ROOM" }).documentType).toMatch(
+    // "SEMBARANG" mewakili nilai apa pun di luar enum, termasuk nilai yang
+    // dulu ada dan sekarang tidak — LOAN_ROOM, sejak 20261016100000.
+    expect(errorsOf({ documentType: "SEMBARANG" }).documentType).toMatch(
       /tidak bisa dipakai lagi/,
     );
   });
@@ -256,7 +258,10 @@ describe("label", () => {
     expect(tierLabel(ketua)).toBe("Ketua · BP pengaju");
   });
 
-  test("opsi: form 9 jenis tanpa LOAN_ROOM, filter 10 + Semua", () => {
+  test("opsi: form dan filter memuat seluruh sembilan jenis", () => {
+    // Dulu keduanya berbeda: form menyaring LOAN_ROOM keluar dan filter tidak.
+    // Sejak 20261016100000 tidak ada lagi yang perlu disaring — pilihan form,
+    // pilihan filter, dan enum be-sada adalah himpunan yang sama.
     expect(DOCUMENT_FORM_OPTIONS).toHaveLength(9);
     expect(
       DOCUMENT_FORM_OPTIONS.some((option) => option.value === "ASSET_DISPOSAL"),
@@ -264,7 +269,7 @@ describe("label", () => {
     expect(
       DOCUMENT_FORM_OPTIONS.some((option) => option.value === "LOAN_ROOM"),
     ).toBe(false);
-    expect(DOCUMENT_FILTER_OPTIONS).toHaveLength(11);
+    expect(DOCUMENT_FILTER_OPTIONS).toHaveLength(10);
   });
 });
 

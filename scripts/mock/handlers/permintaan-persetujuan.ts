@@ -124,7 +124,6 @@ const CONFIGS: Record<ApprovalDocumentType, string> = {
   LEAVE_REQUEST: "Cuti karyawan",
   PAYROLL_RUN: "Penggajian bulanan",
   PURCHASE_RETURN: "Retur pembelian",
-  LOAN_ROOM: "Peminjaman ruang (lama)",
   ASSET_DISPOSAL: "Pelepasan barang",
 };
 

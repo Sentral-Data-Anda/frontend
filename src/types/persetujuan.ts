@@ -1,6 +1,10 @@
 import { MENU, detailHref, menuHref, type MenuSlug } from "@/config/menu";
 import { formatAmount, formatDays } from "@/lib/format";
 
+// Jenis dokumen yang bisa disubmit ke mesin persetujuan — cermin
+// `ApprovalDocumentType` di be-sada. LOAN_ROOM keluar dari daftar ini
+// (migrasi 20261016100000): Peminjaman Ruang memang tidak meminta tanda
+// tangan, jadi alur untuknya akan jadi kontrol yang tidak mengontrol apa pun.
 export const APPROVAL_DOCUMENT_TYPES = [
   "PURCHASE_REQUEST",
   "PROGRAM",
@@ -10,7 +14,6 @@ export const APPROVAL_DOCUMENT_TYPES = [
   "LEAVE_REQUEST",
   "PAYROLL_RUN",
   "PURCHASE_RETURN",
-  "LOAN_ROOM",
   "ASSET_DISPOSAL",
 ] as const;
 
@@ -25,7 +28,6 @@ export const APPROVAL_DOCUMENT_LABEL: Record<ApprovalDocumentType, string> = {
   LEAVE_REQUEST: "Cuti",
   PAYROLL_RUN: "Penggajian",
   PURCHASE_RETURN: "Retur pembelian",
-  LOAN_ROOM: "Peminjaman ruang",
   ASSET_DISPOSAL: "Pelepasan barang",
 };
 
