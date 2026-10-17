@@ -121,9 +121,11 @@ const forwardRequest = (
 export const config = {
   matcher: [
     // Aset yang dialihkan ke /login dijawab HTML dan gagal diam-diam.
+    // `monitoring` = tunnel Sentry (next.config tunnelRoute): POST event dari browser
+    // tidak boleh kena redirect auth, jadi dikecualikan dari middleware sepenuhnya.
     {
       source:
-        "/((?!(?:api|_next/static|_next/image|manifest\\.webmanifest|sw\\.js|icons|brand|loading|apple-icon\\.png|icon\\.png|favicon\\.ico|offline|robots\\.txt)(?:/|$)).*)",
+        "/((?!(?:api|monitoring|_next/static|_next/image|manifest\\.webmanifest|sw\\.js|icons|brand|loading|apple-icon\\.png|icon\\.png|favicon\\.ico|offline|robots\\.txt)(?:/|$)).*)",
     },
     {
       source: "/api/:path*",

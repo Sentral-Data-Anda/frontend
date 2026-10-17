@@ -1,3 +1,4 @@
+import { withSentryConfig } from "@sentry/nextjs/config";
 import type { NextConfig } from "next";
 
 // Satu ID per build untuk generateBuildId dan URL service worker (`/sw.js?v=<id>`).
@@ -10,6 +11,13 @@ const buildId =
 const nextConfig: NextConfig = {
   // Output ramping untuk Docker (multi-stage runner).
   output: "standalone",
+
+  // Standalone tidak otomatis menyalin modul yang di-import dinamis oleh Sentry
+  // (diagnostics-channel), sehingga warning "Failed to register ... hooks" muncul.
+  // Paksa ikutkan paketnya supaya span server tetap terekam.
+  outputFileTracingIncludes: {
+    "/**/*": ["./node_modules/@sentry/server-runtime-injection/**/*"],
+  },
 
   generateBuildId: async () => buildId,
 
@@ -32,6 +40,8 @@ const nextConfig: NextConfig = {
         source: "/:path*",
         headers: [
           { key: "X-Content-Type-Options", value: "nosniff" },
+          // Sentry browser profiling butuh header ini agar JS Self-Profiling API aktif.
+          { key: "Document-Policy", value: "js-profiling" },
           // SAMEORIGIN hanya di development, untuk iframe `/dev/preview`.
           // Pasangannya `frame-ancestors` di src/lib/security/csp.ts.
           {
@@ -63,4 +73,13 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withSentryConfig(nextConfig, {
+  // Belum ada SENTRY_AUTH_TOKEN: source map tidak diunggah (build tetap jalan).
+  // Kalau nanti punya auth token, hapus baris ini untuk stack trace terbaca.
+  sourcemaps: { disable: true },
+  // Event dikirim lewat domain sendiri (/monitoring) supaya tidak diblokir ad-blocker.
+  tunnelRoute: "/monitoring",
+  widenClientFileUpload: true,
+  // Jangan kirim telemetry build ke Sentry.
+  telemetry: false,
+});
