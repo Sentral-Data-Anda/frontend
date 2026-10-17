@@ -36,6 +36,12 @@ const FOCUS =
 
 const ITEM = cn(
   "flex h-10 items-center gap-3 overflow-hidden rounded-control px-2.5 transition-colors",
+  // Di rail, lebarnya dikunci 40px — persis setinggi item, jadi kotak keadaan
+  // aktif tetap persegi dan ikonnya tetap di tengah. Tanpa ini lebar item
+  // mengikuti lebar `nav`, dan `nav` menyempit begitu scrollbar yang memakan
+  // ruang muncul (Windows, atau macOS saat scrollbar disetel selalu tampil):
+  // kotaknya ikut menyempit jadi 32px dan bergeser dari sumbu ikon.
+  "group-data-collapsed/sidebar:w-10",
   FOCUS,
 );
 
@@ -343,7 +349,14 @@ export function SidebarNav({
   return (
     <nav
       aria-label="Navigasi utama"
-      className="flex-1 overflow-y-auto overscroll-contain px-4 py-3"
+      className={cn(
+        "flex-1 overflow-y-auto overscroll-contain px-4 py-3",
+        // Padding kanan dilepas di rail supaya ada cadangan untuk scrollbar.
+        // Padding kiri tetap 16px, dan karena lebar item juga tetap, sumbu
+        // ikon tidak bergerak berapa pun lebar scrollbar — logo, ikon menu,
+        // dan avatar tetap satu garis. Diukur tetap lurus sampai 16px.
+        "group-data-collapsed/sidebar:pr-0",
+      )}
     >
       <ul>
         <li>
