@@ -4,6 +4,7 @@ import { AppShell } from "@/components/layout/app-shell";
 import { SessionProvider } from "@/features/auth";
 import { getSession } from "@/features/auth/get-session";
 import { SentryUser } from "@/features/observability";
+import { SESSION_ENDED_PATH } from "@/lib/api/cookie";
 
 export default async function AppLayout({
   children,
@@ -12,7 +13,7 @@ export default async function AppLayout({
 }) {
   const session = await getSession();
 
-  if (!session) redirect("/login");
+  if (!session) redirect(SESSION_ENDED_PATH);
 
   if (session.status !== "ACTIVE") redirect("/authentication");
 

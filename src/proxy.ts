@@ -1,10 +1,15 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 import { clientContextOf, refreshSession } from "@/features/auth/refresh";
-import { ACCESS_COOKIE, REFRESH_COOKIE } from "@/lib/api/cookie";
+import {
+  ACCESS_COOKIE,
+  REFRESH_COOKIE,
+  SESSION_ENDED_PATH,
+} from "@/lib/api/cookie";
 import { buildContentSecurityPolicy, generateNonce } from "@/lib/security/csp";
 
-const LOGOUT_PATH = "/api/v1/auth/logout";
+// Dua rute ini justru membersihkan sesi: menyegarkannya dulu tidak ada gunanya.
+const NO_REFRESH_PATHS = new Set(["/api/v1/auth/logout", SESSION_ENDED_PATH]);
 
 const PUBLIC_PATHS = new Set([
   "/login",
@@ -35,7 +40,7 @@ export async function proxy(request: NextRequest) {
   let cookieHeader: string | undefined;
   let setCookie: string[] | undefined;
 
-  if (!accessToken && refreshToken && pathname !== LOGOUT_PATH) {
+  if (!accessToken && refreshToken && !NO_REFRESH_PATHS.has(pathname)) {
     const refreshed = await refreshSession(
       request.headers.get("cookie") ?? "",
       refreshToken,
