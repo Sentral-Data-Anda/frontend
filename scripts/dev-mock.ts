@@ -497,6 +497,17 @@ Bun.serve({
     const url = new URL(request.url);
     const path = url.pathname.replace(/^\/api\/v1/, "");
 
+    // Cookie bernilai `revoked` meniru sesi yang dicabut login di perangkat lain:
+    // be-sada menjawab 401 pada /me dan pada refresh-token.
+    if (
+      (path === "/auth/me" || path === "/auth/refresh-token") &&
+      /(?:^|;\s*)(?:accessToken|refreshToken)=revoked(?:;|$)/.test(
+        request.headers.get("cookie") ?? "",
+      )
+    ) {
+      return json({ status: 401, error: "Sesi Anda telah berakhir." }, 401);
+    }
+
     if (path === "/auth/login" || path === "/auth/logout") resetStepUp();
     if (path === "/auth/verify-password" && request.method === "POST") {
       return verifyPassword(request);

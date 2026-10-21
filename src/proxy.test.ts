@@ -42,6 +42,15 @@ describe("proxy", () => {
     expect(response.status).toBe(200);
   });
 
+  test("session-ended tanpa access cookie tidak memicu penyegaran", async () => {
+    refreshHits = 0;
+
+    const response = await proxy(request("/api/v1/auth/session-ended", "r3"));
+
+    expect(refreshHits).toBe(0);
+    expect(response.status).toBe(200);
+  });
+
   test("pembanding: API lain tanpa access cookie memang disegarkan", async () => {
     refreshHits = 0;
 

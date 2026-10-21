@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { AuthCard } from "@/components/common/brand";
 import { getSession } from "@/features/auth/get-session";
 import { AuthHandoffDone, FirstLoginForm } from "@/features/auth/ui";
+import { SESSION_ENDED_PATH } from "@/lib/api/cookie";
 import { isSafeRedirectPath } from "@/lib/redirect";
 
 export const metadata = { title: "Menyiapkan" };
@@ -24,9 +25,9 @@ export default async function Page({
     delay(MINIMUM_HOLD_MS),
   ]);
 
-  if (!session) redirect("/login");
+  if (!session) redirect(SESSION_ENDED_PATH);
 
-  if (session.status === "DEACTIVATED") redirect("/login");
+  if (session.status === "DEACTIVATED") redirect(SESSION_ENDED_PATH);
 
   if (session.status === "PENDING")
     return (
