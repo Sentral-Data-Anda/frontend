@@ -31,6 +31,7 @@ const originalFetch = globalThis.fetch;
 const ROWS: KomponenPayroll[] = [
   {
     id: 1,
+    publicId: "pid-kpy-0001",
     code: "KPY-0001",
     name: "Tunjangan Transport",
     type: "EARNING",
@@ -42,6 +43,7 @@ const ROWS: KomponenPayroll[] = [
   },
   {
     id: 6,
+    publicId: "pid-pph21",
     code: "PPH21",
     name: "PPh21",
     type: "DEDUCTION",
@@ -141,7 +143,7 @@ describe("baris PPH21 tampil tapi tidak bisa disunting", () => {
       screen
         .getByRole("link", { name: "Ubah Tunjangan Transport" })
         .getAttribute("href"),
-    ).toBe("/hr/payroll-component/KPY-0001/ubah");
+    ).toBe("/hr/payroll-component/edit/pid-kpy-0001");
     expect(screen.queryByRole("link", { name: "Ubah PPh21" })).toBeNull();
     expect(screen.getByText("Dikelola sistem")).toBeTruthy();
 
@@ -154,10 +156,10 @@ describe("konfigurasi tabel katalog", () => {
     const { katalogTable } = await import("./katalog-item");
     const table = katalogTable(true);
 
-    expect(table.getRowHref?.(ROWS[0])).toBe(
-      "/hr/payroll-component/KPY-0001/ubah",
+    expect(table.getRowActions?.(ROWS[0])?.edit?.href).toBe(
+      "/hr/payroll-component/edit/pid-kpy-0001",
     );
-    expect(table.getRowHref?.(ROWS[1])).toBeUndefined();
+    expect(table.getRowActions?.(ROWS[1])?.edit?.href).toBeUndefined();
   });
 
   test("tujuh kolom, dan Cara hitung serta Akun yang pelengkap", async () => {

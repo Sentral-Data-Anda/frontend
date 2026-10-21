@@ -183,6 +183,7 @@ describe("payload multipart", () => {
 
 const EVENT: ChurchEvent = {
   id: 2,
+  publicId: "pid-evn-0002-2026-0001",
   code: "EVN_0002-2026-0001",
   name: "Retret Pemuda",
   description: "Retret tahunan komisi pemuda.",

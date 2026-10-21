@@ -23,7 +23,7 @@ const replaced: string[] = [];
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
-  usePathname: () => "/hr/employee-contract/baru",
+  usePathname: () => "/hr/employee-contract/create",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -148,7 +148,7 @@ afterEach(() => {
 });
 
 describe("gerbang izin form kontrak", () => {
-  test("tanpa CREATE: rute /baru tidak merender form", () => {
+  test("tanpa CREATE: rute /create tidak merender form", () => {
     onRender(["VIEW"]);
 
     expect(screen.getByText("Tidak bisa menambah kontrak")).toBeTruthy();
@@ -160,7 +160,7 @@ describe("gerbang izin form kontrak", () => {
     expect(screen.queryByLabelText("Berlaku dari")).toBeNull();
   });
 
-  test("tanpa UPDATE: rute /ubah tidak merender form dan tidak memuat detail", () => {
+  test("tanpa UPDATE: rute /edit tidak merender form dan tidak memuat detail", () => {
     let isFetched = false;
     globalThis.fetch = (() => {
       isFetched = true;

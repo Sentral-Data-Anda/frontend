@@ -1,7 +1,5 @@
-import { ChevronRight, Pencil } from "lucide-react";
 import Link from "next/link";
 
-import { buttonVariants } from "@/components/common/control";
 import {
   DataListRow,
   TABLE_ROW_LINK,
@@ -10,7 +8,6 @@ import {
 } from "@/components/common/list";
 import { formatAmount } from "@/lib/format";
 import { saveListFocus } from "@/lib/list-return";
-import { cn } from "@/lib/utils";
 
 import {
   PROGRAM_LIST_PATH,
@@ -30,28 +27,12 @@ const viewLabelOf = (row: Program) => `Lihat usulan ${row.name}`;
 
 const isEditable = (row: Program) => programStateOf(row) === "DRAFT";
 
-const editLink = (row: Program) =>
-  isEditable(row) ? (
-    <Link
-      href={programEditHref(row.publicId)}
-      onClick={() => saveFocus(row)}
-      aria-label={`Ubah usulan ${row.name}`}
-      className={cn(
-        buttonVariants({ variant: "ghost", size: "icon-sm" }),
-        "relative cursor-pointer",
-      )}
-    >
-      <Pencil aria-hidden />
-    </Link>
-  ) : null;
-
 interface PropTypes {
   row: Program;
-  isCanUpdate?: boolean;
 }
 
 export const ProgramListItem = (props: PropTypes) => {
-  const { row, isCanUpdate = false } = props;
+  const { row } = props;
 
   return (
     <DataListRow
@@ -78,7 +59,6 @@ export const ProgramListItem = (props: PropTypes) => {
               <ProgramStatusBadge program={row} />
             </div>
           </div>
-          {isCanUpdate ? editLink(row) : null}
         </>
       }
     />
@@ -158,20 +138,24 @@ const COLUMNS: Column[] = [
   },
 ];
 
-const EDIT_COLUMN: Column = {
-  key: "edit",
-  header: "",
-  width: "2rem",
-  align: "end",
-  cell: editLink,
-};
-
 export function programTable(isCanUpdate = false): DataTableConfig<Program> {
   return {
-    columns: isCanUpdate ? [...COLUMNS, EDIT_COLUMN] : COLUMNS,
-    getRowHref: detailHrefOf,
-    getRowLabel: viewLabelOf,
-    onRowOpen: saveFocus,
-    rowIcon: <ChevronRight />,
+    columns: COLUMNS,
+    getRowActions: (x) => ({
+      label: viewLabelOf(x),
+      view: {
+        href: detailHrefOf(x),
+        onNavigate: () => saveFocus(x),
+        label: viewLabelOf(x),
+      },
+      edit:
+        isCanUpdate && isEditable(x)
+          ? {
+              href: programEditHref(x.publicId),
+              onNavigate: () => saveFocus(x),
+              label: `Ubah usulan ${x.name}`,
+            }
+          : undefined,
+    }),
   };
 }

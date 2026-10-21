@@ -19,6 +19,8 @@ export type UsageKind = "LOAN" | "IBADAH" | "EVENT";
 
 export type RoomUsage = {
   kind: UsageKind;
+  // Hanya peminjaman yang punya.
+  publicId?: string;
   code: string;
   name: string;
   date: string;

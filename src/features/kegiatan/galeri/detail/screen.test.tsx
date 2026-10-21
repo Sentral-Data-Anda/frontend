@@ -34,6 +34,7 @@ const { GaleriDetailScreen } = await import("./screen");
 
 const originalFetch = globalThis.fetch;
 const CODE = "ALBM_0002-0001";
+const PUBLIC_ID = "pid-1";
 
 afterEach(() => {
   cleanup();
@@ -41,6 +42,7 @@ afterEach(() => {
 });
 
 const ALBUM: Album = {
+  publicId: PUBLIC_ID,
   code: CODE,
   name: "Retret Pemuda 2025",
   isPublish: false,
@@ -105,7 +107,7 @@ describe("halaman album", () => {
 
     expect(
       (await screen.findByRole("link", { name: "Ubah" })).getAttribute("href"),
-    ).toBe(galeriEditHref(CODE));
+    ).toBe(galeriEditHref(PUBLIC_ID));
   });
 
   test("404: data album tidak ditemukan", async () => {

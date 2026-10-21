@@ -1,7 +1,5 @@
-import { ChevronRight, Pencil } from "lucide-react";
 import Link from "next/link";
 
-import { buttonVariants } from "@/components/common/control";
 import {
   DataListRow,
   TABLE_ROW_LINK,
@@ -36,28 +34,12 @@ const opnameMetaOf = (opname: Opname) =>
     `${formatNumber(opname.differenceCount)} selisih`,
   ].join(" · ");
 
-const editLink = (opname: Opname) =>
-  opname.status === "DRAFT" ? (
-    <Link
-      href={opnameEditHref(opname.code)}
-      onClick={() => saveFocus(opname)}
-      aria-label={`Ubah stok opname ${opname.code}`}
-      className={cn(
-        buttonVariants({ variant: "ghost", size: "icon-sm" }),
-        "relative cursor-pointer",
-      )}
-    >
-      <Pencil aria-hidden />
-    </Link>
-  ) : null;
-
 interface PropTypes {
   opname: Opname;
-  isCanUpdate?: boolean;
 }
 
 export const OpnameListItemRow = (props: PropTypes) => {
-  const { opname, isCanUpdate = false } = props;
+  const { opname } = props;
 
   return (
     <DataListRow
@@ -77,7 +59,6 @@ export const OpnameListItemRow = (props: PropTypes) => {
       trailing={
         <>
           <OpnameStatusBadge status={opname.status} />
-          {isCanUpdate ? editLink(opname) : null}
         </>
       }
     />
@@ -156,20 +137,24 @@ const COLUMNS: Column[] = [
   },
 ];
 
-const EDIT_COLUMN: Column = {
-  key: "edit",
-  header: "",
-  width: "2rem",
-  align: "end",
-  cell: editLink,
-};
-
 export function opnameTable(isCanUpdate: boolean): DataTableConfig<Opname> {
   return {
-    columns: isCanUpdate ? [...COLUMNS, EDIT_COLUMN] : COLUMNS,
-    getRowHref: detailHrefOf,
-    getRowLabel: viewLabelOf,
-    onRowOpen: saveFocus,
-    rowIcon: <ChevronRight />,
+    columns: COLUMNS,
+    getRowActions: (x) => ({
+      label: viewLabelOf(x),
+      view: {
+        href: detailHrefOf(x),
+        onNavigate: () => saveFocus(x),
+        label: viewLabelOf(x),
+      },
+      edit:
+        isCanUpdate && x.status === "DRAFT"
+          ? {
+              href: opnameEditHref(x.publicId),
+              onNavigate: () => saveFocus(x),
+              label: `Ubah stok opname ${x.code}`,
+            }
+          : undefined,
+    }),
   };
 }

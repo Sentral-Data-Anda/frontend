@@ -1,4 +1,3 @@
-import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 
 import { MediaThumb, OptionalText } from "@/components/common/display";
@@ -11,15 +10,14 @@ import {
 import { saveListFocus } from "@/lib/list-return";
 
 import {
-  GALERI_LIST_PATH,
   albumMetaOf,
+  GALERI_LIST_PATH,
   galeriDetailHref,
+  galeriEditHref,
   websiteCellOf,
 } from "../model";
 import type { Album } from "../types";
 import { AlbumStatus } from "../ui";
-
-import { EditLink } from "./edit-link";
 
 const saveFocus = (album: Album) => saveListFocus(GALERI_LIST_PATH, album.code);
 
@@ -36,11 +34,10 @@ const coverOf = (album: Album) => (
 
 interface PropTypes {
   album: Album;
-  isCanUpdate?: boolean;
 }
 
 export const GaleriListItemRow = (props: PropTypes) => {
-  const { album, isCanUpdate = false } = props;
+  const { album } = props;
 
   return (
     <DataListRow
@@ -61,7 +58,6 @@ export const GaleriListItemRow = (props: PropTypes) => {
       trailing={
         <>
           <AlbumStatus isPublish={album.isPublish} />
-          {isCanUpdate ? <EditLink album={album} /> : null}
         </>
       }
     />
@@ -125,20 +121,35 @@ const COLUMNS: Column[] = [
   },
 ];
 
-const EDIT_COLUMN: Column = {
-  key: "edit",
-  header: "",
-  width: "2rem",
-  align: "end",
-  cell: (album) => <EditLink album={album} />,
-};
+const deleteLabelOf = (x: Album) => `Hapus ${x.name}`;
 
-export function galeriTable(isCanUpdate: boolean): DataTableConfig<Album> {
+export const deleteTargetLabelOf = (x: Album) => `${x.name}`;
+
+export function galeriTable(
+  isCanUpdate: boolean,
+  // Dilewatkan dari layar daftar; `undefined` berarti pengguna tidak berhak
+  // menghapus, jadi tombolnya tidak dirender sama sekali.
+  onDelete?: (row: Album) => void,
+): DataTableConfig<Album> {
   return {
-    columns: isCanUpdate ? [...COLUMNS, EDIT_COLUMN] : COLUMNS,
-    getRowHref: detailHrefOf,
-    getRowLabel: viewLabelOf,
-    onRowOpen: saveFocus,
-    rowIcon: <ChevronRight />,
+    columns: COLUMNS,
+    getRowActions: (x) => ({
+      label: viewLabelOf(x),
+      view: {
+        href: detailHrefOf(x),
+        onNavigate: () => saveFocus(x),
+        label: viewLabelOf(x),
+      },
+      edit: isCanUpdate
+        ? {
+            href: galeriEditHref(x.publicId),
+            onNavigate: () => saveListFocus(GALERI_LIST_PATH, x.code),
+            label: `Ubah ${x.name}`,
+          }
+        : undefined,
+      remove: onDelete
+        ? { onSelect: () => onDelete(x), label: deleteLabelOf(x) }
+        : undefined,
+    }),
   };
 }

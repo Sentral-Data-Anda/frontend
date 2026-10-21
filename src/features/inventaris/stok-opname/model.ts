@@ -26,8 +26,8 @@ export const OPNAME_CREATE_PATH = createHref(MENU.INVENTORY, MENU.STOK_OPNAME);
 export const opnameHref = (code: string) =>
   detailHref(MENU.INVENTORY, MENU.STOK_OPNAME, code);
 
-export const opnameEditHref = (code: string) =>
-  editHref(MENU.INVENTORY, MENU.STOK_OPNAME, code);
+export const opnameEditHref = (publicId: string) =>
+  editHref(MENU.INVENTORY, MENU.STOK_OPNAME, publicId);
 
 export const stockItemHref = (code: string) =>
   detailHref(MENU.INVENTORY, MENU.STOCK_ITEM, code);

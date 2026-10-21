@@ -1,23 +1,26 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
+import { RowActionsProvider } from "@/components/common/list";
+
 import type { RolePelayan } from "../types";
 
 import { RolePelayanListItemRow, rolePelayanTable } from "./list-item";
 
 afterEach(cleanup);
 
-const LITURGIS: RolePelayan = { id: 1, name: "Liturgis" };
-const PEMUSIK: RolePelayan = { id: 2, name: "Pemusik" };
+const LITURGIS: RolePelayan = { id: 1, publicId: "p1", name: "Liturgis" };
+const PEMUSIK: RolePelayan = { id: 2, publicId: "p2", name: "Pemusik" };
 
 const onRenderRow = (isCanUpdate: boolean, rolePelayan = LITURGIS) =>
   render(
-    <ul>
-      <RolePelayanListItemRow
-        rolePelayan={rolePelayan}
-        isCanUpdate={isCanUpdate}
-      />
-    </ul>,
+    <RowActionsProvider
+      value={rolePelayanTable(isCanUpdate).getRowActions?.(rolePelayan)}
+    >
+      <ul>
+        <RolePelayanListItemRow rolePelayan={rolePelayan} />
+      </ul>
+    </RowActionsProvider>,
   );
 
 describe("baris HP", () => {
@@ -26,7 +29,7 @@ describe("baris HP", () => {
 
     expect(
       screen.getByRole("link", { name: "Ubah Liturgis" }).getAttribute("href"),
-    ).toBe("/pelayanan/role-pelayan/1/ubah");
+    ).toBe("/pelayanan/role-pelayan/edit/1");
     expect(document.querySelector('[data-row-id="1"]')).not.toBeNull();
     expect(screen.queryByText(/alat musik/)).toBeNull();
   });
@@ -54,7 +57,11 @@ describe("konfigurasi tabel", () => {
     expect(
       table.columns.map((column) => [column.header, column.width]),
     ).toEqual([["Nama", "minmax(0,1fr)"]]);
-    expect(table.getRowHref?.(LITURGIS)).toBe("/pelayanan/role-pelayan/1/ubah");
-    expect(rolePelayanTable(false).getRowHref).toBeUndefined();
+    expect(table.getRowActions?.(LITURGIS)?.edit?.href).toBe(
+      "/pelayanan/role-pelayan/edit/1",
+    );
+    expect(
+      rolePelayanTable(false).getRowActions?.(LITURGIS)?.edit?.href,
+    ).toBeUndefined();
   });
 });

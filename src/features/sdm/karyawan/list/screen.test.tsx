@@ -1,3 +1,4 @@
+import { Toast } from "@base-ui/react/toast";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import {
@@ -89,7 +90,9 @@ const onRenderList = (granted: MenuAction[], query = "") => {
         new QueryClient({ defaultOptions: { queries: { retry: false } } })
       }
     >
-      <KaryawanListScreen />
+      <Toast.Provider>
+        <KaryawanListScreen />
+      </Toast.Provider>
     </QueryClientProvider>,
   );
 };
@@ -116,7 +119,7 @@ describe("gerbang izin", () => {
     expect(screen.queryByRole("link", { name: "Tambah karyawan" })).toBeNull();
   });
 
-  test("dengan CREATE: tombol tambah menunjuk /hr/employee/baru", async () => {
+  test("dengan CREATE: tombol tambah menunjuk /hr/employee/create", async () => {
     onRenderList(["VIEW", "CREATE"]);
 
     await screen.findByText("8 karyawan");
@@ -124,7 +127,7 @@ describe("gerbang izin", () => {
       screen
         .getByRole("link", { name: "Tambah karyawan" })
         .getAttribute("href"),
-    ).toBe("/hr/employee/baru");
+    ).toBe("/hr/employee/create");
   });
 
   test("tanpa UPDATE: nol tautan ubah di baris", async () => {
@@ -142,7 +145,7 @@ describe("gerbang izin", () => {
       screen
         .getByRole("link", { name: "Ubah Gideon Tampubolon" })
         .getAttribute("href"),
-    ).toBe("/hr/employee/KRY-0003/ubah");
+    ).toBe("/hr/employee/edit/karyawan-3");
   });
 });
 

@@ -34,12 +34,13 @@ mock.module("@/features/auth/use-menu-access", () => ({
 const { StockDetailScreen } = await import("./screen");
 
 const CODE = "BRP-0009";
+const PUBLIC_ID = "s9";
 
 const ref = (code: string, name: string) => ({ publicId: code, code, name });
 
 const ITEM: StockItem = {
   id: 9,
-  publicId: "s9",
+  publicId: PUBLIC_ID,
   code: CODE,
   name: "Kidung Jemaat",
   description: "Buku nyanyian untuk jemaat tamu.",
@@ -181,7 +182,7 @@ describe("halaman barang persediaan", () => {
     ).toBe(movementCreateHref(CODE));
     expect(
       screen.getByRole("link", { name: "Ubah" }).getAttribute("href"),
-    ).toBe(stockEditHref(CODE));
+    ).toBe(stockEditHref(PUBLIC_ID));
     expect(
       screen.queryByRole("link", { name: "Lihat semua mutasi" }),
     ).toBeNull();

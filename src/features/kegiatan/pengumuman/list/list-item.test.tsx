@@ -1,6 +1,8 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
+import { RowActionsProvider } from "@/components/common/list";
+
 import type { Announcement } from "../types";
 
 import { PengumumanListItemRow, pengumumanTable } from "./list-item";
@@ -24,12 +26,13 @@ const ROW: Announcement = {
 
 const onRenderRow = (isCanUpdate: boolean, announcement = ROW) =>
   render(
-    <ul>
-      <PengumumanListItemRow
-        announcement={announcement}
-        isCanUpdate={isCanUpdate}
-      />
-    </ul>,
+    <RowActionsProvider
+      value={pengumumanTable(isCanUpdate).getRowActions?.(announcement)}
+    >
+      <ul>
+        <PengumumanListItemRow announcement={announcement} />
+      </ul>
+    </RowActionsProvider>,
   );
 
 describe("baris HP", () => {
@@ -43,7 +46,7 @@ describe("baris HP", () => {
       screen
         .getByRole("link", { name: "Ubah Warta Jemaat Minggu Ini" })
         .getAttribute("href"),
-    ).toBe("/kegiatan/pengumuman/PGM-2026-0001/ubah");
+    ).toBe("/kegiatan/pengumuman/edit/b1");
   });
 
   test("biasa, berakhir, tanpa UPDATE", () => {
@@ -83,10 +86,12 @@ describe("tabel", () => {
       ["Website", "minmax(0,0.8fr)", true],
       ["Status", "minmax(0,1fr)", false],
     ]);
-    expect(table.getRowHref?.(ROW)).toBe(
-      "/kegiatan/pengumuman/PGM-2026-0001/ubah",
+    expect(table.getRowActions?.(ROW)?.edit?.href).toBe(
+      "/kegiatan/pengumuman/edit/b1",
     );
-    expect(pengumumanTable(false).getRowHref).toBeUndefined();
+    expect(
+      pengumumanTable(false).getRowActions?.(ROW)?.edit?.href,
+    ).toBeUndefined();
   });
 
   test("berakhir kosong, untuk, dan website", () => {

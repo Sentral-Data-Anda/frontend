@@ -1,3 +1,4 @@
+import { Toast } from "@base-ui/react/toast";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import {
@@ -75,7 +76,9 @@ const onRenderList = (granted: MenuAction[]) => {
         new QueryClient({ defaultOptions: { queries: { retry: false } } })
       }
     >
-      <IbadahListScreen />
+      <Toast.Provider>
+        <IbadahListScreen />
+      </Toast.Provider>
     </QueryClientProvider>,
   );
 };
@@ -117,7 +120,7 @@ describe("gerbang izin daftar", () => {
     await onRowsReady();
     expect(
       screen.getByRole("link", { name: "Tambah ibadah" }).getAttribute("href"),
-    ).toBe("/peribadahan/ibadah/baru");
+    ).toBe("/peribadahan/ibadah/create");
     expect(
       screen.getAllByRole("link", { name: /^Ubah / }).length,
     ).toBeGreaterThan(0);

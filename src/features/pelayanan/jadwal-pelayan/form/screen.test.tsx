@@ -39,7 +39,7 @@ mock.module("next/navigation", () => ({
     replace: (href: string) => replaced.push(href),
     push: () => undefined,
   }),
-  usePathname: () => "/pelayanan/jadwal-pelayan/baru",
+  usePathname: () => "/pelayanan/jadwal-pelayan/create",
   useSearchParams: () => new URLSearchParams(search.current),
 }));
 

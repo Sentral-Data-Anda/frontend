@@ -122,7 +122,7 @@ export const RuangDetailScreen = (props: PropTypes) => {
         action={
           isCanUpdate ? (
             <Link
-              href={ruangEditHref(room.code)}
+              href={ruangEditHref(room.publicId)}
               className={cn(
                 buttonVariants({ variant: "outline" }),
                 "shrink-0 cursor-pointer",

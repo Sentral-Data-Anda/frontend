@@ -24,7 +24,7 @@ mock.module("next/navigation", () => ({
     replace: (href: string) => replaced.push(href),
     push: () => undefined,
   }),
-  usePathname: () => "/kegiatan/event/baru",
+  usePathname: () => "/kegiatan/event/create",
   useSearchParams: () => new URLSearchParams(),
 }));
 

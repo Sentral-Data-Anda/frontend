@@ -18,8 +18,8 @@ export const LIST_PATH = menuHref(MENU.HR, MENU.EMPLOYEE_CONTRACT);
 
 export const CREATE_PATH = createHref(MENU.HR, MENU.EMPLOYEE_CONTRACT);
 
-export const contractEditHref = (code: string) =>
-  editHref(MENU.HR, MENU.EMPLOYEE_CONTRACT, code);
+export const contractEditHref = (publicId: string) =>
+  editHref(MENU.HR, MENU.EMPLOYEE_CONTRACT, publicId);
 
 export const FILTERS = {
   karyawan: { api: "karyawanId" },

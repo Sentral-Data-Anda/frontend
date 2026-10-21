@@ -36,7 +36,7 @@ mock.module("next/navigation", () => ({
     replace: (href: string) => replaced.push(href),
     push: () => undefined,
   }),
-  usePathname: () => "/procurement/purchase-request/baru",
+  usePathname: () => "/procurement/purchase-request/create",
   useSearchParams: () => new URLSearchParams(search.current),
 }));
 
@@ -197,7 +197,7 @@ describe("izin dan status", () => {
     ).toBeTruthy();
     expect(
       screen.getByRole("link", { name: "Ajukan ulang" }).getAttribute("href"),
-    ).toBe(`/procurement/purchase-request/baru?salin=${code}`);
+    ).toBe(`/procurement/purchase-request/create?salin=${code}`);
   });
 });
 

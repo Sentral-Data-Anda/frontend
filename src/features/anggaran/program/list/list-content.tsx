@@ -128,7 +128,7 @@ export const ProgramListContent = () => {
           table={programTable(isCanUpdate)}
           itemNoun="usulan"
         >
-          {(row) => <ProgramListItem row={row} isCanUpdate={isCanUpdate} />}
+          {(row) => <ProgramListItem row={row} />}
         </DataList>
       )}
     </div>

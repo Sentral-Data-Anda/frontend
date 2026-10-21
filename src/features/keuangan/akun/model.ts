@@ -20,8 +20,8 @@ export const AKUN_CREATE_PATH = createHref(MENU.FINANCE, MENU.CHART_OF_ACCOUNT);
 export const accountDetailHref = (code: string) =>
   detailHref(MENU.FINANCE, MENU.CHART_OF_ACCOUNT, code);
 
-export const accountEditHref = (code: string) =>
-  editHref(MENU.FINANCE, MENU.CHART_OF_ACCOUNT, code);
+export const accountEditHref = (publicId: string) =>
+  editHref(MENU.FINANCE, MENU.CHART_OF_ACCOUNT, publicId);
 
 export const ledgerHref = (code: string) =>
   `${menuHref(MENU.REPORT, MENU.FINANCIAL_STATEMENT)}?tab=buku-besar&code=${encodeURIComponent(code)}`;

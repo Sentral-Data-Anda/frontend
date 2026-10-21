@@ -45,8 +45,8 @@ export const ORDER_CREATE_PATH = createHref(
 export const orderHref = (code: string) =>
   detailHref(MENU.PROCUREMENT, MENU.PURCHASE_ORDER, code);
 
-export const orderEditHref = (code: string) =>
-  editHref(MENU.PROCUREMENT, MENU.PURCHASE_ORDER, code);
+export const orderEditHref = (publicId: string) =>
+  editHref(MENU.PROCUREMENT, MENU.PURCHASE_ORDER, publicId);
 
 export const supplierHref = (code: string) =>
   detailHref(MENU.PROCUREMENT, MENU.SUPPLIER, code);

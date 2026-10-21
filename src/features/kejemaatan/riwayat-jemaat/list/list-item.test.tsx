@@ -1,6 +1,8 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
+import { RowActionsProvider } from "@/components/common/list";
+
 import type { RiwayatJemaat } from "../types";
 
 import { RiwayatListItemRow, riwayatTable } from "./list-item";
@@ -19,9 +21,13 @@ const RIWAYAT: RiwayatJemaat = {
 
 const onRenderRow = (isCanUpdate: boolean, riwayat = RIWAYAT) =>
   render(
-    <ul>
-      <RiwayatListItemRow riwayat={riwayat} isCanUpdate={isCanUpdate} />
-    </ul>,
+    <RowActionsProvider
+      value={riwayatTable(isCanUpdate).getRowActions?.(riwayat)}
+    >
+      <ul>
+        <RiwayatListItemRow riwayat={riwayat} />
+      </ul>
+    </RowActionsProvider>,
   );
 
 describe("baris HP", () => {
@@ -68,7 +74,7 @@ describe("baris HP", () => {
       name: "Ubah riwayat baptis Andreas Sitanggang",
     });
     expect(action.getAttribute("href")).toBe(
-      `/kejemaatan/riwayat-jemaat/${RIWAYAT.id}/ubah`,
+      `/kejemaatan/riwayat-jemaat/edit/${RIWAYAT.id}`,
     );
   });
 
@@ -107,9 +113,11 @@ describe("konfigurasi tabel", () => {
   });
 
   test("baris tabel hanya bisa dibuka dengan UPDATE", () => {
-    expect(riwayatTable(false).getRowHref).toBeUndefined();
-    expect(riwayatTable(true).getRowHref?.(RIWAYAT)).toBe(
-      `/kejemaatan/riwayat-jemaat/${RIWAYAT.id}/ubah`,
+    expect(
+      riwayatTable(false).getRowActions?.(RIWAYAT)?.edit?.href,
+    ).toBeUndefined();
+    expect(riwayatTable(true).getRowActions?.(RIWAYAT)?.edit?.href).toBe(
+      `/kejemaatan/riwayat-jemaat/edit/${RIWAYAT.id}`,
     );
   });
 });

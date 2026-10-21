@@ -1,7 +1,5 @@
-import { Lock, Pencil } from "lucide-react";
-import Link from "next/link";
+import { Lock } from "lucide-react";
 
-import { buttonVariants } from "@/components/common/control";
 import { DataListRow, type DataTableConfig } from "@/components/common/list";
 import { saveListFocus } from "@/lib/list-return";
 import { cn } from "@/lib/utils";
@@ -28,7 +26,7 @@ const labelOf = (component: KomponenPayroll) => `Ubah ${component.name}`;
 
 const hrefOf = (isCanUpdate: boolean) => (component: KomponenPayroll) =>
   isCanUpdate && !isManaged(component)
-    ? katalogEditHref(component.code)
+    ? katalogEditHref(component.publicId)
     : undefined;
 
 const ManagedMark = () => (
@@ -40,13 +38,10 @@ const ManagedMark = () => (
 
 interface PropTypes {
   component: KomponenPayroll;
-  isCanUpdate?: boolean;
 }
 
 export const KatalogListItemRow = (props: PropTypes) => {
-  const { component, isCanUpdate = false } = props;
-
-  const href = hrefOf(isCanUpdate)(component);
+  const { component } = props;
 
   return (
     <DataListRow
@@ -63,20 +58,6 @@ export const KatalogListItemRow = (props: PropTypes) => {
           <ComponentTypeBadge type={component.type} />
 
           {component.isActive ? null : <ComponentStatus isActive={false} />}
-
-          {href ? (
-            <Link
-              href={href}
-              onClick={() => saveFocus(component)}
-              aria-label={labelOf(component)}
-              className={cn(
-                buttonVariants({ variant: "ghost", size: "icon-sm" }),
-                "cursor-pointer",
-              )}
-            >
-              <Pencil aria-hidden />
-            </Link>
-          ) : null}
         </>
       }
     />
@@ -173,9 +154,13 @@ export function katalogTable(
         cell: (component) => <ComponentStatus isActive={component.isActive} />,
       },
     ],
-    getRowHref: hrefOf(isCanUpdate),
-    getRowLabel: labelOf,
-    onRowOpen: saveFocus,
-    rowIcon: <Pencil />,
+    getRowActions: (x) => ({
+      label: labelOf(x),
+      edit: {
+        href: hrefOf(isCanUpdate)(x),
+        onNavigate: () => saveFocus(x),
+        label: labelOf(x),
+      },
+    }),
   };
 }

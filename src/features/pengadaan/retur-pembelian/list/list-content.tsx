@@ -95,7 +95,7 @@ export const ReturnListContent = () => {
         table={returnTable(isCanUpdate)}
         itemNoun="retur"
       >
-        {(row) => <ReturnListItem row={row} isCanUpdate={isCanUpdate} />}
+        {(row) => <ReturnListItem row={row} />}
       </DataList>
     </div>
   );

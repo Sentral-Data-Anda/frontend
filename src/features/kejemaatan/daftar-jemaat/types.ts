@@ -32,6 +32,7 @@ export {
 } from "@/types/jemaat";
 
 export type JemaatListItem = {
+  publicId: string;
   code: string;
   name: string;
   gender: Gender;

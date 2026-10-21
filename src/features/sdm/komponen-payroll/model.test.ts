@@ -82,12 +82,12 @@ describe("rute dua layar", () => {
   test("katalog memakai code, penetapan memakai publicId", () => {
     expect(KATALOG_LIST_PATH).toBe("/hr/payroll-component");
     expect(katalogEditHref("KPY-0001")).toBe(
-      "/hr/payroll-component/KPY-0001/ubah",
+      "/hr/payroll-component/edit/KPY-0001",
     );
     expect(PENETAPAN_LIST_PATH).toBe("/hr/payroll-component/karyawan");
-    expect(PENETAPAN_CREATE_PATH).toBe("/hr/payroll-component/karyawan/baru");
+    expect(PENETAPAN_CREATE_PATH).toBe("/hr/payroll-component/karyawan/create");
     expect(penetapanEditHref("a b/c")).toBe(
-      "/hr/payroll-component/karyawan/a%20b%2Fc/ubah",
+      "/hr/payroll-component/karyawan/a%20b%2Fc/edit",
     );
   });
 });
@@ -144,6 +144,7 @@ describe("skema katalog", () => {
   test("bentuk form dari respons baca", () => {
     const row: KomponenPayroll = {
       id: 2,
+      publicId: "pid-kpy-0002",
       code: "KPY-0002",
       name: "Tunjangan Jabatan",
       type: "EARNING",
@@ -254,6 +255,7 @@ describe("skema penetapan", () => {
 describe("teks nilai", () => {
   const row = (values: Partial<KomponenPayroll> = {}): KomponenPayroll => ({
     id: 1,
+    publicId: "pid-kpy-0001",
     code: "KPY-0001",
     name: "Transport",
     type: "EARNING",

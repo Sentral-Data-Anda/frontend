@@ -51,7 +51,7 @@ const session: { current: Session } = { current: ADMIN };
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
-  usePathname: () => "/settings/user-role/baru",
+  usePathname: () => "/settings/user-role/create",
   useSearchParams: () => new URLSearchParams(),
 }));
 

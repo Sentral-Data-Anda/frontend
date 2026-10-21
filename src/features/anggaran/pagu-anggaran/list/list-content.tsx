@@ -1,12 +1,18 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 
 import { Button, buttonVariants } from "@/components/common/control";
 import { Panel } from "@/components/common/display";
 import { EmptyState, useToast } from "@/components/common/feedback";
 import { FormAlert } from "@/components/common/form";
-import { DataList, ListTabs, ListToolbar } from "@/components/common/list";
+import {
+  DataList,
+  ListTabs,
+  ListToolbar,
+  RowDeleteDialog,
+} from "@/components/common/list";
 import { PageHeader, PageHeaderAdd } from "@/components/layout";
 import { MENU, domainHref } from "@/config/menu";
 import { TaggedTotal } from "@/features/anggaran/shared";
@@ -15,7 +21,11 @@ import { useBoolean } from "@/hooks/use-boolean";
 import { useDdlOptions } from "@/hooks/use-ddl-options";
 import { useListParams } from "@/hooks/use-list-params";
 
-import { useAllocationList, useBudgetSetting } from "../api";
+import {
+  useAllocationList,
+  useBudgetSetting,
+  useDeleteAllocation,
+} from "../api";
 import {
   DISBURSED_PANEL_LABEL,
   EMPTY_DESCRIPTION,
@@ -32,14 +42,24 @@ import {
   yearLabelOf,
   yearTabOptions,
 } from "../model";
+import type { BudgetAllocation } from "../types";
 
 import { BudgetYearDialog } from "./budget-year-dialog";
-import { AllocationListItem, allocationTable } from "./list-item";
+import {
+  AllocationListItem,
+  allocationTable,
+  deleteTargetLabelOf,
+} from "./list-item";
 
 const TITLE = "Budget";
 
 export const AllocationListContent = () => {
-  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.BUDGET);
+  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(MENU.BUDGET);
+
+  // Satu keadaan menyimpan baris yang akan dihapus sekaligus status terbuka
+  // dialognya. Hook hapus dibuat ulang mengikuti kunci baris ini.
+  const [target, setTarget] = useState<BudgetAllocation | null>(null);
+  const deleteRow = useDeleteAllocation(target?.publicId);
   const toast = useToast();
   const isDialogOpen = useBoolean();
   const listParams = useListParams({ filters: LIST_FILTERS });
@@ -65,6 +85,20 @@ export const AllocationListContent = () => {
 
   const onClearNarrow = () =>
     listParams.onApplyFilters({ komisi: "", search: "" });
+
+  const onDelete = () => {
+    deleteRow.mutate(undefined, {
+      onSuccess: (deleted) => {
+        toast.add({ title: deleted.message });
+        setTarget(null);
+      },
+    });
+  };
+
+  const onCancelDelete = () => {
+    deleteRow.reset();
+    setTarget(null);
+  };
 
   return (
     <div className="pb-6">
@@ -169,10 +203,13 @@ export const AllocationListContent = () => {
           emptyDescription="Tidak ada pagu anggaran yang cocok dengan filter ini."
           onClearFilter={isNarrowed ? onClearNarrow : undefined}
           pagination={allocationList.pagination}
-          table={allocationTable(isCanUpdate)}
+          table={allocationTable(
+            isCanUpdate,
+            isCanDelete ? setTarget : undefined,
+          )}
           itemNoun="badan pelayanan"
         >
-          {(row) => <AllocationListItem row={row} isCanUpdate={isCanUpdate} />}
+          {(row) => <AllocationListItem row={row} />}
         </DataList>
       )}
 
@@ -212,6 +249,15 @@ export const AllocationListContent = () => {
           onSaved={onSaved}
         />
       ) : null}
+
+      <RowDeleteDialog
+        target={target ? { label: deleteTargetLabelOf(target) } : null}
+        entity="badan pelayanan"
+        isPending={deleteRow.isPending}
+        errorMessage={deleteRow.error?.message}
+        onCancel={onCancelDelete}
+        onConfirm={onDelete}
+      />
     </div>
   );
 };

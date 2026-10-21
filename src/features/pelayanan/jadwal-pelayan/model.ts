@@ -40,8 +40,8 @@ export const JADWAL_PELAYAN_CREATE_PATH = createHref(
 export const jadwalDetailHref = (code: string) =>
   detailHref(MENU.PELAYANAN, MENU.JADWAL_PELAYAN, code);
 
-export const jadwalEditHref = (code: string) =>
-  editHref(MENU.PELAYANAN, MENU.JADWAL_PELAYAN, code);
+export const jadwalEditHref = (publicId: string) =>
+  editHref(MENU.PELAYANAN, MENU.JADWAL_PELAYAN, publicId);
 
 export const salinHref = (code: string) =>
   `${JADWAL_PELAYAN_CREATE_PATH}?salin=${encodeURIComponent(code)}`;

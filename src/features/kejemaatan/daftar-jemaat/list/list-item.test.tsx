@@ -1,13 +1,16 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
+import { RowActionsProvider } from "@/components/common/list";
+
 import type { JemaatListItem } from "../types";
 
-import { JemaatListItemRow } from "./list-item";
+import { JemaatListItemRow, jemaatTable } from "./list-item";
 
 afterEach(cleanup);
 
 const JEMAAT: JemaatListItem = {
+  publicId: "11111111-2222-4333-8444-555555555555",
   code: "JMT-0042",
   name: "Maria Sitompul",
   gender: "P",
@@ -21,9 +24,13 @@ const JEMAAT: JemaatListItem = {
 
 const onRenderRow = (isCanUpdate: boolean) =>
   render(
-    <ul>
-      <JemaatListItemRow jemaat={JEMAAT} isCanUpdate={isCanUpdate} />
-    </ul>,
+    <RowActionsProvider
+      value={jemaatTable(isCanUpdate).getRowActions?.(JEMAAT)}
+    >
+      <ul>
+        <JemaatListItemRow jemaat={JEMAAT} />
+      </ul>
+    </RowActionsProvider>,
   );
 
 describe("gate aksi Ubah per baris", () => {
@@ -32,7 +39,7 @@ describe("gate aksi Ubah per baris", () => {
 
     const action = screen.getByRole("link", { name: "Ubah Maria Sitompul" });
     expect(action.getAttribute("href")).toBe(
-      "/kejemaatan/daftar-jemaat/JMT-0042/ubah",
+      "/kejemaatan/daftar-jemaat/edit/11111111-2222-4333-8444-555555555555",
     );
   });
 

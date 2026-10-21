@@ -1,3 +1,4 @@
+import { Toast } from "@base-ui/react/toast";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import {
@@ -98,7 +99,9 @@ const onRenderList = (granted: MenuAction[] = ["VIEW", "CREATE", "UPDATE"]) => {
         new QueryClient({ defaultOptions: { queries: { retry: false } } })
       }
     >
-      <TipeCutiList />
+      <Toast.Provider>
+        <TipeCutiList />
+      </Toast.Provider>
     </QueryClientProvider>,
   );
 };
@@ -191,11 +194,11 @@ describe("daftar berisi", () => {
     expect(screen.queryByRole("link", { name: "Tambah tipe cuti" })).toBeNull();
   });
 
-  test("dengan CREATE: tombol tambah menunjuk rute /baru", async () => {
+  test("dengan CREATE: tombol tambah menunjuk rute /create", async () => {
     onStubList(ROWS);
     onRenderList();
 
     const add = await screen.findByRole("link", { name: "Tambah tipe cuti" });
-    expect(add.getAttribute("href")).toBe("/hr/leave-type/baru");
+    expect(add.getAttribute("href")).toBe("/hr/leave-type/create");
   });
 });

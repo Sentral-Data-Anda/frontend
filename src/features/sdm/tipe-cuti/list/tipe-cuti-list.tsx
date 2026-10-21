@@ -1,24 +1,59 @@
 "use client";
 
-import { DataList, ListToolbar } from "@/components/common/list";
+import { useState } from "react";
+
+import { useToast } from "@/components/common/feedback";
+import {
+  DataList,
+  ListToolbar,
+  RowDeleteDialog,
+} from "@/components/common/list";
 import { PageHeader, PageHeaderAdd } from "@/components/layout";
 import { MENU, createHref, domainHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { useListParams } from "@/hooks/use-list-params";
 
-import { useTipeCutiList } from "../api";
+import { useDeleteTipeCuti, useTipeCutiList } from "../api";
+import type { TipeCuti } from "../types";
 
-import { TipeCutiListItemRow, tipeCutiTable } from "./list-item";
+import {
+  deleteTargetLabelOf,
+  TipeCutiListItemRow,
+  tipeCutiTable,
+} from "./list-item";
 
 // Nol tipe di-seed: ini keadaan hari pertama. Kalimat, bukan tombol penyemai.
 const EMPTY_DESCRIPTION =
   "Gereja yang menentukan jenis cutinya sendiri. Yang lazim dipakai: cuti tahunan, sakit, melahirkan, menikah, dan duka — tambahkan yang berlaku di sini beserta jatah harinya.";
 
 export const TipeCutiList = () => {
-  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.LEAVE_TYPE);
+  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+    MENU.LEAVE_TYPE,
+  );
+
+  const toast = useToast();
+
+  // Satu keadaan menyimpan baris yang akan dihapus sekaligus status terbuka
+  // dialognya. Hook hapus dibuat ulang mengikuti kunci baris ini.
+  const [target, setTarget] = useState<TipeCuti | null>(null);
+  const deleteRow = useDeleteTipeCuti(target?.code);
   const listParams = useListParams();
   const tipeCutiList = useTipeCutiList(listParams);
   const isSearched = Boolean(listParams.search);
+
+  const onDelete = () => {
+    deleteRow.mutate(undefined, {
+      onSuccess: (deleted) => {
+        toast.add({ title: deleted.message });
+        setTarget(null);
+      },
+    });
+  };
+
+  const onCancelDelete = () => {
+    deleteRow.reset();
+    setTarget(null);
+  };
 
   return (
     <div className="pb-6">
@@ -62,13 +97,20 @@ export const TipeCutiList = () => {
             : EMPTY_DESCRIPTION
         }
         pagination={tipeCutiList.pagination}
-        table={tipeCutiTable(isCanUpdate)}
+        table={tipeCutiTable(isCanUpdate, isCanDelete ? setTarget : undefined)}
         itemNoun="tipe cuti"
       >
-        {(row) => (
-          <TipeCutiListItemRow tipeCuti={row} isCanUpdate={isCanUpdate} />
-        )}
+        {(row) => <TipeCutiListItemRow tipeCuti={row} />}
       </DataList>
+
+      <RowDeleteDialog
+        target={target ? { label: deleteTargetLabelOf(target) } : null}
+        entity="tipe cuti"
+        isPending={deleteRow.isPending}
+        errorMessage={deleteRow.error?.message}
+        onCancel={onCancelDelete}
+        onConfirm={onDelete}
+      />
     </div>
   );
 };

@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 
+import type { ListLimit } from "@/hooks/use-list-params";
 import { fetchOne } from "@/lib/api/fetcher";
 
 import type { AssetRegister, AssetRegisterRow } from "./types";
@@ -13,7 +14,7 @@ const STALE_TIME = 60 * 1000;
 // Batas yang sama dengan MAX_PAGE_SIZE di be-sada; di atasnya dipangkas diam-diam.
 const FULL_PAGE = 100;
 
-const toQuery = (date: string, page: number, limit: number) =>
+const toQuery = (date: string, page: number, limit: ListLimit) =>
   new URLSearchParams({
     date,
     page: String(page),
@@ -28,7 +29,7 @@ export const assetRegisterKeys = {
 export function useAssetRegister(params: {
   date: string;
   page: number;
-  limit: number;
+  limit: ListLimit;
 }) {
   const query = toQuery(params.date, params.page, params.limit);
 

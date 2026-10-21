@@ -1,7 +1,5 @@
-import { ChevronRight, Pencil } from "lucide-react";
 import Link from "next/link";
 
-import { buttonVariants } from "@/components/common/control";
 import {
   DataListRow,
   TABLE_ROW_LINK,
@@ -10,7 +8,6 @@ import {
 } from "@/components/common/list";
 import { formatAmount, formatDate, formatDateShort } from "@/lib/format";
 import { saveListFocus } from "@/lib/list-return";
-import { cn } from "@/lib/utils";
 
 import {
   KAS_MASUK_LIST_PATH,
@@ -52,28 +49,12 @@ const totalOf = (receipt: CashReceipt) => (
   </span>
 );
 
-const editLink = (receipt: CashReceipt) =>
-  isEditable(receipt.status) ? (
-    <Link
-      href={receiptEditHref(receipt.publicId)}
-      onClick={() => saveFocus(receipt)}
-      aria-label={`Ubah kas masuk ${receipt.code}`}
-      className={cn(
-        buttonVariants({ variant: "ghost", size: "icon-sm" }),
-        "relative cursor-pointer",
-      )}
-    >
-      <Pencil aria-hidden />
-    </Link>
-  ) : null;
-
 interface PropTypes {
   receipt: CashReceipt;
-  isCanUpdate?: boolean;
 }
 
 export const ReceiptListItemRow = (props: PropTypes) => {
-  const { receipt, isCanUpdate = false } = props;
+  const { receipt } = props;
 
   return (
     <DataListRow
@@ -98,7 +79,6 @@ export const ReceiptListItemRow = (props: PropTypes) => {
             </span>
             {statusOf(receipt)}
           </span>
-          {isCanUpdate ? editLink(receipt) : null}
         </>
       }
     />
@@ -167,22 +147,26 @@ const COLUMNS: Column[] = [
   },
 ];
 
-const EDIT_COLUMN: Column = {
-  key: "edit",
-  header: "",
-  width: "2rem",
-  align: "end",
-  cell: editLink,
-};
-
 export function receiptTable(
   isCanUpdate: boolean,
 ): DataTableConfig<CashReceipt> {
   return {
-    columns: isCanUpdate ? [...COLUMNS, EDIT_COLUMN] : COLUMNS,
-    getRowHref: detailHrefOf,
-    getRowLabel: viewLabelOf,
-    onRowOpen: saveFocus,
-    rowIcon: <ChevronRight />,
+    columns: COLUMNS,
+    getRowActions: (x) => ({
+      label: viewLabelOf(x),
+      view: {
+        href: detailHrefOf(x),
+        onNavigate: () => saveFocus(x),
+        label: viewLabelOf(x),
+      },
+      edit:
+        isCanUpdate && isEditable(x.status)
+          ? {
+              href: receiptEditHref(x.publicId),
+              onNavigate: () => saveFocus(x),
+              label: `Ubah kas masuk ${x.code}`,
+            }
+          : undefined,
+    }),
   };
 }

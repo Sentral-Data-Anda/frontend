@@ -1,4 +1,3 @@
-import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 
 import { MediaThumb } from "@/components/common/display";
@@ -10,11 +9,14 @@ import {
 } from "@/components/common/list";
 import { saveListFocus } from "@/lib/list-return";
 
-import { RUANG_LIST_PATH, roomMetaOf, ruangDetailHref } from "../model";
+import {
+  roomMetaOf,
+  RUANG_LIST_PATH,
+  ruangDetailHref,
+  ruangEditHref,
+} from "../model";
 import type { Room } from "../types";
 import { RoomStatus } from "../ui";
-
-import { EditLink } from "./edit-link";
 
 const saveFocus = (room: Room) => saveListFocus(RUANG_LIST_PATH, room.code);
 
@@ -31,11 +33,10 @@ const photoOf = (room: Room) => (
 
 interface PropTypes {
   room: Room;
-  isCanUpdate?: boolean;
 }
 
 export const RuangListItemRow = (props: PropTypes) => {
-  const { room, isCanUpdate = false } = props;
+  const { room } = props;
 
   return (
     <DataListRow
@@ -57,7 +58,6 @@ export const RuangListItemRow = (props: PropTypes) => {
       trailing={
         <>
           <RoomStatus isActive={room.isActive} />
-          {isCanUpdate ? <EditLink room={room} /> : null}
         </>
       }
     />
@@ -101,20 +101,35 @@ const COLUMNS: Column[] = [
   },
 ];
 
-const EDIT_COLUMN: Column = {
-  key: "edit",
-  header: "",
-  width: "2rem",
-  align: "end",
-  cell: (room) => <EditLink room={room} />,
-};
+const deleteLabelOf = (x: Room) => `Hapus ${x.name}`;
 
-export function ruangTable(isCanUpdate: boolean): DataTableConfig<Room> {
+export const deleteTargetLabelOf = (x: Room) => `${x.name}`;
+
+export function ruangTable(
+  isCanUpdate: boolean,
+  // Dilewatkan dari layar daftar; `undefined` berarti pengguna tidak berhak
+  // menghapus, jadi tombolnya tidak dirender sama sekali.
+  onDelete?: (row: Room) => void,
+): DataTableConfig<Room> {
   return {
-    columns: isCanUpdate ? [...COLUMNS, EDIT_COLUMN] : COLUMNS,
-    getRowHref: detailHrefOf,
-    getRowLabel: viewLabelOf,
-    onRowOpen: saveFocus,
-    rowIcon: <ChevronRight />,
+    columns: COLUMNS,
+    getRowActions: (x) => ({
+      label: viewLabelOf(x),
+      view: {
+        href: detailHrefOf(x),
+        onNavigate: () => saveFocus(x),
+        label: viewLabelOf(x),
+      },
+      edit: isCanUpdate
+        ? {
+            href: ruangEditHref(x.publicId),
+            onNavigate: () => saveListFocus(RUANG_LIST_PATH, x.code),
+            label: `Ubah ${x.name}`,
+          }
+        : undefined,
+      remove: onDelete
+        ? { onSelect: () => onDelete(x), label: deleteLabelOf(x) }
+        : undefined,
+    }),
   };
 }

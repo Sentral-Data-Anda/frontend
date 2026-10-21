@@ -1,7 +1,5 @@
-import { Ban, Pencil } from "lucide-react";
-import Link from "next/link";
+import { Ban } from "lucide-react";
 
-import { buttonVariants } from "@/components/common/control";
 import { DataListRow, type DataTableConfig } from "@/components/common/list";
 import { formatDate } from "@/lib/format";
 import { saveListFocus } from "@/lib/list-return";
@@ -49,13 +47,10 @@ const periodOf = (assignment: PenetapanKomponen) =>
 
 interface PropTypes {
   assignment: PenetapanKomponen;
-  isCanUpdate?: boolean;
 }
 
 export const PenetapanListItemRow = (props: PropTypes) => {
-  const { assignment, isCanUpdate = false } = props;
-
-  const href = hrefOf(isCanUpdate)(assignment);
+  const { assignment } = props;
 
   return (
     <DataListRow
@@ -65,20 +60,6 @@ export const PenetapanListItemRow = (props: PropTypes) => {
       trailing={
         <>
           {isRetired(assignment) ? <ComponentStatus isActive={false} /> : null}
-
-          {href ? (
-            <Link
-              href={href}
-              onClick={() => saveFocus(assignment)}
-              aria-label={labelOf(assignment)}
-              className={cn(
-                buttonVariants({ variant: "ghost", size: "icon-sm" }),
-                "cursor-pointer",
-              )}
-            >
-              <Pencil aria-hidden />
-            </Link>
-          ) : null}
         </>
       }
     />
@@ -170,9 +151,13 @@ export function penetapanTable(
         ),
       },
     ],
-    getRowHref: hrefOf(isCanUpdate),
-    getRowLabel: labelOf,
-    onRowOpen: saveFocus,
-    rowIcon: <Pencil />,
+    getRowActions: (x) => ({
+      label: labelOf(x),
+      edit: {
+        href: hrefOf(isCanUpdate)(x),
+        onNavigate: () => saveFocus(x),
+        label: labelOf(x),
+      },
+    }),
   };
 }

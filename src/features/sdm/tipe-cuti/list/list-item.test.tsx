@@ -1,6 +1,8 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
+import { RowActionsProvider } from "@/components/common/list";
+
 import type { TipeCuti } from "../types";
 
 import { TipeCutiListItemRow, tipeCutiTable } from "./list-item";
@@ -28,9 +30,13 @@ const UNLIMITED: TipeCuti = {
 
 const onRenderRow = (tipeCuti: TipeCuti, isCanUpdate: boolean) =>
   render(
-    <ul>
-      <TipeCutiListItemRow tipeCuti={tipeCuti} isCanUpdate={isCanUpdate} />
-    </ul>,
+    <RowActionsProvider
+      value={tipeCutiTable(isCanUpdate).getRowActions?.(tipeCuti)}
+    >
+      <ul>
+        <TipeCutiListItemRow tipeCuti={tipeCuti} />
+      </ul>
+    </RowActionsProvider>,
   );
 
 describe("baris HP", () => {
@@ -41,7 +47,7 @@ describe("baris HP", () => {
       screen
         .getByRole("link", { name: "Ubah Cuti Tahunan" })
         .getAttribute("href"),
-    ).toBe("/hr/leave-type/TCT-0001/ubah");
+    ).toBe("/hr/leave-type/edit/p-1");
   });
 
   test("tanpa UPDATE: tidak ada aksi ubah, status tetap tampil", () => {
@@ -121,10 +127,12 @@ describe("konfigurasi tabel", () => {
   });
 
   test("tautan baris hanya dengan UPDATE", () => {
-    expect(tipeCutiTable(true).getRowHref?.(ROW)).toBe(
-      "/hr/leave-type/TCT-0001/ubah",
+    expect(tipeCutiTable(true).getRowActions?.(ROW)?.edit?.href).toBe(
+      "/hr/leave-type/edit/p-1",
     );
-    expect(tipeCutiTable(false).getRowHref).toBeUndefined();
+    expect(
+      tipeCutiTable(false).getRowActions?.(ROW)?.edit?.href,
+    ).toBeUndefined();
   });
 
   test("sel jatah dan status merender teks yang sama dengan baris HP", () => {

@@ -17,7 +17,7 @@ export const EditLink = (props: PropTypes) => {
 
   return (
     <Link
-      href={galeriEditHref(album.code)}
+      href={galeriEditHref(album.publicId)}
       onClick={() => saveListFocus(GALERI_LIST_PATH, album.code)}
       aria-label={`Ubah ${album.name}`}
       className={cn(

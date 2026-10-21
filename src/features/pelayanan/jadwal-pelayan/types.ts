@@ -6,6 +6,7 @@ export type IbadahLink = {
 };
 
 export type JadwalPelayan = {
+  publicId: string;
   code: string;
   name: string;
   date: string;

@@ -38,7 +38,7 @@ export const CutiActions = (props: PropTypes) => {
 
       {isCanUpdate && isOpen ? (
         <Link
-          href={editHref(MENU.HR, MENU.LEAVE, cuti.code)}
+          href={editHref(MENU.HR, MENU.LEAVE, cuti.publicId)}
           className={cn(
             buttonVariants({ variant: "outline" }),
             "cursor-pointer",

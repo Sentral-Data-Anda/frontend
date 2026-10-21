@@ -1,13 +1,8 @@
-import { Pencil } from "lucide-react";
-import Link from "next/link";
-
-import { buttonVariants } from "@/components/common/control";
 import { OptionalText } from "@/components/common/display";
 import { DataListRow, type DataTableConfig } from "@/components/common/list";
 import { MENU, editHref } from "@/config/menu";
 import { formatDate, formatDateShort } from "@/lib/format";
 import { saveListFocus } from "@/lib/list-return";
-import { cn } from "@/lib/utils";
 
 import { MARRIAGE_LIST_PATH, coupleName } from "../model";
 import type { MarriageListItem } from "../types";
@@ -16,11 +11,10 @@ import { MarriageStatus } from "./marriage-status";
 
 interface PropTypes {
   marriage: MarriageListItem;
-  isCanUpdate?: boolean;
 }
 
 export const MarriageListItemRow = (props: PropTypes) => {
-  const { marriage, isCanUpdate = false } = props;
+  const { marriage } = props;
 
   const meta = [
     marriage.marriedAt ? formatDate(marriage.marriedAt) : null,
@@ -37,20 +31,6 @@ export const MarriageListItemRow = (props: PropTypes) => {
       trailing={
         <>
           <MarriageStatus endedAt={marriage.endedAt} />
-
-          {isCanUpdate ? (
-            <Link
-              href={editHref(MENU.KEJEMAATAN, MENU.PERNIKAHAN, marriage.id)}
-              onClick={() => saveListFocus(MARRIAGE_LIST_PATH, marriage.id)}
-              aria-label={`Ubah pernikahan ${coupleName(marriage)}`}
-              className={cn(
-                buttonVariants({ variant: "ghost", size: "icon-sm" }),
-                "cursor-pointer",
-              )}
-            >
-              <Pencil aria-hidden />
-            </Link>
-          ) : null}
         </>
       }
     />
@@ -118,11 +98,15 @@ export function marriageTable(
         cell: (marriage) => <MarriageStatus endedAt={marriage.endedAt} />,
       },
     ],
-    getRowHref: isCanUpdate
-      ? (marriage) => editHref(MENU.KEJEMAATAN, MENU.PERNIKAHAN, marriage.id)
-      : undefined,
-    getRowLabel: (marriage) => `Ubah pernikahan ${coupleName(marriage)}`,
-    onRowOpen: (marriage) => saveListFocus(MARRIAGE_LIST_PATH, marriage.id),
-    rowIcon: <Pencil />,
+    getRowActions: (x) => ({
+      label: `Ubah pernikahan ${coupleName(x)}`,
+      edit: {
+        href: isCanUpdate
+          ? editHref(MENU.KEJEMAATAN, MENU.PERNIKAHAN, x.id)
+          : undefined,
+        onNavigate: () => saveListFocus(MARRIAGE_LIST_PATH, x.id),
+        label: `Ubah pernikahan ${coupleName(x)}`,
+      },
+    }),
   };
 }

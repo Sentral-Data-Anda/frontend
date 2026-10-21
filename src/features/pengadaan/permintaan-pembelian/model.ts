@@ -40,8 +40,8 @@ export const REQUEST_CREATE_PATH = createHref(
 export const requestHref = (code: string) =>
   detailHref(MENU.PROCUREMENT, MENU.PURCHASE_REQUEST, code);
 
-export const requestEditHref = (code: string) =>
-  editHref(MENU.PROCUREMENT, MENU.PURCHASE_REQUEST, code);
+export const requestEditHref = (publicId: string) =>
+  editHref(MENU.PROCUREMENT, MENU.PURCHASE_REQUEST, publicId);
 
 export const resubmitHref = (code: string) =>
   `${REQUEST_CREATE_PATH}?salin=${encodeURIComponent(code)}`;

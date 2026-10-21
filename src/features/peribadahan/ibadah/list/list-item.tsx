@@ -1,13 +1,8 @@
-import { Pencil } from "lucide-react";
-import Link from "next/link";
-
-import { buttonVariants } from "@/components/common/control";
 import { OptionalText } from "@/components/common/display";
 import { DataListRow, type DataTableConfig } from "@/components/common/list";
 import { MENU, editHref } from "@/config/menu";
 import { placeLabelOf } from "@/lib/ibadah-place";
 import { saveListFocus } from "@/lib/list-return";
-import { cn } from "@/lib/utils";
 
 import {
   IBADAH_LIST_PATH,
@@ -18,7 +13,7 @@ import {
 import type { Ibadah } from "../types";
 
 const editHrefOf = (ibadah: Ibadah) =>
-  editHref(MENU.PERIBADAHAN, MENU.IBADAH, ibadah.code);
+  editHref(MENU.PERIBADAHAN, MENU.IBADAH, ibadah.publicId);
 
 const saveFocus = (ibadah: Ibadah) =>
   saveListFocus(IBADAH_LIST_PATH, ibadah.code);
@@ -47,11 +42,10 @@ const attendanceCell = (ibadah: Ibadah) => {
 
 interface PropTypes {
   ibadah: Ibadah;
-  isCanUpdate?: boolean;
 }
 
 export const IbadahListItemRow = (props: PropTypes) => {
-  const { ibadah, isCanUpdate = false } = props;
+  const { ibadah } = props;
 
   const attendance = attendanceLabel(ibadah);
 
@@ -67,27 +61,24 @@ export const IbadahListItemRow = (props: PropTypes) => {
               {attendance}
             </span>
           ) : null}
-
-          {isCanUpdate ? (
-            <Link
-              href={editHrefOf(ibadah)}
-              onClick={() => saveFocus(ibadah)}
-              aria-label={labelOf(ibadah)}
-              className={cn(
-                buttonVariants({ variant: "ghost", size: "icon-sm" }),
-                "cursor-pointer",
-              )}
-            >
-              <Pencil aria-hidden />
-            </Link>
-          ) : null}
         </>
       }
     />
   );
 };
 
-export function ibadahTable(isCanUpdate: boolean): DataTableConfig<Ibadah> {
+const deleteLabelOf = (x: Ibadah) =>
+  `Hapus ${x.typeIbadah.name}, ${formatServiceDate(x.date)}`;
+
+export const deleteTargetLabelOf = (x: Ibadah) =>
+  `${x.typeIbadah.name}, ${formatServiceDate(x.date)}`;
+
+export function ibadahTable(
+  isCanUpdate: boolean,
+  // Dilewatkan dari layar daftar; `undefined` berarti pengguna tidak berhak
+  // menghapus, jadi tombolnya tidak dirender sama sekali.
+  onDelete?: (row: Ibadah) => void,
+): DataTableConfig<Ibadah> {
   return {
     columns: [
       {
@@ -162,9 +153,16 @@ export function ibadahTable(isCanUpdate: boolean): DataTableConfig<Ibadah> {
         cell: attendanceCell,
       },
     ],
-    getRowHref: isCanUpdate ? editHrefOf : undefined,
-    getRowLabel: labelOf,
-    onRowOpen: saveFocus,
-    rowIcon: <Pencil />,
+    getRowActions: (x) => ({
+      label: labelOf(x),
+      edit: {
+        href: isCanUpdate ? editHrefOf(x) : undefined,
+        onNavigate: () => saveFocus(x),
+        label: labelOf(x),
+      },
+      remove: onDelete
+        ? { onSelect: () => onDelete(x), label: deleteLabelOf(x) }
+        : undefined,
+    }),
   };
 }

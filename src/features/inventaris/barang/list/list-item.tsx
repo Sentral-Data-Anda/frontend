@@ -1,4 +1,3 @@
-import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 
 import { MediaThumb } from "@/components/common/display";
@@ -11,15 +10,14 @@ import {
 import { saveListFocus } from "@/lib/list-return";
 
 import {
-  BARANG_LIST_PATH,
   assetMetaOf,
+  BARANG_LIST_PATH,
   barangDetailHref,
+  barangEditHref,
   isActiveAsset,
 } from "../model";
 import type { Asset } from "../types";
 import { AssetStatusBadge } from "../ui";
-
-import { EditLink } from "./edit-link";
 
 const saveFocus = (asset: Asset) => saveListFocus(BARANG_LIST_PATH, asset.code);
 
@@ -42,11 +40,10 @@ const textCell = (text: string) => (
 
 interface PropTypes {
   asset: Asset;
-  isCanUpdate?: boolean;
 }
 
 export const BarangListItemRow = (props: PropTypes) => {
-  const { asset, isCanUpdate = false } = props;
+  const { asset } = props;
 
   return (
     <DataListRow
@@ -67,9 +64,6 @@ export const BarangListItemRow = (props: PropTypes) => {
       trailing={
         <>
           <AssetStatusBadge asset={asset} />
-          {isCanUpdate && isActiveAsset(asset) ? (
-            <EditLink asset={asset} />
-          ) : null}
         </>
       }
     />
@@ -124,20 +118,36 @@ const COLUMNS: Column[] = [
   },
 ];
 
-const EDIT_COLUMN: Column = {
-  key: "edit",
-  header: "",
-  width: "2rem",
-  align: "end",
-  cell: (asset) => (isActiveAsset(asset) ? <EditLink asset={asset} /> : null),
-};
+const deleteLabelOf = (x: Asset) => `Hapus ${x.name}`;
 
-export function barangTable(isCanUpdate: boolean): DataTableConfig<Asset> {
+export const deleteTargetLabelOf = (x: Asset) => `${x.name}`;
+
+export function barangTable(
+  isCanUpdate: boolean,
+  // Dilewatkan dari layar daftar; `undefined` berarti pengguna tidak berhak
+  // menghapus, jadi tombolnya tidak dirender sama sekali.
+  onDelete?: (row: Asset) => void,
+): DataTableConfig<Asset> {
   return {
-    columns: isCanUpdate ? [...COLUMNS, EDIT_COLUMN] : COLUMNS,
-    getRowHref: detailHrefOf,
-    getRowLabel: viewLabelOf,
-    onRowOpen: saveFocus,
-    rowIcon: <ChevronRight />,
+    columns: COLUMNS,
+    getRowActions: (x) => ({
+      label: viewLabelOf(x),
+      view: {
+        href: detailHrefOf(x),
+        onNavigate: () => saveFocus(x),
+        label: viewLabelOf(x),
+      },
+      edit:
+        isCanUpdate && isActiveAsset(x)
+          ? {
+              href: barangEditHref(x.publicId),
+              onNavigate: () => saveListFocus(BARANG_LIST_PATH, x.code),
+              label: `Ubah ${x.name}`,
+            }
+          : undefined,
+      remove: onDelete
+        ? { onSelect: () => onDelete(x), label: deleteLabelOf(x) }
+        : undefined,
+    }),
   };
 }

@@ -88,7 +88,7 @@ describe("isTabActive", () => {
 
   test("slug saudara berawalan sama tidak ikut aktif", () => {
     expect(
-      isTabActive("/fixed-asset/asset-master", "/inventory/stock-item/baru"),
+      isTabActive("/fixed-asset/asset-master", "/inventory/stock-item/create"),
     ).toBe(false);
     expect(
       isTabActive(

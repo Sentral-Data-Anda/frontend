@@ -1,12 +1,7 @@
-import { Pencil } from "lucide-react";
-import Link from "next/link";
-
-import { buttonVariants } from "@/components/common/control";
 import { Badge } from "@/components/common/display";
 import { DataListRow, type DataTableConfig } from "@/components/common/list";
 import { MENU, editHref } from "@/config/menu";
 import { saveListFocus } from "@/lib/list-return";
-import { cn } from "@/lib/utils";
 
 import { TIPE_CUTI_LIST_PATH, quotaTextOf } from "../model";
 import {
@@ -16,7 +11,7 @@ import {
 } from "../types";
 
 const editHrefOf = (row: TipeCuti) =>
-  editHref(MENU.HR, MENU.LEAVE_TYPE, row.code);
+  editHref(MENU.HR, MENU.LEAVE_TYPE, row.publicId);
 
 const saveFocus = (row: TipeCuti) =>
   saveListFocus(TIPE_CUTI_LIST_PATH, row.code);
@@ -33,11 +28,10 @@ const metaOf = (row: TipeCuti) =>
 
 interface PropTypes {
   tipeCuti: TipeCuti;
-  isCanUpdate?: boolean;
 }
 
 export const TipeCutiListItemRow = (props: PropTypes) => {
-  const { tipeCuti, isCanUpdate = false } = props;
+  const { tipeCuti } = props;
 
   return (
     <DataListRow
@@ -49,27 +43,22 @@ export const TipeCutiListItemRow = (props: PropTypes) => {
           <Badge variant={tipeCuti.isActive ? "success" : "neutral"}>
             {TIPE_CUTI_STATUS_LABEL[statusKeyOf(tipeCuti)]}
           </Badge>
-
-          {isCanUpdate ? (
-            <Link
-              href={editHrefOf(tipeCuti)}
-              onClick={() => saveFocus(tipeCuti)}
-              aria-label={labelOf(tipeCuti)}
-              className={cn(
-                buttonVariants({ variant: "ghost", size: "icon-sm" }),
-                "cursor-pointer",
-              )}
-            >
-              <Pencil aria-hidden />
-            </Link>
-          ) : null}
         </>
       }
     />
   );
 };
 
-export function tipeCutiTable(isCanUpdate: boolean): DataTableConfig<TipeCuti> {
+const deleteLabelOf = (x: TipeCuti) => `Hapus ${x.name}`;
+
+export const deleteTargetLabelOf = (x: TipeCuti) => `${x.name}`;
+
+export function tipeCutiTable(
+  isCanUpdate: boolean,
+  // Dilewatkan dari layar daftar; `undefined` berarti pengguna tidak berhak
+  // menghapus, jadi tombolnya tidak dirender sama sekali.
+  onDelete?: (row: TipeCuti) => void,
+): DataTableConfig<TipeCuti> {
   return {
     columns: [
       {
@@ -126,9 +115,16 @@ export function tipeCutiTable(isCanUpdate: boolean): DataTableConfig<TipeCuti> {
         ),
       },
     ],
-    getRowHref: isCanUpdate ? editHrefOf : undefined,
-    getRowLabel: labelOf,
-    onRowOpen: saveFocus,
-    rowIcon: <Pencil />,
+    getRowActions: (x) => ({
+      label: labelOf(x),
+      edit: {
+        href: isCanUpdate ? editHrefOf(x) : undefined,
+        onNavigate: () => saveFocus(x),
+        label: labelOf(x),
+      },
+      remove: onDelete
+        ? { onSelect: () => onDelete(x), label: deleteLabelOf(x) }
+        : undefined,
+    }),
   };
 }

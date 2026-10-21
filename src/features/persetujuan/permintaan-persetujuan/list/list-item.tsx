@@ -1,4 +1,3 @@
-import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 
 import { ApprovalStatusBadge } from "@/components/common/display";
@@ -241,8 +240,12 @@ export const permintaanTable = (
   view: ApprovalView,
 ): DataTableConfig<ApprovalListItem> => ({
   columns: COLUMNS[view],
-  getRowHref: detailHrefOf,
-  getRowLabel: labelOf,
-  onRowOpen: saveFocus,
-  rowIcon: <ChevronRight />,
+  getRowActions: (x) => ({
+    label: labelOf(x),
+    view: {
+      href: detailHrefOf(x),
+      onNavigate: () => saveFocus(x),
+      label: labelOf(x),
+    },
+  }),
 });

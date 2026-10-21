@@ -1,4 +1,3 @@
-import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 
 import { Avatar } from "@/components/common/display";
@@ -143,9 +142,13 @@ const COLUMNS: Column[] = [
 export function pendaftaranTable(): DataTableConfig<Registration> {
   return {
     columns: COLUMNS,
-    getRowHref: hrefOf,
-    getRowLabel: labelOf,
-    onRowOpen: saveFocus,
-    rowIcon: <ChevronRight />,
+    getRowActions: (x) => ({
+      label: labelOf(x),
+      view: {
+        href: hrefOf(x),
+        onNavigate: () => saveFocus(x),
+        label: labelOf(x),
+      },
+    }),
   };
 }

@@ -1,16 +1,28 @@
 "use client";
 
-import { DataList, ListToolbar } from "@/components/common/list";
+import { useState } from "react";
+
+import { useToast } from "@/components/common/feedback";
+import {
+  DataList,
+  ListToolbar,
+  RowDeleteDialog,
+} from "@/components/common/list";
 import { PageHeader, PageHeaderAdd } from "@/components/layout";
 import { MENU, createHref, domainHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { useDdlOptions } from "@/hooks/use-ddl-options";
 import { useListParams, type ListFilterSchema } from "@/hooks/use-list-params";
 
-import { usePengumumanList } from "../api";
+import { useDeletePengumuman, usePengumumanList } from "../api";
 import { CATEGORY_OPTIONS, STATUS_OPTIONS } from "../model";
+import type { Announcement } from "../types";
 
-import { PengumumanListItemRow, pengumumanTable } from "./list-item";
+import {
+  deleteTargetLabelOf,
+  PengumumanListItemRow,
+  pengumumanTable,
+} from "./list-item";
 
 const LIST_FILTERS = {
   kategori: { api: "category" },
@@ -18,11 +30,34 @@ const LIST_FILTERS = {
 } satisfies ListFilterSchema;
 
 export const PengumumanListContent = () => {
-  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.PENGUMUMAN);
+  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+    MENU.PENGUMUMAN,
+  );
+
+  const toast = useToast();
+
+  // Satu keadaan menyimpan baris yang akan dihapus sekaligus status terbuka
+  // dialognya. Hook hapus dibuat ulang mengikuti kunci baris ini.
+  const [target, setTarget] = useState<Announcement | null>(null);
+  const deleteRow = useDeletePengumuman(target?.code);
   const listParams = useListParams({ filters: LIST_FILTERS });
   const pengumumanList = usePengumumanList(listParams);
   const bapel = useDdlOptions("bapel", "id", listParams.filters.bapel);
   const isNarrowed = Boolean(listParams.search) || listParams.isFiltered;
+
+  const onDelete = () => {
+    deleteRow.mutate(undefined, {
+      onSuccess: (deleted) => {
+        toast.add({ title: deleted.message });
+        setTarget(null);
+      },
+    });
+  };
+
+  const onCancelDelete = () => {
+    deleteRow.reset();
+    setTarget(null);
+  };
 
   return (
     <div className="pb-6">
@@ -95,16 +130,25 @@ export const PengumumanListContent = () => {
           listParams.isFiltered ? listParams.onClearFilters : undefined
         }
         pagination={pengumumanList.pagination}
-        table={pengumumanTable(isCanUpdate)}
+        table={pengumumanTable(
+          isCanUpdate,
+          isCanDelete ? setTarget : undefined,
+        )}
         itemNoun="pengumuman"
       >
         {(announcement) => (
-          <PengumumanListItemRow
-            announcement={announcement}
-            isCanUpdate={isCanUpdate}
-          />
+          <PengumumanListItemRow announcement={announcement} />
         )}
       </DataList>
+
+      <RowDeleteDialog
+        target={target ? { label: deleteTargetLabelOf(target) } : null}
+        entity="pengumuman"
+        isPending={deleteRow.isPending}
+        errorMessage={deleteRow.error?.message}
+        onCancel={onCancelDelete}
+        onConfirm={onDelete}
+      />
     </div>
   );
 };

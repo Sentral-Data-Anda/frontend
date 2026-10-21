@@ -21,7 +21,10 @@ import type { MenuAction } from "@/types/menu";
 
 import { ibadahLinkedTo } from "../../../../../scripts/mock/handlers/ibadah";
 import { jadwalPelayanMock } from "../../../../../scripts/mock/handlers/jadwal-pelayan";
-import { JADWAL_PELAYAN } from "../../../../../scripts/mock/pelayanan-store";
+import {
+  JADWAL_PELAYAN,
+  jadwalPublicIdOf,
+} from "../../../../../scripts/mock/pelayanan-store";
 
 const actions: { current: MenuAction[] } = { current: [] };
 const requested: string[] = [];
@@ -71,8 +74,13 @@ afterEach(() => {
   });
 });
 
-const codeOf = (id: number) =>
-  JADWAL_PELAYAN.find((row) => row.id === id)?.code ?? "";
+const rowOf = (id: number) => JADWAL_PELAYAN.find((row) => row.id === id);
+const codeOf = (id: number) => rowOf(id)?.code ?? "";
+const publicIdOf = (id: number) => {
+  const row = rowOf(id);
+
+  return row ? jadwalPublicIdOf(row) : "";
+};
 
 const onRender = (granted: MenuAction[], code: string) => {
   actions.current = granted;
@@ -130,12 +138,12 @@ describe("halaman baca", () => {
     await screen.findByRole("region", { name: "Petugas" });
     expect(
       screen.getByRole("link", { name: "Ubah" }).getAttribute("href"),
-    ).toBe(`/pelayanan/jadwal-pelayan/${codeOf(2)}/ubah`);
+    ).toBe(`/pelayanan/jadwal-pelayan/edit/${publicIdOf(2)}`);
     expect(
       screen
         .getByRole("link", { name: "Salin dari jadwal ini" })
         .getAttribute("href"),
-    ).toBe(`/pelayanan/jadwal-pelayan/baru?salin=${codeOf(2)}`);
+    ).toBe(`/pelayanan/jadwal-pelayan/create?salin=${codeOf(2)}`);
   });
 
   test("clipboard berhasil: teks tersalin tanpa dialog", async () => {

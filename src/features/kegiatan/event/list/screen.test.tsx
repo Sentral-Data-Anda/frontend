@@ -1,3 +1,4 @@
+import { Toast } from "@base-ui/react/toast";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import {
@@ -81,7 +82,9 @@ const onRenderList = (granted: MenuAction[]) => {
         new QueryClient({ defaultOptions: { queries: { retry: false } } })
       }
     >
-      <EventListScreen />
+      <Toast.Provider>
+        <EventListScreen />
+      </Toast.Provider>
     </QueryClientProvider>,
   );
 };
@@ -146,7 +149,7 @@ describe("daftar event", () => {
     await onRowsReady();
     expect(
       screen.getByRole("link", { name: "Tambah event" }).getAttribute("href"),
-    ).toBe("/kegiatan/event/baru");
+    ).toBe("/kegiatan/event/create");
     expect(
       screen.getAllByRole("link", { name: /^Ubah / }).length,
     ).toBeGreaterThan(0);

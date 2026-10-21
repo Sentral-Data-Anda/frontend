@@ -74,8 +74,15 @@
 import { MENU, type MenuSlug } from "../src/config/menu";
 
 import { NAME, TREE } from "./menu-tree";
-import { MOCK_HANDLERS } from "./mock/handlers";
-import { json, list, paging, readBody, type MockAction } from "./mock/kit";
+import { dispatch } from "./mock/dispatch";
+import {
+  ALL_ROWS,
+  json,
+  list,
+  type MockAction,
+  paging,
+  readBody,
+} from "./mock/kit";
 import {
   PERSONA_KEY,
   PERSONA_POSITIONS,
@@ -137,6 +144,7 @@ const names = process.env.MOCK_MANY_JEMAAT
   : NAMES;
 
 type JemaatRow = {
+  publicId: string;
   code: string;
   name: string;
   gender: string;
@@ -163,6 +171,8 @@ const zoneOf = (id: number | null) =>
   id === null ? null : { id, name: ZONE_CHURCHES[id - 1] ?? `Wilayah ${id}` };
 
 const rows: JemaatRow[] = names.map((name, index) => ({
+  // be-sada addresses a jemaat as /edit/{publicId}; a uuid, never the code.
+  publicId: `00000000-0000-4000-a000-${String(index + 1).padStart(12, "0")}`,
   code: `JMT-${String(index + 1).padStart(4, "0")}`,
   name,
   gender: index % 2 === 0 ? "L" : "P",
@@ -191,11 +201,16 @@ const rows: JemaatRow[] = names.map((name, index) => ({
  * Dibuat deterministik dari indeks kodenya, supaya membuka jemaat yang sama
  * dua kali selalu menampilkan isi yang sama.
  */
+// A jemaat by its publicId, or by the code an older link still carries.
+const jemaatOf = (key: string) =>
+  rows.find((item) => item.publicId === key || item.code === key);
+
 const jemaatDetail = (row: (typeof rows)[number]) => {
   const index = Number(row.code.slice(4));
   const isAnggota = row.type === "ANGGOTA";
 
   return {
+    publicId: row.publicId,
     code: row.code,
     name: row.name,
     gender: row.gender,
@@ -540,20 +555,18 @@ Bun.serve({
       return json({ status: 200, message: "Berhasil", data: session });
     }
 
-    for (const handle of MOCK_HANDLERS) {
-      const response = await handle({
-        request,
-        url,
-        path,
-        method: request.method,
-        can: (slug: MenuSlug, action: MockAction) =>
-          actionsOf(persona, slug).includes(action),
-        isAdmin: persona.isAdmin,
-        sessionCode: session.code,
-      });
+    const answered = await dispatch({
+      request,
+      url,
+      path,
+      method: request.method,
+      can: (slug: MenuSlug, action: MockAction) =>
+        actionsOf(persona, slug).includes(action),
+      isAdmin: persona.isAdmin,
+      sessionCode: session.code,
+    });
 
-      if (response) return response;
-    }
+    if (answered) return answered;
 
     // Daftar pilihan form: tanpa paginasi, 404 saat kosong.
     if (path.startsWith("/ddl/")) {
@@ -595,6 +608,7 @@ Bun.serve({
       // tidak memperlihatkan baris baru maupun sorotannya, dan alur yang
       // justru paling perlu dinilai user tidak bisa dilihat sama sekali.
       rows.unshift({
+        publicId: crypto.randomUUID(),
         code,
         name: body.name,
         gender: body.gender,
@@ -624,7 +638,7 @@ Bun.serve({
     // plus `code`, `additional[]`, dan relasi — lihat `jemaat.service.ts`.
     const detail = path.match(/^\/jemaat\/([^/]+)$/);
     if (detail && request.method === "GET") {
-      const row = rows.find((item) => item.code === detail[1]);
+      const row = jemaatOf(detail[1]);
 
       if (!row)
         return json({ status: 404, error: "Jemaat Tidak Ditemukan" }, 404);
@@ -643,7 +657,7 @@ Bun.serve({
       if (failure) return failure;
 
       const body = await readBody<JemaatBody>(request);
-      const current = rows.find((item) => item.code === detail[1]);
+      const current = jemaatOf(detail[1]);
       const zoneRejected = zoneFailure(
         body,
         body.keluargaId === undefined
@@ -696,7 +710,12 @@ Bun.serve({
       }
 
       const zones = new Set(zoneValues.map(Number));
-      const limit = Number(url.searchParams.get("limit") ?? 10);
+      // `limit=all`: every row on one page, no ceiling (be-sada ALL_ROWS).
+      const isAll =
+        url.searchParams.get("limit")?.trim().toLowerCase() === ALL_ROWS;
+      const limit = isAll
+        ? Number.MAX_SAFE_INTEGER
+        : Number(url.searchParams.get("limit") ?? 10);
 
       if (page === Number(process.env.MOCK_FAIL_PAGE)) {
         return json({ status: 500, error: "Kesalahan server." }, 500);
@@ -721,7 +740,7 @@ Bun.serve({
         message: "Berhasil Mendapatkan Semua Jemaat",
         totalData: matched.length,
         totalPage: Math.ceil(matched.length / limit),
-        data: matched.slice((page - 1) * limit, page * limit),
+        data: isAll ? matched : matched.slice((page - 1) * limit, page * limit),
       });
     }
 

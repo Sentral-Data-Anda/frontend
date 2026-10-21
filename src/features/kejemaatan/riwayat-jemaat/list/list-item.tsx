@@ -1,13 +1,8 @@
-import { Pencil } from "lucide-react";
-import Link from "next/link";
-
-import { buttonVariants } from "@/components/common/control";
 import { OptionalText } from "@/components/common/display";
 import { DataListRow, type DataTableConfig } from "@/components/common/list";
 import { MENU, editHref } from "@/config/menu";
 import { formatDate, formatDateShort } from "@/lib/format";
 import { saveListFocus } from "@/lib/list-return";
-import { cn } from "@/lib/utils";
 
 import { RIWAYAT_LIST_PATH } from "../model";
 import { SACRAMENT_TYPE_LABEL, type RiwayatJemaat } from "../types";
@@ -20,11 +15,10 @@ const rowLabel = (riwayat: RiwayatJemaat) =>
 
 interface PropTypes {
   riwayat: RiwayatJemaat;
-  isCanUpdate?: boolean;
 }
 
 export const RiwayatListItemRow = (props: PropTypes) => {
-  const { riwayat, isCanUpdate = false } = props;
+  const { riwayat } = props;
 
   return (
     <DataListRow
@@ -40,20 +34,6 @@ export const RiwayatListItemRow = (props: PropTypes) => {
             >
               {riwayat.certificateNumber}
             </span>
-          ) : null}
-
-          {isCanUpdate ? (
-            <Link
-              href={editHref(MENU.KEJEMAATAN, MENU.RIWAYAT_JEMAAT, riwayat.id)}
-              onClick={() => saveListFocus(RIWAYAT_LIST_PATH, riwayat.id)}
-              aria-label={rowLabel(riwayat)}
-              className={cn(
-                buttonVariants({ variant: "ghost", size: "icon-sm" }),
-                "cursor-pointer",
-              )}
-            >
-              <Pencil aria-hidden />
-            </Link>
           ) : null}
         </>
       }
@@ -127,11 +107,15 @@ export function riwayatTable(
         ),
       },
     ],
-    getRowHref: isCanUpdate
-      ? (riwayat) => editHref(MENU.KEJEMAATAN, MENU.RIWAYAT_JEMAAT, riwayat.id)
-      : undefined,
-    getRowLabel: rowLabel,
-    onRowOpen: (riwayat) => saveListFocus(RIWAYAT_LIST_PATH, riwayat.id),
-    rowIcon: <Pencil />,
+    getRowActions: (x) => ({
+      label: rowLabel(x),
+      edit: {
+        href: isCanUpdate
+          ? editHref(MENU.KEJEMAATAN, MENU.RIWAYAT_JEMAAT, x.id)
+          : undefined,
+        onNavigate: () => saveListFocus(RIWAYAT_LIST_PATH, x.id),
+        label: rowLabel(x),
+      },
+    }),
   };
 }

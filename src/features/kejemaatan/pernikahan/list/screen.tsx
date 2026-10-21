@@ -72,9 +72,7 @@ export const MarriageListScreen = () => {
         table={marriageTable(isCanUpdate)}
         itemNoun="pernikahan"
       >
-        {(marriage) => (
-          <MarriageListItemRow marriage={marriage} isCanUpdate={isCanUpdate} />
-        )}
+        {(marriage) => <MarriageListItemRow marriage={marriage} />}
       </DataList>
     </div>
   );

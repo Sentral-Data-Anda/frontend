@@ -115,7 +115,7 @@ describe("kepatuhan laporan per komisi", () => {
     const link = screen.getByRole("link", { name: "Tambah laporan" });
 
     expect(link.getAttribute("href")).toBe(
-      `/report/budget-realization/baru?komisi=4&bulan=${MONTH}`,
+      `/report/budget-realization/create?komisi=4&bulan=${MONTH}`,
     );
   });
 

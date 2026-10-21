@@ -30,7 +30,7 @@ mock.module("next/navigation", () => ({
   useRouter: () => ({
     replace: (href: string) => replaced.push(href),
   }),
-  usePathname: () => "/finance/kas-keluar/baru",
+  usePathname: () => "/finance/kas-keluar/create",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -201,7 +201,7 @@ describe("bentuk form", () => {
 });
 
 describe("gerbang izin", () => {
-  test("tanpa CREATE: /baru tidak merender form", () => {
+  test("tanpa CREATE: /create tidak merender form", () => {
     onMockApi();
     onRenderForm(["VIEW"]);
 
@@ -209,7 +209,7 @@ describe("gerbang izin", () => {
     expect(screen.queryByLabelText("Dibayarkan kepada")).toBeNull();
   });
 
-  test("tanpa UPDATE: /ubah tidak memuat detail", () => {
+  test("tanpa UPDATE: /edit tidak memuat detail", () => {
     const sent = onMockApi(expenseDetail());
     onRenderForm(["VIEW", "CREATE"], "doc-7");
 

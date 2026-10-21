@@ -1,4 +1,3 @@
-import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 
 import { OptionalText } from "@/components/common/display";
@@ -12,17 +11,17 @@ import { formatDateShort } from "@/lib/format";
 import { saveListFocus } from "@/lib/list-return";
 
 import {
-  JADWAL_PELAYAN_LIST_PATH,
   emptySlotCount,
   formatScheduleDate,
   formatTableDate,
   formatTimeRange,
   ibadahLabel,
+  JADWAL_PELAYAN_LIST_PATH,
   jadwalDetailHref,
+  jadwalEditHref,
 } from "../model";
 import type { JadwalPelayan } from "../types";
 
-import { EditLink } from "./edit-link";
 import { PetugasStatus } from "./petugas-status";
 
 const saveFocus = (jadwal: JadwalPelayan) =>
@@ -52,11 +51,10 @@ const ibadahTextOf = (jadwal: JadwalPelayan) => {
 
 interface PropTypes {
   jadwal: JadwalPelayan;
-  isCanUpdate?: boolean;
 }
 
 export const JadwalPelayanListItemRow = (props: PropTypes) => {
-  const { jadwal, isCanUpdate = false } = props;
+  const { jadwal } = props;
 
   return (
     <DataListRow
@@ -76,7 +74,6 @@ export const JadwalPelayanListItemRow = (props: PropTypes) => {
       trailing={
         <>
           <PetugasStatus emptyCount={emptySlotCount(jadwal)} />
-          {isCanUpdate ? <EditLink jadwal={jadwal} /> : null}
         </>
       }
     />
@@ -161,22 +158,37 @@ const COLUMNS: Column[] = [
   },
 ];
 
-const EDIT_COLUMN: Column = {
-  key: "edit",
-  header: "",
-  width: "2rem",
-  align: "end",
-  cell: (jadwal) => <EditLink jadwal={jadwal} />,
-};
+const deleteLabelOf = (x: JadwalPelayan) =>
+  `Hapus ${x.name}, ${formatScheduleDate(x.date)}`;
+
+export const deleteTargetLabelOf = (x: JadwalPelayan) =>
+  `${x.name}, ${formatScheduleDate(x.date)}`;
 
 export function jadwalPelayanTable(
   isCanUpdate: boolean,
+  // Dilewatkan dari layar daftar; `undefined` berarti pengguna tidak berhak
+  // menghapus, jadi tombolnya tidak dirender sama sekali.
+  onDelete?: (row: JadwalPelayan) => void,
 ): DataTableConfig<JadwalPelayan> {
   return {
-    columns: isCanUpdate ? [...COLUMNS, EDIT_COLUMN] : COLUMNS,
-    getRowHref: detailHrefOf,
-    getRowLabel: viewLabelOf,
-    onRowOpen: saveFocus,
-    rowIcon: <ChevronRight />,
+    columns: COLUMNS,
+    getRowActions: (x) => ({
+      label: viewLabelOf(x),
+      view: {
+        href: detailHrefOf(x),
+        onNavigate: () => saveFocus(x),
+        label: viewLabelOf(x),
+      },
+      edit: isCanUpdate
+        ? {
+            href: jadwalEditHref(x.publicId),
+            onNavigate: () => saveListFocus(JADWAL_PELAYAN_LIST_PATH, x.code),
+            label: `Ubah ${x.name}, ${formatScheduleDate(x.date)}`,
+          }
+        : undefined,
+      remove: onDelete
+        ? { onSelect: () => onDelete(x), label: deleteLabelOf(x) }
+        : undefined,
+    }),
   };
 }

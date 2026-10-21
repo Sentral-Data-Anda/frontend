@@ -68,6 +68,7 @@ describe("form ↔ payload", () => {
   test("detail be-sada jadi nilai form", () => {
     expect(
       toTipeIbadahForm({
+        publicId: "pid-typ-ibd-0005",
         code: "TYP_IBD-0005",
         name: "Ibadah Padang",
         isActive: false,

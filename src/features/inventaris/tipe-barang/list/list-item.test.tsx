@@ -1,6 +1,8 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
+import { RowActionsProvider } from "@/components/common/list";
+
 import type { TipeBarang } from "../types";
 
 import { TipeBarangListItemRow, tipeBarangTable } from "./list-item";
@@ -19,9 +21,13 @@ const TIPE: TipeBarang = {
 
 const onRenderRow = (isCanUpdate: boolean) =>
   render(
-    <ul>
-      <TipeBarangListItemRow tipeBarang={TIPE} isCanUpdate={isCanUpdate} />
-    </ul>,
+    <RowActionsProvider
+      value={tipeBarangTable(isCanUpdate).getRowActions?.(TIPE)}
+    >
+      <ul>
+        <TipeBarangListItemRow tipeBarang={TIPE} />
+      </ul>
+    </RowActionsProvider>,
   );
 
 describe("baris HP", () => {
@@ -30,7 +36,7 @@ describe("baris HP", () => {
 
     const action = screen.getByRole("link", { name: "Ubah Elektronik" });
     expect(action.getAttribute("href")).toBe(
-      "/inventory/item-category/TYP_ITM-0001/ubah",
+      "/inventory/item-category/edit/p-1",
     );
   });
 
@@ -60,9 +66,11 @@ describe("konfigurasi tabel", () => {
       ["Nama", "minmax(0,2.5fr)"],
       ["Kode", "minmax(0,1fr)"],
     ]);
-    expect(table.getRowHref?.(TIPE)).toBe(
-      "/inventory/item-category/TYP_ITM-0001/ubah",
+    expect(table.getRowActions?.(TIPE)?.edit?.href).toBe(
+      "/inventory/item-category/edit/p-1",
     );
-    expect(tipeBarangTable(false).getRowHref).toBeUndefined();
+    expect(
+      tipeBarangTable(false).getRowActions?.(TIPE)?.edit?.href,
+    ).toBeUndefined();
   });
 });

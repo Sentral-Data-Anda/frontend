@@ -140,6 +140,7 @@ describe("payload dan detail", () => {
   test("nama tugas daftar diurut order", () => {
     expect(
       rolesOf({
+        publicId: "pid-t",
         code: "T",
         name: "T",
         startTime: "17:00",

@@ -1,3 +1,4 @@
+import { Toast } from "@base-ui/react/toast";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, render, screen, within } from "@testing-library/react";
 import {
@@ -78,7 +79,9 @@ const onRenderList = (granted: MenuAction[]) => {
         new QueryClient({ defaultOptions: { queries: { retry: false } } })
       }
     >
-      <PengumumanListScreen />
+      <Toast.Provider>
+        <PengumumanListScreen />
+      </Toast.Provider>
     </QueryClientProvider>,
   );
 };
@@ -109,7 +112,7 @@ describe("gerbang izin daftar", () => {
       screen
         .getByRole("link", { name: "Buat pengumuman" })
         .getAttribute("href"),
-    ).toBe("/kegiatan/pengumuman/baru");
+    ).toBe("/kegiatan/pengumuman/create");
 
     const [first] = screen.getAllByRole("listitem");
     expect(within(first).getByText("Disematkan:")).toBeTruthy();

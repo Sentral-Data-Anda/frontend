@@ -1,16 +1,28 @@
 "use client";
 
-import { DataList, ListToolbar } from "@/components/common/list";
+import { useState } from "react";
+
+import { useToast } from "@/components/common/feedback";
+import {
+  DataList,
+  ListToolbar,
+  RowDeleteDialog,
+} from "@/components/common/list";
 import { PageHeader, PageHeaderAdd } from "@/components/layout";
 import { MENU, domainHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { useDdlOptions } from "@/hooks/use-ddl-options";
 import { useListParams, type ListFilterSchema } from "@/hooks/use-list-params";
 
-import { useJadwalPelayanList } from "../api";
+import { useDeleteJadwalPelayan, useJadwalPelayanList } from "../api";
 import { JADWAL_PELAYAN_CREATE_PATH, monthOptions } from "../model";
+import type { JadwalPelayan } from "../types";
 
-import { JadwalPelayanListItemRow, jadwalPelayanTable } from "./list-item";
+import {
+  deleteTargetLabelOf,
+  JadwalPelayanListItemRow,
+  jadwalPelayanTable,
+} from "./list-item";
 
 const LIST_FILTERS = {
   bulan: { api: "month" },
@@ -18,11 +30,34 @@ const LIST_FILTERS = {
 } satisfies ListFilterSchema;
 
 export const JadwalPelayanListContent = () => {
-  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.JADWAL_PELAYAN);
+  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+    MENU.JADWAL_PELAYAN,
+  );
+
+  const toast = useToast();
+
+  // Satu keadaan menyimpan baris yang akan dihapus sekaligus status terbuka
+  // dialognya. Hook hapus dibuat ulang mengikuti kunci baris ini.
+  const [target, setTarget] = useState<JadwalPelayan | null>(null);
+  const deleteRow = useDeleteJadwalPelayan(target?.code);
   const listParams = useListParams({ filters: LIST_FILTERS });
   const jadwalList = useJadwalPelayanList(listParams);
   const bapel = useDdlOptions("bapel", "id", listParams.filters.bapel);
   const isNarrowed = Boolean(listParams.search) || listParams.isFiltered;
+
+  const onDelete = () => {
+    deleteRow.mutate(undefined, {
+      onSuccess: (deleted) => {
+        toast.add({ title: deleted.message });
+        setTarget(null);
+      },
+    });
+  };
+
+  const onCancelDelete = () => {
+    deleteRow.reset();
+    setTarget(null);
+  };
 
   return (
     <div className="pb-6">
@@ -88,13 +123,23 @@ export const JadwalPelayanListContent = () => {
           listParams.isFiltered ? listParams.onClearFilters : undefined
         }
         pagination={jadwalList.pagination}
-        table={jadwalPelayanTable(isCanUpdate)}
+        table={jadwalPelayanTable(
+          isCanUpdate,
+          isCanDelete ? setTarget : undefined,
+        )}
         itemNoun="jadwal"
       >
-        {(jadwal) => (
-          <JadwalPelayanListItemRow jadwal={jadwal} isCanUpdate={isCanUpdate} />
-        )}
+        {(jadwal) => <JadwalPelayanListItemRow jadwal={jadwal} />}
       </DataList>
+
+      <RowDeleteDialog
+        target={target ? { label: deleteTargetLabelOf(target) } : null}
+        entity="jadwal"
+        isPending={deleteRow.isPending}
+        errorMessage={deleteRow.error?.message}
+        onCancel={onCancelDelete}
+        onConfirm={onDelete}
+      />
     </div>
   );
 };

@@ -27,6 +27,7 @@ import {
 import type { IbadahDetail } from "./types";
 
 const DETAIL: IbadahDetail = {
+  publicId: "pid-ibd-0001-2026-0010",
   code: "IBD_0001-2026-0010",
   date: "2026-09-20T00:00:00.000Z",
   startTime: "08:00",
@@ -135,7 +136,7 @@ describe("label dan format", () => {
 
   test("salin menuju form tambah dengan kode sumber", () => {
     expect(salinHref("IBD_0001-2026-0010")).toBe(
-      "/peribadahan/ibadah/baru?salin=IBD_0001-2026-0010",
+      "/peribadahan/ibadah/create?salin=IBD_0001-2026-0010",
     );
   });
 });

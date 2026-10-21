@@ -1,6 +1,8 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
+import { RowActionsProvider } from "@/components/common/list";
+
 import type { Keluarga } from "../types";
 
 import { KeluargaListItemRow, keluargaTable } from "./list-item";
@@ -25,9 +27,13 @@ const KELUARGA: Keluarga = {
 
 const onRenderRow = (isCanUpdate: boolean, keluarga = KELUARGA) =>
   render(
-    <ul>
-      <KeluargaListItemRow keluarga={keluarga} isCanUpdate={isCanUpdate} />
-    </ul>,
+    <RowActionsProvider
+      value={keluargaTable(isCanUpdate).getRowActions?.(keluarga)}
+    >
+      <ul>
+        <KeluargaListItemRow keluarga={keluarga} />
+      </ul>
+    </RowActionsProvider>,
   );
 
 describe("baris keluarga di HP", () => {
@@ -50,7 +56,7 @@ describe("baris keluarga di HP", () => {
       name: "Ubah Keluarga Sitompul",
     });
     expect(action.getAttribute("href")).toBe(
-      "/kejemaatan/keluarga/KK-0012/ubah",
+      "/kejemaatan/keluarga/edit/10000000-0000-4000-8000-000000000012",
     );
   });
 
@@ -84,9 +90,11 @@ describe("keluargaTable", () => {
   });
 
   test("tanpa UPDATE: baris tabel bukan tautan", () => {
-    expect(keluargaTable(false).getRowHref).toBeUndefined();
-    expect(keluargaTable(true).getRowHref?.(KELUARGA)).toBe(
-      "/kejemaatan/keluarga/KK-0012/ubah",
+    expect(
+      keluargaTable(false).getRowActions?.(KELUARGA)?.edit?.href,
+    ).toBeUndefined();
+    expect(keluargaTable(true).getRowActions?.(KELUARGA)?.edit?.href).toBe(
+      "/kejemaatan/keluarga/edit/10000000-0000-4000-8000-000000000012",
     );
   });
 });

@@ -19,7 +19,7 @@ const replaced: string[] = [];
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
-  usePathname: () => "/kegiatan/galeri/baru",
+  usePathname: () => "/kegiatan/galeri/create",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -51,6 +51,7 @@ afterEach(() => {
 });
 
 const DETAIL: Album = {
+  publicId: "pid-1",
   code: CODE,
   name: "Paskah 2026",
   isPublish: true,
@@ -143,7 +144,7 @@ const pick = (container: HTMLElement, ...names: string[]) =>
   });
 
 describe("gerbang izin", () => {
-  test("tanpa CREATE: /baru merender NoFormAccess, bukan form", () => {
+  test("tanpa CREATE: /create merender NoFormAccess, bukan form", () => {
     onRenderForm(["VIEW"]);
 
     expect(screen.getByText("Tidak bisa menambah album")).toBeTruthy();
@@ -158,7 +159,7 @@ describe("gerbang izin", () => {
     expect(screen.queryByLabelText("Nama album")).toBeNull();
   });
 
-  test("tanpa UPDATE: /ubah tidak memuat detail", () => {
+  test("tanpa UPDATE: /edit tidak memuat detail", () => {
     let isFetched = false;
     globalThis.fetch = (() => {
       isFetched = true;

@@ -21,7 +21,7 @@ mock.module("next/navigation", () => ({
     replace: (href: string) => replaced.push(href),
     push: (href: string) => replaced.push(href),
   }),
-  usePathname: () => "/finance/journal-entry/baru",
+  usePathname: () => "/finance/journal-entry/create",
   useSearchParams: () => new URLSearchParams(),
 }));
 

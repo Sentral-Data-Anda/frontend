@@ -80,5 +80,4 @@ export const registerTable = (): DataTableConfig<AssetRegisterRow> => ({
       ),
     },
   ],
-  getRowLabel: (row) => `Aset ${row.code} ${row.name}`,
 });

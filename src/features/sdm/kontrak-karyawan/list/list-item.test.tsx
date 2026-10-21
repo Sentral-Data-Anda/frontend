@@ -76,11 +76,13 @@ describe("konfigurasi kolom", () => {
   });
 
   test("tautan baris hanya dengan UPDATE", () => {
-    expect(kontrakTable(true).getRowHref?.(CONTRACT)).toBe(
-      "/hr/employee-contract/KTR-0003/ubah",
+    expect(kontrakTable(true).getRowActions?.(CONTRACT)?.edit?.href).toBe(
+      "/hr/employee-contract/edit/ktr-1",
     );
-    expect(kontrakTable(false).getRowHref?.(CONTRACT)).toBeUndefined();
-    expect(kontrakTable(true).getRowLabel?.(CONTRACT)).toBe(
+    expect(
+      kontrakTable(false).getRowActions?.(CONTRACT)?.edit?.href,
+    ).toBeUndefined();
+    expect(kontrakTable(true).getRowActions?.(CONTRACT)?.edit?.label).toBe(
       "Ubah kontrak Citra Halim",
     );
   });

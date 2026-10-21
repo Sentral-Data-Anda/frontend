@@ -1,7 +1,5 @@
-import { ChevronRight, Pencil } from "lucide-react";
 import Link from "next/link";
 
-import { buttonVariants } from "@/components/common/control";
 import {
   DataListRow,
   TABLE_ROW_LINK,
@@ -10,7 +8,6 @@ import {
 } from "@/components/common/list";
 import { formatAmount, formatDateShort } from "@/lib/format";
 import { saveListFocus } from "@/lib/list-return";
-import { cn } from "@/lib/utils";
 
 import { REQUEST_LIST_PATH, requestEditHref, requestHref } from "../model";
 import type { PurchaseRequest } from "../types";
@@ -31,28 +28,12 @@ const metaOf = (row: PurchaseRequest) =>
 
 const amountOf = (row: PurchaseRequest) => formatAmount(row.totalEstimatedIDR);
 
-const editLink = (row: PurchaseRequest) =>
-  row.status === "DRAFT" ? (
-    <Link
-      href={requestEditHref(row.code)}
-      onClick={() => saveFocus(row)}
-      aria-label={`Ubah permintaan ${row.code}`}
-      className={cn(
-        buttonVariants({ variant: "ghost", size: "icon-sm" }),
-        "relative cursor-pointer",
-      )}
-    >
-      <Pencil aria-hidden />
-    </Link>
-  ) : null;
-
 interface PropTypes {
   row: PurchaseRequest;
-  isCanUpdate?: boolean;
 }
 
 export const RequestListItem = (props: PropTypes) => {
-  const { row, isCanUpdate = false } = props;
+  const { row } = props;
 
   return (
     <DataListRow
@@ -77,7 +58,6 @@ export const RequestListItem = (props: PropTypes) => {
             </span>
             <RequestStatusBadge status={row.status} />
           </span>
-          {isCanUpdate ? editLink(row) : null}
         </>
       }
     />
@@ -146,22 +126,26 @@ const COLUMNS: Column[] = [
   },
 ];
 
-const EDIT_COLUMN: Column = {
-  key: "edit",
-  header: "",
-  width: "2rem",
-  align: "end",
-  cell: editLink,
-};
-
 export function requestTable(
   isCanUpdate: boolean,
 ): DataTableConfig<PurchaseRequest> {
   return {
-    columns: isCanUpdate ? [...COLUMNS, EDIT_COLUMN] : COLUMNS,
-    getRowHref: detailHrefOf,
-    getRowLabel: viewLabelOf,
-    onRowOpen: saveFocus,
-    rowIcon: <ChevronRight />,
+    columns: COLUMNS,
+    getRowActions: (x) => ({
+      label: viewLabelOf(x),
+      view: {
+        href: detailHrefOf(x),
+        onNavigate: () => saveFocus(x),
+        label: viewLabelOf(x),
+      },
+      edit:
+        isCanUpdate && x.status === "DRAFT"
+          ? {
+              href: requestEditHref(x.publicId),
+              onNavigate: () => saveFocus(x),
+              label: `Ubah permintaan ${x.code}`,
+            }
+          : undefined,
+    }),
   };
 }

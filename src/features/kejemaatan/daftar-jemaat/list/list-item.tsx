@@ -1,12 +1,7 @@
-import { Pencil } from "lucide-react";
-import Link from "next/link";
-
-import { buttonVariants } from "@/components/common/control";
 import { Avatar, OptionalText } from "@/components/common/display";
 import { DataListRow, type DataTableConfig } from "@/components/common/list";
 import { MENU, editHref } from "@/config/menu";
 import { saveListFocus } from "@/lib/list-return";
-import { cn } from "@/lib/utils";
 
 import { JEMAAT_LIST_PATH } from "../model";
 import { TYPE_JEMAAT_LABEL, type JemaatListItem } from "../types";
@@ -15,11 +10,10 @@ import { JemaatStatus } from "./jemaat-status";
 
 interface PropTypes {
   jemaat: JemaatListItem;
-  isCanUpdate?: boolean;
 }
 
 export const JemaatListItemRow = (props: PropTypes) => {
-  const { jemaat, isCanUpdate = false } = props;
+  const { jemaat } = props;
 
   const meta = [
     jemaat.code,
@@ -38,20 +32,6 @@ export const JemaatListItemRow = (props: PropTypes) => {
       trailing={
         <>
           <JemaatStatus status={jemaat.status} />
-
-          {isCanUpdate ? (
-            <Link
-              href={editHref(MENU.KEJEMAATAN, MENU.DAFTAR_JEMAAT, jemaat.code)}
-              onClick={() => saveListFocus(JEMAAT_LIST_PATH, jemaat.code)}
-              aria-label={`Ubah ${jemaat.name}`}
-              className={cn(
-                buttonVariants({ variant: "ghost", size: "icon-sm" }),
-                "cursor-pointer",
-              )}
-            >
-              <Pencil aria-hidden />
-            </Link>
-          ) : null}
         </>
       }
     />
@@ -117,11 +97,15 @@ export function jemaatTable(
         cell: (jemaat) => <JemaatStatus status={jemaat.status} />,
       },
     ],
-    getRowHref: isCanUpdate
-      ? (jemaat) => editHref(MENU.KEJEMAATAN, MENU.DAFTAR_JEMAAT, jemaat.code)
-      : undefined,
-    getRowLabel: (jemaat) => `Ubah ${jemaat.name}`,
-    onRowOpen: (jemaat) => saveListFocus(JEMAAT_LIST_PATH, jemaat.code),
-    rowIcon: <Pencil />,
+    getRowActions: (x) => ({
+      label: `Ubah ${x.name}`,
+      edit: {
+        href: isCanUpdate
+          ? editHref(MENU.KEJEMAATAN, MENU.DAFTAR_JEMAAT, x.publicId)
+          : undefined,
+        onNavigate: () => saveListFocus(JEMAAT_LIST_PATH, x.code),
+        label: `Ubah ${x.name}`,
+      },
+    }),
   };
 }

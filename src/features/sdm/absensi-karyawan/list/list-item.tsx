@@ -1,13 +1,8 @@
-import { Pencil } from "lucide-react";
-import Link from "next/link";
-
-import { buttonVariants } from "@/components/common/control";
 import { Badge } from "@/components/common/display";
 import { DataListRow, type DataTableConfig } from "@/components/common/list";
 import { MENU, editHref } from "@/config/menu";
 import { formatDate } from "@/lib/format";
 import { saveListFocus } from "@/lib/list-return";
-import { cn } from "@/lib/utils";
 
 import { ABSENSI_LIST_PATH, clockTextOf, hoursTextOf } from "../model";
 import {
@@ -36,11 +31,10 @@ const StatusBadge = ({ row }: { row: AbsensiKaryawan }) => (
 
 interface PropTypes {
   absensi: AbsensiKaryawan;
-  isCanUpdate?: boolean;
 }
 
 export const AbsensiListItemRow = (props: PropTypes) => {
-  const { absensi, isCanUpdate = false } = props;
+  const { absensi } = props;
 
   return (
     <DataListRow
@@ -50,28 +44,23 @@ export const AbsensiListItemRow = (props: PropTypes) => {
       trailing={
         <>
           <StatusBadge row={absensi} />
-
-          {isCanUpdate ? (
-            <Link
-              href={editHrefOf(absensi)}
-              onClick={() => saveFocus(absensi)}
-              aria-label={labelOf(absensi)}
-              className={cn(
-                buttonVariants({ variant: "ghost", size: "icon-sm" }),
-                "cursor-pointer",
-              )}
-            >
-              <Pencil aria-hidden />
-            </Link>
-          ) : null}
         </>
       }
     />
   );
 };
 
+const deleteLabelOf = (x: AbsensiKaryawan) =>
+  `Hapus absensi ${x.karyawan.name} ${formatDate(x.date)}`;
+
+export const deleteTargetLabelOf = (x: AbsensiKaryawan) =>
+  `absensi ${x.karyawan.name} ${formatDate(x.date)}`;
+
 export function absensiTable(
   isCanUpdate: boolean,
+  // Dilewatkan dari layar daftar; `undefined` berarti pengguna tidak berhak
+  // menghapus, jadi tombolnya tidak dirender sama sekali.
+  onDelete?: (row: AbsensiKaryawan) => void,
 ): DataTableConfig<AbsensiKaryawan> {
   return {
     columns: [
@@ -141,9 +130,16 @@ export function absensiTable(
         ),
       },
     ],
-    getRowHref: isCanUpdate ? editHrefOf : undefined,
-    getRowLabel: labelOf,
-    onRowOpen: saveFocus,
-    rowIcon: <Pencil />,
+    getRowActions: (x) => ({
+      label: labelOf(x),
+      edit: {
+        href: isCanUpdate ? editHrefOf(x) : undefined,
+        onNavigate: () => saveFocus(x),
+        label: labelOf(x),
+      },
+      remove: onDelete
+        ? { onSelect: () => onDelete(x), label: deleteLabelOf(x) }
+        : undefined,
+    }),
   };
 }

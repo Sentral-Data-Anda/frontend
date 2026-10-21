@@ -70,7 +70,7 @@ export const MaintenanceContent = () => {
         table={maintenanceTable(isCanUpdate)}
         itemNoun="perawatan"
       >
-        {(row) => <MaintenanceItem row={row} isCanUpdate={isCanUpdate} />}
+        {(row) => <MaintenanceItem row={row} />}
       </DataList>
     </div>
   );

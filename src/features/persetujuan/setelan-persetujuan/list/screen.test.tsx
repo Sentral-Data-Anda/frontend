@@ -147,7 +147,7 @@ describe("gerbang izin", () => {
         .getByRole("link", { name: "Lihat alur Kas keluar kecil" })
         .getAttribute("href"),
     ).toBe(
-      "/approval/approval-workflow/00000000-0000-4000-8000-000000000001/ubah",
+      "/approval/approval-workflow/edit/00000000-0000-4000-8000-000000000001",
     );
   });
 

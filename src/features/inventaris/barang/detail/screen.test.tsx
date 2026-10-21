@@ -41,6 +41,7 @@ const { BarangDetailScreen } = await import("./screen");
 
 const originalFetch = globalThis.fetch;
 const CODE = "AST_0001_0001-0001";
+const PUBLIC_ID = "a1";
 const ALL: MenuAction[] = ["VIEW", "CREATE", "UPDATE", "DELETE"];
 
 afterEach(() => {
@@ -50,7 +51,7 @@ afterEach(() => {
 
 const ASSET: AssetDetail = {
   id: 1,
-  publicId: "a1",
+  publicId: PUBLIC_ID,
   code: CODE,
   name: "Proyektor Epson EB-X51",
   description: "Proyektor utama ibadah raya.",
@@ -239,7 +240,7 @@ describe("halaman barang", () => {
     expect(screen.queryByRole("link", { name: "Ajukan pelepasan" })).toBeNull();
     expect(
       screen.getByRole("link", { name: "Ubah" }).getAttribute("href"),
-    ).toBe(barangEditHref(CODE));
+    ).toBe(barangEditHref(PUBLIC_ID));
 
     cleanup();
     onRender({ ASSET_MASTER: ["VIEW"], ASSET_TRANSACTION: ["VIEW", "DELETE"] });

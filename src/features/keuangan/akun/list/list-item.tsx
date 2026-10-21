@@ -1,4 +1,3 @@
-import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 
 import { OptionalText } from "@/components/common/display";
@@ -12,11 +11,14 @@ import { saveListFocus } from "@/lib/list-return";
 import { cn } from "@/lib/utils";
 import { ACCOUNT_TYPE_LABEL } from "@/types/keuangan";
 
-import { AKUN_LIST_PATH, accountDetailHref, childCountLabel } from "../model";
+import {
+  accountDetailHref,
+  accountEditHref,
+  AKUN_LIST_PATH,
+  childCountLabel,
+} from "../model";
 import type { AccountTreeRow } from "../types";
 import { AccountStatus } from "../ui";
-
-import { EditLink } from "./edit-link";
 
 const INDENT = ["", "ps-4", "ps-8", "ps-12", "ps-16"];
 
@@ -46,11 +48,10 @@ const metaOf = (account: AccountTreeRow) =>
 
 interface PropTypes {
   account: AccountTreeRow;
-  isCanUpdate: boolean;
 }
 
 export const AccountListItemRow = (props: PropTypes) => {
-  const { account, isCanUpdate } = props;
+  const { account } = props;
 
   return (
     <DataListRow
@@ -73,10 +74,7 @@ export const AccountListItemRow = (props: PropTypes) => {
       }
       meta={metaOf(account)}
       trailing={
-        <>
-          {account.isActive ? null : <AccountStatus isActive={false} />}
-          {isCanUpdate ? <EditLink account={account} /> : null}
-        </>
+        <>{account.isActive ? null : <AccountStatus isActive={false} />}</>
       }
     />
   );
@@ -148,22 +146,36 @@ const COLUMNS: Column[] = [
   },
 ];
 
-const EDIT_COLUMN: Column = {
-  key: "edit",
-  header: "",
-  width: "2rem",
-  align: "end",
-  cell: (account) => <EditLink account={account} />,
-};
+const deleteLabelOf = (x: AccountTreeRow) => `Hapus akun ${x.code} ${x.name}`;
+
+export const deleteTargetLabelOf = (x: AccountTreeRow) =>
+  `akun ${x.code} ${x.name}`;
 
 export function accountTable(
   isCanUpdate = false,
+  // Dilewatkan dari layar daftar; `undefined` berarti pengguna tidak berhak
+  // menghapus, jadi tombolnya tidak dirender sama sekali.
+  onDelete?: (row: AccountTreeRow) => void,
 ): DataTableConfig<AccountTreeRow> {
   return {
-    columns: isCanUpdate ? [...COLUMNS, EDIT_COLUMN] : COLUMNS,
-    getRowHref: detailHrefOf,
-    getRowLabel: viewLabelOf,
-    onRowOpen: saveFocus,
-    rowIcon: <ChevronRight />,
+    columns: COLUMNS,
+    getRowActions: (x) => ({
+      label: viewLabelOf(x),
+      view: {
+        href: detailHrefOf(x),
+        onNavigate: () => saveFocus(x),
+        label: viewLabelOf(x),
+      },
+      edit: isCanUpdate
+        ? {
+            href: accountEditHref(x.publicId),
+            onNavigate: () => saveListFocus(AKUN_LIST_PATH, x.code),
+            label: `Ubah akun ${x.code} ${x.name}`,
+          }
+        : undefined,
+      remove: onDelete
+        ? { onSelect: () => onDelete(x), label: deleteLabelOf(x) }
+        : undefined,
+    }),
   };
 }

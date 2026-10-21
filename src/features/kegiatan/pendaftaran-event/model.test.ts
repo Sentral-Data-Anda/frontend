@@ -46,6 +46,7 @@ const EVENT: EventOption = {
 
 const FREE: RegistrationEvent = {
   id: 3,
+  publicId: "pid-evn-0005-2026-0001",
   code: "EVN_0005-2026-0001",
   name: "Latihan Paduan Suara",
   startDate: "2026-10-12T00:00:00.000Z",

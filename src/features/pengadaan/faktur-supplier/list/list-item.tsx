@@ -1,7 +1,5 @@
-import { ChevronRight, Pencil } from "lucide-react";
 import Link from "next/link";
 
-import { buttonVariants } from "@/components/common/control";
 import {
   DataListRow,
   TABLE_ROW_LINK,
@@ -10,7 +8,6 @@ import {
 } from "@/components/common/list";
 import { formatAmount, formatDate, formatDateShort } from "@/lib/format";
 import { saveListFocus } from "@/lib/list-return";
-import { cn } from "@/lib/utils";
 
 import {
   INVOICE_LIST_PATH,
@@ -40,28 +37,12 @@ const metaOf = (invoice: Invoice) =>
     invoice.code,
   ].join(" · ");
 
-const editLink = (invoice: Invoice) =>
-  isEditable(invoice) ? (
-    <Link
-      href={invoiceEditHref(invoice.publicId)}
-      onClick={() => saveFocus(invoice)}
-      aria-label={`Ubah faktur ${invoice.code}`}
-      className={cn(
-        buttonVariants({ variant: "ghost", size: "icon-sm" }),
-        "relative cursor-pointer",
-      )}
-    >
-      <Pencil aria-hidden />
-    </Link>
-  ) : null;
-
 interface PropTypes {
   invoice: Invoice;
-  isCanUpdate?: boolean;
 }
 
 export const InvoiceListItemRow = (props: PropTypes) => {
-  const { invoice, isCanUpdate = false } = props;
+  const { invoice } = props;
 
   return (
     <DataListRow
@@ -86,7 +67,6 @@ export const InvoiceListItemRow = (props: PropTypes) => {
             </span>
             <InvoiceStatusBadge status={invoice.status} />
           </span>
-          {isCanUpdate ? editLink(invoice) : null}
         </>
       }
     />
@@ -152,20 +132,24 @@ const COLUMNS: DataTableColumn<Invoice>[] = [
   },
 ];
 
-const EDIT_COLUMN: DataTableColumn<Invoice> = {
-  key: "edit",
-  header: "",
-  width: "2rem",
-  align: "end",
-  cell: editLink,
-};
-
 export function invoiceTable(isCanUpdate: boolean): DataTableConfig<Invoice> {
   return {
-    columns: isCanUpdate ? [...COLUMNS, EDIT_COLUMN] : COLUMNS,
-    getRowHref: detailHrefOf,
-    getRowLabel: viewLabelOf,
-    onRowOpen: saveFocus,
-    rowIcon: <ChevronRight />,
+    columns: COLUMNS,
+    getRowActions: (x) => ({
+      label: viewLabelOf(x),
+      view: {
+        href: detailHrefOf(x),
+        onNavigate: () => saveFocus(x),
+        label: viewLabelOf(x),
+      },
+      edit:
+        isCanUpdate && isEditable(x)
+          ? {
+              href: invoiceEditHref(x.publicId),
+              onNavigate: () => saveFocus(x),
+              label: `Ubah faktur ${x.code}`,
+            }
+          : undefined,
+    }),
   };
 }

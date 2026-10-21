@@ -1,7 +1,5 @@
-import { ChevronRight, Pencil } from "lucide-react";
 import Link from "next/link";
 
-import { buttonVariants } from "@/components/common/control";
 import {
   DataListRow,
   TABLE_ROW_LINK,
@@ -16,7 +14,6 @@ import {
   formatNumber,
 } from "@/lib/format";
 import { saveListFocus } from "@/lib/list-return";
-import { cn } from "@/lib/utils";
 
 import { ORDER_LIST_PATH, isForeign, orderEditHref, orderHref } from "../model";
 import type { Order } from "../types";
@@ -53,28 +50,12 @@ const statusOf = (order: Order) => (
   />
 );
 
-const editLink = (order: Order) =>
-  order.status === "ISSUED" ? (
-    <Link
-      href={orderEditHref(order.code)}
-      onClick={() => saveFocus(order)}
-      aria-label={`Ubah pesanan ${order.code}`}
-      className={cn(
-        buttonVariants({ variant: "ghost", size: "icon-sm" }),
-        "relative cursor-pointer",
-      )}
-    >
-      <Pencil aria-hidden />
-    </Link>
-  ) : null;
-
 interface PropTypes {
   order: Order;
-  isCanUpdate?: boolean;
 }
 
 export const OrderListItemRow = (props: PropTypes) => {
-  const { order, isCanUpdate = false } = props;
+  const { order } = props;
 
   return (
     <DataListRow
@@ -99,7 +80,6 @@ export const OrderListItemRow = (props: PropTypes) => {
             </span>
             {statusOf(order)}
           </span>
-          {isCanUpdate ? editLink(order) : null}
         </>
       }
     />
@@ -182,20 +162,24 @@ const COLUMNS: Column[] = [
   },
 ];
 
-const EDIT_COLUMN: Column = {
-  key: "edit",
-  header: "",
-  width: "2rem",
-  align: "end",
-  cell: editLink,
-};
-
 export function orderTable(isCanUpdate: boolean): DataTableConfig<Order> {
   return {
-    columns: isCanUpdate ? [...COLUMNS, EDIT_COLUMN] : COLUMNS,
-    getRowHref: detailHrefOf,
-    getRowLabel: viewLabelOf,
-    onRowOpen: saveFocus,
-    rowIcon: <ChevronRight />,
+    columns: COLUMNS,
+    getRowActions: (x) => ({
+      label: viewLabelOf(x),
+      view: {
+        href: detailHrefOf(x),
+        onNavigate: () => saveFocus(x),
+        label: viewLabelOf(x),
+      },
+      edit:
+        isCanUpdate && x.status === "ISSUED"
+          ? {
+              href: orderEditHref(x.publicId),
+              onNavigate: () => saveFocus(x),
+              label: `Ubah pesanan ${x.code}`,
+            }
+          : undefined,
+    }),
   };
 }

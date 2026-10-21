@@ -1,12 +1,5 @@
-import { Pencil } from "lucide-react";
-import Link from "next/link";
-
 import { Badge } from "@/components/common/display";
-import {
-  DataListRow,
-  TABLE_ROW_LINK,
-  type DataTableConfig,
-} from "@/components/common/list";
+import { DataListRow, type DataTableConfig } from "@/components/common/list";
 import { saveListFocus } from "@/lib/list-return";
 
 import {
@@ -51,30 +44,16 @@ const accountCell = (setting: AccountingSetting) => {
 
 interface PropTypes {
   setting: AccountingSetting;
-  isCanUpdate?: boolean;
 }
 
 export const SettingListItemRow = (props: PropTypes) => {
-  const { setting, isCanUpdate = false } = props;
+  const { setting } = props;
 
   return (
     <DataListRow
       id={setting.key}
       className="hover:bg-card relative transition-colors"
-      title={
-        isCanUpdate ? (
-          <Link
-            href={editHrefOf(setting)}
-            onClick={() => saveFocus(setting)}
-            aria-label={labelOf(setting)}
-            className={TABLE_ROW_LINK}
-          >
-            {setting.label}
-          </Link>
-        ) : (
-          setting.label
-        )
-      }
+      title={setting.label}
       meta={setting.description}
       trailing={accountCell(setting)}
     />
@@ -112,9 +91,13 @@ export function settingTable(
         cell: accountCell,
       },
     ],
-    getRowHref: isCanUpdate ? editHrefOf : undefined,
-    getRowLabel: labelOf,
-    onRowOpen: saveFocus,
-    rowIcon: <Pencil />,
+    getRowActions: (x) => ({
+      label: labelOf(x),
+      edit: {
+        href: isCanUpdate ? editHrefOf(x) : undefined,
+        onNavigate: () => saveFocus(x),
+        label: labelOf(x),
+      },
+    }),
   };
 }

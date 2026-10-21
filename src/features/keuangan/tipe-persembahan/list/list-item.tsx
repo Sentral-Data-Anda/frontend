@@ -1,12 +1,5 @@
-import { Pencil } from "lucide-react";
-import Link from "next/link";
-
 import { Badge } from "@/components/common/display";
-import {
-  DataListRow,
-  TABLE_ROW_LINK,
-  type DataTableConfig,
-} from "@/components/common/list";
+import { DataListRow, type DataTableConfig } from "@/components/common/list";
 import { saveListFocus } from "@/lib/list-return";
 
 import {
@@ -18,7 +11,7 @@ import {
 import type { OfferingType } from "../types";
 
 const editHrefOf = (offeringType: OfferingType) =>
-  offeringTypeEditHref(offeringType.code);
+  offeringTypeEditHref(offeringType.publicId);
 
 const saveFocus = (offeringType: OfferingType) =>
   saveListFocus(TIPE_PERSEMBAHAN_LIST_PATH, offeringType.code);
@@ -75,38 +68,31 @@ const rowBadges = (offeringType: OfferingType) => {
 
 interface PropTypes {
   offeringType: OfferingType;
-  isCanUpdate?: boolean;
 }
 
 export const OfferingTypeListItemRow = (props: PropTypes) => {
-  const { offeringType, isCanUpdate = false } = props;
+  const { offeringType } = props;
 
   return (
     <DataListRow
       id={offeringType.code}
       className="hover:bg-card relative transition-colors"
-      title={
-        isCanUpdate ? (
-          <Link
-            href={editHrefOf(offeringType)}
-            onClick={() => saveFocus(offeringType)}
-            aria-label={labelOf(offeringType)}
-            className={TABLE_ROW_LINK}
-          >
-            {offeringType.name}
-          </Link>
-        ) : (
-          offeringType.name
-        )
-      }
+      title={offeringType.name}
       meta={accountCell(offeringType)}
       trailing={rowBadges(offeringType)}
     />
   );
 };
 
+const deleteLabelOf = (x: OfferingType) => `Hapus ${x.name}`;
+
+export const deleteTargetLabelOf = (x: OfferingType) => `${x.name}`;
+
 export function offeringTypeTable(
   isCanUpdate: boolean,
+  // Dilewatkan dari layar daftar; `undefined` berarti pengguna tidak berhak
+  // menghapus, jadi tombolnya tidak dirender sama sekali.
+  onDelete?: (row: OfferingType) => void,
 ): DataTableConfig<OfferingType> {
   return {
     columns: [
@@ -148,9 +134,16 @@ export function offeringTypeTable(
         cell: statusCell,
       },
     ],
-    getRowHref: isCanUpdate ? editHrefOf : undefined,
-    getRowLabel: labelOf,
-    onRowOpen: saveFocus,
-    rowIcon: <Pencil />,
+    getRowActions: (x) => ({
+      label: labelOf(x),
+      edit: {
+        href: isCanUpdate ? editHrefOf(x) : undefined,
+        onNavigate: () => saveFocus(x),
+        label: labelOf(x),
+      },
+      remove: onDelete
+        ? { onSelect: () => onDelete(x), label: deleteLabelOf(x) }
+        : undefined,
+    }),
   };
 }

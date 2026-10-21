@@ -1,6 +1,8 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
+import { RowActionsProvider } from "@/components/common/list";
+
 import type { TemplateJadwalListItem } from "../types";
 
 import { TemplateJadwalListItemRow, templateJadwalTable } from "./list-item";
@@ -8,6 +10,7 @@ import { TemplateJadwalListItemRow, templateJadwalTable } from "./list-item";
 afterEach(cleanup);
 
 const TEMPLATE: TemplateJadwalListItem = {
+  publicId: "pid-tmp-jdl-0002-0001",
   code: "TMP_JDL_0002-0001",
   name: "Ibadah Pemuda",
   startTime: "17:00",
@@ -20,16 +23,17 @@ const TEMPLATE: TemplateJadwalListItem = {
   ],
 };
 
-const EDIT_HREF = "/pelayanan/template-jadwal/TMP_JDL_0002-0001/ubah";
+const EDIT_HREF = "/pelayanan/template-jadwal/edit/pid-tmp-jdl-0002-0001";
 
 const onRenderRow = (isCanUpdate: boolean) =>
   render(
-    <ul>
-      <TemplateJadwalListItemRow
-        template={TEMPLATE}
-        isCanUpdate={isCanUpdate}
-      />
-    </ul>,
+    <RowActionsProvider
+      value={templateJadwalTable(isCanUpdate).getRowActions?.(TEMPLATE)}
+    >
+      <ul>
+        <TemplateJadwalListItemRow template={TEMPLATE} />
+      </ul>
+    </RowActionsProvider>,
   );
 
 describe("baris HP", () => {
@@ -73,8 +77,10 @@ describe("konfigurasi tabel", () => {
       ["Tugas", "minmax(0,2.5fr)", false],
       ["Kode", "minmax(0,1.2fr)", true],
     ]);
-    expect(table.getRowHref?.(TEMPLATE)).toBe(EDIT_HREF);
-    expect(templateJadwalTable(false).getRowHref).toBeUndefined();
+    expect(table.getRowActions?.(TEMPLATE)?.edit?.href).toBe(EDIT_HREF);
+    expect(
+      templateJadwalTable(false).getRowActions?.(TEMPLATE)?.edit?.href,
+    ).toBeUndefined();
   });
 
   test("sel Tugas urut order, dipisah koma, dengan title daftar penuh", () => {

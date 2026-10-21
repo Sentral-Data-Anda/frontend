@@ -48,7 +48,9 @@ describe("form ↔ payload", () => {
   });
 
   test("detail be-sada jadi nilai form", () => {
-    expect(toRolePelayanForm({ id: 1, name: "Liturgis" })).toEqual({
+    expect(
+      toRolePelayanForm({ id: 1, publicId: "p1", name: "Liturgis" }),
+    ).toEqual({
       name: "Liturgis",
     });
   });

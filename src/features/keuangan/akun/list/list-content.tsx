@@ -2,29 +2,51 @@
 
 import { Plus } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
 
 import { buttonVariants } from "@/components/common/control";
-import { EmptyState } from "@/components/common/feedback";
-import { DataList, ListToolbar } from "@/components/common/list";
+import { EmptyState, useToast } from "@/components/common/feedback";
+import {
+  DataList,
+  ListToolbar,
+  RowDeleteDialog,
+} from "@/components/common/list";
 import { PageHeader, PageHeaderAdd } from "@/components/layout";
 import { MENU, domainHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { useListParams } from "@/hooks/use-list-params";
 import { cn } from "@/lib/utils";
 
-import { ACCOUNT_FILTERS, useAccountList } from "../api";
+import { ACCOUNT_FILTERS, useAccountList, useDeleteAccount } from "../api";
 import {
   AKUN_CREATE_PATH,
   EMPTY_DESCRIPTION,
   EMPTY_TITLE,
   accountRows,
 } from "../model";
-import { ACCOUNT_STATUS_FILTER, ACCOUNT_TYPE_FILTER } from "../types";
+import {
+  ACCOUNT_STATUS_FILTER,
+  ACCOUNT_TYPE_FILTER,
+  type AccountTreeRow,
+} from "../types";
 
-import { AccountListItemRow, accountTable } from "./list-item";
+import {
+  AccountListItemRow,
+  accountTable,
+  deleteTargetLabelOf,
+} from "./list-item";
 
 export const AccountListContent = () => {
-  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.CHART_OF_ACCOUNT);
+  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+    MENU.CHART_OF_ACCOUNT,
+  );
+
+  const toast = useToast();
+
+  // Satu keadaan menyimpan baris yang akan dihapus sekaligus status terbuka
+  // dialognya. Hook hapus dibuat ulang mengikuti kunci baris ini.
+  const [target, setTarget] = useState<AccountTreeRow | null>(null);
+  const deleteRow = useDeleteAccount(target?.code);
   const listParams = useListParams({ limit: 50, filters: ACCOUNT_FILTERS });
   const accountList = useAccountList(listParams);
   const isNarrowed = Boolean(listParams.search) || listParams.isFiltered;
@@ -34,6 +56,20 @@ export const AccountListContent = () => {
     !accountList.isLoading &&
     !accountList.error &&
     accountList.items?.length === 0;
+
+  const onDelete = () => {
+    deleteRow.mutate(undefined, {
+      onSuccess: (deleted) => {
+        toast.add({ title: deleted.message });
+        setTarget(null);
+      },
+    });
+  };
+
+  const onCancelDelete = () => {
+    deleteRow.reset();
+    setTarget(null);
+  };
 
   return (
     <div className="pb-6">
@@ -106,14 +142,21 @@ export const AccountListContent = () => {
             listParams.isFiltered ? listParams.onClearFilters : undefined
           }
           pagination={accountList.pagination}
-          table={accountTable(isCanUpdate)}
+          table={accountTable(isCanUpdate, isCanDelete ? setTarget : undefined)}
           itemNoun="akun"
         >
-          {(account) => (
-            <AccountListItemRow account={account} isCanUpdate={isCanUpdate} />
-          )}
+          {(account) => <AccountListItemRow account={account} />}
         </DataList>
       )}
+
+      <RowDeleteDialog
+        target={target ? { label: deleteTargetLabelOf(target) } : null}
+        entity="akun"
+        isPending={deleteRow.isPending}
+        errorMessage={deleteRow.error?.message}
+        onCancel={onCancelDelete}
+        onConfirm={onDelete}
+      />
     </div>
   );
 };

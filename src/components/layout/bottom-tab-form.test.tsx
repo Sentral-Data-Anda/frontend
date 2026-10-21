@@ -35,14 +35,14 @@ describe("bottom tab di layar isian", () => {
   });
 
   test("rute tambah tidak merender navigasi sama sekali", () => {
-    const { container } = onRenderTab("/kejemaatan/daftar-jemaat/baru");
+    const { container } = onRenderTab("/kejemaatan/daftar-jemaat/create");
 
     expect(container.innerHTML).toBe("");
   });
 
   test("rute ubah tidak merender navigasi sama sekali", () => {
     const { container } = onRenderTab(
-      "/kejemaatan/daftar-jemaat/JMT-0042/ubah",
+      "/kejemaatan/daftar-jemaat/edit/JMT-0042",
     );
 
     expect(container.innerHTML).toBe("");

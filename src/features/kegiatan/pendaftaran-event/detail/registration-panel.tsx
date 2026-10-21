@@ -31,7 +31,7 @@ export const RegistrationPanel = (props: PropTypes) => {
       <DescriptionList className="px-gutter pb-2">
         <DescriptionItem label="Event">
           {isCanUpdateEvent ? (
-            <Link href={eventEditHref(event.code)} className={LINK}>
+            <Link href={eventEditHref(event.publicId)} className={LINK}>
               {event.name}
             </Link>
           ) : (

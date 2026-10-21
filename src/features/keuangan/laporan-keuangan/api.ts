@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 
+import type { ListLimit } from "@/hooks/use-list-params";
 import { fetchOne } from "@/lib/api/fetcher";
 
 import type {
@@ -82,7 +83,7 @@ const ledgerQuery = (params: {
   from: string;
   to: string;
   page: number;
-  limit: number;
+  limit: ListLimit;
 }) =>
   new URLSearchParams({
     code: params.code,
@@ -126,7 +127,7 @@ export function useLedger(params: {
   from: string;
   to: string;
   page: number;
-  limit: number;
+  limit: ListLimit;
 }) {
   const query = ledgerQuery(params);
 

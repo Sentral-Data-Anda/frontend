@@ -1,4 +1,3 @@
-import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 
 import {
@@ -129,9 +128,13 @@ export function cutiTable(): DataTableConfig<Cuti> {
         cell: (row) => <CutiStatusBadge cuti={row} />,
       },
     ],
-    getRowHref: detailHrefOf,
-    getRowLabel: labelOf,
-    onRowOpen: saveFocus,
-    rowIcon: <ChevronRight />,
+    getRowActions: (x) => ({
+      label: labelOf(x),
+      view: {
+        href: detailHrefOf(x),
+        onNavigate: () => saveFocus(x),
+        label: labelOf(x),
+      },
+    }),
   };
 }

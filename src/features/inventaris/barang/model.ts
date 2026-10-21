@@ -42,15 +42,15 @@ export const BARANG_CREATE_PATH = createHref(
 export const barangDetailHref = (code: string) =>
   detailHref(MENU.FIXED_ASSET, MENU.ASSET_MASTER, code);
 
-export const barangEditHref = (code: string) =>
-  editHref(MENU.FIXED_ASSET, MENU.ASSET_MASTER, code);
+export const barangEditHref = (publicId: string) =>
+  editHref(MENU.FIXED_ASSET, MENU.ASSET_MASTER, publicId);
 
 const CYCLE_PATH = menuHref(MENU.FIXED_ASSET, MENU.ASSET_TRANSACTION);
 
 export type CycleAction = "perawatan" | "pindah" | "pelepasan";
 
 export const cycleCreateHref = (action: CycleAction, code: string) =>
-  `${CYCLE_PATH}/${action}/baru?barang=${encodeURIComponent(code)}`;
+  `${CYCLE_PATH}/${action}/create?barang=${encodeURIComponent(code)}`;
 
 export const disposalHref = (code: string) =>
   `${CYCLE_PATH}/pelepasan/${encodeURIComponent(code)}`;

@@ -1,5 +1,12 @@
+import { Toast } from "@base-ui/react/toast";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import { afterEach, describe, expect, mock, test } from "bun:test";
 
 import type { MenuAction } from "@/types/menu";
@@ -49,6 +56,7 @@ const onRender = (isDesktop: boolean, granted: MenuAction[]) => {
       data: [
         {
           id: 1,
+          publicId: "11111111-2222-4333-8444-555555555555",
           code: "WIL-1",
           name: "Wilayah Uji Satu",
           isActive: true,
@@ -67,7 +75,9 @@ const onRender = (isDesktop: boolean, granted: MenuAction[]) => {
         new QueryClient({ defaultOptions: { queries: { retry: false } } })
       }
     >
-      <WilayahListScreen />
+      <Toast.Provider>
+        <WilayahListScreen />
+      </Toast.Provider>
     </QueryClientProvider>,
   );
 
@@ -97,5 +107,60 @@ describe.each([
     );
     expect(requests.length).toBeGreaterThan(0);
     expect(requests.every((url) => url.includes("/zone-church"))).toBe(true);
+  });
+});
+
+describe("hapus dari daftar wilayah", () => {
+  test("tanpa DELETE: tidak ada tombol hapus di baris", async () => {
+    onRender(true, ["VIEW", "UPDATE"]);
+
+    await waitFor(() =>
+      expect(screen.getAllByText("Wilayah Uji Satu").length).toBeGreaterThan(0),
+    );
+
+    expect(screen.queryByLabelText("Hapus Wilayah Uji Satu")).toBeNull();
+    // Tombol ubah tetap ada, supaya kegagalan di atas tidak lolos hanya karena
+    // barisnya belum tergambar.
+    expect(screen.getByLabelText("Ubah Wilayah Uji Satu")).toBeTruthy();
+  });
+
+  test("dengan DELETE: tombol hapus membuka konfirmasi yang menyebut namanya", async () => {
+    onRender(true, ["VIEW", "UPDATE", "DELETE"]);
+
+    await waitFor(() =>
+      expect(screen.getAllByText("Wilayah Uji Satu").length).toBeGreaterThan(0),
+    );
+
+    fireEvent.click(screen.getByLabelText("Hapus Wilayah Uji Satu"));
+
+    await waitFor(() =>
+      expect(screen.getByText("Hapus wilayah ini?")).toBeTruthy(),
+    );
+    expect(
+      screen.getByText(/Wilayah Uji Satu akan dihapus/).textContent,
+    ).toContain("tidak bisa dibatalkan");
+  });
+
+  test("konfirmasi mengirim DELETE ke kode baris yang dipilih", async () => {
+    const requests = onRender(true, ["VIEW", "UPDATE", "DELETE"]);
+
+    await waitFor(() =>
+      expect(screen.getAllByText("Wilayah Uji Satu").length).toBeGreaterThan(0),
+    );
+
+    fireEvent.click(screen.getByLabelText("Hapus Wilayah Uji Satu"));
+    await waitFor(() =>
+      expect(screen.getByText("Hapus wilayah ini?")).toBeTruthy(),
+    );
+
+    const konfirmasi = screen
+      .getAllByRole("button")
+      .find((button) => button.textContent?.trim() === "Hapus");
+
+    fireEvent.click(konfirmasi!);
+
+    await waitFor(() =>
+      expect(requests.some((url) => url.includes("WIL-1"))).toBe(true),
+    );
   });
 });

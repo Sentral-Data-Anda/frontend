@@ -1,7 +1,5 @@
-import { ChevronRight, Pencil } from "lucide-react";
 import Link from "next/link";
 
-import { buttonVariants } from "@/components/common/control";
 import { ProgressBar } from "@/components/common/dashboard";
 import {
   DataListRow,
@@ -11,7 +9,6 @@ import {
 } from "@/components/common/list";
 import { formatAmount } from "@/lib/format";
 import { saveListFocus } from "@/lib/list-return";
-import { cn } from "@/lib/utils";
 
 import {
   BAR_ALERT_ABOVE,
@@ -36,31 +33,16 @@ const detailHrefOf = (row: BudgetAllocation) =>
 const viewLabelOf = (row: BudgetAllocation) =>
   `Lihat pagu anggaran ${nameOf(row)} tahun ${row.budgetYear.label}`;
 
-const editLink = (row: BudgetAllocation) => (
-  <Link
-    href={allocationEditHref(row.publicId)}
-    onClick={() => saveFocus(row)}
-    aria-label={`Ubah pagu anggaran ${nameOf(row)}`}
-    className={cn(
-      buttonVariants({ variant: "ghost", size: "icon-sm" }),
-      "relative cursor-pointer",
-    )}
-  >
-    <Pencil aria-hidden />
-  </Link>
-);
-
 const money = (value: string) => (
   <span className="block truncate tabular-nums">{formatAmount(value)}</span>
 );
 
 interface PropTypes {
   row: BudgetAllocation;
-  isCanUpdate?: boolean;
 }
 
 export const AllocationListItem = (props: PropTypes) => {
-  const { row, isCanUpdate = false } = props;
+  const { row } = props;
 
   return (
     <DataListRow
@@ -91,7 +73,6 @@ export const AllocationListItem = (props: PropTypes) => {
               alertAbove={BAR_ALERT_ABOVE}
             />
           </div>
-          {isCanUpdate ? editLink(row) : null}
         </>
       }
     />
@@ -162,22 +143,37 @@ const COLUMNS: Column[] = [
   },
 ];
 
-const EDIT_COLUMN: Column = {
-  key: "edit",
-  header: "",
-  width: "2rem",
-  align: "end",
-  cell: editLink,
-};
+const deleteLabelOf = (x: BudgetAllocation) =>
+  `Hapus pagu anggaran ${nameOf(x)}`;
+
+export const deleteTargetLabelOf = (x: BudgetAllocation) =>
+  `pagu anggaran ${nameOf(x)}`;
 
 export function allocationTable(
   isCanUpdate = false,
+  // Dilewatkan dari layar daftar; `undefined` berarti pengguna tidak berhak
+  // menghapus, jadi tombolnya tidak dirender sama sekali.
+  onDelete?: (row: BudgetAllocation) => void,
 ): DataTableConfig<BudgetAllocation> {
   return {
-    columns: isCanUpdate ? [...COLUMNS, EDIT_COLUMN] : COLUMNS,
-    getRowHref: detailHrefOf,
-    getRowLabel: viewLabelOf,
-    onRowOpen: saveFocus,
-    rowIcon: <ChevronRight />,
+    columns: COLUMNS,
+    getRowActions: (x) => ({
+      label: viewLabelOf(x),
+      view: {
+        href: detailHrefOf(x),
+        onNavigate: () => saveFocus(x),
+        label: viewLabelOf(x),
+      },
+      edit: isCanUpdate
+        ? {
+            href: allocationEditHref(x.publicId),
+            onNavigate: () => saveFocus(x),
+            label: `Ubah pagu anggaran ${nameOf(x)}`,
+          }
+        : undefined,
+      remove: onDelete
+        ? { onSelect: () => onDelete(x), label: deleteLabelOf(x) }
+        : undefined,
+    }),
   };
 }

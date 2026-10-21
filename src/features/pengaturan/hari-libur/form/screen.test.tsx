@@ -19,7 +19,7 @@ const replaced: string[] = [];
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
-  usePathname: () => "/settings/holiday/baru",
+  usePathname: () => "/settings/holiday/create",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -60,14 +60,14 @@ const onRenderForm = (granted: MenuAction[], id?: string) => {
 };
 
 describe("gerbang izin rute form", () => {
-  test("tanpa CREATE: rute /baru tidak merender form", () => {
+  test("tanpa CREATE: rute /create tidak merender form", () => {
     onRenderForm(["VIEW"]);
 
     expect(screen.getByText("Tidak bisa menambah hari libur")).toBeTruthy();
     expect(screen.queryByLabelText("Nama")).toBeNull();
   });
 
-  test("tanpa UPDATE: rute /ubah tidak merender form", () => {
+  test("tanpa UPDATE: rute /edit tidak merender form", () => {
     onRenderForm(["VIEW", "CREATE"], "13");
 
     expect(screen.getByText("Tidak bisa mengubah hari libur")).toBeTruthy();

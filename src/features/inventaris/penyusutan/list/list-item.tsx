@@ -1,4 +1,3 @@
-import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 
 import {
@@ -117,9 +116,13 @@ export function penyusutanTable(): DataTableConfig<Run> {
         cell: (run) => <RunStatus run={run} />,
       },
     ],
-    getRowHref: hrefOf,
-    getRowLabel: labelOf,
-    onRowOpen: saveFocus,
-    rowIcon: <ChevronRight />,
+    getRowActions: (x) => ({
+      label: labelOf(x),
+      view: {
+        href: hrefOf(x),
+        onNavigate: () => saveFocus(x),
+        label: labelOf(x),
+      },
+    }),
   };
 }

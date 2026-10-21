@@ -24,7 +24,7 @@ mock.module("next/navigation", () => ({
     replace: (href: string) => replaced.push(href),
     push: () => undefined,
   }),
-  usePathname: () => "/peribadahan/ibadah/giliran",
+  usePathname: () => "/peribadahan/ibadah/rotation",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -225,7 +225,7 @@ describe("gerbang izin", () => {
       screen
         .getByRole("link", { name: "Buat jadwal giliran" })
         .getAttribute("href"),
-    ).toBe("/peribadahan/ibadah/giliran");
+    ).toBe("/peribadahan/ibadah/rotation");
   });
 });
 

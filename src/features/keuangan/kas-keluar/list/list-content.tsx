@@ -152,7 +152,7 @@ export const ExpenseListContent = () => {
           table={expenseTable(isCanUpdate)}
           itemNoun="kas keluar"
         >
-          {(row) => <ExpenseListItem row={row} isCanUpdate={isCanUpdate} />}
+          {(row) => <ExpenseListItem row={row} />}
         </DataList>
       </div>
 

@@ -126,7 +126,7 @@ describe("halaman pembayaran", () => {
       screen
         .getByRole("link", { name: "Catat pencairan di Kas Masuk" })
         .getAttribute("href"),
-    ).toBe("/finance/kas-masuk/baru");
+    ).toBe("/finance/kas-masuk/create");
   });
 
   test("belum lunas: tanpa catatan pencairan", async () => {

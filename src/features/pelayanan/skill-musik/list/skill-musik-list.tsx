@@ -1,20 +1,55 @@
 "use client";
 
-import { DataList, ListToolbar } from "@/components/common/list";
+import { useState } from "react";
+
+import { useToast } from "@/components/common/feedback";
+import {
+  DataList,
+  ListToolbar,
+  RowDeleteDialog,
+} from "@/components/common/list";
 import { PageHeader, PageHeaderAdd } from "@/components/layout";
 import { MENU, createHref, domainHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { useListParams } from "@/hooks/use-list-params";
 
-import { useSkillMusikList } from "../api";
+import { useDeleteSkillMusik, useSkillMusikList } from "../api";
+import type { SkillMusik } from "../types";
 
-import { SkillMusikListItemRow, skillMusikTable } from "./list-item";
+import {
+  deleteTargetLabelOf,
+  SkillMusikListItemRow,
+  skillMusikTable,
+} from "./list-item";
 
 export const SkillMusikList = () => {
-  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.SKILL_MUSIK);
+  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+    MENU.SKILL_MUSIK,
+  );
+
+  const toast = useToast();
+
+  // Satu keadaan menyimpan baris yang akan dihapus sekaligus status terbuka
+  // dialognya. Hook hapus dibuat ulang mengikuti kunci baris ini.
+  const [target, setTarget] = useState<SkillMusik | null>(null);
+  const deleteRow = useDeleteSkillMusik(target?.publicId);
   const listParams = useListParams();
   const skillMusikList = useSkillMusikList(listParams);
   const isSearched = Boolean(listParams.search);
+
+  const onDelete = () => {
+    deleteRow.mutate(undefined, {
+      onSuccess: (deleted) => {
+        toast.add({ title: deleted.message });
+        setTarget(null);
+      },
+    });
+  };
+
+  const onCancelDelete = () => {
+    deleteRow.reset();
+    setTarget(null);
+  };
 
   return (
     <div className="pb-6">
@@ -60,16 +95,23 @@ export const SkillMusikList = () => {
             : "Tambahkan alat yang dimainkan pemusik gereja, mis. Keyboard, Gitar, Drum."
         }
         pagination={skillMusikList.pagination}
-        table={skillMusikTable(isCanUpdate)}
+        table={skillMusikTable(
+          isCanUpdate,
+          isCanDelete ? setTarget : undefined,
+        )}
         itemNoun="alat musik"
       >
-        {(skillMusik) => (
-          <SkillMusikListItemRow
-            skillMusik={skillMusik}
-            isCanUpdate={isCanUpdate}
-          />
-        )}
+        {(skillMusik) => <SkillMusikListItemRow skillMusik={skillMusik} />}
       </DataList>
+
+      <RowDeleteDialog
+        target={target ? { label: deleteTargetLabelOf(target) } : null}
+        entity="alat musik"
+        isPending={deleteRow.isPending}
+        errorMessage={deleteRow.error?.message}
+        onCancel={onCancelDelete}
+        onConfirm={onDelete}
+      />
     </div>
   );
 };

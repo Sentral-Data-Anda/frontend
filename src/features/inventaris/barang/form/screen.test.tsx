@@ -32,7 +32,7 @@ mock.module("next/navigation", () => ({
     replace: (href: string) => replaced.push(href),
     push: () => undefined,
   }),
-  usePathname: () => "/fixed-asset/asset-master/baru",
+  usePathname: () => "/fixed-asset/asset-master/create",
   useSearchParams: () => new URLSearchParams(),
 }));
 

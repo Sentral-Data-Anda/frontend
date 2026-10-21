@@ -34,8 +34,8 @@ export const EVENT_LIST_PATH = menuHref(MENU.KEGIATAN, MENU.EVENT);
 export const registrationHref = (code: string) =>
   detailHref(MENU.KEGIATAN, MENU.PENDAFTARAN_EVENT, code);
 
-export const eventEditHref = (code: string) =>
-  editHref(MENU.KEGIATAN, MENU.EVENT, code);
+export const eventEditHref = (publicId: string) =>
+  editHref(MENU.KEGIATAN, MENU.EVENT, publicId);
 
 export const listHrefOf = (eventId: string) =>
   eventId

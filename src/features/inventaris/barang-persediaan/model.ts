@@ -28,8 +28,8 @@ export const STOCK_CREATE_PATH = createHref(MENU.INVENTORY, MENU.STOCK_ITEM);
 export const stockDetailHref = (code: string) =>
   detailHref(MENU.INVENTORY, MENU.STOCK_ITEM, code);
 
-export const stockEditHref = (code: string) =>
-  editHref(MENU.INVENTORY, MENU.STOCK_ITEM, code);
+export const stockEditHref = (publicId: string) =>
+  editHref(MENU.INVENTORY, MENU.STOCK_ITEM, publicId);
 
 export const movementCreateHref = (code: string) =>
   `${createHref(MENU.INVENTORY, MENU.STOCK_MOVEMENT)}?barang=${encodeURIComponent(code)}`;

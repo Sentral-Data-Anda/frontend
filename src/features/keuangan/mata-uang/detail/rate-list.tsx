@@ -1,7 +1,5 @@
 "use client";
 
-import { Pencil } from "lucide-react";
-
 import {
   DataList,
   DataListRow,
@@ -57,12 +55,14 @@ const rateTable = (isCanUpdate: boolean): DataTableConfig<Rate> => ({
       ),
     },
   ],
-  getRowHref: isCanUpdate
-    ? (rate) => rateEditHref(rate.currencyCode, rate.id)
-    : undefined,
-  getRowLabel: rateLabelOf,
-  onRowOpen: saveRateFocus,
-  rowIcon: <Pencil />,
+  getRowActions: (x) => ({
+    label: rateLabelOf(x),
+    edit: {
+      href: isCanUpdate ? rateEditHref(x.currencyCode, x.id) : undefined,
+      onNavigate: () => saveRateFocus(x),
+      label: rateLabelOf(x),
+    },
+  }),
 });
 
 interface PropTypes {

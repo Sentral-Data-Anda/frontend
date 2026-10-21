@@ -9,6 +9,7 @@ export type IbadahCounts = {
 };
 
 export type Ibadah = IbadahCounts & {
+  publicId: string;
   code: string;
   date: string;
   startTime: string;

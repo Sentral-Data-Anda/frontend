@@ -1,3 +1,4 @@
+import { Toast } from "@base-ui/react/toast";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   cleanup,
@@ -118,7 +119,9 @@ const onRenderList = (granted: MenuAction[], query = "") => {
         new QueryClient({ defaultOptions: { queries: { retry: false } } })
       }
     >
-      <AbsensiListScreen />
+      <Toast.Provider>
+        <AbsensiListScreen />
+      </Toast.Provider>
     </QueryClientProvider>,
   );
 };
@@ -177,7 +180,7 @@ describe("gerbang tambah dan ubah", () => {
       screen
         .getByRole("link", { name: "Tambah absensi karyawan" })
         .getAttribute("href"),
-    ).toBe("/hr/attendance/baru");
+    ).toBe("/hr/attendance/create");
   });
 
   test("tanpa UPDATE: baris tidak bertaut ke form ubah", async () => {
@@ -196,7 +199,7 @@ describe("gerbang tambah dan ubah", () => {
     const links = screen.getAllByRole("link", { name: /^Ubah absensi/ });
     expect(links.length).toBeGreaterThan(0);
     expect(links[0].getAttribute("href")).toMatch(
-      /^\/hr\/attendance\/abs-\d{4}\/ubah$/,
+      /^\/hr\/attendance\/edit\/abs-\d{4}$/,
     );
   });
 });

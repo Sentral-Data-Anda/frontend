@@ -1,4 +1,3 @@
-import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 
 import {
@@ -10,11 +9,14 @@ import {
 import { formatNumber } from "@/lib/format";
 import { saveListFocus } from "@/lib/list-return";
 
-import { STOCK_LIST_PATH, quantityOf, stockDetailHref } from "../model";
+import {
+  quantityOf,
+  STOCK_LIST_PATH,
+  stockDetailHref,
+  stockEditHref,
+} from "../model";
 import type { StockItem } from "../types";
 import { StockStatus } from "../ui";
-
-import { EditLink } from "./edit-link";
 
 const saveFocus = (item: StockItem) =>
   saveListFocus(STOCK_LIST_PATH, item.code);
@@ -25,11 +27,10 @@ const viewLabelOf = (item: StockItem) => `Lihat barang persediaan ${item.name}`;
 
 interface PropTypes {
   item: StockItem;
-  isCanUpdate?: boolean;
 }
 
 export const StockListItemRow = (props: PropTypes) => {
-  const { item, isCanUpdate = false } = props;
+  const { item } = props;
 
   return (
     <DataListRow
@@ -49,7 +50,6 @@ export const StockListItemRow = (props: PropTypes) => {
       trailing={
         <>
           <StockStatus item={item} />
-          {isCanUpdate ? <EditLink item={item} /> : null}
         </>
       }
     />
@@ -124,22 +124,35 @@ const COLUMNS: Column[] = [
   },
 ];
 
-const EDIT_COLUMN: Column = {
-  key: "edit",
-  header: "",
-  width: "2rem",
-  align: "end",
-  cell: (item) => <EditLink item={item} />,
-};
+const deleteLabelOf = (x: StockItem) => `Hapus ${x.name}`;
+
+export const deleteTargetLabelOf = (x: StockItem) => `${x.name}`;
 
 export function persediaanTable(
   isCanUpdate: boolean,
+  // Dilewatkan dari layar daftar; `undefined` berarti pengguna tidak berhak
+  // menghapus, jadi tombolnya tidak dirender sama sekali.
+  onDelete?: (row: StockItem) => void,
 ): DataTableConfig<StockItem> {
   return {
-    columns: isCanUpdate ? [...COLUMNS, EDIT_COLUMN] : COLUMNS,
-    getRowHref: detailHrefOf,
-    getRowLabel: viewLabelOf,
-    onRowOpen: saveFocus,
-    rowIcon: <ChevronRight />,
+    columns: COLUMNS,
+    getRowActions: (x) => ({
+      label: viewLabelOf(x),
+      view: {
+        href: detailHrefOf(x),
+        onNavigate: () => saveFocus(x),
+        label: viewLabelOf(x),
+      },
+      edit: isCanUpdate
+        ? {
+            href: stockEditHref(x.publicId),
+            onNavigate: () => saveListFocus(STOCK_LIST_PATH, x.code),
+            label: `Ubah ${x.name}`,
+          }
+        : undefined,
+      remove: onDelete
+        ? { onSelect: () => onDelete(x), label: deleteLabelOf(x) }
+        : undefined,
+    }),
   };
 }

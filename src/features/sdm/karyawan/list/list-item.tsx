@@ -1,13 +1,8 @@
-import { Pencil } from "lucide-react";
-import Link from "next/link";
-
-import { buttonVariants } from "@/components/common/control";
 import { Avatar, Badge } from "@/components/common/display";
 import { DataListRow, type DataTableConfig } from "@/components/common/list";
 import { MENU, editHref } from "@/config/menu";
 import { formatDateShort } from "@/lib/format";
 import { saveListFocus } from "@/lib/list-return";
-import { cn } from "@/lib/utils";
 
 import { KARYAWAN_LIST_PATH } from "../model";
 import { EMPLOYMENT_STATUS_LABEL, type Karyawan } from "../types";
@@ -19,7 +14,7 @@ const STATUS_VARIANT = {
 } as const;
 
 const editHrefOf = (row: Karyawan) =>
-  editHref(MENU.HR, MENU.EMPLOYEE, row.code);
+  editHref(MENU.HR, MENU.EMPLOYEE, row.publicId);
 
 const saveFocus = (row: Karyawan) =>
   saveListFocus(KARYAWAN_LIST_PATH, row.code);
@@ -32,27 +27,12 @@ const statusBadge = (row: Karyawan) => (
   </Badge>
 );
 
-const editLink = (row: Karyawan) => (
-  <Link
-    href={editHrefOf(row)}
-    onClick={() => saveFocus(row)}
-    aria-label={labelOf(row)}
-    className={cn(
-      buttonVariants({ variant: "ghost", size: "icon-sm" }),
-      "cursor-pointer",
-    )}
-  >
-    <Pencil aria-hidden />
-  </Link>
-);
-
 interface PropTypes {
   row: Karyawan;
-  isCanUpdate?: boolean;
 }
 
 export const KaryawanListItem = (props: PropTypes) => {
-  const { row, isCanUpdate = false } = props;
+  const { row } = props;
 
   return (
     <DataListRow
@@ -60,17 +40,21 @@ export const KaryawanListItem = (props: PropTypes) => {
       leading={<Avatar label={row.name} />}
       title={row.name}
       meta={`${row.position} · ${row.code}`}
-      trailing={
-        <>
-          {statusBadge(row)}
-          {isCanUpdate ? editLink(row) : null}
-        </>
-      }
+      trailing={<>{statusBadge(row)}</>}
     />
   );
 };
 
-export function karyawanTable(isCanUpdate: boolean): DataTableConfig<Karyawan> {
+const deleteLabelOf = (x: Karyawan) => `Hapus ${x.name}`;
+
+export const deleteTargetLabelOf = (x: Karyawan) => `${x.name}`;
+
+export function karyawanTable(
+  isCanUpdate: boolean,
+  // Dilewatkan dari layar daftar; `undefined` berarti pengguna tidak berhak
+  // menghapus, jadi tombolnya tidak dirender sama sekali.
+  onDelete?: (row: Karyawan) => void,
+): DataTableConfig<Karyawan> {
   return {
     columns: [
       {
@@ -132,9 +116,16 @@ export function karyawanTable(isCanUpdate: boolean): DataTableConfig<Karyawan> {
         cell: statusBadge,
       },
     ],
-    getRowHref: isCanUpdate ? editHrefOf : undefined,
-    getRowLabel: labelOf,
-    onRowOpen: saveFocus,
-    rowIcon: <Pencil />,
+    getRowActions: (x) => ({
+      label: labelOf(x),
+      edit: {
+        href: isCanUpdate ? editHrefOf(x) : undefined,
+        onNavigate: () => saveFocus(x),
+        label: labelOf(x),
+      },
+      remove: onDelete
+        ? { onSelect: () => onDelete(x), label: deleteLabelOf(x) }
+        : undefined,
+    }),
   };
 }

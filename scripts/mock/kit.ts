@@ -30,8 +30,17 @@ export const denied = () =>
     403,
   );
 
-// Sama dengan parsePagination be-sada: bawaan 10, maks 100.
+// Sama dengan parsePagination be-sada: bawaan 10, maks 100 untuk angka;
+// `limit=all` = semua baris dalam satu halaman, tanpa plafon (pilihan "Semua").
+export const ALL_ROWS = "all";
+
 export const paging = (url: URL) => {
+  if (url.searchParams.get("limit")?.trim().toLowerCase() === ALL_ROWS) {
+    // MAX_SAFE_INTEGER, bukan Infinity: slice((page - 1) * limit, ...) dengan
+    // Infinity menghasilkan 0 * Infinity = NaN.
+    return { page: 1, limit: Number.MAX_SAFE_INTEGER };
+  }
+
   const page = Math.max(1, Number(url.searchParams.get("page")) || 1);
   const limit = Math.min(
     100,

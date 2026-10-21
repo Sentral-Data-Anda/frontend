@@ -28,14 +28,14 @@ export const MATA_UANG_CREATE_PATH = createHref(MENU.FINANCE, MENU.CURRENCY);
 export const currencyDetailHref = (code: string) =>
   detailHref(MENU.FINANCE, MENU.CURRENCY, code);
 
-export const currencyEditHref = (code: string) =>
-  editHref(MENU.FINANCE, MENU.CURRENCY, code);
+export const currencyEditHref = (publicId: string) =>
+  editHref(MENU.FINANCE, MENU.CURRENCY, publicId);
 
 export const rateCreateHref = (code: string) =>
-  `${currencyDetailHref(code)}/kurs/baru`;
+  `${currencyDetailHref(code)}/kurs/create`;
 
 export const rateEditHref = (code: string, id: number) =>
-  `${currencyDetailHref(code)}/kurs/${id}/ubah`;
+  `${currencyDetailHref(code)}/kurs/edit/${id}`;
 
 export const rateLabelOf = (rate: Pick<Rate, "rateDate">) =>
   `Ubah kurs ${formatDate(rate.rateDate)}`;

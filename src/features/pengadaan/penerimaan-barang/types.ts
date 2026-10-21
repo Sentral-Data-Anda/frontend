@@ -47,7 +47,7 @@ export type ReceiptItem = {
   unitPrice: string;
   unitPriceIDR: string;
   unit: Named;
-  asset: Pick<Named, "code" | "name"> | null;
+  asset: Pick<Named, "publicId" | "code" | "name"> | null;
   stockItem: Pick<Named, "code" | "name"> | null;
 };
 

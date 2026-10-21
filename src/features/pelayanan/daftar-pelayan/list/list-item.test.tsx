@@ -1,6 +1,8 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
+import { RowActionsProvider } from "@/components/common/list";
+
 import type { PelayanListItem } from "../types";
 
 import { PelayanListItemRow, daftarPelayanTable, jenisOf } from "./list-item";
@@ -33,9 +35,13 @@ const BAND: PelayanListItem = {
 
 const onRenderRow = (pelayan: PelayanListItem, isCanUpdate = true) =>
   render(
-    <ul>
-      <PelayanListItemRow pelayan={pelayan} isCanUpdate={isCanUpdate} />
-    </ul>,
+    <RowActionsProvider
+      value={daftarPelayanTable(isCanUpdate).getRowActions?.(pelayan)}
+    >
+      <ul>
+        <PelayanListItemRow pelayan={pelayan} />
+      </ul>
+    </RowActionsProvider>,
   );
 
 describe("baris HP", () => {
@@ -49,7 +55,7 @@ describe("baris HP", () => {
       screen
         .getByRole("link", { name: "Ubah Bethari Ayu Kusuma" })
         .getAttribute("href"),
-    ).toBe("/pelayanan/daftar-pelayan/PLYN_0001-0002/ubah");
+    ).toBe("/pelayanan/daftar-pelayan/edit/PLYN_0001-0002");
   });
 
   test("kelompok nonaktif: badge Kelompok dan Nonaktif", () => {
@@ -103,10 +109,12 @@ describe("konfigurasi tabel", () => {
       ["Kode", "minmax(0,1.2fr)", true],
       ["Status", "minmax(0,1fr)", false],
     ]);
-    expect(table.getRowHref?.(BAND)).toBe(
-      "/pelayanan/daftar-pelayan/GPLYN_0002-0001/ubah",
+    expect(table.getRowActions?.(BAND)?.edit?.href).toBe(
+      "/pelayanan/daftar-pelayan/edit/GPLYN_0002-0001",
     );
-    expect(daftarPelayanTable(false).getRowHref).toBeUndefined();
+    expect(
+      daftarPelayanTable(false).getRowActions?.(BAND)?.edit?.href,
+    ).toBeUndefined();
   });
 
   test("jenis: Perorangan, atau Kelompok dengan jumlah anggota", () => {

@@ -19,7 +19,7 @@ const replaced: string[] = [];
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
-  usePathname: () => "/kejemaatan/daftar-jemaat/baru",
+  usePathname: () => "/kejemaatan/daftar-jemaat/create",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -59,14 +59,14 @@ const onRenderForm = (granted: MenuAction[], code?: string) => {
 };
 
 describe("gerbang izin rute form", () => {
-  test("tanpa CREATE: rute /baru tidak merender form", () => {
+  test("tanpa CREATE: rute /create tidak merender form", () => {
     onRenderForm(["VIEW"]);
 
     expect(screen.getByText("Tidak bisa menambah jemaat")).toBeTruthy();
     expect(screen.queryByLabelText("Nama lengkap")).toBeNull();
   });
 
-  test("tanpa UPDATE: rute /ubah tidak merender form", () => {
+  test("tanpa UPDATE: rute /edit tidak merender form", () => {
     onRenderForm(["VIEW", "CREATE"], "JMT-0042");
 
     expect(screen.getByText("Tidak bisa mengubah jemaat")).toBeTruthy();

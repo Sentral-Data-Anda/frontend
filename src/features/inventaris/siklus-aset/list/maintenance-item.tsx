@@ -1,7 +1,3 @@
-import { Pencil } from "lucide-react";
-import Link from "next/link";
-
-import { buttonVariants } from "@/components/common/control";
 import { Badge, OptionalText } from "@/components/common/display";
 import { DataListRow, type DataTableConfig } from "@/components/common/list";
 import { formatDateShort } from "@/lib/format";
@@ -36,35 +32,17 @@ const statusOf = (row: Maintenance) => (
 
 interface PropTypes {
   row: Maintenance;
-  isCanUpdate: boolean;
 }
 
 export const MaintenanceItem = (props: PropTypes) => {
-  const { row, isCanUpdate } = props;
+  const { row } = props;
 
   return (
     <DataListRow
       id={row.code}
       title={row.asset.name}
       meta={`${dateOf(row)} · ${row.description}`}
-      trailing={
-        <>
-          {statusOf(row)}
-          {isCanUpdate ? (
-            <Link
-              href={editHrefOf(row)}
-              onClick={() => saveFocus(row)}
-              aria-label={labelOf(row)}
-              className={cn(
-                buttonVariants({ variant: "ghost", size: "icon-sm" }),
-                "cursor-pointer",
-              )}
-            >
-              <Pencil aria-hidden />
-            </Link>
-          ) : null}
-        </>
-      }
+      trailing={<>{statusOf(row)}</>}
     />
   );
 };
@@ -134,9 +112,13 @@ export function maintenanceTable(
         cell: statusOf,
       },
     ],
-    getRowHref: isCanUpdate ? editHrefOf : undefined,
-    getRowLabel: labelOf,
-    onRowOpen: saveFocus,
-    rowIcon: <Pencil />,
+    getRowActions: (x) => ({
+      label: labelOf(x),
+      edit: {
+        href: isCanUpdate ? editHrefOf(x) : undefined,
+        onNavigate: () => saveFocus(x),
+        label: labelOf(x),
+      },
+    }),
   };
 }

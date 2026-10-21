@@ -23,7 +23,7 @@ const replaced: string[] = [];
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
-  usePathname: () => "/hr/leave/CTI-0006/ubah",
+  usePathname: () => "/hr/leave/edit/CTI-0006",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -206,7 +206,7 @@ afterEach(() => {
 });
 
 describe("gerbang izin rute form", () => {
-  test("tanpa CREATE: rute /baru tidak merender form", () => {
+  test("tanpa CREATE: rute /create tidak merender form", () => {
     onRenderForm({ [MENU.LEAVE]: ["VIEW"] });
 
     expect(screen.getByText("Tidak bisa mengajukan cuti")).toBeTruthy();
@@ -217,7 +217,7 @@ describe("gerbang izin rute form", () => {
     ).toBe(CUTI_LIST_PATH);
   });
 
-  test("tanpa UPDATE: rute /ubah tidak merender form dan tidak memuat detail", () => {
+  test("tanpa UPDATE: rute /edit tidak merender form dan tidak memuat detail", () => {
     let isFetched = false;
     globalThis.fetch = (() => {
       isFetched = true;

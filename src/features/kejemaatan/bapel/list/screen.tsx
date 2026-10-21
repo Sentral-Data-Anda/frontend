@@ -1,19 +1,48 @@
 "use client";
 
-import { DataList, ListToolbar } from "@/components/common/list";
+import { useState } from "react";
+
+import { useToast } from "@/components/common/feedback";
+import {
+  DataList,
+  ListToolbar,
+  RowDeleteDialog,
+} from "@/components/common/list";
 import { PageHeader, PageHeaderAdd } from "@/components/layout";
 import { MENU, createHref, domainHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { useListParams } from "@/hooks/use-list-params";
 
-import { useBapelList } from "../api";
+import { useBapelList, useDeleteBapel } from "../api";
+import type { BapelListItem } from "../types";
 
-import { BapelListItemRow, bapelTable } from "./list-item";
+import { BapelListItemRow, bapelTable, deleteTargetLabelOf } from "./list-item";
 
 export const BapelListScreen = () => {
-  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.BAPEL);
+  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(MENU.BAPEL);
+
+  const toast = useToast();
+
+  // Satu keadaan menyimpan baris yang akan dihapus sekaligus status terbuka
+  // dialognya. Hook hapus dibuat ulang mengikuti kunci baris ini.
+  const [target, setTarget] = useState<BapelListItem | null>(null);
+  const deleteRow = useDeleteBapel(target?.code);
   const listParams = useListParams();
   const bapelList = useBapelList(listParams);
+
+  const onDelete = () => {
+    deleteRow.mutate(undefined, {
+      onSuccess: (deleted) => {
+        toast.add({ title: deleted.message });
+        setTarget(null);
+      },
+    });
+  };
+
+  const onCancelDelete = () => {
+    deleteRow.reset();
+    setTarget(null);
+  };
 
   return (
     <div className="pb-6">
@@ -57,13 +86,20 @@ export const BapelListScreen = () => {
             : "Data badan pelayanan akan muncul di sini setelah ditambahkan."
         }
         pagination={bapelList.pagination}
-        table={bapelTable(isCanUpdate)}
+        table={bapelTable(isCanUpdate, isCanDelete ? setTarget : undefined)}
         itemNoun="badan pelayanan"
       >
-        {(bapel) => (
-          <BapelListItemRow bapel={bapel} isCanUpdate={isCanUpdate} />
-        )}
+        {(bapel) => <BapelListItemRow bapel={bapel} />}
       </DataList>
+
+      <RowDeleteDialog
+        target={target ? { label: deleteTargetLabelOf(target) } : null}
+        entity="badan pelayanan"
+        isPending={deleteRow.isPending}
+        errorMessage={deleteRow.error?.message}
+        onCancel={onCancelDelete}
+        onConfirm={onDelete}
+      />
     </div>
   );
 };

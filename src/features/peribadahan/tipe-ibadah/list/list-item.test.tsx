@@ -1,6 +1,8 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
+import { RowActionsProvider } from "@/components/common/list";
+
 import type { TipeIbadah } from "../types";
 
 import { TipeIbadahListItemRow, tipeIbadahTable } from "./list-item";
@@ -8,6 +10,7 @@ import { TipeIbadahListItemRow, tipeIbadahTable } from "./list-item";
 afterEach(cleanup);
 
 const TIPE: TipeIbadah = {
+  publicId: "pid-typ-ibd-0001",
   code: "TYP_IBD-0001",
   name: "Ibadah Minggu I",
   isActive: true,
@@ -15,12 +18,13 @@ const TIPE: TipeIbadah = {
 
 const onRenderRow = (isCanUpdate: boolean, tipeIbadah = TIPE) =>
   render(
-    <ul>
-      <TipeIbadahListItemRow
-        tipeIbadah={tipeIbadah}
-        isCanUpdate={isCanUpdate}
-      />
-    </ul>,
+    <RowActionsProvider
+      value={tipeIbadahTable(isCanUpdate).getRowActions?.(tipeIbadah)}
+    >
+      <ul>
+        <TipeIbadahListItemRow tipeIbadah={tipeIbadah} />
+      </ul>
+    </RowActionsProvider>,
   );
 
 describe("baris HP", () => {
@@ -29,7 +33,7 @@ describe("baris HP", () => {
 
     const action = screen.getByRole("link", { name: "Ubah Ibadah Minggu I" });
     expect(action.getAttribute("href")).toBe(
-      "/peribadahan/tipe-ibadah/TYP_IBD-0001/ubah",
+      "/peribadahan/tipe-ibadah/edit/pid-typ-ibd-0001",
     );
   });
 
@@ -66,9 +70,11 @@ describe("konfigurasi tabel", () => {
       ["Status", "minmax(0,1fr)"],
     ]);
     expect(table.columns.some((column) => column.isSecondary)).toBe(false);
-    expect(table.getRowHref?.(TIPE)).toBe(
-      "/peribadahan/tipe-ibadah/TYP_IBD-0001/ubah",
+    expect(table.getRowActions?.(TIPE)?.edit?.href).toBe(
+      "/peribadahan/tipe-ibadah/edit/pid-typ-ibd-0001",
     );
-    expect(tipeIbadahTable(false).getRowHref).toBeUndefined();
+    expect(
+      tipeIbadahTable(false).getRowActions?.(TIPE)?.edit?.href,
+    ).toBeUndefined();
   });
 });

@@ -95,9 +95,7 @@ export const OpnameListContent = () => {
         table={opnameTable(isCanUpdate)}
         itemNoun="stok opname"
       >
-        {(opname) => (
-          <OpnameListItemRow opname={opname} isCanUpdate={isCanUpdate} />
-        )}
+        {(opname) => <OpnameListItemRow opname={opname} />}
       </DataList>
     </div>
   );

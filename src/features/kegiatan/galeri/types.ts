@@ -1,6 +1,7 @@
 import type { ServerAttachment } from "@/types/attachment";
 
 export type Album = {
+  publicId: string;
   code: string;
   name: string;
   isPublish: boolean;

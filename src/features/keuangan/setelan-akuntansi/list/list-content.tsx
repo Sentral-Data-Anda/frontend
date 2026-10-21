@@ -43,9 +43,7 @@ export const SettingListContent = () => {
         table={settingTable(isCanUpdate)}
         itemNoun="setelan"
       >
-        {(setting) => (
-          <SettingListItemRow setting={setting} isCanUpdate={isCanUpdate} />
-        )}
+        {(setting) => <SettingListItemRow setting={setting} />}
       </DataList>
     </div>
   );

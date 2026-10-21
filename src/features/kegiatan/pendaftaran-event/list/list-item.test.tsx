@@ -16,6 +16,7 @@ const ROW: Registration = {
   createdAt: "2026-09-20T02:00:00.000Z",
   event: {
     id: 3,
+    publicId: "pid-evn-0005-2026-0001",
     code: "EVN_0005-2026-0001",
     name: "Latihan Paduan Suara",
     startDate: "2026-10-01T00:00:00.000Z",

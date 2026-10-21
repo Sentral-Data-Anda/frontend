@@ -1,6 +1,8 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
+import { RowActionsProvider } from "@/components/common/list";
+
 import type { Satuan } from "../types";
 
 import { SatuanListItemRow, satuanTable } from "./list-item";
@@ -15,9 +17,13 @@ const SATUAN_ROW: Satuan = {
 
 const onRenderRow = (isCanUpdate: boolean) =>
   render(
-    <ul>
-      <SatuanListItemRow satuan={SATUAN_ROW} isCanUpdate={isCanUpdate} />
-    </ul>,
+    <RowActionsProvider
+      value={satuanTable(isCanUpdate).getRowActions?.(SATUAN_ROW)}
+    >
+      <ul>
+        <SatuanListItemRow satuan={SATUAN_ROW} />
+      </ul>
+    </RowActionsProvider>,
   );
 
 describe("baris HP", () => {
@@ -25,7 +31,7 @@ describe("baris HP", () => {
     onRenderRow(true);
 
     const action = screen.getByRole("link", { name: "Ubah Buah" });
-    expect(action.getAttribute("href")).toBe("/inventory/satuan/UNT-0001/ubah");
+    expect(action.getAttribute("href")).toBe("/inventory/satuan/edit/p-1");
   });
 
   test("tanpa UPDATE: tidak ada aksi ubah sama sekali", () => {
@@ -52,9 +58,11 @@ describe("konfigurasi tabel", () => {
       ["Nama", "minmax(0,2.5fr)"],
       ["Kode", "minmax(0,1fr)"],
     ]);
-    expect(table.getRowHref?.(SATUAN_ROW)).toBe(
-      "/inventory/satuan/UNT-0001/ubah",
+    expect(table.getRowActions?.(SATUAN_ROW)?.edit?.href).toBe(
+      "/inventory/satuan/edit/p-1",
     );
-    expect(satuanTable(false).getRowHref).toBeUndefined();
+    expect(
+      satuanTable(false).getRowActions?.(SATUAN_ROW)?.edit?.href,
+    ).toBeUndefined();
   });
 });

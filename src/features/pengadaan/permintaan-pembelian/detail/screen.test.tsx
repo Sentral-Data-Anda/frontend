@@ -185,7 +185,7 @@ describe("aksi per status", () => {
     expect(actionNames()).toEqual(["Ajukan ulang"]);
     expect(
       screen.getByRole("link", { name: "Ajukan ulang" }).getAttribute("href"),
-    ).toBe(`/procurement/purchase-request/baru?salin=${row.code}`);
+    ).toBe(`/procurement/purchase-request/create?salin=${row.code}`);
     expect(screen.getByText(/Catatan penolak: Kas komisi/)).toBeTruthy();
     expect(
       within(
@@ -204,7 +204,7 @@ describe("aksi per status", () => {
     await screen.findByRole("region", { name: "Aksi permintaan" });
     expect(
       screen.getByRole("link", { name: "Buat pesanan" }).getAttribute("href"),
-    ).toBe(`/procurement/purchase-order/baru?permintaan=${row.code}`);
+    ).toBe(`/procurement/purchase-order/create?permintaan=${row.code}`);
     expect(screen.getByText(/ dari Rp /)).toBeTruthy();
     cleanup();
 

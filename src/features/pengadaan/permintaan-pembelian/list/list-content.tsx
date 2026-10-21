@@ -109,7 +109,7 @@ export const RequestListContent = () => {
         table={requestTable(isCanUpdate)}
         itemNoun="permintaan"
       >
-        {(row) => <RequestListItem row={row} isCanUpdate={isCanUpdate} />}
+        {(row) => <RequestListItem row={row} />}
       </DataList>
     </div>
   );

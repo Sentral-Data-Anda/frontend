@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronRight, LoaderCircle } from "lucide-react";
 import { useEffect, useEffectEvent, useRef } from "react";
 
 import { Button } from "@/components/ui";
+import type { ListLimit } from "@/hooks/use-list-params";
 import { cn } from "@/lib/utils";
 
 export type DataListPagination =
@@ -13,8 +14,8 @@ export type DataListPagination =
       totalPage: number;
       onPickPage: (page: number) => void;
       totalData?: number;
-      limit?: number;
-      onPickLimit?: (limit: number) => void;
+      limit?: ListLimit;
+      onPickLimit?: (limit: ListLimit) => void;
     }
   | {
       mode: "more";

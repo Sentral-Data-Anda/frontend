@@ -8,9 +8,14 @@ import { saveListReturn } from "@/lib/list-return";
 // Sama dengan DEFAULT_PAGE_SIZE di be-sada.
 export const DEFAULT_LIMIT = 10;
 
+// Sama dengan `ALL_ROWS` di be-sada; hanya kata ini yang melewati batas 100.
+export const LIMIT_ALL = "all";
+
+export type ListLimit = number | typeof LIMIT_ALL;
+
 export type ListParams = {
   page: number;
-  limit: number;
+  limit: ListLimit;
   search: string;
   status: string;
   apiFilters?: Record<string, string>;
@@ -37,6 +42,18 @@ const readNumber = (value: string | null, fallback: number): number => {
   return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
 };
 
+// Diekspor untuk diuji: `readNumber` membaca "all" sebagai bukan-angka dan memberi 10.
+export const readLimit = (
+  value: string | null,
+  fallback: ListLimit,
+): ListLimit => {
+  if (value?.trim().toLowerCase() === LIMIT_ALL) return LIMIT_ALL;
+
+  const parsed = Number(value);
+
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
+};
+
 export function toApiQuery(params: ListParams): string {
   const query = new URLSearchParams({
     page: String(params.page),
@@ -57,7 +74,7 @@ export function useListParams({
   limit = DEFAULT_LIMIT,
   filters = NO_FILTERS,
 }: {
-  limit?: number;
+  limit?: ListLimit;
   filters?: ListFilterSchema;
 } = {}) {
   const router = useRouter();
@@ -71,7 +88,7 @@ export function useListParams({
 
     return {
       page: readNumber(searchParams.get("page"), 1),
-      limit: readNumber(searchParams.get("limit"), limit),
+      limit: readLimit(searchParams.get("limit"), limit),
       search: searchParams.get("search") ?? "",
       status: searchParams.get("status") ?? "",
       filters: values,
@@ -129,7 +146,7 @@ export function useListParams({
   );
 
   const onPickLimit = useCallback(
-    (value: number) => writeParams({ limit: value, page: 1 }),
+    (value: ListLimit) => writeParams({ limit: value, page: 1 }),
     [writeParams],
   );
 

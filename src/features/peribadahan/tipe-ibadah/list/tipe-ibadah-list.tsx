@@ -1,21 +1,55 @@
 "use client";
 
-import { DataList, ListToolbar } from "@/components/common/list";
+import { useState } from "react";
+
+import { useToast } from "@/components/common/feedback";
+import {
+  DataList,
+  ListToolbar,
+  RowDeleteDialog,
+} from "@/components/common/list";
 import { PageHeader, PageHeaderAdd } from "@/components/layout";
 import { MENU, createHref, domainHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { useListParams } from "@/hooks/use-list-params";
 
-import { useTipeIbadahList } from "../api";
-import { TIPE_IBADAH_STATUS_OPTIONS } from "../types";
+import { useDeleteTipeIbadah, useTipeIbadahList } from "../api";
+import { TIPE_IBADAH_STATUS_OPTIONS, type TipeIbadah } from "../types";
 
-import { TipeIbadahListItemRow, tipeIbadahTable } from "./list-item";
+import {
+  deleteTargetLabelOf,
+  TipeIbadahListItemRow,
+  tipeIbadahTable,
+} from "./list-item";
 
 export const TipeIbadahList = () => {
-  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.TIPE_IBADAH);
+  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+    MENU.TIPE_IBADAH,
+  );
+
+  const toast = useToast();
+
+  // Satu keadaan menyimpan baris yang akan dihapus sekaligus status terbuka
+  // dialognya. Hook hapus dibuat ulang mengikuti kunci baris ini.
+  const [target, setTarget] = useState<TipeIbadah | null>(null);
+  const deleteRow = useDeleteTipeIbadah(target?.code);
   const listParams = useListParams();
   const tipeIbadahList = useTipeIbadahList(listParams);
   const isNarrowed = Boolean(listParams.search) || listParams.isFiltered;
+
+  const onDelete = () => {
+    deleteRow.mutate(undefined, {
+      onSuccess: (deleted) => {
+        toast.add({ title: deleted.message });
+        setTarget(null);
+      },
+    });
+  };
+
+  const onCancelDelete = () => {
+    deleteRow.reset();
+    setTarget(null);
+  };
 
   return (
     <div className="pb-6">
@@ -72,16 +106,23 @@ export const TipeIbadahList = () => {
           listParams.isFiltered ? listParams.onClearFilters : undefined
         }
         pagination={tipeIbadahList.pagination}
-        table={tipeIbadahTable(isCanUpdate)}
+        table={tipeIbadahTable(
+          isCanUpdate,
+          isCanDelete ? setTarget : undefined,
+        )}
         itemNoun="tipe ibadah"
       >
-        {(tipeIbadah) => (
-          <TipeIbadahListItemRow
-            tipeIbadah={tipeIbadah}
-            isCanUpdate={isCanUpdate}
-          />
-        )}
+        {(tipeIbadah) => <TipeIbadahListItemRow tipeIbadah={tipeIbadah} />}
       </DataList>
+
+      <RowDeleteDialog
+        target={target ? { label: deleteTargetLabelOf(target) } : null}
+        entity="tipe ibadah"
+        isPending={deleteRow.isPending}
+        errorMessage={deleteRow.error?.message}
+        onCancel={onCancelDelete}
+        onConfirm={onDelete}
+      />
     </div>
   );
 };

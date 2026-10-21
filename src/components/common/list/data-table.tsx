@@ -1,23 +1,24 @@
 "use client";
 
-import Link from "next/link";
 import { useId, type ReactNode, type Ref } from "react";
 
 import { SelectField } from "@/components/common/control";
+import { LIMIT_ALL, type ListLimit } from "@/hooks/use-list-params";
 import { cn } from "@/lib/utils";
 
 import { DataListPager, type DataListPagination } from "./data-list-pagination";
+import { DataRowActions, type RowActions } from "./data-row-actions";
 import {
   LoadingTableRows,
   ROW_BLEED,
-  ROW_LINE,
   TABLE_CONTAINER,
   TABLE_GRID,
   tableTemplate,
 } from "./loading-table";
 import {
   TABLE_HEAD,
-  TABLE_ROW_LINK,
+  TABLE_HEAD_LINE_ON_CARD,
+  TABLE_ROWS_ON_CARD,
   TABLE_SECONDARY,
   alignClass,
 } from "./table-style";
@@ -34,18 +35,19 @@ export type DataTableColumn<T> = {
 
 export type DataTableConfig<T> = {
   columns: DataTableColumn<T>[];
-  getRowHref?: (item: T) => string | undefined;
-  getRowLabel?: (item: T) => string;
-  onRowOpen?: (item: T) => void;
-  rowIcon?: ReactNode;
+  // Baris sengaja bukan tautan: menyenggol baris tidak boleh membuka form.
+  getRowActions?: (item: T) => RowActions | undefined;
 };
 
 export function getRangeLabel(
   page: number,
-  limit: number,
+  limit: ListLimit,
   totalData: number,
 ): string {
   if (totalData <= 0) return "0 dari 0";
+
+  // Tanpa batas: satu halaman memuat semuanya, jadi rentangnya seluruh data.
+  if (limit === LIMIT_ALL) return `1–${totalData} dari ${totalData}`;
 
   const from = Math.min((page - 1) * limit + 1, totalData);
   const to = Math.min(page * limit, totalData);
@@ -53,10 +55,17 @@ export function getRangeLabel(
   return `${from}–${to} dari ${totalData}`;
 }
 
-const LIMIT_OPTIONS = [10, 25, 50].map((limit) => ({
-  value: String(limit),
-  label: String(limit),
-}));
+const LIMIT_OPTIONS = [
+  ...[10, 25, 50].map((limit) => ({
+    value: String(limit),
+    label: String(limit),
+  })),
+  { value: LIMIT_ALL, label: "Semua" },
+];
+
+// `Number("all")` adalah NaN dan jatuh ke ukuran bawaan; dipisah agar bisa diuji.
+export const toLimit = (value: string): ListLimit =>
+  value === LIMIT_ALL ? LIMIT_ALL : Number(value);
 
 export function DataTable<T>({
   items,
@@ -75,27 +84,27 @@ export function DataTable<T>({
   pendingRows?: number;
   rowsRef?: Ref<HTMLDivElement>;
 }) {
-  const { columns, getRowHref, getRowLabel, onRowOpen, rowIcon } = config;
+  const { columns, getRowActions } = config;
 
   return (
     <div className={TABLE_CONTAINER}>
       <div
         role="table"
         aria-label={label}
-        className="-mx-2.5"
+        className="bg-card border-hairline overflow-hidden rounded-lg border"
         style={tableTemplate(columns)}
       >
         <div
           role="rowgroup"
-          className="bg-canvas/40 sticky top-0 z-10 backdrop-blur-md"
+          className="bg-muted/40 sticky top-0 z-10 backdrop-blur-md"
         >
           <div
             role="row"
             className={cn(
               ROW_BLEED,
-              ROW_LINE,
+              TABLE_HEAD_LINE_ON_CARD,
               TABLE_GRID,
-              "relative py-2 pr-12",
+              "relative py-2.5 pr-24",
             )}
           >
             {columns.map((column) => (
@@ -117,10 +126,14 @@ export function DataTable<T>({
         <div
           ref={rowsRef}
           role="rowgroup"
-          className={cn("transition-opacity", isRefreshing && "opacity-60")}
+          className={cn(
+            TABLE_ROWS_ON_CARD,
+            "transition-opacity",
+            isRefreshing && "opacity-60",
+          )}
         >
-          {items.map((item) => {
-            const href = getRowHref?.(item);
+          {items.map((item, index) => {
+            const actions = getRowActions?.(item);
 
             return (
               <div
@@ -129,13 +142,13 @@ export function DataTable<T>({
                 data-row-id={getKey(item)}
                 className={cn(
                   ROW_BLEED,
-                  ROW_LINE,
                   TABLE_GRID,
-                  "group/row relative min-h-14 rounded-control py-2 pr-12",
-                  href && "hover:bg-card transition-colors",
+                  "group/row relative min-h-14 py-2 pr-24",
+                  // Selang-seling agar mata tidak melompat; 0.6 terbaca di kartu putih.
+                  index % 2 === 1 && "bg-muted/60",
                 )}
               >
-                {columns.map((column, index) => (
+                {columns.map((column) => (
                   <div
                     key={column.key}
                     role="cell"
@@ -145,27 +158,13 @@ export function DataTable<T>({
                       alignClass(column.align),
                     )}
                   >
-                    {index === 0 && href ? (
-                      <Link
-                        href={href}
-                        onClick={() => onRowOpen?.(item)}
-                        aria-label={getRowLabel?.(item)}
-                        className={cn("block", TABLE_ROW_LINK)}
-                      >
-                        {column.cell(item)}
-                      </Link>
-                    ) : (
-                      column.cell(item)
-                    )}
+                    {column.cell(item)}
                   </div>
                 ))}
 
-                {href && rowIcon ? (
-                  <span
-                    aria-hidden
-                    className="text-muted-foreground group-hover/row:bg-muted group-hover/row:text-foreground pointer-events-none absolute top-1/2 right-2.5 flex size-7 -translate-y-1/2 items-center justify-center rounded-control transition-colors [&_svg]:size-3.5"
-                  >
-                    {rowIcon}
+                {actions ? (
+                  <span className="absolute top-1/2 right-2.5 flex -translate-y-1/2 items-center">
+                    <DataRowActions actions={actions} />
                   </span>
                 ) : null}
               </div>
@@ -212,9 +211,11 @@ export function DataTableFooter({
             <SelectField
               id={limitId}
               value={String(limit)}
-              onValueChange={(value) => onPickLimit(Number(value))}
+              // "Semua" bukan angka: `Number("all")` adalah NaN.
+              onValueChange={(value) => onPickLimit(toLimit(value))}
               options={LIMIT_OPTIONS}
-              className="w-20 tabular-nums"
+              // Cukup lebar untuk kata "Semua"; `w-20` memotongnya jadi "Sem…".
+              className="w-24 tabular-nums"
             />
           </div>
         ) : null}

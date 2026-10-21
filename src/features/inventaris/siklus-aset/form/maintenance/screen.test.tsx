@@ -24,7 +24,7 @@ const calls: Call[] = [];
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
-  usePathname: () => `${CYCLE_LIST_PATH}/perawatan/baru`,
+  usePathname: () => `${CYCLE_LIST_PATH}/perawatan/create`,
   useSearchParams: () => search.current,
 }));
 

@@ -35,6 +35,7 @@ const { RuangDetailScreen } = await import("./screen");
 
 const originalFetch = globalThis.fetch;
 const CODE = "RM-0001";
+const PUBLIC_ID = "r1";
 
 afterEach(() => {
   cleanup();
@@ -43,7 +44,7 @@ afterEach(() => {
 
 const ROOM: RoomDetail = {
   id: 1,
-  publicId: "r1",
+  publicId: PUBLIC_ID,
   code: CODE,
   name: "Gedung Gereja",
   capacity: 400,
@@ -70,6 +71,7 @@ const USAGE: RoomUsage[] = [
   },
   {
     kind: "LOAN",
+    publicId: "loan-1",
     code: "LR_0001_0000-2026-0001",
     name: "Pemberkatan nikah",
     date: "2026-10-04",
@@ -168,11 +170,11 @@ describe("halaman ruang", () => {
       (
         await screen.findByRole("link", { name: "Pemberkatan nikah" })
       ).getAttribute("href"),
-    ).toBe(loanEditHref("LR_0001_0000-2026-0001"));
+    ).toBe(loanEditHref("loan-1"));
     expect(screen.queryByRole("link", { name: "Bazar Natal" })).toBeNull();
     expect(
       screen.getByRole("link", { name: "Ubah" }).getAttribute("href"),
-    ).toBe(ruangEditHref(CODE));
+    ).toBe(ruangEditHref(PUBLIC_ID));
   });
 
   test("event tanpa jam selesai (23.59 dari be-sada) tidak tampil sebagai jam selesai", async () => {
