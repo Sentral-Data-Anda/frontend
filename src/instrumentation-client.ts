@@ -17,8 +17,22 @@ Sentry.init({
   // Profiling browser: sesi diprofilkan mengikuti trace yang ter-sampling.
   profileSessionSampleRate: 1.0,
   profileLifecycle: "trace",
+  // STAGING: rekam semua sesi. Turunkan replaysSessionSampleRate (mis. 0.1) di
+  // production; sesi yang mengalami error tetap direkam penuh lewat OnError.
+  replaysSessionSampleRate: 1.0,
+  replaysOnErrorSampleRate: 1.0,
   integrations: [
     Sentry.browserProfilingIntegration(),
+    // Data jemaat itu pribadi: teks, input, dan media tetap di-mask/blok.
+    // Body request/response sengaja tidak direkam (login membawa password).
+    Sentry.replayIntegration({
+      maskAllText: true,
+      maskAllInputs: true,
+      blockAllMedia: true,
+      networkDetailAllowUrls: [`${window.location.origin}/api`],
+      networkDetailDenyUrls: [`${window.location.origin}/api/v1/auth`],
+      networkCaptureBodies: false,
+    }),
     // Teruskan console.warn/error browser ke Sentry Logs. Level info/log sengaja
     // tidak ikut: terlalu berisik dan memakan kuota (info tetap ada di Loki).
     Sentry.consoleLoggingIntegration({ levels: ["warn", "error"] }),
