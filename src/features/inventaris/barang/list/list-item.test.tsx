@@ -1,6 +1,8 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
+import { RowActionsProvider } from "@/components/common/list";
+
 import { barangDetailHref, barangEditHref } from "../model";
 import type { Asset } from "../types";
 
@@ -36,9 +38,11 @@ const ASSET: Asset = {
 
 const onRenderRow = (asset: Asset, isCanUpdate = false) =>
   render(
-    <ul>
-      <BarangListItemRow asset={asset} isCanUpdate={isCanUpdate} />
-    </ul>,
+    <RowActionsProvider value={barangTable(isCanUpdate).getRowActions?.(asset)}>
+      <ul>
+        <BarangListItemRow asset={asset} />
+      </ul>
+    </RowActionsProvider>,
   );
 
 describe("baris barang", () => {
@@ -61,7 +65,7 @@ describe("baris barang", () => {
       screen
         .getByRole("link", { name: "Ubah Kursi Lipat Chitose" })
         .getAttribute("href"),
-    ).toBe(barangEditHref(ASSET.code));
+    ).toBe(barangEditHref(ASSET.publicId));
 
     cleanup();
     onRenderRow({ ...ASSET, status: "MENUNGGU_PELEPASAN" }, true);
@@ -88,8 +92,11 @@ test("tabel: badan pelayanan pelengkap; kolom aksi hanya dengan UPDATE", () => {
   expect(columns.find((column) => column.key === "bapel")?.isSecondary).toBe(
     true,
   );
-  expect(barangTable(true).columns.at(-1)?.key).toBe("edit");
-  expect(barangTable(false).getRowHref?.(ASSET)).toBe(
+  expect(barangTable(true).getRowActions?.(ASSET)?.edit?.href).toContain(
+    "/edit/",
+  );
+  expect(barangTable(false).getRowActions?.(ASSET)?.edit).toBeUndefined();
+  expect(barangTable(false).getRowActions?.(ASSET)?.view?.href).toBe(
     barangDetailHref(ASSET.code),
   );
 });

@@ -43,7 +43,7 @@ mock.module("next/navigation", () => ({
     replace: (href: string) => replaced.push(href),
     push: () => undefined,
   }),
-  usePathname: () => "/inventory/stok-opname/baru",
+  usePathname: () => "/inventory/stok-opname/create",
   useSearchParams: () => new URLSearchParams(),
 }));
 

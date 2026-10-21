@@ -81,9 +81,7 @@ export const JemaatListScreen = () => {
         table={jemaatTable(isCanUpdate)}
         itemNoun="jemaat"
       >
-        {(jemaat) => (
-          <JemaatListItemRow jemaat={jemaat} isCanUpdate={isCanUpdate} />
-        )}
+        {(jemaat) => <JemaatListItemRow jemaat={jemaat} />}
       </DataList>
     </div>
   );

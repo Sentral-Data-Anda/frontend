@@ -1,23 +1,62 @@
 "use client";
 
-import { DataList, ListToolbar } from "@/components/common/list";
+import { useState } from "react";
+
+import { useToast } from "@/components/common/feedback";
+import {
+  DataList,
+  ListToolbar,
+  RowDeleteDialog,
+} from "@/components/common/list";
 import { PageHeader, PageHeaderAdd } from "@/components/layout";
 import { MENU, createHref, domainHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { useListParams, type ListFilterSchema } from "@/hooks/use-list-params";
 
-import { useBapelOptions, useTemplateJadwalList } from "../api";
+import {
+  useBapelOptions,
+  useDeleteTemplateJadwal,
+  useTemplateJadwalList,
+} from "../api";
+import type { TemplateJadwalListItem } from "../types";
 
-import { TemplateJadwalListItemRow, templateJadwalTable } from "./list-item";
+import {
+  deleteTargetLabelOf,
+  TemplateJadwalListItemRow,
+  templateJadwalTable,
+} from "./list-item";
 
 const LIST_FILTERS = { bapel: { api: "bapelId" } } satisfies ListFilterSchema;
 
 export const TemplateJadwalList = () => {
-  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.TEMPLATE_JADWAL);
+  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+    MENU.TEMPLATE_JADWAL,
+  );
+
+  const toast = useToast();
+
+  // Satu keadaan menyimpan baris yang akan dihapus sekaligus status terbuka
+  // dialognya. Hook hapus dibuat ulang mengikuti kunci baris ini.
+  const [target, setTarget] = useState<TemplateJadwalListItem | null>(null);
+  const deleteRow = useDeleteTemplateJadwal(target?.code);
   const listParams = useListParams({ filters: LIST_FILTERS });
   const templateList = useTemplateJadwalList(listParams);
   const bapel = useBapelOptions();
   const isNarrowed = Boolean(listParams.search) || listParams.isFiltered;
+
+  const onDelete = () => {
+    deleteRow.mutate(undefined, {
+      onSuccess: (deleted) => {
+        toast.add({ title: deleted.message });
+        setTarget(null);
+      },
+    });
+  };
+
+  const onCancelDelete = () => {
+    deleteRow.reset();
+    setTarget(null);
+  };
 
   return (
     <div className="pb-6">
@@ -78,16 +117,23 @@ export const TemplateJadwalList = () => {
           listParams.isFiltered ? listParams.onClearFilters : undefined
         }
         pagination={templateList.pagination}
-        table={templateJadwalTable(isCanUpdate)}
+        table={templateJadwalTable(
+          isCanUpdate,
+          isCanDelete ? setTarget : undefined,
+        )}
         itemNoun="template"
       >
-        {(template) => (
-          <TemplateJadwalListItemRow
-            template={template}
-            isCanUpdate={isCanUpdate}
-          />
-        )}
+        {(template) => <TemplateJadwalListItemRow template={template} />}
       </DataList>
+
+      <RowDeleteDialog
+        target={target ? { label: deleteTargetLabelOf(target) } : null}
+        entity="template"
+        isPending={deleteRow.isPending}
+        errorMessage={deleteRow.error?.message}
+        onCancel={onCancelDelete}
+        onConfirm={onDelete}
+      />
     </div>
   );
 };

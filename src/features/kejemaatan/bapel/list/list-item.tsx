@@ -1,55 +1,35 @@
-import { Pencil } from "lucide-react";
-import Link from "next/link";
-
-import { buttonVariants } from "@/components/common/control";
 import { OptionalText } from "@/components/common/display";
 import { DataListRow, type DataTableConfig } from "@/components/common/list";
 import { MENU, editHref } from "@/config/menu";
 import { saveListFocus } from "@/lib/list-return";
-import { cn } from "@/lib/utils";
 
 import { BAPEL_LIST_PATH, summarizeRules } from "../model";
 import type { BapelListItem } from "../types";
 
 interface PropTypes {
   bapel: BapelListItem;
-  isCanUpdate?: boolean;
 }
 
 export const BapelListItemRow = (props: PropTypes) => {
-  const { bapel, isCanUpdate = false } = props;
+  const { bapel } = props;
 
   const meta = [
     bapel.code,
     bapel.rules.length ? `${bapel.rules.length} aturan` : "Tanpa aturan",
   ].join(" · ");
 
-  return (
-    <DataListRow
-      id={bapel.code}
-      title={bapel.name}
-      meta={meta}
-      trailing={
-        isCanUpdate ? (
-          <Link
-            href={editHref(MENU.KEJEMAATAN, MENU.BAPEL, bapel.code)}
-            onClick={() => saveListFocus(BAPEL_LIST_PATH, bapel.code)}
-            aria-label={`Ubah ${bapel.name}`}
-            className={cn(
-              buttonVariants({ variant: "ghost", size: "icon-sm" }),
-              "cursor-pointer",
-            )}
-          >
-            <Pencil aria-hidden />
-          </Link>
-        ) : null
-      }
-    />
-  );
+  return <DataListRow id={bapel.code} title={bapel.name} meta={meta} />;
 };
+
+const deleteLabelOf = (x: BapelListItem) => `Hapus ${x.name}`;
+
+export const deleteTargetLabelOf = (x: BapelListItem) => `${x.name}`;
 
 export function bapelTable(
   isCanUpdate: boolean,
+  // Dilewatkan dari layar daftar; `undefined` berarti pengguna tidak berhak
+  // menghapus, jadi tombolnya tidak dirender sama sekali.
+  onDelete?: (row: BapelListItem) => void,
 ): DataTableConfig<BapelListItem> {
   return {
     columns: [
@@ -84,11 +64,18 @@ export function bapelTable(
         ),
       },
     ],
-    getRowHref: isCanUpdate
-      ? (bapel) => editHref(MENU.KEJEMAATAN, MENU.BAPEL, bapel.code)
-      : undefined,
-    getRowLabel: (bapel) => `Ubah ${bapel.name}`,
-    onRowOpen: (bapel) => saveListFocus(BAPEL_LIST_PATH, bapel.code),
-    rowIcon: <Pencil />,
+    getRowActions: (x) => ({
+      label: `Ubah ${x.name}`,
+      edit: {
+        href: isCanUpdate
+          ? editHref(MENU.KEJEMAATAN, MENU.BAPEL, x.publicId)
+          : undefined,
+        onNavigate: () => saveListFocus(BAPEL_LIST_PATH, x.code),
+        label: `Ubah ${x.name}`,
+      },
+      remove: onDelete
+        ? { onSelect: () => onDelete(x), label: deleteLabelOf(x) }
+        : undefined,
+    }),
   };
 }

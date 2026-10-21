@@ -23,7 +23,7 @@ const replaced: string[] = [];
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
-  usePathname: () => "/hr/attendance/baru",
+  usePathname: () => "/hr/attendance/create",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -202,7 +202,7 @@ const onSaveConfirmed = async () => {
 };
 
 describe("gerbang izin rute form", () => {
-  test("tanpa CREATE: rute /baru tidak merender form", () => {
+  test("tanpa CREATE: rute /create tidak merender form", () => {
     onRenderForm(["VIEW"]);
 
     expect(
@@ -215,7 +215,7 @@ describe("gerbang izin rute form", () => {
     ).toBe(ABSENSI_LIST_PATH);
   });
 
-  test("tanpa UPDATE: rute /ubah tidak merender form dan tidak memuat detail", () => {
+  test("tanpa UPDATE: rute /edit tidak merender form dan tidak memuat detail", () => {
     let isFetched = false;
     globalThis.fetch = (() => {
       isFetched = true;

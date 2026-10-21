@@ -1,12 +1,7 @@
-import { Pencil } from "lucide-react";
-import Link from "next/link";
-
-import { buttonVariants } from "@/components/common/control";
 import { Avatar, OptionalText } from "@/components/common/display";
 import { DataListRow, type DataTableConfig } from "@/components/common/list";
 import { MENU, editHref } from "@/config/menu";
 import { saveListFocus } from "@/lib/list-return";
-import { cn } from "@/lib/utils";
 
 import { ROLE_JEMAAT_LIST_PATH, formatPeriode } from "../model";
 import type { RoleJemaatItem } from "../types";
@@ -24,11 +19,10 @@ const labelOf = (role: RoleJemaatItem) =>
 
 interface PropTypes {
   role: RoleJemaatItem;
-  isCanUpdate?: boolean;
 }
 
 export const RoleJemaatListItemRow = (props: PropTypes) => {
-  const { role, isCanUpdate = false } = props;
+  const { role } = props;
 
   const meta = [role.name, role.bapel?.name].filter(Boolean).join(" · ");
 
@@ -41,28 +35,22 @@ export const RoleJemaatListItemRow = (props: PropTypes) => {
       trailing={
         <>
           <RoleStatus status={role.status} />
-
-          {isCanUpdate ? (
-            <Link
-              href={editHrefOf(role)}
-              onClick={() => saveFocus(role)}
-              aria-label={labelOf(role)}
-              className={cn(
-                buttonVariants({ variant: "ghost", size: "icon-sm" }),
-                "cursor-pointer",
-              )}
-            >
-              <Pencil aria-hidden />
-            </Link>
-          ) : null}
         </>
       }
     />
   );
 };
 
+const deleteLabelOf = (x: RoleJemaatItem) => `Hapus ${x.name} ${x.jemaat.name}`;
+
+export const deleteTargetLabelOf = (x: RoleJemaatItem) =>
+  `${x.name} ${x.jemaat.name}`;
+
 export function roleJemaatTable(
   isCanUpdate: boolean,
+  // Dilewatkan dari layar daftar; `undefined` berarti pengguna tidak berhak
+  // menghapus, jadi tombolnya tidak dirender sama sekali.
+  onDelete?: (row: RoleJemaatItem) => void,
 ): DataTableConfig<RoleJemaatItem> {
   return {
     columns: [
@@ -119,9 +107,16 @@ export function roleJemaatTable(
         cell: (role) => <RoleStatus status={role.status} />,
       },
     ],
-    getRowHref: isCanUpdate ? editHrefOf : undefined,
-    getRowLabel: labelOf,
-    onRowOpen: saveFocus,
-    rowIcon: <Pencil />,
+    getRowActions: (x) => ({
+      label: labelOf(x),
+      edit: {
+        href: isCanUpdate ? editHrefOf(x) : undefined,
+        onNavigate: () => saveFocus(x),
+        label: labelOf(x),
+      },
+      remove: onDelete
+        ? { onSelect: () => onDelete(x), label: deleteLabelOf(x) }
+        : undefined,
+    }),
   };
 }

@@ -28,7 +28,7 @@ mock.module("next/navigation", () => ({
     replace: (href: string) => replaced.push(href),
     push: (href: string) => pushed.push(href),
   }),
-  usePathname: () => "/peribadahan/ibadah/baru",
+  usePathname: () => "/peribadahan/ibadah/create",
   useSearchParams: () => new URLSearchParams(search.current),
 }));
 
@@ -67,6 +67,7 @@ afterEach(() => {
 const CODE = "IBD_0001-2026-0010";
 
 const DETAIL: IbadahDetail = {
+  publicId: "pid-1",
   code: CODE,
   date: "2026-09-20T00:00:00.000Z",
   startTime: "08:00",
@@ -325,7 +326,7 @@ describe("gerbang izin", () => {
     await onRenderLoadedEdit(["UPDATE", "CREATE", "DELETE"]);
     expect(
       screen.getByRole("link", { name: "Salin" }).getAttribute("href"),
-    ).toBe(`/peribadahan/ibadah/baru?salin=${CODE}`);
+    ).toBe(`/peribadahan/ibadah/create?salin=${CODE}`);
     expect(screen.getByRole("button", { name: "Hapus" })).toBeTruthy();
   });
 
@@ -513,7 +514,7 @@ describe("salin dari form ubah", () => {
 
     fireEvent.click(screen.getByRole("link", { name: "Salin" }));
 
-    expect(pushed).toEqual([`/peribadahan/ibadah/baru?salin=${CODE}`]);
+    expect(pushed).toEqual([`/peribadahan/ibadah/create?salin=${CODE}`]);
     expect(screen.queryByText(/Apakah Anda ingin membatalkan/)).toBeNull();
   });
 
@@ -529,7 +530,7 @@ describe("salin dari form ubah", () => {
     fireEvent.click(screen.getByRole("link", { name: "Salin" }));
     fireEvent.click(await screen.findByRole("button", { name: "Ya" }));
 
-    expect(pushed).toEqual([`/peribadahan/ibadah/baru?salin=${CODE}`]);
+    expect(pushed).toEqual([`/peribadahan/ibadah/create?salin=${CODE}`]);
     expect(replaced).toEqual([]);
   });
 

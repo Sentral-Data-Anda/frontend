@@ -1,13 +1,20 @@
 "use client";
 
-import { DataList, ListToolbar } from "@/components/common/list";
+import { useState } from "react";
+
+import { useToast } from "@/components/common/feedback";
+import {
+  DataList,
+  ListToolbar,
+  RowDeleteDialog,
+} from "@/components/common/list";
 import { PageHeader, PageHeaderAdd } from "@/components/layout";
 import { MENU, createHref, domainHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { useDdlOptions } from "@/hooks/use-ddl-options";
 import { useListParams } from "@/hooks/use-list-params";
 
-import { ABSENSI_FILTERS, useAbsensiList } from "../api";
+import { ABSENSI_FILTERS, useAbsensiList, useDeleteAbsensi } from "../api";
 import {
   EMPTY_DESCRIPTION,
   MONTH_ALL,
@@ -16,9 +23,17 @@ import {
   monthFilterOptions,
   subtitleOf,
 } from "../model";
-import { ATTENDANCE_STATUS_LABEL, ATTENDANCE_STATUSES } from "../types";
+import {
+  type AbsensiKaryawan,
+  ATTENDANCE_STATUS_LABEL,
+  ATTENDANCE_STATUSES,
+} from "../types";
 
-import { AbsensiListItemRow, absensiTable } from "./list-item";
+import {
+  AbsensiListItemRow,
+  absensiTable,
+  deleteTargetLabelOf,
+} from "./list-item";
 
 const MONTH_DESCRIPTION =
   "Tidak ada catatan absensi pada bulan yang dipilih. Pilih Semua bulan untuk melihat seluruh catatan.";
@@ -35,7 +50,16 @@ const STATUS_OPTIONS = [
 ];
 
 export const AbsensiListContent = () => {
-  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.ATTENDANCE);
+  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+    MENU.ATTENDANCE,
+  );
+
+  const toast = useToast();
+
+  // Satu keadaan menyimpan baris yang akan dihapus sekaligus status terbuka
+  // dialognya. Hook hapus dibuat ulang mengikuti kunci baris ini.
+  const [target, setTarget] = useState<AbsensiKaryawan | null>(null);
+  const deleteRow = useDeleteAbsensi(target?.publicId);
   const listParams = useListParams({ filters: ABSENSI_FILTERS });
   const absensiList = useAbsensiList(listParams);
   const karyawan = useDdlOptions("karyawan", "id");
@@ -45,6 +69,20 @@ export const AbsensiListContent = () => {
   // dan sesudah `bulan` menyatakan bawaannya, `isFiltered` sudah berarti itu.
   const isAllMonths = listParams.filters.bulan === MONTH_ALL;
   const isNarrowed = listParams.isFiltered;
+
+  const onDelete = () => {
+    deleteRow.mutate(undefined, {
+      onSuccess: (deleted) => {
+        toast.add({ title: deleted.message });
+        setTarget(null);
+      },
+    });
+  };
+
+  const onCancelDelete = () => {
+    deleteRow.reset();
+    setTarget(null);
+  };
 
   return (
     <div className="pb-6">
@@ -124,13 +162,20 @@ export const AbsensiListContent = () => {
               : MONTH_DESCRIPTION
         }
         pagination={absensiList.pagination}
-        table={absensiTable(isCanUpdate)}
+        table={absensiTable(isCanUpdate, isCanDelete ? setTarget : undefined)}
         itemNoun="catatan absensi"
       >
-        {(row) => (
-          <AbsensiListItemRow absensi={row} isCanUpdate={isCanUpdate} />
-        )}
+        {(row) => <AbsensiListItemRow absensi={row} />}
       </DataList>
+
+      <RowDeleteDialog
+        target={target ? { label: deleteTargetLabelOf(target) } : null}
+        entity="catatan absensi"
+        isPending={deleteRow.isPending}
+        errorMessage={deleteRow.error?.message}
+        onCancel={onCancelDelete}
+        onConfirm={onDelete}
+      />
     </div>
   );
 };

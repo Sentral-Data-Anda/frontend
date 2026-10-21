@@ -1,14 +1,21 @@
 "use client";
 
+import { useState } from "react";
+
 import { optionsOf } from "@/components/common/control";
-import { DataList, ListToolbar } from "@/components/common/list";
+import { useToast } from "@/components/common/feedback";
+import {
+  DataList,
+  ListToolbar,
+  RowDeleteDialog,
+} from "@/components/common/list";
 import { PageHeader, PageHeaderAdd } from "@/components/layout";
 import { MENU, domainHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { useDdlOptions } from "@/hooks/use-ddl-options";
 import { useListParams, type ListFilterSchema } from "@/hooks/use-list-params";
 
-import { useAssetList } from "../api";
+import { useAssetList, useDeleteAsset } from "../api";
 import { LabelLink, labelHrefOf } from "../label";
 import {
   BARANG_CREATE_PATH,
@@ -16,8 +23,13 @@ import {
   SOURCE_LABEL,
   STATUS_FILTER_LABEL,
 } from "../model";
+import type { Asset } from "../types";
 
-import { BarangListItemRow, barangTable } from "./list-item";
+import {
+  BarangListItemRow,
+  barangTable,
+  deleteTargetLabelOf,
+} from "./list-item";
 
 const LIST_FILTERS = {
   kondisi: { api: "condition" },
@@ -39,13 +51,36 @@ const CONDITION_OPTIONS = [
 const SOURCE_OPTIONS = [ALL, ...optionsOf(SOURCE_LABEL)];
 
 export const BarangListContent = () => {
-  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.ASSET_MASTER);
+  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+    MENU.ASSET_MASTER,
+  );
+
+  const toast = useToast();
+
+  // Satu keadaan menyimpan baris yang akan dihapus sekaligus status terbuka
+  // dialognya. Hook hapus dibuat ulang mengikuti kunci baris ini.
+  const [target, setTarget] = useState<Asset | null>(null);
+  const deleteRow = useDeleteAsset(target?.code);
   const listParams = useListParams({ filters: LIST_FILTERS });
   const assetList = useAssetList(listParams);
   const types = useDdlOptions("type-item", "id", listParams.filters.tipe);
   const rooms = useDdlOptions("room", "id", listParams.filters.ruang);
   const bapels = useDdlOptions("bapel", "id", listParams.filters.bapel);
   const isNarrowed = Boolean(listParams.search) || listParams.isFiltered;
+
+  const onDelete = () => {
+    deleteRow.mutate(undefined, {
+      onSuccess: (deleted) => {
+        toast.add({ title: deleted.message });
+        setTarget(null);
+      },
+    });
+  };
+
+  const onCancelDelete = () => {
+    deleteRow.reset();
+    setTarget(null);
+  };
 
   return (
     <div className="pb-6">
@@ -142,13 +177,20 @@ export const BarangListContent = () => {
           listParams.isFiltered ? listParams.onClearFilters : undefined
         }
         pagination={assetList.pagination}
-        table={barangTable(isCanUpdate)}
+        table={barangTable(isCanUpdate, isCanDelete ? setTarget : undefined)}
         itemNoun="barang"
       >
-        {(asset) => (
-          <BarangListItemRow asset={asset} isCanUpdate={isCanUpdate} />
-        )}
+        {(asset) => <BarangListItemRow asset={asset} />}
       </DataList>
+
+      <RowDeleteDialog
+        target={target ? { label: deleteTargetLabelOf(target) } : null}
+        entity="barang"
+        isPending={deleteRow.isPending}
+        errorMessage={deleteRow.error?.message}
+        onCancel={onCancelDelete}
+        onConfirm={onDelete}
+      />
     </div>
   );
 };

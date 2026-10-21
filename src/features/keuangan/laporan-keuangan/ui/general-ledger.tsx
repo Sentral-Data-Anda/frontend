@@ -15,6 +15,7 @@ import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { useBoolean } from "@/hooks/use-boolean";
 import { useDdlOptions } from "@/hooks/use-ddl-options";
+import type { ListLimit } from "@/hooks/use-list-params";
 import { FetchError } from "@/lib/api/fetcher";
 import { formatDate } from "@/lib/format";
 
@@ -121,20 +122,27 @@ export const ledgerTable = (
       ),
     },
   ],
-  getRowHref: toHref,
-  getRowLabel: (row) => `Entri jurnal ${row.entryCode}`,
+  getRowActions: (row) => ({
+    label: `Entri jurnal ${row.entryCode}`,
+    // Label aksi diisi penuh supaya nama tautannya tetap "Entri jurnal X",
+    // bukan "Lihat Entri jurnal X".
+    view: {
+      href: toHref?.(row),
+      label: `Entri jurnal ${row.entryCode}`,
+    },
+  }),
 });
 
 interface PropTypes {
   code: string;
   range: ReportRange;
   page: number;
-  limit: number;
+  limit: ListLimit;
   onPickAccount: (code: string) => void;
   onPickFrom: (value: string) => void;
   onPickTo: (value: string) => void;
   onPickPage: (page: number) => void;
-  onPickLimit: (limit: number) => void;
+  onPickLimit: (limit: ListLimit) => void;
 }
 
 export const GeneralLedger = (props: PropTypes) => {

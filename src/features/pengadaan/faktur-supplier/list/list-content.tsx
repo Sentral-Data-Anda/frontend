@@ -98,9 +98,7 @@ export const InvoiceListContent = () => {
         table={invoiceTable(isCanUpdate)}
         itemNoun="faktur"
       >
-        {(invoice) => (
-          <InvoiceListItemRow invoice={invoice} isCanUpdate={isCanUpdate} />
-        )}
+        {(invoice) => <InvoiceListItemRow invoice={invoice} />}
       </DataList>
     </div>
   );

@@ -42,7 +42,7 @@ mock.module("next/navigation", () => ({
     replace: (href: string) => replaced.push(href),
     push: () => undefined,
   }),
-  usePathname: () => "/procurement/purchase-order/baru",
+  usePathname: () => "/procurement/purchase-order/create",
   useSearchParams: () => search.current,
 }));
 

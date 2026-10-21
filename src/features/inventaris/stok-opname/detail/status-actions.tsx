@@ -78,7 +78,7 @@ export const StatusActions = (props: PropTypes) => {
         {status === "DRAFT" && isCanUpdate ? (
           <>
             <Link
-              href={opnameEditHref(opname.code)}
+              href={opnameEditHref(opname.publicId)}
               aria-disabled={isBusy || undefined}
               className={cn(
                 buttonVariants({ variant: "outline" }),

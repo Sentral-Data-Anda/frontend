@@ -142,7 +142,7 @@ export const ReportListContent = () => {
               table={reportTable(isCanUpdate)}
               itemNoun="laporan"
             >
-              {(row) => <ReportListItem row={row} isCanUpdate={isCanUpdate} />}
+              {(row) => <ReportListItem row={row} />}
             </DataList>
           )}
         </>

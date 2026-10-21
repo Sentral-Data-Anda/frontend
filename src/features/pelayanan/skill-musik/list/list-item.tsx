@@ -1,11 +1,6 @@
-import { Pencil } from "lucide-react";
-import Link from "next/link";
-
-import { buttonVariants } from "@/components/common/control";
 import { DataListRow, type DataTableConfig } from "@/components/common/list";
 import { MENU, editHref } from "@/config/menu";
 import { saveListFocus } from "@/lib/list-return";
-import { cn } from "@/lib/utils";
 
 import { SKILL_MUSIK_LIST_PATH } from "../model";
 import type { SkillMusik } from "../types";
@@ -20,37 +15,23 @@ const labelOf = (skillMusik: SkillMusik) => `Ubah ${skillMusik.name}`;
 
 interface PropTypes {
   skillMusik: SkillMusik;
-  isCanUpdate?: boolean;
 }
 
 export const SkillMusikListItemRow = (props: PropTypes) => {
-  const { skillMusik, isCanUpdate = false } = props;
+  const { skillMusik } = props;
 
-  return (
-    <DataListRow
-      id={String(skillMusik.id)}
-      title={skillMusik.name}
-      trailing={
-        isCanUpdate ? (
-          <Link
-            href={editHrefOf(skillMusik)}
-            onClick={() => saveFocus(skillMusik)}
-            aria-label={labelOf(skillMusik)}
-            className={cn(
-              buttonVariants({ variant: "ghost", size: "icon-sm" }),
-              "cursor-pointer",
-            )}
-          >
-            <Pencil aria-hidden />
-          </Link>
-        ) : null
-      }
-    />
-  );
+  return <DataListRow id={String(skillMusik.id)} title={skillMusik.name} />;
 };
+
+const deleteLabelOf = (x: SkillMusik) => `Hapus ${x.name}`;
+
+export const deleteTargetLabelOf = (x: SkillMusik) => `${x.name}`;
 
 export function skillMusikTable(
   isCanUpdate: boolean,
+  // Dilewatkan dari layar daftar; `undefined` berarti pengguna tidak berhak
+  // menghapus, jadi tombolnya tidak dirender sama sekali.
+  onDelete?: (row: SkillMusik) => void,
 ): DataTableConfig<SkillMusik> {
   return {
     columns: [
@@ -66,9 +47,16 @@ export function skillMusikTable(
         ),
       },
     ],
-    getRowHref: isCanUpdate ? editHrefOf : undefined,
-    getRowLabel: labelOf,
-    onRowOpen: saveFocus,
-    rowIcon: <Pencil />,
+    getRowActions: (x) => ({
+      label: labelOf(x),
+      edit: {
+        href: isCanUpdate ? editHrefOf(x) : undefined,
+        onNavigate: () => saveFocus(x),
+        label: labelOf(x),
+      },
+      remove: onDelete
+        ? { onSelect: () => onDelete(x), label: deleteLabelOf(x) }
+        : undefined,
+    }),
   };
 }

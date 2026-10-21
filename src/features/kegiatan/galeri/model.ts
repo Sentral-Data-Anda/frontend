@@ -23,8 +23,8 @@ export const GALERI_CREATE_PATH = createHref(MENU.KEGIATAN, MENU.GALERI);
 export const galeriDetailHref = (code: string) =>
   detailHref(MENU.KEGIATAN, MENU.GALERI, code);
 
-export const galeriEditHref = (code: string) =>
-  editHref(MENU.KEGIATAN, MENU.GALERI, code);
+export const galeriEditHref = (publicId: string) =>
+  editHref(MENU.KEGIATAN, MENU.GALERI, publicId);
 
 export const galeriFormSchema = z
   .object({

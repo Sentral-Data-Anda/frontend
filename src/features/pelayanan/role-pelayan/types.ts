@@ -1,5 +1,6 @@
 export type RolePelayan = {
   id: number;
+  publicId: string;
   name: string;
 };
 

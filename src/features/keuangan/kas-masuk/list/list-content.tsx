@@ -127,9 +127,7 @@ export const ReceiptListContent = () => {
           table={receiptTable(isCanUpdate)}
           itemNoun="kas masuk"
         >
-          {(receipt) => (
-            <ReceiptListItemRow receipt={receipt} isCanUpdate={isCanUpdate} />
-          )}
+          {(receipt) => <ReceiptListItemRow receipt={receipt} />}
         </DataList>
       </div>
 

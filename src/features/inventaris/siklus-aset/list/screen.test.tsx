@@ -161,13 +161,13 @@ describe("tab jenis", () => {
 
 describe("tombol tambah per tab", () => {
   test.each([
-    ["", ["VIEW", "CREATE"], "Catat perawatan", "/perawatan/baru"],
-    ["jenis=pindah", ["VIEW", "CREATE"], "Pindahkan barang", "/pindah/baru"],
+    ["", ["VIEW", "CREATE"], "Catat perawatan", "/perawatan/create"],
+    ["jenis=pindah", ["VIEW", "CREATE"], "Pindahkan barang", "/pindah/create"],
     [
       "jenis=pelepasan",
       ["VIEW", "DELETE"],
       "Ajukan pelepasan",
-      "/pelepasan/baru",
+      "/pelepasan/create",
     ],
   ] as const)("%s → %s", async (query, granted, label, path) => {
     onRender([...granted], query);

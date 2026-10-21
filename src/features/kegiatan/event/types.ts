@@ -4,6 +4,7 @@ export type EventRelation = { id: number; code: string; name: string };
 
 export type ChurchEvent = {
   id: number;
+  publicId: string;
   code: string;
   name: string;
   description: string;

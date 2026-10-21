@@ -1,12 +1,7 @@
-import { Pencil } from "lucide-react";
-import Link from "next/link";
-
-import { buttonVariants } from "@/components/common/control";
 import { Avatar, Badge } from "@/components/common/display";
 import { DataListRow, type DataTableConfig } from "@/components/common/list";
 import { MENU, editHref } from "@/config/menu";
 import { saveListFocus } from "@/lib/list-return";
-import { cn } from "@/lib/utils";
 
 import { DAFTAR_PELAYAN_LIST_PATH, tugasOf } from "../model";
 import { TYPE_PELAYAN_LABEL, type PelayanListItem } from "../types";
@@ -33,11 +28,10 @@ export const jenisOf = (pelayan: PelayanListItem) =>
 
 interface PropTypes {
   pelayan: PelayanListItem;
-  isCanUpdate?: boolean;
 }
 
 export const PelayanListItemRow = (props: PropTypes) => {
-  const { pelayan, isCanUpdate = false } = props;
+  const { pelayan } = props;
 
   return (
     <DataListRow
@@ -56,28 +50,21 @@ export const PelayanListItemRow = (props: PropTypes) => {
           ) : null}
 
           {pelayan.status ? null : <PelayanStatus isActive={false} />}
-
-          {isCanUpdate ? (
-            <Link
-              href={editHrefOf(pelayan)}
-              onClick={() => saveFocus(pelayan)}
-              aria-label={labelOf(pelayan)}
-              className={cn(
-                buttonVariants({ variant: "ghost", size: "icon-sm" }),
-                "cursor-pointer",
-              )}
-            >
-              <Pencil aria-hidden />
-            </Link>
-          ) : null}
         </>
       }
     />
   );
 };
 
+const deleteLabelOf = (x: PelayanListItem) => `Hapus ${x.namePelayan}`;
+
+export const deleteTargetLabelOf = (x: PelayanListItem) => `${x.namePelayan}`;
+
 export function daftarPelayanTable(
   isCanUpdate: boolean,
+  // Dilewatkan dari layar daftar; `undefined` berarti pengguna tidak berhak
+  // menghapus, jadi tombolnya tidak dirender sama sekali.
+  onDelete?: (row: PelayanListItem) => void,
 ): DataTableConfig<PelayanListItem> {
   return {
     columns: [
@@ -145,9 +132,16 @@ export function daftarPelayanTable(
         cell: (pelayan) => <PelayanStatus isActive={pelayan.status} />,
       },
     ],
-    getRowHref: isCanUpdate ? editHrefOf : undefined,
-    getRowLabel: labelOf,
-    onRowOpen: saveFocus,
-    rowIcon: <Pencil />,
+    getRowActions: (x) => ({
+      label: labelOf(x),
+      edit: {
+        href: isCanUpdate ? editHrefOf(x) : undefined,
+        onNavigate: () => saveFocus(x),
+        label: labelOf(x),
+      },
+      remove: onDelete
+        ? { onSelect: () => onDelete(x), label: deleteLabelOf(x) }
+        : undefined,
+    }),
   };
 }

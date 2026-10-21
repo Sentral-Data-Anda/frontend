@@ -128,7 +128,7 @@ export const BarangDetailScreen = (props: PropTypes) => {
             <LabelLink href={labelHrefOf({ kode: asset.code })} isIconOnly />
             {isCanUpdate && isActive ? (
               <Link
-                href={barangEditHref(asset.code)}
+                href={barangEditHref(asset.publicId)}
                 className={cn(
                   buttonVariants({ variant: "outline" }),
                   "shrink-0 cursor-pointer",

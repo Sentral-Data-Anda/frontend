@@ -1,6 +1,8 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
+import { RowActionsProvider } from "@/components/common/list";
+
 import type { UserListItem } from "../types";
 
 import { UserListItemRow, userTable } from "./list-item";
@@ -20,9 +22,11 @@ const USER: UserListItem = {
 describe("baris HP", () => {
   test("judul nama jemaat, meta username · role, status Belum aktif", () => {
     render(
-      <ul>
-        <UserListItemRow user={USER} />
-      </ul>,
+      <RowActionsProvider value={userTable.getRowActions?.(USER)}>
+        <ul>
+          <UserListItemRow user={USER} />
+        </ul>
+      </RowActionsProvider>,
     );
 
     expect(screen.getByText("Gabriel Tampubolon")).toBeTruthy();
@@ -32,7 +36,7 @@ describe("baris HP", () => {
       screen
         .getByRole("link", { name: "Buka akun Gabriel Tampubolon" })
         .getAttribute("href"),
-    ).toBe("/settings/user/USR-0007/ubah");
+    ).toBe("/settings/user/edit/p");
     expect(document.querySelector('[data-row-id="USR-0007"]')).not.toBeNull();
   });
 });
@@ -51,7 +55,9 @@ describe("konfigurasi tabel", () => {
         .filter((column) => column.isSecondary)
         .map((column) => column.key),
     ).toEqual(["lastLogin"]);
-    expect(userTable.getRowHref?.(USER)).toBe("/settings/user/USR-0007/ubah");
+    expect(userTable.getRowActions?.(USER)?.edit?.href).toBe(
+      "/settings/user/edit/p",
+    );
   });
 
   test("belum pernah masuk tertulis, bukan kosong", () => {

@@ -1,4 +1,3 @@
-import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 
 import { OptionalText } from "@/components/common/display";
@@ -13,12 +12,11 @@ import { saveListFocus } from "@/lib/list-return";
 import {
   SUPPLIER_LIST_PATH,
   supplierDetailHref,
+  supplierEditHref,
   supplierMetaOf,
 } from "../model";
 import type { Supplier } from "../types";
 import { SupplierStatus } from "../ui";
-
-import { EditLink } from "./edit-link";
 
 const saveFocus = (supplier: Supplier) =>
   saveListFocus(SUPPLIER_LIST_PATH, supplier.code);
@@ -29,11 +27,10 @@ const viewLabelOf = (supplier: Supplier) => `Lihat supplier ${supplier.name}`;
 
 interface PropTypes {
   supplier: Supplier;
-  isCanUpdate?: boolean;
 }
 
 export const SupplierListItemRow = (props: PropTypes) => {
-  const { supplier, isCanUpdate = false } = props;
+  const { supplier } = props;
 
   return (
     <DataListRow
@@ -51,10 +48,7 @@ export const SupplierListItemRow = (props: PropTypes) => {
       }
       meta={<span className="tabular-nums">{supplierMetaOf(supplier)}</span>}
       trailing={
-        <>
-          {supplier.isActive ? null : <SupplierStatus isActive={false} />}
-          {isCanUpdate ? <EditLink supplier={supplier} /> : null}
-        </>
+        <>{supplier.isActive ? null : <SupplierStatus isActive={false} />}</>
       }
     />
   );
@@ -111,20 +105,35 @@ const COLUMNS: Column[] = [
   },
 ];
 
-const EDIT_COLUMN: Column = {
-  key: "edit",
-  header: "",
-  width: "2rem",
-  align: "end",
-  cell: (supplier) => <EditLink supplier={supplier} />,
-};
+const deleteLabelOf = (x: Supplier) => `Hapus ${x.name}`;
 
-export function supplierTable(isCanUpdate: boolean): DataTableConfig<Supplier> {
+export const deleteTargetLabelOf = (x: Supplier) => `${x.name}`;
+
+export function supplierTable(
+  isCanUpdate: boolean,
+  // Dilewatkan dari layar daftar; `undefined` berarti pengguna tidak berhak
+  // menghapus, jadi tombolnya tidak dirender sama sekali.
+  onDelete?: (row: Supplier) => void,
+): DataTableConfig<Supplier> {
   return {
-    columns: isCanUpdate ? [...COLUMNS, EDIT_COLUMN] : COLUMNS,
-    getRowHref: detailHrefOf,
-    getRowLabel: viewLabelOf,
-    onRowOpen: saveFocus,
-    rowIcon: <ChevronRight />,
+    columns: COLUMNS,
+    getRowActions: (x) => ({
+      label: viewLabelOf(x),
+      view: {
+        href: detailHrefOf(x),
+        onNavigate: () => saveFocus(x),
+        label: viewLabelOf(x),
+      },
+      edit: isCanUpdate
+        ? {
+            href: supplierEditHref(x.publicId),
+            onNavigate: () => saveListFocus(SUPPLIER_LIST_PATH, x.code),
+            label: `Ubah ${x.name}`,
+          }
+        : undefined,
+      remove: onDelete
+        ? { onSelect: () => onDelete(x), label: deleteLabelOf(x) }
+        : undefined,
+    }),
   };
 }

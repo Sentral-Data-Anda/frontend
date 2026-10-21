@@ -45,7 +45,7 @@ describe("form ↔ payload", () => {
   });
 
   test("detail be-sada jadi nilai form", () => {
-    expect(toSkillMusikForm({ id: 2, name: "Gitar" })).toEqual({
+    expect(toSkillMusikForm({ id: 2, publicId: "p2", name: "Gitar" })).toEqual({
       name: "Gitar",
     });
   });

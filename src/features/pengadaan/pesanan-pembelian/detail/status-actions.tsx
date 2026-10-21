@@ -73,7 +73,7 @@ export const StatusActions = (props: PropTypes) => {
 
       {isFresh && isCanUpdate ? (
         <Link
-          href={orderEditHref(order.code)}
+          href={orderEditHref(order.publicId)}
           aria-disabled={isBusy || undefined}
           className={cn(buttonVariants({ variant: "outline" }), LINK_BUTTON)}
         >

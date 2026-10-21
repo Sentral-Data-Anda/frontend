@@ -1,27 +1,60 @@
 "use client";
 
-import { DataList, ListToolbar } from "@/components/common/list";
+import { useState } from "react";
+
+import { useToast } from "@/components/common/feedback";
+import {
+  DataList,
+  ListToolbar,
+  RowDeleteDialog,
+} from "@/components/common/list";
 import { PageHeader, PageHeaderAdd } from "@/components/layout";
 import { MENU, domainHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { useDdlOptions } from "@/hooks/use-ddl-options";
 import { useListParams, type ListFilterSchema } from "@/hooks/use-list-params";
 
-import { useGaleriList } from "../api";
+import { useDeleteGaleri, useGaleriList } from "../api";
 import { GALERI_CREATE_PATH } from "../model";
+import type { Album } from "../types";
 
-import { GaleriListItemRow, galeriTable } from "./list-item";
+import {
+  deleteTargetLabelOf,
+  GaleriListItemRow,
+  galeriTable,
+} from "./list-item";
 
 const LIST_FILTERS = {
   bapel: { api: "bapelId" },
 } satisfies ListFilterSchema;
 
 export const GaleriListContent = () => {
-  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.GALERI);
+  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(MENU.GALERI);
+
+  const toast = useToast();
+
+  // Satu keadaan menyimpan baris yang akan dihapus sekaligus status terbuka
+  // dialognya. Hook hapus dibuat ulang mengikuti kunci baris ini.
+  const [target, setTarget] = useState<Album | null>(null);
+  const deleteRow = useDeleteGaleri(target?.code);
   const listParams = useListParams({ filters: LIST_FILTERS });
   const galeriList = useGaleriList(listParams);
   const bapel = useDdlOptions("bapel", "id", listParams.filters.bapel);
   const isNarrowed = Boolean(listParams.search) || listParams.isFiltered;
+
+  const onDelete = () => {
+    deleteRow.mutate(undefined, {
+      onSuccess: (deleted) => {
+        toast.add({ title: deleted.message });
+        setTarget(null);
+      },
+    });
+  };
+
+  const onCancelDelete = () => {
+    deleteRow.reset();
+    setTarget(null);
+  };
 
   return (
     <div className="pb-6">
@@ -75,13 +108,20 @@ export const GaleriListContent = () => {
           listParams.isFiltered ? listParams.onClearFilters : undefined
         }
         pagination={galeriList.pagination}
-        table={galeriTable(isCanUpdate)}
+        table={galeriTable(isCanUpdate, isCanDelete ? setTarget : undefined)}
         itemNoun="album"
       >
-        {(album) => (
-          <GaleriListItemRow album={album} isCanUpdate={isCanUpdate} />
-        )}
+        {(album) => <GaleriListItemRow album={album} />}
       </DataList>
+
+      <RowDeleteDialog
+        target={target ? { label: deleteTargetLabelOf(target) } : null}
+        entity="album"
+        isPending={deleteRow.isPending}
+        errorMessage={deleteRow.error?.message}
+        onCancel={onCancelDelete}
+        onConfirm={onDelete}
+      />
     </div>
   );
 };

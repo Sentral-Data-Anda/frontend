@@ -19,7 +19,7 @@ const replaced: string[] = [];
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
-  usePathname: () => "/kejemaatan/pernikahan/baru",
+  usePathname: () => "/kejemaatan/pernikahan/create",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -124,14 +124,14 @@ const onRenderLoadedEdit = async (granted: MenuAction[]) => {
 };
 
 describe("gerbang izin rute form", () => {
-  test("tanpa CREATE: rute /baru tidak merender form", () => {
+  test("tanpa CREATE: rute /create tidak merender form", () => {
     onRenderForm(["VIEW"]);
 
     expect(screen.getByText("Tidak bisa mencatat pernikahan")).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Simpan" })).toBeNull();
   });
 
-  test("tanpa UPDATE: rute /ubah tidak merender form", () => {
+  test("tanpa UPDATE: rute /edit tidak merender form", () => {
     onRenderForm(["VIEW", "CREATE"], ID);
 
     expect(screen.getByText("Tidak bisa mengubah pernikahan")).toBeTruthy();
@@ -271,7 +271,7 @@ describe("akhiri pernikahan", () => {
       screen
         .getByRole("link", { name: "Akhiri pernikahan" })
         .getAttribute("href"),
-    ).toBe(`/kejemaatan/pernikahan/${ID}/akhiri`);
+    ).toBe(`/kejemaatan/pernikahan/${ID}/end`);
   });
 
   test("form kotor: Akhiri nonaktif dengan keterangan", async () => {

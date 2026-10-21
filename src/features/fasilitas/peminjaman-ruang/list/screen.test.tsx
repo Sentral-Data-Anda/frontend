@@ -1,3 +1,4 @@
+import { Toast } from "@base-ui/react/toast";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, render, screen } from "@testing-library/react";
 import {
@@ -83,7 +84,9 @@ const onRenderList = (granted: MenuAction[]) => {
         new QueryClient({ defaultOptions: { queries: { retry: false } } })
       }
     >
-      <LoanListScreen />
+      <Toast.Provider>
+        <LoanListScreen />
+      </Toast.Provider>
     </QueryClientProvider>,
   );
 };
@@ -118,7 +121,7 @@ describe("gerbang izin daftar", () => {
       screen
         .getByRole("link", { name: "Tambah peminjaman" })
         .getAttribute("href"),
-    ).toBe("/fasilitas/peminjaman-ruang/baru");
+    ).toBe("/fasilitas/peminjaman-ruang/create");
     expect(
       screen.getAllByRole("link", { name: /^(Ubah|Lihat) / }).length,
     ).toBeGreaterThan(0);

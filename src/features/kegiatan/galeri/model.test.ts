@@ -32,6 +32,7 @@ const VALID: GaleriFormValues = {
 };
 
 const ALBUM: Album = {
+  publicId: "pid-albm-0002-0001",
   code: "ALBM_0002-0001",
   name: "Retret Pemuda 2025",
   isPublish: true,

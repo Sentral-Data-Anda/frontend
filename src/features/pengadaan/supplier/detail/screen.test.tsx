@@ -35,6 +35,7 @@ const { SupplierDetailScreen } = await import("./screen");
 
 const originalFetch = globalThis.fetch;
 const CODE = "SUP-0001";
+const PUBLIC_ID = "s1";
 
 afterEach(() => {
   cleanup();
@@ -43,7 +44,7 @@ afterEach(() => {
 
 const SUPPLIER: Supplier = {
   id: 1,
-  publicId: "s1",
+  publicId: PUBLIC_ID,
   code: CODE,
   name: "CV Sinar Teknik",
   contactPerson: "Budi Hartono",
@@ -127,7 +128,7 @@ describe("halaman supplier", () => {
     ).toBe("/procurement/purchase-order?supplier=1");
     expect(
       screen.getByRole("link", { name: "Ubah" }).getAttribute("href"),
-    ).toBe(supplierEditHref(CODE));
+    ).toBe(supplierEditHref(PUBLIC_ID));
     expect(screen.queryByRole("button", { name: /Hapus/ })).toBeNull();
   });
 });

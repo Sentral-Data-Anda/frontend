@@ -1,12 +1,9 @@
-import { CalendarOff, Pencil } from "lucide-react";
-import Link from "next/link";
+import { CalendarOff } from "lucide-react";
 
-import { buttonVariants } from "@/components/common/control";
 import { Avatar, Badge } from "@/components/common/display";
 import { DataListRow, type DataTableConfig } from "@/components/common/list";
 import { formatAmount } from "@/lib/format";
 import { saveListFocus } from "@/lib/list-return";
-import { cn } from "@/lib/utils";
 
 import {
   LIST_PATH,
@@ -30,7 +27,7 @@ const labelOf = (contract: KontrakKaryawan) =>
   `Ubah kontrak ${contract.karyawan.name}`;
 
 const hrefOf = (isCanUpdate: boolean) => (contract: KontrakKaryawan) =>
-  isCanUpdate ? contractEditHref(contract.code) : undefined;
+  isCanUpdate ? contractEditHref(contract.publicId) : undefined;
 
 const isDayOffMissing = (contract: KontrakKaryawan) =>
   contract.weeklyDayOff.length === 0;
@@ -57,13 +54,10 @@ const phaseBadge = (contract: KontrakKaryawan) => {
 
 interface PropTypes {
   contract: KontrakKaryawan;
-  isCanUpdate?: boolean;
 }
 
 export const KontrakListItem = (props: PropTypes) => {
-  const { contract, isCanUpdate = false } = props;
-
-  const href = hrefOf(isCanUpdate)(contract);
+  const { contract } = props;
 
   return (
     <DataListRow
@@ -75,28 +69,23 @@ export const KontrakListItem = (props: PropTypes) => {
         <>
           {isDayOffMissing(contract) ? <DayOffMark /> : null}
           {phaseBadge(contract)}
-
-          {href ? (
-            <Link
-              href={href}
-              onClick={() => saveFocus(contract)}
-              aria-label={labelOf(contract)}
-              className={cn(
-                buttonVariants({ variant: "ghost", size: "icon-sm" }),
-                "cursor-pointer",
-              )}
-            >
-              <Pencil aria-hidden />
-            </Link>
-          ) : null}
         </>
       }
     />
   );
 };
 
+const deleteLabelOf = (x: KontrakKaryawan) =>
+  `Hapus kontrak ${x.karyawan.name}`;
+
+export const deleteTargetLabelOf = (x: KontrakKaryawan) =>
+  `kontrak ${x.karyawan.name}`;
+
 export function kontrakTable(
   isCanUpdate: boolean,
+  // Dilewatkan dari layar daftar; `undefined` berarti pengguna tidak berhak
+  // menghapus, jadi tombolnya tidak dirender sama sekali.
+  onDelete?: (row: KontrakKaryawan) => void,
 ): DataTableConfig<KontrakKaryawan> {
   return {
     columns: [
@@ -188,9 +177,16 @@ export function kontrakTable(
         cell: phaseBadge,
       },
     ],
-    getRowHref: hrefOf(isCanUpdate),
-    getRowLabel: labelOf,
-    onRowOpen: saveFocus,
-    rowIcon: <Pencil />,
+    getRowActions: (x) => ({
+      label: labelOf(x),
+      edit: {
+        href: hrefOf(isCanUpdate)(x),
+        onNavigate: () => saveFocus(x),
+        label: labelOf(x),
+      },
+      remove: onDelete
+        ? { onSelect: () => onDelete(x), label: deleteLabelOf(x) }
+        : undefined,
+    }),
   };
 }

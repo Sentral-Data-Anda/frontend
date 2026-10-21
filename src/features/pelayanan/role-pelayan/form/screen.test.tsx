@@ -19,7 +19,7 @@ const replaced: string[] = [];
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
-  usePathname: () => "/pelayanan/role-pelayan/baru",
+  usePathname: () => "/pelayanan/role-pelayan/create",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -60,7 +60,7 @@ const onRenderForm = (granted: MenuAction[], id?: string) => {
 };
 
 describe("gerbang izin rute form", () => {
-  test("tanpa CREATE: rute /baru tidak merender form", () => {
+  test("tanpa CREATE: rute /create tidak merender form", () => {
     onRenderForm(["VIEW"]);
 
     expect(screen.getByText("Tidak bisa menambah role pelayan")).toBeTruthy();
@@ -75,7 +75,7 @@ describe("gerbang izin rute form", () => {
     expect(screen.queryByLabelText("Nama tugas")).toBeNull();
   });
 
-  test("tanpa UPDATE: rute /ubah tidak merender form dan tidak memuat detail", () => {
+  test("tanpa UPDATE: rute /edit tidak merender form dan tidak memuat detail", () => {
     let isFetched = false;
     globalThis.fetch = (() => {
       isFetched = true;
@@ -105,7 +105,7 @@ describe("gerbang izin rute form", () => {
   });
 });
 
-const DETAIL: RolePelayan = { id: 7, name: "Kolektan" };
+const DETAIL: RolePelayan = { id: 7, publicId: "p7", name: "Kolektan" };
 
 type Failure = {
   status: number;

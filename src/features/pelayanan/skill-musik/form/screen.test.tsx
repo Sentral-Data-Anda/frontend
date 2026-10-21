@@ -19,7 +19,7 @@ const replaced: string[] = [];
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
-  usePathname: () => "/pelayanan/skill-musik/baru",
+  usePathname: () => "/pelayanan/skill-musik/create",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -60,7 +60,7 @@ const onRenderForm = (granted: MenuAction[], id?: string) => {
 };
 
 describe("gerbang izin rute form", () => {
-  test("tanpa CREATE: rute /baru tidak merender form", () => {
+  test("tanpa CREATE: rute /create tidak merender form", () => {
     onRenderForm(["VIEW"]);
 
     expect(screen.getByText("Tidak bisa menambah alat musik")).toBeTruthy();
@@ -75,7 +75,7 @@ describe("gerbang izin rute form", () => {
     expect(screen.queryByLabelText("Nama alat")).toBeNull();
   });
 
-  test("tanpa UPDATE: rute /ubah tidak merender form dan tidak memuat detail", () => {
+  test("tanpa UPDATE: rute /edit tidak merender form dan tidak memuat detail", () => {
     let isFetched = false;
     globalThis.fetch = (() => {
       isFetched = true;
@@ -105,7 +105,7 @@ describe("gerbang izin rute form", () => {
   });
 });
 
-const DETAIL: SkillMusik = { id: 5, name: "Biola" };
+const DETAIL: SkillMusik = { id: 5, publicId: "p5", name: "Biola" };
 
 type Failure = {
   status: number;

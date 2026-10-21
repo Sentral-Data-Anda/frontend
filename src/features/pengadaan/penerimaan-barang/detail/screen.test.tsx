@@ -184,7 +184,7 @@ describe("halaman penerimaan", () => {
       screen
         .getByRole("link", { name: "Lengkapi data barang" })
         .getAttribute("href"),
-    ).toMatch(/^\/fixed-asset\/asset-master\/AST_.+\/ubah$/);
+    ).toMatch(/^\/fixed-asset\/asset-master\/edit\/[0-9a-f]{8}-[0-9a-f-]{27}$/);
   });
 
   test("tanpa VIEW Barang/Persediaan: kode tanpa tautan; lampiran tampil", async () => {

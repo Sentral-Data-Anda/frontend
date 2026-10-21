@@ -285,7 +285,7 @@ test("halaman baca: N barang satu baris pesanan dikelompokkan", () => {
     unitPrice: "215000",
     unitPriceIDR: "215000",
     unit: named(asset ? "Buah" : "Rim"),
-    asset: asset ? { code: asset, name: "Kursi" } : null,
+    asset: asset ? { publicId: `a${id}`, code: asset, name: "Kursi" } : null,
     stockItem: asset ? null : { code: "BRP-3", name: "Kertas" },
   });
 

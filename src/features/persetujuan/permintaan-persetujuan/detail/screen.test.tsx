@@ -98,7 +98,7 @@ describe("gerbang aksi", () => {
     expect(screen.getByRole("button", { name: "Setujui" })).toBeTruthy();
     expect(
       screen.getByRole("link", { name: "Tolak" }).getAttribute("href"),
-    ).toBe(`${PERMINTAAN_LIST_PATH}/${DETAIL_ID}/tolak`);
+    ).toBe(`${PERMINTAAN_LIST_PATH}/${DETAIL_ID}/reject`);
     expect(
       screen.queryByRole("button", { name: "Tarik pengajuan" }),
     ).toBeNull();

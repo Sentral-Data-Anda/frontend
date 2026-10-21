@@ -1,5 +1,6 @@
 export type SkillMusik = {
   id: number;
+  publicId: string;
   name: string;
 };
 

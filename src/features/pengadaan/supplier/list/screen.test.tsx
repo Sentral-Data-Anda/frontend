@@ -1,3 +1,4 @@
+import { Toast } from "@base-ui/react/toast";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, render, screen } from "@testing-library/react";
 import {
@@ -10,6 +11,7 @@ import {
   test,
 } from "bun:test";
 
+import { RowActionsProvider } from "@/components/common/list";
 import type { MenuAction } from "@/types/menu";
 
 import { onStubViewport } from "../../../../../tests/viewport";
@@ -70,7 +72,9 @@ const onRender = (granted: MenuAction[], query = "") => {
         new QueryClient({ defaultOptions: { queries: { retry: false } } })
       }
     >
-      <SupplierListScreen />
+      <Toast.Provider>
+        <SupplierListScreen />
+      </Toast.Provider>
     </QueryClientProvider>,
   );
 };
@@ -131,9 +135,13 @@ const SUPPLIER: Supplier = {
 describe("baris supplier", () => {
   test("meta telepon saja bila tanpa kontak; nonaktif bertanda; pensil hanya dengan UPDATE", () => {
     render(
-      <ul>
-        <SupplierListItemRow supplier={SUPPLIER} />
-      </ul>,
+      <RowActionsProvider
+        value={supplierTable(false).getRowActions?.(SUPPLIER)}
+      >
+        <ul>
+          <SupplierListItemRow supplier={SUPPLIER} />
+        </ul>
+      </RowActionsProvider>,
     );
 
     expect(
@@ -148,13 +156,13 @@ describe("baris supplier", () => {
     ).toBeNull();
 
     cleanup();
+    const active = { ...SUPPLIER, isActive: true, contactPerson: "Andi" };
     render(
-      <ul>
-        <SupplierListItemRow
-          supplier={{ ...SUPPLIER, isActive: true, contactPerson: "Andi" }}
-          isCanUpdate
-        />
-      </ul>,
+      <RowActionsProvider value={supplierTable(true).getRowActions?.(active)}>
+        <ul>
+          <SupplierListItemRow supplier={active} />
+        </ul>
+      </RowActionsProvider>,
     );
 
     expect(screen.getByText("Andi · 0614100221")).toBeTruthy();
@@ -163,7 +171,7 @@ describe("baris supplier", () => {
       screen
         .getByRole("link", { name: "Ubah CV Lama Jaya" })
         .getAttribute("href"),
-    ).toBe(supplierEditHref("SUP-0007"));
+    ).toBe(supplierEditHref("s7"));
   });
 
   test("tabel: Email pelengkap; kolom aksi hanya dengan UPDATE", () => {
@@ -179,7 +187,14 @@ describe("baris supplier", () => {
     expect(
       table.columns.find((column) => column.key === "email")?.isSecondary,
     ).toBe(true);
-    expect(supplierTable(true).columns.at(-1)?.key).toBe("edit");
-    expect(table.getRowHref?.(SUPPLIER)).toBe(supplierDetailHref("SUP-0007"));
+    expect(supplierTable(true).getRowActions?.(SUPPLIER)?.edit?.href).toContain(
+      "/edit/",
+    );
+    expect(
+      supplierTable(false).getRowActions?.(SUPPLIER)?.edit,
+    ).toBeUndefined();
+    expect(table.getRowActions?.(SUPPLIER)?.view?.href).toBe(
+      supplierDetailHref("SUP-0007"),
+    );
   });
 });

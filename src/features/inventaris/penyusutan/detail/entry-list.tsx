@@ -1,6 +1,5 @@
 "use client";
 
-import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 
 import {
@@ -62,9 +61,10 @@ const entryTable = (isCanViewAsset: boolean): DataTableConfig<RunEntry> => ({
       cell: (entry) => amountCell(entry.bookValueAfter),
     },
   ],
-  getRowHref: isCanViewAsset ? hrefOf : undefined,
-  getRowLabel: labelOf,
-  rowIcon: <ChevronRight />,
+  getRowActions: (x) => ({
+    label: labelOf(x),
+    view: { href: isCanViewAsset ? hrefOf(x) : undefined, label: labelOf(x) },
+  }),
 });
 
 const emptyDescriptionOf = (run: RunDetail, isCanUpdate: boolean) => {

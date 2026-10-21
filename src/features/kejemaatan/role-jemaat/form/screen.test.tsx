@@ -20,7 +20,7 @@ const replaced: string[] = [];
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
-  usePathname: () => "/kejemaatan/role-jemaat/baru",
+  usePathname: () => "/kejemaatan/role-jemaat/create",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -121,14 +121,14 @@ const onConfirmYes = async (trigger: string) => {
 };
 
 describe("gerbang izin rute form", () => {
-  test("tanpa CREATE: rute /baru tidak merender form", () => {
+  test("tanpa CREATE: rute /create tidak merender form", () => {
     onRenderForm(["VIEW"]);
 
     expect(screen.getByText("Tidak bisa menambah jabatan")).toBeTruthy();
     expect(screen.queryByLabelText("Nama jabatan")).toBeNull();
   });
 
-  test("tanpa UPDATE: rute /ubah tidak merender form", () => {
+  test("tanpa UPDATE: rute /edit tidak merender form", () => {
     onRenderForm(["VIEW", "CREATE", "DELETE"], "42");
 
     expect(screen.getByText("Tidak bisa mengubah jabatan")).toBeTruthy();

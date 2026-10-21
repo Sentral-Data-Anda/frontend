@@ -19,7 +19,7 @@ const actions: { current: MenuAction[] } = { current: [] };
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: () => {} }),
-  usePathname: () => "/hr/payroll-component/karyawan/baru",
+  usePathname: () => "/hr/payroll-component/karyawan/create",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -187,7 +187,7 @@ afterEach(() => {
 });
 
 describe("gerbang izin form penetapan", () => {
-  test("tanpa CREATE: rute /baru tidak merender form", () => {
+  test("tanpa CREATE: rute /create tidak merender form", () => {
     onRender(["VIEW"]);
 
     expect(screen.getByText("Tidak bisa menambah penetapan")).toBeTruthy();
@@ -199,7 +199,7 @@ describe("gerbang izin form penetapan", () => {
     expect(screen.queryByLabelText("Berlaku dari")).toBeNull();
   });
 
-  test("tanpa UPDATE: rute /ubah tidak merender form dan tidak memuat detail", () => {
+  test("tanpa UPDATE: rute /edit tidak merender form dan tidak memuat detail", () => {
     let isFetched = false;
     globalThis.fetch = (() => {
       isFetched = true;

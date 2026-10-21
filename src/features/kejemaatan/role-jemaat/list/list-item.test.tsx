@@ -1,6 +1,8 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
+import { RowActionsProvider } from "@/components/common/list";
+
 import type { RoleJemaatItem } from "../types";
 
 import { RoleJemaatListItemRow, roleJemaatTable } from "./list-item";
@@ -20,9 +22,13 @@ const ROLE: RoleJemaatItem = {
 
 const onRenderRow = (isCanUpdate: boolean) =>
   render(
-    <ul>
-      <RoleJemaatListItemRow role={ROLE} isCanUpdate={isCanUpdate} />
-    </ul>,
+    <RowActionsProvider
+      value={roleJemaatTable(isCanUpdate).getRowActions?.(ROLE)}
+    >
+      <ul>
+        <RoleJemaatListItemRow role={ROLE} />
+      </ul>
+    </RowActionsProvider>,
   );
 
 describe("baris HP", () => {
@@ -40,7 +46,7 @@ describe("baris HP", () => {
     const action = screen.getByRole("link", {
       name: "Ubah Sekretaris Debora Manurung",
     });
-    expect(action.getAttribute("href")).toBe("/kejemaatan/role-jemaat/42/ubah");
+    expect(action.getAttribute("href")).toBe("/kejemaatan/role-jemaat/edit/42");
   });
 
   test("tanpa UPDATE: tidak ada aksi ubah sama sekali", () => {
@@ -72,10 +78,14 @@ describe("konfigurasi tabel", () => {
         .filter((column) => column.isSecondary)
         .map((column) => column.key),
     ).toEqual(["periode"]);
-    expect(table.getRowHref?.(ROLE)).toBe("/kejemaatan/role-jemaat/42/ubah");
+    expect(table.getRowActions?.(ROLE)?.edit?.href).toBe(
+      "/kejemaatan/role-jemaat/edit/42",
+    );
   });
 
   test("tanpa UPDATE: baris tabel tidak bisa dibuka", () => {
-    expect(roleJemaatTable(false).getRowHref).toBeUndefined();
+    expect(
+      roleJemaatTable(false).getRowActions?.(ROLE)?.edit?.href,
+    ).toBeUndefined();
   });
 });

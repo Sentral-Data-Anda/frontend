@@ -1,7 +1,3 @@
-import { ChevronRight, Pencil } from "lucide-react";
-import Link from "next/link";
-
-import { buttonVariants } from "@/components/common/control";
 import { DataListRow, type DataTableConfig } from "@/components/common/list";
 import { MENU, editHref } from "@/config/menu";
 import { saveListFocus } from "@/lib/list-return";
@@ -30,11 +26,10 @@ const truncated = (text: string, className?: string) => (
 
 interface PropTypes {
   item: SetelanItem;
-  isCanUpdate?: boolean;
 }
 
 export const SetelanListItemRow = (props: PropTypes) => {
-  const { item, isCanUpdate = false } = props;
+  const { item } = props;
 
   const meta = [
     APPROVAL_DOCUMENT_LABEL[item.documentType],
@@ -55,22 +50,6 @@ export const SetelanListItemRow = (props: PropTypes) => {
       trailing={
         <>
           <ConfigStatus isActive={item.isActive} />
-
-          <Link
-            href={editHrefOf(item)}
-            onClick={() => saveFocus(item)}
-            aria-label={labelOf(isCanUpdate)(item)}
-            className={cn(
-              buttonVariants({ variant: "ghost", size: "icon-sm" }),
-              "cursor-pointer",
-            )}
-          >
-            {isCanUpdate ? (
-              <Pencil aria-hidden />
-            ) : (
-              <ChevronRight aria-hidden />
-            )}
-          </Link>
         </>
       }
     />
@@ -133,9 +112,13 @@ export function setelanTable(
         cell: (item) => <ConfigStatus isActive={item.isActive} />,
       },
     ],
-    getRowHref: editHrefOf,
-    getRowLabel: labelOf(isCanUpdate),
-    onRowOpen: saveFocus,
-    rowIcon: isCanUpdate ? <Pencil /> : <ChevronRight />,
+    getRowActions: (x) => ({
+      label: labelOf(isCanUpdate)(x),
+      edit: {
+        href: editHrefOf(x),
+        onNavigate: () => saveFocus(x),
+        label: labelOf(isCanUpdate)(x),
+      },
+    }),
   };
 }

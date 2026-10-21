@@ -6,6 +6,7 @@ export type CalculationType = "FIXED" | "PERCENTAGE";
 
 export type KomponenPayroll = {
   id: number;
+  publicId: string;
   code: string;
   name: string;
   type: ComponentType;

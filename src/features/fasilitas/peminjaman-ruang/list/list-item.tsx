@@ -1,12 +1,7 @@
-import { Eye, Pencil } from "lucide-react";
-import Link from "next/link";
-
-import { buttonVariants } from "@/components/common/control";
 import { DataListRow, type DataTableConfig } from "@/components/common/list";
 import { MENU, editHref } from "@/config/menu";
 import { formatTimeRange } from "@/lib/format";
 import { saveListFocus } from "@/lib/list-return";
-import { cn } from "@/lib/utils";
 
 import { LOAN_LIST_PATH, formatLoanDate, loanStatusOf } from "../model";
 import type { LoanRoom } from "../types";
@@ -14,7 +9,7 @@ import type { LoanRoom } from "../types";
 import { LoanStatusBadge } from "./loan-status";
 
 const editHrefOf = (loan: LoanRoom) =>
-  editHref(MENU.FASILITAS, MENU.PEMINJAMAN_RUANG, loan.code);
+  editHref(MENU.FASILITAS, MENU.PEMINJAMAN_RUANG, loan.publicId);
 
 const saveFocus = (loan: LoanRoom) => saveListFocus(LOAN_LIST_PATH, loan.code);
 
@@ -22,6 +17,12 @@ const isPast = (loan: LoanRoom) => loanStatusOf(loan) === "DONE";
 
 const labelOf = (loan: LoanRoom) =>
   `${isPast(loan) ? "Lihat" : "Ubah"} ${loan.purpose}, ${formatLoanDate(loan.date)}`;
+
+const deleteLabelOf = (loan: LoanRoom) =>
+  `Hapus ${loan.purpose}, ${formatLoanDate(loan.date)}`;
+
+export const deleteTargetLabelOf = (loan: LoanRoom) =>
+  `${loan.purpose}, ${formatLoanDate(loan.date)}`;
 
 const timeOf = (loan: LoanRoom) =>
   formatTimeRange(loan.startTime, loan.endTime);
@@ -37,13 +38,10 @@ const truncated = (text: string) => (
 
 interface PropTypes {
   loan: LoanRoom;
-  isCanUpdate?: boolean;
 }
 
 export const LoanListItemRow = (props: PropTypes) => {
-  const { loan, isCanUpdate = false } = props;
-
-  const Icon = isPast(loan) ? Eye : Pencil;
+  const { loan } = props;
 
   return (
     <DataListRow
@@ -53,20 +51,6 @@ export const LoanListItemRow = (props: PropTypes) => {
       trailing={
         <>
           <LoanStatusBadge loan={loan} />
-
-          {isCanUpdate ? (
-            <Link
-              href={editHrefOf(loan)}
-              onClick={() => saveFocus(loan)}
-              aria-label={labelOf(loan)}
-              className={cn(
-                buttonVariants({ variant: "ghost", size: "icon-sm" }),
-                "cursor-pointer",
-              )}
-            >
-              <Icon aria-hidden />
-            </Link>
-          ) : null}
         </>
       }
     />
@@ -75,6 +59,9 @@ export const LoanListItemRow = (props: PropTypes) => {
 
 export function peminjamanTable(
   isCanUpdate: boolean,
+  // Dilewatkan dari layar daftar; `undefined` berarti pengguna tidak berhak
+  // menghapus, jadi tombolnya tidak dirender sama sekali.
+  onDelete?: (loan: LoanRoom) => void,
 ): DataTableConfig<LoanRoom> {
   return {
     columns: [
@@ -137,9 +124,18 @@ export function peminjamanTable(
         cell: (loan) => <LoanStatusBadge loan={loan} />,
       },
     ],
-    getRowHref: isCanUpdate ? editHrefOf : undefined,
-    getRowLabel: labelOf,
-    onRowOpen: saveFocus,
-    rowIcon: <Pencil />,
+    getRowActions: (x) => ({
+      label: labelOf(x),
+      edit: {
+        href: isCanUpdate ? editHrefOf(x) : undefined,
+        onNavigate: () => saveFocus(x),
+        label: labelOf(x),
+      },
+      // Seperti di form: peminjaman yang sudah lewat hanya bisa dilihat.
+      remove:
+        onDelete && !isPast(x)
+          ? { onSelect: () => onDelete(x), label: deleteLabelOf(x) }
+          : undefined,
+    }),
   };
 }

@@ -67,5 +67,5 @@ test("tabel: kolom brief, tanpa tautan baris dan tanpa kolom aksi", () => {
     "balance",
     "note",
   ]);
-  expect(table.getRowHref).toBeUndefined();
+  expect(table.getRowActions).toBeUndefined();
 });

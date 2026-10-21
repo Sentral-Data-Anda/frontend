@@ -20,7 +20,7 @@ const replaced: string[] = [];
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
-  usePathname: () => "/hr/employee/baru",
+  usePathname: () => "/hr/employee/create",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -166,14 +166,14 @@ const onRenderLoadedEdit = async (granted: MenuAction[] = ["UPDATE"]) => {
 };
 
 describe("gerbang izin rute form", () => {
-  test("tanpa CREATE: rute /baru tidak merender form", () => {
+  test("tanpa CREATE: rute /create tidak merender form", () => {
     onRenderForm(["VIEW"]);
 
     expect(screen.getByText("Tidak bisa menambah karyawan")).toBeTruthy();
     expect(screen.queryByLabelText("Nama")).toBeNull();
   });
 
-  test("tanpa UPDATE: rute /ubah tidak merender form", () => {
+  test("tanpa UPDATE: rute /edit tidak merender form", () => {
     onMockApi();
     onRenderForm(["VIEW", "CREATE"], "KRY-0003");
 

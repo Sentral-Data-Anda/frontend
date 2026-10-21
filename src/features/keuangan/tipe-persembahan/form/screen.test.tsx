@@ -19,7 +19,7 @@ const replaced: string[] = [];
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
-  usePathname: () => "/finance/tipe-persembahan/baru",
+  usePathname: () => "/finance/tipe-persembahan/create",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -163,7 +163,7 @@ const onSaveConfirmed = async () => {
 };
 
 describe("gerbang izin rute form", () => {
-  test("tanpa CREATE: rute /baru tidak merender form", () => {
+  test("tanpa CREATE: rute /create tidak merender form", () => {
     onRenderForm(["VIEW"]);
 
     expect(

@@ -102,9 +102,7 @@ export const KatalogList = () => {
         loadingShape="trailing"
         itemNoun="komponen"
       >
-        {(component) => (
-          <KatalogListItemRow component={component} isCanUpdate={isCanUpdate} />
-        )}
+        {(component) => <KatalogListItemRow component={component} />}
       </DataList>
     </div>
   );

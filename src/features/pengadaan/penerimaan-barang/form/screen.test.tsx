@@ -50,7 +50,7 @@ mock.module("next/navigation", () => ({
     replace: (href: string) => replaced.push(href),
     push: () => undefined,
   }),
-  usePathname: () => "/procurement/goods-receipt/baru",
+  usePathname: () => "/procurement/goods-receipt/create",
   useSearchParams: () => new URLSearchParams(search.current),
 }));
 

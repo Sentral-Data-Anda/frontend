@@ -1,6 +1,5 @@
 "use client";
 
-import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 
 import { OptionalText } from "@/components/common/display";
@@ -87,11 +86,13 @@ const countTable = (
       cell: (item) => noteCell(item, noteIssueRows.has(indexOf(item))),
     },
   ],
-  getRowHref: isLinked
-    ? (item) => stockItemHref(item.stockItem.code)
-    : undefined,
-  getRowLabel: (item) => `Lihat barang persediaan ${item.stockItem.name}`,
-  rowIcon: <ChevronRight />,
+  getRowActions: (x) => ({
+    label: `Lihat barang persediaan ${x.stockItem.name}`,
+    view: {
+      href: isLinked ? stockItemHref(x.stockItem.code) : undefined,
+      label: `Lihat barang persediaan ${x.stockItem.name}`,
+    },
+  }),
 });
 
 interface PropTypes {

@@ -2,7 +2,7 @@
 
 import { TriangleAlert } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { Fragment, useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 
 import { EmptyState } from "@/components/common/feedback";
 import { Button } from "@/components/ui";
@@ -15,6 +15,11 @@ import {
   DataListPager,
   type DataListPagination,
 } from "./data-list-pagination";
+import {
+  DataRowActions,
+  RowActionsProvider,
+  useRowActions,
+} from "./data-row-actions";
 import { DataTable, DataTableFooter, type DataTableConfig } from "./data-table";
 import {
   LIST_DIVIDER,
@@ -43,6 +48,11 @@ export function DataListRow({
   isTitleWrap?: boolean;
   className?: string;
 }) {
+  // A compact row's title is already its way to the detail page, so the
+  // "view" action would only repeat it: two links with one name.
+  const actions = useRowActions();
+  const buttons = actions && { ...actions, view: undefined };
+
   return (
     <li
       data-row-id={id}
@@ -82,8 +92,11 @@ export function DataListRow({
           ) : null}
         </div>
 
-        {trailing ? (
-          <div className="flex shrink-0 items-center gap-2">{trailing}</div>
+        {trailing || buttons ? (
+          <div className="flex shrink-0 items-center gap-2">
+            {trailing}
+            {buttons ? <DataRowActions actions={buttons} /> : null}
+          </div>
         ) : null}
       </div>
     </li>
@@ -248,7 +261,12 @@ export function DataList<T>({
         )}
       >
         {items.map((item) => (
-          <Fragment key={getKey(item)}>{children(item)}</Fragment>
+          <RowActionsProvider
+            key={getKey(item)}
+            value={table?.getRowActions?.(item)}
+          >
+            {children(item)}
+          </RowActionsProvider>
         ))}
 
         {pagination?.mode === "more" && pagination.isLoadingMore ? (

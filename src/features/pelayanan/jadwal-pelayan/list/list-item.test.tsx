@@ -1,6 +1,8 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
+import { RowActionsProvider } from "@/components/common/list";
+
 import type { JadwalPelayan } from "../types";
 
 import { JadwalPelayanListItemRow, jadwalPelayanTable } from "./list-item";
@@ -8,6 +10,7 @@ import { JadwalPelayanListItemRow, jadwalPelayanTable } from "./list-item";
 afterEach(cleanup);
 
 const JADWAL: JadwalPelayan = {
+  publicId: "pid-jdl-0001-2026-0002",
   code: "JDL_0001-2026-0002",
   name: "Pelayan Ibadah Minggu I",
   date: "2026-10-04T00:00:00.000Z",
@@ -43,9 +46,13 @@ const FULL: JadwalPelayan = {
 
 const onRenderRow = (jadwal: JadwalPelayan, isCanUpdate: boolean) =>
   render(
-    <ul>
-      <JadwalPelayanListItemRow jadwal={jadwal} isCanUpdate={isCanUpdate} />
-    </ul>,
+    <RowActionsProvider
+      value={jadwalPelayanTable(isCanUpdate).getRowActions?.(jadwal)}
+    >
+      <ul>
+        <JadwalPelayanListItemRow jadwal={jadwal} />
+      </ul>
+    </RowActionsProvider>,
   );
 
 describe("baris HP", () => {
@@ -65,7 +72,7 @@ describe("baris HP", () => {
       screen
         .getByRole("link", { name: /^Ubah Pelayan Ibadah Minggu I/ })
         .getAttribute("href"),
-    ).toBe("/pelayanan/jadwal-pelayan/JDL_0001-2026-0002/ubah");
+    ).toBe("/pelayanan/jadwal-pelayan/edit/pid-jdl-0001-2026-0002");
   });
 
   test("lengkap; tanpa UPDATE tanpa pensil", () => {
@@ -95,10 +102,15 @@ describe("tabel", () => {
       ["Ibadah", "minmax(0,1.5fr)", true],
       ["Kode", "minmax(0,1.2fr)", true],
     ]);
-    expect(table.getRowHref?.(JADWAL)).toBe(
+    expect(table.getRowActions?.(JADWAL)?.view?.href).toBe(
       "/pelayanan/jadwal-pelayan/JDL_0001-2026-0002",
     );
-    expect(jadwalPelayanTable(true).columns.at(-1)?.key).toBe("edit");
+    expect(
+      jadwalPelayanTable(true).getRowActions?.(JADWAL)?.edit?.href,
+    ).toContain("/edit/");
+    expect(
+      jadwalPelayanTable(false).getRowActions?.(JADWAL)?.edit,
+    ).toBeUndefined();
   });
 
   test("petugas singkat dan ibadah lebih dari satu → +1", () => {

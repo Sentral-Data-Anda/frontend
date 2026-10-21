@@ -1,6 +1,7 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
+import { RowActionsProvider } from "@/components/common/list";
 import { addDays, todayJakarta } from "@/lib/date";
 
 import type { Ibadah } from "../types";
@@ -13,6 +14,7 @@ const PAST = `${addDays(todayJakarta(), -7)}T00:00:00.000Z`;
 const FUTURE = `${addDays(todayJakarta(), 7)}T00:00:00.000Z`;
 
 const IBADAH: Ibadah = {
+  publicId: "pid-ibd-0001-2026-0010",
   code: "IBD_0001-2026-0010",
   date: "2026-09-20T00:00:00.000Z",
   startTime: "08:00",
@@ -47,9 +49,13 @@ const ZERO = { maleCount: 0, femaleCount: 0, childCount: 0 };
 
 const onRenderRow = (isCanUpdate: boolean, ibadah = IBADAH) =>
   render(
-    <ul>
-      <IbadahListItemRow ibadah={ibadah} isCanUpdate={isCanUpdate} />
-    </ul>,
+    <RowActionsProvider
+      value={ibadahTable(isCanUpdate).getRowActions?.(ibadah)}
+    >
+      <ul>
+        <IbadahListItemRow ibadah={ibadah} />
+      </ul>
+    </RowActionsProvider>,
   );
 
 describe("baris HP", () => {
@@ -68,7 +74,7 @@ describe("baris HP", () => {
           name: "Ubah Ibadah Minggu I, Minggu, 20 Sep 2026",
         })
         .getAttribute("href"),
-    ).toBe("/peribadahan/ibadah/IBD_0001-2026-0010/ubah");
+    ).toBe("/peribadahan/ibadah/edit/pid-ibd-0001-2026-0010");
     expect(
       document.querySelector('[data-row-id="IBD_0001-2026-0010"]'),
     ).not.toBeNull();
@@ -121,10 +127,12 @@ describe("tabel", () => {
       ["Tempat", "minmax(0,1.4fr)", true],
       ["Hadir", "minmax(0,1fr)", false],
     ]);
-    expect(table.getRowHref?.(IBADAH)).toBe(
-      "/peribadahan/ibadah/IBD_0001-2026-0010/ubah",
+    expect(table.getRowActions?.(IBADAH)?.edit?.href).toBe(
+      "/peribadahan/ibadah/edit/pid-ibd-0001-2026-0010",
     );
-    expect(ibadahTable(false).getRowHref).toBeUndefined();
+    expect(
+      ibadahTable(false).getRowActions?.(IBADAH)?.edit?.href,
+    ).toBeUndefined();
   });
 
   test("hadir rata kanan; kosong nanti = — dengan teks pembaca layar", () => {

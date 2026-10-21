@@ -112,8 +112,12 @@ export const transferTable: DataTableConfig<Transfer> = {
       cell: (row) => <OptionalText text={row.reason} empty="Tanpa alasan" />,
     },
   ],
-  getRowHref: hrefOf,
-  getRowLabel: labelOf,
-  onRowOpen: saveFocus,
-  rowIcon: <ChevronRight />,
+  getRowActions: (x) => ({
+    label: labelOf(x),
+    view: {
+      href: hrefOf(x),
+      onNavigate: () => saveFocus(x),
+      label: labelOf(x),
+    },
+  }),
 };

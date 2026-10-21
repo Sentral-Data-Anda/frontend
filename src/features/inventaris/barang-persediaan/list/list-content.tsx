@@ -1,25 +1,46 @@
 "use client";
 
-import { DataList, ListToolbar } from "@/components/common/list";
+import { useState } from "react";
+
+import { useToast } from "@/components/common/feedback";
+import {
+  DataList,
+  ListToolbar,
+  RowDeleteDialog,
+} from "@/components/common/list";
 import { PageHeader, PageHeaderAdd } from "@/components/layout";
 import { MENU, domainHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { useDdlOptions } from "@/hooks/use-ddl-options";
 import { useListParams } from "@/hooks/use-list-params";
 
-import { useStockList } from "../api";
+import { useDeleteStock, useStockList } from "../api";
 import {
   STOCK_CREATE_PATH,
   STOCK_FILTERS,
   STOCK_FILTER_OPTIONS,
 } from "../model";
+import type { StockItem } from "../types";
 
-import { StockListItemRow, persediaanTable } from "./list-item";
+import {
+  deleteTargetLabelOf,
+  persediaanTable,
+  StockListItemRow,
+} from "./list-item";
 
 const allOf = (label: string) => ({ value: "", label });
 
 export const StockListContent = () => {
-  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.STOCK_ITEM);
+  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+    MENU.STOCK_ITEM,
+  );
+
+  const toast = useToast();
+
+  // Satu keadaan menyimpan baris yang akan dihapus sekaligus status terbuka
+  // dialognya. Hook hapus dibuat ulang mengikuti kunci baris ini.
+  const [target, setTarget] = useState<StockItem | null>(null);
+  const deleteRow = useDeleteStock(target?.code);
   const listParams = useListParams({ filters: STOCK_FILTERS });
   const stockList = useStockList(listParams);
   const types = useDdlOptions("type-item", "id", listParams.filters.tipe);
@@ -27,6 +48,20 @@ export const StockListContent = () => {
   const units = useDdlOptions("unit", "id", listParams.filters.satuan);
   const bapel = useDdlOptions("bapel", "id", listParams.filters.bapel);
   const isNarrowed = Boolean(listParams.search) || listParams.isFiltered;
+
+  const onDelete = () => {
+    deleteRow.mutate(undefined, {
+      onSuccess: (deleted) => {
+        toast.add({ title: deleted.message });
+        setTarget(null);
+      },
+    });
+  };
+
+  const onCancelDelete = () => {
+    deleteRow.reset();
+    setTarget(null);
+  };
 
   return (
     <div className="pb-6">
@@ -109,11 +144,23 @@ export const StockListContent = () => {
           listParams.isFiltered ? listParams.onClearFilters : undefined
         }
         pagination={stockList.pagination}
-        table={persediaanTable(isCanUpdate)}
+        table={persediaanTable(
+          isCanUpdate,
+          isCanDelete ? setTarget : undefined,
+        )}
         itemNoun="barang persediaan"
       >
-        {(item) => <StockListItemRow item={item} isCanUpdate={isCanUpdate} />}
+        {(item) => <StockListItemRow item={item} />}
       </DataList>
+
+      <RowDeleteDialog
+        target={target ? { label: deleteTargetLabelOf(target) } : null}
+        entity="barang persediaan"
+        isPending={deleteRow.isPending}
+        errorMessage={deleteRow.error?.message}
+        onCancel={onCancelDelete}
+        onConfirm={onDelete}
+      />
     </div>
   );
 };

@@ -1,6 +1,7 @@
 import type { SelectOption } from "@/components/common/control";
 
 export type TipeIbadah = {
+  publicId: string;
   code: string;
   name: string;
   isActive: boolean;

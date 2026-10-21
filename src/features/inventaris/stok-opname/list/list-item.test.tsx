@@ -1,6 +1,8 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
+import { RowActionsProvider } from "@/components/common/list";
+
 import type { Opname } from "../types";
 
 import { OpnameListItemRow, opnameTable } from "./list-item";
@@ -24,9 +26,11 @@ const opname = (patch: Partial<Opname> = {}): Opname => ({
 
 const onRender = (row: Opname, isCanUpdate: boolean) =>
   render(
-    <ul>
-      <OpnameListItemRow opname={row} isCanUpdate={isCanUpdate} />
-    </ul>,
+    <RowActionsProvider value={opnameTable(isCanUpdate).getRowActions?.(row)}>
+      <ul>
+        <OpnameListItemRow opname={row} />
+      </ul>
+    </RowActionsProvider>,
   );
 
 describe("baris HP", () => {
@@ -56,7 +60,7 @@ describe("baris HP", () => {
       screen
         .getByRole("link", { name: "Ubah stok opname OPN-2026-0005" })
         .getAttribute("href"),
-    ).toBe("/inventory/stok-opname/OPN-2026-0005/ubah");
+    ).toBe("/inventory/stok-opname/edit/p5");
     cleanup();
 
     onRender(opname({ status: "COMPLETED" }), true);
@@ -77,13 +81,20 @@ test("tabel: kolom pensil hanya dengan UPDATE; baris ke halaman", () => {
     "difference",
     "status",
   ]);
-  expect(opnameTable(true).columns.at(-1)?.key).toBe("edit");
+  expect(opnameTable(true).getRowActions?.(opname())?.edit?.href).toBe(
+    "/inventory/stok-opname/edit/p5",
+  );
+  expect(opnameTable(false).getRowActions?.(opname())?.edit).toBeUndefined();
+  // Only a draft can still be edited.
+  expect(
+    opnameTable(true).getRowActions?.(opname({ status: "COMPLETED" }))?.edit,
+  ).toBeUndefined();
   expect(
     opnameTable(false)
       .columns.filter((column) => column.isSecondary)
       .map((column) => column.key),
   ).toEqual(["code"]);
-  expect(opnameTable(false).getRowHref?.(opname())).toBe(
+  expect(opnameTable(false).getRowActions?.(opname())?.view?.href).toBe(
     "/inventory/stok-opname/OPN-2026-0005",
   );
 });

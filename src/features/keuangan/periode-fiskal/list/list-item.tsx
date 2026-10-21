@@ -1,4 +1,3 @@
-import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 
 import { Badge } from "@/components/common/display";
@@ -114,9 +113,13 @@ export function periodTable(): DataTableConfig<FiscalPeriod> {
         ),
       },
     ],
-    getRowHref: hrefOf,
-    getRowLabel: labelOf,
-    onRowOpen: saveFocus,
-    rowIcon: <ChevronRight />,
+    getRowActions: (x) => ({
+      label: labelOf(x),
+      view: {
+        href: hrefOf(x),
+        onNavigate: () => saveFocus(x),
+        label: labelOf(x),
+      },
+    }),
   };
 }

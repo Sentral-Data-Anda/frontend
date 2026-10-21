@@ -1,6 +1,8 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
+import { RowActionsProvider } from "@/components/common/list";
+
 import type { MarriageListItem } from "../types";
 
 import { MarriageListItemRow, marriageTable } from "./list-item";
@@ -21,9 +23,13 @@ const MARRIAGE: MarriageListItem = {
 
 const onRenderRow = (isCanUpdate: boolean, marriage = MARRIAGE) =>
   render(
-    <ul>
-      <MarriageListItemRow marriage={marriage} isCanUpdate={isCanUpdate} />
-    </ul>,
+    <RowActionsProvider
+      value={marriageTable(isCanUpdate).getRowActions?.(marriage)}
+    >
+      <ul>
+        <MarriageListItemRow marriage={marriage} />
+      </ul>
+    </RowActionsProvider>,
   );
 
 describe("baris pernikahan", () => {
@@ -48,7 +54,7 @@ describe("baris pernikahan", () => {
       name: "Ubah pernikahan Andreas Sitanggang & Ruth Siregar",
     });
     expect(action.getAttribute("href")).toBe(
-      `/kejemaatan/pernikahan/${MARRIAGE.id}/ubah`,
+      `/kejemaatan/pernikahan/edit/${MARRIAGE.id}`,
     );
   });
 
@@ -84,9 +90,11 @@ describe("marriageTable", () => {
   });
 
   test("baris hanya bertautan bila UPDATE", () => {
-    expect(marriageTable(false).getRowHref).toBeUndefined();
-    expect(marriageTable(true).getRowHref?.(MARRIAGE)).toBe(
-      `/kejemaatan/pernikahan/${MARRIAGE.id}/ubah`,
+    expect(
+      marriageTable(false).getRowActions?.(MARRIAGE)?.edit?.href,
+    ).toBeUndefined();
+    expect(marriageTable(true).getRowActions?.(MARRIAGE)?.edit?.href).toBe(
+      `/kejemaatan/pernikahan/edit/${MARRIAGE.id}`,
     );
   });
 });

@@ -17,7 +17,7 @@ export const EditLink = (props: PropTypes) => {
 
   return (
     <Link
-      href={barangEditHref(asset.code)}
+      href={barangEditHref(asset.publicId)}
       onClick={() => saveListFocus(BARANG_LIST_PATH, asset.code)}
       aria-label={`Ubah ${asset.name}`}
       className={cn(

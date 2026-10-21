@@ -1,6 +1,8 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
+import { RowActionsProvider } from "@/components/common/list";
+
 import type { HolidayRow } from "../types";
 
 import { HolidayListItemRow, holidayTable } from "./list-item";
@@ -19,9 +21,13 @@ const HOLIDAY: HolidayRow = {
 
 const onRenderRow = (isCanUpdate: boolean, holiday = HOLIDAY) =>
   render(
-    <ul>
-      <HolidayListItemRow holiday={holiday} isCanUpdate={isCanUpdate} />
-    </ul>,
+    <RowActionsProvider
+      value={holidayTable(isCanUpdate).getRowActions?.(holiday)}
+    >
+      <ul>
+        <HolidayListItemRow holiday={holiday} />
+      </ul>
+    </RowActionsProvider>,
   );
 
 describe("baris HP", () => {
@@ -29,7 +35,7 @@ describe("baris HP", () => {
     onRenderRow(true);
 
     const action = screen.getByRole("link", { name: "Ubah Hari Kemerdekaan" });
-    expect(action.getAttribute("href")).toBe("/settings/holiday/9/ubah");
+    expect(action.getAttribute("href")).toBe("/settings/holiday/edit/9");
   });
 
   test("tanpa UPDATE: tidak ada aksi ubah sama sekali", () => {
@@ -75,7 +81,11 @@ describe("konfigurasi tabel", () => {
       ["Tipe", "minmax(0,1fr)", false],
       ["Berulang", "minmax(0,0.75fr)", true],
     ]);
-    expect(table.getRowHref?.(HOLIDAY)).toBe("/settings/holiday/9/ubah");
-    expect(holidayTable(false).getRowHref).toBeUndefined();
+    expect(table.getRowActions?.(HOLIDAY)?.edit?.href).toBe(
+      "/settings/holiday/edit/9",
+    );
+    expect(
+      holidayTable(false).getRowActions?.(HOLIDAY)?.edit?.href,
+    ).toBeUndefined();
   });
 });

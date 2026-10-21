@@ -1,19 +1,54 @@
 "use client";
 
-import { DataList, ListToolbar } from "@/components/common/list";
+import { useState } from "react";
+
+import { useToast } from "@/components/common/feedback";
+import {
+  DataList,
+  ListToolbar,
+  RowDeleteDialog,
+} from "@/components/common/list";
 import { PageHeader, PageHeaderAdd } from "@/components/layout";
 import { MENU, createHref, domainHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { useListParams } from "@/hooks/use-list-params";
 
-import { useKeluargaList } from "../api";
+import { useDeleteKeluarga, useKeluargaList } from "../api";
+import type { Keluarga } from "../types";
 
-import { KeluargaListItemRow, keluargaTable } from "./list-item";
+import {
+  deleteTargetLabelOf,
+  KeluargaListItemRow,
+  keluargaTable,
+} from "./list-item";
 
 export const KeluargaListScreen = () => {
-  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.KELUARGA);
+  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+    MENU.KELUARGA,
+  );
+
+  const toast = useToast();
+
+  // Satu keadaan menyimpan baris yang akan dihapus sekaligus status terbuka
+  // dialognya. Hook hapus dibuat ulang mengikuti kunci baris ini.
+  const [target, setTarget] = useState<Keluarga | null>(null);
+  const deleteRow = useDeleteKeluarga(target?.code);
   const listParams = useListParams();
   const keluargaList = useKeluargaList(listParams);
+
+  const onDelete = () => {
+    deleteRow.mutate(undefined, {
+      onSuccess: (deleted) => {
+        toast.add({ title: deleted.message });
+        setTarget(null);
+      },
+    });
+  };
+
+  const onCancelDelete = () => {
+    deleteRow.reset();
+    setTarget(null);
+  };
 
   return (
     <div className="pb-6">
@@ -57,13 +92,20 @@ export const KeluargaListScreen = () => {
             : "Data keluarga akan muncul di sini setelah ditambahkan."
         }
         pagination={keluargaList.pagination}
-        table={keluargaTable(isCanUpdate)}
+        table={keluargaTable(isCanUpdate, isCanDelete ? setTarget : undefined)}
         itemNoun="keluarga"
       >
-        {(keluarga) => (
-          <KeluargaListItemRow keluarga={keluarga} isCanUpdate={isCanUpdate} />
-        )}
+        {(keluarga) => <KeluargaListItemRow keluarga={keluarga} />}
       </DataList>
+
+      <RowDeleteDialog
+        target={target ? { label: deleteTargetLabelOf(target) } : null}
+        entity="keluarga"
+        isPending={deleteRow.isPending}
+        errorMessage={deleteRow.error?.message}
+        onCancel={onCancelDelete}
+        onConfirm={onDelete}
+      />
     </div>
   );
 };

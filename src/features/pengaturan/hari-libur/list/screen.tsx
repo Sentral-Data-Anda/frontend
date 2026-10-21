@@ -1,17 +1,28 @@
 "use client";
 
+import { useState } from "react";
+
 import { optionsOf } from "@/components/common/control";
-import { DataList, ListToolbar } from "@/components/common/list";
+import { useToast } from "@/components/common/feedback";
+import {
+  DataList,
+  ListToolbar,
+  RowDeleteDialog,
+} from "@/components/common/list";
 import { PageHeader, PageHeaderAdd } from "@/components/layout";
 import { MENU, createHref, domainHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { useListParams, type ListFilterSchema } from "@/hooks/use-list-params";
 
-import { useHolidayList } from "../api";
+import { useDeleteHoliday, useHolidayList } from "../api";
 import { yearOptions } from "../model";
-import { HOLIDAY_TYPE_LABEL } from "../types";
+import { HOLIDAY_TYPE_LABEL, type HolidayRow } from "../types";
 
-import { HolidayListItemRow, holidayTable } from "./list-item";
+import {
+  deleteTargetLabelOf,
+  HolidayListItemRow,
+  holidayTable,
+} from "./list-item";
 
 const LIST_FILTERS = {
   tahun: { api: "year" },
@@ -26,9 +37,30 @@ const TYPE_FILTER_OPTIONS = [
 ];
 
 export const HolidayListScreen = () => {
-  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.HOLIDAY);
+  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(MENU.HOLIDAY);
+
+  const toast = useToast();
+
+  // Satu keadaan menyimpan baris yang akan dihapus sekaligus status terbuka
+  // dialognya. Hook hapus dibuat ulang mengikuti kunci baris ini.
+  const [target, setTarget] = useState<HolidayRow | null>(null);
+  const deleteRow = useDeleteHoliday(target?.publicId);
   const listParams = useListParams({ filters: LIST_FILTERS });
   const holidayList = useHolidayList(listParams);
+
+  const onDelete = () => {
+    deleteRow.mutate(undefined, {
+      onSuccess: (deleted) => {
+        toast.add({ title: deleted.message });
+        setTarget(null);
+      },
+    });
+  };
+
+  const onCancelDelete = () => {
+    deleteRow.reset();
+    setTarget(null);
+  };
 
   return (
     <div className="pb-6">
@@ -90,13 +122,20 @@ export const HolidayListScreen = () => {
           listParams.isFiltered ? listParams.onClearFilters : undefined
         }
         pagination={holidayList.pagination}
-        table={holidayTable(isCanUpdate)}
+        table={holidayTable(isCanUpdate, isCanDelete ? setTarget : undefined)}
         itemNoun="hari libur"
       >
-        {(holiday) => (
-          <HolidayListItemRow holiday={holiday} isCanUpdate={isCanUpdate} />
-        )}
+        {(holiday) => <HolidayListItemRow holiday={holiday} />}
       </DataList>
+
+      <RowDeleteDialog
+        target={target ? { label: deleteTargetLabelOf(target) } : null}
+        entity="hari libur"
+        isPending={deleteRow.isPending}
+        errorMessage={deleteRow.error?.message}
+        onCancel={onCancelDelete}
+        onConfirm={onDelete}
+      />
     </div>
   );
 };

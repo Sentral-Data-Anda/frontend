@@ -1,17 +1,12 @@
-import { Pencil } from "lucide-react";
-import Link from "next/link";
-
-import { buttonVariants } from "@/components/common/control";
 import { DataListRow, type DataTableConfig } from "@/components/common/list";
 import { MENU, editHref } from "@/config/menu";
 import { saveListFocus } from "@/lib/list-return";
-import { cn } from "@/lib/utils";
 
 import { TEMPLATE_JADWAL_LIST_PATH, rolesOf, timeRangeOf } from "../model";
 import type { TemplateJadwalListItem } from "../types";
 
 const editHrefOf = (template: TemplateJadwalListItem) =>
-  editHref(MENU.PELAYANAN, MENU.TEMPLATE_JADWAL, template.code);
+  editHref(MENU.PELAYANAN, MENU.TEMPLATE_JADWAL, template.publicId);
 
 const saveFocus = (template: TemplateJadwalListItem) =>
   saveListFocus(TEMPLATE_JADWAL_LIST_PATH, template.code);
@@ -23,38 +18,29 @@ const metaOf = (template: TemplateJadwalListItem) =>
 
 interface PropTypes {
   template: TemplateJadwalListItem;
-  isCanUpdate?: boolean;
 }
 
 export const TemplateJadwalListItemRow = (props: PropTypes) => {
-  const { template, isCanUpdate = false } = props;
+  const { template } = props;
 
   return (
     <DataListRow
       id={template.code}
       title={template.name}
       meta={metaOf(template)}
-      trailing={
-        isCanUpdate ? (
-          <Link
-            href={editHrefOf(template)}
-            onClick={() => saveFocus(template)}
-            aria-label={labelOf(template)}
-            className={cn(
-              buttonVariants({ variant: "ghost", size: "icon-sm" }),
-              "cursor-pointer",
-            )}
-          >
-            <Pencil aria-hidden />
-          </Link>
-        ) : null
-      }
     />
   );
 };
 
+const deleteLabelOf = (x: TemplateJadwalListItem) => `Hapus ${x.name}`;
+
+export const deleteTargetLabelOf = (x: TemplateJadwalListItem) => `${x.name}`;
+
 export function templateJadwalTable(
   isCanUpdate: boolean,
+  // Dilewatkan dari layar daftar; `undefined` berarti pengguna tidak berhak
+  // menghapus, jadi tombolnya tidak dirender sama sekali.
+  onDelete?: (row: TemplateJadwalListItem) => void,
 ): DataTableConfig<TemplateJadwalListItem> {
   return {
     columns: [
@@ -114,9 +100,16 @@ export function templateJadwalTable(
         ),
       },
     ],
-    getRowHref: isCanUpdate ? editHrefOf : undefined,
-    getRowLabel: labelOf,
-    onRowOpen: saveFocus,
-    rowIcon: <Pencil />,
+    getRowActions: (x) => ({
+      label: labelOf(x),
+      edit: {
+        href: isCanUpdate ? editHrefOf(x) : undefined,
+        onNavigate: () => saveFocus(x),
+        label: labelOf(x),
+      },
+      remove: onDelete
+        ? { onSelect: () => onDelete(x), label: deleteLabelOf(x) }
+        : undefined,
+    }),
   };
 }

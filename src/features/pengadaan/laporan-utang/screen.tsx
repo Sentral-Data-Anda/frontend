@@ -69,7 +69,6 @@ const ageingTable = (): DataTableConfig<ApAgeingRow> => ({
       ),
     },
   ],
-  getRowLabel: (row) => `Utang kepada ${row.supplier.name}`,
 });
 
 const metaOf = (row: ApAgeingRow) =>

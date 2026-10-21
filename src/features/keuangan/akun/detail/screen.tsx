@@ -107,7 +107,7 @@ export const AccountDetailScreen = (props: PropTypes) => {
         action={
           isCanUpdate ? (
             <Link
-              href={accountEditHref(account.code)}
+              href={accountEditHref(account.publicId)}
               className={cn(
                 buttonVariants({ variant: "outline" }),
                 "shrink-0 cursor-pointer",

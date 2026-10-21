@@ -19,7 +19,7 @@ const replaced: string[] = [];
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
-  usePathname: () => "/procurement/supplier/baru",
+  usePathname: () => "/procurement/supplier/create",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -145,7 +145,7 @@ const onSaveConfirmed = async () => {
 };
 
 describe("gerbang izin", () => {
-  test("tanpa CREATE: /baru tidak merender form", () => {
+  test("tanpa CREATE: /create tidak merender form", () => {
     onRenderForm(["VIEW"]);
 
     expect(screen.getByText("Tidak bisa menambah supplier")).toBeTruthy();
@@ -155,7 +155,7 @@ describe("gerbang izin", () => {
     expect(screen.queryByLabelText("Nama")).toBeNull();
   });
 
-  test("tanpa UPDATE: /ubah tidak memuat detail", () => {
+  test("tanpa UPDATE: /edit tidak memuat detail", () => {
     const calls = onMockApi();
     let isFetched = false;
     const fetchStub = globalThis.fetch;

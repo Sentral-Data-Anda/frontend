@@ -99,12 +99,7 @@ export const PenetapanList = () => {
         loadingShape="trailing"
         itemNoun="penetapan"
       >
-        {(assignment) => (
-          <PenetapanListItemRow
-            assignment={assignment}
-            isCanUpdate={isCanUpdate}
-          />
-        )}
+        {(assignment) => <PenetapanListItemRow assignment={assignment} />}
       </DataList>
     </div>
   );

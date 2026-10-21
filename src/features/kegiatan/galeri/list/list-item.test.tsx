@@ -1,6 +1,8 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
+import { RowActionsProvider } from "@/components/common/list";
+
 import { galeriDetailHref, galeriEditHref } from "../model";
 import type { Album } from "../types";
 
@@ -9,6 +11,7 @@ import { GaleriListItemRow, galeriTable } from "./list-item";
 afterEach(cleanup);
 
 const ALBUM: Album = {
+  publicId: "pid-albm-0006-0001",
   code: "ALBM_0006-0001",
   name: "Bazar Diakonia",
   isPublish: false,
@@ -28,9 +31,11 @@ const ALBUM: Album = {
 describe("baris album", () => {
   test("judul menuju halaman album; meta jumlah foto + badan pelayanan; status titik", () => {
     render(
-      <ul>
-        <GaleriListItemRow album={ALBUM} />
-      </ul>,
+      <RowActionsProvider value={galeriTable(false).getRowActions?.(ALBUM)}>
+        <ul>
+          <GaleriListItemRow album={ALBUM} />
+        </ul>
+      </RowActionsProvider>,
     );
 
     expect(
@@ -47,16 +52,18 @@ describe("baris album", () => {
 
   test("pensil hanya dengan UPDATE", () => {
     render(
-      <ul>
-        <GaleriListItemRow album={ALBUM} isCanUpdate />
-      </ul>,
+      <RowActionsProvider value={galeriTable(true).getRowActions?.(ALBUM)}>
+        <ul>
+          <GaleriListItemRow album={ALBUM} />
+        </ul>
+      </RowActionsProvider>,
     );
 
     expect(
       screen
         .getByRole("link", { name: "Ubah Bazar Diakonia" })
         .getAttribute("href"),
-    ).toBe(galeriEditHref(ALBUM.code));
+    ).toBe(galeriEditHref(ALBUM.publicId));
   });
 });
 
@@ -69,8 +76,11 @@ describe("tabel album", () => {
       "website",
       "status",
     ]);
-    expect(galeriTable(true).columns.at(-1)?.key).toBe("edit");
-    expect(galeriTable(false).getRowHref?.(ALBUM)).toBe(
+    expect(galeriTable(true).getRowActions?.(ALBUM)?.edit?.href).toContain(
+      "/edit/",
+    );
+    expect(galeriTable(false).getRowActions?.(ALBUM)?.edit).toBeUndefined();
+    expect(galeriTable(false).getRowActions?.(ALBUM)?.view?.href).toBe(
       galeriDetailHref(ALBUM.code),
     );
   });

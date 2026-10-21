@@ -1,9 +1,15 @@
 "use client";
 
+import { useState } from "react";
+
 import { Button } from "@/components/common/control";
 import { SalaryDataBadge } from "@/components/common/display";
-import { EmptyState } from "@/components/common/feedback";
-import { DataList, ListToolbar } from "@/components/common/list";
+import { EmptyState, useToast } from "@/components/common/feedback";
+import {
+  DataList,
+  ListToolbar,
+  RowDeleteDialog,
+} from "@/components/common/list";
 import { StepUpDialog } from "@/components/common/overlay";
 import { PageHeader, PageHeaderAdd } from "@/components/layout";
 import { MENU, domainHref } from "@/config/menu";
@@ -11,7 +17,7 @@ import { useMenuAccess } from "@/features/auth";
 import { useDdlOptions } from "@/hooks/use-ddl-options";
 import { useListParams } from "@/hooks/use-list-params";
 
-import { useKontrakList } from "../api";
+import { useDeleteKontrak, useKontrakList } from "../api";
 import {
   CREATE_PATH,
   EMPTY_DESCRIPTION,
@@ -22,18 +28,46 @@ import {
   LOCKED_TITLE,
   STEP_UP_DESCRIPTION,
 } from "../model";
+import type { KontrakKaryawan } from "../types";
 import { useSalaryLock } from "../use-salary-lock";
 
-import { KontrakListItem, kontrakTable } from "./list-item";
+import {
+  deleteTargetLabelOf,
+  KontrakListItem,
+  kontrakTable,
+} from "./list-item";
 
 const ALL_OPTION = { value: "", label: "Semua karyawan" };
 
 export const KontrakListContent = () => {
-  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.EMPLOYEE_CONTRACT);
+  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+    MENU.EMPLOYEE_CONTRACT,
+  );
+
+  const toast = useToast();
+
+  // Satu keadaan menyimpan baris yang akan dihapus sekaligus status terbuka
+  // dialognya. Hook hapus dibuat ulang mengikuti kunci baris ini.
+  const [target, setTarget] = useState<KontrakKaryawan | null>(null);
+  const deleteRow = useDeleteKontrak(target?.code);
   const listParams = useListParams({ filters: FILTERS });
   const contracts = useKontrakList(listParams);
   const karyawan = useDdlOptions("karyawan");
   const lock = useSalaryLock(contracts.error, contracts.onRetry);
+
+  const onDelete = () => {
+    deleteRow.mutate(undefined, {
+      onSuccess: (deleted) => {
+        toast.add({ title: deleted.message });
+        setTarget(null);
+      },
+    });
+  };
+
+  const onCancelDelete = () => {
+    deleteRow.reset();
+    setTarget(null);
+  };
 
   return (
     <div className="pb-6">
@@ -101,12 +135,13 @@ export const KontrakListContent = () => {
               listParams.isFiltered ? listParams.onClearFilters : undefined
             }
             pagination={contracts.pagination}
-            table={kontrakTable(isCanUpdate)}
+            table={kontrakTable(
+              isCanUpdate,
+              isCanDelete ? setTarget : undefined,
+            )}
             itemNoun="kontrak"
           >
-            {(contract) => (
-              <KontrakListItem contract={contract} isCanUpdate={isCanUpdate} />
-            )}
+            {(contract) => <KontrakListItem contract={contract} />}
           </DataList>
         </>
       )}
@@ -116,6 +151,15 @@ export const KontrakListContent = () => {
         onClose={lock.onClose}
         onVerified={lock.onVerified}
         description={STEP_UP_DESCRIPTION}
+      />
+
+      <RowDeleteDialog
+        target={target ? { label: deleteTargetLabelOf(target) } : null}
+        entity="kontrak"
+        isPending={deleteRow.isPending}
+        errorMessage={deleteRow.error?.message}
+        onCancel={onCancelDelete}
+        onConfirm={onDelete}
       />
     </div>
   );

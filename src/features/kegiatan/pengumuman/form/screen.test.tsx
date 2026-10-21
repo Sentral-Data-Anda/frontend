@@ -33,7 +33,7 @@ mock.module("next/navigation", () => ({
     replace: (href: string) => replaced.push(href),
     push: () => undefined,
   }),
-  usePathname: () => "/kegiatan/pengumuman/baru",
+  usePathname: () => "/kegiatan/pengumuman/create",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -203,7 +203,7 @@ const onConfirmSave = async () => {
 };
 
 describe("gerbang izin", () => {
-  test("tanpa CREATE: /baru bukan form", () => {
+  test("tanpa CREATE: /create bukan form", () => {
     onMockApi();
     onRenderForm(["VIEW"]);
 
@@ -214,7 +214,7 @@ describe("gerbang izin", () => {
     expect(screen.queryByLabelText("Judul")).toBeNull();
   });
 
-  test("tanpa UPDATE: /ubah bukan form", () => {
+  test("tanpa UPDATE: /edit bukan form", () => {
     onMockApi();
     onRenderForm(["VIEW", "CREATE"], CODE);
 

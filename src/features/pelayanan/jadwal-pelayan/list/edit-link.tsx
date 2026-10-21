@@ -21,7 +21,7 @@ export const EditLink = (props: PropTypes) => {
 
   return (
     <Link
-      href={jadwalEditHref(jadwal.code)}
+      href={jadwalEditHref(jadwal.publicId)}
       onClick={() => saveListFocus(JADWAL_PELAYAN_LIST_PATH, jadwal.code)}
       aria-label={`Ubah ${jadwal.name}, ${formatScheduleDate(jadwal.date)}`}
       className={cn(

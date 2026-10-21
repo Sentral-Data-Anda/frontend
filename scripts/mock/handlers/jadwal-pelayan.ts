@@ -23,22 +23,23 @@ import {
   type MockHandler,
 } from "../kit";
 import {
+  bapelOf,
   GROUP_PELAYAN,
+  type GroupPelayanRow,
+  isLive,
   JADWAL_PELAYAN,
+  jadwalCodeOf,
+  type JadwalPelayanRow,
+  jadwalPublicIdOf,
+  type JadwalSlot,
+  jemaatOf,
   MUSIK_SKILL,
+  nextId,
   PELAYAN,
+  type PelayanRow,
   ROLE_PELAYAN,
   TEMPLATE_JADWAL,
-  bapelOf,
-  isLive,
-  jadwalCodeOf,
-  jemaatOf,
-  nextId,
   templateCodeOf,
-  type GroupPelayanRow,
-  type JadwalPelayanRow,
-  type JadwalSlot,
-  type PelayanRow,
 } from "../pelayanan-store";
 
 import { ibadahLinkedTo } from "./ibadah";
@@ -155,6 +156,7 @@ const ibadahOf = (jadwal: JadwalPelayanRow) =>
   }));
 
 const toListRow = (jadwal: JadwalPelayanRow) => ({
+  publicId: jadwalPublicIdOf(jadwal),
   code: jadwal.code,
   name: jadwal.name,
   date: toIso(jadwal.date),
@@ -174,7 +176,7 @@ const toDetail = (jadwal: JadwalPelayanRow) => {
 
   return {
     id: jadwal.id,
-    publicId: `0000${jadwal.id}-jdl`,
+    publicId: jadwalPublicIdOf(jadwal),
     code: jadwal.code,
     name: jadwal.name,
     date: toIso(jadwal.date),

@@ -20,7 +20,7 @@ const bodies: unknown[] = [];
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
-  usePathname: () => "/kejemaatan/riwayat-jemaat/baru",
+  usePathname: () => "/kejemaatan/riwayat-jemaat/create",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -143,7 +143,7 @@ const onRenderLoadedEdit = async (granted: MenuAction[]) => {
 };
 
 describe("gerbang izin", () => {
-  test("/ubah dengan id tidak dikenal: data tidak ditemukan, bukan form kosong", async () => {
+  test("/edit dengan id tidak dikenal: data tidak ditemukan, bukan form kosong", async () => {
     onMockApi();
     onRenderForm(["VIEW", "UPDATE"], "tidak-ada");
 
@@ -153,14 +153,14 @@ describe("gerbang izin", () => {
     expect(screen.queryByLabelText(/Nomor surat/)).toBeNull();
   });
 
-  test("tanpa CREATE: rute /baru tidak merender form", () => {
+  test("tanpa CREATE: rute /create tidak merender form", () => {
     onRenderForm(["VIEW"]);
 
     expect(screen.getByText("Tidak bisa mencatat riwayat")).toBeTruthy();
     expect(screen.queryByLabelText(/Nomor surat/)).toBeNull();
   });
 
-  test("tanpa UPDATE: rute /ubah tidak merender form", () => {
+  test("tanpa UPDATE: rute /edit tidak merender form", () => {
     onRenderForm(["VIEW", "CREATE", "DELETE"], ID);
 
     expect(screen.getByText("Tidak bisa mengubah riwayat")).toBeTruthy();

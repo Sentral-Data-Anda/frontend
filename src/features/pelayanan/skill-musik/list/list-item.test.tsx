@@ -1,19 +1,25 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
+import { RowActionsProvider } from "@/components/common/list";
+
 import type { SkillMusik } from "../types";
 
 import { SkillMusikListItemRow, skillMusikTable } from "./list-item";
 
 afterEach(cleanup);
 
-const GITAR: SkillMusik = { id: 2, name: "Gitar" };
+const GITAR: SkillMusik = { id: 2, publicId: "p2", name: "Gitar" };
 
 const onRenderRow = (isCanUpdate: boolean) =>
   render(
-    <ul>
-      <SkillMusikListItemRow skillMusik={GITAR} isCanUpdate={isCanUpdate} />
-    </ul>,
+    <RowActionsProvider
+      value={skillMusikTable(isCanUpdate).getRowActions?.(GITAR)}
+    >
+      <ul>
+        <SkillMusikListItemRow skillMusik={GITAR} />
+      </ul>
+    </RowActionsProvider>,
   );
 
 describe("baris HP", () => {
@@ -22,7 +28,7 @@ describe("baris HP", () => {
 
     expect(
       screen.getByRole("link", { name: "Ubah Gitar" }).getAttribute("href"),
-    ).toBe("/pelayanan/skill-musik/2/ubah");
+    ).toBe("/pelayanan/skill-musik/edit/2");
     expect(document.querySelector('[data-row-id="2"]')).not.toBeNull();
   });
 
@@ -41,7 +47,11 @@ describe("konfigurasi tabel", () => {
     expect(
       table.columns.map((column) => [column.header, column.width]),
     ).toEqual([["Nama", "minmax(0,1fr)"]]);
-    expect(table.getRowHref?.(GITAR)).toBe("/pelayanan/skill-musik/2/ubah");
-    expect(skillMusikTable(false).getRowHref).toBeUndefined();
+    expect(table.getRowActions?.(GITAR)?.edit?.href).toBe(
+      "/pelayanan/skill-musik/edit/2",
+    );
+    expect(
+      skillMusikTable(false).getRowActions?.(GITAR)?.edit?.href,
+    ).toBeUndefined();
   });
 });

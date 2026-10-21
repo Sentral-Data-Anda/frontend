@@ -24,7 +24,7 @@ mock.module("next/navigation", () => ({
     replace: (href: string) => replaced.push(href),
     push: () => undefined,
   }),
-  usePathname: () => "/fasilitas/peminjaman-ruang/baru",
+  usePathname: () => "/fasilitas/peminjaman-ruang/create",
   useSearchParams: () => new URLSearchParams(),
 }));
 

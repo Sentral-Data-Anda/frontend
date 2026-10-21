@@ -1,13 +1,8 @@
-import { Pencil } from "lucide-react";
-import Link from "next/link";
-
-import { buttonVariants } from "@/components/common/control";
 import { Avatar } from "@/components/common/display";
 import { DataListRow, type DataTableConfig } from "@/components/common/list";
 import { MENU, editHref } from "@/config/menu";
 import { formatDateShort } from "@/lib/format";
 import { saveListFocus } from "@/lib/list-return";
-import { cn } from "@/lib/utils";
 
 import { USER_LIST_PATH } from "../model";
 import type { UserListItem } from "../types";
@@ -15,7 +10,7 @@ import type { UserListItem } from "../types";
 import { UserStatus } from "./user-status";
 
 const editHrefOf = (user: UserListItem) =>
-  editHref(MENU.SETTINGS, MENU.USER, user.code);
+  editHref(MENU.SETTINGS, MENU.USER, user.publicId);
 
 const saveFocus = (user: UserListItem) =>
   saveListFocus(USER_LIST_PATH, user.code);
@@ -44,18 +39,6 @@ export const UserListItemRow = (props: PropTypes) => {
       trailing={
         <>
           <UserStatus status={user.status} />
-
-          <Link
-            href={editHrefOf(user)}
-            onClick={() => saveFocus(user)}
-            aria-label={labelOf(user)}
-            className={cn(
-              buttonVariants({ variant: "ghost", size: "icon-sm" }),
-              "cursor-pointer",
-            )}
-          >
-            <Pencil aria-hidden />
-          </Link>
         </>
       }
     />
@@ -114,8 +97,12 @@ export const userTable: DataTableConfig<UserListItem> = {
         ),
     },
   ],
-  getRowHref: editHrefOf,
-  getRowLabel: labelOf,
-  onRowOpen: saveFocus,
-  rowIcon: <Pencil />,
+  getRowActions: (x) => ({
+    label: labelOf(x),
+    edit: {
+      href: editHrefOf(x),
+      onNavigate: () => saveFocus(x),
+      label: labelOf(x),
+    },
+  }),
 };

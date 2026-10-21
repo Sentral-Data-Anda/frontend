@@ -1,3 +1,4 @@
+import { Toast } from "@base-ui/react/toast";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, render, screen } from "@testing-library/react";
 import {
@@ -97,7 +98,9 @@ const onRender = (granted: MenuAction[], rows: Account[] = ROWS) => {
 
   return render(
     <QueryClientProvider client={new QueryClient()}>
-      <AccountListScreen />
+      <Toast.Provider>
+        <AccountListScreen />
+      </Toast.Provider>
     </QueryClientProvider>,
   );
 };

@@ -188,7 +188,7 @@ describe("gerbang izin", () => {
       screen
         .getByRole("link", { name: "Catat satu persembahan" })
         .getAttribute("href"),
-    ).toBe("/finance/persembahan/baru");
+    ).toBe("/finance/persembahan/create");
   });
 });
 

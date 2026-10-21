@@ -89,9 +89,7 @@ export const SetelanListScreen = () => {
             table={setelanTable(isCanUpdate)}
             itemNoun="alur"
           >
-            {(item) => (
-              <SetelanListItemRow item={item} isCanUpdate={isCanUpdate} />
-            )}
+            {(item) => <SetelanListItemRow item={item} />}
           </DataList>
         </>
       ) : (

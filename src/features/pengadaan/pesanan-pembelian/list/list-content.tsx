@@ -105,9 +105,7 @@ export const OrderListContent = () => {
         table={orderTable(isCanUpdate)}
         itemNoun="pesanan"
       >
-        {(order) => (
-          <OrderListItemRow order={order} isCanUpdate={isCanUpdate} />
-        )}
+        {(order) => <OrderListItemRow order={order} />}
       </DataList>
     </div>
   );

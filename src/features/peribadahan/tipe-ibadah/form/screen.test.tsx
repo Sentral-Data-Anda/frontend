@@ -19,7 +19,7 @@ const replaced: string[] = [];
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
-  usePathname: () => "/peribadahan/tipe-ibadah/baru",
+  usePathname: () => "/peribadahan/tipe-ibadah/create",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -60,7 +60,7 @@ const onRenderForm = (granted: MenuAction[], code?: string) => {
 };
 
 describe("gerbang izin rute form", () => {
-  test("tanpa CREATE: rute /baru tidak merender form", () => {
+  test("tanpa CREATE: rute /create tidak merender form", () => {
     onRenderForm(["VIEW"]);
 
     expect(screen.getByText("Tidak bisa menambah tipe ibadah")).toBeTruthy();
@@ -75,7 +75,7 @@ describe("gerbang izin rute form", () => {
     expect(screen.queryByLabelText("Nama")).toBeNull();
   });
 
-  test("tanpa UPDATE: rute /ubah tidak merender form dan tidak memuat detail", () => {
+  test("tanpa UPDATE: rute /edit tidak merender form dan tidak memuat detail", () => {
     let isFetched = false;
     globalThis.fetch = (() => {
       isFetched = true;
@@ -106,6 +106,7 @@ describe("gerbang izin rute form", () => {
 });
 
 const DETAIL: TipeIbadah = {
+  publicId: "pid-typ-ibd-0005",
   code: "TYP_IBD-0005",
   name: "Ibadah Padang",
   isActive: false,

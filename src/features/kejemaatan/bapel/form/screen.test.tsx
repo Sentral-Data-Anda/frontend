@@ -20,7 +20,7 @@ const replaced: string[] = [];
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
-  usePathname: () => "/kejemaatan/bapel/baru",
+  usePathname: () => "/kejemaatan/bapel/create",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -61,7 +61,7 @@ const onRenderForm = (granted: MenuAction[], code?: string) => {
 };
 
 describe("gerbang izin rute form", () => {
-  test("tanpa CREATE: rute /baru tidak merender form", () => {
+  test("tanpa CREATE: rute /create tidak merender form", () => {
     onRenderForm(["VIEW"]);
 
     expect(
@@ -70,7 +70,7 @@ describe("gerbang izin rute form", () => {
     expect(screen.queryByLabelText("Nama")).toBeNull();
   });
 
-  test("tanpa UPDATE: rute /ubah tidak merender form", () => {
+  test("tanpa UPDATE: rute /edit tidak merender form", () => {
     onRenderForm(["VIEW", "CREATE"], "BPL-0001");
 
     expect(

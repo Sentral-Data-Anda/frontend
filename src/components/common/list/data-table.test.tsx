@@ -1,10 +1,17 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
+import { LIMIT_ALL } from "@/hooks/use-list-params";
+
 import { onStubViewport } from "../../../../tests/viewport";
 
 import { DataList, DataListRow } from "./data-list";
-import { DataTable, getRangeLabel, type DataTableConfig } from "./data-table";
+import {
+  DataTable,
+  getRangeLabel,
+  toLimit,
+  type DataTableConfig,
+} from "./data-table";
 
 afterEach(cleanup);
 
@@ -20,8 +27,12 @@ const table = (isOpenable: boolean): DataTableConfig<Row> => ({
     { key: "name", header: "Nama", width: "1fr", cell: (row) => row.name },
     { key: "code", header: "Kode", width: "1fr", cell: (row) => row.code },
   ],
-  getRowHref: isOpenable ? (row) => `/uji/${row.code}` : undefined,
-  getRowLabel: (row) => `Ubah ${row.name}`,
+  getRowActions: isOpenable
+    ? (row) => ({
+        label: row.name,
+        edit: { href: `/uji/${row.code}`, label: `Ubah ${row.name}` },
+      })
+    : undefined,
 });
 
 const pages = {
@@ -52,9 +63,27 @@ describe("getRangeLabel", () => {
     expect(getRangeLabel(2, 10, 12)).toBe("11–12 dari 12");
     expect(getRangeLabel(1, 10, 0)).toBe("0 dari 0");
   });
+
+  test("tanpa batas: rentangnya seluruh data, bukan NaN", () => {
+    // `(page - 1) * "all"` adalah NaN; labelnya akan terbaca "NaN–NaN dari 2000".
+    expect(getRangeLabel(1, LIMIT_ALL, 2000)).toBe("1–2000 dari 2000");
+    expect(getRangeLabel(1, LIMIT_ALL, 0)).toBe("0 dari 0");
+  });
 });
 
 describe("DataList + table", () => {
+  test('memilih "Semua" meneruskan kata `all`, bukan angka', () => {
+    // Bug yang benar-benar terjadi di aplikasi: `Number("all")` adalah NaN,
+    // dan pilihan pengguna diam-diam kembali ke sepuluh baris.
+    expect(toLimit(LIMIT_ALL)).toBe(LIMIT_ALL);
+    expect(toLimit(LIMIT_ALL)).not.toBeNaN();
+  });
+
+  test("angka biasa tetap diteruskan sebagai angka", () => {
+    expect(toLimit("25")).toBe(25);
+    expect(toLimit("10")).toBe(10);
+  });
+
   test("paginasi bernomor → tabel; satu tautan per baris, bernama aksinya", () => {
     onRender({ pagination: pages });
 

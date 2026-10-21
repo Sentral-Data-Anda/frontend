@@ -19,7 +19,7 @@ const replaced: string[] = [];
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
-  usePathname: () => "/pelayanan/daftar-pelayan/baru",
+  usePathname: () => "/pelayanan/daftar-pelayan/create",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -209,7 +209,7 @@ const onPick = async (label: string, option: string) => {
 };
 
 describe("gerbang izin rute form", () => {
-  test("tanpa CREATE: rute /baru tidak merender form", () => {
+  test("tanpa CREATE: rute /create tidak merender form", () => {
     onMockApi();
     onRenderForm(["VIEW"]);
 
@@ -220,7 +220,7 @@ describe("gerbang izin rute form", () => {
     expect(screen.queryByText("Jenis")).toBeNull();
   });
 
-  test("tanpa UPDATE: rute /ubah tidak merender form", () => {
+  test("tanpa UPDATE: rute /edit tidak merender form", () => {
     onMockApi();
     onRenderForm(["VIEW", "CREATE"], BETHARI.code);
 

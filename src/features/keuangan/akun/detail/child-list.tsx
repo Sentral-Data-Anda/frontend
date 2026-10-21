@@ -45,9 +45,7 @@ export const ChildList = (props: PropTypes) => {
           table={accountTable()}
           itemNoun="akun"
         >
-          {(child) => (
-            <AccountListItemRow account={child} isCanUpdate={false} />
-          )}
+          {(child) => <AccountListItemRow account={child} />}
         </DataList>
       )}
     </section>

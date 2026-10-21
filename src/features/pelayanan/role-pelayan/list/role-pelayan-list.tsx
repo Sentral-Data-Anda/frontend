@@ -1,20 +1,55 @@
 "use client";
 
-import { DataList, ListToolbar } from "@/components/common/list";
+import { useState } from "react";
+
+import { useToast } from "@/components/common/feedback";
+import {
+  DataList,
+  ListToolbar,
+  RowDeleteDialog,
+} from "@/components/common/list";
 import { PageHeader, PageHeaderAdd } from "@/components/layout";
 import { MENU, createHref, domainHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { useListParams } from "@/hooks/use-list-params";
 
-import { useRolePelayanList } from "../api";
+import { useDeleteRolePelayan, useRolePelayanList } from "../api";
+import type { RolePelayan } from "../types";
 
-import { RolePelayanListItemRow, rolePelayanTable } from "./list-item";
+import {
+  deleteTargetLabelOf,
+  RolePelayanListItemRow,
+  rolePelayanTable,
+} from "./list-item";
 
 export const RolePelayanList = () => {
-  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.ROLE_PELAYAN);
+  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+    MENU.ROLE_PELAYAN,
+  );
+
+  const toast = useToast();
+
+  // Satu keadaan menyimpan baris yang akan dihapus sekaligus status terbuka
+  // dialognya. Hook hapus dibuat ulang mengikuti kunci baris ini.
+  const [target, setTarget] = useState<RolePelayan | null>(null);
+  const deleteRow = useDeleteRolePelayan(target?.publicId);
   const listParams = useListParams();
   const rolePelayanList = useRolePelayanList(listParams);
   const isSearched = Boolean(listParams.search);
+
+  const onDelete = () => {
+    deleteRow.mutate(undefined, {
+      onSuccess: (deleted) => {
+        toast.add({ title: deleted.message });
+        setTarget(null);
+      },
+    });
+  };
+
+  const onCancelDelete = () => {
+    deleteRow.reset();
+    setTarget(null);
+  };
 
   return (
     <div className="pb-6">
@@ -60,16 +95,23 @@ export const RolePelayanList = () => {
             : "Tambahkan jenis tugas dalam ibadah, mis. Liturgis, Pemusik, Multimedia, Penerima Tamu."
         }
         pagination={rolePelayanList.pagination}
-        table={rolePelayanTable(isCanUpdate)}
+        table={rolePelayanTable(
+          isCanUpdate,
+          isCanDelete ? setTarget : undefined,
+        )}
         itemNoun="role pelayan"
       >
-        {(rolePelayan) => (
-          <RolePelayanListItemRow
-            rolePelayan={rolePelayan}
-            isCanUpdate={isCanUpdate}
-          />
-        )}
+        {(rolePelayan) => <RolePelayanListItemRow rolePelayan={rolePelayan} />}
       </DataList>
+
+      <RowDeleteDialog
+        target={target ? { label: deleteTargetLabelOf(target) } : null}
+        entity="role pelayan"
+        isPending={deleteRow.isPending}
+        errorMessage={deleteRow.error?.message}
+        onCancel={onCancelDelete}
+        onConfirm={onDelete}
+      />
     </div>
   );
 };

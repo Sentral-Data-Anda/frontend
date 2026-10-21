@@ -118,7 +118,7 @@ export const StockDetailScreen = (props: PropTypes) => {
         action={
           isCanUpdate ? (
             <Link
-              href={stockEditHref(item.code)}
+              href={stockEditHref(item.publicId)}
               className={cn(
                 buttonVariants({ variant: "outline" }),
                 "shrink-0 cursor-pointer",

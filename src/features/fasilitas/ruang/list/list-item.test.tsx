@@ -1,6 +1,8 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
+import { RowActionsProvider } from "@/components/common/list";
+
 import { ruangDetailHref, ruangEditHref } from "../model";
 import type { Room } from "../types";
 
@@ -20,9 +22,11 @@ const ROOM: Room = {
 describe("baris ruang", () => {
   test("judul menuju halaman ruang; meta kapasitas + kode; status Aktif", () => {
     render(
-      <ul>
-        <RuangListItemRow room={ROOM} />
-      </ul>,
+      <RowActionsProvider value={ruangTable(false).getRowActions?.(ROOM)}>
+        <ul>
+          <RuangListItemRow room={ROOM} />
+        </ul>
+      </RowActionsProvider>,
     );
 
     expect(
@@ -40,9 +44,13 @@ describe("baris ruang", () => {
 
   test("ruang nonaktif; pensil hanya dengan UPDATE", () => {
     render(
-      <ul>
-        <RuangListItemRow room={{ ...ROOM, isActive: false }} isCanUpdate />
-      </ul>,
+      <RowActionsProvider
+        value={ruangTable(true).getRowActions?.({ ...ROOM, isActive: false })}
+      >
+        <ul>
+          <RuangListItemRow room={{ ...ROOM, isActive: false }} />
+        </ul>
+      </RowActionsProvider>,
     );
 
     expect(screen.getByText("Nonaktif")).toBeTruthy();
@@ -50,7 +58,7 @@ describe("baris ruang", () => {
       screen
         .getByRole("link", { name: "Ubah Ruang Pemuda" })
         .getAttribute("href"),
-    ).toBe(ruangEditHref("RM-0003"));
+    ).toBe(ruangEditHref("r3"));
   });
 });
 
@@ -60,6 +68,11 @@ test("tabel: kolom aksi hanya dengan UPDATE; baris menuju halaman ruang", () => 
     "capacity",
     "status",
   ]);
-  expect(ruangTable(true).columns.at(-1)?.key).toBe("edit");
-  expect(ruangTable(false).getRowHref?.(ROOM)).toBe(ruangDetailHref("RM-0003"));
+  expect(ruangTable(true).getRowActions?.(ROOM)?.edit?.href).toContain(
+    "/edit/",
+  );
+  expect(ruangTable(false).getRowActions?.(ROOM)?.edit).toBeUndefined();
+  expect(ruangTable(false).getRowActions?.(ROOM)?.view?.href).toBe(
+    ruangDetailHref("RM-0003"),
+  );
 });

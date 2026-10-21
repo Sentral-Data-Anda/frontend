@@ -1,15 +1,30 @@
 "use client";
 
-import { DataList, ListToolbar } from "@/components/common/list";
+import { useState } from "react";
+
+import { useToast } from "@/components/common/feedback";
+import {
+  DataList,
+  ListToolbar,
+  RowDeleteDialog,
+} from "@/components/common/list";
 import { PageHeader, PageHeaderAdd } from "@/components/layout";
 import { MENU, createHref, domainHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { useListParams, type ListFilterSchema } from "@/hooks/use-list-params";
 
-import { useDaftarPelayanList, useFilterOptions } from "../api";
-import { PELAYAN_STATUS_OPTIONS } from "../types";
+import {
+  useDaftarPelayanList,
+  useDeletePelayan,
+  useFilterOptions,
+} from "../api";
+import { PELAYAN_STATUS_OPTIONS, type PelayanListItem } from "../types";
 
-import { PelayanListItemRow, daftarPelayanTable } from "./list-item";
+import {
+  daftarPelayanTable,
+  deleteTargetLabelOf,
+  PelayanListItemRow,
+} from "./list-item";
 
 const LIST_FILTERS = {
   bapel: { api: "bapelId" },
@@ -17,12 +32,35 @@ const LIST_FILTERS = {
 } satisfies ListFilterSchema;
 
 export const PelayanList = () => {
-  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.DAFTAR_PELAYAN);
+  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+    MENU.DAFTAR_PELAYAN,
+  );
+
+  const toast = useToast();
+
+  // Satu keadaan menyimpan baris yang akan dihapus sekaligus status terbuka
+  // dialognya. Hook hapus dibuat ulang mengikuti kunci baris ini.
+  const [target, setTarget] = useState<PelayanListItem | null>(null);
+  const deleteRow = useDeletePelayan(target?.code);
   const listParams = useListParams({ filters: LIST_FILTERS });
   const pelayanList = useDaftarPelayanList(listParams);
   const bapelOptions = useFilterOptions("bapel", "Semua badan pelayanan");
   const tugasOptions = useFilterOptions("role-pelayan", "Semua tugas");
   const isNarrowed = Boolean(listParams.search) || listParams.isFiltered;
+
+  const onDelete = () => {
+    deleteRow.mutate(undefined, {
+      onSuccess: (deleted) => {
+        toast.add({ title: deleted.message });
+        setTarget(null);
+      },
+    });
+  };
+
+  const onCancelDelete = () => {
+    deleteRow.reset();
+    setTarget(null);
+  };
 
   return (
     <div className="pb-6">
@@ -90,13 +128,23 @@ export const PelayanList = () => {
           listParams.isFiltered ? listParams.onClearFilters : undefined
         }
         pagination={pelayanList.pagination}
-        table={daftarPelayanTable(isCanUpdate)}
+        table={daftarPelayanTable(
+          isCanUpdate,
+          isCanDelete ? setTarget : undefined,
+        )}
         itemNoun="pelayan"
       >
-        {(pelayan) => (
-          <PelayanListItemRow pelayan={pelayan} isCanUpdate={isCanUpdate} />
-        )}
+        {(pelayan) => <PelayanListItemRow pelayan={pelayan} />}
       </DataList>
+
+      <RowDeleteDialog
+        target={target ? { label: deleteTargetLabelOf(target) } : null}
+        entity="pelayan"
+        isPending={deleteRow.isPending}
+        errorMessage={deleteRow.error?.message}
+        onCancel={onCancelDelete}
+        onConfirm={onDelete}
+      />
     </div>
   );
 };

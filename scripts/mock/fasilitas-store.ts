@@ -334,6 +334,7 @@ export const occupancyOf = (roomId: number, date: string): Occupancy[] =>
       (row) => isLive(row) && row.roomId === roomId && row.date === date,
     ).map((row) => ({
       kind: "LOAN" as const,
+      publicId: row.publicId,
       code: row.code,
       name: row.purpose,
       startTime: row.startTime,

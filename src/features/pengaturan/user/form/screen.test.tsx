@@ -20,7 +20,7 @@ const replaced: string[] = [];
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
-  usePathname: () => "/settings/user/baru",
+  usePathname: () => "/settings/user/create",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -193,7 +193,7 @@ const isButton = (name: string) =>
   screen.queryByRole("button", { name }) !== null;
 
 describe("tambah akun", () => {
-  test("tanpa CREATE: rute /baru tidak merender form", () => {
+  test("tanpa CREATE: rute /create tidak merender form", () => {
     onRenderForm(["VIEW"]);
 
     expect(screen.getByText("Tidak bisa menambah akun")).toBeTruthy();

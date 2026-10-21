@@ -20,6 +20,12 @@ import { BAPEL_NAMES, DDL_JEMAAT } from "../mock-dashboard";
 
 type Live = { id: number; deletedAt: string | null };
 
+// `publicId` ala be-sada, diturunkan dari id: stabil dan sama di handler dan test.
+export const templatePublicIdOf = (row: { id: number }) =>
+  `template-jadwal-${row.id}`;
+
+export const jadwalPublicIdOf = (row: { id: number }) => `0000${row.id}-jdl`;
+
 export type RolePelayanRow = Live & { name: string };
 
 export type MusikSkillRow = Live & { name: string };

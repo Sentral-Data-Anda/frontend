@@ -1,11 +1,6 @@
-import { Pencil } from "lucide-react";
-import Link from "next/link";
-
-import { buttonVariants } from "@/components/common/control";
 import { DataListRow, type DataTableConfig } from "@/components/common/list";
 import { MENU, editHref } from "@/config/menu";
 import { saveListFocus } from "@/lib/list-return";
-import { cn } from "@/lib/utils";
 
 import { WILAYAH_LIST_PATH } from "../model";
 import type { Wilayah } from "../types";
@@ -13,20 +8,21 @@ import type { Wilayah } from "../types";
 import { WilayahStatus } from "./wilayah-status";
 
 const editHrefOf = (wilayah: Wilayah) =>
-  editHref(MENU.KEJEMAATAN, MENU.WILAYAH, wilayah.code);
+  editHref(MENU.KEJEMAATAN, MENU.WILAYAH, wilayah.publicId);
 
 const saveFocus = (wilayah: Wilayah) =>
   saveListFocus(WILAYAH_LIST_PATH, wilayah.code);
 
 const labelOf = (wilayah: Wilayah) => `Ubah ${wilayah.name}`;
 
+const deleteLabelOf = (wilayah: Wilayah) => `Hapus ${wilayah.name}`;
+
 interface PropTypes {
   wilayah: Wilayah;
-  isCanUpdate?: boolean;
 }
 
 export const WilayahListItemRow = (props: PropTypes) => {
-  const { wilayah, isCanUpdate = false } = props;
+  const { wilayah } = props;
 
   return (
     <DataListRow
@@ -34,29 +30,18 @@ export const WilayahListItemRow = (props: PropTypes) => {
       title={wilayah.name}
       meta={wilayah.code}
       trailing={
-        <>
-          {wilayah.isActive ? null : <WilayahStatus isActive={false} />}
-
-          {isCanUpdate ? (
-            <Link
-              href={editHrefOf(wilayah)}
-              onClick={() => saveFocus(wilayah)}
-              aria-label={labelOf(wilayah)}
-              className={cn(
-                buttonVariants({ variant: "ghost", size: "icon-sm" }),
-                "cursor-pointer",
-              )}
-            >
-              <Pencil aria-hidden />
-            </Link>
-          ) : null}
-        </>
+        <>{wilayah.isActive ? null : <WilayahStatus isActive={false} />}</>
       }
     />
   );
 };
 
-export function wilayahTable(isCanUpdate: boolean): DataTableConfig<Wilayah> {
+export function wilayahTable(
+  isCanUpdate: boolean,
+  // Dilewatkan dari layar daftar; `undefined` berarti pengguna tidak berhak
+  // menghapus, jadi tombolnya tidak dirender sama sekali.
+  onDelete?: (wilayah: Wilayah) => void,
+): DataTableConfig<Wilayah> {
   return {
     columns: [
       {
@@ -85,9 +70,16 @@ export function wilayahTable(isCanUpdate: boolean): DataTableConfig<Wilayah> {
         cell: (wilayah) => <WilayahStatus isActive={wilayah.isActive} />,
       },
     ],
-    getRowHref: isCanUpdate ? editHrefOf : undefined,
-    getRowLabel: labelOf,
-    onRowOpen: saveFocus,
-    rowIcon: <Pencil />,
+    getRowActions: (x) => ({
+      label: labelOf(x),
+      edit: {
+        href: isCanUpdate ? editHrefOf(x) : undefined,
+        onNavigate: () => saveFocus(x),
+        label: labelOf(x),
+      },
+      remove: onDelete
+        ? { onSelect: () => onDelete(x), label: deleteLabelOf(x) }
+        : undefined,
+    }),
   };
 }

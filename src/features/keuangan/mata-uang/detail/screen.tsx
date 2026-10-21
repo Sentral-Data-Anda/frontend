@@ -104,7 +104,7 @@ export const CurrencyDetailScreen = (props: PropTypes) => {
         action={
           isCanUpdate ? (
             <Link
-              href={currencyEditHref(currency.code)}
+              href={currencyEditHref(currency.publicId)}
               className={cn(
                 buttonVariants({ variant: "outline" }),
                 "shrink-0 cursor-pointer",

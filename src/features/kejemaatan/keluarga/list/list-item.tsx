@@ -1,12 +1,7 @@
-import { Pencil } from "lucide-react";
-import Link from "next/link";
-
-import { buttonVariants } from "@/components/common/control";
 import { OptionalText } from "@/components/common/display";
 import { DataListRow, type DataTableConfig } from "@/components/common/list";
 import { MENU, editHref } from "@/config/menu";
 import { saveListFocus } from "@/lib/list-return";
-import { cn } from "@/lib/utils";
 
 import { KELUARGA_LIST_PATH, WORSHIPS_HERE_LABEL } from "../model";
 import type { Keluarga } from "../types";
@@ -16,41 +11,28 @@ const memberCount = (keluarga: Keluarga) =>
 
 interface PropTypes {
   keluarga: Keluarga;
-  isCanUpdate?: boolean;
 }
 
 export const KeluargaListItemRow = (props: PropTypes) => {
-  const { keluarga, isCanUpdate = false } = props;
+  const { keluarga } = props;
 
   const meta = [keluarga.code, memberCount(keluarga), keluarga.zoneChurch?.name]
     .filter(Boolean)
     .join(" · ");
 
-  return (
-    <DataListRow
-      id={keluarga.code}
-      title={keluarga.name}
-      meta={meta}
-      trailing={
-        isCanUpdate ? (
-          <Link
-            href={editHref(MENU.KEJEMAATAN, MENU.KELUARGA, keluarga.code)}
-            onClick={() => saveListFocus(KELUARGA_LIST_PATH, keluarga.code)}
-            aria-label={`Ubah ${keluarga.name}`}
-            className={cn(
-              buttonVariants({ variant: "ghost", size: "icon-sm" }),
-              "cursor-pointer",
-            )}
-          >
-            <Pencil aria-hidden />
-          </Link>
-        ) : null
-      }
-    />
-  );
+  return <DataListRow id={keluarga.code} title={keluarga.name} meta={meta} />;
 };
 
-export function keluargaTable(isCanUpdate: boolean): DataTableConfig<Keluarga> {
+const deleteLabelOf = (x: Keluarga) => `Hapus ${x.name}`;
+
+export const deleteTargetLabelOf = (x: Keluarga) => `${x.name}`;
+
+export function keluargaTable(
+  isCanUpdate: boolean,
+  // Dilewatkan dari layar daftar; `undefined` berarti pengguna tidak berhak
+  // menghapus, jadi tombolnya tidak dirender sama sekali.
+  onDelete?: (row: Keluarga) => void,
+): DataTableConfig<Keluarga> {
   return {
     columns: [
       {
@@ -98,11 +80,18 @@ export function keluargaTable(isCanUpdate: boolean): DataTableConfig<Keluarga> {
         cell: (keluarga) => WORSHIPS_HERE_LABEL[`${keluarga.worshipsHere}`],
       },
     ],
-    getRowHref: isCanUpdate
-      ? (keluarga) => editHref(MENU.KEJEMAATAN, MENU.KELUARGA, keluarga.code)
-      : undefined,
-    getRowLabel: (keluarga) => `Ubah ${keluarga.name}`,
-    onRowOpen: (keluarga) => saveListFocus(KELUARGA_LIST_PATH, keluarga.code),
-    rowIcon: <Pencil />,
+    getRowActions: (x) => ({
+      label: `Ubah ${x.name}`,
+      edit: {
+        href: isCanUpdate
+          ? editHref(MENU.KEJEMAATAN, MENU.KELUARGA, x.publicId)
+          : undefined,
+        onNavigate: () => saveListFocus(KELUARGA_LIST_PATH, x.code),
+        label: `Ubah ${x.name}`,
+      },
+      remove: onDelete
+        ? { onSelect: () => onDelete(x), label: deleteLabelOf(x) }
+        : undefined,
+    }),
   };
 }

@@ -1,19 +1,54 @@
 "use client";
 
-import { DataList, ListToolbar } from "@/components/common/list";
+import { useState } from "react";
+
+import { useToast } from "@/components/common/feedback";
+import {
+  DataList,
+  ListToolbar,
+  RowDeleteDialog,
+} from "@/components/common/list";
 import { PageHeader, PageHeaderAdd } from "@/components/layout";
 import { MENU, createHref, domainHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { useListParams } from "@/hooks/use-list-params";
 
-import { useRoleUserList } from "../api";
+import { useDeleteRoleUser, useRoleUserList } from "../api";
+import type { RoleUserItem } from "../types";
 
-import { RoleUserListItemRow, roleUserTable } from "./list-item";
+import {
+  deleteTargetLabelOf,
+  RoleUserListItemRow,
+  roleUserTable,
+} from "./list-item";
 
 export const RoleUserListScreen = () => {
-  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.USER_ROLE);
+  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+    MENU.USER_ROLE,
+  );
+
+  const toast = useToast();
+
+  // Satu keadaan menyimpan baris yang akan dihapus sekaligus status terbuka
+  // dialognya. Hook hapus dibuat ulang mengikuti kunci baris ini.
+  const [target, setTarget] = useState<RoleUserItem | null>(null);
+  const deleteRow = useDeleteRoleUser(target?.publicId);
   const listParams = useListParams();
   const roleList = useRoleUserList(listParams);
+
+  const onDelete = () => {
+    deleteRow.mutate(undefined, {
+      onSuccess: (deleted) => {
+        toast.add({ title: deleted.message });
+        setTarget(null);
+      },
+    });
+  };
+
+  const onCancelDelete = () => {
+    deleteRow.reset();
+    setTarget(null);
+  };
 
   return (
     <div className="pb-6">
@@ -57,13 +92,20 @@ export const RoleUserListScreen = () => {
             : "Role dan hak aksesnya akan muncul di sini setelah ditambahkan."
         }
         pagination={roleList.pagination}
-        table={roleUserTable(isCanUpdate)}
+        table={roleUserTable(isCanUpdate, isCanDelete ? setTarget : undefined)}
         itemNoun="role"
       >
-        {(role) => (
-          <RoleUserListItemRow role={role} isCanUpdate={isCanUpdate} />
-        )}
+        {(role) => <RoleUserListItemRow role={role} />}
       </DataList>
+
+      <RowDeleteDialog
+        target={target ? { label: deleteTargetLabelOf(target) } : null}
+        entity="role"
+        isPending={deleteRow.isPending}
+        errorMessage={deleteRow.error?.message}
+        onCancel={onCancelDelete}
+        onConfirm={onDelete}
+      />
     </div>
   );
 };

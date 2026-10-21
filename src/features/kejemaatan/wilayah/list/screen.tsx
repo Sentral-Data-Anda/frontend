@@ -1,21 +1,49 @@
 "use client";
 
-import { EmptyState } from "@/components/common/feedback";
-import { DataList, ListToolbar } from "@/components/common/list";
+import { useState } from "react";
+
+import { EmptyState, useToast } from "@/components/common/feedback";
+import {
+  DataList,
+  ListToolbar,
+  RowDeleteDialog,
+} from "@/components/common/list";
 import { PageHeader, PageHeaderAdd } from "@/components/layout";
 import { MENU, createHref, domainHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { useListParams } from "@/hooks/use-list-params";
 
-import { useWilayahList } from "../api";
-import { WILAYAH_STATUS_OPTIONS } from "../types";
+import { useDeleteWilayah, useWilayahList } from "../api";
+import { WILAYAH_STATUS_OPTIONS, type Wilayah } from "../types";
 
 import { WilayahListItemRow, wilayahTable } from "./list-item";
 
 export const WilayahListScreen = () => {
-  const { isCanView, isCanCreate, isCanUpdate } = useMenuAccess(MENU.WILAYAH);
+  const { isCanView, isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+    MENU.WILAYAH,
+  );
   const listParams = useListParams();
   const wilayahList = useWilayahList(listParams, isCanView);
+  const toast = useToast();
+
+  // Satu keadaan menyimpan baris yang akan dihapus sekaligus status terbuka
+  // dialognya. Hook hapus dibuat ulang mengikuti kode baris ini.
+  const [target, setTarget] = useState<Wilayah | null>(null);
+  const deleteWilayah = useDeleteWilayah(target?.code);
+
+  const onDelete = () => {
+    deleteWilayah.mutate(undefined, {
+      onSuccess: (deleted) => {
+        toast.add({ title: deleted.message });
+        setTarget(null);
+      },
+    });
+  };
+
+  const onCancelDelete = () => {
+    deleteWilayah.reset();
+    setTarget(null);
+  };
 
   if (!isCanView) {
     return (
@@ -83,13 +111,20 @@ export const WilayahListScreen = () => {
           listParams.isFiltered ? listParams.onClearFilters : undefined
         }
         pagination={wilayahList.pagination}
-        table={wilayahTable(isCanUpdate)}
+        table={wilayahTable(isCanUpdate, isCanDelete ? setTarget : undefined)}
         itemNoun="wilayah"
       >
-        {(wilayah) => (
-          <WilayahListItemRow wilayah={wilayah} isCanUpdate={isCanUpdate} />
-        )}
+        {(wilayah) => <WilayahListItemRow wilayah={wilayah} />}
       </DataList>
+
+      <RowDeleteDialog
+        target={target ? { label: target.name } : null}
+        entity="wilayah"
+        isPending={deleteWilayah.isPending}
+        errorMessage={deleteWilayah.error?.message}
+        onCancel={onCancelDelete}
+        onConfirm={onDelete}
+      />
     </div>
   );
 };

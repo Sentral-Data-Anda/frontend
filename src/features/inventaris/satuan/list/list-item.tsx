@@ -1,17 +1,12 @@
-import { Pencil } from "lucide-react";
-import Link from "next/link";
-
-import { buttonVariants } from "@/components/common/control";
 import { DataListRow, type DataTableConfig } from "@/components/common/list";
 import { MENU, editHref } from "@/config/menu";
 import { saveListFocus } from "@/lib/list-return";
-import { cn } from "@/lib/utils";
 
 import { SATUAN_LIST_PATH } from "../model";
 import type { Satuan } from "../types";
 
 const editHrefOf = (satuan: Satuan) =>
-  editHref(MENU.INVENTORY, MENU.SATUAN, satuan.code);
+  editHref(MENU.INVENTORY, MENU.SATUAN, satuan.publicId);
 
 const saveFocus = (satuan: Satuan) =>
   saveListFocus(SATUAN_LIST_PATH, satuan.code);
@@ -20,37 +15,26 @@ const labelOf = (satuan: Satuan) => `Ubah ${satuan.name}`;
 
 interface PropTypes {
   satuan: Satuan;
-  isCanUpdate?: boolean;
 }
 
 export const SatuanListItemRow = (props: PropTypes) => {
-  const { satuan, isCanUpdate = false } = props;
+  const { satuan } = props;
 
   return (
-    <DataListRow
-      id={satuan.code}
-      title={satuan.name}
-      meta={satuan.code}
-      trailing={
-        isCanUpdate ? (
-          <Link
-            href={editHrefOf(satuan)}
-            onClick={() => saveFocus(satuan)}
-            aria-label={labelOf(satuan)}
-            className={cn(
-              buttonVariants({ variant: "ghost", size: "icon-sm" }),
-              "cursor-pointer",
-            )}
-          >
-            <Pencil aria-hidden />
-          </Link>
-        ) : null
-      }
-    />
+    <DataListRow id={satuan.code} title={satuan.name} meta={satuan.code} />
   );
 };
 
-export function satuanTable(isCanUpdate: boolean): DataTableConfig<Satuan> {
+const deleteLabelOf = (x: Satuan) => `Hapus ${x.name}`;
+
+export const deleteTargetLabelOf = (x: Satuan) => `${x.name}`;
+
+export function satuanTable(
+  isCanUpdate: boolean,
+  // Dilewatkan dari layar daftar; `undefined` berarti pengguna tidak berhak
+  // menghapus, jadi tombolnya tidak dirender sama sekali.
+  onDelete?: (row: Satuan) => void,
+): DataTableConfig<Satuan> {
   return {
     columns: [
       {
@@ -72,9 +56,16 @@ export function satuanTable(isCanUpdate: boolean): DataTableConfig<Satuan> {
         cell: (satuan) => <span className="tabular-nums">{satuan.code}</span>,
       },
     ],
-    getRowHref: isCanUpdate ? editHrefOf : undefined,
-    getRowLabel: labelOf,
-    onRowOpen: saveFocus,
-    rowIcon: <Pencil />,
+    getRowActions: (x) => ({
+      label: labelOf(x),
+      edit: {
+        href: isCanUpdate ? editHrefOf(x) : undefined,
+        onNavigate: () => saveFocus(x),
+        label: labelOf(x),
+      },
+      remove: onDelete
+        ? { onSelect: () => onDelete(x), label: deleteLabelOf(x) }
+        : undefined,
+    }),
   };
 }

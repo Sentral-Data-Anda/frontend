@@ -25,8 +25,8 @@ export const KATALOG_LIST_PATH = menuHref(MENU.HR, MENU.PAYROLL_COMPONENT);
 
 export const KATALOG_CREATE_PATH = createHref(MENU.HR, MENU.PAYROLL_COMPONENT);
 
-export const katalogEditHref = (code: string) =>
-  editHref(MENU.HR, MENU.PAYROLL_COMPONENT, code);
+export const katalogEditHref = (publicId: string) =>
+  editHref(MENU.HR, MENU.PAYROLL_COMPONENT, publicId);
 
 export const PENETAPAN_LIST_PATH = `${KATALOG_LIST_PATH}/karyawan`;
 

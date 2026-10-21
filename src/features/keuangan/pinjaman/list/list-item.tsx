@@ -91,7 +91,6 @@ export const loanTable = (): DataTableConfig<Loan> => ({
       ),
     },
   ],
-  getRowLabel: (row) => `Pinjaman ${row.code} dengan ${row.counterpartyName}`,
 });
 
 export const loanMeta = (loan: Loan) =>

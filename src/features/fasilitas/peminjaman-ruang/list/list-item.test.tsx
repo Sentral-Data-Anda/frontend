@@ -1,6 +1,7 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
+import { RowActionsProvider } from "@/components/common/list";
 import { addDays, todayJakarta } from "@/lib/date";
 
 import type { LoanRoom } from "../types";
@@ -25,9 +26,13 @@ const LOAN: LoanRoom = {
 
 const onRenderRow = (loan: LoanRoom, isCanUpdate: boolean) =>
   render(
-    <ul>
-      <LoanListItemRow loan={loan} isCanUpdate={isCanUpdate} />
-    </ul>,
+    <RowActionsProvider
+      value={peminjamanTable(isCanUpdate).getRowActions?.(loan)}
+    >
+      <ul>
+        <LoanListItemRow loan={loan} />
+      </ul>
+    </RowActionsProvider>,
   );
 
 describe("baris HP", () => {
@@ -41,7 +46,7 @@ describe("baris HP", () => {
       screen
         .getByRole("link", { name: /^Ubah Pemberkatan nikah/ })
         .getAttribute("href"),
-    ).toBe("/fasilitas/peminjaman-ruang/LR_0001_0000-2026-0002/ubah");
+    ).toBe("/fasilitas/peminjaman-ruang/edit/p-1");
   });
 
   test("lampau = Selesai dan tautan Lihat; tanpa UPDATE tanpa tautan", () => {
@@ -89,6 +94,8 @@ describe("tabel", () => {
     );
     expect(screen.getByText("Pribadi")).toBeTruthy();
     expect(screen.getByText("Komisi Musik")).toBeTruthy();
-    expect(peminjamanTable(false).getRowHref).toBeUndefined();
+    expect(
+      peminjamanTable(false).getRowActions?.(LOAN)?.edit?.href,
+    ).toBeUndefined();
   });
 });

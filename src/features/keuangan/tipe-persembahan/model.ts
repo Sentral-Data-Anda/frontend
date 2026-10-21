@@ -17,8 +17,8 @@ export const TIPE_PERSEMBAHAN_CREATE_PATH = createHref(
 
 export const AKUN_LIST_PATH = menuHref(MENU.FINANCE, MENU.CHART_OF_ACCOUNT);
 
-export const offeringTypeEditHref = (code: string) =>
-  editHref(MENU.FINANCE, MENU.TIPE_PERSEMBAHAN, code);
+export const offeringTypeEditHref = (publicId: string) =>
+  editHref(MENU.FINANCE, MENU.TIPE_PERSEMBAHAN, publicId);
 
 export const NO_VIEW = "Peran Anda tidak memiliki akses ke Tipe Persembahan.";
 

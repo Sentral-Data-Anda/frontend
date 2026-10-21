@@ -20,7 +20,7 @@ const sent: { method: string; body: unknown }[] = [];
 
 mock.module("next/navigation", () => ({
   useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
-  usePathname: () => "/hr/payroll-component/baru",
+  usePathname: () => "/hr/payroll-component/create",
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -39,6 +39,7 @@ const originalFetch = globalThis.fetch;
 
 const DETAIL: KomponenPayroll = {
   id: 1,
+  publicId: "pid-kpy-0001",
   code: "KPY-0001",
   name: "Tunjangan Transport",
   type: "EARNING",
@@ -115,7 +116,7 @@ afterEach(() => {
 });
 
 describe("gerbang izin form katalog", () => {
-  test("tanpa CREATE: rute /baru tidak merender form", () => {
+  test("tanpa CREATE: rute /create tidak merender form", () => {
     onRender(["VIEW"]);
 
     expect(screen.getByText("Tidak bisa menambah komponen")).toBeTruthy();
@@ -127,7 +128,7 @@ describe("gerbang izin form katalog", () => {
     expect(screen.queryByLabelText("Nama")).toBeNull();
   });
 
-  test("tanpa UPDATE: rute /ubah tidak merender form dan tidak memuat detail", () => {
+  test("tanpa UPDATE: rute /edit tidak merender form dan tidak memuat detail", () => {
     let isFetched = false;
     globalThis.fetch = (() => {
       isFetched = true;

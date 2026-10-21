@@ -1,4 +1,5 @@
 export type TemplateJadwalListItem = {
+  publicId: string;
   code: string;
   name: string;
   startTime: string;

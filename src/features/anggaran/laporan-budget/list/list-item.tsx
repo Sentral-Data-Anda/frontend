@@ -1,7 +1,5 @@
-import { ChevronRight, Pencil } from "lucide-react";
 import Link from "next/link";
 
-import { buttonVariants } from "@/components/common/control";
 import {
   DataListRow,
   TABLE_ROW_LINK,
@@ -10,7 +8,6 @@ import {
 } from "@/components/common/list";
 import { formatAmount } from "@/lib/format";
 import { saveListFocus } from "@/lib/list-return";
-import { cn } from "@/lib/utils";
 
 import {
   REPORT_LIST_PATH,
@@ -29,28 +26,12 @@ const detailHrefOf = (row: BudgetReport) => reportDetailHref(row.publicId);
 const viewLabelOf = (row: BudgetReport) =>
   `Lihat laporan ${row.label} ${row.bapel?.name ?? ""}`.trim();
 
-const editLink = (row: BudgetReport) =>
-  reportStateOf(row) === "DRAFT" ? (
-    <Link
-      href={reportEditHref(row.publicId)}
-      onClick={() => saveFocus(row)}
-      aria-label={`Ubah laporan ${row.label}`}
-      className={cn(
-        buttonVariants({ variant: "ghost", size: "icon-sm" }),
-        "relative cursor-pointer",
-      )}
-    >
-      <Pencil aria-hidden />
-    </Link>
-  ) : null;
-
 interface PropTypes {
   row: BudgetReport;
-  isCanUpdate?: boolean;
 }
 
 export const ReportListItem = (props: PropTypes) => {
-  const { row, isCanUpdate = false } = props;
+  const { row } = props;
 
   return (
     <DataListRow
@@ -77,7 +58,6 @@ export const ReportListItem = (props: PropTypes) => {
               <ReportStatusBadge report={row} />
             </div>
           </div>
-          {isCanUpdate ? editLink(row) : null}
         </>
       }
     />
@@ -150,22 +130,26 @@ const COLUMNS: Column[] = [
   },
 ];
 
-const EDIT_COLUMN: Column = {
-  key: "edit",
-  header: "",
-  width: "2rem",
-  align: "end",
-  cell: editLink,
-};
-
 export function reportTable(
   isCanUpdate = false,
 ): DataTableConfig<BudgetReport> {
   return {
-    columns: isCanUpdate ? [...COLUMNS, EDIT_COLUMN] : COLUMNS,
-    getRowHref: detailHrefOf,
-    getRowLabel: viewLabelOf,
-    onRowOpen: saveFocus,
-    rowIcon: <ChevronRight />,
+    columns: COLUMNS,
+    getRowActions: (x) => ({
+      label: viewLabelOf(x),
+      view: {
+        href: detailHrefOf(x),
+        onNavigate: () => saveFocus(x),
+        label: viewLabelOf(x),
+      },
+      edit:
+        isCanUpdate && reportStateOf(x) === "DRAFT"
+          ? {
+              href: reportEditHref(x.publicId),
+              onNavigate: () => saveFocus(x),
+              label: `Ubah laporan ${x.label}`,
+            }
+          : undefined,
+    }),
   };
 }

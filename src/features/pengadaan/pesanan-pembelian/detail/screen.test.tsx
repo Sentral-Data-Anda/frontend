@@ -119,7 +119,7 @@ describe("aksi per status × izin", () => {
       screen
         .getByRole("link", { name: "Catat penerimaan" })
         .getAttribute("href"),
-    ).toBe(`/procurement/goods-receipt/baru?pesanan=${orderAt(KURSI).code}`);
+    ).toBe(`/procurement/goods-receipt/create?pesanan=${orderAt(KURSI).code}`);
   });
 
   test("Diterima sebagian: catat penerimaan dan tutup saja", async () => {

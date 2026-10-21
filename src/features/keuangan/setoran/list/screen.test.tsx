@@ -156,21 +156,21 @@ describe("tombol tambah", () => {
           name: "Setor ke bank",
         })) as HTMLAnchorElement
       ).getAttribute("href"),
-    ).toBe("/finance/bank-deposit/baru?dari=kas");
+    ).toBe("/finance/bank-deposit/create?dari=kas");
     expect(
       (
         screen.getByRole("menuitem", {
           name: "Isi kas kecil",
         }) as HTMLAnchorElement
       ).getAttribute("href"),
-    ).toBe("/finance/bank-deposit/baru?ke=kas-kecil");
+    ).toBe("/finance/bank-deposit/create?ke=kas-kecil");
     expect(
       (
         screen.getByRole("menuitem", {
           name: "Pemindahan lain",
         }) as HTMLAnchorElement
       ).getAttribute("href"),
-    ).toBe("/finance/bank-deposit/baru");
+    ).toBe("/finance/bank-deposit/create");
   });
 
   test("tanpa CREATE tombolnya tidak ada", async () => {

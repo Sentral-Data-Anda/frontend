@@ -80,9 +80,7 @@ export const RiwayatListScreen = () => {
         table={riwayatTable(isCanUpdate)}
         itemNoun="riwayat"
       >
-        {(riwayat) => (
-          <RiwayatListItemRow riwayat={riwayat} isCanUpdate={isCanUpdate} />
-        )}
+        {(riwayat) => <RiwayatListItemRow riwayat={riwayat} />}
       </DataList>
     </div>
   );

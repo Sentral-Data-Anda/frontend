@@ -11,13 +11,14 @@
 import { MENU } from "../../../src/config/menu";
 import { denied, json, list, readBody, type MockHandler } from "../kit";
 import {
-  ROLE_PELAYAN,
-  TEMPLATE_JADWAL,
   bapelOf,
   isLive,
   nextId,
+  ROLE_PELAYAN,
+  TEMPLATE_JADWAL,
   templateCodeOf,
   type TemplateJadwalRow,
+  templatePublicIdOf,
   type TemplateSlot,
 } from "../pelayanan-store";
 
@@ -188,6 +189,7 @@ const checkRelations = (value: Parsed, current?: TemplateJadwalRow) => {
 };
 
 const toListRow = (row: TemplateJadwalRow) => ({
+  publicId: templatePublicIdOf(row),
   code: row.code,
   name: row.name,
   startTime: row.startTime,
@@ -201,7 +203,7 @@ const toListRow = (row: TemplateJadwalRow) => ({
 
 const toDetail = (row: TemplateJadwalRow) => ({
   id: row.id,
-  publicId: `template-jadwal-${row.id}`,
+  publicId: templatePublicIdOf(row),
   code: row.code,
   name: row.name,
   startTime: row.startTime,
@@ -212,7 +214,7 @@ const toDetail = (row: TemplateJadwalRow) => ({
 
 const toRaw = (row: TemplateJadwalRow) => ({
   id: row.id,
-  publicId: `template-jadwal-${row.id}`,
+  publicId: templatePublicIdOf(row),
   code: row.code,
   name: row.name,
   startTime: row.startTime,

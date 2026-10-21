@@ -1,6 +1,8 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
+import { RowActionsProvider } from "@/components/common/list";
+
 import type { BapelListItem } from "../types";
 
 import { BapelListItemRow, bapelTable } from "./list-item";
@@ -28,9 +30,11 @@ const BAPEL: BapelListItem = {
 
 const onRenderRow = (isCanUpdate: boolean, bapel = BAPEL) =>
   render(
-    <ul>
-      <BapelListItemRow bapel={bapel} isCanUpdate={isCanUpdate} />
-    </ul>,
+    <RowActionsProvider value={bapelTable(isCanUpdate).getRowActions?.(bapel)}>
+      <ul>
+        <BapelListItemRow bapel={bapel} />
+      </ul>
+    </RowActionsProvider>,
   );
 
 describe("baris HP", () => {
@@ -38,7 +42,7 @@ describe("baris HP", () => {
     onRenderRow(true);
 
     const action = screen.getByRole("link", { name: "Ubah Komisi Pemuda" });
-    expect(action.getAttribute("href")).toBe("/kejemaatan/bapel/BPL-0001/ubah");
+    expect(action.getAttribute("href")).toBe("/kejemaatan/bapel/edit/a");
   });
 
   test("tanpa UPDATE: tidak ada aksi ubah sama sekali", () => {
@@ -71,7 +75,11 @@ describe("konfigurasi tabel", () => {
       "Larangan jadwal",
     ]);
     expect(table.columns.some((column) => column.isSecondary)).toBe(false);
-    expect(table.getRowHref?.(BAPEL)).toBe("/kejemaatan/bapel/BPL-0001/ubah");
-    expect(bapelTable(false).getRowHref).toBeUndefined();
+    expect(table.getRowActions?.(BAPEL)?.edit?.href).toBe(
+      "/kejemaatan/bapel/edit/a",
+    );
+    expect(
+      bapelTable(false).getRowActions?.(BAPEL)?.edit?.href,
+    ).toBeUndefined();
   });
 });

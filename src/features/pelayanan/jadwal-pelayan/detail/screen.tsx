@@ -153,7 +153,7 @@ export const JadwalPelayanDetailScreen = (props: PropTypes) => {
 
           {isCanUpdate ? (
             <Link
-              href={jadwalEditHref(jadwal.code)}
+              href={jadwalEditHref(jadwal.publicId)}
               aria-label={isWide ? undefined : "Ubah"}
               className={linkClass}
             >

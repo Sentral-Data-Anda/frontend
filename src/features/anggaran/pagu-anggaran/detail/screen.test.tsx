@@ -231,7 +231,7 @@ describe("halaman pagu anggaran", () => {
 
     expect(
       (await screen.findByRole("link", { name: "Ubah" })).getAttribute("href"),
-    ).toBe("/budgeting/budget/pga-1/ubah");
+    ).toBe("/budgeting/budget/edit/pga-1");
   });
 
   test("tanpa Hapus di halaman baca", async () => {

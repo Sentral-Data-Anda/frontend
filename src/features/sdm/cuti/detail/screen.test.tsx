@@ -386,7 +386,7 @@ describe("persetujuan", () => {
     expect(await screen.findByRole("link", { name: "APR-0201" })).toBeTruthy();
   });
 
-  test("nol tombol setujui/tolak: SDM tidak menandatangani (§3)", async () => {
+  test("nol tombol setujui/reject: SDM tidak menandatangani (§3)", async () => {
     onMockApi({ detail: withApproval });
     onRender({
       [MENU.LEAVE]: ["VIEW", "UPDATE", "DELETE"],

@@ -116,7 +116,7 @@ export const GaleriDetailScreen = (props: PropTypes) => {
         action={
           isCanUpdate ? (
             <Link
-              href={galeriEditHref(album.code)}
+              href={galeriEditHref(album.publicId)}
               className={cn(
                 buttonVariants({ variant: "outline" }),
                 "shrink-0 cursor-pointer",

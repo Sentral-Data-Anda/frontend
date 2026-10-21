@@ -1,11 +1,6 @@
-import { Pencil } from "lucide-react";
-import Link from "next/link";
-
-import { buttonVariants } from "@/components/common/control";
 import { DataListRow, type DataTableConfig } from "@/components/common/list";
 import { MENU, editHref } from "@/config/menu";
 import { saveListFocus } from "@/lib/list-return";
-import { cn } from "@/lib/utils";
 
 import { TIPE_IBADAH_LIST_PATH } from "../model";
 import type { TipeIbadah } from "../types";
@@ -13,7 +8,7 @@ import type { TipeIbadah } from "../types";
 import { TipeIbadahStatus } from "./tipe-ibadah-status";
 
 const editHrefOf = (tipeIbadah: TipeIbadah) =>
-  editHref(MENU.PERIBADAHAN, MENU.TIPE_IBADAH, tipeIbadah.code);
+  editHref(MENU.PERIBADAHAN, MENU.TIPE_IBADAH, tipeIbadah.publicId);
 
 const saveFocus = (tipeIbadah: TipeIbadah) =>
   saveListFocus(TIPE_IBADAH_LIST_PATH, tipeIbadah.code);
@@ -22,11 +17,10 @@ const labelOf = (tipeIbadah: TipeIbadah) => `Ubah ${tipeIbadah.name}`;
 
 interface PropTypes {
   tipeIbadah: TipeIbadah;
-  isCanUpdate?: boolean;
 }
 
 export const TipeIbadahListItemRow = (props: PropTypes) => {
-  const { tipeIbadah, isCanUpdate = false } = props;
+  const { tipeIbadah } = props;
 
   return (
     <DataListRow
@@ -36,28 +30,21 @@ export const TipeIbadahListItemRow = (props: PropTypes) => {
       trailing={
         <>
           {tipeIbadah.isActive ? null : <TipeIbadahStatus isActive={false} />}
-
-          {isCanUpdate ? (
-            <Link
-              href={editHrefOf(tipeIbadah)}
-              onClick={() => saveFocus(tipeIbadah)}
-              aria-label={labelOf(tipeIbadah)}
-              className={cn(
-                buttonVariants({ variant: "ghost", size: "icon-sm" }),
-                "cursor-pointer",
-              )}
-            >
-              <Pencil aria-hidden />
-            </Link>
-          ) : null}
         </>
       }
     />
   );
 };
 
+const deleteLabelOf = (x: TipeIbadah) => `Hapus ${x.name}`;
+
+export const deleteTargetLabelOf = (x: TipeIbadah) => `${x.name}`;
+
 export function tipeIbadahTable(
   isCanUpdate: boolean,
+  // Dilewatkan dari layar daftar; `undefined` berarti pengguna tidak berhak
+  // menghapus, jadi tombolnya tidak dirender sama sekali.
+  onDelete?: (row: TipeIbadah) => void,
 ): DataTableConfig<TipeIbadah> {
   return {
     columns: [
@@ -91,9 +78,16 @@ export function tipeIbadahTable(
         ),
       },
     ],
-    getRowHref: isCanUpdate ? editHrefOf : undefined,
-    getRowLabel: labelOf,
-    onRowOpen: saveFocus,
-    rowIcon: <Pencil />,
+    getRowActions: (x) => ({
+      label: labelOf(x),
+      edit: {
+        href: isCanUpdate ? editHrefOf(x) : undefined,
+        onNavigate: () => saveFocus(x),
+        label: labelOf(x),
+      },
+      remove: onDelete
+        ? { onSelect: () => onDelete(x), label: deleteLabelOf(x) }
+        : undefined,
+    }),
   };
 }

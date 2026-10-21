@@ -45,8 +45,8 @@ export const orderHref = (code: string) =>
 export const assetHref = (code: string) =>
   detailHref(MENU.FIXED_ASSET, MENU.ASSET_MASTER, code);
 
-export const assetEditHref = (code: string) =>
-  editHref(MENU.FIXED_ASSET, MENU.ASSET_MASTER, code);
+export const assetEditHref = (publicId: string) =>
+  editHref(MENU.FIXED_ASSET, MENU.ASSET_MASTER, publicId);
 
 export const stockItemHref = (code: string) =>
   detailHref(MENU.INVENTORY, MENU.STOCK_ITEM, code);
@@ -360,7 +360,7 @@ export type ReceiptGroup = {
   unit: string;
   unitPrice: string;
   unitPriceIDR: string;
-  assets: { code: string; name: string }[];
+  assets: { publicId: string; code: string; name: string }[];
   stockItem: { code: string; name: string } | null;
 };
 

@@ -1,7 +1,3 @@
-import { Pencil } from "lucide-react";
-import Link from "next/link";
-
-import { buttonVariants } from "@/components/common/control";
 import { MediaThumb, OptionalText } from "@/components/common/display";
 import { DataListRow, type DataTableConfig } from "@/components/common/list";
 import { MENU, editHref } from "@/config/menu";
@@ -23,7 +19,7 @@ import type { ChurchEvent } from "../types";
 import { EventStatusBadge } from "./event-status";
 
 const editHrefOf = (event: ChurchEvent) =>
-  editHref(MENU.KEGIATAN, MENU.EVENT, event.code);
+  editHref(MENU.KEGIATAN, MENU.EVENT, event.publicId);
 
 const saveFocus = (event: ChurchEvent) =>
   saveListFocus(EVENT_LIST_PATH, event.code);
@@ -51,11 +47,10 @@ const quotaCell = (event: ChurchEvent) => (
 
 interface PropTypes {
   event: ChurchEvent;
-  isCanUpdate?: boolean;
 }
 
 export const EventListItemRow = (props: PropTypes) => {
-  const { event, isCanUpdate = false } = props;
+  const { event } = props;
 
   return (
     <DataListRow
@@ -68,27 +63,22 @@ export const EventListItemRow = (props: PropTypes) => {
           {eventStatusOf(event) === "UPCOMING" ? null : (
             <EventStatusBadge event={event} />
           )}
-
-          {isCanUpdate ? (
-            <Link
-              href={editHrefOf(event)}
-              onClick={() => saveFocus(event)}
-              aria-label={labelOf(event)}
-              className={cn(
-                buttonVariants({ variant: "ghost", size: "icon-sm" }),
-                "cursor-pointer",
-              )}
-            >
-              <Pencil aria-hidden />
-            </Link>
-          ) : null}
         </>
       }
     />
   );
 };
 
-export function eventTable(isCanUpdate: boolean): DataTableConfig<ChurchEvent> {
+const deleteLabelOf = (x: ChurchEvent) => `Hapus ${x.name}`;
+
+export const deleteTargetLabelOf = (x: ChurchEvent) => `${x.name}`;
+
+export function eventTable(
+  isCanUpdate: boolean,
+  // Dilewatkan dari layar daftar; `undefined` berarti pengguna tidak berhak
+  // menghapus, jadi tombolnya tidak dirender sama sekali.
+  onDelete?: (row: ChurchEvent) => void,
+): DataTableConfig<ChurchEvent> {
   return {
     columns: [
       {
@@ -172,9 +162,16 @@ export function eventTable(isCanUpdate: boolean): DataTableConfig<ChurchEvent> {
         cell: (event) => <EventStatusBadge event={event} />,
       },
     ],
-    getRowHref: isCanUpdate ? editHrefOf : undefined,
-    getRowLabel: labelOf,
-    onRowOpen: saveFocus,
-    rowIcon: <Pencil />,
+    getRowActions: (x) => ({
+      label: labelOf(x),
+      edit: {
+        href: isCanUpdate ? editHrefOf(x) : undefined,
+        onNavigate: () => saveFocus(x),
+        label: labelOf(x),
+      },
+      remove: onDelete
+        ? { onSelect: () => onDelete(x), label: deleteLabelOf(x) }
+        : undefined,
+    }),
   };
 }

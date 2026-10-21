@@ -132,7 +132,7 @@ export const ReceiptDetailScreen = (props: PropTypes) => {
               {`${formatNumber(assetCount)} barang baru belum punya nomor seri, foto, dan penyusutan. Lengkapi lewat kode barangnya di bawah.`}
             </p>
             <Link
-              href={assetEditHref(firstAsset.code)}
+              href={assetEditHref(firstAsset.publicId)}
               className={buttonVariants({ variant: "outline" })}
             >
               Lengkapi data barang

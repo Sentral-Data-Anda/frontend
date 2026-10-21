@@ -380,12 +380,13 @@ export const menuHref = (groupSlug: string, leafSlug: string): string =>
 export const createHref = (groupSlug: string, leafSlug: string): string =>
   `${menuHref(groupSlug, leafSlug)}/${FORM_SEGMENT.create}`;
 
+// Halaman ubah. Parameternya bukan `publicId`: backend menerima publicId maupun kode lama.
 export const editHref = (
   groupSlug: string,
   leafSlug: string,
-  code: string,
+  id: string,
 ): string =>
-  `${menuHref(groupSlug, leafSlug)}/${encodeURIComponent(code)}/${FORM_SEGMENT.edit}`;
+  `${menuHref(groupSlug, leafSlug)}/${FORM_SEGMENT.edit}/${encodeURIComponent(id)}`;
 
 export const detailHref = (
   groupSlug: string,
@@ -408,11 +409,11 @@ export const rejectHref = (
   `${menuHref(groupSlug, leafSlug)}/${encodeURIComponent(code)}/${FORM_SEGMENT.reject}`;
 
 export const FORM_SEGMENT = {
-  create: "baru",
-  edit: "ubah",
-  end: "akhiri",
-  reject: "tolak",
-  rotation: "giliran",
+  create: "create",
+  edit: "edit",
+  end: "end",
+  reject: "reject",
+  rotation: "rotation",
   kolekte: "kolekte",
   label: "label",
 } as const;
@@ -431,13 +432,17 @@ export function isFormRoute(pathname: string): boolean {
   const segments = pathname.split("/").filter(Boolean);
   const last = segments.at(-1);
 
-  // ≥ 3 segmen: layar be-sada `/<domain>/<layar>` yang kebetulan ber-slug `baru` bukan form.
+  // ≥ 3 segmen: layar be-sada `/<domain>/<layar>` yang kebetulan ber-slug `create` bukan form.
   if (segments.length < 3 || last === undefined) return false;
 
-  return (
-    FORM_SEGMENTS.includes(last) ||
-    FORM_PREFIXES.some((prefix) => last.startsWith(prefix))
-  );
+  // Segmen form bisa bukan yang terakhir: `/edit/<publicId>` menaruh id di belakang.
+  const isFormSegment = (segment: string) =>
+    FORM_SEGMENTS.includes(segment) ||
+    FORM_PREFIXES.some((prefix) => segment.startsWith(prefix));
+
+  // Dua segmen pertama adalah domain dan menu; sebuah menu ber-slug `label`
+  // bukan form.
+  return segments.slice(2).some(isFormSegment);
 }
 
 export const domainHref = (domainSlug: string): string =>

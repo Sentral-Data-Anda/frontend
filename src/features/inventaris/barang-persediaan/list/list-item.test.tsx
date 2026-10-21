@@ -1,10 +1,12 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, expect, test } from "bun:test";
 
+import { RowActionsProvider } from "@/components/common/list";
+
 import { stockDetailHref, stockEditHref } from "../model";
 import type { StockItem } from "../types";
 
-import { StockListItemRow, persediaanTable } from "./list-item";
+import { persediaanTable, StockListItemRow } from "./list-item";
 
 afterEach(cleanup);
 
@@ -32,9 +34,11 @@ const ROTI: StockItem = {
 
 test("baris: judul ke halaman; meta stok + ruang; Menipis; pensil hanya dengan UPDATE", () => {
   render(
-    <ul>
-      <StockListItemRow item={ROTI} />
-    </ul>,
+    <RowActionsProvider value={persediaanTable(false).getRowActions?.(ROTI)}>
+      <ul>
+        <StockListItemRow item={ROTI} />
+      </ul>
+    </RowActionsProvider>,
   );
 
   expect(
@@ -50,16 +54,20 @@ test("baris: judul ke halaman; meta stok + ruang; Menipis; pensil hanya dengan U
 
   cleanup();
   render(
-    <ul>
-      <StockListItemRow item={{ ...ROTI, quantity: 0 }} isCanUpdate />
-    </ul>,
+    <RowActionsProvider
+      value={persediaanTable(true).getRowActions?.({ ...ROTI, quantity: 0 })}
+    >
+      <ul>
+        <StockListItemRow item={{ ...ROTI, quantity: 0 }} />
+      </ul>
+    </RowActionsProvider>,
   );
   expect(screen.getByText("Habis")).toBeTruthy();
   expect(
     screen
       .getByRole("link", { name: "Ubah Roti Perjamuan" })
       .getAttribute("href"),
-  ).toBe(stockEditHref("BRP-0002"));
+  ).toBe(stockEditHref("s2"));
 });
 
 test("tabel: kolom sesuai brief; aksi hanya dengan UPDATE", () => {
@@ -71,8 +79,11 @@ test("tabel: kolom sesuai brief; aksi hanya dengan UPDATE", () => {
     "type",
     "status",
   ]);
-  expect(persediaanTable(true).columns.at(-1)?.key).toBe("edit");
-  expect(persediaanTable(false).getRowHref?.(ROTI)).toBe(
+  expect(persediaanTable(true).getRowActions?.(ROTI)?.edit?.href).toContain(
+    "/edit/",
+  );
+  expect(persediaanTable(false).getRowActions?.(ROTI)?.edit).toBeUndefined();
+  expect(persediaanTable(false).getRowActions?.(ROTI)?.view?.href).toBe(
     stockDetailHref("BRP-0002"),
   );
 });

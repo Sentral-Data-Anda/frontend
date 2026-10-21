@@ -80,7 +80,7 @@ export const StatusActions = (props: PropTypes) => {
         {isDraft && isCanUpdate ? (
           <>
             <Link
-              href={requestEditHref(request.code)}
+              href={requestEditHref(request.publicId)}
               aria-disabled={isBusy || undefined}
               className={cn(buttonVariants({ variant: "outline" }), LINK_BUSY)}
             >

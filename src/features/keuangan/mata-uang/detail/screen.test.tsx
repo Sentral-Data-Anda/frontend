@@ -159,7 +159,7 @@ describe("halaman mata uang", () => {
     const edit = await screen.findByRole("link", {
       name: "Ubah kurs 27 September 2026",
     });
-    expect(edit.getAttribute("href")).toBe("/finance/currency/USD/kurs/4/ubah");
+    expect(edit.getAttribute("href")).toBe("/finance/currency/USD/kurs/edit/4");
     expect(screen.queryByRole("button", { name: /Hapus/ })).toBeNull();
     expect(screen.getByRole("link", { name: "Ubah" })).toBeTruthy();
   });

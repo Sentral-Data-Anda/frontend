@@ -1,3 +1,4 @@
+import { Toast } from "@base-ui/react/toast";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, render, screen } from "@testing-library/react";
 import {
@@ -68,7 +69,9 @@ const onRenderPage = async (query: string) => {
         new QueryClient({ defaultOptions: { queries: { retry: false } } })
       }
     >
-      <HolidayListScreen />
+      <Toast.Provider>
+        <HolidayListScreen />
+      </Toast.Provider>
     </QueryClientProvider>,
   );
 

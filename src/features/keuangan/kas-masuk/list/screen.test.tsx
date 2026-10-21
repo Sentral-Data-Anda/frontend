@@ -140,7 +140,7 @@ describe("ReceiptListScreen", () => {
     const shortcut = screen.getByLabelText("Catat pencairan payment gateway");
 
     expect(shortcut.getAttribute("href")).toBe(
-      "/finance/kas-masuk/baru?pencairan=1",
+      "/finance/kas-masuk/create?pencairan=1",
     );
   });
 

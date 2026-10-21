@@ -1,3 +1,4 @@
+import { Toast } from "@base-ui/react/toast";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   act,
@@ -125,7 +126,9 @@ const onRender = (actions: MenuAction[]) => {
         new QueryClient({ defaultOptions: { queries: { retry: false } } })
       }
     >
-      <KontrakListScreen />
+      <Toast.Provider>
+        <KontrakListScreen />
+      </Toast.Provider>
     </QueryClientProvider>,
   );
 };

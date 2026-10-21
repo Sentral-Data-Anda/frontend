@@ -48,10 +48,10 @@ export const cycleListHref = (kind: CycleKind) =>
     : `${CYCLE_LIST_PATH}?${KIND_PARAM}=${kind}`;
 
 export const cycleCreateHref = (kind: CycleKind) =>
-  `${CYCLE_LIST_PATH}/${kind}/baru`;
+  `${CYCLE_LIST_PATH}/${kind}/create`;
 
 export const maintenanceEditHref = (code: string) =>
-  `${CYCLE_LIST_PATH}/perawatan/${encodeURIComponent(code)}/ubah`;
+  `${CYCLE_LIST_PATH}/perawatan/edit/${encodeURIComponent(code)}`;
 
 export const transferHref = (code: string) =>
   `${CYCLE_LIST_PATH}/pindah/${encodeURIComponent(code)}`;

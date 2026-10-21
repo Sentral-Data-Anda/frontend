@@ -1,6 +1,8 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
+import { RowActionsProvider } from "@/components/common/list";
+
 import type { RoleUserItem } from "../types";
 
 import { RoleUserListItemRow, roleUserTable } from "./list-item";
@@ -17,9 +19,13 @@ const ROLE: RoleUserItem = {
 
 const onRenderRow = (role: RoleUserItem, isCanUpdate = false) =>
   render(
-    <ul>
-      <RoleUserListItemRow role={role} isCanUpdate={isCanUpdate} />
-    </ul>,
+    <RowActionsProvider
+      value={roleUserTable(isCanUpdate).getRowActions?.(role)}
+    >
+      <ul>
+        <RoleUserListItemRow role={role} />
+      </ul>
+    </RowActionsProvider>,
   );
 
 describe("baris HP", () => {
@@ -49,7 +55,7 @@ describe("baris HP", () => {
       screen
         .getByRole("link", { name: "Ubah Operator Sistem" })
         .getAttribute("href"),
-    ).toBe("/settings/user-role/3/ubah");
+    ).toBe("/settings/user-role/edit/3");
     expect(document.querySelector('[data-row-id="3"]')).not.toBeNull();
   });
 
@@ -74,7 +80,11 @@ describe("konfigurasi tabel", () => {
         .filter((column) => column.isSecondary)
         .map((column) => column.key),
     ).toEqual(["userCount"]);
-    expect(table.getRowHref?.(ROLE)).toBe("/settings/user-role/3/ubah");
-    expect(roleUserTable(false).getRowHref).toBeUndefined();
+    expect(table.getRowActions?.(ROLE)?.edit?.href).toBe(
+      "/settings/user-role/edit/3",
+    );
+    expect(
+      roleUserTable(false).getRowActions?.(ROLE)?.edit?.href,
+    ).toBeUndefined();
   });
 });

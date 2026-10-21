@@ -1,11 +1,6 @@
-import { Pencil } from "lucide-react";
-import Link from "next/link";
-
-import { buttonVariants } from "@/components/common/control";
 import { DataListRow, type DataTableConfig } from "@/components/common/list";
 import { MENU, editHref } from "@/config/menu";
 import { saveListFocus } from "@/lib/list-return";
-import { cn } from "@/lib/utils";
 
 import { ROLE_PELAYAN_LIST_PATH, isPemusikRole } from "../model";
 import type { RolePelayan } from "../types";
@@ -20,11 +15,10 @@ const labelOf = (rolePelayan: RolePelayan) => `Ubah ${rolePelayan.name}`;
 
 interface PropTypes {
   rolePelayan: RolePelayan;
-  isCanUpdate?: boolean;
 }
 
 export const RolePelayanListItemRow = (props: PropTypes) => {
-  const { rolePelayan, isCanUpdate = false } = props;
+  const { rolePelayan } = props;
 
   return (
     <DataListRow
@@ -35,27 +29,19 @@ export const RolePelayanListItemRow = (props: PropTypes) => {
           ? "Dipakai untuk memilih alat musik di jadwal"
           : undefined
       }
-      trailing={
-        isCanUpdate ? (
-          <Link
-            href={editHrefOf(rolePelayan)}
-            onClick={() => saveFocus(rolePelayan)}
-            aria-label={labelOf(rolePelayan)}
-            className={cn(
-              buttonVariants({ variant: "ghost", size: "icon-sm" }),
-              "cursor-pointer",
-            )}
-          >
-            <Pencil aria-hidden />
-          </Link>
-        ) : null
-      }
     />
   );
 };
 
+const deleteLabelOf = (x: RolePelayan) => `Hapus ${x.name}`;
+
+export const deleteTargetLabelOf = (x: RolePelayan) => `${x.name}`;
+
 export function rolePelayanTable(
   isCanUpdate: boolean,
+  // Dilewatkan dari layar daftar; `undefined` berarti pengguna tidak berhak
+  // menghapus, jadi tombolnya tidak dirender sama sekali.
+  onDelete?: (row: RolePelayan) => void,
 ): DataTableConfig<RolePelayan> {
   return {
     columns: [
@@ -71,9 +57,16 @@ export function rolePelayanTable(
         ),
       },
     ],
-    getRowHref: isCanUpdate ? editHrefOf : undefined,
-    getRowLabel: labelOf,
-    onRowOpen: saveFocus,
-    rowIcon: <Pencil />,
+    getRowActions: (x) => ({
+      label: labelOf(x),
+      edit: {
+        href: isCanUpdate ? editHrefOf(x) : undefined,
+        onNavigate: () => saveFocus(x),
+        label: labelOf(x),
+      },
+      remove: onDelete
+        ? { onSelect: () => onDelete(x), label: deleteLabelOf(x) }
+        : undefined,
+    }),
   };
 }

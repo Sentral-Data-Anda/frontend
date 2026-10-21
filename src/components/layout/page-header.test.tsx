@@ -7,7 +7,7 @@ afterEach(cleanup);
 
 test("PageHeaderAdd: teks bawaan Tambah, bisa diganti; nama aksesibel dari label", () => {
   const { rerender } = render(
-    <PageHeaderAdd href="/a/baru" label="Tambah tipe barang" />,
+    <PageHeaderAdd href="/a/create" label="Tambah tipe barang" />,
   );
 
   expect(
@@ -16,7 +16,7 @@ test("PageHeaderAdd: teks bawaan Tambah, bisa diganti; nama aksesibel dari label
 
   rerender(
     <PageHeaderAdd
-      href="/a/baru"
+      href="/a/create"
       label="Catat mutasi stok"
       text="Catat mutasi"
     />,

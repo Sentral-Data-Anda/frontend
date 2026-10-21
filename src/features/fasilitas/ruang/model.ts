@@ -29,11 +29,11 @@ export const RUANG_CREATE_PATH = createHref(MENU.FASILITAS, MENU.RUANG);
 export const ruangDetailHref = (code: string) =>
   detailHref(MENU.FASILITAS, MENU.RUANG, code);
 
-export const ruangEditHref = (code: string) =>
-  editHref(MENU.FASILITAS, MENU.RUANG, code);
+export const ruangEditHref = (publicId: string) =>
+  editHref(MENU.FASILITAS, MENU.RUANG, publicId);
 
-export const loanEditHref = (code: string) =>
-  editHref(MENU.FASILITAS, MENU.PEMINJAMAN_RUANG, code);
+export const loanEditHref = (publicId: string) =>
+  editHref(MENU.FASILITAS, MENU.PEMINJAMAN_RUANG, publicId);
 
 export const IS_ACTIVE_PARAM: Record<string, string> = {
   aktif: "1",

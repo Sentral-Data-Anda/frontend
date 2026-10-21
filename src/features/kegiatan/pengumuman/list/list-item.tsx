@@ -1,14 +1,11 @@
-import { Pencil, Pin } from "lucide-react";
-import Link from "next/link";
+import { Pin } from "lucide-react";
 
-import { buttonVariants } from "@/components/common/control";
 import { Badge, OptionalText } from "@/components/common/display";
 import { DataListRow, type DataTableConfig } from "@/components/common/list";
 import { MENU, editHref } from "@/config/menu";
 import { ANNOUNCEMENT_STATUS_LABEL, categoryLabelOf } from "@/lib/announcement";
 import { formatDateShort } from "@/lib/format";
 import { saveListFocus } from "@/lib/list-return";
-import { cn } from "@/lib/utils";
 
 import {
   PENGUMUMAN_LIST_PATH,
@@ -19,7 +16,7 @@ import {
 import type { Announcement } from "../types";
 
 const editHrefOf = (announcement: Announcement) =>
-  editHref(MENU.KEGIATAN, MENU.PENGUMUMAN, announcement.code);
+  editHref(MENU.KEGIATAN, MENU.PENGUMUMAN, announcement.publicId);
 
 const saveFocus = (announcement: Announcement) =>
   saveListFocus(PENGUMUMAN_LIST_PATH, announcement.code);
@@ -48,41 +45,30 @@ const titleOf = (announcement: Announcement) =>
 
 interface PropTypes {
   announcement: Announcement;
-  isCanUpdate?: boolean;
 }
 
 export const PengumumanListItemRow = (props: PropTypes) => {
-  const { announcement, isCanUpdate = false } = props;
+  const { announcement } = props;
 
   return (
     <DataListRow
       id={announcement.code}
       title={titleOf(announcement)}
       meta={`${categoryLabelOf(announcement.category)} · ${periodOf(announcement)}`}
-      trailing={
-        <>
-          {statusOf(announcement)}
-          {isCanUpdate ? (
-            <Link
-              href={editHrefOf(announcement)}
-              onClick={() => saveFocus(announcement)}
-              aria-label={labelOf(announcement)}
-              className={cn(
-                buttonVariants({ variant: "ghost", size: "icon-sm" }),
-                "cursor-pointer",
-              )}
-            >
-              <Pencil aria-hidden />
-            </Link>
-          ) : null}
-        </>
-      }
+      trailing={<>{statusOf(announcement)}</>}
     />
   );
 };
 
+const deleteLabelOf = (x: Announcement) => `Hapus ${x.title}`;
+
+export const deleteTargetLabelOf = (x: Announcement) => `${x.title}`;
+
 export function pengumumanTable(
   isCanUpdate: boolean,
+  // Dilewatkan dari layar daftar; `undefined` berarti pengguna tidak berhak
+  // menghapus, jadi tombolnya tidak dirender sama sekali.
+  onDelete?: (row: Announcement) => void,
 ): DataTableConfig<Announcement> {
   return {
     columns: [
@@ -171,9 +157,16 @@ export function pengumumanTable(
         cell: statusOf,
       },
     ],
-    getRowHref: isCanUpdate ? editHrefOf : undefined,
-    getRowLabel: labelOf,
-    onRowOpen: saveFocus,
-    rowIcon: <Pencil />,
+    getRowActions: (x) => ({
+      label: labelOf(x),
+      edit: {
+        href: isCanUpdate ? editHrefOf(x) : undefined,
+        onNavigate: () => saveFocus(x),
+        label: labelOf(x),
+      },
+      remove: onDelete
+        ? { onSelect: () => onDelete(x), label: deleteLabelOf(x) }
+        : undefined,
+    }),
   };
 }

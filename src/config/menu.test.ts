@@ -89,26 +89,28 @@ describe("leafIcon", () => {
 describe("rute layar isian", () => {
   test("rute tambah dan ubah diturunkan dari rute layarnya", () => {
     expect(createHref(MENU.KEJEMAATAN, MENU.DAFTAR_JEMAAT)).toBe(
-      "/kejemaatan/daftar-jemaat/baru",
+      "/kejemaatan/daftar-jemaat/create",
     );
     expect(editHref(MENU.KEJEMAATAN, MENU.DAFTAR_JEMAAT, "JMT-0042")).toBe(
-      "/kejemaatan/daftar-jemaat/JMT-0042/ubah",
+      "/kejemaatan/daftar-jemaat/edit/JMT-0042",
     );
   });
 
   test("keduanya dikenali sebagai layar isian", () => {
-    expect(isFormRoute("/kejemaatan/daftar-jemaat/baru")).toBe(true);
-    expect(isFormRoute("/kejemaatan/daftar-jemaat/JMT-0042/ubah")).toBe(true);
-    expect(isFormRoute("/kejemaatan/pernikahan/abc/akhiri")).toBe(true);
-    expect(isFormRoute("/kejemaatan/keluarga/KK-0001/anggota/baru")).toBe(true);
-    expect(isFormRoute("/peribadahan/ibadah/giliran")).toBe(true);
+    expect(isFormRoute("/kejemaatan/daftar-jemaat/create")).toBe(true);
+    expect(isFormRoute("/kejemaatan/daftar-jemaat/edit/JMT-0042")).toBe(true);
+    expect(isFormRoute("/kejemaatan/pernikahan/abc/end")).toBe(true);
+    expect(isFormRoute("/kejemaatan/keluarga/KK-0001/anggota/create")).toBe(
+      true,
+    );
+    expect(isFormRoute("/peribadahan/ibadah/rotation")).toBe(true);
     expect(isFormRoute("/fixed-asset/asset-master/label")).toBe(true);
   });
 
   test("halaman tolak permintaan adalah layar isian", () => {
     const href = rejectHref(MENU.APPROVAL, MENU.APPROVAL_REQUEST, "0b1c-uuid");
 
-    expect(href).toBe("/approval/approval-request/0b1c-uuid/tolak");
+    expect(href).toBe("/approval/approval-request/0b1c-uuid/reject");
     expect(isFormRoute(href)).toBe(true);
   });
 
@@ -118,10 +120,10 @@ describe("rute layar isian", () => {
     expect(isFormRoute("/")).toBe(false);
   });
 
-  test("layar ber-slug baru/ubah TIDAK ikut kehilangan navigasi", () => {
-    expect(isFormRoute("/kegiatan/baru")).toBe(false);
-    expect(isFormRoute("/kegiatan/ubah")).toBe(false);
-    expect(isFormRoute("/peribadahan/giliran")).toBe(false);
+  test("layar ber-slug baru/edit TIDAK ikut kehilangan navigasi", () => {
+    expect(isFormRoute("/kegiatan/create")).toBe(false);
+    expect(isFormRoute("/kegiatan/edit")).toBe(false);
+    expect(isFormRoute("/peribadahan/rotation")).toBe(false);
   });
 });
 
@@ -139,7 +141,7 @@ describe("isFormRoute: layar posting batch", () => {
   });
 
   test("segmen form lama tidak berubah", () => {
-    expect(isFormRoute("/finance/journal-entry/baru")).toBe(true);
-    expect(isFormRoute("/finance/journal-entry/jrn-0003/ubah")).toBe(true);
+    expect(isFormRoute("/finance/journal-entry/create")).toBe(true);
+    expect(isFormRoute("/finance/journal-entry/edit/jrn-0003")).toBe(true);
   });
 });

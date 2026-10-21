@@ -19,6 +19,7 @@ export type PaymentStatus = keyof typeof PAYMENT_STATUS_LABEL;
 
 export type RegistrationEvent = {
   id: number;
+  publicId: string;
   code: string;
   name: string;
   startDate: string;
