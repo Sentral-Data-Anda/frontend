@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { AppShell } from "@/components/layout/app-shell";
 import { SessionProvider } from "@/features/auth";
 import { getSession } from "@/features/auth/get-session";
+import { SentryUser } from "@/features/observability";
 
 export default async function AppLayout({
   children,
@@ -17,6 +18,7 @@ export default async function AppLayout({
 
   return (
     <SessionProvider session={session}>
+      <SentryUser />
       <AppShell>{children}</AppShell>
     </SessionProvider>
   );

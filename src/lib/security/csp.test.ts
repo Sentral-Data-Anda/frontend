@@ -47,7 +47,7 @@ describe("buildContentSecurityPolicy", () => {
   });
 
   test("worker-src dan manifest-src ada — tanpa keduanya aplikasi berhenti installable", () => {
-    expect(directive("worker-src")).toBe("worker-src 'self'");
+    expect(directive("worker-src")).toBe("worker-src 'self' blob:");
     expect(directive("manifest-src")).toBe("manifest-src 'self'");
   });
 

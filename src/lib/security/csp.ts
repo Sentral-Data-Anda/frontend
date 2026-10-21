@@ -34,7 +34,8 @@ export function buildContentSecurityPolicy({
 
     `connect-src 'self'`,
 
-    `worker-src 'self'`,
+    // Sentry Replay mengompres di Web Worker dari blob:.
+    `worker-src 'self' blob:`,
     `manifest-src 'self'`,
 
     `object-src 'none'`,

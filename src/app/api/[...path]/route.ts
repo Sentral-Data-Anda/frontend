@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { clientContextOf, refreshSession } from "@/features/auth/refresh";
@@ -229,8 +230,43 @@ const forwardToBackend = async (
   return response;
 };
 
-export const GET = forwardToBackend;
-export const POST = forwardToBackend;
-export const PUT = forwardToBackend;
-export const PATCH = forwardToBackend;
-export const DELETE = forwardToBackend;
+type RouteContext = { params: Promise<{ path: string[] }> };
+
+/**
+ * Bungkus handler BFF dengan metrik Sentry (Metrics): jumlah request + durasi.
+ * Route sengaja hanya 2 segmen pertama supaya kardinalitas atribut tetap kecil.
+ */
+const withMetrics =
+  (
+    handler: (request: NextRequest, context: RouteContext) => Promise<Response>,
+  ) =>
+  async (request: NextRequest, context: RouteContext): Promise<Response> => {
+    const startedAt = Date.now();
+    const { path } = await context.params;
+    const route = `/${path.slice(0, 2).join("/")}`;
+
+    try {
+      const response = await handler(request, context);
+
+      Sentry.metrics.count("api.request", 1, {
+        attributes: { method: request.method, status: response.status, route },
+      });
+      Sentry.metrics.distribution("api.duration", Date.now() - startedAt, {
+        unit: "millisecond",
+        attributes: { method: request.method, status: response.status },
+      });
+
+      return response;
+    } catch (error) {
+      Sentry.metrics.count("api.request", 1, {
+        attributes: { method: request.method, status: "error", route },
+      });
+      throw error;
+    }
+  };
+
+export const GET = withMetrics(forwardToBackend);
+export const POST = withMetrics(forwardToBackend);
+export const PUT = withMetrics(forwardToBackend);
+export const PATCH = withMetrics(forwardToBackend);
+export const DELETE = withMetrics(forwardToBackend);
