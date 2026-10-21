@@ -1,17 +1,29 @@
 "use client";
 
+import { useState } from "react";
+
 import { optionsOf } from "@/components/common/control";
-import { DataList, ListToolbar } from "@/components/common/list";
+import { useToast } from "@/components/common/feedback";
+import {
+  DataList,
+  ListToolbar,
+  RowDeleteDialog,
+} from "@/components/common/list";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { useListParams, type ListFilterSchema } from "@/hooks/use-list-params";
 
-import { useMaintenanceList } from "../api";
+import { useDeleteMaintenance, useMaintenanceList } from "../api";
 import { MAINTENANCE_STATUS_LABEL } from "../model";
+import type { Maintenance } from "../types";
 
 import { ListHeader } from "./list-header";
 import { EMPTY_FILTERED, MONTH_FILTER, SEARCH } from "./list-options";
-import { MaintenanceItem, maintenanceTable } from "./maintenance-item";
+import {
+  deleteTargetLabelOf,
+  MaintenanceItem,
+  maintenanceTable,
+} from "./maintenance-item";
 
 const LIST_FILTERS = { bulan: { api: "bulan" } } satisfies ListFilterSchema;
 
@@ -21,10 +33,31 @@ const STATUS_OPTIONS = [
 ];
 
 export const MaintenanceContent = () => {
-  const { isCanUpdate } = useMenuAccess(MENU.ASSET_TRANSACTION);
+  const { isCanUpdate, isCanDelete } = useMenuAccess(MENU.ASSET_TRANSACTION);
+
+  const toast = useToast();
+
+  // Satu keadaan menyimpan baris yang akan dihapus sekaligus status terbuka
+  // dialognya. Hook hapus dibuat ulang mengikuti kunci baris ini.
+  const [target, setTarget] = useState<Maintenance | null>(null);
+  const deleteRow = useDeleteMaintenance(target?.code);
   const listParams = useListParams({ filters: LIST_FILTERS });
   const list = useMaintenanceList(listParams);
   const isFiltered = Boolean(listParams.search) || listParams.isFiltered;
+
+  const onDelete = () => {
+    deleteRow.mutate(undefined, {
+      onSuccess: (deleted) => {
+        toast.add({ title: deleted.message });
+        setTarget(null);
+      },
+    });
+  };
+
+  const onCancelDelete = () => {
+    deleteRow.reset();
+    setTarget(null);
+  };
 
   return (
     <div className="pb-6">
@@ -67,11 +100,23 @@ export const MaintenanceContent = () => {
           listParams.isFiltered ? listParams.onClearFilters : undefined
         }
         pagination={list.pagination}
-        table={maintenanceTable(isCanUpdate)}
+        table={maintenanceTable(
+          isCanUpdate,
+          isCanDelete ? setTarget : undefined,
+        )}
         itemNoun="perawatan"
       >
         {(row) => <MaintenanceItem row={row} />}
       </DataList>
+
+      <RowDeleteDialog
+        target={target ? { label: deleteTargetLabelOf(target) } : null}
+        entity="perawatan"
+        isPending={deleteRow.isPending}
+        errorMessage={deleteRow.error?.message}
+        onCancel={onCancelDelete}
+        onConfirm={onDelete}
+      />
     </div>
   );
 };

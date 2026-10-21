@@ -1,3 +1,4 @@
+import { Toast } from "@base-ui/react/toast";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, mock, test } from "bun:test";
@@ -90,7 +91,9 @@ const onRender = (granted: MenuAction[]) => {
         new QueryClient({ defaultOptions: { queries: { retry: false } } })
       }
     >
-      <KatalogListScreen />
+      <Toast.Provider>
+        <KatalogListScreen />
+      </Toast.Provider>
     </QueryClientProvider>,
   );
 };
@@ -160,6 +163,18 @@ describe("konfigurasi tabel katalog", () => {
       "/hr/payroll-component/edit/pid-kpy-0001",
     );
     expect(table.getRowActions?.(ROWS[1])?.edit?.href).toBeUndefined();
+  });
+
+  test("Hapus: baris biasa ya, PPH21 tidak, tanpa pengendali tidak", async () => {
+    const { katalogTable } = await import("./katalog-item");
+    const onDelete = mock(() => {});
+    const table = katalogTable(true, undefined, onDelete);
+
+    table.getRowActions?.(ROWS[0])?.remove?.onSelect?.();
+
+    expect(onDelete).toHaveBeenCalledWith(ROWS[0]);
+    expect(table.getRowActions?.(ROWS[1])?.remove).toBeUndefined();
+    expect(katalogTable(true).getRowActions?.(ROWS[0])?.remove).toBeUndefined();
   });
 
   test("tujuh kolom, dan Cara hitung serta Akun yang pelengkap", async () => {

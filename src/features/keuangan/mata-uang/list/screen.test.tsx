@@ -1,5 +1,6 @@
+import { Toast } from "@base-ui/react/toast";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import {
   afterAll,
   afterEach,
@@ -90,7 +91,9 @@ const onRender = (granted: MenuAction[]) => {
 
   return render(
     <QueryClientProvider client={new QueryClient()}>
-      <CurrencyListScreen />
+      <Toast.Provider>
+        <CurrencyListScreen />
+      </Toast.Provider>
     </QueryClientProvider>,
   );
 };
@@ -120,6 +123,48 @@ describe("daftar mata uang", () => {
 
     expect(
       screen.getByText("Anda tidak memiliki akses ke Currency"),
+    ).toBeTruthy();
+  });
+
+  test("Hapus hanya dengan DELETE, dan tidak untuk mata uang dasar", async () => {
+    onRender(["VIEW"]);
+    await screen.findByText("Mata uang dasar");
+    expect(
+      screen.queryAllByRole("button", { name: /^Hapus mata uang/ }),
+    ).toHaveLength(0);
+
+    cleanup();
+    onRender(["VIEW", "DELETE"]);
+    await screen.findByText("Mata uang dasar");
+
+    const names = screen
+      .getAllByRole("button", { name: /^Hapus mata uang/ })
+      .map((button) => button.getAttribute("aria-label"));
+
+    expect(names).toEqual(
+      ROWS.filter((row) => !row.isBase).map(
+        (row) => `Hapus mata uang ${row.code} ${row.name}`,
+      ),
+    );
+  });
+
+  test("Hapus membuka dialog konfirmasi bernama baris itu", async () => {
+    onRender(["VIEW", "DELETE"]);
+    await screen.findByText("Mata uang dasar");
+
+    const row = ROWS[1];
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: `Hapus mata uang ${row.code} ${row.name}`,
+      }),
+    );
+
+    expect(await screen.findByText("Hapus mata uang ini?")).toBeTruthy();
+    expect(
+      screen.getByText(
+        `${row.code} ${row.name} akan dihapus. Tindakan ini tidak bisa dibatalkan.`,
+      ),
     ).toBeTruthy();
   });
 });

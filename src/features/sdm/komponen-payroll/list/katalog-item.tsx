@@ -64,9 +64,14 @@ export const KatalogListItemRow = (props: PropTypes) => {
   );
 };
 
+const deleteLabelOf = (x: KomponenPayroll) => `Hapus ${x.name}`;
+
+export const deleteTargetLabelOf = (x: KomponenPayroll) => x.name;
+
 export function katalogTable(
   isCanUpdate: boolean,
   accountLabelOf: AccountLabelOf = DEFAULT_ACCOUNT_LABEL,
+  onDelete?: (row: KomponenPayroll) => void,
 ): DataTableConfig<KomponenPayroll> {
   return {
     columns: [
@@ -161,6 +166,10 @@ export function katalogTable(
         onNavigate: () => saveFocus(x),
         label: labelOf(x),
       },
+      remove:
+        onDelete && !isManaged(x)
+          ? { onSelect: () => onDelete(x), label: deleteLabelOf(x) }
+          : undefined,
     }),
   };
 }

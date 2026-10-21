@@ -1,13 +1,20 @@
 "use client";
 
-import { DataList, ListToolbar } from "@/components/common/list";
+import { useState } from "react";
+
+import { useToast } from "@/components/common/feedback";
+import {
+  DataList,
+  ListToolbar,
+  RowDeleteDialog,
+} from "@/components/common/list";
 import { PageHeader, PageHeaderAdd } from "@/components/layout";
 import { MENU, domainHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { useDdlOptions } from "@/hooks/use-ddl-options";
 import { useListParams } from "@/hooks/use-list-params";
 
-import { useKomponenPayrollList } from "../api";
+import { useDeleteKomponenPayroll, useKomponenPayrollList } from "../api";
 import {
   ACCOUNT_LOADING,
   ACCOUNT_UNKNOWN,
@@ -16,10 +23,14 @@ import {
   KATALOG_FILTERS,
   KATALOG_LIST_PATH,
 } from "../model";
-import { COMPONENT_TYPE_FILTER } from "../types";
+import { COMPONENT_TYPE_FILTER, type KomponenPayroll } from "../types";
 import { KomponenPayrollTabs } from "../ui";
 
-import { katalogTable, KatalogListItemRow } from "./katalog-item";
+import {
+  deleteTargetLabelOf,
+  katalogTable,
+  KatalogListItemRow,
+} from "./katalog-item";
 
 type AccountOption = {
   id: number;
@@ -28,7 +39,16 @@ type AccountOption = {
 };
 
 export const KatalogList = () => {
-  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.PAYROLL_COMPONENT);
+  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+    MENU.PAYROLL_COMPONENT,
+  );
+
+  const toast = useToast();
+
+  // Satu keadaan menyimpan baris yang akan dihapus sekaligus status terbuka
+  // dialognya. Hook hapus dibuat ulang mengikuti kunci baris ini.
+  const [target, setTarget] = useState<KomponenPayroll | null>(null);
+  const deleteRow = useDeleteKomponenPayroll(target?.code);
   const listParams = useListParams({ filters: KATALOG_FILTERS });
   const components = useKomponenPayrollList(listParams);
   const accounts = useDdlOptions<AccountOption>("account");
@@ -43,6 +63,20 @@ export const KatalogList = () => {
     const account = accounts.rows.find((row) => row.id === accountId);
 
     return account ? `${account.code} — ${account.name}` : ACCOUNT_UNKNOWN;
+  };
+
+  const onDelete = () => {
+    deleteRow.mutate(undefined, {
+      onSuccess: (deleted) => {
+        toast.add({ title: deleted.message });
+        setTarget(null);
+      },
+    });
+  };
+
+  const onCancelDelete = () => {
+    deleteRow.reset();
+    setTarget(null);
   };
 
   return (
@@ -98,12 +132,25 @@ export const KatalogList = () => {
           listParams.isFiltered ? listParams.onClearFilters : undefined
         }
         pagination={components.pagination}
-        table={katalogTable(isCanUpdate, accountLabelOf)}
+        table={katalogTable(
+          isCanUpdate,
+          accountLabelOf,
+          isCanDelete ? setTarget : undefined,
+        )}
         loadingShape="trailing"
         itemNoun="komponen"
       >
         {(component) => <KatalogListItemRow component={component} />}
       </DataList>
+
+      <RowDeleteDialog
+        target={target ? { label: deleteTargetLabelOf(target) } : null}
+        entity="komponen"
+        isPending={deleteRow.isPending}
+        errorMessage={deleteRow.error?.message}
+        onCancel={onCancelDelete}
+        onConfirm={onDelete}
+      />
     </div>
   );
 };

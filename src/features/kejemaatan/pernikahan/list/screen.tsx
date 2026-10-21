@@ -1,20 +1,54 @@
 "use client";
 
-import { DataList, ListToolbar } from "@/components/common/list";
+import { useState } from "react";
+
+import { useToast } from "@/components/common/feedback";
+import {
+  DataList,
+  ListToolbar,
+  RowDeleteDialog,
+} from "@/components/common/list";
 import { PageHeader, PageHeaderAdd } from "@/components/layout";
 import { MENU, createHref, domainHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { useListParams } from "@/hooks/use-list-params";
 
-import { useMarriageList } from "../api";
-import { MARRIAGE_STATUS_OPTIONS } from "../types";
+import { useDeleteMarriage, useMarriageList } from "../api";
+import { MARRIAGE_STATUS_OPTIONS, type MarriageListItem } from "../types";
 
-import { MarriageListItemRow, marriageTable } from "./list-item";
+import {
+  deleteTargetLabelOf,
+  MarriageListItemRow,
+  marriageTable,
+} from "./list-item";
 
 export const MarriageListScreen = () => {
-  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.PERNIKAHAN);
+  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+    MENU.PERNIKAHAN,
+  );
+
+  const toast = useToast();
+
+  // Satu keadaan menyimpan baris yang akan dihapus sekaligus status terbuka
+  // dialognya. Hook hapus dibuat ulang mengikuti kunci baris ini.
+  const [target, setTarget] = useState<MarriageListItem | null>(null);
+  const deleteRow = useDeleteMarriage(target?.id);
   const listParams = useListParams();
   const marriageList = useMarriageList(listParams);
+
+  const onDelete = () => {
+    deleteRow.mutate(undefined, {
+      onSuccess: (deleted) => {
+        toast.add({ title: deleted.message });
+        setTarget(null);
+      },
+    });
+  };
+
+  const onCancelDelete = () => {
+    deleteRow.reset();
+    setTarget(null);
+  };
 
   return (
     <div className="pb-6">
@@ -69,11 +103,20 @@ export const MarriageListScreen = () => {
           listParams.isFiltered ? listParams.onClearFilters : undefined
         }
         pagination={marriageList.pagination}
-        table={marriageTable(isCanUpdate)}
+        table={marriageTable(isCanUpdate, isCanDelete ? setTarget : undefined)}
         itemNoun="pernikahan"
       >
         {(marriage) => <MarriageListItemRow marriage={marriage} />}
       </DataList>
+
+      <RowDeleteDialog
+        target={target ? { label: deleteTargetLabelOf(target) } : null}
+        entity="pernikahan"
+        isPending={deleteRow.isPending}
+        errorMessage={deleteRow.error?.message}
+        onCancel={onCancelDelete}
+        onConfirm={onDelete}
+      />
     </div>
   );
 };

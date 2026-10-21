@@ -56,8 +56,15 @@ const truncated = (text: string, isStrong = false) => (
   </span>
 );
 
+const deleteLabelOf = (x: Maintenance) =>
+  `Hapus perawatan ${x.asset.name}, ${formatDateShort(x.scheduledDate)}`;
+
+export const deleteTargetLabelOf = (x: Maintenance) =>
+  `${x.asset.name}, ${formatDateShort(x.scheduledDate)}`;
+
 export function maintenanceTable(
   isCanUpdate: boolean,
+  onDelete?: (row: Maintenance) => void,
 ): DataTableConfig<Maintenance> {
   return {
     columns: [
@@ -119,6 +126,9 @@ export function maintenanceTable(
         onNavigate: () => saveFocus(x),
         label: labelOf(x),
       },
+      remove: onDelete
+        ? { onSelect: () => onDelete(x), label: deleteLabelOf(x) }
+        : undefined,
     }),
   };
 }
