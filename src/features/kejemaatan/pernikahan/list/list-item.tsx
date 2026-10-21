@@ -37,8 +37,14 @@ export const MarriageListItemRow = (props: PropTypes) => {
   );
 };
 
+const deleteLabelOf = (x: MarriageListItem) =>
+  `Hapus pernikahan ${coupleName(x)}`;
+
+export const deleteTargetLabelOf = (x: MarriageListItem) => coupleName(x);
+
 export function marriageTable(
   isCanUpdate: boolean,
+  onDelete?: (row: MarriageListItem) => void,
 ): DataTableConfig<MarriageListItem> {
   return {
     columns: [
@@ -107,6 +113,9 @@ export function marriageTable(
         onNavigate: () => saveListFocus(MARRIAGE_LIST_PATH, x.id),
         label: `Ubah pernikahan ${coupleName(x)}`,
       },
+      remove: onDelete
+        ? { onSelect: () => onDelete(x), label: deleteLabelOf(x) }
+        : undefined,
     }),
   };
 }

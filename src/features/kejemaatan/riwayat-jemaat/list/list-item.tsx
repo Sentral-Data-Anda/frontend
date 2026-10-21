@@ -41,8 +41,15 @@ export const RiwayatListItemRow = (props: PropTypes) => {
   );
 };
 
+const deleteLabelOf = (x: RiwayatJemaat) =>
+  `Hapus riwayat ${typeLabel(x).toLowerCase()} ${x.jemaat.name}`;
+
+export const deleteTargetLabelOf = (x: RiwayatJemaat) =>
+  `${typeLabel(x)} ${x.jemaat.name}`;
+
 export function riwayatTable(
   isCanUpdate: boolean,
+  onDelete?: (row: RiwayatJemaat) => void,
 ): DataTableConfig<RiwayatJemaat> {
   return {
     columns: [
@@ -116,6 +123,9 @@ export function riwayatTable(
         onNavigate: () => saveListFocus(RIWAYAT_LIST_PATH, x.id),
         label: rowLabel(x),
       },
+      remove: onDelete
+        ? { onSelect: () => onDelete(x), label: deleteLabelOf(x) }
+        : undefined,
     }),
   };
 }

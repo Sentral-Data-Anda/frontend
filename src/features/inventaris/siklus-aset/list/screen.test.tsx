@@ -1,3 +1,4 @@
+import { Toast } from "@base-ui/react/toast";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   cleanup,
@@ -90,7 +91,9 @@ const onRender = (granted: MenuAction[], query = "") => {
         new QueryClient({ defaultOptions: { queries: { retry: false } } })
       }
     >
-      <CycleListScreen />
+      <Toast.Provider>
+        <CycleListScreen />
+      </Toast.Provider>
     </QueryClientProvider>,
   );
 };

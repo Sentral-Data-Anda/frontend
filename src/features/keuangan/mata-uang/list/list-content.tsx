@@ -1,21 +1,54 @@
 "use client";
 
-import { DataList, ListToolbar } from "@/components/common/list";
+import { useState } from "react";
+
+import { useToast } from "@/components/common/feedback";
+import {
+  DataList,
+  ListToolbar,
+  RowDeleteDialog,
+} from "@/components/common/list";
 import { PageHeader, PageHeaderAdd } from "@/components/layout";
 import { MENU, domainHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { useListParams } from "@/hooks/use-list-params";
 
-import { useCurrencyList } from "../api";
+import { useCurrencyList, useDeleteCurrency } from "../api";
 import { MATA_UANG_CREATE_PATH } from "../model";
+import type { Currency } from "../types";
 
-import { CurrencyListItemRow, currencyTable } from "./list-item";
+import {
+  CurrencyListItemRow,
+  currencyTable,
+  deleteTargetLabelOf,
+} from "./list-item";
 
 export const CurrencyListContent = () => {
-  const { isCanCreate } = useMenuAccess(MENU.CURRENCY);
+  const { isCanCreate, isCanDelete } = useMenuAccess(MENU.CURRENCY);
+
+  const toast = useToast();
+
+  // Satu keadaan menyimpan baris yang akan dihapus sekaligus status terbuka
+  // dialognya. Hook hapus dibuat ulang mengikuti kunci baris ini.
+  const [target, setTarget] = useState<Currency | null>(null);
+  const deleteRow = useDeleteCurrency(target?.code);
   const listParams = useListParams();
   const currencyList = useCurrencyList(listParams);
   const isSearched = Boolean(listParams.search);
+
+  const onDelete = () => {
+    deleteRow.mutate(undefined, {
+      onSuccess: (deleted) => {
+        toast.add({ title: deleted.message });
+        setTarget(null);
+      },
+    });
+  };
+
+  const onCancelDelete = () => {
+    deleteRow.reset();
+    setTarget(null);
+  };
 
   return (
     <div className="pb-6">
@@ -59,11 +92,20 @@ export const CurrencyListContent = () => {
             : "Tambahkan mata uang yang dipakai untuk membeli dari luar negeri, mis. USD."
         }
         pagination={currencyList.pagination}
-        table={currencyTable()}
+        table={currencyTable(isCanDelete ? setTarget : undefined)}
         itemNoun="mata uang"
       >
         {(currency) => <CurrencyListItemRow currency={currency} />}
       </DataList>
+
+      <RowDeleteDialog
+        target={target ? { label: deleteTargetLabelOf(target) } : null}
+        entity="mata uang"
+        isPending={deleteRow.isPending}
+        errorMessage={deleteRow.error?.message}
+        onCancel={onCancelDelete}
+        onConfirm={onDelete}
+      />
     </div>
   );
 };

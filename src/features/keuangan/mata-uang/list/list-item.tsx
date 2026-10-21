@@ -86,7 +86,13 @@ export const CurrencyListItemRow = (props: PropTypes) => {
   );
 };
 
-export function currencyTable(): DataTableConfig<Currency> {
+const deleteLabelOf = (x: Currency) => `Hapus mata uang ${x.code} ${x.name}`;
+
+export const deleteTargetLabelOf = (x: Currency) => `${x.code} ${x.name}`;
+
+export function currencyTable(
+  onDelete?: (row: Currency) => void,
+): DataTableConfig<Currency> {
   return {
     columns: [
       {
@@ -136,6 +142,10 @@ export function currencyTable(): DataTableConfig<Currency> {
         onNavigate: () => saveFocus(x),
         label: viewLabelOf(x),
       },
+      remove:
+        onDelete && !x.isBase
+          ? { onSelect: () => onDelete(x), label: deleteLabelOf(x) }
+          : undefined,
     }),
   };
 }
