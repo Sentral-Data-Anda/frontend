@@ -66,6 +66,45 @@ export function parseDateInput(text: string): ParsedDate {
   return iso ? { iso } : { error: DATE_ERROR.invalid };
 }
 
+export const TIME_ERROR = {
+  invalid: "Jam tidak ada. Contoh: 08.30.",
+  hour: "Jam hanya 0 sampai 23.",
+  minute: "Menit hanya 0 sampai 59.",
+} as const;
+
+// Nilai yang disimpan tetap "HH:mm" (kontrak be-sada), yang ditampilkan "HH.mm"
+// mengikuti cara orang Indonesia menulis jam.
+export const toTimeText = (value: string): string =>
+  /^\d{2}:\d{2}$/.test(value) ? value.replace(":", ".") : value;
+
+export function parseTimeInput(raw: string): { time?: string; error?: string } {
+  const trimmed = raw.trim();
+
+  if (!trimmed) return {};
+
+  const parts = trimmed.split(/[^\d]+/).filter(Boolean);
+  const digits = trimmed.replace(/\D/g, "");
+
+  // "0830" dan "830" diketik tanpa pemisah, biasanya dari papan ketik angka.
+  const [hour, minute] =
+    parts.length === 1 && (digits.length === 3 || digits.length === 4)
+      ? [digits.slice(0, -2), digits.slice(-2)]
+      : parts;
+
+  if (parts.length > 2 || minute === undefined)
+    return { error: TIME_ERROR.invalid };
+  if (hour.length > 2 || minute.length !== 2)
+    return { error: TIME_ERROR.invalid };
+
+  const hours = Number(hour);
+  const minutes = Number(minute);
+
+  if (hours > 23) return { error: TIME_ERROR.hour };
+  if (minutes > 59) return { error: TIME_ERROR.minute };
+
+  return { time: `${pad(hours)}:${pad(minutes)}` };
+}
+
 const jakartaDateFormat = new Intl.DateTimeFormat("en-CA", {
   timeZone: "Asia/Jakarta",
   year: "numeric",
@@ -75,6 +114,16 @@ const jakartaDateFormat = new Intl.DateTimeFormat("en-CA", {
 
 export const todayJakarta = (now: Date = new Date()): string =>
   jakartaDateFormat.format(now);
+
+const jakartaTimeFormat = new Intl.DateTimeFormat("en-GB", {
+  timeZone: "Asia/Jakarta",
+  hour: "2-digit",
+  minute: "2-digit",
+  hourCycle: "h23",
+});
+
+export const nowTimeJakarta = (now: Date = new Date()): string =>
+  jakartaTimeFormat.format(now);
 
 export const daysSince = (iso: string, now: Date): number => {
   const from = Date.parse(`${todayJakarta(new Date(iso))}T00:00:00Z`);

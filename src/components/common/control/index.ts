@@ -4,6 +4,7 @@ export * from "./checkbox-group-field";
 export * from "./choice-field";
 export * from "./combobox-field";
 export * from "./date-field";
+export * from "./time-field";
 export * from "./ddl-field";
 export * from "./input";
 export * from "./options";
