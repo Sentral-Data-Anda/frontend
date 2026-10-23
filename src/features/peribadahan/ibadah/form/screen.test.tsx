@@ -285,6 +285,18 @@ const onRenderForm = (granted: MenuAction[], code?: string) => {
 const valueOf = (label: string) =>
   (screen.getByLabelText(label) as HTMLInputElement).value;
 
+// TimeField menyimpan jam di dua segmen; nilainya dibaca sebagai HH:mm.
+const timeOf = (label: string) => {
+  const hour = (screen.getByLabelText(label) as HTMLInputElement).value;
+  const minute = (screen.getByLabelText(`${label} menit`) as HTMLInputElement)
+    .value;
+
+  // Segmen yang masih kosong bukan jam: kembalikan string kosong, bukan 00:00.
+  return hour && minute
+    ? `${hour.padStart(2, "0")}:${minute.padStart(2, "0")}`
+    : "";
+};
+
 const onRenderLoadedEdit = async (granted: MenuAction[] = ["UPDATE"]) => {
   onMockApi();
   onRenderForm(["VIEW", ...granted], CODE);
@@ -554,14 +566,14 @@ describe("layar tambah hasil salin", () => {
     const calls = onMockApi();
     onRenderForm(["VIEW", "CREATE"]);
 
-    await waitFor(() => expect(valueOf("Jam mulai")).toBe("08:00"));
+    await waitFor(() => expect(timeOf("Jam mulai")).toBe("08:00"));
     expect(
       screen.getByText("Disalin dari Ibadah Minggu I · Minggu, 20 Sep 2026"),
     ).toBeTruthy();
     expect(screen.getByLabelText("Tipe ibadah").textContent).toContain(
       "Ibadah Minggu I",
     );
-    expect(valueOf("Jam selesai")).toBe("09:30");
+    expect(timeOf("Jam selesai")).toBe("09:30");
     expect(valueOf("Tema")).toBe("");
     expect(valueOf("Pria (dewasa)")).toBe("");
     expect(screen.getByText("Belum ada yang dicatat.")).toBeTruthy();
@@ -605,7 +617,7 @@ describe("layar tambah hasil salin", () => {
     onMockApi();
     onRenderForm(["VIEW", "CREATE"]);
 
-    await waitFor(() => expect(valueOf("Jam mulai")).toBe("08:00"));
+    await waitFor(() => expect(timeOf("Jam mulai")).toBe("08:00"));
     expect(
       screen.getByText(
         "Tipe Ibadah Padang sudah nonaktif, jadi tidak ikut disalin.",
@@ -626,7 +638,7 @@ describe("layar tambah hasil salin", () => {
         screen.getByText("Ibadah yang akan disalin tidak ditemukan."),
       ).toBeTruthy(),
     );
-    expect(valueOf("Jam mulai")).toBe("");
+    expect(timeOf("Jam mulai")).toBe("");
     expect(screen.queryByText("Data ibadah tidak ditemukan")).toBeNull();
   });
 });
@@ -643,7 +655,7 @@ const onRenderCopy = async (source: IbadahDetail) => {
   onMockApi();
   onRenderForm(["VIEW", "CREATE"]);
 
-  await waitFor(() => expect(valueOf("Jam mulai")).toBe(source.startTime));
+  await waitFor(() => expect(timeOf("Jam mulai")).toBe(source.startTime));
 };
 
 const zoneText = () => screen.getByLabelText("Wilayah").textContent;
@@ -887,8 +899,13 @@ describe("jadwal pelayan", () => {
     await waitFor(() => expect(trigger().textContent).toContain("Pelayan"));
   };
 
-  const setTime = (label: string, value: string) =>
-    fireEvent.change(screen.getByLabelText(label), { target: { value } });
+  // TimeField menulis balik saat blur, sama seperti DateField.
+  const setTime = (label: string, value: string) => {
+    const box = screen.getByLabelText(label);
+
+    fireEvent.change(box, { target: { value } });
+    fireEvent.blur(box);
+  };
 
   test("tambah: terkunci sampai tanggal dan jam terisi; hari tanpa jadwal → pesan kosong", async () => {
     onMockApi();

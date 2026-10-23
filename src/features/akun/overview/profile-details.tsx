@@ -1,10 +1,13 @@
 "use client";
 
-import { Button } from "@/components/common/control";
+import Link from "next/link";
+
+import { Button, buttonVariants } from "@/components/common/control";
 import {
   DescriptionItem,
   DescriptionSkeleton,
 } from "@/components/common/display";
+import { ACCOUNT_PROFILE_HREF } from "@/config/menu";
 import { formatDate } from "@/lib/format";
 import {
   GENDER_LABEL,
@@ -54,7 +57,17 @@ export const ProfileDetails = () => {
 
   return (
     <>
-      <ProfileGroup title="Data diri">
+      <ProfileGroup
+        title="Data diri"
+        action={
+          <Link
+            href={ACCOUNT_PROFILE_HREF}
+            className={buttonVariants({ variant: "link", size: "sm" })}
+          >
+            Ubah
+          </Link>
+        }
+      >
         <DescriptionItem label="Jenis kelamin">
           {GENDER_LABEL[data.gender]}
         </DescriptionItem>

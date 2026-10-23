@@ -5,6 +5,25 @@ export type RoleInFamily = "KEPALA_KELUARGA" | "PASANGAN" | "ANAK";
 
 export type StatusPernikahan = "SM" | "BM" | "CM" | "CH";
 
+// Nilai enum-nya, bukan hanya labelnya: dipakai dua form yang membangun skema
+// zod sendiri (form sekretariat dan "Ubah data pribadi" di Akun saya).
+export const GENDERS = ["L", "P"] as const;
+export const BLOOD_TYPES = ["A", "B", "AB", "O"] as const;
+export const LAST_EDUCATION = [
+  "TIDAK_SEKOLAH",
+  "SD",
+  "SMP",
+  "SMA",
+  "SMK",
+  "D1",
+  "D2",
+  "D3",
+  "D4",
+  "S1",
+  "S2",
+  "S3",
+] as const;
+
 export const STATUS_JEMAAT_LABEL: Record<StatusJemaat, string> = {
   AKTIF: "Aktif",
   TIDAK_AKTIF: "Tidak aktif",

@@ -1,6 +1,6 @@
 "use client";
 
-import { DateField, DdlField, Input } from "@/components/common/control";
+import { DateField, DdlField, TimeField } from "@/components/common/control";
 import { ControlField, FormSection } from "@/components/common/form";
 import { useDdlOptions } from "@/hooks/use-ddl-options";
 import { endOfYearIso } from "@/lib/date";
@@ -59,16 +59,28 @@ export const ScheduleSection = (props: PropTypes) => {
       </ControlField>
 
       <ControlField control={form.control} name="startTime" label="Jam mulai">
-        {(field) => <Input {...field} type="time" />}
+        {(field) => (
+          <TimeField
+            value={field.value}
+            onValueChange={field.onChange}
+            onBlur={field.onBlur}
+            disabled={isDisabled}
+            label="Jam mulai"
+          />
+        )}
       </ControlField>
 
-      <ControlField
-        control={form.control}
-        name="endTime"
-        label="Jam selesai"
-        hint="Kosongkan bila belum pasti."
-      >
-        {(field) => <Input {...field} type="time" />}
+      <ControlField control={form.control} name="endTime" label="Jam selesai">
+        {(field) => (
+          <TimeField
+            value={field.value}
+            onValueChange={field.onChange}
+            onBlur={field.onBlur}
+            disabled={isDisabled}
+            label="Jam selesai"
+            hint="Kosongkan bila belum pasti."
+          />
+        )}
       </ControlField>
 
       <JadwalPelayanField

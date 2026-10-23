@@ -1,11 +1,16 @@
 "use client";
 
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { fetchList, fetchOne } from "@/lib/api/fetcher";
 
 import { summarizeOfferings } from "./model";
-import type { ChangePasswordPayload, MyProfile, OfferingItem } from "./types";
+import type {
+  ChangePasswordPayload,
+  MyProfile,
+  MyProfilePayload,
+  OfferingItem,
+} from "./types";
 
 export const offeringKeys = {
   mine: (year: string) => ["persembahan", "saya", year] as const,
@@ -35,6 +40,21 @@ export function useMyProfile() {
     staleTime: 0,
     gcTime: 0,
     select: (response) => response.data.jemaat,
+  });
+}
+
+// Subjeknya sesi, jadi tidak ada kunci di URL. Sesi tidak dibuang di sini: ia
+// dirender server, bukan query, jadi layarnya memanggil router.refresh.
+export function useUpdateMyProfile() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: MyProfilePayload) =>
+      fetchOne<MyProfile>("/jemaat/saya", {
+        method: "PUT",
+        body: JSON.stringify(payload),
+      }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: profileKey }),
   });
 }
 

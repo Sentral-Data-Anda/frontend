@@ -76,7 +76,8 @@ export const ProfileSection = () => {
           </div>
 
           <p className="text-muted-foreground border-hairline border-t px-gutter py-3 text-caption">
-            Data diambil dari catatan jemaat. Bila keliru, hubungi sekretariat.
+            Nama, kontak, alamat, dan data sosial boleh Anda ubah sendiri.
+            Status pernikahan, wilayah, dan keanggotaan lewat sekretariat.
           </p>
         </>
       ) : (

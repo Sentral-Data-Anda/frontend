@@ -6,6 +6,7 @@ import {
   addMonths,
   ageInYears,
   DATE_ERROR,
+  TIME_ERROR,
   endOfYearIso,
   isSameMonth,
   isWithin,
@@ -15,9 +16,12 @@ import {
   weekdayDates,
   parseDateInput,
   toInputText,
+  toTimeText,
+  parseTimeInput,
   toIsoDate,
   daysSince,
   todayJakarta,
+  nowTimeJakarta,
   weekdayIndex,
 } from "./date";
 
@@ -272,5 +276,68 @@ describe("weekdayDates", () => {
       "2027-01-07",
     ]);
     expect(weekdayDates("2026-10-01", "2026-10-15", [], 26)).toEqual([]);
+  });
+});
+
+describe("parseTimeInput — bentuk yang diterima", () => {
+  test.each([
+    ["08:30"],
+    ["08.30"],
+    ["08 30"],
+    ["0830"],
+    ["8.30"],
+    ["8:30"],
+    [" 08.30 "],
+  ])("%s → 08:30", (input) => {
+    expect(parseTimeInput(input)).toEqual({ time: "08:30" });
+  });
+
+  test("tiga angka dibaca sebagai H.mm", () => {
+    expect(parseTimeInput("830")).toEqual({ time: "08:30" });
+  });
+
+  test("kosong bukan galat: field jam boleh dikosongkan", () => {
+    expect(parseTimeInput("")).toEqual({});
+    expect(parseTimeInput("   ")).toEqual({});
+  });
+
+  test("tengah malam dan menit nol tetap dua angka", () => {
+    expect(parseTimeInput("0:00")).toEqual({ time: "00:00" });
+    expect(parseTimeInput("23:59")).toEqual({ time: "23:59" });
+  });
+});
+
+describe("parseTimeInput — yang ditolak", () => {
+  test.each([["24:00"], ["99.00"]])("%s → jam di luar 0-23", (input) => {
+    expect(parseTimeInput(input)).toEqual({ error: TIME_ERROR.hour });
+  });
+
+  test("menit di luar 0-59 ditolak", () => {
+    expect(parseTimeInput("08:60")).toEqual({ error: TIME_ERROR.minute });
+  });
+
+  test.each([["08"], ["8"], ["abc"], ["08:3"], ["1:2:3"], ["08:300"]])(
+    "%s → bukan jam",
+    (input) => {
+      expect(parseTimeInput(input)).toEqual({ error: TIME_ERROR.invalid });
+    },
+  );
+});
+
+describe("toTimeText", () => {
+  test("nilai HH:mm ditampilkan dengan titik", () => {
+    expect(toTimeText("08:30")).toBe("08.30");
+  });
+
+  test("yang belum berbentuk jam dibiarkan apa adanya", () => {
+    expect(toTimeText("")).toBe("");
+    expect(toTimeText("8.3")).toBe("8.3");
+  });
+});
+
+describe("nowTimeJakarta", () => {
+  test("jam sekarang di Asia/Jakarta, dua angka", () => {
+    expect(nowTimeJakarta(new Date("2026-10-23T01:05:00Z"))).toBe("08:05");
+    expect(nowTimeJakarta(new Date("2026-10-23T17:00:00Z"))).toBe("00:00");
   });
 });
