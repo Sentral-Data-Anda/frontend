@@ -1,3 +1,4 @@
+import { Toast } from "@base-ui/react/toast";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import {
@@ -107,7 +108,9 @@ const onRender = (
         new QueryClient({ defaultOptions: { queries: { retry: false } } })
       }
     >
-      <ReportListScreen />
+      <Toast.Provider>
+        <ReportListScreen />
+      </Toast.Provider>
     </QueryClientProvider>,
   );
 

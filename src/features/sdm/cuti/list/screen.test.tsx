@@ -1,3 +1,4 @@
+import { Toast } from "@base-ui/react/toast";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, mock, test } from "bun:test";
@@ -139,7 +140,9 @@ const onRender = (granted: Partial<Record<string, MenuAction[]>>) => {
         new QueryClient({ defaultOptions: { queries: { retry: false } } })
       }
     >
-      <CutiListScreen />
+      <Toast.Provider>
+        <CutiListScreen />
+      </Toast.Provider>
     </QueryClientProvider>,
   );
 };

@@ -162,7 +162,14 @@ const COLUMNS: Column[] = [
   },
 ];
 
-export function orderTable(isCanUpdate: boolean): DataTableConfig<Order> {
+const deleteLabelOf = (x: Order) => `Hapus pesanan pembelian ${x.code}`;
+
+export const deleteTargetLabelOf = (x: Order) => x.code;
+
+export function orderTable(
+  isCanUpdate: boolean,
+  onDelete?: (row: Order) => void,
+): DataTableConfig<Order> {
   return {
     columns: COLUMNS,
     getRowActions: (x) => ({
@@ -179,6 +186,10 @@ export function orderTable(isCanUpdate: boolean): DataTableConfig<Order> {
               onNavigate: () => saveFocus(x),
               label: `Ubah pesanan ${x.code}`,
             }
+          : undefined,
+      remove:
+        onDelete && x.status === "ISSUED"
+          ? { onSelect: () => onDelete(x), label: deleteLabelOf(x) }
           : undefined,
     }),
   };

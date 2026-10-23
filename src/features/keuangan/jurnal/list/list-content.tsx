@@ -8,11 +8,17 @@ import {
   ReceiptText,
 } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
 
 import { buttonVariants } from "@/components/common/control";
 import { Panel } from "@/components/common/display";
-import { EmptyState } from "@/components/common/feedback";
-import { DataList, ListTabs, ListToolbar } from "@/components/common/list";
+import { useToast, EmptyState } from "@/components/common/feedback";
+import {
+  DataList,
+  ListTabs,
+  ListToolbar,
+  RowDeleteDialog,
+} from "@/components/common/list";
 import { PageHeader, PageHeaderAdd } from "@/components/layout";
 import { MENU, domainHref, menuHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
@@ -21,7 +27,7 @@ import { useListParams } from "@/hooks/use-list-params";
 import { monthOptions } from "@/lib/date";
 import { cn } from "@/lib/utils";
 
-import { JOURNAL_FILTERS, useJournalList } from "../api";
+import { JOURNAL_FILTERS, useJournalList, useDeleteJournal } from "../api";
 import {
   EMPTY_DESCRIPTION,
   EMPTY_TITLE,
@@ -32,8 +38,13 @@ import {
   POSTING_NOTE,
   STATUS_TABS,
 } from "../model";
+import type { JournalEntry } from "../types";
 
-import { JournalListItemRow, journalTable } from "./list-item";
+import {
+  JournalListItemRow,
+  journalTable,
+  deleteTargetLabelOf,
+} from "./list-item";
 
 type AccountRow = { id: number; code: string; name: string };
 
@@ -45,7 +56,14 @@ const POSTING_ICON = {
 } as const;
 
 export const JournalListContent = () => {
-  const { isCanCreate } = useMenuAccess(MENU.JOURNAL_ENTRY);
+  const { isCanCreate, isCanDelete } = useMenuAccess(MENU.JOURNAL_ENTRY);
+
+  const toast = useToast();
+
+  // Satu keadaan menyimpan baris yang akan dihapus sekaligus status terbuka
+  // dialognya. Hook hapus dibuat ulang mengikuti kunci baris ini.
+  const [target, setTarget] = useState<JournalEntry | null>(null);
+  const deleteRow = useDeleteJournal(target?.publicId ?? "");
   const accountAccess = useMenuAccess(MENU.CHART_OF_ACCOUNT);
   const listParams = useListParams({ filters: JOURNAL_FILTERS });
   const journalList = useJournalList(listParams);
@@ -69,6 +87,20 @@ export const JournalListContent = () => {
       label: `${row.code} — ${row.name}`,
     })),
   ];
+
+  const onDelete = () => {
+    deleteRow.mutate(undefined, {
+      onSuccess: (deleted) => {
+        toast.add({ title: deleted.message });
+        setTarget(null);
+      },
+    });
+  };
+
+  const onCancelDelete = () => {
+    deleteRow.reset();
+    setTarget(null);
+  };
 
   return (
     <div className="pb-6">
@@ -204,12 +236,21 @@ export const JournalListContent = () => {
             listParams.isFiltered ? listParams.onClearFilters : undefined
           }
           pagination={journalList.pagination}
-          table={journalTable()}
+          table={journalTable(isCanDelete ? setTarget : undefined)}
           itemNoun="entri"
         >
           {(entry) => <JournalListItemRow entry={entry} />}
         </DataList>
       )}
+
+      <RowDeleteDialog
+        target={target ? { label: deleteTargetLabelOf(target) } : null}
+        entity="jurnal"
+        isPending={deleteRow.isPending}
+        errorMessage={deleteRow.error?.message}
+        onCancel={onCancelDelete}
+        onConfirm={onDelete}
+      />
     </div>
   );
 };

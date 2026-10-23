@@ -62,7 +62,13 @@ export const PayrollListItem = (props: PropTypes) => {
   );
 };
 
-export function payrollTable(): DataTableConfig<PayrollRun> {
+const deleteLabelOf = (x: PayrollRun) => `Hapus penggajian ${x.code}`;
+
+export const deleteTargetLabelOf = (x: PayrollRun) => x.code;
+
+export function payrollTable(
+  onDelete?: (row: PayrollRun) => void,
+): DataTableConfig<PayrollRun> {
   return {
     columns: [
       {
@@ -129,6 +135,10 @@ export function payrollTable(): DataTableConfig<PayrollRun> {
         onNavigate: () => saveFocus(x),
         label: labelOf(x),
       },
+      remove:
+        onDelete && x.status !== "PAID" && x.status !== "APPROVED"
+          ? { onSelect: () => onDelete(x), label: deleteLabelOf(x) }
+          : undefined,
     }),
   };
 }

@@ -138,7 +138,14 @@ const COLUMNS: Column[] = [
   },
 ];
 
-export function programTable(isCanUpdate = false): DataTableConfig<Program> {
+const deleteLabelOf = (x: Program) => `Hapus usulan ${x.name}`;
+
+export const deleteTargetLabelOf = (x: Program) => x.name;
+
+export function programTable(
+  isCanUpdate = false,
+  onDelete?: (row: Program) => void,
+): DataTableConfig<Program> {
   return {
     columns: COLUMNS,
     getRowActions: (x) => ({
@@ -155,6 +162,10 @@ export function programTable(isCanUpdate = false): DataTableConfig<Program> {
               onNavigate: () => saveFocus(x),
               label: `Ubah usulan ${x.name}`,
             }
+          : undefined,
+      remove:
+        onDelete && isEditable(x)
+          ? { onSelect: () => onDelete(x), label: deleteLabelOf(x) }
           : undefined,
     }),
   };

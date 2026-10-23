@@ -1,3 +1,4 @@
+import { Toast } from "@base-ui/react/toast";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import {
@@ -93,7 +94,9 @@ const onRenderList = (granted: MenuAction[]) => {
         new QueryClient({ defaultOptions: { queries: { retry: false } } })
       }
     >
-      <RequestListScreen />
+      <Toast.Provider>
+        <RequestListScreen />
+      </Toast.Provider>
     </QueryClientProvider>,
   );
 };

@@ -1,5 +1,8 @@
 "use client";
 
+import { useState } from "react";
+
+import { useToast } from "@/components/common/feedback";
 import {
   CsvDownloadButton,
   DataList,
@@ -8,6 +11,7 @@ import {
   PrintListButton,
   toCsvColumns,
   PrintSheet,
+  RowDeleteDialog,
 } from "@/components/common/list";
 import { PageHeader, PageHeaderAdd } from "@/components/layout";
 import { MENU, domainHref } from "@/config/menu";
@@ -17,7 +21,7 @@ import { useListExport } from "@/hooks/use-list-export";
 import { useListParams, type ListFilterSchema } from "@/hooks/use-list-params";
 import { monthOptions } from "@/lib/date";
 
-import { fetchExpensePage, useExpenseList } from "../api";
+import { fetchExpensePage, useExpenseList, useExpenseAction } from "../api";
 import {
   ALL_MONTHS,
   EMPTY_DESCRIPTION,
@@ -27,8 +31,13 @@ import {
   STATUS_TABS,
   toExpenseQuery,
 } from "../model";
+import type { CashExpense } from "../types";
 
-import { ExpenseListItem, expenseTable } from "./list-item";
+import {
+  ExpenseListItem,
+  expenseTable,
+  deleteTargetLabelOf,
+} from "./list-item";
 import { EXPENSE_PRINT_COLUMNS, expensePrintTotal } from "./print-columns";
 
 const LIST_FILTERS = {
@@ -46,7 +55,16 @@ const MONTH_OPTIONS = [
 ];
 
 export const ExpenseListContent = () => {
-  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.KAS_KELUAR);
+  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+    MENU.KAS_KELUAR,
+  );
+
+  const toast = useToast();
+
+  // Satu keadaan menyimpan baris yang akan dihapus sekaligus status terbuka
+  // dialognya. Hook hapus dibuat ulang mengikuti kunci baris ini.
+  const [target, setTarget] = useState<CashExpense | null>(null);
+  const deleteRow = useExpenseAction(target?.publicId ?? "");
   const listParams = useListParams({ filters: LIST_FILTERS });
   const expenseList = useExpenseList(listParams);
   const bapels = useDdlOptions("bapel", "id", listParams.filters.badan);
@@ -60,6 +78,23 @@ export const ExpenseListContent = () => {
       ...toExpenseQuery(listParams.status, listParams.filters),
     },
   });
+
+  const onDelete = () => {
+    deleteRow.mutate(
+      { action: "hapus" },
+      {
+        onSuccess: (deleted) => {
+          toast.add({ title: deleted.message });
+          setTarget(null);
+        },
+      },
+    );
+  };
+
+  const onCancelDelete = () => {
+    deleteRow.reset();
+    setTarget(null);
+  };
 
   return (
     <div className="pb-6">
@@ -149,7 +184,7 @@ export const ExpenseListContent = () => {
             listParams.isFiltered ? listParams.onClearFilters : undefined
           }
           pagination={expenseList.pagination}
-          table={expenseTable(isCanUpdate)}
+          table={expenseTable(isCanUpdate, isCanDelete ? setTarget : undefined)}
           itemNoun="kas keluar"
         >
           {(row) => <ExpenseListItem row={row} />}
@@ -172,6 +207,15 @@ export const ExpenseListContent = () => {
           footer={`Jumlah: ${expensePrintTotal(print.rows)}`}
         />
       ) : null}
+
+      <RowDeleteDialog
+        target={target ? { label: deleteTargetLabelOf(target) } : null}
+        entity="kas keluar"
+        isPending={deleteRow.isPending}
+        errorMessage={deleteRow.error?.message}
+        onCancel={onCancelDelete}
+        onConfirm={onDelete}
+      />
     </div>
   );
 };

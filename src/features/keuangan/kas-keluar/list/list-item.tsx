@@ -170,8 +170,13 @@ const COLUMNS: Column[] = [
   },
 ];
 
+const deleteLabelOf = (x: CashExpense) => `Hapus kas keluar ${x.code}`;
+
+export const deleteTargetLabelOf = (x: CashExpense) => x.code;
+
 export function expenseTable(
   isCanUpdate = false,
+  onDelete?: (row: CashExpense) => void,
 ): DataTableConfig<CashExpense> {
   return {
     columns: COLUMNS,
@@ -189,6 +194,10 @@ export function expenseTable(
               onNavigate: () => saveFocus(x),
               label: `Ubah kas keluar ${x.code}`,
             }
+          : undefined,
+      remove:
+        onDelete && isEditable(x)
+          ? { onSelect: () => onDelete(x), label: deleteLabelOf(x) }
           : undefined,
     }),
   };

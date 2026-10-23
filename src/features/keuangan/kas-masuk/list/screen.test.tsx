@@ -1,3 +1,4 @@
+import { Toast } from "@base-ui/react/toast";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, render, screen } from "@testing-library/react";
 import {
@@ -94,7 +95,9 @@ const onRender = (grants: MenuAction[], rows: CashReceipt[] = ROWS) => {
         new QueryClient({ defaultOptions: { queries: { retry: false } } })
       }
     >
-      <ReceiptListScreen />
+      <Toast.Provider>
+        <ReceiptListScreen />
+      </Toast.Provider>
     </QueryClientProvider>,
   );
 };

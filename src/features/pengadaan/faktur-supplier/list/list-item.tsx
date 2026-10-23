@@ -132,7 +132,14 @@ const COLUMNS: DataTableColumn<Invoice>[] = [
   },
 ];
 
-export function invoiceTable(isCanUpdate: boolean): DataTableConfig<Invoice> {
+const deleteLabelOf = (x: Invoice) => `Hapus faktur supplier ${x.code}`;
+
+export const deleteTargetLabelOf = (x: Invoice) => x.code;
+
+export function invoiceTable(
+  isCanUpdate: boolean,
+  onDelete?: (row: Invoice) => void,
+): DataTableConfig<Invoice> {
   return {
     columns: COLUMNS,
     getRowActions: (x) => ({
@@ -149,6 +156,10 @@ export function invoiceTable(isCanUpdate: boolean): DataTableConfig<Invoice> {
               onNavigate: () => saveFocus(x),
               label: `Ubah faktur ${x.code}`,
             }
+          : undefined,
+      remove:
+        onDelete && isEditable(x)
+          ? { onSelect: () => onDelete(x), label: deleteLabelOf(x) }
           : undefined,
     }),
   };
