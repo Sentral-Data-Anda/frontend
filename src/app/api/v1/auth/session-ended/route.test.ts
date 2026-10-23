@@ -1,23 +1,17 @@
 import { describe, expect, test } from "bun:test";
-import { NextRequest } from "next/server";
 
 import { GET } from "./route";
 
-const call = () =>
-  GET(
-    new NextRequest("http://localhost:3000/api/v1/auth/session-ended", {
-      headers: { cookie: "accessToken=a; refreshToken=r" },
-    }),
-  );
+// Server bisa saja berjalan di 0.0.0.0 atau di belakang proxy; alamat internal
+// itu tidak boleh bocor ke Location.
+const call = () => GET();
 
 describe("GET /api/v1/auth/session-ended", () => {
-  test("mengalihkan ke /login", async () => {
+  test("mengalihkan ke /login dengan Location relatif", async () => {
     const response = await call();
 
     expect(response.status).toBe(307);
-    expect(new URL(response.headers.get("location") ?? "").pathname).toBe(
-      "/login",
-    );
+    expect(response.headers.get("location")).toBe("/login");
   });
 
   test("kedua cookie sesi dihapus", async () => {
