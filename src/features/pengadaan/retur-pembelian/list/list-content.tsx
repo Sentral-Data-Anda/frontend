@@ -1,16 +1,25 @@
 "use client";
 
-import { DataList, ListTabs, ListToolbar } from "@/components/common/list";
+import { useState } from "react";
+
+import { useToast } from "@/components/common/feedback";
+import {
+  DataList,
+  ListTabs,
+  ListToolbar,
+  RowDeleteDialog,
+} from "@/components/common/list";
 import { PageHeader, PageHeaderAdd } from "@/components/layout";
 import { MENU, domainHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { useDdlOptions } from "@/hooks/use-ddl-options";
 import { useListParams, type ListFilterSchema } from "@/hooks/use-list-params";
 
-import { useReturnList } from "../api";
+import { useReturnList, useReturnAction } from "../api";
 import { RETURN_CREATE_PATH, STATUS_TABS } from "../model";
+import type { PurchaseReturn } from "../types";
 
-import { ReturnListItem, returnTable } from "./list-item";
+import { ReturnListItem, returnTable, deleteTargetLabelOf } from "./list-item";
 
 // Tanpa kotak cari: daftar retur di be-sada hanya menyaring `supplierId` dan
 // `status`, jadi kotak cari akan terlihat bekerja tanpa mengubah apa pun.
@@ -19,7 +28,16 @@ const LIST_FILTERS = {
 } satisfies ListFilterSchema;
 
 export const ReturnListContent = () => {
-  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.PURCHASE_RETURN);
+  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+    MENU.PURCHASE_RETURN,
+  );
+
+  const toast = useToast();
+
+  // Satu keadaan menyimpan baris yang akan dihapus sekaligus status terbuka
+  // dialognya. Hook hapus dibuat ulang mengikuti kunci baris ini.
+  const [target, setTarget] = useState<PurchaseReturn | null>(null);
+  const deleteRow = useReturnAction(target?.publicId ?? "");
   const listParams = useListParams({ filters: LIST_FILTERS });
   const returnList = useReturnList(listParams);
   const suppliers = useDdlOptions(
@@ -28,6 +46,20 @@ export const ReturnListContent = () => {
     listParams.filters.supplier,
   );
   const isNarrowed = listParams.isFiltered || Boolean(listParams.status);
+
+  const onDelete = () => {
+    deleteRow.mutate("hapus", {
+      onSuccess: (deleted) => {
+        toast.add({ title: deleted.message });
+        setTarget(null);
+      },
+    });
+  };
+
+  const onCancelDelete = () => {
+    deleteRow.reset();
+    setTarget(null);
+  };
 
   return (
     <div className="pb-6">
@@ -92,11 +124,20 @@ export const ReturnListContent = () => {
           listParams.isFiltered ? listParams.onClearFilters : undefined
         }
         pagination={returnList.pagination}
-        table={returnTable(isCanUpdate)}
+        table={returnTable(isCanUpdate, isCanDelete ? setTarget : undefined)}
         itemNoun="retur"
       >
         {(row) => <ReturnListItem row={row} />}
       </DataList>
+
+      <RowDeleteDialog
+        target={target ? { label: deleteTargetLabelOf(target) } : null}
+        entity="retur pembelian"
+        isPending={deleteRow.isPending}
+        errorMessage={deleteRow.error?.message}
+        onCancel={onCancelDelete}
+        onConfirm={onDelete}
+      />
     </div>
   );
 };

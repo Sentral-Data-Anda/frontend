@@ -130,8 +130,15 @@ const COLUMNS: Column[] = [
   },
 ];
 
+export const deleteTargetLabelOf = (x: BudgetReport) =>
+  `${x.label} ${x.bapel?.name ?? ""}`.trim();
+
+const deleteLabelOf = (x: BudgetReport) =>
+  `Hapus laporan ${deleteTargetLabelOf(x)}`;
+
 export function reportTable(
   isCanUpdate = false,
+  onDelete?: (row: BudgetReport) => void,
 ): DataTableConfig<BudgetReport> {
   return {
     columns: COLUMNS,
@@ -149,6 +156,10 @@ export function reportTable(
               onNavigate: () => saveFocus(x),
               label: `Ubah laporan ${x.label}`,
             }
+          : undefined,
+      remove:
+        onDelete && reportStateOf(x) === "DRAFT"
+          ? { onSelect: () => onDelete(x), label: deleteLabelOf(x) }
           : undefined,
     }),
   };

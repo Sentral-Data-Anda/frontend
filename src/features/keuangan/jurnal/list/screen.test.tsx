@@ -1,3 +1,4 @@
+import { Toast } from "@base-ui/react/toast";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import {
@@ -145,7 +146,9 @@ const onRenderList = (
         new QueryClient({ defaultOptions: { queries: { retry: false } } })
       }
     >
-      <JournalListScreen />
+      <Toast.Provider>
+        <JournalListScreen />
+      </Toast.Provider>
     </QueryClientProvider>,
   );
 

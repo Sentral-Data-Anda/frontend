@@ -1,25 +1,58 @@
 "use client";
 
-import { DataList, ListToolbar } from "@/components/common/list";
+import { useState } from "react";
+
+import { useToast } from "@/components/common/feedback";
+import {
+  DataList,
+  ListToolbar,
+  RowDeleteDialog,
+} from "@/components/common/list";
 import { PageHeader, PageHeaderAdd } from "@/components/layout";
 import { MENU, createHref, domainHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { useListParams, type ListFilterSchema } from "@/hooks/use-list-params";
 
-import { useRunList } from "../api";
+import { useRunList, useDeleteRun } from "../api";
 import { STATUS_FILTER_OPTIONS, yearOptions } from "../model";
+import type { Run } from "../types";
 
 import { GapNote } from "./gap-note";
-import { PenyusutanListItemRow, penyusutanTable } from "./list-item";
+import {
+  PenyusutanListItemRow,
+  penyusutanTable,
+  deleteTargetLabelOf,
+} from "./list-item";
 
 const LIST_FILTERS = { tahun: { api: "year" } } satisfies ListFilterSchema;
 
 const YEAR_OPTIONS = yearOptions();
 
 export const PenyusutanListContent = () => {
-  const { isCanCreate } = useMenuAccess(MENU.DEPRECIATION);
+  const { isCanCreate, isCanDelete } = useMenuAccess(MENU.DEPRECIATION);
+
+  const toast = useToast();
+
+  // Satu keadaan menyimpan baris yang akan dihapus sekaligus status terbuka
+  // dialognya. Hook hapus dibuat ulang mengikuti kunci baris ini.
+  const [target, setTarget] = useState<Run | null>(null);
+  const deleteRow = useDeleteRun(target?.code ?? "");
   const listParams = useListParams({ filters: LIST_FILTERS });
   const runList = useRunList(listParams);
+
+  const onDelete = () => {
+    deleteRow.mutate(undefined, {
+      onSuccess: (deleted) => {
+        toast.add({ title: deleted.message });
+        setTarget(null);
+      },
+    });
+  };
+
+  const onCancelDelete = () => {
+    deleteRow.reset();
+    setTarget(null);
+  };
 
   return (
     <div className="pb-6">
@@ -86,11 +119,20 @@ export const PenyusutanListContent = () => {
           listParams.isFiltered ? listParams.onClearFilters : undefined
         }
         pagination={runList.pagination}
-        table={penyusutanTable()}
+        table={penyusutanTable(isCanDelete ? setTarget : undefined)}
         itemNoun="periode"
       >
         {(run) => <PenyusutanListItemRow run={run} />}
       </DataList>
+
+      <RowDeleteDialog
+        target={target ? { label: deleteTargetLabelOf(target) } : null}
+        entity="penyusutan"
+        isPending={deleteRow.isPending}
+        errorMessage={deleteRow.error?.message}
+        onCancel={onCancelDelete}
+        onConfirm={onDelete}
+      />
     </div>
   );
 };

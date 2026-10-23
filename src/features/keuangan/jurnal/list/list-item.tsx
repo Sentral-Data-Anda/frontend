@@ -147,7 +147,13 @@ const COLUMNS: Column[] = [
   },
 ];
 
-export function journalTable(): DataTableConfig<JournalEntry> {
+const deleteLabelOf = (x: JournalEntry) => `Hapus jurnal ${x.code}`;
+
+export const deleteTargetLabelOf = (x: JournalEntry) => x.code;
+
+export function journalTable(
+  onDelete?: (row: JournalEntry) => void,
+): DataTableConfig<JournalEntry> {
   return {
     columns: COLUMNS,
     getRowActions: (x) => ({
@@ -157,6 +163,10 @@ export function journalTable(): DataTableConfig<JournalEntry> {
         onNavigate: () => saveFocus(x),
         label: viewLabelOf(x),
       },
+      remove:
+        onDelete && x.status === "DRAFT"
+          ? { onSelect: () => onDelete(x), label: deleteLabelOf(x) }
+          : undefined,
     }),
   };
 }

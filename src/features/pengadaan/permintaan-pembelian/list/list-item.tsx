@@ -126,8 +126,14 @@ const COLUMNS: Column[] = [
   },
 ];
 
+const deleteLabelOf = (x: PurchaseRequest) =>
+  `Hapus permintaan pembelian ${x.code}`;
+
+export const deleteTargetLabelOf = (x: PurchaseRequest) => x.code;
+
 export function requestTable(
   isCanUpdate: boolean,
+  onDelete?: (row: PurchaseRequest) => void,
 ): DataTableConfig<PurchaseRequest> {
   return {
     columns: COLUMNS,
@@ -145,6 +151,10 @@ export function requestTable(
               onNavigate: () => saveFocus(x),
               label: `Ubah permintaan ${x.code}`,
             }
+          : undefined,
+      remove:
+        onDelete && x.status === "DRAFT"
+          ? { onSelect: () => onDelete(x), label: deleteLabelOf(x) }
           : undefined,
     }),
   };

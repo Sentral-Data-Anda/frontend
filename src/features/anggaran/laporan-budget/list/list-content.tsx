@@ -1,10 +1,16 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 
 import { buttonVariants } from "@/components/common/control";
-import { EmptyState } from "@/components/common/feedback";
-import { DataList, ListTabs, ListToolbar } from "@/components/common/list";
+import { useToast, EmptyState } from "@/components/common/feedback";
+import {
+  DataList,
+  ListTabs,
+  ListToolbar,
+  RowDeleteDialog,
+} from "@/components/common/list";
 import { PageHeader, PageHeaderAdd } from "@/components/layout";
 import { MENU, domainHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
@@ -12,7 +18,7 @@ import { useDdlOptions } from "@/hooks/use-ddl-options";
 import { useListParams } from "@/hooks/use-list-params";
 import { monthOptions } from "@/lib/date";
 
-import { useReportList } from "../api";
+import { useReportList, useReportAction } from "../api";
 import {
   EMPTY_DESCRIPTION,
   EMPTY_TITLE,
@@ -24,13 +30,23 @@ import {
   previousMonthOf,
 } from "../model";
 import { PendingContent } from "../pending";
+import type { BudgetReport } from "../types";
 
-import { ReportListItem, reportTable } from "./list-item";
+import { ReportListItem, reportTable, deleteTargetLabelOf } from "./list-item";
 
 const TITLE = "Budget Realization";
 
 export const ReportListContent = () => {
-  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.BUDGET_REALIZATION);
+  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+    MENU.BUDGET_REALIZATION,
+  );
+
+  const toast = useToast();
+
+  // Satu keadaan menyimpan baris yang akan dihapus sekaligus status terbuka
+  // dialognya. Hook hapus dibuat ulang mengikuti kunci baris ini.
+  const [target, setTarget] = useState<BudgetReport | null>(null);
+  const deleteRow = useReportAction(target?.publicId ?? "");
   const listParams = useListParams({ filters: LIST_FILTERS });
   const tab = listParams.filters.tab === PENDING_TAB ? PENDING_TAB : "";
   const reportList = useReportList(listParams);
@@ -42,6 +58,20 @@ export const ReportListContent = () => {
 
   const onPickMonth = (month: string) =>
     listParams.onPickFilter("bulan", month);
+
+  const onDelete = () => {
+    deleteRow.mutate("hapus", {
+      onSuccess: (deleted) => {
+        toast.add({ title: deleted.message });
+        setTarget(null);
+      },
+    });
+  };
+
+  const onCancelDelete = () => {
+    deleteRow.reset();
+    setTarget(null);
+  };
 
   return (
     <div className="pb-6">
@@ -139,7 +169,10 @@ export const ReportListContent = () => {
                 listParams.isFiltered ? listParams.onClearFilters : undefined
               }
               pagination={reportList.pagination}
-              table={reportTable(isCanUpdate)}
+              table={reportTable(
+                isCanUpdate,
+                isCanDelete ? setTarget : undefined,
+              )}
               itemNoun="laporan"
             >
               {(row) => <ReportListItem row={row} />}
@@ -147,6 +180,15 @@ export const ReportListContent = () => {
           )}
         </>
       )}
+
+      <RowDeleteDialog
+        target={target ? { label: deleteTargetLabelOf(target) } : null}
+        entity="laporan budget"
+        isPending={deleteRow.isPending}
+        errorMessage={deleteRow.error?.message}
+        onCancel={onCancelDelete}
+        onConfirm={onDelete}
+      />
     </div>
   );
 };

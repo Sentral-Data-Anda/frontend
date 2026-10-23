@@ -1,17 +1,23 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 
 import { buttonVariants } from "@/components/common/control";
-import { EmptyState } from "@/components/common/feedback";
-import { DataList, ListTabs, ListToolbar } from "@/components/common/list";
+import { useToast, EmptyState } from "@/components/common/feedback";
+import {
+  DataList,
+  ListTabs,
+  ListToolbar,
+  RowDeleteDialog,
+} from "@/components/common/list";
 import { PageHeader, PageHeaderAdd } from "@/components/layout";
 import { MENU, domainHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { useDdlOptions } from "@/hooks/use-ddl-options";
 import { useListParams } from "@/hooks/use-list-params";
 
-import { useBudgetSetting, useProgramList } from "../api";
+import { useBudgetSetting, useProgramList, useProgramAction } from "../api";
 import {
   EMPTY_DESCRIPTION,
   EMPTY_TITLE,
@@ -21,13 +27,25 @@ import {
   yearLabelOf,
   yearSelectOptions,
 } from "../model";
+import type { Program } from "../types";
 
-import { ProgramListItem, programTable } from "./list-item";
+import {
+  ProgramListItem,
+  programTable,
+  deleteTargetLabelOf,
+} from "./list-item";
 
 const TITLE = "Program";
 
 export const ProgramListContent = () => {
-  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.PROGRAM);
+  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(MENU.PROGRAM);
+
+  const toast = useToast();
+
+  // Satu keadaan menyimpan baris yang akan dihapus sekaligus status terbuka
+  // dialognya. Hook hapus dibuat ulang mengikuti kunci baris ini.
+  const [target, setTarget] = useState<Program | null>(null);
+  const deleteRow = useProgramAction(target?.publicId ?? "");
   const listParams = useListParams({ filters: LIST_FILTERS });
   const setting = useBudgetSetting();
   const year =
@@ -41,6 +59,20 @@ export const ProgramListContent = () => {
     !programList.isLoading && !programList.error && items?.length === 0;
   const years = setting.data?.budgetYears ?? [];
   const yearLabel = yearLabelOf(years, year);
+
+  const onDelete = () => {
+    deleteRow.mutate("hapus", {
+      onSuccess: (deleted) => {
+        toast.add({ title: deleted.message });
+        setTarget(null);
+      },
+    });
+  };
+
+  const onCancelDelete = () => {
+    deleteRow.reset();
+    setTarget(null);
+  };
 
   return (
     <div className="pb-6">
@@ -125,12 +157,21 @@ export const ProgramListContent = () => {
             listParams.isFiltered ? listParams.onClearFilters : undefined
           }
           pagination={programList.pagination}
-          table={programTable(isCanUpdate)}
+          table={programTable(isCanUpdate, isCanDelete ? setTarget : undefined)}
           itemNoun="usulan"
         >
           {(row) => <ProgramListItem row={row} />}
         </DataList>
       )}
+
+      <RowDeleteDialog
+        target={target ? { label: deleteTargetLabelOf(target) } : null}
+        entity="usulan program"
+        isPending={deleteRow.isPending}
+        errorMessage={deleteRow.error?.message}
+        onCancel={onCancelDelete}
+        onConfirm={onDelete}
+      />
     </div>
   );
 };

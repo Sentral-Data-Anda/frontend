@@ -9,7 +9,7 @@ import { MENU, detailHref } from "@/config/menu";
 import { formatDays } from "@/lib/format";
 import { saveListFocus } from "@/lib/list-return";
 
-import { CUTI_LIST_PATH, rangeTextOf } from "../model";
+import { CUTI_LIST_PATH, rangeTextOf, isEditable } from "../model";
 import type { Cuti } from "../types";
 import { CutiStatusBadge } from "../ui";
 
@@ -54,7 +54,13 @@ export const CutiListItem = (props: PropTypes) => {
   );
 };
 
-export function cutiTable(): DataTableConfig<Cuti> {
+const deleteLabelOf = (x: Cuti) => `Hapus pengajuan cuti ${x.code}`;
+
+export const deleteTargetLabelOf = (x: Cuti) => x.code;
+
+export function cutiTable(
+  onDelete?: (row: Cuti) => void,
+): DataTableConfig<Cuti> {
   return {
     columns: [
       {
@@ -135,6 +141,10 @@ export function cutiTable(): DataTableConfig<Cuti> {
         onNavigate: () => saveFocus(x),
         label: labelOf(x),
       },
+      remove:
+        onDelete && isEditable(x)
+          ? { onSelect: () => onDelete(x), label: deleteLabelOf(x) }
+          : undefined,
     }),
   };
 }

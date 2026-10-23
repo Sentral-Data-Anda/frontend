@@ -147,8 +147,13 @@ const COLUMNS: Column[] = [
   },
 ];
 
+const deleteLabelOf = (x: CashReceipt) => `Hapus kas masuk ${x.code}`;
+
+export const deleteTargetLabelOf = (x: CashReceipt) => x.code;
+
 export function receiptTable(
   isCanUpdate: boolean,
+  onDelete?: (row: CashReceipt) => void,
 ): DataTableConfig<CashReceipt> {
   return {
     columns: COLUMNS,
@@ -166,6 +171,10 @@ export function receiptTable(
               onNavigate: () => saveFocus(x),
               label: `Ubah kas masuk ${x.code}`,
             }
+          : undefined,
+      remove:
+        onDelete && isEditable(x.status)
+          ? { onSelect: () => onDelete(x), label: deleteLabelOf(x) }
           : undefined,
     }),
   };

@@ -68,7 +68,13 @@ export const PenyusutanListItemRow = (props: PropTypes) => {
   );
 };
 
-export function penyusutanTable(): DataTableConfig<Run> {
+const deleteLabelOf = (x: Run) => `Hapus penyusutan ${x.code}`;
+
+export const deleteTargetLabelOf = (x: Run) => x.code;
+
+export function penyusutanTable(
+  onDelete?: (row: Run) => void,
+): DataTableConfig<Run> {
   return {
     columns: [
       {
@@ -123,6 +129,10 @@ export function penyusutanTable(): DataTableConfig<Run> {
         onNavigate: () => saveFocus(x),
         label: labelOf(x),
       },
+      remove:
+        onDelete && x.status === "DRAFT"
+          ? { onSelect: () => onDelete(x), label: deleteLabelOf(x) }
+          : undefined,
     }),
   };
 }

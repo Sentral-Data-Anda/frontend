@@ -1,5 +1,8 @@
 "use client";
 
+import { useState } from "react";
+
+import { useToast } from "@/components/common/feedback";
 import {
   CsvDownloadButton,
   DataList,
@@ -8,6 +11,7 @@ import {
   PrintListButton,
   toCsvColumns,
   PrintSheet,
+  RowDeleteDialog,
 } from "@/components/common/list";
 import { PageHeader, PageHeaderAdd } from "@/components/layout";
 import { MENU, domainHref } from "@/config/menu";
@@ -15,7 +19,12 @@ import { useMenuAccess } from "@/features/auth";
 import { useListExport } from "@/hooks/use-list-export";
 import { useListParams } from "@/hooks/use-list-params";
 
-import { fetchReceiptPage, RECEIPT_FILTERS, useReceiptList } from "../api";
+import {
+  fetchReceiptPage,
+  RECEIPT_FILTERS,
+  useReceiptList,
+  useReceiptAction,
+} from "../api";
 import {
   EMPTY_DESCRIPTION,
   EMPTY_TITLE,
@@ -27,13 +36,27 @@ import {
   TITLE,
   monthFilterOptions,
 } from "../model";
+import type { CashReceipt } from "../types";
 
 import { GatewayShortcut } from "./gateway-shortcut";
-import { ReceiptListItemRow, receiptTable } from "./list-item";
+import {
+  ReceiptListItemRow,
+  receiptTable,
+  deleteTargetLabelOf,
+} from "./list-item";
 import { RECEIPT_PRINT_COLUMNS, receiptPrintTotal } from "./print-columns";
 
 export const ReceiptListContent = () => {
-  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.KAS_MASUK);
+  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+    MENU.KAS_MASUK,
+  );
+
+  const toast = useToast();
+
+  // Satu keadaan menyimpan baris yang akan dihapus sekaligus status terbuka
+  // dialognya. Hook hapus dibuat ulang mengikuti kunci baris ini.
+  const [target, setTarget] = useState<CashReceipt | null>(null);
+  const deleteRow = useReceiptAction(target?.publicId ?? "");
   const listParams = useListParams({ filters: RECEIPT_FILTERS });
   const receiptList = useReceiptList(listParams);
   const isNarrowed = Boolean(listParams.search) || listParams.isFiltered;
@@ -41,6 +64,23 @@ export const ReceiptListContent = () => {
     fetchPage: fetchReceiptPage,
     params: listParams,
   });
+
+  const onDelete = () => {
+    deleteRow.mutate(
+      { action: "hapus" },
+      {
+        onSuccess: (deleted) => {
+          toast.add({ title: deleted.message });
+          setTarget(null);
+        },
+      },
+    );
+  };
+
+  const onCancelDelete = () => {
+    deleteRow.reset();
+    setTarget(null);
+  };
 
   return (
     <div className="pb-6">
@@ -124,7 +164,7 @@ export const ReceiptListContent = () => {
             listParams.isFiltered ? listParams.onClearFilters : undefined
           }
           pagination={receiptList.pagination}
-          table={receiptTable(isCanUpdate)}
+          table={receiptTable(isCanUpdate, isCanDelete ? setTarget : undefined)}
           itemNoun="kas masuk"
         >
           {(receipt) => <ReceiptListItemRow receipt={receipt} />}
@@ -147,6 +187,15 @@ export const ReceiptListContent = () => {
           footer={`Jumlah: ${receiptPrintTotal(print.rows)}`}
         />
       ) : null}
+
+      <RowDeleteDialog
+        target={target ? { label: deleteTargetLabelOf(target) } : null}
+        entity="kas masuk"
+        isPending={deleteRow.isPending}
+        errorMessage={deleteRow.error?.message}
+        onCancel={onCancelDelete}
+        onConfirm={onDelete}
+      />
     </div>
   );
 };

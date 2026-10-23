@@ -155,8 +155,13 @@ const COLUMNS: Column[] = [
   },
 ];
 
+const deleteLabelOf = (x: PurchaseReturn) => `Hapus retur pembelian ${x.code}`;
+
+export const deleteTargetLabelOf = (x: PurchaseReturn) => x.code;
+
 export function returnTable(
   isCanUpdate: boolean,
+  onDelete?: (row: PurchaseReturn) => void,
 ): DataTableConfig<PurchaseReturn> {
   return {
     columns: COLUMNS,
@@ -174,6 +179,10 @@ export function returnTable(
               onNavigate: () => saveFocus(x),
               label: `Ubah retur ${x.code}`,
             }
+          : undefined,
+      remove:
+        onDelete && isEditable(x)
+          ? { onSelect: () => onDelete(x), label: deleteLabelOf(x) }
           : undefined,
     }),
   };

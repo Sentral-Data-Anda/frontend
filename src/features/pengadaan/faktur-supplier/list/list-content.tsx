@@ -1,28 +1,50 @@
 "use client";
 
-import { DataList, ListTabs, ListToolbar } from "@/components/common/list";
+import { useState } from "react";
+
+import { useToast } from "@/components/common/feedback";
+import {
+  DataList,
+  ListTabs,
+  ListToolbar,
+  RowDeleteDialog,
+} from "@/components/common/list";
 import { PageHeader, PageHeaderAdd } from "@/components/layout";
 import { MENU, domainHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { useDdlOptions } from "@/hooks/use-ddl-options";
 import { useListParams, type ListFilterSchema } from "@/hooks/use-list-params";
 
-import { useInvoiceList } from "../api";
+import { useInvoiceList, useInvoiceAction } from "../api";
 import {
   EMPTY_DESCRIPTION,
   EMPTY_TITLE,
   INVOICE_CREATE_PATH,
   STATUS_TABS,
 } from "../model";
+import type { Invoice } from "../types";
 
-import { InvoiceListItemRow, invoiceTable } from "./list-item";
+import {
+  InvoiceListItemRow,
+  invoiceTable,
+  deleteTargetLabelOf,
+} from "./list-item";
 
 const LIST_FILTERS = {
   supplier: { api: "supplierId" },
 } satisfies ListFilterSchema;
 
 export const InvoiceListContent = () => {
-  const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.SUPPLIER_INVOICE);
+  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
+    MENU.SUPPLIER_INVOICE,
+  );
+
+  const toast = useToast();
+
+  // Satu keadaan menyimpan baris yang akan dihapus sekaligus status terbuka
+  // dialognya. Hook hapus dibuat ulang mengikuti kunci baris ini.
+  const [target, setTarget] = useState<Invoice | null>(null);
+  const deleteRow = useInvoiceAction(target?.publicId ?? "");
   const listParams = useListParams({ filters: LIST_FILTERS });
   const invoiceList = useInvoiceList(listParams);
   const suppliers = useDdlOptions(
@@ -31,6 +53,20 @@ export const InvoiceListContent = () => {
     listParams.filters.supplier,
   );
   const isNarrowed = Boolean(listParams.search) || listParams.isFiltered;
+
+  const onDelete = () => {
+    deleteRow.mutate("hapus", {
+      onSuccess: (deleted) => {
+        toast.add({ title: deleted.message });
+        setTarget(null);
+      },
+    });
+  };
+
+  const onCancelDelete = () => {
+    deleteRow.reset();
+    setTarget(null);
+  };
 
   return (
     <div className="pb-6">
@@ -95,11 +131,20 @@ export const InvoiceListContent = () => {
           listParams.isFiltered ? listParams.onClearFilters : undefined
         }
         pagination={invoiceList.pagination}
-        table={invoiceTable(isCanUpdate)}
+        table={invoiceTable(isCanUpdate, isCanDelete ? setTarget : undefined)}
         itemNoun="faktur"
       >
         {(invoice) => <InvoiceListItemRow invoice={invoice} />}
       </DataList>
+
+      <RowDeleteDialog
+        target={target ? { label: deleteTargetLabelOf(target) } : null}
+        entity="faktur supplier"
+        isPending={deleteRow.isPending}
+        errorMessage={deleteRow.error?.message}
+        onCancel={onCancelDelete}
+        onConfirm={onDelete}
+      />
     </div>
   );
 };

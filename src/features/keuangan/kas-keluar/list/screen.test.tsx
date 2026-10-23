@@ -1,3 +1,4 @@
+import { Toast } from "@base-ui/react/toast";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   cleanup,
@@ -95,7 +96,9 @@ const onRender = (rows: CashExpense[], access: MenuAction[] = ["VIEW"]) => {
 
   render(
     <QueryClientProvider client={new QueryClient()}>
-      <ExpenseListScreen />
+      <Toast.Provider>
+        <ExpenseListScreen />
+      </Toast.Provider>
     </QueryClientProvider>,
   );
 
@@ -202,7 +205,9 @@ describe("gerbang izin", () => {
 
     render(
       <QueryClientProvider client={new QueryClient()}>
-        <ExpenseListScreen />
+        <Toast.Provider>
+          <ExpenseListScreen />
+        </Toast.Provider>
       </QueryClientProvider>,
     );
 
