@@ -321,6 +321,16 @@ const session = {
           .replace(/^\.|\.$/g, "")}@contoh.id`,
         statusMarital: "SM",
         address: "Jl. Merdeka No. 2, RT 03 RW 02",
+        bloodType: "O",
+        lastEducation: "S1",
+        professionId: 3,
+        ethnicGroupId: 2,
+        // Kode wilayah: form "Ubah data pribadi" memilih ulang dengan kode,
+        // sedangkan tampilan membaca namanya.
+        provincesCode: "32",
+        regenciesCode: "3273",
+        districtsCode: "327301",
+        villagesCode: "3273011001",
         villages: { name: "Cijerah" },
         districts: { name: "Bandung Kulon" },
         regencies: { name: "Kota Bandung" },
@@ -592,6 +602,40 @@ Bun.serve({
         status: 200,
         message: "Berhasil Mendapatkan Data",
         data: rows,
+      });
+    }
+
+    // Data pribadi sendiri: subjeknya sesi, jadi tidak ada kunci di path.
+    // MOCK_STEP_UP=1 → 403 step-up; MOCK_SAVE_ERROR=email → email ditolak.
+    if (path === "/jemaat/saya" && request.method === "PUT") {
+      if (process.env.MOCK_STEP_UP) {
+        return json(
+          { status: 403, error: "Mohon Verifikasi Password Terlebih Dahulu" },
+          403,
+        );
+      }
+
+      const failure = saveFailure();
+      if (failure) return failure;
+
+      const body = await readBody<Record<string, unknown>>(request);
+
+      // Yang keorganisasian tidak pernah ikut tersimpan, sama seperti be-sada.
+      for (const field of [
+        "typeJemaat",
+        "statusJemaat",
+        "statusMarital",
+        "zoneChurchId",
+        "codeInduk",
+        "joinedAt",
+      ]) {
+        delete body[field];
+      }
+
+      return json({
+        status: 200,
+        message: "Berhasil Memperbarui Data Pribadi",
+        data: { ...session.jemaat, ...body },
       });
     }
 

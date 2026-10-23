@@ -428,6 +428,8 @@ export const ACCOUNT_HREF = "/akun";
 
 export const ACCOUNT_PASSWORD_HREF = `${ACCOUNT_HREF}/password/${FORM_SEGMENT.edit}`;
 
+export const ACCOUNT_PROFILE_HREF = `${ACCOUNT_HREF}/profile/${FORM_SEGMENT.edit}`;
+
 export function isFormRoute(pathname: string): boolean {
   const segments = pathname.split("/").filter(Boolean);
   const last = segments.at(-1);

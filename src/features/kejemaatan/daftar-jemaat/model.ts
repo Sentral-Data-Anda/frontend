@@ -5,6 +5,7 @@ import { toDateInput } from "@/lib/date";
 import { collapseSpaces } from "@/lib/name";
 import { keepDigits } from "@/lib/number";
 import { emptyToNull } from "@/lib/utils";
+import { BLOOD_TYPES, GENDERS, LAST_EDUCATION } from "@/types/jemaat";
 
 import type {
   JemaatAdditional,
@@ -13,8 +14,6 @@ import type {
   RoleInFamily,
 } from "./types";
 
-export const GENDERS = ["L", "P"] as const;
-export const BLOOD_TYPES = ["A", "B", "AB", "O"] as const;
 export const STATUS_PERNIKAHAN = ["SM", "BM", "CM", "CH"] as const;
 export const TYPE_JEMAAT = ["ANGGOTA", "SIMPATISAN"] as const;
 export const STATUS_JEMAAT = ["AKTIF", "TIDAK_AKTIF"] as const;
@@ -25,21 +24,6 @@ export const SACRAMENT_TYPES = [
   "ATESTASI_MASUK",
   "ATESTASI_KELUAR",
   "MENINGGAL",
-] as const;
-
-export const LAST_EDUCATION = [
-  "TIDAK_SEKOLAH",
-  "SD",
-  "SMP",
-  "SMA",
-  "SMK",
-  "D1",
-  "D2",
-  "D3",
-  "D4",
-  "S1",
-  "S2",
-  "S3",
 ] as const;
 
 const optionalEnum = <T extends string>(values: readonly [T, ...T[]]) =>
