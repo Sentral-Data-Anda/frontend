@@ -22,7 +22,10 @@ type Json = {
 
 const SEED = CASH_TRANSFER.map((row) => ({ ...row }));
 const ACCOUNT_SEED = ACCOUNT.map((row) => ({ ...row }));
-const JOURNAL_COUNT = JOURNAL_ENTRY.length;
+// Salinan dalam: membatalkan setoran mengubah status entri seed menjadi
+// REVERSED; memotong array saja meninggalkan entri itu tanpa pembaliknya.
+const JOURNAL_SEED = structuredClone(JOURNAL_ENTRY);
+const JOURNAL_COUNT = JOURNAL_SEED.length;
 
 afterEach(() => {
   CASH_TRANSFER.splice(
@@ -31,7 +34,11 @@ afterEach(() => {
     ...SEED.map((row) => ({ ...row })),
   );
   ACCOUNT.splice(0, ACCOUNT.length, ...ACCOUNT_SEED.map((row) => ({ ...row })));
-  JOURNAL_ENTRY.splice(JOURNAL_COUNT, JOURNAL_ENTRY.length);
+  JOURNAL_ENTRY.splice(
+    0,
+    JOURNAL_ENTRY.length,
+    ...structuredClone(JOURNAL_SEED),
+  );
   delete process.env.MOCK_PERIOD_CLOSED;
 });
 
