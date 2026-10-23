@@ -1,9 +1,11 @@
-import { describe, expect, test } from "bun:test";
+import { afterAll, describe, expect, test } from "bun:test";
 
-import { TODAY, periodLabel } from "../inventaris-store";
+import { TODAY, periodLabel, resetRun } from "../inventaris-store";
 import type { MockAction } from "../kit";
 
 import { penyusutanMock } from "./penyusutan";
+
+afterAll(resetRun);
 
 type Json = {
   status: number;

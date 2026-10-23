@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { afterAll, describe, expect, test } from "bun:test";
 
 import { addDays, todayJakarta } from "../../../src/lib/date";
 import type { MockAction } from "../kit";
@@ -6,7 +6,9 @@ import { JADWAL_PELAYAN } from "../pelayanan-store";
 
 import { ibadahLinkedTo, ibadahMock } from "./ibadah";
 import { keluargaMock } from "./keluarga";
-import { tipeIbadahMock } from "./tipe-ibadah";
+import { resetTipeIbadah, tipeIbadahMock } from "./tipe-ibadah";
+
+afterAll(resetTipeIbadah);
 
 type Listed = {
   code: string;
