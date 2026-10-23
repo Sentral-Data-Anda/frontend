@@ -1232,6 +1232,17 @@ for (const offset of [-3, -2, -1]) {
   if (offset < -1) postRun(run);
 }
 
+const RUN_SEED = structuredClone(RUN);
+
+/**
+ * Pedoman §7.2: benih dimiliki modul yang menyemainya. Test yang membuka,
+ * memposting, atau menghapus penyusutan memanggil ini supaya berkas
+ * sesudahnya tetap melihat dua periode diposting dan satu draf.
+ */
+export const resetRun = () => {
+  RUN.splice(0, RUN.length, ...structuredClone(RUN_SEED));
+};
+
 export const runView = (run: RunRow, isDetail = false) => ({
   publicId: run.publicId,
   code: run.code,

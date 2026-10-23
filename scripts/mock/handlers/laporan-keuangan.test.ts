@@ -157,8 +157,27 @@ describe("kosong dijawab nol, bukan 404", () => {
 describe("neraca", () => {
   test("akun bersaldo nol tetap dikembalikan", async () => {
     const neraca = await dataOf<Neraca>(NERACA);
-    const idle = flatten(neraca.assets).find((node) => node.code === "1-110");
+    // Akun yang menganggur dihitung dari store, bukan dipatok ke satu kode:
+    // modul seperti setoran.ts memposting jurnal saat dimuat, sehingga akun
+    // yang kosong bergantung pada modul mana yang sudah di-import.
+    const used = new Set(
+      JOURNAL_ENTRY.filter((entry) => entry.status !== "DRAFT").flatMap(
+        (entry) => entry.lines.map((line) => line.accountId),
+      ),
+    );
+    const idleAccount = ACCOUNT.find(
+      (account) =>
+        account.type === "ASSET" &&
+        account.parentAccountId !== null &&
+        account.isActive &&
+        account.deletedAt === null &&
+        !used.has(account.id),
+    )!;
+    const idle = flatten(neraca.assets).find(
+      (node) => node.code === idleAccount.code,
+    );
 
+    expect(idle).toBeDefined();
     expect(idle?.total).toBe("0");
   });
 

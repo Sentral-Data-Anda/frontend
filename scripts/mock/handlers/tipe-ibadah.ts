@@ -56,7 +56,20 @@ const rows: Row[] = TYPE_IBADAH_ROWS.map((row) =>
 
 export const findTipeIbadah = (id: number) => rows.find((row) => row.id === id);
 
+const seedRows = () =>
+  TYPE_IBADAH_ROWS.map((row) => toRow(row.id, row.name, row.isActive));
+
 let lastId = Math.max(0, ...rows.map((row) => row.id));
+
+/**
+ * Pedoman §7.2: benih dimiliki modul yang menyemainya. Berkas test lain yang
+ * membuat Tipe Ibadah (mis. ibadah.test.ts) memanggil ini supaya daftar yang
+ * dibaca berkas sesudahnya tidak berisi sisa.
+ */
+export const resetTipeIbadah = () => {
+  rows.splice(0, rows.length, ...seedRows());
+  lastId = Math.max(0, ...rows.map((row) => row.id));
+};
 
 const normalize = (name: string) => name.trim().replace(/\s+/g, " ");
 
