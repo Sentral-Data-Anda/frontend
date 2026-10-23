@@ -95,4 +95,8 @@ describe("matcher mengecualikan setiap aset public/", () => {
     expect(matcherOf().test("/kejemaatan/daftar-jemaat")).toBe(true);
     expect(matcherOf().test("/login")).toBe(true);
   });
+
+  test("/media tidak kena redirect login: tanda tangan tautan adalah otorisasinya", () => {
+    expect(matcherOf().test("/media/sada/gallery/a.jpeg")).toBe(false);
+  });
 });

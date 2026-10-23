@@ -130,7 +130,7 @@ export const config = {
     // tidak boleh kena redirect auth, jadi dikecualikan dari middleware sepenuhnya.
     {
       source:
-        "/((?!(?:api|monitoring|_next/static|_next/image|manifest\\.webmanifest|sw\\.js|icons|brand|loading|apple-icon\\.png|icon\\.png|favicon\\.ico|offline|robots\\.txt)(?:/|$)).*)",
+        "/((?!(?:api|media|monitoring|_next/static|_next/image|manifest\\.webmanifest|sw\\.js|icons|brand|loading|apple-icon\\.png|icon\\.png|favicon\\.ico|offline|robots\\.txt)(?:/|$)).*)",
     },
     {
       source: "/api/:path*",
