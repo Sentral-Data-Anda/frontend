@@ -99,6 +99,7 @@ afterAll(() => {
 
 afterEach(() => {
   cleanup();
+  window.sessionStorage.clear();
   PURCHASE_RETURN.splice(0, Infinity, ...structuredClone(SNAPSHOT));
   calls.length = 0;
   replaced.length = 0;

@@ -84,6 +84,9 @@ afterAll(() => {
 
 afterEach(() => {
   cleanup();
+  // use-list-params menyimpan filter ke sessionStorage; tanpa ini filter
+  // test list bocor ke tautan kembali di test detail.
+  window.sessionStorage.clear();
   requested.length = 0;
   replaced.length = 0;
   search.current = new URLSearchParams();
