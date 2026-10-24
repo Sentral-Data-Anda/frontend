@@ -7,11 +7,14 @@ import { useMenuAccess } from "@/features/auth";
 import { useListParams, type ListFilterSchema } from "@/hooks/use-list-params";
 
 import { useJemaatList, useZoneFilterOptions } from "../api";
-import { STATUS_JEMAAT_OPTIONS } from "../types";
+import { HOUSEHOLD_OPTIONS, STATUS_JEMAAT_OPTIONS } from "../types";
 
 import { JemaatListItemRow, jemaatTable } from "./list-item";
 
-const LIST_FILTERS = { wilayah: { api: "zone" } } satisfies ListFilterSchema;
+const LIST_FILTERS = {
+  wilayah: { api: "zone" },
+  keluarga: { api: "household" },
+} satisfies ListFilterSchema;
 
 export const JemaatListScreen = () => {
   const { isCanCreate, isCanUpdate } = useMenuAccess(MENU.DAFTAR_JEMAAT);
@@ -56,6 +59,12 @@ export const JemaatListScreen = () => {
             label: "Status",
             kind: "choice",
             options: STATUS_JEMAAT_OPTIONS,
+          },
+          {
+            key: "keluarga",
+            label: "Keluarga",
+            kind: "choice",
+            options: HOUSEHOLD_OPTIONS,
           },
         ]}
       />
