@@ -23,10 +23,12 @@ const STATUS_OPTIONS = optionsOf(STATUS_JEMAAT_LABEL);
 interface PropTypes {
   form: JemaatForm;
   isDisabled: boolean;
+  /** The wilayah this jemaat's household hands down, if it has one. */
+  householdZone?: { id: number; name: string } | null;
 }
 
 export const MembershipSection = (props: PropTypes) => {
-  const { form, isDisabled } = props;
+  const { form, isDisabled, householdZone = null } = props;
 
   const isAnggota =
     useWatch({ control: form.control, name: "typeJemaat" }) === "ANGGOTA";
@@ -43,6 +45,15 @@ export const MembershipSection = (props: PropTypes) => {
   const isCodeIndukChanged =
     Boolean(form.formState.defaultValues?.codeInduk) &&
     codeInduk !== form.formState.defaultValues?.codeInduk;
+
+  // Three states, and the field only belongs to the jemaat in two of them: a
+  // household with a wilayah settles it for everyone living there, which is
+  // what the reports already count.
+  const zoneHint = householdZone
+    ? `Mengikuti wilayah keluarga: ${householdZone.name}. Ubah lewat keluarganya.`
+    : isInKeluarga
+      ? "Keluarganya belum punya wilayah, jadi wilayah di sini yang dipakai."
+      : undefined;
 
   return (
     <FormSection legend="Keanggotaan" disabled={isDisabled}>
@@ -100,25 +111,25 @@ export const MembershipSection = (props: PropTypes) => {
         control={form.control}
         name="zoneChurchId"
         label="Wilayah"
-        isOptional={!isAnggota || isInKeluarga}
-        hint={
-          isInKeluarga
-            ? "Kosongkan untuk mengikuti wilayah keluarga."
-            : undefined
-        }
+        isOptional={!isAnggota || Boolean(householdZone)}
+        hint={zoneHint}
       >
-        {(field) => (
-          <DdlField
-            value={field.value}
-            onValueChange={field.onChange}
-            options={zoneChurch.options}
-            isLoading={zoneChurch.isLoading}
-            isClearable={!isAnggota || isInKeluarga}
-            disabled={isDisabled}
-            placeholder="Pilih wilayah"
-            emptyMessage="Belum ada data wilayah"
-          />
-        )}
+        {(field) =>
+          householdZone ? (
+            <Input {...field} value={householdZone.name} readOnly disabled />
+          ) : (
+            <DdlField
+              value={field.value}
+              onValueChange={field.onChange}
+              options={zoneChurch.options}
+              isLoading={zoneChurch.isLoading}
+              isClearable={!isAnggota}
+              disabled={isDisabled}
+              placeholder="Pilih wilayah"
+              emptyMessage="Belum ada data wilayah"
+            />
+          )
+        }
       </ControlField>
 
       <ControlField

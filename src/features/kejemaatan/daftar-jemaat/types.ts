@@ -88,4 +88,7 @@ export type JemaatPayload = {
 export type JemaatDetail = Omit<JemaatPayload, "additional"> & {
   code: string;
   additional: JemaatAdditional[] | null;
+  // The wilayah the jemaat's household hands down, already settled by the
+  // server. Present means the field on the form is theirs to read, not edit.
+  householdZoneChurch: { id: number; name: string } | null;
 };

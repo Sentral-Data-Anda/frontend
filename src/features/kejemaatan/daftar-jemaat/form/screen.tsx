@@ -207,7 +207,11 @@ export const JemaatFormScreen = (props: PropTypes) => {
 
       <div className={detail.isLoading ? "hidden" : undefined}>
         <IdentitySection form={form} isDisabled={isSubmitting} />
-        <MembershipSection form={form} isDisabled={isSubmitting} />
+        <MembershipSection
+          form={form}
+          isDisabled={isSubmitting}
+          householdZone={detail.data?.householdZoneChurch ?? null}
+        />
         <ContactSection form={form} isDisabled={isSubmitting} />
         <AddressSection form={form} isDisabled={isSubmitting} />
         <FamilySection form={form} isDisabled={isSubmitting} />
