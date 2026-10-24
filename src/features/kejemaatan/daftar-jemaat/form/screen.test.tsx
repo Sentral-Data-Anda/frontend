@@ -112,6 +112,7 @@ const DETAIL: JemaatDetail = {
   roleInFamily: null,
   keluargaAsalId: null,
   joinedAt: null,
+  householdZoneChurch: null,
   additional: [],
 };
 
@@ -289,17 +290,57 @@ describe("wilayah mengikuti keluarga", () => {
     );
   });
 
-  test("berkeluarga: wilayah opsional dengan petunjuk mengikuti keluarga", async () => {
+  test("belum berkeluarga: wilayah dipilih sendiri, tanpa catatan keluarga", async () => {
+    onMockApi(undefined, { ...DETAIL, typeJemaat: "ANGGOTA" });
+    await onRenderLoadedEdit();
+
+    const field = screen.getByLabelText(/^Wilayah/) as HTMLInputElement;
+    expect(field.disabled).toBe(false);
+    expect(Boolean(screen.queryByText(/Mengikuti wilayah keluarga/))).toBe(
+      false,
+    );
+  });
+
+  test("berkeluarga tanpa wilayah: masih bisa dipilih, dengan alasannya", async () => {
     onMockApi(undefined, {
       ...DETAIL,
       typeJemaat: "ANGGOTA",
       keluargaId: 12,
       roleInFamily: "ANAK",
+      householdZoneChurch: null,
     });
     await onRenderLoadedEdit();
 
     expect(
-      screen.getByText("Kosongkan untuk mengikuti wilayah keluarga."),
+      screen.getByText(
+        "Keluarganya belum punya wilayah, jadi wilayah di sini yang dipakai.",
+      ),
+    ).toBeTruthy();
+    expect(
+      (screen.getByLabelText(/^Wilayah/) as HTMLInputElement).disabled,
+    ).toBe(false);
+  });
+
+  test("berkeluarga dan keluarganya berwilayah: terkunci dan menampilkan wilayah keluarga", async () => {
+    onMockApi(undefined, {
+      ...DETAIL,
+      typeJemaat: "ANGGOTA",
+      keluargaId: 12,
+      roleInFamily: "ANAK",
+      zoneChurchId: 4,
+      householdZoneChurch: { id: 3, name: "Wilayah 3" },
+    });
+    await onRenderLoadedEdit();
+
+    // Wilayah keluarga yang tampil, bukan nilai lama milik jemaat (4),
+    // karena itulah yang dihitung semua laporan.
+    const field = screen.getByLabelText(/^Wilayah/) as HTMLInputElement;
+    await waitFor(() => expect(field.value).toBe("Wilayah 3"));
+    expect(field.disabled).toBe(true);
+    expect(
+      screen.getByText(
+        "Mengikuti wilayah keluarga: Wilayah 3. Ubah lewat keluarganya.",
+      ),
     ).toBeTruthy();
   });
 });

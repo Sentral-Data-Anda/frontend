@@ -222,6 +222,7 @@ describe("form ubah TIDAK mengirim additional (test wajib 5)", () => {
     roleInFamily: "ANAK",
     keluargaAsalId: null,
     joinedAt: "2018-02-11T00:00:00.000Z",
+    householdZoneChurch: { id: 3, name: "Wilayah 3" },
     additional: [
       {
         type: "BAPTIS",
@@ -242,6 +243,16 @@ describe("form ubah TIDAK mengirim additional (test wajib 5)", () => {
     const payload = toJemaatPayload(toJemaatForm(detail), true);
 
     expect("additional" in payload).toBe(false);
+  });
+
+  test("keanggotaan keluarga dikirim balik apa adanya, bukan null", () => {
+    // Form Daftar Jemaat tidak punya input keluarga. Kalau nilainya tidak ikut
+    // pulang, be-sada membaca null sebagai "keluarkan dari keluarganya" dan
+    // menutup keanggotaannya hanya karena nomor HP-nya diubah.
+    const payload = toJemaatPayload(toJemaatForm(detail));
+
+    expect(payload.keluargaId).toBe(12);
+    expect(payload.roleInFamily).toBe("ANAK");
   });
 
   test("mode tambah tetap mengirim riwayat yang diisi petugas", () => {
