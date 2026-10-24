@@ -17,11 +17,6 @@ import type { Keluarga } from "./types";
 
 const VALID: KeluargaFormValues = {
   ...EMPTY_KELUARGA_FORM,
-  provincesCode: "32",
-  regenciesCode: "3273",
-  districtsCode: "327301",
-  villagesCode: "3273011001",
-  address: "Jl. Merdeka 10, RT 01 RW 02",
   members: [
     {
       jemaatCode: "JMT-0001",
@@ -44,41 +39,30 @@ describe("keluargaFormSchema", () => {
     expect(issuesOf(VALID)).toEqual([]);
   });
 
-  test("form kosong ditolak per field wajib, wilayah tidak", () => {
-    expect(issuesOf(EMPTY_KELUARGA_FORM).sort()).toEqual([
-      "address",
-      "districtsCode",
-      "provincesCode",
-      "regenciesCode",
-      "villagesCode",
-    ]);
+  test("form kosong lolos: wilayah dan anggota tidak wajib", () => {
+    expect(issuesOf(EMPTY_KELUARGA_FORM)).toEqual([]);
   });
 
   test("tidak ada isian nama: keluarga dinamai dari kepala keluarga", () => {
     expect(Object.keys(EMPTY_KELUARGA_FORM)).not.toContain("name");
   });
 
-  test("batas panjang be-sada: alamat 250", () => {
-    expect(issuesOf({ ...VALID, address: "a".repeat(251) })).toEqual([
+  test("tidak ada isian alamat: alamat keluarga ikut kepala keluarga", () => {
+    for (const field of [
       "address",
-    ]);
-  });
-
-  test("pesan wajib memberi contoh isian", () => {
-    const parsed = keluargaFormSchema.safeParse({ ...VALID, address: "" });
-
-    expect(parsed.error?.issues[0]?.message).toContain("Alamat");
+      "provincesCode",
+      "regenciesCode",
+      "districtsCode",
+      "villagesCode",
+    ]) {
+      expect(Object.keys(EMPTY_KELUARGA_FORM)).not.toContain(field);
+    }
   });
 });
 
 describe("toKeluargaPayload", () => {
   test("wilayah kosong dikirim null, beribadah di sini selalu dikirim", () => {
     expect(toKeluargaPayload(VALID)).toEqual({
-      provincesCode: "32",
-      regenciesCode: "3273",
-      districtsCode: "327301",
-      villagesCode: "3273011001",
-      address: "Jl. Merdeka 10, RT 01 RW 02",
       zoneChurchId: null,
       worshipsHere: true,
       members: [
@@ -91,7 +75,7 @@ describe("toKeluargaPayload", () => {
     });
   });
 
-  test("wilayah jadi angka, Tidak jadi false, teks dipangkas", () => {
+  test("wilayah jadi angka, Tidak jadi false", () => {
     const payload = toKeluargaPayload({
       ...VALID,
       zoneChurchId: "3",
@@ -108,11 +92,6 @@ describe("toKeluargaForm", () => {
     id: 7,
     publicId: "10000000-0000-4000-8000-000000000007",
     code: "KK-0007",
-    provincesCode: "32",
-    regenciesCode: "3273",
-    districtsCode: "327301",
-    villagesCode: "3273011001",
-    address: "Jl. Cijerah 12",
     zoneChurchId: null,
     worshipsHere: false,
     zoneChurch: null,
@@ -126,11 +105,6 @@ describe("toKeluargaForm", () => {
     expect(values.zoneChurchId).toBe("");
     expect(values.worshipsHere).toBe("false");
     expect(toKeluargaPayload(values)).toEqual({
-      provincesCode: DETAIL.provincesCode,
-      regenciesCode: DETAIL.regenciesCode,
-      districtsCode: DETAIL.districtsCode,
-      villagesCode: DETAIL.villagesCode,
-      address: DETAIL.address,
       zoneChurchId: null,
       worshipsHere: false,
       members: [],

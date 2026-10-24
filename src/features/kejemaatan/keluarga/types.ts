@@ -47,11 +47,6 @@ export type KeluargaMember = {
 };
 
 export type KeluargaPayload = {
-  provincesCode: string;
-  regenciesCode: string;
-  districtsCode: string;
-  villagesCode: string;
-  address: string;
   zoneChurchId: number | null;
   worshipsHere: boolean;
   members: KeluargaMemberPayload[];

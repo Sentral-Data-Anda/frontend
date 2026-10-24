@@ -43,7 +43,7 @@ import {
 } from "../kit";
 import { JADWAL_PELAYAN, type JadwalPelayanRow } from "../pelayanan-store";
 
-import { findKeluarga, keluargaRows } from "./keluarga";
+import { findKeluarga, keluargaAddressOf, keluargaRows } from "./keluarga";
 import { findTipeIbadah } from "./tipe-ibadah";
 import { findWilayah, registerWilayahDependent } from "./wilayah";
 
@@ -248,13 +248,17 @@ const seedsOn = (key: string, index: number): Seed[] => {
   }
 };
 
+// Alamat tuan rumah dibaca lewat kepala keluarganya, lalu disalin ke ibadah:
+// ibadah menyimpan alamatnya sendiri, seperti be-sada.
 const eligibleHosts = (zoneChurchId: number) =>
-  keluargaRows().filter(
-    (row) =>
-      row.zoneChurchId === zoneChurchId &&
-      row.worshipsHere &&
-      row.activeMembers > 0,
-  );
+  keluargaRows()
+    .filter(
+      (row) =>
+        row.zoneChurchId === zoneChurchId &&
+        row.worshipsHere &&
+        row.activeMembers > 0,
+    )
+    .map((row) => ({ ...row, address: keluargaAddressOf(row.id) }));
 
 const homeSeed = (
   date: string,
@@ -306,7 +310,17 @@ const placeSeeds = (): Seed[] => {
   const movedHost = keluargaRows().find((row) => row.zoneChurchId === 4);
 
   return [
-    ...(movedHost ? [homeSeed(lastWeekday(4, 6), 2, movedHost, true, 3)] : []),
+    ...(movedHost
+      ? [
+          homeSeed(
+            lastWeekday(4, 6),
+            2,
+            { id: movedHost.id, address: keluargaAddressOf(movedHost.id) },
+            true,
+            3,
+          ),
+        ]
+      : []),
     homeSeed(lastWeekday(4, 6), 1, DELETED_HOST, true, 5),
     {
       typeIbadahId: PEMUDA,

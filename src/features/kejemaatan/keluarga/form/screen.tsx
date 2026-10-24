@@ -46,7 +46,6 @@ import {
 } from "../model";
 import type { KeluargaMember } from "../types";
 
-import { AddressSection } from "./address-section";
 import { EndMembershipDialog } from "./end-membership-dialog";
 import { KeluargaSection } from "./keluarga-section";
 import { MemberSection } from "./member-section";
@@ -252,7 +251,6 @@ export const KeluargaFormScreen = (props: PropTypes) => {
 
       <div className={detail.isLoading ? "hidden" : undefined}>
         <KeluargaSection form={form} isDisabled={isBusy} />
-        <AddressSection form={form} isDisabled={isBusy} />
         <MemberSection
           form={form}
           isDisabled={isBusy}
