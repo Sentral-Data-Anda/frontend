@@ -139,7 +139,6 @@ export function toEndMembershipPayload(
 export const memberRowSchema = z.object({
   jemaatCode: required("Pilih jemaat untuk baris ini."),
   roleInFamily: z.enum(MEMBER_ROLES, { error: "Pilih peran anggota." }),
-  startedAt: z.string(),
 });
 
 export type MemberRow = z.infer<typeof memberRowSchema>;
@@ -147,7 +146,6 @@ export type MemberRow = z.infer<typeof memberRowSchema>;
 export const EMPTY_MEMBER_ROW: MemberRow = {
   jemaatCode: "",
   roleInFamily: "ANAK",
-  startedAt: "",
 };
 
 export const keluargaFormSchema = z
@@ -172,7 +170,10 @@ export const keluargaFormSchema = z
       }
     }
 
-    const codes = values.members.map((row) => row.jemaatCode.toLowerCase());
+    // Rows still being filled share an empty code; only chosen jemaat can clash.
+    const codes = values.members
+      .map((row) => row.jemaatCode.trim().toLowerCase())
+      .filter(Boolean);
 
     if (new Set(codes).size !== codes.length) {
       ctx.addIssue({
@@ -230,10 +231,12 @@ export function toKeluargaPayload(values: KeluargaFormValues): KeluargaPayload {
   return {
     zoneChurchId: values.zoneChurchId ? Number(values.zoneChurchId) : null,
     worshipsHere: values.worshipsHere === "true",
+    // No start date is asked for here: a clerk filling a household form rarely
+    // knows it, and a guessed date reads as fact for ever.
     members: values.members.map((row): KeluargaMemberPayload => ({
       jemaatCode: row.jemaatCode,
       roleInFamily: row.roleInFamily,
-      startedAt: row.startedAt || null,
+      startedAt: null,
     })),
   };
 }

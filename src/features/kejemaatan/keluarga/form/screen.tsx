@@ -121,7 +121,7 @@ export const KeluargaFormScreen = (props: PropTypes) => {
           await addMember.mutateAsync({
             jemaatCode: row.jemaatCode,
             roleInFamily: row.roleInFamily,
-            startedAt: row.startedAt || null,
+            startedAt: null,
           });
         }
       }

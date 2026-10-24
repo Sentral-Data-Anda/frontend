@@ -21,7 +21,6 @@ const VALID: KeluargaFormValues = {
     {
       jemaatCode: "JMT-0001",
       roleInFamily: "KEPALA_KELUARGA",
-      startedAt: "",
     },
   ],
 };
@@ -138,7 +137,6 @@ describe("anggota keluarga", () => {
         {
           jemaatCode: "JMT-0001",
           roleInFamily: "KEPALA_KELUARGA",
-          startedAt: "2019-06-01",
         },
       ],
     });
@@ -147,26 +145,22 @@ describe("anggota keluarga", () => {
       {
         jemaatCode: "JMT-0001",
         roleInFamily: "KEPALA_KELUARGA",
-        startedAt: "2019-06-01",
+        startedAt: null,
       },
     ]);
   });
 
-  test("tanggal mulai yang dikosongkan dikirim null, bukan teks kosong", () => {
+  test("form tidak menanyakan tanggal mulai: selalu dikirim null", () => {
     const payload = toKeluargaPayload({
       ...VALID,
-      members: [
-        { jemaatCode: "JMT-0001", roleInFamily: "ANAK", startedAt: "" },
-      ],
+      members: [{ jemaatCode: "JMT-0001", roleInFamily: "ANAK" }],
     });
 
     expect(payload.members[0]?.startedAt).toBeNull();
   });
 
   test("anggota tanpa jemaat ditolak", () => {
-    const parsed = withMembers([
-      { jemaatCode: "", roleInFamily: "ANAK", startedAt: "" },
-    ]);
+    const parsed = withMembers([{ jemaatCode: "", roleInFamily: "ANAK" }]);
 
     expect(parsed.success).toBe(false);
   });
@@ -176,12 +170,10 @@ describe("anggota keluarga", () => {
       {
         jemaatCode: "JMT-0001",
         roleInFamily: "KEPALA_KELUARGA",
-        startedAt: "",
       },
       {
         jemaatCode: "JMT-0002",
         roleInFamily: "KEPALA_KELUARGA",
-        startedAt: "",
       },
     ]);
 
@@ -192,8 +184,8 @@ describe("anggota keluarga", () => {
 
   test("dua pasangan ditolak", () => {
     const parsed = withMembers([
-      { jemaatCode: "JMT-0001", roleInFamily: "PASANGAN", startedAt: "" },
-      { jemaatCode: "JMT-0002", roleInFamily: "PASANGAN", startedAt: "" },
+      { jemaatCode: "JMT-0001", roleInFamily: "PASANGAN" },
+      { jemaatCode: "JMT-0002", roleInFamily: "PASANGAN" },
     ]);
 
     expect(parsed.error?.issues[0]?.message).toBe(
@@ -206,9 +198,8 @@ describe("anggota keluarga", () => {
       {
         jemaatCode: "JMT-0001",
         roleInFamily: "KEPALA_KELUARGA",
-        startedAt: "",
       },
-      { jemaatCode: "jmt-0001", roleInFamily: "ANAK", startedAt: "" },
+      { jemaatCode: "jmt-0001", roleInFamily: "ANAK" },
     ]);
 
     expect(parsed.error?.issues[0]?.message).toBe(
@@ -216,9 +207,20 @@ describe("anggota keluarga", () => {
     );
   });
 
+  test("dua baris yang masih kosong bukan jemaat kembar", () => {
+    const parsed = withMembers([
+      { jemaatCode: "", roleInFamily: "ANAK" },
+      { jemaatCode: "", roleInFamily: "ANAK" },
+    ]);
+
+    const messages = parsed.error?.issues.map((issue) => issue.message) ?? [];
+
+    expect(messages).not.toContain("Satu jemaat hanya boleh dipilih sekali.");
+  });
+
   test("keluarga tanpa kepala keluarga ditolak saat dibuat", () => {
     const parsed = onCreating([
-      { jemaatCode: "JMT-0001", roleInFamily: "ANAK", startedAt: "" },
+      { jemaatCode: "JMT-0001", roleInFamily: "ANAK" },
     ]);
 
     expect(parsed.error?.issues[0]?.message).toBe(
@@ -232,9 +234,8 @@ describe("anggota keluarga", () => {
         {
           jemaatCode: "JMT-0001",
           roleInFamily: "KEPALA_KELUARGA",
-          startedAt: "",
         },
-        { jemaatCode: "JMT-0002", roleInFamily: "ANAK", startedAt: "" },
+        { jemaatCode: "JMT-0002", roleInFamily: "ANAK" },
       ]).success,
     ).toBe(true);
   });
@@ -245,10 +246,9 @@ describe("anggota keluarga", () => {
         {
           jemaatCode: "JMT-0001",
           roleInFamily: "KEPALA_KELUARGA",
-          startedAt: "",
         },
-        { jemaatCode: "JMT-0002", roleInFamily: "ANAK", startedAt: "" },
-        { jemaatCode: "JMT-0003", roleInFamily: "ANAK", startedAt: "" },
+        { jemaatCode: "JMT-0002", roleInFamily: "ANAK" },
+        { jemaatCode: "JMT-0003", roleInFamily: "ANAK" },
       ]).success,
     ).toBe(true);
   });
