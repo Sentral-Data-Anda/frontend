@@ -501,3 +501,62 @@ describe("akhiri keanggotaan", () => {
     ).toBe(false);
   });
 });
+
+describe("peran bawaan baris anggota", () => {
+  const roleOf = (index: number) =>
+    document.getElementById(`members.${index}.roleInFamily`);
+
+  const onAddRow = () =>
+    fireEvent.click(screen.getByRole("button", { name: "Tambah anggota" }));
+
+  const onOfferedRoles = async (index: number) => {
+    fireEvent.click(roleOf(index)!);
+    await screen.findByRole("option", { name: "Anak" });
+
+    return screen.getAllByRole("option").map((option) => option.textContent);
+  };
+
+  test("keluarga baru: baris pertama kepala keluarga, sesudahnya anak", () => {
+    onMockApi();
+    onRenderForm(["VIEW", "CREATE"]);
+
+    onAddRow();
+    expect(roleOf(0)?.textContent).toBe("Kepala keluarga");
+
+    onAddRow();
+    expect(roleOf(1)?.textContent).toBe("Anak");
+  });
+
+  test("kepala sudah dipegang satu baris: baris lain tidak menawarkannya", async () => {
+    onMockApi();
+    onRenderForm(["VIEW", "CREATE"]);
+
+    onAddRow();
+    onAddRow();
+
+    expect(await onOfferedRoles(1)).toEqual(["Pasangan", "Anak"]);
+  });
+
+  test("baris pemegang kepala tetap boleh berganti peran", async () => {
+    onMockApi();
+    onRenderForm(["VIEW", "CREATE"]);
+
+    onAddRow();
+
+    expect(await onOfferedRoles(0)).toEqual([
+      "Kepala keluarga",
+      "Pasangan",
+      "Anak",
+    ]);
+  });
+
+  test("keluarga lama yang sudah punya kepala: baris baru langsung anak", async () => {
+    onMockMembers();
+    await onRenderLoadedEdit();
+
+    onAddRow();
+
+    expect(roleOf(0)?.textContent).toBe("Anak");
+    expect(await onOfferedRoles(0)).toEqual(["Pasangan", "Anak"]);
+  });
+});

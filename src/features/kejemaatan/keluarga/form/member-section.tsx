@@ -32,11 +32,12 @@ interface RowPropTypes {
   form: KeluargaForm;
   index: number;
   isDisabled: boolean;
+  isHeadTaken: boolean;
   onRemove: (index: number) => void;
 }
 
 const MemberRow = (props: RowPropTypes) => {
-  const { form, index, isDisabled, onRemove } = props;
+  const { form, index, isDisabled, isHeadTaken, onRemove } = props;
 
   const jemaat = useJemaatOptions();
   const errors = useLineItemErrors(form.control, "members", index, FIELDS);
@@ -44,6 +45,13 @@ const MemberRow = (props: RowPropTypes) => {
   const chosen = jemaat.options.find(
     (option) => option.value === row?.jemaatCode,
   );
+
+  // One household has one head, so the role stops being offered once it is
+  // taken — except to the row holding it, which still has to be able to change.
+  const isHeadHidden = isHeadTaken && row?.roleInFamily !== "KEPALA_KELUARGA";
+  const roleOptions = isHeadHidden
+    ? ROLE_OPTIONS.filter((option) => option.value !== "KEPALA_KELUARGA")
+    : ROLE_OPTIONS;
 
   const ariaOf = (field: (typeof FIELDS)[number]) => ({
     id: errors.idOf(field),
@@ -101,7 +109,7 @@ const MemberRow = (props: RowPropTypes) => {
               value={field.value}
               onValueChange={field.onChange}
               disabled={isDisabled}
-              options={ROLE_OPTIONS}
+              options={roleOptions}
               placeholder="Pilih peran"
             />
           )}
@@ -136,18 +144,30 @@ export const MemberSection = (props: PropTypes) => {
 
   // The household is named after its head, so show that name while it is being
   // chosen — the rule is easier to trust when it is visible.
-  const savedHead = saved.find((row) => row.role === "KEPALA_KELUARGA");
-  const typedHead = (members ?? []).find(
+  const savedHead = saved.find(
+    (row) => row.role === "KEPALA_KELUARGA" && !row.endedAt,
+  );
+  const typedHeadIndex = (members ?? []).findIndex(
     (row) => row.roleInFamily === "KEPALA_KELUARGA",
   );
   const headName =
     savedHead?.name ??
-    jemaat.options.find((option) => option.value === typedHead?.jemaatCode)
-      ?.label ??
+    jemaat.options.find(
+      (option) => option.value === members?.[typedHeadIndex]?.jemaatCode,
+    )?.label ??
     null;
+  const isHeadTaken = Boolean(savedHead) || typedHeadIndex !== -1;
 
+  // A household is built from its head down, so the first row opens as the
+  // head and every row after it opens as a child.
   const onAdd = () => {
-    rows.append({ ...EMPTY_MEMBER_ROW }, { shouldFocus: false });
+    rows.append(
+      {
+        ...EMPTY_MEMBER_ROW,
+        roleInFamily: isHeadTaken ? "ANAK" : "KEPALA_KELUARGA",
+      },
+      { shouldFocus: false },
+    );
     form.clearErrors("members");
   };
 
@@ -220,6 +240,7 @@ export const MemberSection = (props: PropTypes) => {
               form={form}
               index={index}
               isDisabled={isDisabled}
+              isHeadTaken={isHeadTaken}
               onRemove={rows.remove}
             />
           ))}
