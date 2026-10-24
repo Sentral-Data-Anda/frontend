@@ -34,39 +34,19 @@ type Member = {
   endNote: string | null;
 };
 
+// Tanpa kolom alamat: seperti be-sada, alamat keluarga adalah alamat kepala
+// keluarganya, dibaca lewat keanggotaan.
 type KeluargaRow = {
   id: number;
   publicId: string;
   code: string;
   name: string;
-  provincesCode: string;
-  regenciesCode: string;
-  districtsCode: string;
-  villagesCode: string;
-  address: string;
   zoneChurchId: number | null;
   worshipsHere: boolean;
   members: Member[];
 };
 
-type KeluargaBody = Partial<
-  Pick<
-    KeluargaRow,
-    | "name"
-    | "provincesCode"
-    | "regenciesCode"
-    | "districtsCode"
-    | "villagesCode"
-    | "address"
-    | "zoneChurchId"
-    | "worshipsHere"
-  >
->;
-
-const REGIONS = [
-  ["32", "3273", "327301", "3273011001"],
-  ["36", "3671", "367101", "3671011002"],
-] as const;
+type KeluargaBody = Partial<Pick<KeluargaRow, "zoneChurchId" | "worshipsHere">>;
 
 const addressOf = (id: number) =>
   id % 2 === 1
@@ -116,19 +96,12 @@ const membersOf = (id: number, surname: string): Member[] => {
 
 const store: KeluargaRow[] = KELUARGA_SEED.map((seed, index) => {
   const id = index + 1;
-  const [provincesCode, regenciesCode, districtsCode, villagesCode] =
-    REGIONS[index % 2];
 
   return {
     id,
     publicId: `10000000-0000-4000-8000-${String(id).padStart(12, "0")}`,
     code: keluargaCodeOf(id),
     name: `Yosua ${seed.surname}`,
-    provincesCode,
-    regenciesCode,
-    districtsCode,
-    villagesCode,
-    address: addressOf(id),
     zoneChurchId: seed.wilayah,
     worshipsHere: seed.worshipsHere,
     members: membersOf(id, seed.surname),
@@ -150,9 +123,14 @@ const byCode = (key: string) =>
   store.find((row) => row.code === key || row.publicId === key);
 
 /** Seperti be-sada: nama keluarga dibaca dari kepala keluarga yang hidup. */
-const headNameOf = (members: Member[]) =>
-  members.find((row) => isLive(row) && row.role === "KEPALA_KELUARGA")?.name ??
-  null;
+const headOf = (members: Member[]) =>
+  members.find((row) => isLive(row) && row.role === "KEPALA_KELUARGA") ?? null;
+
+const headNameOf = (members: Member[]) => headOf(members)?.name ?? null;
+
+/** Alamat jemaat, diturunkan dari kodenya supaya tetap sama tiap permintaan. */
+const addressOfJemaat = (jemaatCode: string | null) =>
+  jemaatCode ? addressOf(Number(jemaatCode.replace(/\D/g, ""))) : "";
 
 const toResponse = ({ members, ...row }: KeluargaRow) => {
   const zoneName = row.zoneChurchId
@@ -175,6 +153,10 @@ const toResponse = ({ members, ...row }: KeluargaRow) => {
 
 export const findKeluarga = (id: number) => store.find((row) => row.id === id);
 
+/** Alamat satu keluarga: alamat kepala keluarganya yang hidup. */
+export const keluargaAddressOf = (id: number) =>
+  addressOfJemaat(headOf(findKeluarga(id)?.members ?? [])?.jemaatCode ?? null);
+
 export const keluargaRows = () =>
   store.map(({ members, ...row }) => ({
     ...row,
@@ -190,12 +172,13 @@ const addressResponse = (idText: string) => {
 
   const zone = row.zoneChurchId ? findWilayah(row.zoneChurchId) : undefined;
 
+  // Alamat kepala keluarga; keluarga tanpa kepala menjawab alamat kosong.
   return json({
     status: 200,
     message: "Berhasil Mendapatkan Alamat Keluarga",
     data: {
       id: row.id,
-      address: row.address,
+      address: addressOfJemaat(headOf(row.members)?.jemaatCode ?? null),
       zoneChurch: zone
         ? {
             id: zone.id,
@@ -237,27 +220,12 @@ const SAVE_ERROR: Record<
   "500": { status: 500, error: "Kesalahan server." },
 };
 
-const REQUIRED: [keyof KeluargaBody, string][] = [
-  ["name", "Mohon Lengkapi Nama Keluarga"],
-  ["provincesCode", "Mohon Lengkapi Provinsi"],
-  ["regenciesCode", "Mohon Lengkapi Kabupaten"],
-  ["districtsCode", "Mohon Lengkapi Kecamatan"],
-  ["villagesCode", "Mohon Lengkapi Kelurahan"],
-  ["address", "Mohon Lengkapi Alamat"],
-];
-
+// Tidak ada field wajib: nama diturunkan dari kepala keluarga dan alamat ikut
+// kepala keluarga, jadi yang tersisa hanya wilayah yang harus benar-benar ada.
 const validate = (body: KeluargaBody) => {
   const failure = SAVE_ERROR[process.env.MOCK_KELUARGA_SAVE_ERROR ?? ""];
 
   if (failure) return json(failure, failure.status);
-
-  const issues = REQUIRED.filter(
-    ([field]) => !String(body[field] ?? "").trim(),
-  ).map(([path, message]) => ({ path, message }));
-
-  if (issues.length > 0) {
-    return json({ status: 400, error: issues[0].message, issues }, 400);
-  }
 
   if (body.zoneChurchId && !ZONE_CHURCHES[body.zoneChurchId - 1]) {
     return json({ status: 404, error: "Wilayah Gereja Tidak Ditemukan" }, 404);
@@ -268,12 +236,6 @@ const validate = (body: KeluargaBody) => {
 
 const applyBody = (row: KeluargaRow, body: KeluargaBody) => {
   Object.assign(row, {
-    name: body.name?.trim(),
-    provincesCode: body.provincesCode,
-    regenciesCode: body.regenciesCode,
-    districtsCode: body.districtsCode,
-    villagesCode: body.villagesCode,
-    address: body.address?.trim(),
     zoneChurchId: body.zoneChurchId || null,
     worshipsHere: body.worshipsHere ?? true,
   });
@@ -422,11 +384,6 @@ export const keluargaMock: MockHandler = async ({
       publicId: crypto.randomUUID(),
       code: keluargaCodeOf(id),
       name: "",
-      provincesCode: "",
-      regenciesCode: "",
-      districtsCode: "",
-      villagesCode: "",
-      address: "",
       zoneChurchId: null,
       worshipsHere: true,
       members: [],

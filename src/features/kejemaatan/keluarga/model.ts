@@ -154,13 +154,6 @@ export const keluargaFormSchema = z
   .object({
     zoneChurchId: z.string(),
     worshipsHere: z.enum(["true", "false"]),
-    provincesCode: required("Provinsi wajib dipilih"),
-    regenciesCode: required("Kabupaten/kota wajib dipilih, sesudah provinsi."),
-    districtsCode: required("Kecamatan wajib dipilih, sesudah kabupaten/kota."),
-    villagesCode: required("Kelurahan/desa wajib dipilih, sesudah kecamatan."),
-    address: required(
-      "Alamat wajib diisi, mis. Jl. Merdeka 10, RT 01 RW 02.",
-    ).max(250, "Alamat maksimal 250 karakter"),
     members: z.array(memberRowSchema),
   })
   .superRefine((values, ctx) => {
@@ -230,21 +223,11 @@ export const householdLabel = (keluarga: {
 export const EMPTY_KELUARGA_FORM: KeluargaFormValues = {
   zoneChurchId: "",
   worshipsHere: "true",
-  provincesCode: "",
-  regenciesCode: "",
-  districtsCode: "",
-  villagesCode: "",
-  address: "",
   members: [],
 };
 
 export function toKeluargaPayload(values: KeluargaFormValues): KeluargaPayload {
   return {
-    provincesCode: values.provincesCode,
-    regenciesCode: values.regenciesCode,
-    districtsCode: values.districtsCode,
-    villagesCode: values.villagesCode,
-    address: values.address.trim(),
     zoneChurchId: values.zoneChurchId ? Number(values.zoneChurchId) : null,
     worshipsHere: values.worshipsHere === "true",
     members: values.members.map((row): KeluargaMemberPayload => ({
@@ -259,11 +242,6 @@ export function toKeluargaForm(detail: Keluarga): KeluargaFormValues {
   return {
     zoneChurchId: detail.zoneChurchId?.toString() ?? "",
     worshipsHere: detail.worshipsHere ? "true" : "false",
-    provincesCode: detail.provincesCode,
-    regenciesCode: detail.regenciesCode,
-    districtsCode: detail.districtsCode,
-    villagesCode: detail.villagesCode,
-    address: detail.address,
     // Members already in the household are shown from their own endpoint;
     // this list only carries the rows being added right now.
     members: [],

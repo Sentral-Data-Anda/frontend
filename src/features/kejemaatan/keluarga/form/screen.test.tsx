@@ -65,20 +65,20 @@ describe("gerbang izin rute form", () => {
     onRenderForm(["VIEW"]);
 
     expect(screen.getByText("Tidak bisa menambah keluarga")).toBeTruthy();
-    expect(screen.queryByLabelText("Alamat lengkap")).toBeNull();
+    expect(document.getElementById("zoneChurchId")).toBeNull();
   });
 
   test("tanpa UPDATE: rute /edit tidak merender form", () => {
     onRenderForm(["VIEW", "CREATE"], "KK-0007");
 
     expect(screen.getByText("Tidak bisa mengubah keluarga")).toBeTruthy();
-    expect(screen.queryByLabelText("Alamat lengkap")).toBeNull();
+    expect(document.getElementById("zoneChurchId")).toBeNull();
   });
 
   test("form tambah tidak punya Hapus walau memegang DELETE", () => {
     onRenderForm(["VIEW", "CREATE", "DELETE"]);
 
-    expect(screen.getByLabelText("Alamat lengkap")).toBeTruthy();
+    expect(document.getElementById("zoneChurchId")).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Hapus" })).toBeNull();
   });
 
@@ -94,11 +94,6 @@ const DETAIL: Keluarga = {
   publicId: "10000000-0000-4000-8000-000000000007",
   code: "KK-0007",
   name: "Saragih",
-  provincesCode: "32",
-  regenciesCode: "3273",
-  districtsCode: "327301",
-  villagesCode: "3273011001",
-  address: "Jl. Cijerah 12",
   zoneChurchId: null,
   worshipsHere: true,
   zoneChurch: null,
@@ -138,23 +133,19 @@ const onMockApi = (failure?: {
 const onRenderLoadedEdit = async (granted: MenuAction[] = ["UPDATE"]) => {
   onRenderForm(["VIEW", ...granted], "KK-0007");
 
-  await waitFor(() =>
-    expect(
-      (screen.getByLabelText("Alamat lengkap") as HTMLInputElement).value,
-    ).toBe("Jl. Cijerah 12"),
-  );
+  // The household is labelled by its head, so that label appearing is the
+  // signal that the detail has arrived and the form is filled.
+  await waitFor(() => expect(screen.getByText("Kel. Saragih")).toBeTruthy());
 };
 
 describe("simpan", () => {
-  test("form tidak valid: konfirmasi tidak muncul, fokus ke field galat pertama", async () => {
+  test("tambah tanpa kepala keluarga: konfirmasi tidak muncul", async () => {
     onMockApi();
     onRenderForm(["VIEW", "CREATE"]);
 
     fireEvent.click(screen.getByRole("button", { name: "Simpan" }));
 
-    await waitFor(() =>
-      expect(document.activeElement?.id).toBe("provincesCode"),
-    );
+    await screen.findByText("Tentukan tepat satu kepala keluarga.");
     expect(screen.queryByText(/Apakah Anda ingin menyimpan/)).toBeNull();
   });
 
