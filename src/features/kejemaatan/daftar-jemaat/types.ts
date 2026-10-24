@@ -50,6 +50,14 @@ export const STATUS_JEMAAT_OPTIONS: SelectOption[] = [
   { label: STATUS_JEMAAT_LABEL.TIDAK_AKTIF, value: "TIDAK_AKTIF" },
 ];
 
+// Siapa yang belum masuk kartu keluarga. Wilayah dan nama keluarga diturunkan
+// dari KK, jadi yang belum masuk tidak terhitung di mana pun.
+export const HOUSEHOLD_OPTIONS: SelectOption[] = [
+  { label: "Semua", value: "" },
+  { label: "Belum masuk keluarga", value: "none" },
+  { label: "Sudah masuk keluarga", value: "any" },
+];
+
 export type JemaatAdditional = {
   type: SacramentType;
   date: string;
