@@ -6,13 +6,14 @@ import {
   render,
   screen,
   waitFor,
+  within,
 } from "@testing-library/react";
 import { afterEach, describe, expect, mock, test } from "bun:test";
 
 import type { MenuAction } from "@/types/menu";
 
 import { KELUARGA_LIST_PATH } from "../model";
-import type { Keluarga } from "../types";
+import type { Keluarga, KeluargaMember } from "../types";
 
 const actions: { current: MenuAction[] } = { current: [] };
 const replaced: string[] = [];
@@ -64,20 +65,20 @@ describe("gerbang izin rute form", () => {
     onRenderForm(["VIEW"]);
 
     expect(screen.getByText("Tidak bisa menambah keluarga")).toBeTruthy();
-    expect(screen.queryByLabelText("Nama keluarga")).toBeNull();
+    expect(screen.queryByLabelText("Alamat lengkap")).toBeNull();
   });
 
   test("tanpa UPDATE: rute /edit tidak merender form", () => {
     onRenderForm(["VIEW", "CREATE"], "KK-0007");
 
     expect(screen.getByText("Tidak bisa mengubah keluarga")).toBeTruthy();
-    expect(screen.queryByLabelText("Nama keluarga")).toBeNull();
+    expect(screen.queryByLabelText("Alamat lengkap")).toBeNull();
   });
 
   test("form tambah tidak punya Hapus walau memegang DELETE", () => {
     onRenderForm(["VIEW", "CREATE", "DELETE"]);
 
-    expect(screen.getByLabelText("Nama keluarga")).toBeTruthy();
+    expect(screen.getByLabelText("Alamat lengkap")).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Hapus" })).toBeNull();
   });
 
@@ -92,7 +93,7 @@ const DETAIL: Keluarga = {
   id: 7,
   publicId: "10000000-0000-4000-8000-000000000007",
   code: "KK-0007",
-  name: "Keluarga Saragih",
+  name: "Saragih",
   provincesCode: "32",
   regenciesCode: "3273",
   districtsCode: "327301",
@@ -139,8 +140,8 @@ const onRenderLoadedEdit = async (granted: MenuAction[] = ["UPDATE"]) => {
 
   await waitFor(() =>
     expect(
-      (screen.getByLabelText("Nama keluarga") as HTMLInputElement).value,
-    ).toBe("Keluarga Saragih"),
+      (screen.getByLabelText("Alamat lengkap") as HTMLInputElement).value,
+    ).toBe("Jl. Cijerah 12"),
   );
 };
 
@@ -151,7 +152,9 @@ describe("simpan", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Simpan" }));
 
-    await waitFor(() => expect(document.activeElement?.id).toBe("name"));
+    await waitFor(() =>
+      expect(document.activeElement?.id).toBe("provincesCode"),
+    );
     expect(screen.queryByText(/Apakah Anda ingin menyimpan/)).toBeNull();
   });
 
@@ -245,5 +248,265 @@ describe("hapus", () => {
     expect(await screen.findByText(error)).toBeTruthy();
     expect(screen.getByText("Keluarga belum terhapus.")).toBeTruthy();
     expect(replaced).toEqual([]);
+  });
+});
+
+const MEMBERS: KeluargaMember[] = [
+  {
+    id: "m1",
+    role: "KEPALA_KELUARGA",
+    jemaatCode: "JMT-0001",
+    name: "Yosua Saragih",
+    gender: "L",
+    birthDate: null,
+    startedAt: null,
+    endedAt: null,
+    endReason: null,
+    endNote: null,
+  },
+  {
+    id: "m2",
+    role: "PASANGAN",
+    jemaatCode: "JMT-0002",
+    name: "Ruth Saragih",
+    gender: "P",
+    birthDate: null,
+    startedAt: null,
+    endedAt: null,
+    endReason: null,
+    endNote: null,
+  },
+  {
+    id: "m3",
+    role: "ANAK",
+    jemaatCode: "JMT-0003",
+    name: "Samuel Saragih",
+    gender: "L",
+    birthDate: null,
+    startedAt: null,
+    endedAt: null,
+    endReason: null,
+    endNote: null,
+  },
+  {
+    id: "m4",
+    role: "ANAK",
+    jemaatCode: "JMT-0004",
+    name: "Debora Saragih",
+    gender: "P",
+    birthDate: null,
+    startedAt: null,
+    endedAt: "2026-01-01T00:00:00.000Z",
+    endReason: "MENIKAH",
+    endNote: null,
+  },
+];
+
+const onMockMembers = () => {
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = String(input);
+    const method = init?.method ?? "GET";
+
+    if (url.startsWith("/api/v1/keluarga/KK-0007/member") && method === "GET") {
+      return Response.json({ status: 200, message: "OK", data: MEMBERS });
+    }
+    if (url.startsWith("/api/v1/ddl/keluarga")) {
+      return Response.json({
+        status: 200,
+        message: "OK",
+        data: [
+          { id: 3, code: "KK-0003", name: "Budi Siregar", isActive: true },
+          { id: 4, code: "KK-0004", name: null, isActive: true },
+        ],
+      });
+    }
+    if (url.startsWith("/api/v1/keluarga/KK-0007")) {
+      return Response.json({ status: 200, message: "OK", data: DETAIL });
+    }
+
+    return Response.json({ status: 200, message: "OK", data: [] });
+  }) as typeof fetch;
+};
+
+const onOpenEnd = async (index: number) => {
+  onMockMembers();
+  await onRenderLoadedEdit();
+
+  fireEvent.click(screen.getAllByRole("button", { name: "Akhiri" })[index]);
+
+  await screen.findByText(/^Akhiri keanggotaan /);
+
+  return screen.getByRole("alertdialog");
+};
+
+const onSubmitEnd = (dialog: HTMLElement) =>
+  fireEvent.click(within(dialog).getByRole("button", { name: "Akhiri" }));
+
+const hasText = async (dialog: HTMLElement, text: string) => {
+  try {
+    await within(dialog).findByText(text);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+const onPickOption = (option: HTMLElement) => {
+  fireEvent.pointerDown(option);
+  fireEvent.mouseDown(option);
+  fireEvent.pointerUp(option);
+  fireEvent.mouseUp(option);
+  fireEvent.click(option);
+};
+
+const onPick = async (name: string) => {
+  onPickOption(await screen.findByRole("option", { name }));
+};
+
+const onSplitCouple = async (dialog: HTMLElement) => {
+  fireEvent.click(
+    within(dialog).getByRole("combobox", { name: "Alasan berakhir" }),
+  );
+  await onPick("Cerai hidup");
+
+  fireEvent.click(
+    await within(dialog).findByRole("combobox", {
+      name: /^Keanggotaan /,
+    }),
+  );
+  await onPick("Ya, tutup keanggotaannya juga");
+};
+
+describe("akhiri keanggotaan", () => {
+  test("kepala keluar: pengganti wajib, hanya yang tetap ditawarkan", async () => {
+    const dialog = await onOpenEnd(0);
+
+    // Dying is the default reason and asks for nobody; leaving does.
+    fireEvent.click(
+      within(dialog).getByRole("combobox", { name: "Alasan berakhir" }),
+    );
+    await onPick("Memisahkan diri, mendaftarkan KK sendiri");
+
+    expect(
+      Boolean(within(dialog).queryByText("Kepala keluarga pengganti")),
+    ).toBe(true);
+
+    onSubmitEnd(dialog);
+
+    expect(
+      await hasText(
+        dialog,
+        "Pilih kepala keluarga pengganti. Keluarga selalu terdaftar atas nama seseorang.",
+      ),
+    ).toBe(true);
+    expect(await hasText(dialog, "Tanggal berakhir wajib diisi.")).toBe(true);
+
+    fireEvent.click(
+      within(dialog).getByRole("combobox", {
+        name: "Kepala keluarga pengganti",
+      }),
+    );
+
+    await screen.findByRole("option", { name: /Ruth Saragih/ });
+
+    const offered = screen
+      .getAllByRole("option")
+      .map((option) => option.textContent);
+
+    expect(offered).toContain("Ruth Saragih — Pasangan");
+    expect(offered).toContain("Samuel Saragih — Anak");
+    expect(offered).not.toContain("Yosua Saragih — Kepala keluarga");
+    expect(offered).not.toContain("Debora Saragih — Anak");
+  });
+
+  test("anak keluar: tidak ada isian kepala pengganti", async () => {
+    const dialog = await onOpenEnd(2);
+
+    expect(
+      Boolean(within(dialog).queryByText("Kepala keluarga pengganti")),
+    ).toBe(false);
+  });
+
+  test("pasangan cerai hidup: pasangan ditanya, anak dibagi, pengganti wajib", async () => {
+    const dialog = await onOpenEnd(1);
+
+    await onSplitCouple(dialog);
+
+    expect(Boolean(within(dialog).queryByText("Pembagian anak"))).toBe(true);
+    expect(
+      Boolean(within(dialog).queryByText("Kepala keluarga pengganti")),
+    ).toBe(true);
+
+    onSubmitEnd(dialog);
+
+    expect(
+      await hasText(dialog, "Tentukan Samuel Saragih ikut keluarga yang mana."),
+    ).toBe(true);
+    expect(
+      await hasText(
+        dialog,
+        "Pilih kepala keluarga pengganti. Keluarga selalu terdaftar atas nama seseorang.",
+      ),
+    ).toBe(true);
+
+    fireEvent.click(
+      within(dialog).getByRole("combobox", {
+        name: "Kepala keluarga pengganti",
+      }),
+    );
+
+    await screen.findByRole("option", { name: /Samuel Saragih/ });
+
+    expect(
+      screen
+        .getAllByRole("option")
+        .map((option) => option.textContent)
+        .includes("Yosua Saragih — Kepala keluarga"),
+    ).toBe(false);
+  });
+
+  test("kepala meninggal: pengganti tidak diminta, keluarga boleh tanpa kepala", async () => {
+    const dialog = await onOpenEnd(0);
+
+    fireEvent.click(
+      within(dialog).getByRole("combobox", { name: "Alasan berakhir" }),
+    );
+    await onPick("Meninggal");
+
+    expect(
+      Boolean(within(dialog).queryByText("Kepala keluarga pengganti")),
+    ).toBe(false);
+
+    onSubmitEnd(dialog);
+
+    expect(await hasText(dialog, "Tanggal berakhir wajib diisi.")).toBe(true);
+    expect(
+      await hasText(
+        dialog,
+        "Pilih kepala keluarga pengganti. Keluarga selalu terdaftar atas nama seseorang.",
+      ),
+    ).toBe(false);
+  });
+
+  test("anak pindah ke keluarga lain: isian pengganti hilang", async () => {
+    const dialog = await onOpenEnd(1);
+
+    await onSplitCouple(dialog);
+
+    fireEvent.click(
+      within(dialog).getByRole("combobox", { name: "Samuel Saragih" }),
+    );
+    const offered = screen
+      .getAllByRole("option")
+      .map((option) => option.textContent);
+
+    expect(offered).toContain("Kel. Budi Siregar");
+    expect(offered).toContain("KK-0004 (belum ada kepala keluarga)");
+
+    await onPick("Kel. Budi Siregar");
+
+    expect(
+      Boolean(within(dialog).queryByText("Kepala keluarga pengganti")),
+    ).toBe(false);
   });
 });

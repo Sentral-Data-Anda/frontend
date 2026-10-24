@@ -25,19 +25,31 @@ import { FetchError } from "@/lib/api/fetcher";
 import { applyServerError, FIRST_INVALID, revealField } from "@/lib/form-error";
 import { saveListFocus } from "@/lib/list-return";
 
-import { useDeleteKeluarga, useKeluargaDetail, useSaveKeluarga } from "../api";
+import {
+  useAddKeluargaMember,
+  useDeleteKeluarga,
+  useKeluargaDetail,
+  useEndKeluargaMember,
+  useKeluargaMembers,
+  useSaveKeluarga,
+} from "../api";
 import {
   EMPTY_KELUARGA_FORM,
   KELUARGA_LIST_PATH,
+  keluargaCreateFormSchema,
+  householdLabel,
   keluargaFormSchema,
   serverFieldError,
   toKeluargaForm,
   toKeluargaPayload,
   type KeluargaFormValues,
 } from "../model";
+import type { KeluargaMember } from "../types";
 
 import { AddressSection } from "./address-section";
+import { EndMembershipDialog } from "./end-membership-dialog";
 import { KeluargaSection } from "./keluarga-section";
+import { MemberSection } from "./member-section";
 
 interface PropTypes {
   code?: string;
@@ -56,13 +68,20 @@ export const KeluargaFormScreen = (props: PropTypes) => {
   const [rejectedField, setRejectedField] = useState<string | null>(null);
   const saveKeluarga = useSaveKeluarga(code);
   const deleteKeluarga = useDeleteKeluarga(code);
+  const addMember = useAddKeluargaMember(code);
+  const members = useKeluargaMembers(code);
+  const endMember = useEndKeluargaMember(code);
+  const [endingMember, setEndingMember] = useState<KeluargaMember | null>(null);
+  const liveMembers = (members.data ?? []).filter((row) => !row.endedAt);
   const detail = useKeluargaDetail(code);
   const confirm = useFormConfirm();
   const saveRef = useRef<HTMLButtonElement>(null);
   const deleteRef = useRef<HTMLButtonElement>(null);
 
   const form = useForm<KeluargaFormValues>({
-    resolver: zodResolver(keluargaFormSchema),
+    resolver: zodResolver(
+      isEdit ? keluargaFormSchema : keluargaCreateFormSchema,
+    ),
     mode: "onSubmit",
     reValidateMode: "onChange",
     shouldFocusError: false,
@@ -95,6 +114,18 @@ export const KeluargaFormScreen = (props: PropTypes) => {
 
     try {
       const saved = await saveKeluarga.mutateAsync(toKeluargaPayload(values));
+
+      // On edit the household already exists, so the rows added in the form go
+      // against it one by one. Creating writes them in the same transaction.
+      if (isEdit) {
+        for (const row of values.members) {
+          await addMember.mutateAsync({
+            jemaatCode: row.jemaatCode,
+            roleInFamily: row.roleInFamily,
+            startedAt: row.startedAt || null,
+          });
+        }
+      }
 
       toast.add({ title: saved.message });
       saveListFocus(KELUARGA_LIST_PATH, saved.data.code);
@@ -208,7 +239,7 @@ export const KeluargaFormScreen = (props: PropTypes) => {
       header={
         <PageHeader
           title={isEdit ? "Ubah Keluarga" : "Tambah Keluarga"}
-          subtitle={detail.data?.name ?? code}
+          subtitle={detail.data ? householdLabel(detail.data) : code}
           backHref={listReturn}
           isBackPersistent
           onBack={confirm.onBack(isDirty)}
@@ -222,6 +253,30 @@ export const KeluargaFormScreen = (props: PropTypes) => {
       <div className={detail.isLoading ? "hidden" : undefined}>
         <KeluargaSection form={form} isDisabled={isBusy} />
         <AddressSection form={form} isDisabled={isBusy} />
+        <MemberSection
+          form={form}
+          isDisabled={isBusy}
+          saved={members.data}
+          isCanEndMembership={isEdit && isCanUpdate}
+          onEndMembership={setEndingMember}
+        />
+
+        <EndMembershipDialog
+          member={endingMember}
+          live={liveMembers}
+          isPending={endMember.isPending}
+          errorMessage={endMember.error?.message ?? null}
+          onClose={() => {
+            endMember.reset();
+            setEndingMember(null);
+          }}
+          onSubmit={(payload) =>
+            endMember.mutate(
+              { memberId: endingMember?.id ?? "", payload },
+              { onSuccess: () => setEndingMember(null) },
+            )
+          }
+        />
       </div>
 
       <div className="space-y-3 px-gutter pb-4 empty:hidden">

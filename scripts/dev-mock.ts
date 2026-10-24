@@ -151,7 +151,7 @@ type JemaatRow = {
   birthDate: string | null;
   type: string;
   roleInFamily: string | null;
-  keluarga: { id: number; code: string; name: string } | null;
+  keluarga: { id: number; code: string; name: string | null } | null;
   status: string;
   zoneChurch: { id: number; name: string } | null;
 };
@@ -185,7 +185,7 @@ const rows: JemaatRow[] = names.map((name, index) => ({
       : {
           id: index,
           code: `KEL-${index}`,
-          name: `Keluarga ${name.split(" ")[1]}`,
+          name: `Budi ${name.split(" ")[1]}`,
         },
   status: index % 7 === 0 ? "TIDAK_AKTIF" : "AKTIF",
   zoneChurch: zoneOf(

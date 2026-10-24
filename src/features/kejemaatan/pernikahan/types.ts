@@ -7,6 +7,13 @@ export const END_REASON_LABEL: Record<EndReason, string> = {
   CERAI_MATI: "Cerai mati",
 };
 
+export type DeceasedSide = "SUAMI" | "ISTRI";
+
+export const DECEASED_SIDE_LABEL: Record<DeceasedSide, string> = {
+  SUAMI: "Suami",
+  ISTRI: "Istri",
+};
+
 export type MarriageParty = {
   jemaatCode: string | null;
   name: string;
@@ -45,6 +52,9 @@ export type MarriagePayload = {
 export type EndMarriagePayload = {
   endedAt: string;
   endReason: EndReason;
+  // Only a death closes the dead spouse's household membership with it, so
+  // only a death says which side it was.
+  deceased?: DeceasedSide;
   endNote: string | null;
 };
 

@@ -82,7 +82,9 @@ const member = (
 ): Member => ({
   id: `00000000-0000-4000-8000-${String(keluargaId * 100 + index).padStart(12, "0")}`,
   role,
-  jemaatCode: null,
+  // Setiap anggota adalah baris jemaat: be-sada tidak lagi menyimpan salinan
+  // nama/gender/tanggal lahir di keanggotaan.
+  jemaatCode: `JMT-${String(keluargaId * 100 + index).padStart(4, "0")}`,
   name,
   gender: role === "PASANGAN" ? "P" : "L",
   birthDate: `19${70 + index * 7}-0${index + 1}-15T00:00:00.000Z`,
@@ -121,7 +123,7 @@ const store: KeluargaRow[] = KELUARGA_SEED.map((seed, index) => {
     id,
     publicId: `10000000-0000-4000-8000-${String(id).padStart(12, "0")}`,
     code: keluargaCodeOf(id),
-    name: `Keluarga ${seed.surname}`,
+    name: `Yosua ${seed.surname}`,
     provincesCode,
     regenciesCode,
     districtsCode,
@@ -135,6 +137,23 @@ const store: KeluargaRow[] = KELUARGA_SEED.map((seed, index) => {
 
 const isLive = (row: Member) => row.endedAt === null;
 
+type EndMembershipBody = {
+  endedAt: string;
+  endReason: Member["endReason"];
+  endNote: string | null;
+  newHeadJemaatCode: string | null;
+  alsoEndPartner: boolean | null;
+  childPlacements: { jemaatCode: string; keluargaCode: string | null }[] | null;
+};
+
+const byCode = (key: string) =>
+  store.find((row) => row.code === key || row.publicId === key);
+
+/** Seperti be-sada: nama keluarga dibaca dari kepala keluarga yang hidup. */
+const headNameOf = (members: Member[]) =>
+  members.find((row) => isLive(row) && row.role === "KEPALA_KELUARGA")?.name ??
+  null;
+
 const toResponse = ({ members, ...row }: KeluargaRow) => {
   const zoneName = row.zoneChurchId
     ? ZONE_CHURCHES[row.zoneChurchId - 1]
@@ -142,6 +161,7 @@ const toResponse = ({ members, ...row }: KeluargaRow) => {
 
   return {
     ...row,
+    name: headNameOf(members),
     zoneChurch: zoneName
       ? {
           id: row.zoneChurchId,
@@ -158,6 +178,7 @@ export const findKeluarga = (id: number) => store.find((row) => row.id === id);
 export const keluargaRows = () =>
   store.map(({ members, ...row }) => ({
     ...row,
+    name: headNameOf(members),
     activeMembers: members.filter(isLive).length,
   }));
 
@@ -274,6 +295,85 @@ export const keluargaMock: MockHandler = async ({
     }
 
     return addressResponse(decodeURIComponent(addressOf[1]));
+  }
+
+  // Anggota satu keluarga. Bersarang di bawah keluarganya, seperti be-sada.
+  const memberList = /^\/keluarga\/([^/]+)\/member$/.exec(path);
+
+  if (memberList && method === "GET") {
+    if (!can(MENU.KELUARGA, "VIEW")) return denied();
+
+    const row = byCode(decodeURIComponent(memberList[1]));
+
+    if (!row) return json({ status: 404, error: "Keluarga tidak ada." }, 404);
+
+    return json({ status: 200, data: row.members });
+  }
+
+  const endMember = /^\/keluarga\/([^/]+)\/member\/([^/]+)\/end$/.exec(path);
+
+  if (endMember && method === "PUT") {
+    if (!can(MENU.KELUARGA, "UPDATE")) return denied();
+
+    const row = byCode(decodeURIComponent(endMember[1]));
+    const target = row?.members.find(
+      (member) => member.id === decodeURIComponent(endMember[2]),
+    );
+
+    if (!row || !target) {
+      return json({ status: 404, error: "Anggota tidak ada." }, 404);
+    }
+
+    const body = (await request.json()) as EndMembershipBody;
+
+    // Aturan be-sada yang paling mudah terlewat di layar: keluarga tidak boleh
+    // kehilangan kepala selama masih ada yang tinggal.
+    if (
+      target.role === "KEPALA_KELUARGA" &&
+      row.members.filter((member) => isLive(member) && member !== target)
+        .length > 0 &&
+      !body.newHeadJemaatCode
+    ) {
+      return json(
+        { status: 400, error: "Tentukan Kepala Keluarga Pengganti" },
+        400,
+      );
+    }
+
+    const close = (member: Member) => {
+      member.endedAt = `${body.endedAt}T00:00:00.000Z`;
+      member.endReason = body.endReason;
+      member.endNote = body.endNote;
+    };
+
+    close(target);
+
+    const partner = row.members.find(
+      (member) =>
+        isLive(member) &&
+        member.role ===
+          (target.role === "KEPALA_KELUARGA" ? "PASANGAN" : "KEPALA_KELUARGA"),
+    );
+
+    if (body.alsoEndPartner && partner) close(partner);
+
+    for (const placement of body.childPlacements ?? []) {
+      if (!placement.keluargaCode) continue;
+
+      const child = row.members.find(
+        (member) => member.jemaatCode === placement.jemaatCode,
+      );
+
+      if (child) close(child);
+    }
+
+    const nextHead = row.members.find(
+      (member) => member.jemaatCode === body.newHeadJemaatCode,
+    );
+
+    if (nextHead && isLive(nextHead)) nextHead.role = "KEPALA_KELUARGA";
+
+    return json({ status: 200, data: target });
   }
 
   const match = /^\/keluarga(?:\/([^/]+))?$/.exec(path);

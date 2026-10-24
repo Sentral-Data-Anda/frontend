@@ -870,15 +870,29 @@ const KELUARGA_COUNT = process.env.MOCK_DDL_MANY ? 400 : KELUARGA_SEED.length;
  * be-sada: urut nama; `?zoneChurchId=` menyaring keluarga di wilayah itu
  * (baris ke-25 dst. tanpa wilayah). Wilayah tidak dikirim di jawaban.
  */
-const KELUARGA = Array.from({ length: KELUARGA_COUNT }, (_, index) => ({
-  id: index + 1,
-  code: keluargaCodeOf(index + 1),
-  name:
-    index < KELUARGA_SEED.length
-      ? `Keluarga ${KELUARGA_SEED[index].surname}`
-      : `Keluarga ${KELUARGA_SEED[index % KELUARGA_SEED.length].surname} ${index + 1}`,
-  zoneChurchId: KELUARGA_SEED[index]?.wilayah ?? null,
-})).sort((a, b) => a.name.localeCompare(b.name, "id"));
+/** Nama depan kepala keluarga: nama keluarga diturunkan dari orangnya. */
+const HEAD_GIVEN = ["Budi", "Samuel", "Daniel", "Yohanes", "Petrus", "Markus"];
+
+/**
+ * be-sada tidak menyimpan nama keluarga: yang dikirim adalah nama KEPALA
+ * KELUARGA, dibaca dari baris jemaatnya. Tiruan ini mengikuti bentuk itu, dan
+ * baris kelipatan 7 sengaja tanpa kepala supaya layar yang menampilkan
+ * "belum ada kepala keluarga" ikut terlihat.
+ */
+const KELUARGA = Array.from({ length: KELUARGA_COUNT }, (_, index) => {
+  const seed = KELUARGA_SEED[index % KELUARGA_SEED.length];
+  const suffix = index < KELUARGA_SEED.length ? "" : ` ${index + 1}`;
+
+  return {
+    id: index + 1,
+    code: keluargaCodeOf(index + 1),
+    name:
+      index % 7 === 6
+        ? null
+        : `${HEAD_GIVEN[index % HEAD_GIVEN.length]} ${seed.surname}${suffix}`,
+    zoneChurchId: KELUARGA_SEED[index]?.wilayah ?? null,
+  };
+}).sort((a, b) => (a.name ?? "").localeCompare(b.name ?? "", "id"));
 
 const keluargaDdl = (params: URLSearchParams) => {
   const zone = params.get("zoneChurchId") ?? "";
@@ -991,11 +1005,11 @@ export function ddlRows(
    * `?filter=` + `?limit=` — diterima `ddl/keluarga` dan `ddl/jemaat` sejak
    * 2026-09-23, supaya combobox tidak mengunduh seluruh tabel.
    */
-  const narrow = (rows: { name: string }[]) => {
+  const narrow = (rows: { name: string | null }[]) => {
     const filter = (params.get("filter") ?? "").toLowerCase();
     const limit = Number(params.get("limit")) || rows.length;
     const matched = filter
-      ? rows.filter((row) => row.name.toLowerCase().includes(filter))
+      ? rows.filter((row) => (row.name ?? "").toLowerCase().includes(filter))
       : rows;
 
     return matched.slice(0, limit);

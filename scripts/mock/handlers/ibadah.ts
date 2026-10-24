@@ -953,7 +953,7 @@ const hostSuggestions = (params: URLSearchParams) => {
             Number(a.lastHostedDate !== null) -
               Number(b.lastHostedDate !== null) ||
             (a.lastHostedDate ?? "").localeCompare(b.lastHostedDate ?? "") ||
-            a.name.localeCompare(b.name, "id"),
+            (a.name ?? "").localeCompare(b.name ?? "", "id"),
         );
 
   if (data.length === 0) {
