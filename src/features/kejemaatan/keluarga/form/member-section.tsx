@@ -24,6 +24,10 @@ import { type KeluargaForm } from "./form-options";
 
 const ROLE_OPTIONS = optionsOf(MEMBER_ROLE_LABEL);
 
+// A household seats one head and one spouse — the database holds that rule with
+// partial unique indexes, so a seat already taken stops being offered here.
+const SINGLE_SEAT_ROLES: readonly string[] = ["KEPALA_KELUARGA", "PASANGAN"];
+
 const FIELDS = ["jemaatCode", "roleInFamily"] as const;
 
 const LABEL = "text-muted-foreground mb-1 block text-caption";
@@ -32,12 +36,12 @@ interface RowPropTypes {
   form: KeluargaForm;
   index: number;
   isDisabled: boolean;
-  isHeadTaken: boolean;
+  takenSeats: readonly string[];
   onRemove: (index: number) => void;
 }
 
 const MemberRow = (props: RowPropTypes) => {
-  const { form, index, isDisabled, isHeadTaken, onRemove } = props;
+  const { form, index, isDisabled, takenSeats, onRemove } = props;
 
   const jemaat = useJemaatOptions();
   const errors = useLineItemErrors(form.control, "members", index, FIELDS);
@@ -46,12 +50,12 @@ const MemberRow = (props: RowPropTypes) => {
     (option) => option.value === row?.jemaatCode,
   );
 
-  // One household has one head, so the role stops being offered once it is
-  // taken — except to the row holding it, which still has to be able to change.
-  const isHeadHidden = isHeadTaken && row?.roleInFamily !== "KEPALA_KELUARGA";
-  const roleOptions = isHeadHidden
-    ? ROLE_OPTIONS.filter((option) => option.value !== "KEPALA_KELUARGA")
-    : ROLE_OPTIONS;
+  // The row holding a seat keeps seeing it, otherwise a mis-click could only be
+  // undone by deleting the row.
+  const roleOptions = ROLE_OPTIONS.filter(
+    (option) =>
+      option.value === row?.roleInFamily || !takenSeats.includes(option.value),
+  );
 
   const ariaOf = (field: (typeof FIELDS)[number]) => ({
     id: errors.idOf(field),
@@ -156,7 +160,11 @@ export const MemberSection = (props: PropTypes) => {
       (option) => option.value === members?.[typedHeadIndex]?.jemaatCode,
     )?.label ??
     null;
-  const isHeadTaken = Boolean(savedHead) || typedHeadIndex !== -1;
+  const takenSeats = SINGLE_SEAT_ROLES.filter(
+    (role) =>
+      saved.some((row) => row.role === role && !row.endedAt) ||
+      (members ?? []).some((row) => row.roleInFamily === role),
+  );
 
   // A household is built from its head down, so the first row opens as the
   // head and every row after it opens as a child.
@@ -164,7 +172,9 @@ export const MemberSection = (props: PropTypes) => {
     rows.append(
       {
         ...EMPTY_MEMBER_ROW,
-        roleInFamily: isHeadTaken ? "ANAK" : "KEPALA_KELUARGA",
+        roleInFamily: takenSeats.includes("KEPALA_KELUARGA")
+          ? "ANAK"
+          : "KEPALA_KELUARGA",
       },
       { shouldFocus: false },
     );
@@ -240,7 +250,7 @@ export const MemberSection = (props: PropTypes) => {
               form={form}
               index={index}
               isDisabled={isDisabled}
-              isHeadTaken={isHeadTaken}
+              takenSeats={takenSeats}
               onRemove={rows.remove}
             />
           ))}

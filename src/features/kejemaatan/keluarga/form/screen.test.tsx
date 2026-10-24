@@ -557,6 +557,42 @@ describe("peran bawaan baris anggota", () => {
     onAddRow();
 
     expect(roleOf(0)?.textContent).toBe("Anak");
-    expect(await onOfferedRoles(0)).toEqual(["Pasangan", "Anak"]);
+  });
+
+  test("kepala dan pasangan sudah tersimpan: baris baru cuma boleh anak", async () => {
+    onMockMembers();
+    await onRenderLoadedEdit();
+
+    onAddRow();
+
+    expect(await onOfferedRoles(0)).toEqual(["Anak"]);
+  });
+
+  test("pasangan sudah dipegang satu baris: baris lain tidak menawarkannya", async () => {
+    onMockApi();
+    onRenderForm(["VIEW", "CREATE"]);
+
+    onAddRow();
+    onAddRow();
+
+    fireEvent.click(roleOf(1)!);
+    await onPick("Pasangan");
+
+    onAddRow();
+
+    expect(await onOfferedRoles(2)).toEqual(["Anak"]);
+  });
+
+  test("baris pemegang pasangan tetap boleh berganti peran", async () => {
+    onMockApi();
+    onRenderForm(["VIEW", "CREATE"]);
+
+    onAddRow();
+    onAddRow();
+
+    fireEvent.click(roleOf(1)!);
+    await onPick("Pasangan");
+
+    expect(await onOfferedRoles(1)).toEqual(["Pasangan", "Anak"]);
   });
 });
