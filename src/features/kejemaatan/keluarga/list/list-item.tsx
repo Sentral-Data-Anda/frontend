@@ -3,7 +3,11 @@ import { DataListRow, type DataTableConfig } from "@/components/common/list";
 import { MENU, editHref } from "@/config/menu";
 import { saveListFocus } from "@/lib/list-return";
 
-import { KELUARGA_LIST_PATH, WORSHIPS_HERE_LABEL } from "../model";
+import {
+  KELUARGA_LIST_PATH,
+  WORSHIPS_HERE_LABEL,
+  householdLabel,
+} from "../model";
 import type { Keluarga } from "../types";
 
 const memberCount = (keluarga: Keluarga) =>
@@ -20,12 +24,18 @@ export const KeluargaListItemRow = (props: PropTypes) => {
     .filter(Boolean)
     .join(" · ");
 
-  return <DataListRow id={keluarga.code} title={keluarga.name} meta={meta} />;
+  return (
+    <DataListRow
+      id={keluarga.code}
+      title={householdLabel(keluarga)}
+      meta={meta}
+    />
+  );
 };
 
-const deleteLabelOf = (x: Keluarga) => `Hapus ${x.name}`;
+const deleteLabelOf = (x: Keluarga) => `Hapus ${householdLabel(x)}`;
 
-export const deleteTargetLabelOf = (x: Keluarga) => `${x.name}`;
+export const deleteTargetLabelOf = (x: Keluarga) => householdLabel(x);
 
 export function keluargaTable(
   isCanUpdate: boolean,
@@ -40,8 +50,11 @@ export function keluargaTable(
         header: "Nama",
         width: "minmax(0,2fr)",
         cell: (keluarga) => (
-          <span className="block truncate font-medium" title={keluarga.name}>
-            {keluarga.name}
+          <span
+            className="block truncate font-medium"
+            title={householdLabel(keluarga)}
+          >
+            {householdLabel(keluarga)}
           </span>
         ),
       },
@@ -81,13 +94,13 @@ export function keluargaTable(
       },
     ],
     getRowActions: (x) => ({
-      label: `Ubah ${x.name}`,
+      label: `Ubah ${householdLabel(x)}`,
       edit: {
         href: isCanUpdate
           ? editHref(MENU.KEJEMAATAN, MENU.KELUARGA, x.publicId)
           : undefined,
         onNavigate: () => saveListFocus(KELUARGA_LIST_PATH, x.code),
-        label: `Ubah ${x.name}`,
+        label: `Ubah ${householdLabel(x)}`,
       },
       remove: onDelete
         ? { onSelect: () => onDelete(x), label: deleteLabelOf(x) }

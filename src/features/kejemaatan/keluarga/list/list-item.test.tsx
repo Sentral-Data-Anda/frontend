@@ -13,7 +13,7 @@ const KELUARGA: Keluarga = {
   id: 12,
   publicId: "10000000-0000-4000-8000-000000000012",
   code: "KK-0012",
-  name: "Keluarga Sitompul",
+  name: "Sitompul",
   provincesCode: "32",
   regenciesCode: "3273",
   districtsCode: "327301",
@@ -43,6 +43,14 @@ describe("baris keluarga di HP", () => {
     expect(screen.getByText("KK-0012 · 4 anggota · Wilayah II")).toBeTruthy();
   });
 
+  test("tanpa kepala keluarga: barisnya mengaku, bukan menampilkan kosong", () => {
+    onRenderRow(false, { ...KELUARGA, name: null });
+
+    expect(
+      screen.getByText("KK-0012 (belum ada kepala keluarga)"),
+    ).toBeTruthy();
+  });
+
   test("tanpa wilayah: meta tidak menyisakan pemisah", () => {
     onRenderRow(false, { ...KELUARGA, zoneChurchId: null, zoneChurch: null });
 
@@ -53,7 +61,7 @@ describe("baris keluarga di HP", () => {
     onRenderRow(true);
 
     const action = screen.getByRole("link", {
-      name: "Ubah Keluarga Sitompul",
+      name: "Ubah Kel. Sitompul",
     });
     expect(action.getAttribute("href")).toBe(
       "/kejemaatan/keluarga/edit/10000000-0000-4000-8000-000000000012",

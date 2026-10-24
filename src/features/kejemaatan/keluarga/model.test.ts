@@ -2,7 +2,12 @@ import { describe, expect, test } from "bun:test";
 
 import {
   EMPTY_KELUARGA_FORM,
+  keluargaCreateFormSchema,
+  EMPTY_END_MEMBERSHIP,
+  endMembershipSchemaFor,
   keluargaFormSchema,
+  toEndMembershipPayload,
+  type EndMembershipValues,
   serverFieldError,
   toKeluargaForm,
   toKeluargaPayload,
@@ -12,12 +17,18 @@ import type { Keluarga } from "./types";
 
 const VALID: KeluargaFormValues = {
   ...EMPTY_KELUARGA_FORM,
-  name: "Keluarga Sitompul",
   provincesCode: "32",
   regenciesCode: "3273",
   districtsCode: "327301",
   villagesCode: "3273011001",
   address: "Jl. Merdeka 10, RT 01 RW 02",
+  members: [
+    {
+      jemaatCode: "JMT-0001",
+      roleInFamily: "KEPALA_KELUARGA",
+      startedAt: "",
+    },
+  ],
 };
 
 const issuesOf = (values: KeluargaFormValues) => {
@@ -37,38 +48,32 @@ describe("keluargaFormSchema", () => {
     expect(issuesOf(EMPTY_KELUARGA_FORM).sort()).toEqual([
       "address",
       "districtsCode",
-      "name",
       "provincesCode",
       "regenciesCode",
       "villagesCode",
     ]);
   });
 
-  test("nama hanya spasi dianggap kosong", () => {
-    expect(issuesOf({ ...VALID, name: "   " })).toEqual(["name"]);
+  test("tidak ada isian nama: keluarga dinamai dari kepala keluarga", () => {
+    expect(Object.keys(EMPTY_KELUARGA_FORM)).not.toContain("name");
   });
 
-  test("batas panjang be-sada: nama 100, alamat 250", () => {
-    expect(issuesOf({ ...VALID, name: "a".repeat(100) })).toEqual([]);
-    expect(issuesOf({ ...VALID, name: "a".repeat(101) })).toEqual(["name"]);
+  test("batas panjang be-sada: alamat 250", () => {
     expect(issuesOf({ ...VALID, address: "a".repeat(251) })).toEqual([
       "address",
     ]);
   });
 
   test("pesan wajib memberi contoh isian", () => {
-    const parsed = keluargaFormSchema.safeParse({ ...VALID, name: "" });
+    const parsed = keluargaFormSchema.safeParse({ ...VALID, address: "" });
 
-    expect(parsed.error?.issues[0]?.message).toBe(
-      "Nama keluarga wajib diisi, mis. Keluarga Sitompul.",
-    );
+    expect(parsed.error?.issues[0]?.message).toContain("Alamat");
   });
 });
 
 describe("toKeluargaPayload", () => {
   test("wilayah kosong dikirim null, beribadah di sini selalu dikirim", () => {
     expect(toKeluargaPayload(VALID)).toEqual({
-      name: "Keluarga Sitompul",
       provincesCode: "32",
       regenciesCode: "3273",
       districtsCode: "327301",
@@ -76,18 +81,23 @@ describe("toKeluargaPayload", () => {
       address: "Jl. Merdeka 10, RT 01 RW 02",
       zoneChurchId: null,
       worshipsHere: true,
+      members: [
+        {
+          jemaatCode: "JMT-0001",
+          roleInFamily: "KEPALA_KELUARGA",
+          startedAt: null,
+        },
+      ],
     });
   });
 
   test("wilayah jadi angka, Tidak jadi false, teks dipangkas", () => {
     const payload = toKeluargaPayload({
       ...VALID,
-      name: "  Keluarga Halim ",
       zoneChurchId: "3",
       worshipsHere: "false",
     });
 
-    expect(payload.name).toBe("Keluarga Halim");
     expect(payload.zoneChurchId).toBe(3);
     expect(payload.worshipsHere).toBe(false);
   });
@@ -98,7 +108,6 @@ describe("toKeluargaForm", () => {
     id: 7,
     publicId: "10000000-0000-4000-8000-000000000007",
     code: "KK-0007",
-    name: "Keluarga Saragih",
     provincesCode: "32",
     regenciesCode: "3273",
     districtsCode: "327301",
@@ -107,6 +116,7 @@ describe("toKeluargaForm", () => {
     zoneChurchId: null,
     worshipsHere: false,
     zoneChurch: null,
+    name: "Halim",
     _count: { members: 2 },
   };
 
@@ -116,7 +126,6 @@ describe("toKeluargaForm", () => {
     expect(values.zoneChurchId).toBe("");
     expect(values.worshipsHere).toBe("false");
     expect(toKeluargaPayload(values)).toEqual({
-      name: DETAIL.name,
       provincesCode: DETAIL.provincesCode,
       regenciesCode: DETAIL.regenciesCode,
       districtsCode: DETAIL.districtsCode,
@@ -124,6 +133,7 @@ describe("toKeluargaForm", () => {
       address: DETAIL.address,
       zoneChurchId: null,
       worshipsHere: false,
+      members: [],
     });
   });
 });
@@ -137,5 +147,297 @@ describe("serverFieldError", () => {
 
   test("pesan lain tetap galat form", () => {
     expect(serverFieldError("Kesalahan server.")).toBeNull();
+  });
+});
+
+describe("anggota keluarga", () => {
+  const withMembers = (members: unknown[]) =>
+    keluargaFormSchema.safeParse({ ...VALID, members });
+
+  const onCreating = (members: unknown[]) =>
+    keluargaCreateFormSchema.safeParse({ ...VALID, members });
+
+  test("baris anggota ikut terkirim bersama keluarganya", () => {
+    const payload = toKeluargaPayload({
+      ...VALID,
+      members: [
+        {
+          jemaatCode: "JMT-0001",
+          roleInFamily: "KEPALA_KELUARGA",
+          startedAt: "2019-06-01",
+        },
+      ],
+    });
+
+    expect(payload.members).toEqual([
+      {
+        jemaatCode: "JMT-0001",
+        roleInFamily: "KEPALA_KELUARGA",
+        startedAt: "2019-06-01",
+      },
+    ]);
+  });
+
+  test("tanggal mulai yang dikosongkan dikirim null, bukan teks kosong", () => {
+    const payload = toKeluargaPayload({
+      ...VALID,
+      members: [
+        { jemaatCode: "JMT-0001", roleInFamily: "ANAK", startedAt: "" },
+      ],
+    });
+
+    expect(payload.members[0]?.startedAt).toBeNull();
+  });
+
+  test("anggota tanpa jemaat ditolak", () => {
+    const parsed = withMembers([
+      { jemaatCode: "", roleInFamily: "ANAK", startedAt: "" },
+    ]);
+
+    expect(parsed.success).toBe(false);
+  });
+
+  test("dua kepala keluarga ditolak", () => {
+    const parsed = withMembers([
+      {
+        jemaatCode: "JMT-0001",
+        roleInFamily: "KEPALA_KELUARGA",
+        startedAt: "",
+      },
+      {
+        jemaatCode: "JMT-0002",
+        roleInFamily: "KEPALA_KELUARGA",
+        startedAt: "",
+      },
+    ]);
+
+    expect(parsed.error?.issues[0]?.message).toBe(
+      "Satu keluarga hanya punya satu kepala keluarga.",
+    );
+  });
+
+  test("dua pasangan ditolak", () => {
+    const parsed = withMembers([
+      { jemaatCode: "JMT-0001", roleInFamily: "PASANGAN", startedAt: "" },
+      { jemaatCode: "JMT-0002", roleInFamily: "PASANGAN", startedAt: "" },
+    ]);
+
+    expect(parsed.error?.issues[0]?.message).toBe(
+      "Satu keluarga hanya punya satu pasangan.",
+    );
+  });
+
+  test("jemaat yang sama dua kali ditolak", () => {
+    const parsed = withMembers([
+      {
+        jemaatCode: "JMT-0001",
+        roleInFamily: "KEPALA_KELUARGA",
+        startedAt: "",
+      },
+      { jemaatCode: "jmt-0001", roleInFamily: "ANAK", startedAt: "" },
+    ]);
+
+    expect(parsed.error?.issues[0]?.message).toBe(
+      "Satu jemaat hanya boleh dipilih sekali.",
+    );
+  });
+
+  test("keluarga tanpa kepala keluarga ditolak saat dibuat", () => {
+    const parsed = onCreating([
+      { jemaatCode: "JMT-0001", roleInFamily: "ANAK", startedAt: "" },
+    ]);
+
+    expect(parsed.error?.issues[0]?.message).toBe(
+      "Tentukan tepat satu kepala keluarga.",
+    );
+  });
+
+  test("keluarga dengan kepala keluarga diterima", () => {
+    expect(
+      withMembers([
+        {
+          jemaatCode: "JMT-0001",
+          roleInFamily: "KEPALA_KELUARGA",
+          startedAt: "",
+        },
+        { jemaatCode: "JMT-0002", roleInFamily: "ANAK", startedAt: "" },
+      ]).success,
+    ).toBe(true);
+  });
+
+  test("banyak anak diperbolehkan", () => {
+    expect(
+      withMembers([
+        {
+          jemaatCode: "JMT-0001",
+          roleInFamily: "KEPALA_KELUARGA",
+          startedAt: "",
+        },
+        { jemaatCode: "JMT-0002", roleInFamily: "ANAK", startedAt: "" },
+        { jemaatCode: "JMT-0003", roleInFamily: "ANAK", startedAt: "" },
+      ]).success,
+    ).toBe(true);
+  });
+});
+
+describe("endMembershipSchemaFor", () => {
+  const CONTEXT = {
+    requiresSuccessor: false,
+    partnerName: null as string | null,
+    children: [] as { jemaatCode: string; name: string }[],
+  };
+
+  const parse = (values: Partial<EndMembershipValues>, context = {}) =>
+    endMembershipSchemaFor({ ...CONTEXT, ...context }).safeParse({
+      ...EMPTY_END_MEMBERSHIP,
+      endedAt: "2026-03-01",
+      ...values,
+    });
+
+  const messages = (values: Partial<EndMembershipValues>, context = {}) =>
+    parse(values, context).error?.issues.map((issue) => issue.message) ?? [];
+
+  test("tanggal berakhir wajib diisi", () => {
+    expect(messages({ endedAt: "" })).toContain(
+      "Tanggal berakhir wajib diisi.",
+    );
+  });
+
+  test("tanpa syarat tambahan, isian dasar sudah cukup", () => {
+    expect(parse({}).success).toBe(true);
+  });
+
+  describe("kepala keluarga pengganti", () => {
+    test("wajib saat kepala keluar dan masih ada yang tinggal", () => {
+      expect(messages({}, { requiresSuccessor: true })[0]).toContain(
+        "Pilih kepala keluarga pengganti",
+      );
+    });
+
+    test("terjawab sudah cukup", () => {
+      expect(
+        parse({ newHeadJemaatCode: "JMT-02" }, { requiresSuccessor: true })
+          .success,
+      ).toBe(true);
+    });
+  });
+
+  describe("cerai hidup menutup pasangan", () => {
+    test("pertanyaan pasangan wajib dijawab, dan menyebut namanya", () => {
+      expect(
+        messages({ endReason: "CERAI_HIDUP" }, { partnerName: "Rina" })[0],
+      ).toBe("Jawab dulu: keanggotaan Rina ikut ditutup atau tidak.");
+    });
+
+    test("menjawab tidak sudah cukup", () => {
+      expect(
+        parse(
+          { endReason: "CERAI_HIDUP", alsoEndPartner: "false" },
+          { partnerName: "Rina" },
+        ).success,
+      ).toBe(true);
+    });
+
+    test("alasan lain tidak menanyakan pasangan", () => {
+      expect(
+        parse({ endReason: "MENINGGAL" }, { partnerName: "Rina" }).success,
+      ).toBe(true);
+    });
+  });
+
+  describe("pembagian anak", () => {
+    const CHILDREN = [
+      { jemaatCode: "JMT-03", name: "Dani" },
+      { jemaatCode: "JMT-04", name: "Sari" },
+    ];
+
+    test("setiap anak wajib ditentukan, dan yang kurang disebut namanya", () => {
+      const issues = messages(
+        {
+          endReason: "CERAI_HIDUP",
+          alsoEndPartner: "true",
+          childPlacements: [
+            { jemaatCode: "JMT-03", keluargaCode: "TETAP" },
+            { jemaatCode: "JMT-04", keluargaCode: "" },
+          ],
+        },
+        { partnerName: "Rina", children: CHILDREN },
+      );
+
+      expect(issues).toEqual(["Tentukan Sari ikut keluarga yang mana."]);
+    });
+
+    test("semua anak terisi: lolos", () => {
+      expect(
+        parse(
+          {
+            endReason: "CERAI_HIDUP",
+            alsoEndPartner: "true",
+            childPlacements: [
+              { jemaatCode: "JMT-03", keluargaCode: "TETAP" },
+              { jemaatCode: "JMT-04", keluargaCode: "KK-0009" },
+            ],
+          },
+          { partnerName: "Rina", children: CHILDREN },
+        ).success,
+      ).toBe(true);
+    });
+
+    test("pasangan tidak ikut ditutup: anak tidak ditanyakan", () => {
+      expect(
+        parse(
+          { endReason: "CERAI_HIDUP", alsoEndPartner: "false" },
+          { partnerName: "Rina", children: CHILDREN },
+        ).success,
+      ).toBe(true);
+    });
+  });
+});
+
+describe("toEndMembershipPayload", () => {
+  const base: EndMembershipValues = {
+    ...EMPTY_END_MEMBERSHIP,
+    endedAt: "2026-03-01",
+  };
+
+  test("catatan kosong dikirim null, bukan string kosong", () => {
+    expect(
+      toEndMembershipPayload({ ...base, endNote: "   " }).endNote,
+    ).toBeNull();
+  });
+
+  test("alasan selain cerai tidak mengirim jawaban pasangan", () => {
+    const payload = toEndMembershipPayload({
+      ...base,
+      endReason: "MENINGGAL",
+      alsoEndPartner: "true",
+    });
+
+    expect(payload.alsoEndPartner).toBeNull();
+    expect(payload.childPlacements).toBeNull();
+  });
+
+  test("Tetap dikirim sebagai null, bukan sebagai kode keluarga", () => {
+    const payload = toEndMembershipPayload({
+      ...base,
+      endReason: "CERAI_HIDUP",
+      alsoEndPartner: "true",
+      childPlacements: [
+        { jemaatCode: "JMT-03", keluargaCode: "TETAP" },
+        { jemaatCode: "JMT-04", keluargaCode: "KK-0009" },
+      ],
+    });
+
+    expect(payload.childPlacements).toEqual([
+      { jemaatCode: "JMT-03", keluargaCode: null },
+      { jemaatCode: "JMT-04", keluargaCode: "KK-0009" },
+    ]);
+  });
+
+  test("pertanyaan pasangan yang belum dijawab tidak jadi tidak", () => {
+    expect(
+      toEndMembershipPayload({ ...base, endReason: "CERAI_HIDUP" })
+        .alsoEndPartner,
+    ).toBeNull();
   });
 });

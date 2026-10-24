@@ -2,12 +2,7 @@
 
 import { useWatch } from "react-hook-form";
 
-import {
-  DdlField,
-  Input,
-  SelectField,
-  optionsOf,
-} from "@/components/common/control";
+import { DdlField, SelectField, optionsOf } from "@/components/common/control";
 import { FormSection, ControlField } from "@/components/common/form";
 import { useDdlOptions } from "@/hooks/use-ddl-options";
 
@@ -33,10 +28,6 @@ export const KeluargaSection = (props: PropTypes) => {
 
   return (
     <FormSection legend="Keluarga" disabled={isDisabled}>
-      <ControlField control={form.control} name="name" label="Nama keluarga">
-        {(field) => <Input {...field} maxLength={100} autoCapitalize="words" />}
-      </ControlField>
-
       <ControlField
         control={form.control}
         name="zoneChurchId"

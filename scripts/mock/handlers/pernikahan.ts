@@ -311,6 +311,16 @@ const endMarriage = async (
       message: "Alasan Berakhir harus bernilai Cerai Hidup atau Cerai Mati",
     });
   }
+  if (
+    body.endReason === "CERAI_MATI" &&
+    body.deceased !== "SUAMI" &&
+    body.deceased !== "ISTRI"
+  ) {
+    issues.push({
+      path: "deceased",
+      message: "Sebutkan Suami atau Istri yang Meninggal",
+    });
+  }
   if (issues.length) return invalid(issues);
   if (!row) return notFound();
   if (row.endedAt) return failure(400, "Pernikahan Ini Sudah Berakhir");

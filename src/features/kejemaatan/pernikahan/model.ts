@@ -13,6 +13,8 @@ import type {
 
 export const END_REASONS = ["CERAI_HIDUP", "CERAI_MATI"] as const;
 
+export const DECEASED_SIDES = ["SUAMI", "ISTRI"] as const;
+
 const partyName = (label: string) =>
   z.string().trim().max(150, `Nama ${label} maksimal 150 karakter`);
 
@@ -142,20 +144,32 @@ export function serverFieldError(
   return null;
 }
 
-export const endMarriageFormSchema = z.object({
-  endedAt: z.string().min(1, "Tanggal berakhir wajib diisi"),
-  endReason: z
-    .enum(END_REASONS)
-    .or(z.literal(""))
-    .refine(Boolean, "Alasan berakhir wajib dipilih"),
-  endNote: z.string().trim().max(250, "Catatan maksimal 250 karakter"),
-});
+export const endMarriageFormSchema = z
+  .object({
+    endedAt: z.string().min(1, "Tanggal berakhir wajib diisi"),
+    endReason: z
+      .enum(END_REASONS)
+      .or(z.literal(""))
+      .refine(Boolean, "Alasan berakhir wajib dipilih"),
+    deceased: z.enum(DECEASED_SIDES).or(z.literal("")),
+    endNote: z.string().trim().max(250, "Catatan maksimal 250 karakter"),
+  })
+  .superRefine((values, ctx) => {
+    if (values.endReason === "CERAI_MATI" && values.deceased === "") {
+      ctx.addIssue({
+        code: "custom",
+        path: ["deceased"],
+        message: "Yang meninggal wajib dipilih",
+      });
+    }
+  });
 
 export type EndMarriageFormValues = z.infer<typeof endMarriageFormSchema>;
 
 export const EMPTY_END_FORM: EndMarriageFormValues = {
   endedAt: "",
   endReason: "",
+  deceased: "",
   endNote: "",
 };
 
@@ -164,6 +178,9 @@ export const toEndMarriagePayload = (
 ): EndMarriagePayload => ({
   endedAt: values.endedAt,
   endReason: values.endReason as EndReason,
+  ...(values.endReason === "CERAI_MATI" && values.deceased !== ""
+    ? { deceased: values.deceased }
+    : {}),
   endNote: emptyToNull(values.endNote),
 });
 

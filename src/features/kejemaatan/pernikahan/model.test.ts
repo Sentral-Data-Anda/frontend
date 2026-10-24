@@ -206,10 +206,60 @@ describe("akhiri pernikahan", () => {
     ]);
   });
 
+  test("yang meninggal wajib dipilih saat cerai mati", () => {
+    const missing = endMarriageFormSchema.safeParse({
+      endedAt: "2024-01-01",
+      endReason: "CERAI_MATI",
+      deceased: "",
+      endNote: "",
+    });
+
+    expect(
+      missing.success
+        ? []
+        : missing.error.issues.map((issue) => [issue.path[0], issue.message]),
+    ).toEqual([["deceased", "Yang meninggal wajib dipilih"]]);
+
+    expect(
+      endMarriageFormSchema.safeParse({
+        endedAt: "2024-01-01",
+        endReason: "CERAI_MATI",
+        deceased: "ISTRI",
+        endNote: "",
+      }).success,
+    ).toBe(true);
+  });
+
+  test("cerai hidup tidak menanyakan yang meninggal", () => {
+    expect(
+      endMarriageFormSchema.safeParse({
+        endedAt: "2024-01-01",
+        endReason: "CERAI_HIDUP",
+        deceased: "",
+        endNote: "",
+      }).success,
+    ).toBe(true);
+
+    // A value left behind by an earlier pick must not travel with a divorce.
+    expect(
+      toEndMarriagePayload({
+        endedAt: "2024-01-01",
+        endReason: "CERAI_HIDUP",
+        deceased: "ISTRI",
+        endNote: "",
+      }),
+    ).toEqual({
+      endedAt: "2024-01-01",
+      endReason: "CERAI_HIDUP",
+      endNote: null,
+    });
+  });
+
   test("catatan maksimal 250 karakter", () => {
     const parsed = endMarriageFormSchema.safeParse({
       endedAt: "2024-01-01",
       endReason: "CERAI_HIDUP",
+      deceased: "",
       endNote: "x".repeat(251),
     });
 
@@ -221,11 +271,13 @@ describe("akhiri pernikahan", () => {
       toEndMarriagePayload({
         endedAt: "2024-01-01",
         endReason: "CERAI_MATI",
+        deceased: "SUAMI",
         endNote: " ",
       }),
     ).toEqual({
       endedAt: "2024-01-01",
       endReason: "CERAI_MATI",
+      deceased: "SUAMI",
       endNote: null,
     });
   });

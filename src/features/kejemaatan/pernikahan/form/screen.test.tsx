@@ -46,6 +46,18 @@ afterEach(() => {
 
 const ID = "6f1c2a3e-0000-4000-8000-000000000001";
 
+// A plain click does not select a Base UI option; it needs the pointer
+// sequence a real press produces.
+const pickOption = async (label: string, option: string) => {
+  fireEvent.click(screen.getByLabelText(label));
+  const node = await screen.findByRole("option", { name: option });
+  fireEvent.pointerDown(node);
+  fireEvent.mouseDown(node);
+  fireEvent.pointerUp(node);
+  fireEvent.mouseUp(node);
+  fireEvent.click(node);
+};
+
 const DETAIL: MarriageDetail = {
   id: ID,
   husband: { jemaatCode: "JMT-0001", name: "Andreas Sitanggang" },
@@ -336,6 +348,48 @@ describe("akhiri pernikahan", () => {
     expect(
       screen.getByRole("link", { name: "Kembali ke Pernikahan" }),
     ).toBeTruthy();
+  });
+
+  test("cerai mati menanyakan yang meninggal dan mengirimnya", async () => {
+    const listUrl = `${MARRIAGE_LIST_PATH}?status=AKTIF`;
+    window.sessionStorage.setItem(`list-return:${MARRIAGE_LIST_PATH}`, listUrl);
+    const calls = onMockApi();
+    actions.current = ["VIEW", "UPDATE"];
+    render(wrap(<MarriageEndScreen id={ID} />));
+    await screen.findByText("Andreas Sitanggang & Ruth Siregar");
+
+    expect(screen.queryByLabelText("Yang meninggal")).toBeNull();
+
+    const date = screen.getByLabelText("Tanggal berakhir");
+    fireEvent.change(date, { target: { value: "01/02/2024" } });
+    fireEvent.blur(date);
+    await pickOption("Alasan", "Cerai mati");
+    await screen.findByLabelText("Yang meninggal");
+
+    fireEvent.click(screen.getByRole("button", { name: "Simpan" }));
+    expect(
+      await screen.findByText("Yang meninggal wajib dipilih"),
+    ).toBeTruthy();
+    expect(calls).toEqual([]);
+
+    await pickOption("Yang meninggal", "Istri");
+    fireEvent.click(screen.getByRole("button", { name: "Simpan" }));
+    await screen.findByText("Apakah Anda ingin mengakhiri pernikahan ini?");
+    fireEvent.click(screen.getByRole("button", { name: "Ya" }));
+
+    await waitFor(() => expect(replaced).toEqual([listUrl]));
+    expect(calls).toEqual([
+      {
+        method: "PUT",
+        url: `/api/v1/marriage/${ID}/end`,
+        body: {
+          endedAt: "2024-02-01",
+          endReason: "CERAI_MATI",
+          deceased: "ISTRI",
+          endNote: null,
+        },
+      },
+    ]);
   });
 
   test("alur sukses: PUT /end, sorot baris, kembali ke daftar", async () => {

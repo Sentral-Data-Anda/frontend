@@ -1,82 +1,39 @@
 "use client";
 
-import { useWatch } from "react-hook-form";
-
-import {
-  ComboboxField,
-  SelectField,
-  optionsOf,
-} from "@/components/common/control";
+import { ComboboxField } from "@/components/common/control";
 import { FormSection, ControlField } from "@/components/common/form";
 
 import { useKeluargaOptions } from "../api";
-import { ROLE_IN_FAMILY_LABEL } from "../types";
 
 import { type JemaatForm } from "./form-options";
-
-const ROLE_OPTIONS = optionsOf(ROLE_IN_FAMILY_LABEL);
 
 interface PropTypes {
   form: JemaatForm;
   isDisabled: boolean;
 }
 
+/**
+ * Household and role are not edited here any more: a family is registered with
+ * its members on the Keluarga form, which is where the clerk knows who lives
+ * with whom. The two values still ride along in the form state — loaded from
+ * the current membership and sent back unchanged — because an absent value
+ * would detach the person from their household.
+ */
 export const FamilySection = (props: PropTypes) => {
   const { form, isDisabled } = props;
 
-  const keluargaId = useWatch({ control: form.control, name: "keluargaId" });
   const keluarga = useKeluargaOptions();
 
   return (
     <FormSection
-      legend="Keluarga"
-      note="Boleh dilewati — banyak jemaat tinggal sendiri atau kos. Peran wajib diisi begitu keluarganya dipilih."
+      legend="Keluarga asal"
+      note="Untuk menelusuri anak yang kini berkeluarga sendiri. Keluarga tempat tinggal sekarang diatur dari menu Keluarga."
       disabled={isDisabled}
     >
-      <ControlField control={form.control} name="keluargaId" label="Keluarga">
-        {(field) => (
-          <ComboboxField
-            value={field.value}
-            onValueChange={(value) => {
-              field.onChange(value);
-              if (!value) {
-                form.setValue("roleInFamily", "", { shouldDirty: true });
-              }
-            }}
-            options={keluarga.options}
-            isLoading={keluarga.isLoading}
-            onSearch={keluarga.onSearch}
-            isClearable
-            disabled={isDisabled}
-            placeholder="Pilih keluarga"
-            emptyMessage="Belum ada data keluarga"
-          />
-        )}
-      </ControlField>
-
-      <ControlField
-        control={form.control}
-        name="roleInFamily"
-        label="Peran dalam keluarga"
-      >
-        {(field) => (
-          <SelectField
-            value={field.value}
-            onValueChange={field.onChange}
-            options={ROLE_OPTIONS}
-            disabled={isDisabled || !keluargaId}
-            placeholder={
-              keluargaId ? "Pilih peran dalam keluarga" : "Pilih keluarga dulu"
-            }
-          />
-        )}
-      </ControlField>
-
       <ControlField
         control={form.control}
         name="keluargaAsalId"
         label="Keluarga asal"
-        hint="Untuk menelusuri anak yang kini berkeluarga sendiri."
       >
         {(field) => (
           <ComboboxField
