@@ -24,13 +24,23 @@ export const IdentitySection = (props: PropTypes) => {
 
   return (
     <FormSection legend="Identitas" disabled={isDisabled}>
-      <ControlField control={form.control} name="name" label="Nama lengkap">
+      <ControlField
+        control={form.control}
+        name="name"
+        label="Nama lengkap"
+        isRequired
+      >
         {(field) => (
           <Input {...field} autoComplete="name" autoCapitalize="words" />
         )}
       </ControlField>
 
-      <ControlField control={form.control} name="gender" label="Jenis kelamin">
+      <ControlField
+        control={form.control}
+        name="gender"
+        label="Jenis kelamin"
+        isRequired
+      >
         {(field) => (
           <SelectField
             value={field.value}
@@ -47,6 +57,7 @@ export const IdentitySection = (props: PropTypes) => {
         control={form.control}
         name="birthPlace"
         label="Tempat lahir"
+        isRequired
       >
         {(field) => <Input {...field} maxLength={25} />}
       </ControlField>
@@ -55,7 +66,6 @@ export const IdentitySection = (props: PropTypes) => {
         control={form.control}
         name="birthDate"
         label="Tanggal lahir"
-        isOptional
       >
         {(field) => (
           <DateField

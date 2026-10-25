@@ -61,6 +61,7 @@ export const MembershipSection = (props: PropTypes) => {
         control={form.control}
         name="typeJemaat"
         label="Tipe jemaat"
+        isRequired
         hint="Anggota membutuhkan kode induk dan data sosial; wilayah mengikuti keluarga bila ada."
       >
         {(field) => (
@@ -78,6 +79,7 @@ export const MembershipSection = (props: PropTypes) => {
         control={form.control}
         name="statusJemaat"
         label="Status jemaat"
+        isRequired
       >
         {(field) => (
           <SelectField
@@ -94,7 +96,7 @@ export const MembershipSection = (props: PropTypes) => {
         control={form.control}
         name="codeInduk"
         label="Kode induk"
-        isOptional={!isAnggota}
+        isRequired={isAnggota}
         isHintWarning={isCodeIndukChanged}
         hint={
           isCodeIndukChanged
@@ -111,7 +113,7 @@ export const MembershipSection = (props: PropTypes) => {
         control={form.control}
         name="zoneChurchId"
         label="Wilayah"
-        isOptional={!isAnggota || Boolean(householdZone)}
+        isRequired={isAnggota && !isInKeluarga}
         hint={zoneHint}
       >
         {(field) =>
@@ -136,7 +138,6 @@ export const MembershipSection = (props: PropTypes) => {
         control={form.control}
         name="joinedAt"
         label="Tanggal bergabung"
-        isOptional
       >
         {(field) => (
           <DateField

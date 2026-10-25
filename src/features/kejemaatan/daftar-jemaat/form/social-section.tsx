@@ -52,6 +52,7 @@ export const SocialSection = (props: PropTypes) => {
         control={form.control}
         name="statusMarital"
         label="Status pernikahan"
+        isRequired={isAnggota}
       >
         {(field) => (
           <SelectField
@@ -76,6 +77,7 @@ export const SocialSection = (props: PropTypes) => {
       <MasterField
         form={form}
         name="ethnicGroupId"
+        isRequired={isAnggota}
         kind="ethnic-group"
         label="Suku"
         isClearable={!isAnggota}

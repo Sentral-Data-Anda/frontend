@@ -44,10 +44,19 @@ interface PropTypes {
   label: string;
   isClearable: boolean;
   isDisabled: boolean;
+  isRequired?: boolean;
 }
 
 export const MasterField = (props: PropTypes) => {
-  const { form, name, kind, label, isClearable, isDisabled } = props;
+  const {
+    form,
+    name,
+    kind,
+    label,
+    isClearable,
+    isDisabled,
+    isRequired = false,
+  } = props;
 
   const { isCanCreate } = useMenuAccess(MENU.DAFTAR_JEMAAT);
   const toast = useToast();
@@ -93,7 +102,12 @@ export const MasterField = (props: PropTypes) => {
 
   return (
     <>
-      <ControlField control={form.control} name={name} label={label}>
+      <ControlField
+        control={form.control}
+        name={name}
+        label={label}
+        isRequired={isRequired}
+      >
         {(field) => (
           <ComboboxField
             value={field.value}

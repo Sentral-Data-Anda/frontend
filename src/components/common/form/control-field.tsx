@@ -27,6 +27,7 @@ interface PropTypes<TValues extends FieldValues> {
   hint?: string;
   isHintWarning?: boolean;
   isOptional?: boolean;
+  isRequired?: boolean;
   children: (field: StringField) => ReactElement<FieldControlProps>;
 }
 
@@ -40,6 +41,7 @@ export function ControlField<TValues extends FieldValues>(
     hint,
     isHintWarning = false,
     isOptional = false,
+    isRequired = false,
     children,
   } = props;
 
@@ -53,6 +55,7 @@ export function ControlField<TValues extends FieldValues>(
           error={fieldState.error?.message}
           hint={hint}
           isHintWarning={isHintWarning}
+          isRequired={isRequired}
           label={
             <>
               {label}

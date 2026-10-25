@@ -2,10 +2,13 @@ import { cloneElement, type ReactElement, type ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
+import { FieldLabel } from "./field-label";
+
 export type FieldControlProps = {
   id?: string;
   "aria-invalid"?: boolean;
   "aria-describedby"?: string;
+  "aria-required"?: boolean;
 };
 
 interface PropTypes {
@@ -14,6 +17,7 @@ interface PropTypes {
   error?: string;
   hint?: string;
   isHintWarning?: boolean;
+  isRequired?: boolean;
   children: ReactElement<FieldControlProps>;
 }
 
@@ -24,6 +28,7 @@ export const FormField = (props: PropTypes) => {
     error,
     hint,
     isHintWarning = false,
+    isRequired = false,
     children,
   } = props;
 
@@ -34,14 +39,19 @@ export const FormField = (props: PropTypes) => {
 
   return (
     <div>
-      <label htmlFor={htmlFor} className="mb-1.5 block text-body font-medium">
+      <FieldLabel
+        htmlFor={htmlFor}
+        isRequired={isRequired}
+        className="mb-1.5 block text-body font-medium"
+      >
         {label}
-      </label>
+      </FieldLabel>
 
       {cloneElement(children, {
         id: htmlFor,
         "aria-invalid": error ? true : undefined,
         "aria-describedby": messageId,
+        "aria-required": isRequired || undefined,
       })}
 
       {message ? (
