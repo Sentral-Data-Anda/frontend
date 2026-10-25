@@ -172,6 +172,40 @@ Lebih dari itu, pindahkan ke `const onX = …` di blok fungsi (sebelum `useEffec
 dan `return`), lalu teruskan namanya: `onBack={onBack}`. Callback ref yang bukan
 handler dinamai kata kerja biasa (`setCursorNode`).
 
+**[WAJIB-14] Field wajib ditandai lewat `isRequired`, bukan asterisk manual.**
+
+Kewajiban sebuah field ditulis dengan prop `isRequired` pada `FormField`/
+`ControlField`/`MasterField`. `FieldLabel` satu-satunya yang merender tanda `*`
+(di luar `<label>`, `aria-hidden`, ditambah teks `sr-only` "wajib"); `aria-required`
+dipasang di kontrolnya. Dilarang menulis `*` atau kata "wajib" ke dalam string
+label — itu menjadi bagian nama field dan tidak terbaca screen reader.
+
+Wajib atau opsional berarti **apa yang menahan submit**: gabungan skema zod /
+`superRefine` di `features/<domain>/<fitur>/model.ts` dan validation zod backend
+modul itu (`be-sada/src/modules/<modul>/<modul>.validation.ts`). Kalau keduanya
+berbeda, itu temuan yang dilaporkan, bukan pilihan sepihak. Sebagian aturan hanya
+hidup di FE (`zoneChurchId` selama jemaat belum punya keluarga berzona,
+`keluargaId`, `roleInFamily`), jadi daftar backend saja akan mencabut tanda wajib
+dari field yang justru menolak disimpan.
+
+Field bersyarat menuliskan kondisinya persis, mis.
+`isRequired={isAnggota && !isInKeluarga}` — bukan selalu tampil.
+
+```tsx
+// src/features/kejemaatan/daftar-jemaat/form/identity-section.tsx
+// source of truth: be-sada/src/modules/jemaat/jemaat.validation.ts
+<ControlField
+  control={form.control}
+  name="name"
+  label="Nama lengkap"
+  isRequired
+>
+  {(field) => <Input {...field} autoComplete="name" autoCapitalize="words" />}
+</ControlField>
+// Tanpa `isRequired` (mis. "Tanggal lahir" di file yang sama) berarti backend
+// menjadikannya opsional — jemaat.validation.ts memakai optionalFormDate().
+```
+
 ## Yang dipertahankan
 
 - Test bersebelahan dengan berkas yang diuji (`x.test.ts`).

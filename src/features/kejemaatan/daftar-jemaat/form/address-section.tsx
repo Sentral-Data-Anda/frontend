@@ -58,6 +58,7 @@ export const AddressSection = (props: PropTypes) => {
         control={form.control}
         name="provincesCode"
         label="Provinsi"
+        isRequired
       >
         {(field) => (
           <ComboboxField
@@ -76,6 +77,7 @@ export const AddressSection = (props: PropTypes) => {
         control={form.control}
         name="regenciesCode"
         label="Kabupaten/kota"
+        isRequired
         hint={provincesCode ? undefined : "Pilih provinsi dulu."}
       >
         {(field) => (
@@ -95,6 +97,7 @@ export const AddressSection = (props: PropTypes) => {
         control={form.control}
         name="districtsCode"
         label="Kecamatan"
+        isRequired
         hint={regenciesCode ? undefined : "Pilih kabupaten/kota dulu."}
       >
         {(field) => (
@@ -114,6 +117,7 @@ export const AddressSection = (props: PropTypes) => {
         control={form.control}
         name="villagesCode"
         label="Kelurahan/desa"
+        isRequired
         hint={districtsCode ? undefined : "Pilih kecamatan dulu."}
       >
         {(field) => (
@@ -134,6 +138,7 @@ export const AddressSection = (props: PropTypes) => {
           control={form.control}
           name="address"
           label="Alamat lengkap"
+          isRequired
           hint="Nama jalan, nomor, RT/RW, dan patokan bila ada."
         >
           {(field) => (
