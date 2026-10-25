@@ -18,7 +18,8 @@ interface PropTypes {
   isRemoveDisabled?: boolean;
   onRemove?: (index: number) => void;
   messages: readonly LineItemMessage[];
-  children: ReactNode;
+  /** Left out by a card that only shows what is already saved. */
+  children?: ReactNode;
 }
 
 export const LineItemCard = (props: PropTypes) => {
@@ -72,9 +73,11 @@ export const LineItemCard = (props: PropTypes) => {
         ) : null}
       </div>
 
-      <div className="mt-3 flex flex-wrap items-end gap-x-4 gap-y-3 @min-[28rem]/line:pl-8">
-        {children}
-      </div>
+      {children ? (
+        <div className="mt-3 flex flex-wrap items-end gap-x-4 gap-y-3 @min-[28rem]/line:pl-8">
+          {children}
+        </div>
+      ) : null}
 
       {isInvalid ? (
         <div className="mt-2 space-y-0.5 @min-[28rem]/line:pl-8">
