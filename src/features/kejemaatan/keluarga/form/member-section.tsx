@@ -1,16 +1,20 @@
 "use client";
 
-import { Plus, Trash2 } from "lucide-react";
-import { useFieldArray, useFormState, useWatch } from "react-hook-form";
+import { Controller, useFieldArray, useWatch } from "react-hook-form";
 
 import {
   Button,
   ComboboxField,
-  DateField,
   SelectField,
   optionsOf,
 } from "@/components/common/control";
-import { ControlField, FormSection, FormAlert } from "@/components/common/form";
+import {
+  FormSection,
+  FormWide,
+  LineItemCard,
+  LineItemList,
+  useLineItemErrors,
+} from "@/components/common/form";
 
 import { useJemaatOptions } from "../api";
 import { EMPTY_MEMBER_ROW, MEMBER_ROLE_LABEL } from "../model";
@@ -20,85 +24,102 @@ import { type KeluargaForm } from "./form-options";
 
 const ROLE_OPTIONS = optionsOf(MEMBER_ROLE_LABEL);
 
+// A household seats one head and one spouse — the database holds that rule with
+// partial unique indexes, so a seat already taken stops being offered here.
+const SINGLE_SEAT_ROLES: readonly string[] = ["KEPALA_KELUARGA", "PASANGAN"];
+
+const FIELDS = ["jemaatCode", "roleInFamily"] as const;
+
+const LABEL = "text-muted-foreground mb-1 block text-caption";
+
 interface RowPropTypes {
   form: KeluargaForm;
   index: number;
   isDisabled: boolean;
-  onRemove: () => void;
+  takenSeats: readonly string[];
+  onRemove: (index: number) => void;
 }
 
 const MemberRow = (props: RowPropTypes) => {
-  const { form, index, isDisabled, onRemove } = props;
+  const { form, index, isDisabled, takenSeats, onRemove } = props;
 
   const jemaat = useJemaatOptions();
+  const errors = useLineItemErrors(form.control, "members", index, FIELDS);
+  const row = useWatch({ control: form.control, name: `members.${index}` });
+  const chosen = jemaat.options.find(
+    (option) => option.value === row?.jemaatCode,
+  );
+
+  // The row holding a seat keeps seeing it, otherwise a mis-click could only be
+  // undone by deleting the row.
+  const roleOptions = ROLE_OPTIONS.filter(
+    (option) =>
+      option.value === row?.roleInFamily || !takenSeats.includes(option.value),
+  );
+
+  const ariaOf = (field: (typeof FIELDS)[number]) => ({
+    id: errors.idOf(field),
+    "aria-invalid": errors.isInvalid(field) || undefined,
+    "aria-describedby": errors.messageIdOf(field),
+  });
 
   return (
-    <div className="border-hairline rounded-control relative border p-3">
-      <ControlField
-        control={form.control}
-        name={`members.${index}.jemaatCode`}
-        label="Jemaat"
-      >
-        {(field) => (
-          <ComboboxField
-            value={field.value}
-            onValueChange={field.onChange}
-            options={jemaat.options}
-            isLoading={jemaat.isLoading}
-            onSearch={jemaat.onSearch}
-            disabled={isDisabled}
-            placeholder="Cari nama atau kode jemaat"
-            emptyMessage="Belum ada data jemaat"
-          />
-        )}
-      </ControlField>
+    <LineItemCard
+      index={index}
+      title={chosen?.label ?? "Anggota baru"}
+      meta={row ? MEMBER_ROLE_LABEL[row.roleInFamily] : undefined}
+      removeLabel={`Hapus baris anggota ${index + 1}`}
+      isRemoveDisabled={isDisabled}
+      onRemove={onRemove}
+      messages={errors.messages}
+    >
+      <div className="min-w-0 flex-[2_1_18rem]">
+        <label htmlFor={errors.idOf("jemaatCode")} className={LABEL}>
+          Jemaat
+          <span className="sr-only"> baris {index + 1}</span>
+        </label>
 
-      <ControlField
-        control={form.control}
-        name={`members.${index}.roleInFamily`}
-        label="Peran"
-      >
-        {(field) => (
-          <SelectField
-            value={field.value}
-            onValueChange={field.onChange}
-            disabled={isDisabled}
-            options={ROLE_OPTIONS}
-            placeholder="Pilih peran"
-          />
-        )}
-      </ControlField>
+        <Controller
+          control={form.control}
+          name={`members.${index}.jemaatCode`}
+          render={({ field }) => (
+            <ComboboxField
+              {...ariaOf("jemaatCode")}
+              value={field.value}
+              onValueChange={field.onChange}
+              options={jemaat.options}
+              isLoading={jemaat.isLoading}
+              onSearch={jemaat.onSearch}
+              disabled={isDisabled}
+              placeholder="Cari nama atau kode jemaat"
+              emptyMessage="Belum ada data jemaat"
+            />
+          )}
+        />
+      </div>
 
-      <ControlField
-        control={form.control}
-        name={`members.${index}.startedAt`}
-        label="Sejak"
-        isOptional
-      >
-        {(field) => (
-          <DateField
-            value={field.value}
-            onValueChange={field.onChange}
-            onBlur={field.onBlur}
-            disabled={isDisabled}
-            label="Tanggal mulai"
-            hint="Kosongkan bila tidak diketahui."
-          />
-        )}
-      </ControlField>
+      <div className="min-w-0 flex-[1_1_12rem]">
+        <label htmlFor={errors.idOf("roleInFamily")} className={LABEL}>
+          Peran
+          <span className="sr-only"> baris {index + 1}</span>
+        </label>
 
-      <Button
-        type="button"
-        variant="ghost"
-        size="sm"
-        disabled={isDisabled}
-        onClick={onRemove}
-        className="text-destructive absolute top-2 right-2"
-        aria-label={`Hapus baris anggota ${index + 1}`}
-      >
-        <Trash2 className="size-4" aria-hidden />
-      </Button>
-    </div>
+        <Controller
+          control={form.control}
+          name={`members.${index}.roleInFamily`}
+          render={({ field }) => (
+            <SelectField
+              {...ariaOf("roleInFamily")}
+              value={field.value}
+              onValueChange={field.onChange}
+              disabled={isDisabled}
+              options={roleOptions}
+              placeholder="Pilih peran"
+            />
+          )}
+        />
+      </div>
+    </LineItemCard>
   );
 };
 
@@ -120,25 +141,43 @@ export const MemberSection = (props: PropTypes) => {
   } = props;
 
   const rows = useFieldArray({ control: form.control, name: "members" });
-  const { errors } = useFormState({ control: form.control });
   const jemaat = useJemaatOptions();
   const members = useWatch({ control: form.control, name: "members" });
+  const errors = form.formState.errors;
   const membersError = errors.members?.root?.message ?? errors.members?.message;
 
   // The household is named after its head, so show that name while it is being
   // chosen — the rule is easier to trust when it is visible.
-  const savedHead = saved.find((row) => row.role === "KEPALA_KELUARGA");
-  const typedHead = (members ?? []).find(
+  const savedHead = saved.find(
+    (row) => row.role === "KEPALA_KELUARGA" && !row.endedAt,
+  );
+  const typedHeadIndex = (members ?? []).findIndex(
     (row) => row.roleInFamily === "KEPALA_KELUARGA",
   );
   const headName =
     savedHead?.name ??
-    jemaat.options.find((option) => option.value === typedHead?.jemaatCode)
-      ?.label ??
+    jemaat.options.find(
+      (option) => option.value === members?.[typedHeadIndex]?.jemaatCode,
+    )?.label ??
     null;
+  const takenSeats = SINGLE_SEAT_ROLES.filter(
+    (role) =>
+      saved.some((row) => row.role === role && !row.endedAt) ||
+      (members ?? []).some((row) => row.roleInFamily === role),
+  );
 
+  // A household is built from its head down, so the first row opens as the
+  // head and every row after it opens as a child.
   const onAdd = () => {
-    rows.append({ ...EMPTY_MEMBER_ROW }, { shouldFocus: false });
+    rows.append(
+      {
+        ...EMPTY_MEMBER_ROW,
+        roleInFamily: takenSeats.includes("KEPALA_KELUARGA")
+          ? "ANAK"
+          : "KEPALA_KELUARGA",
+      },
+      { shouldFocus: false },
+    );
     form.clearErrors("members");
   };
 
@@ -148,17 +187,21 @@ export const MemberSection = (props: PropTypes) => {
       note="Hanya jemaat yang sudah terdaftar. Bayi atau kerabat yang belum tercatat didaftarkan dulu di Daftar Jemaat sebagai simpatisan, lalu kembali ke sini."
       disabled={isDisabled}
     >
-      <div className="col-span-full space-y-3">
-        {saved.length > 0 ? (
-          <ul className="border-hairline rounded-control divide-hairline divide-y border">
+      {saved.length > 0 ? (
+        <FormWide>
+          <p className={LABEL}>Sudah menjadi anggota</p>
+
+          <ul className="border-border divide-border rounded-control divide-y border">
             {saved.map((member) => (
               <li
                 key={member.id}
-                className="flex items-center justify-between gap-3 px-3 py-2"
+                className="flex min-h-control items-center justify-between gap-3 px-3 py-2"
               >
-                <span className="text-body">{member.name}</span>
+                <span className="min-w-0 text-body wrap-break-word">
+                  {member.name}
+                </span>
 
-                <span className="flex items-center gap-3">
+                <span className="flex shrink-0 items-center gap-3">
                   <span className="text-muted-foreground text-caption">
                     {MEMBER_ROLE_LABEL[member.role]}
                   </span>
@@ -182,39 +225,37 @@ export const MemberSection = (props: PropTypes) => {
               </li>
             ))}
           </ul>
-        ) : null}
+        </FormWide>
+      ) : null}
 
-        {rows.fields.map((field, index) => (
-          <MemberRow
-            key={field.id}
-            form={form}
-            index={index}
-            isDisabled={isDisabled}
-            onRemove={() => rows.remove(index)}
-          />
-        ))}
-
-        <p className="text-muted-foreground text-caption">
-          Nama keluarga mengikuti kepala keluarga:{" "}
-          <span className="text-foreground font-medium">
-            {headName ? `Kel. ${headName}` : "belum ada kepala keluarga"}
-          </span>
-        </p>
-
-        {membersError ? (
-          <FormAlert title="Anggota belum benar." message={membersError} />
-        ) : null}
-
-        <Button
-          type="button"
-          variant="outline"
-          disabled={isDisabled}
-          onClick={onAdd}
+      <FormWide>
+        <LineItemList
+          label="Anggota yang akan ditambahkan"
+          count={rows.fields.length}
+          addLabel="Tambah anggota"
+          isAddDisabled={isDisabled}
+          onAdd={onAdd}
+          empty={
+            saved.length > 0
+              ? "Belum ada anggota baru yang akan ditambahkan."
+              : "Belum ada anggota. Mulai dari kepala keluarganya."
+          }
+          summary={headName ? `Kel. ${headName}` : "Nama ikut kepala keluarga"}
+          error={membersError}
+          errorId="members-error"
         >
-          <Plus className="size-4" aria-hidden />
-          Tambah anggota
-        </Button>
-      </div>
+          {rows.fields.map((field, index) => (
+            <MemberRow
+              key={field.id}
+              form={form}
+              index={index}
+              isDisabled={isDisabled}
+              takenSeats={takenSeats}
+              onRemove={rows.remove}
+            />
+          ))}
+        </LineItemList>
+      </FormWide>
     </FormSection>
   );
 };
