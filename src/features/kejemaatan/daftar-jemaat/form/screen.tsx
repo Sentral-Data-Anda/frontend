@@ -98,9 +98,7 @@ export const JemaatFormScreen = (props: PropTypes) => {
     setRejectedField(null);
 
     try {
-      const saved = await saveJemaat.mutateAsync(
-        toJemaatPayload(values, isEdit),
-      );
+      const saved = await saveJemaat.mutateAsync(toJemaatPayload(values));
 
       toast.add({ title: saved.message });
       saveListFocus(JEMAAT_LIST_PATH, saved.data.code);
@@ -216,7 +214,7 @@ export const JemaatFormScreen = (props: PropTypes) => {
         <AddressSection form={form} isDisabled={isSubmitting} />
         <FamilySection form={form} isDisabled={isSubmitting} />
         <SocialSection form={form} isDisabled={isSubmitting} />
-        <RiwayatSection form={form} isDisabled={isSubmitting} isEdit={isEdit} />
+        <RiwayatSection form={form} isDisabled={isSubmitting} />
       </div>
 
       <div className="space-y-3 px-gutter pb-4 empty:hidden">
