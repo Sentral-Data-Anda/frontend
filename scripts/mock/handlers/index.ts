@@ -55,7 +55,6 @@ import { pinjamanMock } from "./pinjaman";
 import { programMock } from "./program";
 import { reportJemaatMock } from "./report-jemaat";
 import { returPembelianMock } from "./retur-pembelian";
-import { riwayatJemaatMock } from "./riwayat-jemaat";
 import { roleJemaatMock } from "./role-jemaat";
 import { rolePelayanMock } from "./role-pelayan";
 import { roleUserMock } from "./role-user";
@@ -81,7 +80,6 @@ import { wilayahMock } from "./wilayah";
 export const MOCK_HANDLERS: MockHandler[] = [
   keluargaMock,
   pernikahanMock,
-  riwayatJemaatMock,
   roleJemaatMock,
   bapelMock,
   reportJemaatMock,

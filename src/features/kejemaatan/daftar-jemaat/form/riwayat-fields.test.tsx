@@ -18,14 +18,12 @@ const rowOf = (overrides: Partial<AdditionalRow> = {}): AdditionalRow => ({
   ...overrides,
 });
 
-const Harness = (props: { isEdit: boolean; rows: AdditionalRow[] }) => {
+const Harness = (props: { rows: AdditionalRow[] }) => {
   const form = useForm<JemaatFormValues>({
     defaultValues: { ...EMPTY_JEMAAT_FORM, additional: props.rows },
   });
 
-  return (
-    <RiwayatSection form={form} isDisabled={false} isEdit={props.isEdit} />
-  );
+  return <RiwayatSection form={form} isDisabled={false} />;
 };
 
 // FieldLabel menaruh tanda wajibnya di luar <label>, sesudah nama field.
@@ -38,7 +36,7 @@ const isMarkedRequired = (name: string) => {
 
 describe("riwayat gerejawi — layar Tambah", () => {
   test("tiap baris menampilkan empat kolom berlabel dengan urutan yang sama", () => {
-    render(<Harness isEdit={false} rows={[rowOf()]} />);
+    render(<Harness rows={[rowOf()]} />);
 
     expect(screen.getByLabelText("Jenis baris 1")).toBeTruthy();
     expect(screen.getByLabelText("Tanggal baris 1")).toBeTruthy();
@@ -47,7 +45,7 @@ describe("riwayat gerejawi — layar Tambah", () => {
   });
 
   test("hanya jenis dan tanggal yang berasterisk", () => {
-    render(<Harness isEdit={false} rows={[rowOf()]} />);
+    render(<Harness rows={[rowOf()]} />);
 
     expect(isMarkedRequired("Jenis baris 1")).toBe(true);
     expect(isMarkedRequired("Tanggal baris 1")).toBe(true);
@@ -56,7 +54,7 @@ describe("riwayat gerejawi — layar Tambah", () => {
   });
 
   test("tambah menambah kartu dan hapus membuang kartu yang benar", () => {
-    render(<Harness isEdit={false} rows={[rowOf()]} />);
+    render(<Harness rows={[rowOf()]} />);
 
     fireEvent.click(screen.getByRole("button", { name: "Tambah riwayat" }));
     expect(screen.getAllByRole("listitem")).toHaveLength(2);
@@ -67,9 +65,7 @@ describe("riwayat gerejawi — layar Tambah", () => {
   });
 
   test("jenis sekali seumur hidup tidak ditawarkan ke baris lain", async () => {
-    render(
-      <Harness isEdit={false} rows={[rowOf({ type: "BAPTIS" }), rowOf()]} />,
-    );
+    render(<Harness rows={[rowOf({ type: "BAPTIS" }), rowOf()]} />);
 
     expect(
       screen.getByRole("combobox", { name: "Jenis baris 1" }).textContent,
@@ -93,52 +89,60 @@ describe("riwayat gerejawi — layar Ubah", () => {
     rowOf({ type: "SIDI", date: "2006-04-16" }),
   ];
 
-  test("empat kolom yang sama, terisi nilai terbaca tanpa diringkas", () => {
-    render(<Harness isEdit rows={SAVED} />);
-
-    expect(screen.getByLabelText("Jenis baris 1").textContent).toBe("Baptis");
-    expect(screen.getByLabelText("Tanggal baris 1").textContent).toBe(
-      "1 Agustus 1990",
-    );
-    expect(screen.getByLabelText("Tempat baris 1").textContent).toBe(
-      "GKI Bandung",
-    );
-    expect(screen.getByLabelText("Nomor surat baris 1").textContent).toBe(
-      "B/12/1990",
-    );
-  });
-
-  test("kolom kosong tetap tampil sebagai — supaya susunannya tidak bergeser", () => {
-    render(<Harness isEdit rows={SAVED} />);
-
-    expect(screen.getByLabelText("Tempat baris 2").textContent).toBe("—");
-    expect(screen.getByLabelText("Nomor surat baris 2").textContent).toBe("—");
-  });
-
-  test("tidak ada kontrol yang bisa difokus, ditambah, diubah, atau dihapus", () => {
-    render(<Harness isEdit rows={SAVED} />);
-
-    expect(screen.queryByRole("combobox")).toBeNull();
-    expect(screen.queryByRole("textbox")).toBeNull();
-    expect(screen.queryByRole("button")).toBeNull();
-    expect(screen.queryByText("Tambah riwayat")).toBeNull();
-  });
-
-  test("kartu, nomor urut, dan state kosong memakai komponen daftar yang sama", () => {
-    render(<Harness isEdit rows={[]} />);
-
-    expect(screen.queryByRole("list")).toBeNull();
-    expect(
-      screen.getByText("Belum ada riwayat baptis, sidi, atau atestasi."),
-    ).toBeTruthy();
-  });
-
-  test("paragraf penaut ke layar Riwayat Jemaat tetap ada", () => {
-    render(<Harness isEdit rows={SAVED} />);
+  // Riwayat dulu punya layarnya sendiri; sekarang form ini satu-satunya tempat
+  // menulisnya, jadi baris tersimpan harus datang sebagai kolom yang bisa
+  // diubah, bukan teks baca-saja.
+  test("menampilkan nilai tersimpan di kolom yang bisa diubah", () => {
+    render(<Harness rows={SAVED} />);
 
     expect(
-      screen.getByRole("link", { name: "layar Riwayat Jemaat" }),
+      screen.getByRole("combobox", { name: "Jenis baris 1" }).textContent,
+    ).toContain("Baptis");
+    expect(
+      (screen.getByLabelText("Tanggal baris 1") as HTMLInputElement).value,
+    ).toBe("01/08/1990");
+    expect(
+      (screen.getByLabelText("Tempat baris 1") as HTMLInputElement).value,
+    ).toBe("GKI Bandung");
+    expect(
+      (screen.getByLabelText("Nomor surat baris 1") as HTMLInputElement).value,
+    ).toBe("B/12/1990");
+  });
+
+  test("baris tersimpan bisa dihapus tanpa menyisakan teks baca-saja", () => {
+    render(<Harness rows={SAVED} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Hapus riwayat 1" }));
+
+    expect(screen.getAllByRole("listitem")).toHaveLength(1);
+    expect(
+      screen.getByRole("combobox", { name: "Jenis baris 1" }).textContent,
+    ).toContain("Sidi");
+  });
+
+  test("menambah baris baru di samping yang tersimpan", () => {
+    render(<Harness rows={SAVED} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Tambah riwayat" }));
+
+    expect(screen.getAllByRole("listitem")).toHaveLength(3);
+    expect(screen.getByLabelText("Jenis baris 3")).toBeTruthy();
+  });
+
+  test("jemaat tanpa riwayat tetap bisa menambah baris pertama", () => {
+    render(<Harness rows={[]} />);
+
+    expect(
+      screen.getByText(
+        "Tambahkan baptis, sidi, atestasi, atau kedukaan bila suratnya ada.",
+      ),
     ).toBeTruthy();
-    expect(screen.getByRole("list", { name: "Riwayat gerejawi" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Tambah riwayat" })).toBeTruthy();
+  });
+
+  test("tidak ada lagi tautan ke layar Riwayat Jemaat", () => {
+    render(<Harness rows={SAVED} />);
+
+    expect(screen.queryByRole("link")).toBeNull();
   });
 });

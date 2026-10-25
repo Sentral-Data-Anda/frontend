@@ -191,10 +191,7 @@ const idToNumber = (value: string): number | null =>
 export const normalizePhone = (value: string): string =>
   keepDigits(value.replace(/^\+?62/, "0"), 12);
 
-export function toJemaatPayload(
-  values: JemaatFormValues,
-  isEdit = false,
-): JemaatPayload {
+export function toJemaatPayload(values: JemaatFormValues): JemaatPayload {
   const payload: JemaatPayload = {
     name: values.name.trim(),
     gender: values.gender as "L" | "P",
@@ -220,16 +217,16 @@ export function toJemaatPayload(
     roleInFamily: (values.roleInFamily || null) as RoleInFamily | null,
     keluargaAsalId: idToNumber(values.keluargaAsalId),
     joinedAt: emptyToNull(values.joinedAt),
-  };
-
-  if (!isEdit) {
-    payload.additional = values.additional.map((row) => ({
+    // Sent on create and on edit alike: this form is the only place the
+    // sacrament list is written now, and the backend replaces the live set with
+    // whatever arrives here.
+    additional: values.additional.map((row) => ({
       type: row.type as JemaatAdditional["type"],
       date: row.date,
       certificateNumber: emptyToNull(row.certificateNumber),
       place: emptyToNull(row.place),
-    }));
-  }
+    })),
+  };
 
   return payload;
 }

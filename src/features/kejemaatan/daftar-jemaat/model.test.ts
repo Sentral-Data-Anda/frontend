@@ -239,10 +239,11 @@ describe("form ubah TIDAK mengirim additional (test wajib 5)", () => {
     ],
   };
 
-  test("mode ubah menghilangkan key additional sama sekali", () => {
-    const payload = toJemaatPayload(toJemaatForm(detail), true);
+  test("mode ubah ikut mengirim riwayat, bukan menghilangkannya", () => {
+    const payload = toJemaatPayload(toJemaatForm(detail));
 
-    expect("additional" in payload).toBe(false);
+    expect(payload.additional).toHaveLength(2);
+    expect(payload.additional?.[0]).toMatchObject({ type: "BAPTIS" });
   });
 
   test("keanggotaan keluarga dikirim balik apa adanya, bukan null", () => {
@@ -275,7 +276,7 @@ describe("form ubah TIDAK mengirim additional (test wajib 5)", () => {
   });
 
   test("seluruh field detail ikut terkirim, bukan hanya yang disentuh", () => {
-    const payload = toJemaatPayload(toJemaatForm(detail), true);
+    const payload = toJemaatPayload(toJemaatForm(detail));
 
     expect(payload).toMatchObject({
       name: "Maria Sitompul",
