@@ -8,6 +8,7 @@ interface PropTypes {
   id: string;
   label: string;
   isLabelVisible?: boolean;
+  isRequired?: boolean;
   value: readonly string[];
   onValueChange: (value: string[]) => void;
   options: readonly SelectOption[];
@@ -15,6 +16,7 @@ interface PropTypes {
   error?: string;
   disabled?: boolean;
   emptyMessage?: string;
+  "aria-invalid"?: boolean;
 }
 
 export const CheckboxGroupField = (props: PropTypes) => {
@@ -22,6 +24,7 @@ export const CheckboxGroupField = (props: PropTypes) => {
     id,
     label,
     isLabelVisible = true,
+    isRequired = false,
     value,
     onValueChange,
     options,
@@ -29,6 +32,7 @@ export const CheckboxGroupField = (props: PropTypes) => {
     error,
     disabled = false,
     emptyMessage = "Belum ada pilihan",
+    "aria-invalid": invalidProp,
   } = props;
 
   const message = error ?? hint;
@@ -64,7 +68,10 @@ export const CheckboxGroupField = (props: PropTypes) => {
                 <input
                   type="checkbox"
                   id={index === 0 ? id : undefined}
-                  aria-invalid={index === 0 && error ? true : undefined}
+                  aria-invalid={
+                    invalidProp ?? (index === 0 && error ? true : undefined)
+                  }
+                  aria-required={isRequired || undefined}
                   checked={value.includes(option.value)}
                   disabled={disabled || option.isDisabled}
                   onChange={() => onToggle(option.value)}

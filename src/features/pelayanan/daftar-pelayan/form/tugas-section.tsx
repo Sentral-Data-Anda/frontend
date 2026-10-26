@@ -47,6 +47,7 @@ export const TugasSection = (props: PropTypes) => {
             <FormField
               htmlFor="rolePelayan"
               label="Tugas kelompok"
+              isRequired
               error={fieldState.error?.message}
               hint="Kelompok memegang satu tugas, mis. Singer untuk paduan suara."
             >
@@ -71,6 +72,7 @@ export const TugasSection = (props: PropTypes) => {
               <CheckboxGroupField
                 id="rolePelayan"
                 label="Tugas"
+                isRequired
                 isLabelVisible={false}
                 value={field.value}
                 onValueChange={onRoleChange}
@@ -96,6 +98,7 @@ export const TugasSection = (props: PropTypes) => {
               <CheckboxGroupField
                 id="musikSkill"
                 label="Alat musik"
+                isRequired={isPemusik}
                 value={field.value}
                 onValueChange={field.onChange}
                 options={skills.options}

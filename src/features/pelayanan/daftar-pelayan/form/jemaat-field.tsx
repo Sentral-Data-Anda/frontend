@@ -10,10 +10,11 @@ import { type PelayanForm } from "./form-options";
 interface PropTypes {
   form: PelayanForm;
   isDisabled: boolean;
+  isRequired?: boolean;
 }
 
 export const JemaatField = (props: PropTypes) => {
-  const { form, isDisabled } = props;
+  const { form, isDisabled, isRequired } = props;
 
   const jemaat = useActiveJemaatSearch();
 
@@ -23,6 +24,7 @@ export const JemaatField = (props: PropTypes) => {
       name="jemaatId"
       label="Jemaat"
       hint="Hanya jemaat aktif yang bisa melayani."
+      isRequired={isRequired}
     >
       {(field) => (
         <ComboboxField

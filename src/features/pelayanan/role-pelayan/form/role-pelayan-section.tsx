@@ -20,6 +20,7 @@ export const RolePelayanSection = (props: PropTypes) => {
         control={form.control}
         name="name"
         label="Nama tugas"
+        isRequired
         hint={
           isLocked
             ? "Nama ini dipakai sistem untuk memilih pemain per alat musik di Jadwal Pelayan, jadi tidak bisa diubah."
