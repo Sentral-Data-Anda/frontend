@@ -38,13 +38,19 @@ export const InvoiceSection = (props: PropTypes) => {
           control={form.control}
           name="supplierInvoiceNumber"
           label="Nomor faktur supplier"
+          isRequired
         >
           {(field) => (
             <Input {...field} maxLength={50} placeholder="mis. FK/2026/0912" />
           )}
         </ControlField>
 
-        <ControlField control={form.control} name="supplierId" label="Supplier">
+        <ControlField
+          control={form.control}
+          name="supplierId"
+          label="Supplier"
+          isRequired
+        >
           {(field) => (
             <DdlField
               id="supplierId"
@@ -64,6 +70,7 @@ export const InvoiceSection = (props: PropTypes) => {
           name="purchaseOrderId"
           label="Pesanan pembelian"
           hint="Boleh kosong: tagihan bisa datang tanpa pesanan, misalnya perbaikan mendadak."
+          isOptional
         >
           {(field) => (
             <DdlField
@@ -84,11 +91,17 @@ export const InvoiceSection = (props: PropTypes) => {
           control={form.control}
           name="invoiceDate"
           label="Tanggal faktur"
+          isRequired
         >
           {(field) => <Input {...field} type="date" />}
         </ControlField>
 
-        <ControlField control={form.control} name="dueDate" label="Jatuh tempo">
+        <ControlField
+          control={form.control}
+          name="dueDate"
+          label="Jatuh tempo"
+          isRequired
+        >
           {(field) => <Input {...field} type="date" />}
         </ControlField>
 
@@ -96,6 +109,7 @@ export const InvoiceSection = (props: PropTypes) => {
           control={form.control}
           name="currencyCode"
           label="Mata uang"
+          isRequired
         >
           {(field) => (
             <DdlField
@@ -116,6 +130,7 @@ export const InvoiceSection = (props: PropTypes) => {
           name="totalForeignCurrency"
           label="Total faktur"
           hint="Angka yang tertulis di kertas supplier, dalam mata uangnya sendiri. Rupiahnya dihitung dengan kurs tanggal faktur."
+          isRequired
         >
           {(field) => (
             <AmountInput
@@ -144,6 +159,7 @@ export const InvoiceSection = (props: PropTypes) => {
               control={form.control}
               name="expenseAccountId"
               label="Dibebankan ke akun"
+              isOptional
             >
               {(field) => (
                 <AccountField

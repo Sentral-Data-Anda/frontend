@@ -34,6 +34,7 @@ export const ReturnSection = (props: PropTypes) => {
         control={form.control}
         name="goodsReceiptCode"
         label="Penerimaan barang"
+        isRequired
       >
         {(field) => (
           <ComboboxField
@@ -53,6 +54,7 @@ export const ReturnSection = (props: PropTypes) => {
         control={form.control}
         name="returnDate"
         label="Tanggal retur"
+        isRequired
       >
         {(field) => (
           <DateField
@@ -68,7 +70,12 @@ export const ReturnSection = (props: PropTypes) => {
       </ControlField>
 
       <FormWide>
-        <ControlField control={form.control} name="reason" label="Alasan">
+        <ControlField
+          control={form.control}
+          name="reason"
+          label="Alasan"
+          isRequired
+        >
           {(field) => (
             <Textarea
               {...field}

@@ -33,6 +33,7 @@ export const ReceiptSection = (props: PropTypes) => {
         control={form.control}
         name="purchaseOrderId"
         label="Pesanan"
+        isRequired
       >
         {(field) => (
           <ComboboxField
@@ -51,6 +52,7 @@ export const ReceiptSection = (props: PropTypes) => {
         control={form.control}
         name="receivedDate"
         label="Tanggal terima"
+        isRequired
       >
         {(field) => (
           <DateField

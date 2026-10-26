@@ -15,7 +15,7 @@ export const TaxSection = (props: PropTypes) => {
 
   return (
     <FormSection legend="Pajak" note="Boleh dikosongkan." disabled={isDisabled}>
-      <ControlField control={form.control} name="npwp" label="NPWP">
+      <ControlField control={form.control} name="npwp" label="NPWP" isOptional>
         {(field) => (
           <Input
             {...field}
