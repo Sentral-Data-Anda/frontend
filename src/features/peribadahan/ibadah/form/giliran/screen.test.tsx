@@ -162,6 +162,22 @@ const onRender = (
 const valueOf = (label: string) =>
   (screen.getByLabelText(label) as HTMLInputElement).value;
 
+// TimeField memecah jam ke dua segmen, jadi nilainya dirakit ulang jadi HH:mm.
+const timeOf = (label: string) => {
+  const hour = valueOf(label);
+  const minute = valueOf(`${label} menit`);
+
+  return hour && minute ? `${hour}:${minute}` : "";
+};
+
+// Segmen jam menerima "HH:mm" utuh lalu dirapikan saat blur.
+const setTime = (label: string, value: string) => {
+  const box = screen.getByLabelText(label);
+
+  fireEvent.change(box, { target: { value } });
+  fireEvent.blur(box);
+};
+
 const onPick = async (id: string, name: string) => {
   await waitFor(() =>
     expect((document.getElementById(id) as HTMLButtonElement).disabled).toBe(
@@ -179,7 +195,7 @@ const onPick = async (id: string, name: string) => {
 const onSettings = async (zone = "Wilayah I") => {
   await onPick("typeIbadahId", "Ibadah Wilayah");
   await onPick("zoneChurchId", zone);
-  await waitFor(() => expect(valueOf("Jam selesai")).toBe("20:30"));
+  await waitFor(() => expect(timeOf("Jam selesai")).toBe("20:30"));
 };
 
 const onBuild = async () => {
@@ -234,12 +250,10 @@ describe("pengaturan", () => {
     onMockApi();
     onRender();
 
-    fireEvent.change(screen.getByLabelText("Jam mulai"), {
-      target: { value: "18:00" },
-    });
+    setTime("Jam mulai", "18:00");
     await onSettings();
 
-    expect(valueOf("Jam mulai")).toBe("18:00");
+    expect(timeOf("Jam mulai")).toBe("18:00");
     expect(valueOf("Tanggal mulai")).toBe(toInputText(START));
   });
 

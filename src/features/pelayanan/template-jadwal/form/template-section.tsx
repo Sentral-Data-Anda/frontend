@@ -1,6 +1,6 @@
 "use client";
 
-import { DdlField, Input } from "@/components/common/control";
+import { DdlField, Input, TimeField } from "@/components/common/control";
 import { ControlField, FormSection } from "@/components/common/form";
 
 import { useBapelOptions } from "../api";
@@ -61,9 +61,17 @@ export const TemplateSection = (props: PropTypes) => {
         name="startTime"
         label="Jam mulai"
         isRequired
-        hint="Jam bawaan saat template dipakai di Jadwal Pelayan; bisa diubah di sana."
       >
-        {(field) => <Input {...field} type="time" />}
+        {(field) => (
+          <TimeField
+            value={field.value}
+            onValueChange={field.onChange}
+            onBlur={field.onBlur}
+            disabled={isDisabled}
+            label="Jam mulai"
+            hint="Jam bawaan saat template dipakai di Jadwal Pelayan; bisa diubah di sana."
+          />
+        )}
       </ControlField>
 
       <ControlField
@@ -72,7 +80,15 @@ export const TemplateSection = (props: PropTypes) => {
         label="Jam selesai"
         isRequired
       >
-        {(field) => <Input {...field} type="time" />}
+        {(field) => (
+          <TimeField
+            value={field.value}
+            onValueChange={field.onChange}
+            onBlur={field.onBlur}
+            disabled={isDisabled}
+            label="Jam selesai"
+          />
+        )}
       </ControlField>
     </FormSection>
   );

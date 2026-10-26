@@ -7,6 +7,7 @@ import {
   DdlField,
   Input,
   SelectField,
+  TimeField,
 } from "@/components/common/control";
 import { ControlField, FormSection } from "@/components/common/form";
 import { ConfirmDialog } from "@/components/common/overlay";
@@ -105,7 +106,15 @@ export const JadwalSection = (props: PropTypes) => {
         label="Jam mulai"
         isRequired
       >
-        {(field) => <Input {...field} type="time" />}
+        {(field) => (
+          <TimeField
+            value={field.value}
+            onValueChange={field.onChange}
+            onBlur={field.onBlur}
+            disabled={isDisabled}
+            label="Jam mulai"
+          />
+        )}
       </ControlField>
 
       <ControlField
@@ -114,7 +123,15 @@ export const JadwalSection = (props: PropTypes) => {
         label="Jam selesai"
         isRequired
       >
-        {(field) => <Input {...field} type="time" />}
+        {(field) => (
+          <TimeField
+            value={field.value}
+            onValueChange={field.onChange}
+            onBlur={field.onBlur}
+            disabled={isDisabled}
+            label="Jam selesai"
+          />
+        )}
       </ControlField>
 
       <ControlField
