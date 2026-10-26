@@ -53,6 +53,7 @@ export const KomponenSection = (props: PropTypes) => {
         control={form.control}
         name="name"
         label="Nama"
+        isRequired
         hint="Mis. Tunjangan Transport."
       >
         {(field) => <Input {...field} maxLength={100} autoCapitalize="words" />}
@@ -65,6 +66,7 @@ export const KomponenSection = (props: PropTypes) => {
           control={form.control}
           name="type"
           label="Jenis"
+          isRequired
           hint="Tunjangan menambah gaji; potongan menguranginya."
         >
           {(field) => (
@@ -86,6 +88,7 @@ export const KomponenSection = (props: PropTypes) => {
           control={form.control}
           name="calculationType"
           label="Cara hitung"
+          isRequired
           hint={calculationHint(calculationType)}
         >
           {(field) => (
@@ -152,6 +155,7 @@ export const KomponenSection = (props: PropTypes) => {
         control={form.control}
         name="isTaxable"
         label="Pajak"
+        isRequired
         hint="Dipakai perhitungan pajak. Gereja ini belum memotong PPh21."
       >
         {(field) => (
@@ -169,6 +173,7 @@ export const KomponenSection = (props: PropTypes) => {
         control={form.control}
         name="isActive"
         label="Status"
+        isRequired
         hint={INACTIVE_NOTE}
       >
         {(field) => (

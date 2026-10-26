@@ -132,7 +132,12 @@ export const PenetapanSection = (props: PropTypes) => {
           value={assignment.karyawan.name}
         />
       ) : (
-        <ControlField control={form.control} name="karyawanId" label="Karyawan">
+        <ControlField
+          control={form.control}
+          name="karyawanId"
+          label="Karyawan"
+          isRequired
+        >
           {(field) => (
             <ComboboxField
               id={field.name}
@@ -160,6 +165,7 @@ export const PenetapanSection = (props: PropTypes) => {
           control={form.control}
           name="payrollComponentId"
           label="Komponen"
+          isRequired
         >
           {(field) => (
             <ComboboxField
@@ -229,6 +235,7 @@ export const PenetapanSection = (props: PropTypes) => {
         control={form.control}
         name="effectiveFrom"
         label="Berlaku dari"
+        isRequired
       >
         {(field) => (
           <DateField
