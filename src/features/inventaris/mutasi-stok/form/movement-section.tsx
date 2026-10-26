@@ -82,6 +82,7 @@ export const MovementSection = (props: PropTypes) => {
           <ChoiceField
             id="type"
             label="Jenis"
+            isRequired
             value={field.value}
             onValueChange={onPickType}
             options={FORM_TYPE_OPTIONS}
@@ -98,6 +99,7 @@ export const MovementSection = (props: PropTypes) => {
             <ChoiceField
               id="source"
               label={type === "IN" ? "Sumber" : "Alasan"}
+              isRequired
               value={field.value}
               onValueChange={onPickSource}
               options={FORM_SOURCE_OPTIONS[type]}
@@ -119,6 +121,7 @@ export const MovementSection = (props: PropTypes) => {
             : undefined
         }
         isHintWarning={balanceAfter !== null && balanceAfter < 0}
+        isRequired
       >
         {(field) => (
           <Input
@@ -157,7 +160,12 @@ export const MovementSection = (props: PropTypes) => {
         </ControlField>
       ) : null}
 
-      <ControlField control={form.control} name="movementDate" label="Tanggal">
+      <ControlField
+        control={form.control}
+        name="movementDate"
+        label="Tanggal"
+        isRequired
+      >
         {(field) => (
           <DateField
             value={field.value}

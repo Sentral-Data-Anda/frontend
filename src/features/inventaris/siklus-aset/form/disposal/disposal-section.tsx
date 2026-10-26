@@ -57,7 +57,12 @@ export const DisposalSection = (props: PropTypes) => {
       note="Pelepasan berlaku sesudah disetujui di Permintaan Persetujuan. Pencatatan keuangan pelepasan dilakukan bendahara di Jurnal."
       disabled={isDisabled}
     >
-      <ControlField control={form.control} name="assetId" label="Barang">
+      <ControlField
+        control={form.control}
+        name="assetId"
+        label="Barang"
+        isRequired
+      >
         {(field) => (
           <AssetPicker
             value={field.value}
@@ -69,7 +74,12 @@ export const DisposalSection = (props: PropTypes) => {
         )}
       </ControlField>
 
-      <ControlField control={form.control} name="method" label="Cara">
+      <ControlField
+        control={form.control}
+        name="method"
+        label="Cara"
+        isRequired
+      >
         {(field) => (
           <SelectField
             value={field.value}
@@ -85,6 +95,7 @@ export const DisposalSection = (props: PropTypes) => {
         control={form.control}
         name="disposalDate"
         label="Tanggal pelepasan"
+        isRequired
       >
         {(field) => (
           <DateField
@@ -104,6 +115,7 @@ export const DisposalSection = (props: PropTypes) => {
           control={form.control}
           name="proceeds"
           label="Hasil penjualan (Rp)"
+          isOptional
         >
           {(field) => (
             <Input
@@ -121,7 +133,12 @@ export const DisposalSection = (props: PropTypes) => {
       ) : null}
 
       <FormWide>
-        <ControlField control={form.control} name="reason" label="Alasan">
+        <ControlField
+          control={form.control}
+          name="reason"
+          label="Alasan"
+          isRequired
+        >
           {(field) => (
             <Textarea
               {...field}

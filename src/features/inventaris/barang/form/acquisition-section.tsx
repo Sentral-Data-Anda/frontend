@@ -42,6 +42,7 @@ export const AcquisitionSection = (props: PropTypes) => {
         <ChoiceField
           id="acquisitionSource"
           label="Sumber"
+          isRequired
           value={source}
           onValueChange={onPickSource}
           options={SOURCE_OPTIONS}
@@ -54,6 +55,7 @@ export const AcquisitionSection = (props: PropTypes) => {
           control={form.control}
           name="donorName"
           label="Nama pemberi"
+          isOptional
         >
           {(field) => (
             <Input
@@ -70,6 +72,7 @@ export const AcquisitionSection = (props: PropTypes) => {
         control={form.control}
         name="acquisitionDate"
         label="Tanggal perolehan"
+        isOptional
       >
         {(field) => (
           <DateField
@@ -92,6 +95,7 @@ export const AcquisitionSection = (props: PropTypes) => {
           isGift ? "Nilai perolehan (perkiraan, Rp)" : "Harga perolehan (Rp)"
         }
         hint={isDepreciationLocked ? LOCK_HINT : undefined}
+        isOptional
       >
         {(field) => (
           <Input

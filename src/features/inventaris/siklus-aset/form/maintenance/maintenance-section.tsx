@@ -55,7 +55,12 @@ export const MaintenanceSection = (props: PropTypes) => {
           </span>
         </ReadField>
       ) : (
-        <ControlField control={form.control} name="assetId" label="Barang">
+        <ControlField
+          control={form.control}
+          name="assetId"
+          label="Barang"
+          isRequired
+        >
           {(field) => (
             <AssetPicker
               value={field.value}
@@ -67,7 +72,12 @@ export const MaintenanceSection = (props: PropTypes) => {
         </ControlField>
       )}
 
-      <ControlField control={form.control} name="status" label="Status">
+      <ControlField
+        control={form.control}
+        name="status"
+        label="Status"
+        isRequired
+      >
         {(field) => (
           <SelectField
             value={field.value}
@@ -83,6 +93,7 @@ export const MaintenanceSection = (props: PropTypes) => {
         control={form.control}
         name="scheduledDate"
         label="Tanggal rencana"
+        isRequired
       >
         {(field) => (
           <DateField
@@ -102,6 +113,7 @@ export const MaintenanceSection = (props: PropTypes) => {
           control={form.control}
           name="completedDate"
           label="Tanggal selesai"
+          isRequired
         >
           {(field) => (
             <DateField
@@ -123,6 +135,7 @@ export const MaintenanceSection = (props: PropTypes) => {
           control={form.control}
           name="description"
           label="Keterangan"
+          isRequired
         >
           {(field) => (
             <Textarea

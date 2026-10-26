@@ -75,7 +75,12 @@ export const LocationSection = (props: PropTypes) => {
 
   return (
     <FormSection legend="Lokasi" disabled={isDisabled}>
-      <ControlField control={form.control} name="roomId" label="Ruang">
+      <ControlField
+        control={form.control}
+        name="roomId"
+        label="Ruang"
+        isRequired
+      >
         {(field) => (
           <DdlField
             value={field.value}
@@ -93,6 +98,7 @@ export const LocationSection = (props: PropTypes) => {
         control={form.control}
         name="bapelId"
         label="Badan pelayanan"
+        isRequired
       >
         {(field) => (
           <DdlField

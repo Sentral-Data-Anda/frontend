@@ -24,6 +24,7 @@ export const LocationSection = (props: PropTypes) => {
         control={form.control}
         name="roomId"
         label="Ruang"
+        isRequired
         hint={isEdit ? "Seluruh stok ikut pindah ke ruang ini." : undefined}
       >
         {(field) => (
@@ -43,6 +44,7 @@ export const LocationSection = (props: PropTypes) => {
         control={form.control}
         name="bapelId"
         label="Badan pelayanan"
+        isRequired
       >
         {(field) => (
           <DdlField

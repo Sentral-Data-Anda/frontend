@@ -67,6 +67,7 @@ export const StockSection = (props: PropTypes) => {
           name="openingQuantity"
           label={`Stok awal${unitSuffix}`}
           hint={OPENING_HINT}
+          isOptional
         >
           {(field) => (
             <Input

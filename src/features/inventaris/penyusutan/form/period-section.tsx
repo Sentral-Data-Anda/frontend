@@ -21,7 +21,12 @@ export const PeriodSection = (props: PropTypes) => {
       note="Periode harus berurutan: posting periode sebelumnya dulu."
       disabled={isDisabled}
     >
-      <ControlField control={form.control} name="period" label="Periode">
+      <ControlField
+        control={form.control}
+        name="period"
+        label="Periode"
+        isRequired
+      >
         {(field) => (
           <SelectField
             value={field.value}

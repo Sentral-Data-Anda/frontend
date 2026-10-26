@@ -22,7 +22,12 @@ export const HeaderSection = (props: PropTypes) => {
 
   return (
     <FormSection legend="Stok opname" disabled={isDisabled}>
-      <ControlField control={form.control} name="opnameDate" label="Tanggal">
+      <ControlField
+        control={form.control}
+        name="opnameDate"
+        label="Tanggal"
+        isRequired
+      >
         {(field) => (
           <DateField
             value={field.value}
@@ -37,7 +42,12 @@ export const HeaderSection = (props: PropTypes) => {
         )}
       </ControlField>
 
-      <ControlField control={form.control} name="roomId" label="Ruang">
+      <ControlField
+        control={form.control}
+        name="roomId"
+        label="Ruang"
+        isOptional
+      >
         {(field) => (
           <SelectField
             value={field.value}

@@ -33,6 +33,7 @@ export const ItemSection = (props: PropTypes) => {
         name="stockItemId"
         label="Barang persediaan"
         hint={picked ? stockHintOf(picked) : undefined}
+        isRequired
       >
         {(field) => (
           <ComboboxField

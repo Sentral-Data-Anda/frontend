@@ -19,7 +19,7 @@ export const ItemSection = (props: PropTypes) => {
 
   return (
     <FormSection legend="Barang" disabled={isDisabled}>
-      <ControlField control={form.control} name="name" label="Nama">
+      <ControlField control={form.control} name="name" label="Nama" isRequired>
         {(field) => (
           <Input
             {...field}
@@ -30,7 +30,12 @@ export const ItemSection = (props: PropTypes) => {
         )}
       </ControlField>
 
-      <ControlField control={form.control} name="typeId" label="Tipe">
+      <ControlField
+        control={form.control}
+        name="typeId"
+        label="Tipe"
+        isRequired
+      >
         {(field) => (
           <DdlField
             value={field.value}
@@ -44,7 +49,12 @@ export const ItemSection = (props: PropTypes) => {
         )}
       </ControlField>
 
-      <ControlField control={form.control} name="unitId" label="Satuan">
+      <ControlField
+        control={form.control}
+        name="unitId"
+        label="Satuan"
+        isRequired
+      >
         {(field) => (
           <DdlField
             value={field.value}

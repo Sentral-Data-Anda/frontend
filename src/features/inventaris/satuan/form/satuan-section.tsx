@@ -15,7 +15,7 @@ export const SatuanSection = (props: PropTypes) => {
 
   return (
     <FormSection legend="Satuan" disabled={isDisabled}>
-      <ControlField control={form.control} name="name" label="Nama">
+      <ControlField control={form.control} name="name" label="Nama" isRequired>
         {(field) => (
           <Input
             {...field}

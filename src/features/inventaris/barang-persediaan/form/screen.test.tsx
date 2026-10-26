@@ -190,7 +190,7 @@ describe("gerbang izin", () => {
     onMockApi();
     onRenderForm({ STOCK_ITEM: ["VIEW", "CREATE", "DELETE"] });
 
-    expect(screen.getByLabelText("Stok awal")).toBeTruthy();
+    expect(screen.getByLabelText(/Stok awal/)).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Hapus" })).toBeNull();
   });
 
