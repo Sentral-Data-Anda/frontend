@@ -58,7 +58,12 @@ export const AbsensiSection = (props: PropTypes) => {
 
   return (
     <FormSection legend="Absensi" note={PAYROLL_NOTE} disabled={isDisabled}>
-      <ControlField control={form.control} name="karyawanId" label="Karyawan">
+      <ControlField
+        control={form.control}
+        name="karyawanId"
+        label="Karyawan"
+        isRequired
+      >
         {(field) => (
           <ComboboxField
             id={field.name}
@@ -73,7 +78,12 @@ export const AbsensiSection = (props: PropTypes) => {
         )}
       </ControlField>
 
-      <ControlField control={form.control} name="date" label="Tanggal">
+      <ControlField
+        control={form.control}
+        name="date"
+        label="Tanggal"
+        isRequired
+      >
         {(field) => (
           <DateField
             id={field.name}
@@ -93,6 +103,7 @@ export const AbsensiSection = (props: PropTypes) => {
         control={form.control}
         name="status"
         label="Status"
+        isRequired
         hint={status === "CUTI" ? CUTI_HINT : undefined}
       >
         {(field) => (
@@ -107,7 +118,12 @@ export const AbsensiSection = (props: PropTypes) => {
         )}
       </ControlField>
 
-      <ControlField control={form.control} name="checkIn" label="Jam masuk">
+      <ControlField
+        control={form.control}
+        name="checkIn"
+        label="Jam masuk"
+        isOptional
+      >
         {(field) => (
           <TimeField
             value={field.value}
@@ -120,7 +136,12 @@ export const AbsensiSection = (props: PropTypes) => {
         )}
       </ControlField>
 
-      <ControlField control={form.control} name="checkOut" label="Jam pulang">
+      <ControlField
+        control={form.control}
+        name="checkOut"
+        label="Jam pulang"
+        isOptional
+      >
         {(field) => (
           <TimeField
             value={field.value}

@@ -51,7 +51,12 @@ export const RequestSection = (props: PropTypes) => {
 
   return (
     <FormSection legend="Pengajuan" note={PAID_NOTE} disabled={isDisabled}>
-      <ControlField control={form.control} name="karyawanId" label="Karyawan">
+      <ControlField
+        control={form.control}
+        name="karyawanId"
+        label="Karyawan"
+        isRequired
+      >
         {(field) => (
           <ComboboxField
             id={field.name}
@@ -66,7 +71,12 @@ export const RequestSection = (props: PropTypes) => {
         )}
       </ControlField>
 
-      <ControlField control={form.control} name="leaveTypeId" label="Tipe cuti">
+      <ControlField
+        control={form.control}
+        name="leaveTypeId"
+        label="Tipe cuti"
+        isRequired
+      >
         {(field) => (
           <ComboboxField
             id={field.name}
@@ -85,6 +95,7 @@ export const RequestSection = (props: PropTypes) => {
         control={form.control}
         name="startDate"
         label="Tanggal mulai"
+        isRequired
       >
         {(field) => (
           <DateField
@@ -104,6 +115,7 @@ export const RequestSection = (props: PropTypes) => {
         control={form.control}
         name="endDate"
         label="Tanggal selesai"
+        isRequired
       >
         {(field) => (
           <DateField
@@ -147,6 +159,7 @@ export const RequestSection = (props: PropTypes) => {
           control={form.control}
           name="reason"
           label="Alasan"
+          isRequired
           hint={REASON_HINT}
         >
           {(field) => (
