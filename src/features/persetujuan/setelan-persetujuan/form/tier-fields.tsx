@@ -112,6 +112,7 @@ export const TierFields = (props: PropTypes) => {
                 control={form.control}
                 name={`tiers.${index}.bapelId`}
                 label="Badan pelayanan"
+                isOptional
                 hint={
                   bapelId
                     ? undefined
@@ -137,6 +138,7 @@ export const TierFields = (props: PropTypes) => {
                 control={form.control}
                 name={`tiers.${index}.roleName`}
                 label="Nama jabatan"
+                isOptional
                 hint={
                   saved.isMissing
                     ? "Saat ini tidak ada yang memegang jabatan ini; tahap akan menunggu sampai ada."
@@ -170,6 +172,7 @@ export const TierFields = (props: PropTypes) => {
               control={form.control}
               name={`tiers.${index}.roleUserId`}
               label="Role"
+              isOptional
             >
               {(field) => (
                 <DdlField
