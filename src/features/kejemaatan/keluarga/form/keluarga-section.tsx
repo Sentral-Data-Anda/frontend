@@ -53,6 +53,7 @@ export const KeluargaSection = (props: PropTypes) => {
         name="worshipsHere"
         label="Beribadah di sini"
         hint="Pilih Tidak bila keluarga ini beribadah di gereja lain."
+        isOptional
       >
         {(field) => (
           <SelectField

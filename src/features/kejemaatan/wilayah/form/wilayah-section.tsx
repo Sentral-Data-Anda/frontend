@@ -24,6 +24,7 @@ export const WilayahSection = (props: PropTypes) => {
         name="name"
         label="Nama"
         hint="Maksimal 50 karakter, mis. Wilayah I."
+        isRequired
       >
         {(field) => <Input {...field} maxLength={50} autoCapitalize="words" />}
       </ControlField>
@@ -33,6 +34,7 @@ export const WilayahSection = (props: PropTypes) => {
         name="isActive"
         label="Status"
         hint="Wilayah nonaktif tidak bisa dipilih untuk jemaat atau keluarga baru; data lama tetap memakainya."
+        isRequired
       >
         {(field) => (
           <SelectField

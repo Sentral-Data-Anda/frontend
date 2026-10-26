@@ -302,12 +302,12 @@ const onRenderLoadedEdit = async (granted: MenuAction[] = ["UPDATE"]) => {
   onRenderForm(["VIEW", ...granted], CODE);
 
   await waitFor(() =>
-    expect(valueOf("Tema")).toBe("Hidup dalam kasih karunia"),
+    expect(valueOf("Tema (opsional)")).toBe("Hidup dalam kasih karunia"),
   );
 };
 
 const onDirty = () =>
-  fireEvent.change(screen.getByLabelText("Tema"), {
+  fireEvent.change(screen.getByLabelText("Tema (opsional)"), {
     target: { value: "Tema baru" },
   });
 
@@ -357,11 +357,11 @@ describe("ubah", () => {
 
     expect(screen.getByText("Total 371 orang")).toBeTruthy();
 
-    fireEvent.change(screen.getByLabelText("Anak"), {
+    fireEvent.change(screen.getByLabelText("Anak (opsional)"), {
       target: { value: "1.200" },
     });
 
-    expect(valueOf("Anak")).toBe("1200");
+    expect(valueOf("Anak (opsional)")).toBe("1200");
     expect(screen.getByText("Total 1.522 orang")).toBeTruthy();
   });
 
@@ -371,7 +371,7 @@ describe("ubah", () => {
     const calls = onMockApi();
     onRenderForm(["VIEW", "UPDATE"], CODE);
     await waitFor(() =>
-      expect(valueOf("Tema")).toBe("Hidup dalam kasih karunia"),
+      expect(valueOf("Tema (opsional)")).toBe("Hidup dalam kasih karunia"),
     );
 
     fireEvent.click(screen.getByRole("button", { name: "Simpan" }));
@@ -429,7 +429,7 @@ describe("ubah", () => {
     });
     onRenderForm(["VIEW", "UPDATE"], CODE);
     await waitFor(() =>
-      expect(valueOf("Tema")).toBe("Hidup dalam kasih karunia"),
+      expect(valueOf("Tema (opsional)")).toBe("Hidup dalam kasih karunia"),
     );
 
     fireEvent.click(screen.getByRole("button", { name: "Simpan" }));
@@ -454,7 +454,7 @@ describe("ubah", () => {
     });
     onRenderForm(["VIEW", "UPDATE", "DELETE"], CODE);
     await waitFor(() =>
-      expect(valueOf("Tema")).toBe("Hidup dalam kasih karunia"),
+      expect(valueOf("Tema (opsional)")).toBe("Hidup dalam kasih karunia"),
     );
 
     fireEvent.click(screen.getByRole("button", { name: "Hapus" }));
@@ -473,7 +473,7 @@ describe("ubah", () => {
         "Ibadah Tidak Dapat Dihapus Karena Sudah Memiliki Data Persembahan",
       ),
     ).toBeTruthy();
-    expect(valueOf("Tema")).toBe("Hidup dalam kasih karunia");
+    expect(valueOf("Tema (opsional)")).toBe("Hidup dalam kasih karunia");
     expect(replaced).toEqual([]);
   });
 
@@ -482,7 +482,9 @@ describe("ubah", () => {
     onRenderForm(["VIEW", "UPDATE", "CREATE", "DELETE"], CODE);
 
     await screen.findByText("Data ibadah gagal dimuat.");
-    expect(screen.getByLabelText("Tema").closest(".hidden")).not.toBeNull();
+    expect(
+      screen.getByLabelText("Tema (opsional)").closest(".hidden"),
+    ).not.toBeNull();
     expect(
       (screen.getByRole("button", { name: "Simpan" }) as HTMLButtonElement)
         .disabled,
@@ -499,9 +501,11 @@ describe("ubah", () => {
     fireEvent.click(screen.getByRole("button", { name: "Coba lagi" }));
 
     await waitFor(() =>
-      expect(valueOf("Tema")).toBe("Hidup dalam kasih karunia"),
+      expect(valueOf("Tema (opsional)")).toBe("Hidup dalam kasih karunia"),
     );
-    expect(screen.getByLabelText("Tema").closest(".hidden")).toBeNull();
+    expect(
+      screen.getByLabelText("Tema (opsional)").closest(".hidden"),
+    ).toBeNull();
     expect(screen.queryByText("Data ibadah gagal dimuat.")).toBeNull();
     expect(
       (screen.getByRole("button", { name: "Simpan" }) as HTMLButtonElement)
@@ -574,8 +578,8 @@ describe("layar tambah hasil salin", () => {
       "Ibadah Minggu I",
     );
     expect(timeOf("Jam selesai")).toBe("09:30");
-    expect(valueOf("Tema")).toBe("");
-    expect(valueOf("Pria (dewasa)")).toBe("");
+    expect(valueOf("Tema (opsional)")).toBe("");
+    expect(valueOf("Pria (dewasa) (opsional)")).toBe("");
     expect(screen.getByText("Belum ada yang dicatat.")).toBeTruthy();
 
     fireEvent.click(screen.getByRole("button", { name: "Batal" }));
@@ -658,7 +662,7 @@ const onRenderCopy = async (source: IbadahDetail) => {
   await waitFor(() => expect(timeOf("Jam mulai")).toBe(source.startTime));
 };
 
-const zoneText = () => screen.getByLabelText("Wilayah").textContent;
+const zoneText = () => screen.getByLabelText("Wilayah (opsional)").textContent;
 
 const isRequested = (pattern: RegExp) =>
   requested.some((url) => pattern.test(url));
@@ -668,7 +672,7 @@ describe("tempat", () => {
     const calls = onMockApi();
     onRenderForm(["VIEW", "UPDATE"], CODE);
     await waitFor(() =>
-      expect(valueOf("Tema")).toBe("Hidup dalam kasih karunia"),
+      expect(valueOf("Tema (opsional)")).toBe("Hidup dalam kasih karunia"),
     );
 
     fireEvent.click(screen.getByLabelText("Lainnya"));
@@ -677,7 +681,7 @@ describe("tempat", () => {
       target: { value: "Aula Kelurahan" },
     });
     fireEvent.click(screen.getByLabelText("Gereja"));
-    expect(screen.getByLabelText("Ruang").textContent).toContain(
+    expect(screen.getByLabelText("Ruang (opsional)").textContent).toContain(
       "Gedung Gereja",
     );
     fireEvent.click(screen.getByLabelText("Lainnya"));

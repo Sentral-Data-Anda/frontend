@@ -22,7 +22,12 @@ export const JabatanSection = (props: PropTypes) => {
 
   return (
     <FormSection legend="Jabatan" disabled={isDisabled}>
-      <ControlField control={form.control} name="jemaatId" label="Jemaat">
+      <ControlField
+        control={form.control}
+        name="jemaatId"
+        label="Jemaat"
+        isRequired
+      >
         {(field) => (
           <ComboboxField
             value={field.value}
@@ -41,6 +46,7 @@ export const JabatanSection = (props: PropTypes) => {
         control={form.control}
         name="bapelId"
         label="Badan pelayanan"
+        isRequired
       >
         {(field) => (
           <DdlField
@@ -60,6 +66,7 @@ export const JabatanSection = (props: PropTypes) => {
         name="name"
         label="Nama jabatan"
         hint="Mis. Ketua, Sekretaris, atau Bendahara."
+        isRequired
       >
         {(field) => <Input {...field} maxLength={50} autoCapitalize="words" />}
       </ControlField>

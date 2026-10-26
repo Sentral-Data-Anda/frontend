@@ -32,7 +32,7 @@ export const ConductSection = (props: PropTypes) => {
       note="Tempat bawaan Gereja. Selain itu semua opsional; bisa dilengkapi nanti."
       disabled={isDisabled}
     >
-      <ControlField control={form.control} name="theme" label="Tema">
+      <ControlField control={form.control} name="theme" label="Tema" isOptional>
         {(field) => <Input {...field} maxLength={150} />}
       </ControlField>
 
@@ -41,6 +41,7 @@ export const ConductSection = (props: PropTypes) => {
         name="bibleVerse"
         label="Ayat Alkitab"
         hint="Mis. Yohanes 3:16–21."
+        isOptional
       >
         {(field) => <Input {...field} maxLength={100} />}
       </ControlField>
@@ -50,6 +51,7 @@ export const ConductSection = (props: PropTypes) => {
         name="preacher"
         label="Pengkhotbah"
         hint="Tulis nama seperti biasa dipanggil, mis. Pdt. Yohanes Simatupang."
+        isOptional
       >
         {(field) => <Input {...field} maxLength={150} autoCapitalize="words" />}
       </ControlField>
@@ -61,6 +63,7 @@ export const ConductSection = (props: PropTypes) => {
         name="bapelId"
         label="Badan pelayanan"
         hint="Isi bila diadakan komisi tertentu, mis. Ibadah Pemuda."
+        isOptional
       >
         {(field) => (
           <DdlField
