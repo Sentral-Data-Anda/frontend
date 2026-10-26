@@ -39,6 +39,7 @@ export const PlaceSection = (props: PropTypes) => {
           onValueChange={onPickPlace}
           options={PLACE_OPTIONS}
           disabled={isDisabled}
+          isRequired
         />
       </FormWide>
 
@@ -47,6 +48,7 @@ export const PlaceSection = (props: PropTypes) => {
           control={form.control}
           name="roomId"
           label="Ruang"
+          isOptional
           hint="Hanya keterangan tempat. Pesan ruangnya lewat Peminjaman Ruang."
         >
           {(field) => (
@@ -66,6 +68,7 @@ export const PlaceSection = (props: PropTypes) => {
           control={form.control}
           name="location"
           label="Lokasi"
+          isOptional
           hint="Nama tempat dan kotanya."
         >
           {(field) => <Input {...field} maxLength={100} />}

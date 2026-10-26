@@ -94,6 +94,7 @@ export const RegistrationSection = (props: PropTypes) => {
         control={form.control}
         name="capacity"
         label="Kapasitas (orang)"
+        isRequired
         hint={
           registered > 0
             ? `Minimal ${registered}, sudah ada ${registered} pendaftar.`
@@ -134,6 +135,7 @@ export const RegistrationSection = (props: PropTypes) => {
           onValueChange={onPickPaid}
           options={PAID_OPTIONS}
           disabled={isDisabled || isPriceLocked}
+          isRequired
           hint={isPriceLocked && isPaid === "0" ? lockHint : undefined}
         />
       </FormWide>
@@ -143,6 +145,7 @@ export const RegistrationSection = (props: PropTypes) => {
           control={form.control}
           name="price"
           label="Harga"
+          isRequired
           hint={
             isPriceLocked ? lockHint : "Dibayar peserta lewat tagihan online."
           }
@@ -174,6 +177,7 @@ export const RegistrationSection = (props: PropTypes) => {
           onValueChange={onPickPublish}
           options={PUBLISH_OPTIONS}
           disabled={isDisabled}
+          isRequired
           hint="Event draf belum bisa didaftari dan tidak tampil di Beranda."
         />
       </FormWide>

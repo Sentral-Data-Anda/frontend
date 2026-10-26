@@ -32,6 +32,7 @@ export const ScheduleSection = (props: PropTypes) => {
         control={form.control}
         name="publishDate"
         label="Tanggal terbit"
+        isRequired
       >
         {(field) => (
           <DateField
@@ -78,6 +79,7 @@ export const ScheduleSection = (props: PropTypes) => {
               onValueChange={field.onChange}
               options={PUBLISH_OPTIONS}
               disabled={isDisabled}
+              isRequired
             />
           )}
         />
@@ -95,6 +97,7 @@ export const ScheduleSection = (props: PropTypes) => {
               onValueChange={field.onChange}
               options={PIN_OPTIONS}
               disabled={isDisabled}
+              isRequired
             />
           )}
         />

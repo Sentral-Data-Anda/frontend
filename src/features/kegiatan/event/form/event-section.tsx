@@ -27,7 +27,7 @@ export const EventSection = (props: PropTypes) => {
 
   return (
     <FormSection legend="Event" disabled={isDisabled}>
-      <ControlField control={form.control} name="name" label="Nama">
+      <ControlField control={form.control} name="name" label="Nama" isRequired>
         {(field) => <Input {...field} maxLength={150} autoComplete="off" />}
       </ControlField>
 
@@ -35,6 +35,7 @@ export const EventSection = (props: PropTypes) => {
         control={form.control}
         name="bapelId"
         label="Badan pelayanan"
+        isRequired
       >
         {(field) => (
           <DdlField
@@ -55,6 +56,7 @@ export const EventSection = (props: PropTypes) => {
           name="description"
           label="Deskripsi"
           hint="Ringkasan singkat untuk petugas pendaftaran."
+          isRequired
         >
           {(field) => <Textarea {...field} maxLength={250} rows={3} />}
         </ControlField>
@@ -68,6 +70,7 @@ export const EventSection = (props: PropTypes) => {
             <AttachmentField
               id="image"
               label="Foto utama"
+              isRequired
               value={field.value}
               onValueChange={field.onChange}
               max={1}

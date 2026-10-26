@@ -33,6 +33,7 @@ export const EventSection = (props: PropTypes) => {
           control={form.control}
           name="eventId"
           label="Event"
+          isRequired
           hint={
             pickedEvent?.isPaid
               ? `Event berbayar: peserta menerima tautan tagihan ${priceOf(pickedEvent.price)} sesudah didaftarkan.`

@@ -26,6 +26,7 @@ export const AlbumSection = (props: PropTypes) => {
         name="name"
         label="Nama album"
         hint="Mis. Retret Pemuda 2026."
+        isRequired
       >
         {(field) => <Input {...field} maxLength={100} autoComplete="off" />}
       </ControlField>
@@ -34,6 +35,7 @@ export const AlbumSection = (props: PropTypes) => {
         control={form.control}
         name="bapelId"
         label="Badan pelayanan"
+        isRequired
       >
         {(field) => (
           <DdlField
@@ -60,6 +62,7 @@ export const AlbumSection = (props: PropTypes) => {
               onValueChange={field.onChange}
               options={PUBLISH_OPTIONS}
               disabled={isDisabled}
+              isRequired
               hint="Hanya album terbit yang fotonya bisa tampil di website."
             />
           </div>

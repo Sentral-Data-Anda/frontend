@@ -26,11 +26,21 @@ export const ContentSection = (props: PropTypes) => {
 
   return (
     <FormSection legend="Pengumuman" disabled={isDisabled}>
-      <ControlField control={form.control} name="title" label="Judul">
+      <ControlField
+        control={form.control}
+        name="title"
+        label="Judul"
+        isRequired
+      >
         {(field) => <Input {...field} maxLength={200} autoComplete="off" />}
       </ControlField>
 
-      <ControlField control={form.control} name="category" label="Kategori">
+      <ControlField
+        control={form.control}
+        name="category"
+        label="Kategori"
+        isRequired
+      >
         {(field) => (
           <SelectField
             value={field.value}
@@ -47,13 +57,19 @@ export const ContentSection = (props: PropTypes) => {
           control={form.control}
           name="content"
           label="Isi"
+          isRequired
           hint="Teks biasa. Baris baru dipertahankan."
         >
           {(field) => <Textarea {...field} rows={10} className="min-h-56" />}
         </ControlField>
       </FormWide>
 
-      <ControlField control={form.control} name="bapelId" label="Untuk">
+      <ControlField
+        control={form.control}
+        name="bapelId"
+        label="Untuk"
+        isOptional
+      >
         {(field) => (
           <DdlField
             value={field.value}

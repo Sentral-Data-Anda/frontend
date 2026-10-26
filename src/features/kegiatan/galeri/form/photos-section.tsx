@@ -95,6 +95,7 @@ export const PhotosSection = (props: PropTypes) => {
                 <AttachmentField
                   id="listImage"
                   label="Foto album"
+                  isRequired
                   isLabelVisible={false}
                   value={field.value}
                   onValueChange={field.onChange}
