@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 import { useForm } from "react-hook-form";
@@ -8,6 +9,8 @@ import { RiwayatSection } from "./riwayat-fields";
 
 afterEach(cleanup);
 
+const queryClient = new QueryClient();
+
 type AdditionalRow = JemaatFormValues["additional"][number];
 
 const rowOf = (overrides: Partial<AdditionalRow> = {}): AdditionalRow => ({
@@ -15,6 +18,8 @@ const rowOf = (overrides: Partial<AdditionalRow> = {}): AdditionalRow => ({
   date: "",
   certificateNumber: "",
   place: "",
+  partnerId: "",
+  endedAt: "",
   ...overrides,
 });
 
@@ -23,7 +28,11 @@ const Harness = (props: { rows: AdditionalRow[] }) => {
     defaultValues: { ...EMPTY_JEMAAT_FORM, additional: props.rows },
   });
 
-  return <RiwayatSection form={form} isDisabled={false} />;
+  return (
+    <QueryClientProvider client={queryClient}>
+      <RiwayatSection form={form} isDisabled={false} />
+    </QueryClientProvider>
+  );
 };
 
 // FieldLabel menaruh tanda wajibnya di luar <label>, sesudah nama field.

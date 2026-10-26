@@ -40,12 +40,14 @@ const renderWidget = (names: string[]) => {
   for (const month of [
     ...new Set(days.map((day) => Number(day.slice(5, 7)))),
   ]) {
-    client.setQueryData(["report", "birth", month], {
-      data: names.map((name, index) => ({
+    const data = names
+      .map((name, index) => ({
         name,
         birthDate: `1990-${days[index].slice(5)}`,
-      })),
-    });
+      }))
+      .filter((item) => Number(item.birthDate.slice(5, 7)) === month);
+
+    client.setQueryData(["report", "birth", month], { data });
   }
 
   return render(

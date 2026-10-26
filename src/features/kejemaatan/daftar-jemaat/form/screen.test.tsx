@@ -87,6 +87,7 @@ describe("gerbang izin rute form", () => {
 });
 
 const DETAIL: JemaatDetail = {
+  id: 1,
   code: "JMT-0042",
   name: "Maria Sitompul",
   gender: "P",

@@ -221,7 +221,7 @@ export const JemaatFormScreen = (props: PropTypes) => {
         <DuplicateWarning
           name={watched.name ?? ""}
           birthDate={watched.birthDate ?? ""}
-          ownCode={code}
+          ownCode={detail.data?.code ?? code}
         />
 
         {rootError ? (

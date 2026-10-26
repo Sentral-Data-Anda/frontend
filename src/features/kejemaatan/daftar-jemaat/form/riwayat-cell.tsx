@@ -9,6 +9,8 @@ export const RIWAYAT_FIELDS = [
   "date",
   "place",
   "certificateNumber",
+  "partnerId",
+  "endedAt",
 ] as const;
 
 export type RiwayatField = (typeof RIWAYAT_FIELDS)[number];
@@ -20,6 +22,8 @@ const LABEL: Record<RiwayatField, string> = {
   date: "Tanggal",
   place: "Tempat",
   certificateNumber: "Nomor surat",
+  partnerId: "Pasangan",
+  endedAt: "Tanggal cerai",
 };
 
 const COLUMN: Record<RiwayatField, string> = {
@@ -27,6 +31,8 @@ const COLUMN: Record<RiwayatField, string> = {
   date: "flex-[1_1_11rem]",
   place: "flex-[2_1_13rem]",
   certificateNumber: "flex-[1_1_11rem]",
+  partnerId: "flex-[1_1_11rem]",
+  endedAt: "flex-[1_1_11rem]",
 };
 
 interface PropTypes {

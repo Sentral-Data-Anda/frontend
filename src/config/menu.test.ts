@@ -55,10 +55,10 @@ describe("domainEntryHref", () => {
 });
 
 describe("MENU_LEAF_ICON", () => {
-  test("ke-65 layar punya ikon", () => {
+  test("ke-64 layar punya ikon", () => {
     const leaves = Object.values(TREE).flat();
 
-    expect(leaves).toHaveLength(65);
+    expect(leaves).toHaveLength(64);
     expect(leaves.filter((slug) => !MENU_LEAF_ICON[slug])).toEqual([]);
   });
 
@@ -99,7 +99,6 @@ describe("rute layar isian", () => {
   test("keduanya dikenali sebagai layar isian", () => {
     expect(isFormRoute("/kejemaatan/daftar-jemaat/create")).toBe(true);
     expect(isFormRoute("/kejemaatan/daftar-jemaat/edit/JMT-0042")).toBe(true);
-    expect(isFormRoute("/kejemaatan/pernikahan/abc/end")).toBe(true);
     expect(isFormRoute("/kejemaatan/keluarga/KK-0001/anggota/create")).toBe(
       true,
     );

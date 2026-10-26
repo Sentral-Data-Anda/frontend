@@ -32,6 +32,7 @@ export {
 } from "@/types/jemaat";
 
 export type JemaatListItem = {
+  id: number;
   publicId: string;
   code: string;
   name: string;
@@ -63,6 +64,8 @@ export type JemaatAdditional = {
   date: string;
   certificateNumber: string | null;
   place: string | null;
+  partnerId?: number | null;
+  endedAt?: string | null;
 };
 
 export type JemaatPayload = {
@@ -94,6 +97,7 @@ export type JemaatPayload = {
 };
 
 export type JemaatDetail = Omit<JemaatPayload, "additional"> & {
+  id: number;
   code: string;
   additional: JemaatAdditional[] | null;
   // The wilayah the jemaat's household hands down, already settled by the

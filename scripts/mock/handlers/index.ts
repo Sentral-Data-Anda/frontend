@@ -48,7 +48,6 @@ import { penyusutanMock } from "./penyusutan";
 import { periodeFiskalMock } from "./periode-fiskal";
 import { permintaanPembelianMock } from "./permintaan-pembelian";
 import { permintaanPersetujuanMock } from "./permintaan-persetujuan";
-import { pernikahanMock } from "./pernikahan";
 import { persembahanMock } from "./persembahan";
 import { pesananPembelianMock } from "./pesanan-pembelian";
 import { pinjamanMock } from "./pinjaman";
@@ -79,7 +78,6 @@ import { wilayahMock } from "./wilayah";
 // Satu berkas per sub menu; berkas ini tidak perlu disentuh agent fitur.
 export const MOCK_HANDLERS: MockHandler[] = [
   keluargaMock,
-  pernikahanMock,
   roleJemaatMock,
   bapelMock,
   reportJemaatMock,

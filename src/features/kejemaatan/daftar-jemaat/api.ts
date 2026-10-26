@@ -53,6 +53,18 @@ export function useJemaatDetail(code: string | undefined) {
   });
 }
 
+export function useJemaatOptions() {
+  return useQuery({
+    queryKey: [...jemaatKeys.all, "options"],
+    queryFn: () => fetchList<JemaatListItem>("/jemaat?limit=1000"),
+    select: (response) =>
+      response.data.map((item) => ({
+        value: item.id,
+        label: `${item.code} - ${item.name}`,
+      })),
+  });
+}
+
 export function useSaveJemaat(code?: string) {
   const queryClient = useQueryClient();
 

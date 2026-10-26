@@ -25,14 +25,33 @@ const SACRAMENT_OPTIONS = Object.entries(SACRAMENT_TYPE_LABEL).map(
 // yang berasterisk.
 const REQUIRED: readonly RiwayatField[] = ["type", "date"];
 
-const metaOf = (row: {
-  date: string;
-  place: string;
-  certificateNumber: string;
-}) =>
-  [formatDate(row.date), row.place, row.certificateNumber]
-    .filter(Boolean)
-    .join(" · ") || undefined;
+const metaOf = (
+  row: {
+    date: string;
+    place: string;
+    certificateNumber: string;
+    partnerId?: string | null;
+    endedAt?: string | null;
+  },
+  partnerOptions?: Array<{ value: number; label: string }>,
+) => {
+  const partnerIdNumber = row.partnerId ? Number(row.partnerId) : undefined;
+  const partnerLabel = partnerOptions?.find(
+    (option) => option.value === partnerIdNumber,
+  )?.label;
+
+  return (
+    [
+      formatDate(row.date),
+      row.place,
+      row.certificateNumber,
+      partnerLabel,
+      row.endedAt ? formatDate(row.endedAt) : undefined,
+    ]
+      .filter(Boolean)
+      .join(" · ") || undefined
+  );
+};
 
 interface PropTypes {
   form: JemaatForm;
@@ -40,10 +59,12 @@ interface PropTypes {
   usedTypes: readonly SacramentType[];
   isDisabled: boolean;
   onRemove?: (index: number) => void;
+  partnerOptions?: Array<{ value: number; label: string }>;
 }
 
 export const RiwayatRow = (props: PropTypes) => {
-  const { form, index, usedTypes, isDisabled, onRemove } = props;
+  const { form, index, usedTypes, isDisabled, onRemove, partnerOptions } =
+    props;
 
   const row = useWatch({ control: form.control, name: `additional.${index}` });
   const errors = useLineItemErrors(
@@ -80,7 +101,7 @@ export const RiwayatRow = (props: PropTypes) => {
     <LineItemCard
       index={index}
       title={riwayatTitle(row.type, index)}
-      meta={metaOf(row)}
+      meta={metaOf(row, partnerOptions)}
       removeLabel={`Hapus riwayat ${index + 1}`}
       isRemoveDisabled={isDisabled}
       onRemove={onRemove}
@@ -162,6 +183,57 @@ export const RiwayatRow = (props: PropTypes) => {
           )}
         />,
       )}
+
+      {row.type === "NIKAH" &&
+        partnerOptions &&
+        cellOf(
+          "partnerId",
+          <Controller
+            control={form.control}
+            name={`additional.${index}.partnerId`}
+            render={({ field }) => (
+              <SelectField
+                id={errors.idOf("partnerId")}
+                value={field.value ? String(field.value) : ""}
+                onValueChange={(value) =>
+                  field.onChange(value ? Number(value) : "")
+                }
+                options={[
+                  { value: "", label: "Pilih jemaat" },
+                  ...partnerOptions.map((option) => ({
+                    value: String(option.value),
+                    label: option.label,
+                  })),
+                ]}
+                disabled={isDisabled}
+                placeholder="Pilih jemaat"
+                aria-invalid={errors.isInvalid("partnerId") || undefined}
+                aria-describedby={errors.messageIdOf("partnerId")}
+              />
+            )}
+          />,
+        )}
+
+      {row.type === "CERAI" &&
+        cellOf(
+          "endedAt",
+          <Controller
+            control={form.control}
+            name={`additional.${index}.endedAt`}
+            render={({ field }) => (
+              <DateField
+                id={errors.idOf("endedAt")}
+                value={field.value ?? ""}
+                onValueChange={field.onChange}
+                onBlur={field.onBlur}
+                disabled={isDisabled}
+                label={`Tanggal cerai ${index + 1}`}
+                aria-invalid={errors.isInvalid("endedAt") || undefined}
+                aria-describedby={errors.messageIdOf("endedAt")}
+              />
+            )}
+          />,
+        )}
     </LineItemCard>
   );
 };
