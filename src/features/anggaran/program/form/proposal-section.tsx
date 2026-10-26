@@ -37,7 +37,12 @@ export const ProposalSection = (props: PropTypes) => {
   return (
     <FormSection legend="Usulan" note={PROPOSAL_NOTE} disabled={isDisabled}>
       <FormWide>
-        <ControlField control={form.control} name="name" label="Nama program">
+        <ControlField
+          control={form.control}
+          name="name"
+          label="Nama program"
+          isRequired
+        >
           {(field) => (
             <Input
               id={field.name}

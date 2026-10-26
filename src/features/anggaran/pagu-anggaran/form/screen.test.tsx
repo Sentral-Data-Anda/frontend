@@ -371,7 +371,9 @@ describe("mode batch", () => {
     expect(
       screen.getByRole("list", { name: "Baris pagu anggaran" }),
     ).toBeTruthy();
-    expect(screen.getAllByLabelText(/^Badan pelayanan baris/)).toHaveLength(2);
+    expect(screen.getAllByLabelText(/^Badan pelayanan\* baris/)).toHaveLength(
+      2,
+    );
     expect(screen.queryByLabelText("Pagu (Rp)")).toBeNull();
   });
 
@@ -385,7 +387,7 @@ describe("mode batch", () => {
     fireEvent.click(
       await screen.findByRole("option", { name: /Komisi Pemuda/ }),
     );
-    fireEvent.change(screen.getAllByLabelText(/^Pagu \(Rp\) baris/)[0]!, {
+    fireEvent.change(screen.getAllByLabelText(/^Pagu \(Rp\)\* baris/)[0]!, {
       target: { value: "1000000" },
     });
     fireEvent.click(screen.getByRole("button", { name: "Simpan" }));
@@ -413,7 +415,7 @@ describe("mode batch", () => {
     fireEvent.click(
       await screen.findByRole("option", { name: /Komisi Pemuda/ }),
     );
-    fireEvent.change(screen.getByLabelText(/^Pagu \(Rp\) baris 1/), {
+    fireEvent.change(screen.getByLabelText(/^Pagu \(Rp\)\* baris 1/), {
       target: { value: "1000000" },
     });
 
