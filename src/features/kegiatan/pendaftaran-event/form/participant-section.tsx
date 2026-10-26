@@ -54,6 +54,7 @@ export const ParticipantSection = (props: PropTypes) => {
       control={form.control}
       name="participantPhone"
       label="Telepon"
+      isRequired
       hint={
         isGuest ? undefined : "Jemaat ini belum punya nomor telepon tercatat."
       }
@@ -94,6 +95,7 @@ export const ParticipantSection = (props: PropTypes) => {
           onValueChange={onPickKind}
           options={KIND_OPTIONS}
           disabled={isDisabled}
+          isRequired
         />
       </FormWide>
 
@@ -103,6 +105,7 @@ export const ParticipantSection = (props: PropTypes) => {
             control={form.control}
             name="participantName"
             label="Nama"
+            isRequired
           >
             {(field) => (
               <Input
@@ -122,6 +125,7 @@ export const ParticipantSection = (props: PropTypes) => {
             control={form.control}
             name="jemaatId"
             label="Jemaat"
+            isRequired
             hint="Nama dan telepon diambil dari data jemaat."
           >
             {(field) => (

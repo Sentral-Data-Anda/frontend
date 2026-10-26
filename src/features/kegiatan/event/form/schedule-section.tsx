@@ -36,6 +36,7 @@ export const ScheduleSection = (props: PropTypes) => {
         control={form.control}
         name="startDate"
         label="Tanggal mulai"
+        isRequired
       >
         {(field) => (
           <DateField
@@ -54,6 +55,7 @@ export const ScheduleSection = (props: PropTypes) => {
         control={form.control}
         name="endDate"
         label="Tanggal selesai"
+        isRequired
       >
         {(field) => (
           <DateField
@@ -69,7 +71,12 @@ export const ScheduleSection = (props: PropTypes) => {
         )}
       </ControlField>
 
-      <ControlField control={form.control} name="startTime" label="Jam mulai">
+      <ControlField
+        control={form.control}
+        name="startTime"
+        label="Jam mulai"
+        isRequired
+      >
         {(field) => <Input {...field} type="time" />}
       </ControlField>
 

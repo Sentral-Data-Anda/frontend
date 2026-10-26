@@ -292,7 +292,7 @@ describe("website", () => {
     await screen.findByText(
       "Hanya tampil di aplikasi: pengumuman untuk Komisi Lansia.",
     );
-    expect(screen.getByLabelText("Untuk").textContent).toContain(
+    expect(screen.getByLabelText(/^Untuk/).textContent).toContain(
       "Komisi Lansia",
     );
   });

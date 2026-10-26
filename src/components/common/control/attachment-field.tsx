@@ -21,6 +21,7 @@ interface PropTypes {
   id: string;
   label: string;
   isLabelVisible?: boolean;
+  isRequired?: boolean;
   value: readonly AttachmentValue[];
   onValueChange: (value: AttachmentValue[]) => void;
   max: number;
@@ -42,6 +43,7 @@ export const AttachmentField = (props: PropTypes) => {
     id,
     label,
     isLabelVisible = true,
+    isRequired = false,
     value,
     onValueChange,
     max,
@@ -185,6 +187,15 @@ export const AttachmentField = (props: PropTypes) => {
           )}
         >
           {label}
+          {isRequired ? (
+            <>
+              <span aria-hidden className="text-destructive">
+                {" "}
+                *
+              </span>
+              <span className="sr-only">wajib</span>
+            </>
+          ) : null}
         </legend>
 
         <input
