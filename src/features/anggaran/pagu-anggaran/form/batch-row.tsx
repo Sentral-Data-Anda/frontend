@@ -47,6 +47,7 @@ export const BatchRow = (props: PropTypes) => {
       <div className="min-w-0 flex-[2_1_16rem]">
         <label htmlFor={errors.idOf("bapelId")} className={LABEL}>
           Badan pelayanan
+          <span aria-hidden="true">*</span>
           <span className="sr-only"> baris {index + 1}</span>
         </label>
 
@@ -67,6 +68,7 @@ export const BatchRow = (props: PropTypes) => {
       <div className="min-w-0 flex-[1_1_12rem]">
         <label htmlFor={errors.idOf("amount")} className={LABEL}>
           Pagu (Rp)
+          <span aria-hidden="true">*</span>
           <span className="sr-only"> baris {index + 1}</span>
         </label>
 

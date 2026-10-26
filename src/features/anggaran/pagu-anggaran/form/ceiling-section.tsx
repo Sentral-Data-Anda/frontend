@@ -38,7 +38,12 @@ export const CeilingSection = (props: PropTypes) => {
         )}
       </ControlField>
 
-      <ControlField control={form.control} name="year" label="Tahun pelayanan">
+      <ControlField
+        control={form.control}
+        name="year"
+        label="Tahun pelayanan"
+        isRequired
+      >
         {(field) => (
           <SelectField
             id={field.name}

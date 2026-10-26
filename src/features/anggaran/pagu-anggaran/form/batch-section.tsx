@@ -33,7 +33,12 @@ export const BatchSection = (props: PropTypes) => {
 
   return (
     <FormSection legend="Pagu" note={FORM_NOTE} disabled={isDisabled}>
-      <ControlField control={form.control} name="year" label="Tahun pelayanan">
+      <ControlField
+        control={form.control}
+        name="year"
+        label="Tahun pelayanan"
+        isRequired
+      >
         {(field) => (
           <SelectField
             id={field.name}
