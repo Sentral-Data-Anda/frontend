@@ -24,6 +24,7 @@ export const RequestSection = (props: PropTypes) => {
         control={form.control}
         name="bapelId"
         label="Badan pelayanan"
+        isRequired
       >
         {(field) => (
           <DdlField
@@ -59,7 +60,12 @@ export const RequestSection = (props: PropTypes) => {
       </ControlField>
 
       <FormWide>
-        <ControlField control={form.control} name="purpose" label="Keperluan">
+        <ControlField
+          control={form.control}
+          name="purpose"
+          label="Keperluan"
+          isRequired
+        >
           {(field) => (
             <Textarea
               {...field}

@@ -22,7 +22,7 @@ export const IdentitySection = (props: PropTypes) => {
       note="Nama kontak, email, dan alamat boleh dikosongkan."
       disabled={isDisabled}
     >
-      <ControlField control={form.control} name="name" label="Nama">
+      <ControlField control={form.control} name="name" label="Nama" isRequired>
         {(field) => (
           <Input
             {...field}
@@ -37,6 +37,7 @@ export const IdentitySection = (props: PropTypes) => {
         control={form.control}
         name="contactPerson"
         label="Nama kontak"
+        isOptional
       >
         {(field) => (
           <Input
@@ -53,6 +54,7 @@ export const IdentitySection = (props: PropTypes) => {
         name="phone"
         label="No telepon"
         hint="Hanya angka, mis. 081234567890"
+        isRequired
       >
         {(field) => (
           <Input
@@ -68,7 +70,12 @@ export const IdentitySection = (props: PropTypes) => {
         )}
       </ControlField>
 
-      <ControlField control={form.control} name="email" label="Email">
+      <ControlField
+        control={form.control}
+        name="email"
+        label="Email"
+        isOptional
+      >
         {(field) => (
           <Input
             {...field}
@@ -81,7 +88,12 @@ export const IdentitySection = (props: PropTypes) => {
       </ControlField>
 
       <FormWide>
-        <ControlField control={form.control} name="address" label="Alamat">
+        <ControlField
+          control={form.control}
+          name="address"
+          label="Alamat"
+          isOptional
+        >
           {(field) => (
             <Textarea
               {...field}
@@ -105,6 +117,7 @@ export const IdentitySection = (props: PropTypes) => {
               options={STATUS_OPTIONS}
               disabled={isDisabled}
               hint="Supplier nonaktif tidak bisa dipilih di pesanan baru."
+              isRequired
             />
           </div>
         )}

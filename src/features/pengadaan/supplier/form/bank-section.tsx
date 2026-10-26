@@ -20,7 +20,12 @@ export const BankSection = (props: PropTypes) => {
       note="Untuk transfer pembayaran lewat Kas Keluar. Boleh dikosongkan."
       disabled={isDisabled}
     >
-      <ControlField control={form.control} name="bankName" label="Nama bank">
+      <ControlField
+        control={form.control}
+        name="bankName"
+        label="Nama bank"
+        isOptional
+      >
         {(field) => (
           <Input
             {...field}
@@ -35,6 +40,7 @@ export const BankSection = (props: PropTypes) => {
         control={form.control}
         name="bankAccountNumber"
         label="No rekening"
+        isOptional
       >
         {(field) => (
           <Input
@@ -53,6 +59,7 @@ export const BankSection = (props: PropTypes) => {
         control={form.control}
         name="bankAccountName"
         label="Nama pemilik rekening"
+        isOptional
       >
         {(field) => <Input {...field} maxLength={100} autoComplete="off" />}
       </ControlField>

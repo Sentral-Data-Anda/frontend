@@ -61,6 +61,7 @@ export const OrderSection = (props: PropTypes) => {
         name="purchaseRequestId"
         label="Permintaan pembelian"
         hint={requestHint}
+        isRequired
       >
         {(field) => (
           <ComboboxField
@@ -80,6 +81,7 @@ export const OrderSection = (props: PropTypes) => {
         name="supplierId"
         label="Supplier"
         hint={supplierHint}
+        isRequired
       >
         {(field) => (
           <ComboboxField
@@ -98,6 +100,7 @@ export const OrderSection = (props: PropTypes) => {
         control={form.control}
         name="orderDate"
         label="Tanggal pesanan"
+        isRequired
       >
         {(field) => (
           <DateField
@@ -118,6 +121,7 @@ export const OrderSection = (props: PropTypes) => {
           control={form.control}
           name="currencyCode"
           label="Mata uang"
+          isRequired
         >
           {(field) => (
             <SelectField
