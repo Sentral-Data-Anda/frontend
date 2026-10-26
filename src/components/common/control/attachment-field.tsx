@@ -22,11 +22,11 @@ interface PropTypes {
   label: string;
   isLabelVisible?: boolean;
   isRequired?: boolean;
+  isOptional?: boolean;
   value: readonly AttachmentValue[];
   onValueChange: (value: AttachmentValue[]) => void;
   max: number;
   accept: AttachmentAccept;
-  isOptional?: boolean;
   isWebsiteToggle?: boolean;
   addLabel?: string;
   hint?: string;
@@ -45,11 +45,11 @@ export const AttachmentField = (props: PropTypes) => {
     label,
     isLabelVisible = true,
     isRequired = false,
+    isOptional = false,
     value,
     onValueChange,
     max,
     accept,
-    isOptional,
     isWebsiteToggle = false,
     addLabel = max === 1 ? "Pilih foto" : "Tambah berkas",
     hint,
@@ -198,7 +198,12 @@ export const AttachmentField = (props: PropTypes) => {
               <span className="sr-only">wajib</span>
             </>
           ) : null}
-          {isOptional ? " (opsional)" : null}
+          {isOptional ? (
+            <span className="text-muted-foreground font-normal">
+              {" "}
+              (opsional)
+            </span>
+          ) : null}
         </legend>
 
         <input

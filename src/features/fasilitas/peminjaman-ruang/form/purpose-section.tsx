@@ -41,6 +41,7 @@ export const PurposeSection = (props: PropTypes) => {
         control={form.control}
         name="purpose"
         label="Keperluan"
+        isRequired
         hint="Untuk pihak luar, tulis nama dan kontaknya di sini."
       >
         {(field) => (
@@ -75,6 +76,7 @@ export const PurposeSection = (props: PropTypes) => {
         control={form.control}
         name="jemaatId"
         label="Peminjam"
+        isRequired
         hint="Jemaat yang bertanggung jawab atas ruang."
       >
         {(field) => (
