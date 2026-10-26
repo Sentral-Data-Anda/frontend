@@ -10,6 +10,7 @@ import { JemaatListItemRow, jemaatTable } from "./list-item";
 afterEach(cleanup);
 
 const JEMAAT: JemaatListItem = {
+  id: 1,
   publicId: "11111111-2222-4333-8444-555555555555",
   code: "JMT-0042",
   name: "Maria Sitompul",

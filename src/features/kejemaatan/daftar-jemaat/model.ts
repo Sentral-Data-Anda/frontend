@@ -24,6 +24,8 @@ export const SACRAMENT_TYPES = [
   "ATESTASI_MASUK",
   "ATESTASI_KELUAR",
   "MENINGGAL",
+  "NIKAH",
+  "CERAI",
 ] as const;
 
 const optionalEnum = <T extends string>(values: readonly [T, ...T[]]) =>
@@ -34,6 +36,15 @@ const additionalSchema = z.object({
   date: z.string(),
   certificateNumber: z.string().max(50, "Nomor surat maksimal 50 karakter"),
   place: z.string().max(100, "Tempat maksimal 100 karakter"),
+  partnerId: z.string().optional().nullable(),
+  endedAt: z
+    .string()
+    .optional()
+    .nullable()
+    .refine(
+      (value) => !value || /^\d{4}-\d{2}-\d{2}$/.test(value),
+      "Format tanggal akhir pernikahan tidak valid",
+    ),
 });
 
 const baseSchema = z.object({
@@ -155,9 +166,10 @@ export const jemaatFormSchema = baseSchema.superRefine((values, ctx) => {
   });
 });
 
-export type JemaatFormValues = z.infer<typeof baseSchema>;
+export type JemaatFormValues = z.infer<typeof baseSchema> & { id?: number };
 
 export const EMPTY_JEMAAT_FORM: JemaatFormValues = {
+  id: 0,
   name: "",
   gender: "",
   birthPlace: "",
@@ -225,6 +237,8 @@ export function toJemaatPayload(values: JemaatFormValues): JemaatPayload {
       date: row.date,
       certificateNumber: emptyToNull(row.certificateNumber),
       place: emptyToNull(row.place),
+      partnerId: row.partnerId ? Number(row.partnerId) : null,
+      endedAt: row.endedAt ? emptyToNull(row.endedAt) : null,
     })),
   };
 
@@ -233,6 +247,7 @@ export function toJemaatPayload(values: JemaatFormValues): JemaatPayload {
 
 export function toJemaatForm(detail: JemaatDetail): JemaatFormValues {
   return {
+    id: detail.id,
     name: detail.name,
     gender: detail.gender,
     birthPlace: detail.birthPlace,
@@ -263,6 +278,8 @@ export function toJemaatForm(detail: JemaatDetail): JemaatFormValues {
       date: toDateInput(row.date),
       certificateNumber: row.certificateNumber ?? "",
       place: row.place ?? "",
+      partnerId: row.partnerId?.toString(),
+      endedAt: row.endedAt ? toDateInput(row.endedAt) : "",
     })),
   };
 }

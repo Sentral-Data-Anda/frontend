@@ -197,6 +197,7 @@ describe("toJemaatPayload", () => {
 
 describe("form ubah TIDAK mengirim additional (test wajib 5)", () => {
   const detail: JemaatDetail = {
+    id: 1,
     code: "JMT-0042",
     name: "Maria Sitompul",
     gender: "P",
@@ -265,12 +266,16 @@ describe("form ubah TIDAK mengirim additional (test wajib 5)", () => {
         date: "1990-08-01",
         certificateNumber: "B/12/1990",
         place: "GKI Bandung",
+        partnerId: null,
+        endedAt: null,
       },
       {
         type: "SIDI",
         date: "2006-04-16",
         certificateNumber: null,
         place: null,
+        partnerId: null,
+        endedAt: null,
       },
     ]);
   });

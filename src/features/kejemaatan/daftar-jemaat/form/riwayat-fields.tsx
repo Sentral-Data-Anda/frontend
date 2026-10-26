@@ -4,6 +4,7 @@ import { useFieldArray, useWatch } from "react-hook-form";
 
 import { FormSection, FormWide, LineItemList } from "@/components/common/form";
 
+import { useJemaatOptions } from "../api";
 import { type SacramentType } from "../types";
 
 import { type JemaatForm } from "./form-options";
@@ -20,6 +21,12 @@ export const RiwayatSection = (props: PropTypes) => {
   const rows = useFieldArray({ control: form.control, name: "additional" });
   const values = useWatch({ control: form.control, name: "additional" });
   const usedTypes = (values ?? []).map((row) => row.type as SacramentType);
+  const { data: partnerOptions } = useJemaatOptions();
+  const currentId = form.getValues("id");
+
+  const filteredPartnerOptions = (partnerOptions ?? []).filter(
+    (option) => option.value !== currentId,
+  );
 
   return (
     <FormSection legend="Riwayat gerejawi" disabled={isDisabled}>
@@ -36,6 +43,8 @@ export const RiwayatSection = (props: PropTypes) => {
               date: "",
               certificateNumber: "",
               place: "",
+              partnerId: "",
+              endedAt: "",
             })
           }
         >
@@ -47,6 +56,7 @@ export const RiwayatSection = (props: PropTypes) => {
               usedTypes={usedTypes}
               isDisabled={isDisabled}
               onRemove={rows.remove}
+              partnerOptions={filteredPartnerOptions}
             />
           ))}
         </LineItemList>

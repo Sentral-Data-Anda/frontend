@@ -53,7 +53,13 @@ export const ROLE_IN_FAMILY_LABEL: Record<RoleInFamily, string> = {
 };
 
 export type SacramentType =
-  "BAPTIS" | "SIDI" | "ATESTASI_MASUK" | "ATESTASI_KELUAR" | "MENINGGAL";
+  | "BAPTIS"
+  | "SIDI"
+  | "ATESTASI_MASUK"
+  | "ATESTASI_KELUAR"
+  | "MENINGGAL"
+  | "NIKAH"
+  | "CERAI";
 
 export const SACRAMENT_TYPE_LABEL: Record<SacramentType, string> = {
   BAPTIS: "Baptis",
@@ -61,6 +67,8 @@ export const SACRAMENT_TYPE_LABEL: Record<SacramentType, string> = {
   ATESTASI_MASUK: "Atestasi masuk",
   ATESTASI_KELUAR: "Atestasi keluar",
   MENINGGAL: "Meninggal",
+  NIKAH: "Menikah",
+  CERAI: "Cerai",
 };
 
 export const SACRAMENT_ONCE: readonly SacramentType[] = [

@@ -31,7 +31,6 @@ import {
   HandCoins,
   HandHeart,
   Handshake,
-  HeartHandshake,
   House,
   IdCard,
   Images,
@@ -90,7 +89,6 @@ export const MENU = {
 
   DAFTAR_JEMAAT: "DAFTAR_JEMAAT",
   KELUARGA: "KELUARGA",
-  PERNIKAHAN: "PERNIKAHAN",
   ROLE_JEMAAT: "ROLE_JEMAAT",
   BAPEL: "BAPEL",
   WILAYAH: "WILAYAH",
@@ -201,7 +199,6 @@ export const BERANDA_SHORTCUTS: readonly MenuSlug[] = [
 export const MENU_DESCRIPTION: Partial<Record<MenuSlug, string>> = {
   [MENU.DAFTAR_JEMAAT]: "Catat dan cari data anggota jemaat",
   [MENU.KELUARGA]: "Kelola kartu keluarga dan anggotanya",
-  [MENU.PERNIKAHAN]: "Catat pernikahan dan perubahannya",
   [MENU.ROLE_JEMAAT]: "Jabatan jemaat di badan pelayanan dan masanya",
   [MENU.BAPEL]: "Kelola badan pelayanan dan aturan jadwalnya",
   [MENU.WILAYAH]: "Kelola wilayah pelayanan jemaat",
@@ -288,7 +285,6 @@ export const MENU_ICON: Record<string, LucideIcon> = {
 export const MENU_LEAF_ICON: Partial<Record<MenuSlug, LucideIcon>> = {
   [MENU.DAFTAR_JEMAAT]: Users,
   [MENU.KELUARGA]: House,
-  [MENU.PERNIKAHAN]: HeartHandshake,
   [MENU.ROLE_JEMAAT]: BadgeCheck,
   [MENU.BAPEL]: Network,
   [MENU.WILAYAH]: MapPinned,
