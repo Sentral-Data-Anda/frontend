@@ -31,6 +31,7 @@ export const PhotosSection = (props: PropTypes) => {
             <AttachmentField
               id="mainImage"
               label="Foto utama"
+              isOptional
               value={field.value}
               onValueChange={field.onChange}
               max={1}
@@ -51,6 +52,7 @@ export const PhotosSection = (props: PropTypes) => {
             <AttachmentField
               id="detailImage"
               label="Foto detail"
+              isOptional
               value={field.value}
               onValueChange={field.onChange}
               max={MAX_DETAIL_PHOTOS}

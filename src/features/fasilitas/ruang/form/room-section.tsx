@@ -18,7 +18,7 @@ export const RoomSection = (props: PropTypes) => {
 
   return (
     <FormSection legend="Ruang" disabled={isDisabled}>
-      <ControlField control={form.control} name="name" label="Nama">
+      <ControlField control={form.control} name="name" label="Nama" isRequired>
         {(field) => (
           <Input
             {...field}
@@ -33,6 +33,7 @@ export const RoomSection = (props: PropTypes) => {
         control={form.control}
         name="capacity"
         label="Kapasitas (orang)"
+        isRequired
       >
         {(field) => (
           <Input
@@ -60,6 +61,7 @@ export const RoomSection = (props: PropTypes) => {
               onValueChange={field.onChange}
               options={STATUS_OPTIONS}
               disabled={isDisabled}
+              isRequired
               hint="Ruang nonaktif tidak bisa dipinjam, tetapi tetap tercatat di riwayat."
             />
           </div>

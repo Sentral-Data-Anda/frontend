@@ -38,7 +38,12 @@ export const ScheduleSection = (props: PropTypes) => {
 
   return (
     <FormSection legend="Ruang dan waktu" disabled={isOff}>
-      <ControlField control={form.control} name="roomId" label="Ruang">
+      <ControlField
+        control={form.control}
+        name="roomId"
+        label="Ruang"
+        isRequired
+      >
         {(field) => (
           <DdlField
             value={field.value}
@@ -52,7 +57,12 @@ export const ScheduleSection = (props: PropTypes) => {
         )}
       </ControlField>
 
-      <ControlField control={form.control} name="date" label={dateLabel}>
+      <ControlField
+        control={form.control}
+        name="date"
+        label={dateLabel}
+        isRequired
+      >
         {(field) => (
           <DateField
             value={field.value}
@@ -66,11 +76,21 @@ export const ScheduleSection = (props: PropTypes) => {
         )}
       </ControlField>
 
-      <ControlField control={form.control} name="startTime" label="Jam mulai">
+      <ControlField
+        control={form.control}
+        name="startTime"
+        label="Jam mulai"
+        isRequired
+      >
         {(field) => <Input {...field} type="time" disabled={isOff} />}
       </ControlField>
 
-      <ControlField control={form.control} name="endTime" label="Jam selesai">
+      <ControlField
+        control={form.control}
+        name="endTime"
+        label="Jam selesai"
+        isRequired
+      >
         {(field) => <Input {...field} type="time" disabled={isOff} />}
       </ControlField>
 
