@@ -28,6 +28,7 @@ export const TransferSection = (props: PropTypes) => {
         control={form.control}
         name="transferDate"
         label="Tanggal setoran"
+        isRequired
       >
         {(field) => (
           <DateField
@@ -43,7 +44,12 @@ export const TransferSection = (props: PropTypes) => {
         )}
       </ControlField>
 
-      <ControlField control={form.control} name="amount" label="Jumlah (Rp)">
+      <ControlField
+        control={form.control}
+        name="amount"
+        label="Jumlah (Rp)"
+        isRequired
+      >
         {(field) => (
           <AmountInput
             value={field.value}
@@ -61,6 +67,7 @@ export const TransferSection = (props: PropTypes) => {
         control={form.control}
         name="fromAccountId"
         label="Dari akun"
+        isRequired
       >
         {(field) => (
           <AccountField
@@ -73,7 +80,12 @@ export const TransferSection = (props: PropTypes) => {
         )}
       </ControlField>
 
-      <ControlField control={form.control} name="toAccountId" label="Ke akun">
+      <ControlField
+        control={form.control}
+        name="toAccountId"
+        label="Ke akun"
+        isRequired
+      >
         {(field) => (
           <AccountField
             value={field.value}
@@ -102,6 +114,7 @@ export const TransferSection = (props: PropTypes) => {
           control={form.control}
           name="description"
           label="Keterangan"
+          isRequired
         >
           {(field) => (
             <Textarea

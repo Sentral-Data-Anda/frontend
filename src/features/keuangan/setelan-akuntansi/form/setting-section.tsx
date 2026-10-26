@@ -37,6 +37,7 @@ export const SettingSection = (props: PropTypes) => {
           control={form.control}
           name="accountId"
           label="Akun"
+          isRequired
           hint="Pilih akun dari daftar akun gereja. Tidak ada usulan bawaan."
         >
           {(field) => (

@@ -51,6 +51,7 @@ export const ExpenseSection = (props: PropTypes) => {
         control={form.control}
         name="expenseDate"
         label="Tanggal keluar"
+        isRequired
       >
         {(field) => (
           <DateField
@@ -69,6 +70,7 @@ export const ExpenseSection = (props: PropTypes) => {
         control={form.control}
         name="payee"
         label="Dibayarkan kepada"
+        isRequired
       >
         {(field) => (
           <Input
@@ -83,6 +85,7 @@ export const ExpenseSection = (props: PropTypes) => {
         control={form.control}
         name="paidFromAccountId"
         label="Dibayar dari akun"
+        isRequired
       >
         {(field) => (
           <AccountField
@@ -127,6 +130,7 @@ export const ExpenseSection = (props: PropTypes) => {
         name="bapelChoice"
         label="Belanja badan pelayanan"
         hint={BAPEL_CHOICE_HINT}
+        isRequired
       >
         {(field) => (
           <ChoiceField
@@ -152,6 +156,7 @@ export const ExpenseSection = (props: PropTypes) => {
           name="bapelId"
           label="Badan pelayanan"
           hint={BAPEL_HINT}
+          isRequired
         >
           {(field) => (
             <BapelField
@@ -187,6 +192,7 @@ export const ExpenseSection = (props: PropTypes) => {
           control={form.control}
           name="description"
           label="Keterangan"
+          isRequired
         >
           {(field) => (
             <Textarea

@@ -31,6 +31,7 @@ export const ReceiptSection = (props: PropTypes) => {
         control={form.control}
         name="receiptDate"
         label="Tanggal penerimaan"
+        isRequired
       >
         {(field) => (
           <DateField
