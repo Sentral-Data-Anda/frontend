@@ -119,7 +119,7 @@ describe("ajukan pelepasan", () => {
 
   test("konfirmasi jenis hapus; sukses → halaman pelepasan", async () => {
     await onFill();
-    fireEvent.change(screen.getByLabelText("Hasil penjualan (Rp)"), {
+    fireEvent.change(screen.getByLabelText(/Hasil penjualan \(Rp\)/), {
       target: { value: "1.500.000" },
     });
 
@@ -146,7 +146,7 @@ describe("ajukan pelepasan", () => {
   test("tanpa alur persetujuan → FormAlert + kalimat untuk admin", async () => {
     process.env.MOCK_DISPOSAL_NO_WORKFLOW = "1";
     await onFill();
-    fireEvent.change(screen.getByLabelText("Hasil penjualan (Rp)"), {
+    fireEvent.change(screen.getByLabelText(/Hasil penjualan \(Rp\)/), {
       target: { value: "1000" },
     });
     fireEvent.click(await onSubmit());

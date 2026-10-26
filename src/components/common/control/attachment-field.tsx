@@ -26,6 +26,7 @@ interface PropTypes {
   onValueChange: (value: AttachmentValue[]) => void;
   max: number;
   accept: AttachmentAccept;
+  isOptional?: boolean;
   isWebsiteToggle?: boolean;
   addLabel?: string;
   hint?: string;
@@ -48,6 +49,7 @@ export const AttachmentField = (props: PropTypes) => {
     onValueChange,
     max,
     accept,
+    isOptional,
     isWebsiteToggle = false,
     addLabel = max === 1 ? "Pilih foto" : "Tambah berkas",
     hint,
@@ -196,6 +198,7 @@ export const AttachmentField = (props: PropTypes) => {
               <span className="sr-only">wajib</span>
             </>
           ) : null}
+          {isOptional ? " (opsional)" : null}
         </legend>
 
         <input

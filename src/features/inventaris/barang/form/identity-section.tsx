@@ -26,7 +26,7 @@ export const IdentitySection = (props: PropTypes) => {
 
   return (
     <FormSection legend="Barang" disabled={isDisabled}>
-      <ControlField control={form.control} name="name" label="Nama">
+      <ControlField control={form.control} name="name" label="Nama" isRequired>
         {(field) => (
           <Input
             {...field}
@@ -37,7 +37,12 @@ export const IdentitySection = (props: PropTypes) => {
         )}
       </ControlField>
 
-      <ControlField control={form.control} name="typeId" label="Tipe">
+      <ControlField
+        control={form.control}
+        name="typeId"
+        label="Tipe"
+        isRequired
+      >
         {(field) => (
           <DdlField
             value={field.value}
@@ -51,7 +56,12 @@ export const IdentitySection = (props: PropTypes) => {
         )}
       </ControlField>
 
-      <ControlField control={form.control} name="condition" label="Kondisi">
+      <ControlField
+        control={form.control}
+        name="condition"
+        label="Kondisi"
+        isRequired
+      >
         {(field) => (
           <SelectField
             value={field.value}
@@ -98,7 +108,7 @@ export const IdentitySection = (props: PropTypes) => {
           control={form.control}
           name="description"
           label="Keterangan"
-          hint="Ciri, letak, atau pemakaian barang."
+          isRequired
         >
           {(field) => <Textarea {...field} maxLength={250} rows={3} />}
         </ControlField>

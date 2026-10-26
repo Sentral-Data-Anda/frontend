@@ -233,7 +233,7 @@ describe("form ubah", () => {
     expect(screen.getByText("Gedung Gereja")).toBeTruthy();
     expect(screen.queryByLabelText("Ruang")).toBeNull();
     expect(
-      (screen.getByLabelText("Harga perolehan (Rp)") as HTMLInputElement)
+      (screen.getByLabelText(/Harga perolehan \(Rp\)/) as HTMLInputElement)
         .disabled,
     ).toBe(true);
     expect(
@@ -369,9 +369,9 @@ describe("form tambah", () => {
 
     expect(screen.queryByLabelText("Nama pemberi")).toBeNull();
     fireEvent.click(screen.getByRole("radio", { name: "Donasi" }));
-    expect(screen.getByLabelText("Nama pemberi")).toBeTruthy();
+    expect(screen.getByLabelText(/Nama pemberi/)).toBeTruthy();
     expect(
-      screen.getByLabelText("Nilai perolehan (perkiraan, Rp)"),
+      screen.getByLabelText(/Nilai perolehan \(perkiraan, Rp\)/),
     ).toBeTruthy();
     expect(screen.getByLabelText("Ruang")).toBeTruthy();
   });

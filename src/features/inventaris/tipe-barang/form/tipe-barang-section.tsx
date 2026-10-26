@@ -47,7 +47,12 @@ export const TipeBarangSection = (props: PropTypes) => {
   return (
     <>
       <FormSection legend="Tipe barang" disabled={isDisabled}>
-        <ControlField control={form.control} name="name" label="Nama">
+        <ControlField
+          control={form.control}
+          name="name"
+          label="Nama"
+          isRequired
+        >
           {(field) => (
             <Input
               {...field}

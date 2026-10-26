@@ -23,7 +23,12 @@ export const VendorSection = (props: PropTypes) => {
       note="Opsional."
       disabled={isDisabled}
     >
-      <ControlField control={form.control} name="cost" label="Biaya (Rp)">
+      <ControlField
+        control={form.control}
+        name="cost"
+        label="Biaya (Rp)"
+        isOptional
+      >
         {(field) => (
           <Input
             {...field}
@@ -38,7 +43,12 @@ export const VendorSection = (props: PropTypes) => {
         )}
       </ControlField>
 
-      <ControlField control={form.control} name="supplierId" label="Supplier">
+      <ControlField
+        control={form.control}
+        name="supplierId"
+        label="Supplier"
+        isOptional
+      >
         {(field) => (
           <DdlField
             value={field.value}
@@ -60,6 +70,7 @@ export const VendorSection = (props: PropTypes) => {
         name="performedBy"
         label="Dikerjakan oleh"
         hint="Isi nama bila dikerjakan tanpa supplier, mis. relawan jemaat."
+        isOptional
       >
         {(field) => <Input {...field} maxLength={150} autoComplete="off" />}
       </ControlField>

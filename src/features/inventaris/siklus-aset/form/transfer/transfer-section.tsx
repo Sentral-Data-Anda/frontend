@@ -67,7 +67,12 @@ export const TransferSection = (props: PropTypes) => {
 
   return (
     <FormSection legend="Pindah lokasi" disabled={isDisabled}>
-      <ControlField control={form.control} name="assetId" label="Barang">
+      <ControlField
+        control={form.control}
+        name="assetId"
+        label="Barang"
+        isRequired
+      >
         {(field) => (
           <AssetPicker
             value={field.value}
@@ -86,7 +91,12 @@ export const TransferSection = (props: PropTypes) => {
         )}
       </ReadField>
 
-      <ControlField control={form.control} name="toRoomId" label="Ruang tujuan">
+      <ControlField
+        control={form.control}
+        name="toRoomId"
+        label="Ruang tujuan"
+        isRequired
+      >
         {(field) => (
           <DdlField
             value={field.value}
@@ -104,6 +114,7 @@ export const TransferSection = (props: PropTypes) => {
         control={form.control}
         name="toBapelId"
         label="Badan pelayanan tujuan"
+        isRequired
       >
         {(field) => (
           <DdlField
@@ -122,6 +133,7 @@ export const TransferSection = (props: PropTypes) => {
         control={form.control}
         name="transferDate"
         label="Tanggal pindah"
+        isRequired
       >
         {(field) => (
           <DateField

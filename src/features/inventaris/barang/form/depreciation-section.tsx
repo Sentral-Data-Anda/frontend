@@ -59,6 +59,7 @@ export const DepreciationSection = (props: PropTypes) => {
           <ChoiceField
             id="isDepreciable"
             label="Disusutkan"
+            isRequired
             value={isDepreciable}
             onValueChange={onPickDepreciable}
             options={DEPRECIABLE_OPTIONS}
@@ -113,6 +114,7 @@ export const DepreciationSection = (props: PropTypes) => {
               name="depreciationStartDate"
               label="Mulai disusutkan"
               hint={lockHint ?? "Bulan ini ikut dihitung penuh"}
+              isOptional
             >
               {(field) => (
                 <DateField
@@ -140,6 +142,7 @@ export const DepreciationSection = (props: PropTypes) => {
             name="openingAccumulatedDepreciation"
             label="Akumulasi penyusutan awal (Rp)"
             hint={lockHint}
+            isOptional
           >
             {(field) => (
               <Input
@@ -161,6 +164,7 @@ export const DepreciationSection = (props: PropTypes) => {
             name="openingAccumulatedAsOf"
             label="Per bulan"
             hint={lockHint ?? "Bulan terakhir yang sudah disusutkan."}
+            isOptional
           >
             {(field) => (
               <SelectField
