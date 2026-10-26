@@ -78,6 +78,7 @@ export const LoanSection = (props: PropTypes) => {
           name="counterpartyName"
           label="Nama pihak"
           hint="Gereja lain, jemaat, atau pihak luar."
+          isRequired
         >
           {(field) => (
             <Input {...field} maxLength={150} placeholder="mis. GKPI Medan" />
@@ -108,6 +109,7 @@ export const LoanSection = (props: PropTypes) => {
           control={form.control}
           name="principal"
           label="Pokok pinjaman"
+          isRequired
         >
           {(field) => (
             <AmountInput
@@ -124,6 +126,7 @@ export const LoanSection = (props: PropTypes) => {
           control={form.control}
           name="agreementDate"
           label="Tanggal kesepakatan"
+          isRequired
         >
           {(field) => (
             <DateField
@@ -140,6 +143,7 @@ export const LoanSection = (props: PropTypes) => {
           control={form.control}
           name="termMonths"
           label="Jangka waktu (bulan)"
+          isRequired
         >
           {(field) => (
             <Input
@@ -162,6 +166,7 @@ export const LoanSection = (props: PropTypes) => {
             control={form.control}
             name="interestMode"
             label="Dasar bunga"
+            isRequired
           >
             {(field) => (
               <SelectField

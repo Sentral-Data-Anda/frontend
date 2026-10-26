@@ -48,6 +48,7 @@ export const OfferingSection = (props: PropTypes) => {
         control={form.control}
         name="items.0.typePersembahanId"
         label="Tipe"
+        isRequired
       >
         {(field) => (
           <DdlField
@@ -66,6 +67,7 @@ export const OfferingSection = (props: PropTypes) => {
         <FormField
           htmlFor="items.0.jemaatId"
           label="Jemaat"
+          isRequired
           error={jemaatError}
         >
           <JemaatField
@@ -120,6 +122,7 @@ export const OfferingSection = (props: PropTypes) => {
         control={form.control}
         name="items.0.amount"
         label="Nominal (Rp)"
+        isRequired
       >
         {(field) => (
           <AmountInput

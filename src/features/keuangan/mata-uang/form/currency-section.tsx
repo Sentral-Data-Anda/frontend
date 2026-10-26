@@ -44,7 +44,7 @@ export const CurrencySection = (props: PropTypes) => {
         )}
       </ControlField>
 
-      <ControlField control={form.control} name="name" label="Nama">
+      <ControlField control={form.control} name="name" label="Nama" isRequired>
         {(field) => (
           <Input
             {...field}
@@ -55,7 +55,12 @@ export const CurrencySection = (props: PropTypes) => {
         )}
       </ControlField>
 
-      <ControlField control={form.control} name="symbol" label="Simbol">
+      <ControlField
+        control={form.control}
+        name="symbol"
+        label="Simbol"
+        isRequired
+      >
         {(field) => (
           <Input
             {...field}

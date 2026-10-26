@@ -48,6 +48,7 @@ export const EntrySection = (props: PropTypes) => {
           name="entryDate"
           label="Tanggal"
           hint="Tanggal transaksi, tidak boleh di masa depan."
+          isRequired
         >
           {(field) => (
             <DateField
@@ -66,6 +67,7 @@ export const EntrySection = (props: PropTypes) => {
           name="description"
           label="Keterangan"
           hint="Apa yang dicatat entri ini, mis. Saldo awal per 1 Januari."
+          isRequired
         >
           {(field) => (
             <Input
