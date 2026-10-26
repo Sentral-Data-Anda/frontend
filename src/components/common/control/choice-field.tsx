@@ -8,6 +8,7 @@ interface PropTypes {
   id: string;
   label: string;
   isLabelVisible?: boolean;
+  isRequired?: boolean;
   value: string;
   onValueChange: (value: string) => void;
   options: readonly SelectOption[];
@@ -26,6 +27,7 @@ export const ChoiceField = (props: PropTypes) => {
     id,
     label,
     isLabelVisible = true,
+    isRequired = false,
     value,
     onValueChange,
     options,
@@ -51,6 +53,15 @@ export const ChoiceField = (props: PropTypes) => {
           )}
         >
           {label}
+          {isRequired ? (
+            <>
+              <span aria-hidden className="text-destructive">
+                {" "}
+                *
+              </span>
+              <span className="sr-only">wajib</span>
+            </>
+          ) : null}
         </legend>
 
         <div className={TRACK}>
@@ -58,17 +69,9 @@ export const ChoiceField = (props: PropTypes) => {
             <label key={option.value} className={CHOICE}>
               <input
                 type="radio"
-                // `aria-invalid` ke pilihan PERTAMA saja, seperti
-                // `CheckboxGroupField`: di elemen non-form ia tidak diumumkan,
-                // dan di SETIAP pilihan ia menandai yang benar sebagai salah.
-                //
-                // `id` TETAP di fieldset-nya, TIDAK dipindah ke radio pertama
-                // seperti `CheckboxGroupField`. Bedanya: komponen itu merender
-                // pesannya sendiri, sedangkan ini dipakai di dalam `FormField`
-                // yang punya `<label for>` sendiri — radio dengan `id` itu jadi
-                // punya dua label, dan nama pilihannya ("Menunggu saya")
-                // tertimpa nama grupnya. Tesnya menangkap ini.
                 aria-invalid={index === 0 ? isInvalid : undefined}
+                aria-required={isRequired || undefined}
+
                 name={id}
                 value={option.value}
                 checked={value === option.value}

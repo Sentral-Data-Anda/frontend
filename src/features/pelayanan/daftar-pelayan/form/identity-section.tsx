@@ -74,6 +74,7 @@ export const IdentitySection = (props: PropTypes) => {
             onValueChange={onPickType}
             options={TYPE_OPTIONS}
             disabled={isDisabled}
+            isRequired
           />
         </FormWide>
       )}
@@ -85,6 +86,7 @@ export const IdentitySection = (props: PropTypes) => {
             name="name"
             label="Nama kelompok"
             hint="Mis. Paduan Suara Efrata, Band Pemuda."
+            isRequired
           >
             {(field) => (
               <Input {...field} maxLength={50} autoCapitalize="words" />
@@ -96,6 +98,7 @@ export const IdentitySection = (props: PropTypes) => {
             name="phone"
             label="No. HP kontak"
             hint="Nomor yang dihubungi untuk jadwal kelompok ini."
+            isRequired
           >
             {(field) => (
               <Input
@@ -118,7 +121,7 @@ export const IdentitySection = (props: PropTypes) => {
           hint="Jemaat tidak bisa diganti. Hapus lalu daftarkan jemaat lain."
         />
       ) : (
-        <JemaatField form={form} isDisabled={isDisabled} />
+        <JemaatField form={form} isDisabled={isDisabled} isRequired />
       )}
 
       <ControlField
@@ -130,6 +133,7 @@ export const IdentitySection = (props: PropTypes) => {
             ? undefined
             : "Satu jemaat boleh terdaftar di beberapa badan pelayanan; daftarkan sekali per badan."
         }
+        isRequired
       >
         {(field) => (
           <DdlField
@@ -149,6 +153,7 @@ export const IdentitySection = (props: PropTypes) => {
         name="status"
         label="Status"
         isHintWarning={isDeactivating}
+        isRequired
         hint={
           isDeactivating
             ? "Bila masih terjadwal, jadwalnya tetap memuat pelayan ini. Daftar jadwalnya muncul sesudah simpan."

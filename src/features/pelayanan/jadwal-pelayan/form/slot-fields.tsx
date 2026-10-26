@@ -67,6 +67,7 @@ export const SlotFields = (props: PropTypes) => {
             control={form.control}
             name={`slots.${index}.roleId`}
             label="Tugas"
+            isRequired
           >
             {(field) => (
               <DdlField

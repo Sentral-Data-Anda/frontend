@@ -19,6 +19,7 @@ export const SkillMusikSection = (props: PropTypes) => {
         control={form.control}
         name="name"
         label="Nama alat"
+        isRequired
         hint="Mis. Keyboard, Gitar, Bass, Drum."
       >
         {(field) => <Input {...field} maxLength={50} autoCapitalize="words" />}

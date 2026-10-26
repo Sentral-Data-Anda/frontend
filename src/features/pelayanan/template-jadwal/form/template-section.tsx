@@ -31,6 +31,7 @@ export const TemplateSection = (props: PropTypes) => {
         control={form.control}
         name="name"
         label="Nama"
+        isRequired
         hint="Mis. Ibadah Minggu Pagi."
       >
         {(field) => <Input {...field} maxLength={50} autoCapitalize="words" />}
@@ -40,6 +41,7 @@ export const TemplateSection = (props: PropTypes) => {
         control={form.control}
         name="bapelId"
         label="Badan pelayanan"
+        isRequired
       >
         {(field) => (
           <DdlField
@@ -58,12 +60,18 @@ export const TemplateSection = (props: PropTypes) => {
         control={form.control}
         name="startTime"
         label="Jam mulai"
+        isRequired
         hint="Jam bawaan saat template dipakai di Jadwal Pelayan; bisa diubah di sana."
       >
         {(field) => <Input {...field} type="time" />}
       </ControlField>
 
-      <ControlField control={form.control} name="endTime" label="Jam selesai">
+      <ControlField
+        control={form.control}
+        name="endTime"
+        label="Jam selesai"
+        isRequired
+      >
         {(field) => <Input {...field} type="time" />}
       </ControlField>
     </FormSection>

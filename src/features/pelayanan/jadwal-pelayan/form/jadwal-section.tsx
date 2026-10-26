@@ -61,6 +61,7 @@ export const JadwalSection = (props: PropTypes) => {
         control={form.control}
         name="bapelId"
         label="Badan pelayanan"
+        isRequired
       >
         {(field) => (
           <DdlField
@@ -79,7 +80,12 @@ export const JadwalSection = (props: PropTypes) => {
         <TemplateField form={form} bapelId={bapelId} isDisabled={isDisabled} />
       )}
 
-      <ControlField control={form.control} name="date" label="Tanggal">
+      <ControlField
+        control={form.control}
+        name="date"
+        label="Tanggal"
+        isRequired
+      >
         {(field) => (
           <DateField
             value={field.value}
@@ -93,11 +99,21 @@ export const JadwalSection = (props: PropTypes) => {
         )}
       </ControlField>
 
-      <ControlField control={form.control} name="startTime" label="Jam mulai">
+      <ControlField
+        control={form.control}
+        name="startTime"
+        label="Jam mulai"
+        isRequired
+      >
         {(field) => <Input {...field} type="time" />}
       </ControlField>
 
-      <ControlField control={form.control} name="endTime" label="Jam selesai">
+      <ControlField
+        control={form.control}
+        name="endTime"
+        label="Jam selesai"
+        isRequired
+      >
         {(field) => <Input {...field} type="time" />}
       </ControlField>
 
@@ -105,6 +121,7 @@ export const JadwalSection = (props: PropTypes) => {
         control={form.control}
         name="name"
         label="Nama jadwal"
+        isRequired
         hint="Mis. Pelayan Ibadah Minggu I."
       >
         {(field) => <Input {...field} maxLength={50} autoComplete="off" />}
@@ -115,6 +132,7 @@ export const JadwalSection = (props: PropTypes) => {
           control={form.control}
           name="makeTemplate"
           label="Simpan juga sebagai template"
+          isRequired
           hint="Nama jadwal menjadi nama template; yang disimpan hanya jam dan susunan tugas."
         >
           {(field) => (
