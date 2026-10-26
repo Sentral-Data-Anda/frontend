@@ -26,6 +26,7 @@ export const PeriodeSection = (props: PropTypes) => {
         control={form.control}
         name="startPeriode"
         label="Tanggal mulai"
+        isRequired
       >
         {(field) => (
           <DateField
@@ -43,6 +44,7 @@ export const PeriodeSection = (props: PropTypes) => {
         control={form.control}
         name="endPeriode"
         label="Tanggal selesai"
+        isRequired
       >
         {(field) => (
           <DateField
@@ -56,7 +58,12 @@ export const PeriodeSection = (props: PropTypes) => {
         )}
       </ControlField>
 
-      <ControlField control={form.control} name="status" label="Status">
+      <ControlField
+        control={form.control}
+        name="status"
+        label="Status"
+        isRequired
+      >
         {(field) => (
           <SelectField
             value={field.value}

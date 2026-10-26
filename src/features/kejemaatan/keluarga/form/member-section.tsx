@@ -76,6 +76,10 @@ const MemberRow = (props: RowPropTypes) => {
       <div className="min-w-0 flex-[2_1_18rem]">
         <label htmlFor={errors.idOf("jemaatCode")} className={LABEL}>
           Jemaat
+          <span aria-hidden="true" className="text-destructive">
+            {" "}
+            *
+          </span>
           <span className="sr-only"> baris {index + 1}</span>
         </label>
 
@@ -85,6 +89,7 @@ const MemberRow = (props: RowPropTypes) => {
           render={({ field }) => (
             <ComboboxField
               {...ariaOf("jemaatCode")}
+              aria-required
               value={field.value}
               onValueChange={field.onChange}
               options={jemaat.options}
@@ -101,6 +106,10 @@ const MemberRow = (props: RowPropTypes) => {
       <div className="min-w-0 flex-[1_1_12rem]">
         <label htmlFor={errors.idOf("roleInFamily")} className={LABEL}>
           Peran
+          <span aria-hidden="true" className="text-destructive">
+            {" "}
+            *
+          </span>
           <span className="sr-only"> baris {index + 1}</span>
         </label>
 
@@ -110,6 +119,7 @@ const MemberRow = (props: RowPropTypes) => {
           render={({ field }) => (
             <SelectField
               {...ariaOf("roleInFamily")}
+              aria-required
               value={field.value}
               onValueChange={field.onChange}
               disabled={isDisabled}

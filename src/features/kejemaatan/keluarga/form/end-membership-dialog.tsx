@@ -191,6 +191,7 @@ export const EndMembershipDialog = (props: PropTypes) => {
           control={form.control}
           name="endedAt"
           label="Tanggal berakhir"
+          isRequired
         >
           {(field) => (
             <DateField
@@ -207,6 +208,7 @@ export const EndMembershipDialog = (props: PropTypes) => {
           control={form.control}
           name="endReason"
           label="Alasan berakhir"
+          isRequired
         >
           {(field) => (
             <SelectField

@@ -168,7 +168,7 @@ export const PlaceFields = (props: PropTypes) => {
       <FormWide>
         <ChoiceField
           id="placeType"
-          label="Tempat"
+          label="Tempat *"
           value={placeType}
           onValueChange={onPickPlace}
           options={PLACE_OPTIONS}
@@ -186,6 +186,7 @@ export const PlaceFields = (props: PropTypes) => {
               ? "Isi untuk ibadah wilayah; ikut terisi dari keluarga tuan rumah."
               : "Isi untuk ibadah wilayah."
           }
+          isOptional
         >
           {(field) => (
             <DdlField
@@ -202,7 +203,12 @@ export const PlaceFields = (props: PropTypes) => {
       ) : null}
 
       {placeType === "GEREJA" ? (
-        <ControlField control={form.control} name="roomId" label="Ruang">
+        <ControlField
+          control={form.control}
+          name="roomId"
+          label="Ruang"
+          isOptional
+        >
           {(field) => (
             <DdlField
               value={field.value}
@@ -224,6 +230,7 @@ export const PlaceFields = (props: PropTypes) => {
           label="Tuan rumah"
           hint={hostFieldHint}
           isHintWarning={isHostMoved}
+          isRequired
         >
           {(field) => (
             <ComboboxField
@@ -247,6 +254,7 @@ export const PlaceFields = (props: PropTypes) => {
           name="placeName"
           label="Nama tempat"
           hint="Mis. Villa Ciater, Aula Kantor Kelurahan."
+          isRequired
         >
           {(field) => <Input {...field} maxLength={150} />}
         </ControlField>
