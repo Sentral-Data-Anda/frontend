@@ -45,6 +45,7 @@ export const PeriodSection = (props: PropTypes) => {
         control={form.control}
         name="effectiveFrom"
         label="Berlaku dari"
+        isRequired
       >
         {(field) => (
           <DateField
@@ -89,6 +90,7 @@ export const PeriodSection = (props: PropTypes) => {
             <CheckboxGroupField
               id="weeklyDayOff"
               label="Libur mingguan"
+              isRequired
               value={field.value}
               onValueChange={field.onChange}
               options={WEEKDAY_OPTIONS}

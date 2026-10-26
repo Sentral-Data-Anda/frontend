@@ -27,6 +27,7 @@ export const JobSection = (props: PropTypes) => {
         control={form.control}
         name="contractType"
         label="Jenis kontrak"
+        isRequired
       >
         {(field) => (
           <SelectField
@@ -44,6 +45,7 @@ export const JobSection = (props: PropTypes) => {
         control={form.control}
         name="position"
         label="Jabatan"
+        isRequired
         hint="Mis. Koster, Admin Kantor."
       >
         {(field) => <Input {...field} maxLength={100} autoCapitalize="words" />}
@@ -53,6 +55,7 @@ export const JobSection = (props: PropTypes) => {
         control={form.control}
         name="basicSalary"
         label="Gaji pokok (Rp)"
+        isRequired
         hint="Gaji bulanan sebelum tunjangan dan potongan."
       >
         {(field) => (
