@@ -2,7 +2,7 @@
 
 import { useWatch } from "react-hook-form";
 
-import { DateField, Input } from "@/components/common/control";
+import { DateField, TimeField } from "@/components/common/control";
 import { ControlField, FormSection } from "@/components/common/form";
 import { endOfYearIso } from "@/lib/date";
 
@@ -77,7 +77,15 @@ export const ScheduleSection = (props: PropTypes) => {
         label="Jam mulai"
         isRequired
       >
-        {(field) => <Input {...field} type="time" />}
+        {(field) => (
+          <TimeField
+            value={field.value}
+            onValueChange={field.onChange}
+            onBlur={field.onBlur}
+            disabled={isDisabled}
+            label="Jam mulai"
+          />
+        )}
       </ControlField>
 
       <ControlField
@@ -86,7 +94,15 @@ export const ScheduleSection = (props: PropTypes) => {
         label="Jam selesai"
         isOptional
       >
-        {(field) => <Input {...field} type="time" />}
+        {(field) => (
+          <TimeField
+            value={field.value}
+            onValueChange={field.onChange}
+            onBlur={field.onBlur}
+            disabled={isDisabled}
+            label="Jam selesai"
+          />
+        )}
       </ControlField>
     </FormSection>
   );

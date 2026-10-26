@@ -6,8 +6,8 @@ import { useFieldArray, useWatch } from "react-hook-form";
 import {
   Button,
   DateField,
-  Input,
   SelectField,
+  TimeField,
   optionsOf,
 } from "@/components/common/control";
 import { ControlField, FormSection, FormWide } from "@/components/common/form";
@@ -146,7 +146,15 @@ export const RuleSection = (props: PropTypes) => {
                       name={`rules.${index}.startTime`}
                       label="Jam mulai"
                     >
-                      {(field) => <Input {...field} type="time" />}
+                      {(field) => (
+                        <TimeField
+                          value={field.value}
+                          onValueChange={field.onChange}
+                          onBlur={field.onBlur}
+                          disabled={isDisabled}
+                          label="Jam mulai"
+                        />
+                      )}
                     </ControlField>
 
                     <ControlField
@@ -154,7 +162,15 @@ export const RuleSection = (props: PropTypes) => {
                       name={`rules.${index}.endTime`}
                       label="Jam selesai"
                     >
-                      {(field) => <Input {...field} type="time" />}
+                      {(field) => (
+                        <TimeField
+                          value={field.value}
+                          onValueChange={field.onChange}
+                          onBlur={field.onBlur}
+                          disabled={isDisabled}
+                          label="Jam selesai"
+                        />
+                      )}
                     </ControlField>
                   </>
                 ) : null}

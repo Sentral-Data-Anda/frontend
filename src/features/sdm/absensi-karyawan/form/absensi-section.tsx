@@ -5,9 +5,9 @@ import { useWatch } from "react-hook-form";
 import {
   ComboboxField,
   DateField,
-  Input,
   SelectField,
   Textarea,
+  TimeField,
 } from "@/components/common/control";
 import { ControlField, FormSection, FormWide } from "@/components/common/form";
 import { useDdlOptions } from "@/hooks/use-ddl-options";
@@ -107,36 +107,28 @@ export const AbsensiSection = (props: PropTypes) => {
         )}
       </ControlField>
 
-      <ControlField
-        control={form.control}
-        name="checkIn"
-        label="Jam masuk"
-        hint={isPresent ? HOURS_HINT : HOURS_OFF_HINT}
-      >
+      <ControlField control={form.control} name="checkIn" label="Jam masuk">
         {(field) => (
-          <Input
-            {...field}
-            id={field.name}
-            type="time"
+          <TimeField
+            value={field.value}
+            onValueChange={field.onChange}
+            onBlur={field.onBlur}
             disabled={isDisabled || !isPresent}
-            className="tabular-nums"
+            label="Jam masuk"
+            hint={isPresent ? HOURS_HINT : HOURS_OFF_HINT}
           />
         )}
       </ControlField>
 
-      <ControlField
-        control={form.control}
-        name="checkOut"
-        label="Jam pulang"
-        hint={isPresent ? HOURS_HINT : HOURS_OFF_HINT}
-      >
+      <ControlField control={form.control} name="checkOut" label="Jam pulang">
         {(field) => (
-          <Input
-            {...field}
-            id={field.name}
-            type="time"
+          <TimeField
+            value={field.value}
+            onValueChange={field.onChange}
+            onBlur={field.onBlur}
             disabled={isDisabled || !isPresent}
-            className="tabular-nums"
+            label="Jam pulang"
+            hint={isPresent ? HOURS_HINT : HOURS_OFF_HINT}
           />
         )}
       </ControlField>

@@ -2,7 +2,7 @@
 
 import { useWatch } from "react-hook-form";
 
-import { DateField, DdlField, Input } from "@/components/common/control";
+import { DateField, DdlField, TimeField } from "@/components/common/control";
 import { ControlField, FormSection, FormWide } from "@/components/common/form";
 import { useDdlOptions } from "@/hooks/use-ddl-options";
 import { endOfYearIso } from "@/lib/date";
@@ -82,7 +82,15 @@ export const ScheduleSection = (props: PropTypes) => {
         label="Jam mulai"
         isRequired
       >
-        {(field) => <Input {...field} type="time" disabled={isOff} />}
+        {(field) => (
+          <TimeField
+            value={field.value}
+            onValueChange={field.onChange}
+            onBlur={field.onBlur}
+            disabled={isOff}
+            label="Jam mulai"
+          />
+        )}
       </ControlField>
 
       <ControlField
@@ -91,7 +99,15 @@ export const ScheduleSection = (props: PropTypes) => {
         label="Jam selesai"
         isRequired
       >
-        {(field) => <Input {...field} type="time" disabled={isOff} />}
+        {(field) => (
+          <TimeField
+            value={field.value}
+            onValueChange={field.onChange}
+            onBlur={field.onBlur}
+            disabled={isOff}
+            label="Jam selesai"
+          />
+        )}
       </ControlField>
 
       {roomId && date && !isReadOnly ? (

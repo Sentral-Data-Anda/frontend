@@ -142,6 +142,23 @@ const onRender = (granted: MenuAction[], code?: string) => {
 
 const trigger = (id: string) => document.getElementById(id) as HTMLElement;
 
+// TimeField memecah jam ke dua segmen, jadi nilainya dirakit ulang jadi HH:mm.
+const timeOf = (label: string) => {
+  const hour = (screen.getByLabelText(label) as HTMLInputElement).value;
+  const minute = (screen.getByLabelText(`${label} menit`) as HTMLInputElement)
+    .value;
+
+  return hour && minute ? `${hour}:${minute}` : "";
+};
+
+// Segmen jam menerima "HH:mm" utuh lalu dirapikan saat blur.
+const setTime = (label: string, value: string) => {
+  const box = screen.getByLabelText(label);
+
+  fireEvent.change(box, { target: { value } });
+  fireEvent.blur(box);
+};
+
 const onPick = async (id: string, name: string | RegExp) => {
   fireEvent.click(trigger(id));
   const option = await screen.findByRole("option", { name });
@@ -158,11 +175,7 @@ const onSaveConfirmed = async () => {
 const onRenderEdit = async (id: number) => {
   onRender(["VIEW", "UPDATE", "DELETE", "CREATE"], codeOf(id));
 
-  await waitFor(() =>
-    expect(
-      (screen.getByLabelText("Jam mulai") as HTMLInputElement).value,
-    ).not.toBe(""),
-  );
+  await waitFor(() => expect(timeOf("Jam mulai")).not.toBe(""));
 };
 
 describe("gerbang izin", () => {
@@ -198,11 +211,7 @@ describe("form tambah", () => {
     );
     await onPick("templateId", /Ibadah Minggu Pagi/);
 
-    await waitFor(() =>
-      expect(
-        (screen.getByLabelText("Jam mulai") as HTMLInputElement).value,
-      ).toBe("07:30"),
-    );
+    await waitFor(() => expect(timeOf("Jam mulai")).toBe("07:30"));
     expect(
       (screen.getByLabelText("Nama jadwal") as HTMLInputElement).value,
     ).toBe("Ibadah Minggu Pagi");
@@ -329,12 +338,8 @@ describe("form ubah", () => {
   test("409 bentrok dipetakan ke field Pelayan baris itu, isian utuh", async () => {
     await onRenderEdit(2);
 
-    fireEvent.change(screen.getByLabelText("Jam mulai"), {
-      target: { value: "17:00" },
-    });
-    fireEvent.change(screen.getByLabelText("Jam selesai"), {
-      target: { value: "19:00" },
-    });
+    setTime("Jam mulai", "17:00");
+    setTime("Jam selesai", "19:00");
     await onSaveConfirmed();
 
     expect(
@@ -345,9 +350,7 @@ describe("form ubah", () => {
     expect(trigger("slots.6.pelayan").getAttribute("aria-invalid")).toBe(
       "true",
     );
-    expect((screen.getByLabelText("Jam mulai") as HTMLInputElement).value).toBe(
-      "17:00",
-    );
+    expect(timeOf("Jam mulai")).toBe("17:00");
     expect(replaced).toEqual([]);
   });
 

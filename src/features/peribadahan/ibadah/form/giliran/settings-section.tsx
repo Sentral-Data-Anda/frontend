@@ -8,6 +8,7 @@ import {
   DateField,
   DdlField,
   Input,
+  TimeField,
   optionsOf,
 } from "@/components/common/control";
 import { ControlField, FormSection, FormWide } from "@/components/common/form";
@@ -100,16 +101,28 @@ export const SettingsSection = (props: PropTypes) => {
       </ControlField>
 
       <ControlField control={form.control} name="startTime" label="Jam mulai">
-        {(field) => <Input {...field} type="time" disabled={isOff} />}
+        {(field) => (
+          <TimeField
+            value={field.value}
+            onValueChange={field.onChange}
+            onBlur={field.onBlur}
+            disabled={isOff}
+            label="Jam mulai"
+          />
+        )}
       </ControlField>
 
-      <ControlField
-        control={form.control}
-        name="endTime"
-        label="Jam selesai"
-        hint="Kosongkan bila belum pasti."
-      >
-        {(field) => <Input {...field} type="time" disabled={isOff} />}
+      <ControlField control={form.control} name="endTime" label="Jam selesai">
+        {(field) => (
+          <TimeField
+            value={field.value}
+            onValueChange={field.onChange}
+            onBlur={field.onBlur}
+            disabled={isOff}
+            label="Jam selesai"
+            hint="Kosongkan bila belum pasti."
+          />
+        )}
       </ControlField>
 
       <ControlField

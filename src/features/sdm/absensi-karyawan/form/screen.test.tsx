@@ -177,6 +177,23 @@ const clockIn = () => screen.getByLabelText("Jam masuk") as HTMLInputElement;
 
 const clockOut = () => screen.getByLabelText("Jam pulang") as HTMLInputElement;
 
+// TimeField memecah jam ke dua segmen, jadi nilainya dirakit ulang jadi HH:mm.
+const timeOf = (label: string) => {
+  const hour = (screen.getByLabelText(label) as HTMLInputElement).value;
+  const minute = (screen.getByLabelText(`${label} menit`) as HTMLInputElement)
+    .value;
+
+  return hour && minute ? `${hour}:${minute}` : "";
+};
+
+// Segmen jam menerima "HH:mm" utuh lalu dirapikan saat blur.
+const setTime = (label: string, value: string) => {
+  const box = screen.getByLabelText(label);
+
+  fireEvent.change(box, { target: { value } });
+  fireEvent.blur(box);
+};
+
 // Pointer sungguhan, bukan `click` sintetis: Base UI `Select.Item` menetapkan
 // nilainya di `pointerup`, jadi `click` saja membuka popup lalu tidak memilih
 // apa pun — dan test-nya hijau sambil tidak menguji apa-apa (pedoman §7).
@@ -193,7 +210,7 @@ const onPickStatus = async (label: string) => {
 const onRenderLoadedEdit = async (granted: MenuAction[] = ["UPDATE"]) => {
   onRenderForm(["VIEW", ...granted], "abs-0001");
 
-  await waitFor(() => expect(clockIn().value).toBe("08:00"));
+  await waitFor(() => expect(timeOf("Jam masuk")).toBe("08:00"));
 };
 
 const onSaveConfirmed = async () => {
@@ -298,15 +315,15 @@ describe("jam dibuang untuk status di luar Hadir, dan layarnya mendahuluinya", (
     onMockApi();
     onRenderForm(["VIEW", "CREATE"]);
 
-    fireEvent.change(clockIn(), { target: { value: "08:00" } });
-    fireEvent.change(clockOut(), { target: { value: "17:00" } });
+    setTime("Jam masuk", "08:00");
+    setTime("Jam pulang", "17:00");
     expect(clockIn().disabled).toBe(false);
 
     await onPickStatus("Libur");
 
     await waitFor(() => expect(clockIn().disabled).toBe(true));
     expect(clockOut().disabled).toBe(true);
-    expect([clockIn().value, clockOut().value]).toEqual(["", ""]);
+    expect([timeOf("Jam masuk"), timeOf("Jam pulang")]).toEqual(["", ""]);
   });
 
   test("kembali ke Hadir membuka kedua jam lagi", async () => {
@@ -326,7 +343,7 @@ describe("jam dibuang untuk status di luar Hadir, dan layarnya mendahuluinya", (
     await onRenderLoadedEdit();
 
     await onPickStatus("Sakit");
-    await waitFor(() => expect(clockIn().value).toBe(""));
+    await waitFor(() => expect(timeOf("Jam masuk")).toBe(""));
 
     await onSaveConfirmed();
 
@@ -425,7 +442,7 @@ describe("simpan", () => {
         screen.getByText("Data belum tersimpan. Coba simpan lagi."),
       ).toBeTruthy(),
     );
-    expect(clockIn().value).toBe("08:00");
+    expect(timeOf("Jam masuk")).toBe("08:00");
   });
 });
 
