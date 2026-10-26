@@ -20,7 +20,12 @@ export const ContactSection = (props: PropTypes) => {
       note="Hanya nomor HP yang wajib; email dan alamat boleh dikosongkan."
       disabled={isDisabled}
     >
-      <ControlField control={form.control} name="phone" label="Nomor HP">
+      <ControlField
+        control={form.control}
+        name="phone"
+        label="Nomor HP"
+        isRequired
+      >
         {(field) => (
           <Input
             {...field}
@@ -35,7 +40,12 @@ export const ContactSection = (props: PropTypes) => {
         )}
       </ControlField>
 
-      <ControlField control={form.control} name="email" label="Email">
+      <ControlField
+        control={form.control}
+        name="email"
+        label="Email"
+        isOptional
+      >
         {(field) => (
           <Input
             {...field}
@@ -48,7 +58,12 @@ export const ContactSection = (props: PropTypes) => {
       </ControlField>
 
       <FormWide>
-        <ControlField control={form.control} name="address" label="Alamat">
+        <ControlField
+          control={form.control}
+          name="address"
+          label="Alamat"
+          isOptional
+        >
           {(field) => <Textarea {...field} rows={3} maxLength={250} />}
         </ControlField>
       </FormWide>
