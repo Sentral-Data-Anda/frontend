@@ -72,6 +72,7 @@ export const RuleSection = (props: PropTypes) => {
                   control={form.control}
                   name={`rules.${index}.type`}
                   label="Jenis"
+                  isRequired
                 >
                   {(field) => (
                     <SelectField

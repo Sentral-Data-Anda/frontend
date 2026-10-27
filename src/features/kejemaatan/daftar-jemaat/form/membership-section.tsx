@@ -138,6 +138,7 @@ export const MembershipSection = (props: PropTypes) => {
         control={form.control}
         name="joinedAt"
         label="Tanggal bergabung"
+        isOptional
       >
         {(field) => (
           <DateField

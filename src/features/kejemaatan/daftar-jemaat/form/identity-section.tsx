@@ -66,6 +66,7 @@ export const IdentitySection = (props: PropTypes) => {
         control={form.control}
         name="birthDate"
         label="Tanggal lahir"
+        isOptional
       >
         {(field) => (
           <DateField

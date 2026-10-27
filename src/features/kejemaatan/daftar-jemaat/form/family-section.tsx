@@ -34,6 +34,7 @@ export const FamilySection = (props: PropTypes) => {
         control={form.control}
         name="keluargaAsalId"
         label="Keluarga asal"
+        isOptional
       >
         {(field) => (
           <ComboboxField

@@ -21,7 +21,12 @@ export const ContactSection = (props: PropTypes) => {
       note="Keduanya boleh dikosongkan. Satu nomor boleh dipakai beberapa anggota keluarga."
       disabled={isDisabled}
     >
-      <ControlField control={form.control} name="phone" label="Telepon">
+      <ControlField
+        control={form.control}
+        name="phone"
+        label="Telepon"
+        isOptional
+      >
         {(field) => (
           <Input
             {...field}
@@ -36,7 +41,12 @@ export const ContactSection = (props: PropTypes) => {
         )}
       </ControlField>
 
-      <ControlField control={form.control} name="email" label="Email">
+      <ControlField
+        control={form.control}
+        name="email"
+        label="Email"
+        isOptional
+      >
         {(field) => (
           <Input
             {...field}
