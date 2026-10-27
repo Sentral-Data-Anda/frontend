@@ -36,13 +36,23 @@ export const IdentitySection = (props: PropTypes) => {
 
   return (
     <FormSection legend="Identitas" disabled={isDisabled}>
-      <ControlField control={form.control} name="name" label="Nama lengkap">
+      <ControlField
+        control={form.control}
+        name="name"
+        label="Nama lengkap"
+        isRequired
+      >
         {(field) => (
           <Input {...field} autoComplete="name" autoCapitalize="words" />
         )}
       </ControlField>
 
-      <ControlField control={form.control} name="gender" label="Jenis kelamin">
+      <ControlField
+        control={form.control}
+        name="gender"
+        label="Jenis kelamin"
+        isRequired
+      >
         {(field) => (
           <SelectField
             value={field.value}
@@ -59,6 +69,7 @@ export const IdentitySection = (props: PropTypes) => {
         control={form.control}
         name="birthPlace"
         label="Tempat lahir"
+        isRequired
       >
         {(field) => <Input {...field} maxLength={25} />}
       </ControlField>
@@ -93,7 +104,12 @@ export const ContactSection = (props: PropTypes) => {
       note="Keduanya boleh dikosongkan. Email dipakai sekali saja di seluruh jemaat."
       disabled={isDisabled}
     >
-      <ControlField control={form.control} name="phone" label="Telepon">
+      <ControlField
+        control={form.control}
+        name="phone"
+        label="Telepon"
+        isOptional
+      >
         {(field) => (
           <Input
             {...field}
@@ -106,7 +122,12 @@ export const ContactSection = (props: PropTypes) => {
         )}
       </ControlField>
 
-      <ControlField control={form.control} name="email" label="Email">
+      <ControlField
+        control={form.control}
+        name="email"
+        label="Email"
+        isOptional
+      >
         {(field) => (
           <Input
             {...field}
@@ -140,6 +161,7 @@ export const SocialSection = (props: PropTypes) => {
         control={form.control}
         name="professionId"
         label="Pekerjaan"
+        isOptional
       >
         {(field) => (
           <ComboboxField
@@ -155,7 +177,12 @@ export const SocialSection = (props: PropTypes) => {
         )}
       </ControlField>
 
-      <ControlField control={form.control} name="ethnicGroupId" label="Suku">
+      <ControlField
+        control={form.control}
+        name="ethnicGroupId"
+        label="Suku"
+        isOptional
+      >
         {(field) => (
           <ComboboxField
             value={field.value}
@@ -174,6 +201,7 @@ export const SocialSection = (props: PropTypes) => {
         control={form.control}
         name="lastEducation"
         label="Pendidikan terakhir"
+        isOptional
       >
         {(field) => (
           <SelectField
@@ -190,6 +218,7 @@ export const SocialSection = (props: PropTypes) => {
         control={form.control}
         name="bloodType"
         label="Golongan darah"
+        isOptional
       >
         {(field) => (
           <SelectField
