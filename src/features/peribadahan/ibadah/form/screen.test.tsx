@@ -357,11 +357,11 @@ describe("ubah", () => {
 
     expect(screen.getByText("Total 371 orang")).toBeTruthy();
 
-    fireEvent.change(screen.getByLabelText("Anak (opsional)"), {
+    fireEvent.change(screen.getByLabelText("Anak"), {
       target: { value: "1.200" },
     });
 
-    expect(valueOf("Anak (opsional)")).toBe("1200");
+    expect(valueOf("Anak")).toBe("1200");
     expect(screen.getByText("Total 1.522 orang")).toBeTruthy();
   });
 
@@ -579,7 +579,7 @@ describe("layar tambah hasil salin", () => {
     );
     expect(timeOf("Jam selesai")).toBe("09:30");
     expect(valueOf("Tema (opsional)")).toBe("");
-    expect(valueOf("Pria (dewasa) (opsional)")).toBe("");
+    expect(valueOf("Pria (dewasa)")).toBe("");
     expect(screen.getByText("Belum ada yang dicatat.")).toBeTruthy();
 
     fireEvent.click(screen.getByRole("button", { name: "Batal" }));
@@ -874,7 +874,7 @@ describe("tempat", () => {
 });
 
 describe("jadwal pelayan", () => {
-  const JADWAL_FIELD = "Jadwal pelayan";
+  const JADWAL_FIELD = "Jadwal pelayan (opsional)";
   const CLEARED =
     "Jadwal pelayan dikosongkan karena tidak sesuai dengan tanggal atau jam baru.";
 

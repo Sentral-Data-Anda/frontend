@@ -23,6 +23,7 @@ export const TipeIbadahSection = (props: PropTypes) => {
         control={form.control}
         name="name"
         label="Nama"
+        isRequired
         hint="Mis. Ibadah Minggu Pagi."
       >
         {(field) => <Input {...field} maxLength={50} autoCapitalize="words" />}
@@ -32,6 +33,7 @@ export const TipeIbadahSection = (props: PropTypes) => {
         control={form.control}
         name="isActive"
         label="Status"
+        isRequired
         hint="Tipe nonaktif tidak bisa dipilih untuk ibadah baru; ibadah yang sudah tercatat tetap memakainya."
       >
         {(field) => (

@@ -79,7 +79,12 @@ export const ConductSection = (props: PropTypes) => {
       </ControlField>
 
       <FormWide>
-        <ControlField control={form.control} name="note" label="Catatan">
+        <ControlField
+          control={form.control}
+          name="note"
+          label="Catatan"
+          isOptional
+        >
           {(field) => <Textarea {...field} maxLength={250} rows={3} />}
         </ControlField>
       </FormWide>
