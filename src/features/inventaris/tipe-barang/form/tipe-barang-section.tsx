@@ -75,6 +75,7 @@ export const TipeBarangSection = (props: PropTypes) => {
               control={form.control}
               name="assetAccountId"
               label="Akun aset"
+              isOptional
             >
               {(field) => (
                 <AccountField
@@ -92,6 +93,7 @@ export const TipeBarangSection = (props: PropTypes) => {
               control={form.control}
               name="depreciationExpenseAccountId"
               label="Akun beban penyusutan"
+              isOptional
             >
               {(field) => (
                 <AccountField
@@ -109,6 +111,7 @@ export const TipeBarangSection = (props: PropTypes) => {
               control={form.control}
               name="accumulatedDepreciationAccountId"
               label="Akun akumulasi penyusutan"
+              isOptional
             >
               {(field) => (
                 <AccountField
@@ -130,6 +133,7 @@ export const TipeBarangSection = (props: PropTypes) => {
               control={form.control}
               name="inventoryExpenseAccountId"
               label="Akun beban pemakaian persediaan"
+              isOptional
             >
               {(field) => (
                 <AccountField

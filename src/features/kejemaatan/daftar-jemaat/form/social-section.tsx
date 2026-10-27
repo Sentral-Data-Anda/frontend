@@ -88,6 +88,7 @@ export const SocialSection = (props: PropTypes) => {
         control={form.control}
         name="lastEducation"
         label="Pendidikan terakhir"
+        isOptional
       >
         {(field) => (
           <SelectField
@@ -104,6 +105,7 @@ export const SocialSection = (props: PropTypes) => {
         control={form.control}
         name="bloodType"
         label="Golongan darah"
+        isOptional
       >
         {(field) => (
           <SelectField

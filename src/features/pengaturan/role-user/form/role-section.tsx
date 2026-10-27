@@ -25,6 +25,7 @@ export const RoleSection = (props: PropTypes) => {
         control={form.control}
         name="name"
         label="Nama"
+        isRequired
         hint="4–25 karakter, mis. Sekretariat."
       >
         {(field) => <Input {...field} maxLength={25} autoCapitalize="words" />}
@@ -34,6 +35,7 @@ export const RoleSection = (props: PropTypes) => {
         control={form.control}
         name="isAdmin"
         label="Akses penuh (Administrator)"
+        isRequired
         hint={
           isAdminLocked
             ? "Hanya administrator yang dapat mengubah akses penuh."

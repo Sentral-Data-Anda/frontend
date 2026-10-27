@@ -27,6 +27,7 @@ export const CurrencySection = (props: PropTypes) => {
             ? "Kode tidak bisa diubah sesudah disimpan."
             : "Kode ISO 3 huruf, mis. USD atau SGD."
         }
+        isRequired
       >
         {(field) => (
           <Input

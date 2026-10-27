@@ -58,6 +58,7 @@ export const LoanSection = (props: PropTypes) => {
             name="direction"
             label="Arah pinjaman"
             hint="Menentukan lewat mana uangnya dicatat: yang diterima gereja masuk lewat Kas Masuk, yang diberikan gereja keluar lewat Kas Keluar."
+            isRequired
           >
             {(field) => (
               <ChoiceField
@@ -89,6 +90,7 @@ export const LoanSection = (props: PropTypes) => {
           control={form.control}
           name="jemaatId"
           label="Jemaat (bila pihaknya jemaat)"
+          isOptional
         >
           {(field) => (
             <DdlField
@@ -184,6 +186,7 @@ export const LoanSection = (props: PropTypes) => {
             control={form.control}
             name="interestPercent"
             label="Bunga (%)"
+            isOptional
           >
             {(field) => (
               <Input
@@ -219,7 +222,12 @@ export const LoanSection = (props: PropTypes) => {
 
       <FormSection legend="Catatan" disabled={isDisabled}>
         <FormWide>
-          <ControlField control={form.control} name="notes" label="Catatan">
+          <ControlField
+            control={form.control}
+            name="notes"
+            label="Catatan"
+            isOptional
+          >
             {(field) => <Textarea {...field} maxLength={500} rows={3} />}
           </ControlField>
         </FormWide>

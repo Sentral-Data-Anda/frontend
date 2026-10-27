@@ -114,6 +114,7 @@ export const JadwalPelayanField = (props: PropTypes) => {
         control={form.control}
         name="jadwalPelayanId"
         label="Jadwal pelayan"
+        isOptional
         hint={
           isCleared.value
             ? undefined

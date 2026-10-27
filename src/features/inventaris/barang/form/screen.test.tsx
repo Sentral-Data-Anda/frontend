@@ -241,8 +241,11 @@ describe("form ubah", () => {
         .disabled,
     ).toBe(true);
     expect(
-      (screen.getByLabelText("Masa manfaat (bulan)") as HTMLInputElement)
-        .disabled,
+      (
+        screen.getByLabelText(
+          "Masa manfaat (bulan) (opsional)",
+        ) as HTMLInputElement
+      ).disabled,
     ).toBe(false);
     expect(
       screen.getAllByText("Tidak bisa diubah karena sudah disusutkan.").length,

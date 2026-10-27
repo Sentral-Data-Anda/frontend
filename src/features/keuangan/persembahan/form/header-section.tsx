@@ -47,6 +47,7 @@ export const HeaderSection = (props: PropTypes) => {
         control={form.control}
         name="receivedDate"
         label="Tanggal terima"
+        isRequired
       >
         {(field) => (
           <DateField
@@ -64,6 +65,7 @@ export const HeaderSection = (props: PropTypes) => {
         control={form.control}
         name="receiveMethod"
         label="Cara terima"
+        isRequired
       >
         {(field) => (
           <ChoiceField

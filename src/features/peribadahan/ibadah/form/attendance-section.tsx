@@ -43,7 +43,7 @@ export const AttendanceSection = (props: PropTypes) => {
           control={form.control}
           name={name}
           label={label}
-          isOptional
+          isRequired
         >
           {(field) => (
             <Input

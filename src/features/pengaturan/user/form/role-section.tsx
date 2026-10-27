@@ -22,6 +22,7 @@ export const RoleSection = (props: PropTypes) => {
         control={form.control}
         name="roleUserId"
         label="Role"
+        isRequired
         hint={hint}
       >
         {(field) => (

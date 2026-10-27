@@ -55,6 +55,7 @@ export const AccountSection = (props: PropTypes) => {
             ? "Kode tidak bisa diubah sesudah disimpan."
             : "Huruf, angka, titik, dan strip. Mis. 1-100."
         }
+        isRequired
       >
         {(field) => (
           <Input

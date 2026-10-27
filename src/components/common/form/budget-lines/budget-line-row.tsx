@@ -81,6 +81,7 @@ export function BudgetLineRow<T extends FieldValues>(props: PropTypes<T>) {
         label="Pos"
         index={index}
         className="flex-[2_1_16rem]"
+        isRequired
       >
         <Controller
           control={form.control}
@@ -102,6 +103,7 @@ export function BudgetLineRow<T extends FieldValues>(props: PropTypes<T>) {
         label="Uraian"
         index={index}
         className="flex-[2_1_14rem]"
+        isRequired
       >
         <Controller
           control={form.control}
@@ -125,6 +127,7 @@ export function BudgetLineRow<T extends FieldValues>(props: PropTypes<T>) {
         label="Jumlah"
         index={index}
         className="flex-[1_1_7rem]"
+        isRequired
       >
         <Controller
           control={form.control}
@@ -149,6 +152,7 @@ export function BudgetLineRow<T extends FieldValues>(props: PropTypes<T>) {
         label="Harga satuan (Rp)"
         index={index}
         className="flex-[1_1_10rem]"
+        isRequired
       >
         <Controller
           control={form.control}
@@ -185,6 +189,7 @@ export function BudgetLineRow<T extends FieldValues>(props: PropTypes<T>) {
         label="Catatan"
         index={index}
         className="flex-[2_1_14rem]"
+        isOptional
       >
         <Controller
           control={form.control}

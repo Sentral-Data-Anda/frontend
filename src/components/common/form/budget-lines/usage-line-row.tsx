@@ -109,6 +109,7 @@ export function UsageLineRow<T extends FieldValues>(props: PropTypes<T>) {
         label="Tanggal"
         index={index}
         className="flex-[1_1_11rem]"
+        isRequired
       >
         <Controller
           control={form.control}
@@ -135,6 +136,7 @@ export function UsageLineRow<T extends FieldValues>(props: PropTypes<T>) {
         label="Pos"
         index={index}
         className="flex-[2_1_16rem]"
+        isRequired
       >
         <Controller
           control={form.control}
@@ -156,6 +158,7 @@ export function UsageLineRow<T extends FieldValues>(props: PropTypes<T>) {
         label="Program"
         index={index}
         className="flex-[2_1_14rem]"
+        isOptional
       >
         <Controller
           control={form.control}
@@ -180,6 +183,7 @@ export function UsageLineRow<T extends FieldValues>(props: PropTypes<T>) {
         label="Uraian"
         index={index}
         className="flex-[2_1_14rem]"
+        isRequired
       >
         <Controller
           control={form.control}
@@ -203,6 +207,7 @@ export function UsageLineRow<T extends FieldValues>(props: PropTypes<T>) {
         label="Nominal (Rp)"
         index={index}
         className="flex-[1_1_10rem]"
+        isRequired
       >
         <Controller
           control={form.control}

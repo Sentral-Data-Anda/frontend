@@ -76,6 +76,7 @@ export const WaiveDialog = (props: PropTypes) => {
           name="reason"
           label="Alasan"
           hint="Alasan ini tersimpan dan terlihat di laporan badan pelayanan."
+          isRequired
         >
           {(field) => (
             <Textarea

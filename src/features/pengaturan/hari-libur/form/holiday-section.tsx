@@ -33,7 +33,12 @@ export const HolidaySection = (props: PropTypes) => {
 
   return (
     <FormSection legend="Hari libur" disabled={isDisabled}>
-      <ControlField control={form.control} name="date" label="Tanggal">
+      <ControlField
+        control={form.control}
+        name="date"
+        label="Tanggal"
+        isRequired
+      >
         {(field) => (
           <DateField
             value={field.value}
@@ -50,12 +55,13 @@ export const HolidaySection = (props: PropTypes) => {
         control={form.control}
         name="name"
         label="Nama"
+        isRequired
         hint="3–100 karakter, mis. HUT Gereja."
       >
         {(field) => <Input {...field} maxLength={100} autoCapitalize="words" />}
       </ControlField>
 
-      <ControlField control={form.control} name="type" label="Tipe">
+      <ControlField control={form.control} name="type" label="Tipe" isRequired>
         {(field) => (
           <SelectField
             value={field.value}
@@ -71,6 +77,7 @@ export const HolidaySection = (props: PropTypes) => {
         control={form.control}
         name="isRecurring"
         label="Berulang tiap tahun"
+        isRequired
         hint={RECURRING_HINT}
       >
         {(field) => (
