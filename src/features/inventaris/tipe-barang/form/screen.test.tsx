@@ -478,11 +478,16 @@ describe("akun akuntansi pada form", () => {
     await onRenderLoadedEditWithAccounting(["VIEW", "UPDATE"]);
 
     expect(
-      await screen.findByRole("combobox", { name: "Akun beban penyusutan" }),
+      await screen.findByRole("combobox", {
+        name: "Akun beban penyusutan (opsional)",
+      }),
     ).toBeTruthy();
     expect(
-      (screen.queryByLabelText("Akun aset") as HTMLInputElement | null)
-        ?.readOnly,
+      (
+        screen.queryByLabelText(
+          "Akun aset (opsional)",
+        ) as HTMLInputElement | null
+      )?.readOnly,
     ).not.toBe(true);
   });
 
@@ -515,7 +520,7 @@ describe("akun akuntansi pada form", () => {
 
     expect(
       await screen.findByRole("combobox", {
-        name: "Akun beban pemakaian persediaan",
+        name: "Akun beban pemakaian persediaan (opsional)",
       }),
     ).toBeTruthy();
   });

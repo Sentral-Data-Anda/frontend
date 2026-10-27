@@ -75,6 +75,7 @@ export const DepreciationSection = (props: PropTypes) => {
               name="usefulLifeMonths"
               label="Masa manfaat (bulan)"
               hint="mis. 60 untuk 5 tahun"
+              isOptional
             >
               {(field) => (
                 <Input
