@@ -23,6 +23,7 @@ export const ReportSection = (props: PropTypes) => {
         control={form.control}
         name="bapelId"
         label="Badan pelayanan"
+        isRequired
       >
         {(field) => (
           <BapelField
@@ -34,7 +35,12 @@ export const ReportSection = (props: PropTypes) => {
         )}
       </ControlField>
 
-      <ControlField control={form.control} name="month" label="Bulan laporan">
+      <ControlField
+        control={form.control}
+        name="month"
+        label="Bulan laporan"
+        isRequired
+      >
         {(field) => (
           <MonthField
             id={field.name}

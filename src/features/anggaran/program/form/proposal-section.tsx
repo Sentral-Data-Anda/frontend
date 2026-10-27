@@ -61,6 +61,7 @@ export const ProposalSection = (props: PropTypes) => {
         control={form.control}
         name="bapelId"
         label="Badan pelayanan"
+        isRequired
       >
         {(field) => (
           <BapelField
@@ -76,6 +77,7 @@ export const ProposalSection = (props: PropTypes) => {
         control={form.control}
         name="year"
         label="Tahun pelayanan"
+        isRequired
         hint={SPAN_NOTE}
       >
         {(field) => (

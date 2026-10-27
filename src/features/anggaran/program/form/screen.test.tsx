@@ -251,8 +251,8 @@ describe("form program", () => {
   test("subtotal dan total dihitung saat render", async () => {
     onRender();
 
-    onType("Jumlah baris 1", "2");
-    onType("Harga satuan (Rp) baris 1", "1500000");
+    onType(/Jumlah.* baris 1/, "2");
+    onType(/Harga satuan.* baris 1/, "1500000");
 
     await waitFor(() =>
       expect(screen.getByLabelText("Subtotal baris 1").textContent).toBe(
@@ -290,9 +290,9 @@ describe("form program", () => {
     );
 
     onType("Nama program", "Bakti Sosial Pemuda");
-    onType("Uraian baris 1", "Paket sembako");
-    onType("Jumlah baris 1", "2");
-    onType("Harga satuan (Rp) baris 1", "1500000");
+    onType(/Uraian.* baris 1/, "Paket sembako");
+    onType(/Jumlah.* baris 1/, "2");
+    onType(/Harga satuan.* baris 1/, "1500000");
 
     fireEvent.click(screen.getByRole("button", { name: "Simpan" }));
     fireEvent.click(await screen.findByRole("button", { name: "Ya" }));
@@ -355,7 +355,7 @@ describe("form program", () => {
 
     await waitFor(() =>
       expect(
-        screen.getByLabelText("Uraian baris 1").getAttribute("value"),
+        screen.getByLabelText(/Uraian.* baris 1/).getAttribute("value"),
       ).toBe("Paket sembako"),
     );
   });

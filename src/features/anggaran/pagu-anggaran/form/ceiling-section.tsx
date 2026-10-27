@@ -27,6 +27,7 @@ export const CeilingSection = (props: PropTypes) => {
         control={form.control}
         name="bapelId"
         label="Badan pelayanan"
+        isRequired
       >
         {(field) => (
           <BapelField
@@ -60,6 +61,7 @@ export const CeilingSection = (props: PropTypes) => {
         control={form.control}
         name="amount"
         label="Pagu (Rp)"
+        isRequired
         hint={AMOUNT_HINT}
       >
         {(field) => (
