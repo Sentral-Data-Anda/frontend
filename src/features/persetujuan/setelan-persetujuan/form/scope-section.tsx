@@ -42,6 +42,7 @@ export const ScopeSection = (props: PropTypes) => {
           control={form.control}
           name="bapelId"
           label="Badan pelayanan"
+          isOptional
         >
           {(field) => (
             <DdlField
@@ -61,6 +62,7 @@ export const ScopeSection = (props: PropTypes) => {
         control={form.control}
         name="minAmount"
         label={labels.min}
+        isOptional
         hint={hintOf(minAmount, "Kosongkan untuk tanpa batas bawah.")}
       >
         {(field) => (
@@ -77,6 +79,7 @@ export const ScopeSection = (props: PropTypes) => {
         control={form.control}
         name="maxAmount"
         label={labels.max}
+        isOptional
         hint={hintOf(maxAmount, "Kosongkan untuk tanpa batas atas.")}
       >
         {(field) => (

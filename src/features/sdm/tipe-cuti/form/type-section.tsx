@@ -64,6 +64,7 @@ export const TypeSection = (props: PropTypes) => {
           control={form.control}
           name="name"
           label="Nama"
+          isRequired
           hint="Mis. Cuti Tahunan, Cuti Melahirkan."
         >
           {(field) => (
@@ -96,6 +97,7 @@ export const TypeSection = (props: PropTypes) => {
         control={form.control}
         name="maxDaysPerYear"
         label="Jumlah hari"
+        isOptional
         hint={
           isUnlimited
             ? "Tipe ini tidak dibatasi jatah."
@@ -126,6 +128,7 @@ export const TypeSection = (props: PropTypes) => {
           <ChoiceField
             id="isPaid"
             label="Dibayar"
+            isRequired
             value={field.value}
             onValueChange={field.onChange}
             options={PAID_OPTIONS}
@@ -142,6 +145,7 @@ export const TypeSection = (props: PropTypes) => {
             <ChoiceField
               id="isActive"
               label="Status"
+              isRequired
               value={field.value}
               onValueChange={field.onChange}
               options={STATUS_OPTIONS}

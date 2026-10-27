@@ -24,6 +24,7 @@ export const WorkflowSection = (props: PropTypes) => {
         control={form.control}
         name="name"
         label="Nama alur"
+        isRequired
         hint="Mis. Kas keluar sampai Rp 5 juta."
       >
         {(field) => <Input {...field} maxLength={100} />}
@@ -33,6 +34,7 @@ export const WorkflowSection = (props: PropTypes) => {
         control={form.control}
         name="documentType"
         label="Jenis dokumen"
+        isRequired
       >
         {(field) => (
           <SelectField
@@ -45,7 +47,12 @@ export const WorkflowSection = (props: PropTypes) => {
         )}
       </ControlField>
 
-      <ControlField control={form.control} name="isActive" label="Status">
+      <ControlField
+        control={form.control}
+        name="isActive"
+        label="Status"
+        isRequired
+      >
         {(field) => (
           <SelectField
             value={field.value}

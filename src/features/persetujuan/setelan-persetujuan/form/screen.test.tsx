@@ -263,7 +263,9 @@ describe("nama jabatan", () => {
     fireEvent.click(screen.getByLabelText("Jabatan badan pelayanan"));
     await waitFor(() => expect(reads).toContain("/ddl/jabatan-jemaat"));
 
-    const jabatan = screen.getByLabelText("Nama jabatan") as HTMLInputElement;
+    const jabatan = screen.getByLabelText(
+      "Nama jabatan (opsional)",
+    ) as HTMLInputElement;
     fireEvent.focus(jabatan);
     fireEvent.input(jabatan, {
       target: { value: "Jabatan baru" },
@@ -316,7 +318,8 @@ describe("nama jabatan", () => {
 
     await waitFor(() =>
       expect(
-        (screen.getByLabelText("Nama jabatan") as HTMLInputElement).value,
+        (screen.getByLabelText("Nama jabatan (opsional)") as HTMLInputElement)
+          .value,
       ).toBe("Penatua Senior"),
     );
     expect(
@@ -333,10 +336,10 @@ describe("nominal", () => {
     onRenderForm(["VIEW", "CREATE"]);
 
     const min = screen.getByLabelText(
-      "Nominal minimal (Rp)",
+      "Nominal minimal (Rp) (opsional)",
     ) as HTMLInputElement;
     const max = screen.getByLabelText(
-      "Nominal maksimal (Rp)",
+      "Nominal maksimal (Rp) (opsional)",
     ) as HTMLInputElement;
     fireEvent.change(min, { target: { value: "Rp 1.000.000.000" } });
     fireEvent.change(max, { target: { value: "1.234.567.890.123.456.789" } });

@@ -30,6 +30,7 @@ export const EmploymentSection = (props: PropTypes) => {
         control={form.control}
         name="position"
         label="Jabatan"
+        isRequired
         hint="Mis. Koster, Admin Kantor."
       >
         {(field) => <Input {...field} maxLength={100} autoCapitalize="words" />}
@@ -39,6 +40,7 @@ export const EmploymentSection = (props: PropTypes) => {
         control={form.control}
         name="joinDate"
         label="Tanggal bergabung"
+        isRequired
       >
         {(field) => (
           <DateField
@@ -53,7 +55,12 @@ export const EmploymentSection = (props: PropTypes) => {
         )}
       </ControlField>
 
-      <ControlField control={form.control} name="status" label="Status">
+      <ControlField
+        control={form.control}
+        name="status"
+        label="Status"
+        isRequired
+      >
         {(field) => (
           <SelectField
             value={field.value}
@@ -69,6 +76,7 @@ export const EmploymentSection = (props: PropTypes) => {
         control={form.control}
         name="resignDate"
         label="Tanggal berhenti"
+        isOptional
         hint={
           isActive
             ? "Kosongkan selama status masih Aktif."

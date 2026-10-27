@@ -44,7 +44,12 @@ export const EmployeeSection = (props: PropTypes) => {
           value={contract?.karyawan.name ?? ""}
         />
       ) : (
-        <ControlField control={form.control} name="karyawanId" label="Karyawan">
+        <ControlField
+          control={form.control}
+          name="karyawanId"
+          label="Karyawan"
+          isRequired
+        >
           {(field) => (
             <ComboboxField
               id={field.name}

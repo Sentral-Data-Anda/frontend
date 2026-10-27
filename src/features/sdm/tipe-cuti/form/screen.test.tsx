@@ -153,7 +153,7 @@ const onRenderLoadedEdit = async (granted: MenuAction[] = ["UPDATE"]) => {
 };
 
 const daysInput = () =>
-  screen.getByLabelText("Jumlah hari") as HTMLInputElement;
+  screen.getByLabelText("Jumlah hari (opsional)") as HTMLInputElement;
 
 const onSaveConfirmed = async () => {
   fireEvent.click(screen.getByRole("button", { name: "Simpan" }));

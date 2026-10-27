@@ -27,7 +27,7 @@ export const IdentitySection = (props: PropTypes) => {
 
   return (
     <FormSection legend="Identitas" disabled={isDisabled}>
-      <ControlField control={form.control} name="name" label="Nama">
+      <ControlField control={form.control} name="name" label="Nama" isRequired>
         {(field) => <Input {...field} maxLength={150} autoCapitalize="words" />}
       </ControlField>
 
