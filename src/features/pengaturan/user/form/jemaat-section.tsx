@@ -23,6 +23,7 @@ export const JemaatSection = (props: PropTypes) => {
         control={form.control}
         name="jemaatId"
         label="Jemaat"
+        isRequired
         hint="Hanya jemaat yang belum punya akun. Username = kode induk."
       >
         {(field) => (
