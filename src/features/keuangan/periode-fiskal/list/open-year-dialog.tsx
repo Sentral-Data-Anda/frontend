@@ -66,7 +66,12 @@ export const OpenYearDialog = (props: PropTypes) => {
       onConfirm={() => void onSubmit()}
     >
       <form noValidate onSubmit={(event) => event.preventDefault()}>
-        <ControlField control={form.control} name="year" label="Tahun">
+        <ControlField
+          control={form.control}
+          name="year"
+          label="Tahun"
+          isRequired
+        >
           {(field) => (
             <SelectField
               value={field.value}

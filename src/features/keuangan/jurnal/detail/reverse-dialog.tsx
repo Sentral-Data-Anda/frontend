@@ -69,6 +69,7 @@ export const ReverseDialog = (props: PropTypes) => {
           name="entryDate"
           label="Tanggal pembalikan"
           hint={REVERSE_NOTE}
+          isRequired
         >
           {(field) => (
             <DateField
@@ -87,6 +88,7 @@ export const ReverseDialog = (props: PropTypes) => {
           control={form.control}
           name="description"
           label="Keterangan"
+          isRequired
         >
           {(field) => (
             <Input

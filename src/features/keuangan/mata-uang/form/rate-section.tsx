@@ -27,6 +27,7 @@ export const RateSection = (props: PropTypes) => {
             ? "Tanggal tidak bisa diubah. Hapus kurs ini lalu tambah yang baru bila tanggalnya salah."
             : undefined
         }
+        isRequired
       >
         {(field) => (
           <DateField
@@ -45,6 +46,7 @@ export const RateSection = (props: PropTypes) => {
         control={form.control}
         name="rate"
         label={`Kurs (Rp per 1 ${currencyCode})`}
+        isRequired
         hint="Pakai koma untuk desimal, mis. 15.800,5"
       >
         {(field) => (

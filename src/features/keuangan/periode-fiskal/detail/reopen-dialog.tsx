@@ -67,6 +67,7 @@ export const ReopenDialog = (props: PropTypes) => {
           name="reopenReason"
           label="Alasan"
           hint="Alasan ini tersimpan sebagai jejak audit."
+          isRequired
         >
           {(field) => (
             <Textarea

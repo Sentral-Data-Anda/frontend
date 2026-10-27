@@ -47,7 +47,12 @@ export const ReceiptSection = (props: PropTypes) => {
         )}
       </ControlField>
 
-      <ControlField control={form.control} name="payer" label="Diterima dari">
+      <ControlField
+        control={form.control}
+        name="payer"
+        label="Diterima dari"
+        isRequired
+      >
         {(field) => (
           <Input
             {...field}
@@ -62,6 +67,7 @@ export const ReceiptSection = (props: PropTypes) => {
         control={form.control}
         name="intoAccountId"
         label="Masuk ke akun"
+        isRequired
         hint="Kas atau bank yang menerima uangnya."
       >
         {(field) => (
@@ -132,6 +138,7 @@ export const ReceiptSection = (props: PropTypes) => {
           control={form.control}
           name="description"
           label="Keterangan"
+          isRequired
         >
           {(field) => (
             <Textarea
