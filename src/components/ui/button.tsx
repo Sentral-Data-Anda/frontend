@@ -63,9 +63,12 @@ function Button({
       className={cn(variants({ variant, size, className }))}
       {...props}
     >
-      {isLoading ? <LoaderCircle className="animate-spin" aria-hidden /> : null}
-
-      {children}
+      <span className="inline-flex items-center justify-center gap-1.5 transition-all duration-150">
+        {isLoading ? (
+          <LoaderCircle className="animate-spin" aria-hidden />
+        ) : null}
+        <span className="transition-all duration-150">{children}</span>
+      </span>
     </ButtonPrimitive>
   );
 }
