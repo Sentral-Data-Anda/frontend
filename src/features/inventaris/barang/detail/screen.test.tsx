@@ -95,12 +95,7 @@ const MAINTENANCE = Array.from({ length: 5 }, (_, index) => ({
 }));
 
 const listOf = (rows: unknown[], totalData = rows.length) =>
-  rows.length
-    ? Response.json({ status: 200, totalData, totalPage: 1, data: rows })
-    : Response.json(
-        { status: 200, message: "Berhasil Mendapatkan Data", data: [] },
-        { status: 200 },
-      );
+  Response.json({ status: 200, totalData, totalPage: 1, data: rows });
 
 const onRender = (
   granted: Partial<Record<MenuSlug, MenuAction[]>>,
@@ -126,8 +121,8 @@ const onRender = (
     }
     if (options.asset === null) {
       return Response.json(
-        { status: 200, message: "Berhasil Mendapatkan Data", data: [] },
-        { status: 200 },
+        { status: 404, error: "Barang Tidak Ditemukan" },
+        { status: 404 },
       );
     }
 

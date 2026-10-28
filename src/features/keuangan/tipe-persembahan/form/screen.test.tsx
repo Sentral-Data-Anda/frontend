@@ -106,8 +106,8 @@ const onMockApi = (
 
       if (accounts.length === 0) {
         return Response.json(
-          { status: 200, message: "Berhasil Mendapatkan Data", data: [] },
-          { status: 200 },
+          { status: 404, error: "Akun Tidak Ditemukan" },
+          { status: 404 },
         );
       }
 
@@ -139,8 +139,8 @@ const onMockApi = (
     }
 
     return Response.json(
-      { status: 200, message: "Berhasil Mendapatkan Data", data: [] },
-      { status: 200 },
+      { status: 404, error: "Tipe Persembahan Tidak Ditemukan" },
+      { status: 404 },
     );
   }) as typeof fetch;
 

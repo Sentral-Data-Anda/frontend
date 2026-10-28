@@ -218,8 +218,8 @@ const onMockApi = (failure: { save?: Failure; remove?: Failure } = {}) => {
     }
 
     return Response.json(
-      { status: 200, message: "Berhasil Mendapatkan Data", data: [] },
-      { status: 200 },
+      { status: 404, error: "Tipe Barang Tidak Ditemukan" },
+      { status: 404 },
     );
   }) as typeof fetch;
 

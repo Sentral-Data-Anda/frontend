@@ -66,8 +66,6 @@ const readError = async (
   return { message: fallbackMessage(response.status), issues, code };
 };
 
-(await readError(response)).message;
-
 const request = (path: string, init?: RequestInit): Promise<Response> =>
   fetch(`${BASE_PATH}${path}`, {
     ...init,

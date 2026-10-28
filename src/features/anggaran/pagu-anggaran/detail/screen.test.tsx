@@ -117,17 +117,12 @@ const onMockApi = (programs: YearProgram[] = PROGRAMS) => {
     }
 
     if (url.startsWith("/api/v1/program")) {
-      return programs.length === 0
-        ? Response.json(
-            { status: 200, message: "Berhasil Mendapatkan Data", data: [] },
-            { status: 200 },
-          )
-        : Response.json({
-            status: 200,
-            totalData: programs.length,
-            totalPage: 1,
-            data: programs,
-          });
+      return Response.json({
+        status: 200,
+        totalData: programs.length,
+        totalPage: 1,
+        data: programs,
+      });
     }
 
     return Response.json({ status: 200, data: [] });

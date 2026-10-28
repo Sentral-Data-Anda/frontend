@@ -109,8 +109,8 @@ const onMockApi = (api: Api = {}) => {
     if (url.startsWith("/api/v1/ddl/role-user?assignable=1")) {
       return assignable.length === 0
         ? Response.json(
-            { status: 200, message: "Berhasil Mendapatkan Data", data: [] },
-            { status: 200 },
+            { status: 404, error: "Data Tidak Ditemukan" },
+            { status: 404 },
           )
         : Response.json({ status: 200, message: "OK", data: assignable });
     }
@@ -126,8 +126,8 @@ const onMockApi = (api: Api = {}) => {
     }
 
     return Response.json(
-      { status: 200, message: "Berhasil Mendapatkan Data", data: [] },
-      { status: 200 },
+      { status: 404, error: "User Tidak Ditemukan" },
+      { status: 404 },
     );
   }) as typeof fetch;
 

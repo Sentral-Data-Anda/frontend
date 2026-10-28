@@ -90,10 +90,7 @@ const onMockApi = (routes: Record<string, () => Response>) => {
 
     return (
       routes[`${method} ${url}`]?.() ??
-      Response.json(
-        { status: 200, message: "Berhasil Mendapatkan Data", data: [] },
-        { status: 200 },
-      )
+      Response.json({ status: 404, error: "Tidak Ditemukan" }, { status: 404 })
     );
   }) as typeof fetch;
 

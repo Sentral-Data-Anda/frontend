@@ -128,8 +128,8 @@ const onMockApi = (
 
     if (url.startsWith("/api/v1/ddl/bapel") && options.isDdlEmpty) {
       return Response.json(
-        { status: 200, message: "Berhasil Mendapatkan Data", data: [] },
-        { status: 200 },
+        { status: 404, error: "Badan Pelayanan Tidak Ditemukan" },
+        { status: 404 },
       );
     }
     if (url.startsWith("/api/v1/ddl/bapel")) {
@@ -162,8 +162,8 @@ const onMockApi = (
     }
 
     return Response.json(
-      { status: 200, message: "Berhasil Mendapatkan Data", data: [] },
-      { status: 200 },
+      { status: 404, error: "Pengumuman Tidak Ditemukan" },
+      { status: 404 },
     );
   }) as typeof fetch;
 

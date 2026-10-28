@@ -117,15 +117,12 @@ const onRender = (
             totalData: options.total ?? movements.length,
             totalPage: 1,
           })
-        : Response.json(
-            { status: 200, message: "Berhasil Mendapatkan Data", data: [] },
-            { status: 200 },
-          );
+        : Response.json({ status: 200, totalData: 0, totalPage: 1, data: [] });
     }
     if (options.item === null) {
       return Response.json(
-        { status: 200, message: "Berhasil Mendapatkan Data", data: [] },
-        { status: 200 },
+        { status: 404, error: "Barang Persediaan Tidak Ditemukan" },
+        { status: 404 },
       );
     }
 

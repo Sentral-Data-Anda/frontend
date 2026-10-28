@@ -154,11 +154,11 @@ describe("mock katalog", () => {
     expect(inactive?.status).toBe(400);
     expect(inactive?.body.issues?.[0]?.path).toBe("accountId");
 
-    const _missing = await onCall("POST", "/komponen-payroll", {
+    const missing = await onCall("POST", "/komponen-payroll", {
       ...COMPONENT,
       accountId: 9999,
     });
-    expect(response?.status).toBe(200);
+    expect(missing?.status).toBe(404);
   });
 
   test("persentase di atas 100 ditolak, 100 diterima", async () => {

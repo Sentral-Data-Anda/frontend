@@ -7,6 +7,8 @@ import { skillMusikMock } from "./skill-musik";
 
 type Json = {
   status: number;
+  totalData?: number;
+  totalPage?: number;
   error?: string;
   message?: string;
   issues?: { path: string; message: string }[];

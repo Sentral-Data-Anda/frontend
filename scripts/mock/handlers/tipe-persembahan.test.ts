@@ -137,7 +137,7 @@ describe("mock /type-persembahan", () => {
       ...VALID,
       accountId: 999,
     });
-    expect(response?.status).toBe(200);
+    expect(missing?.status).toBe(404);
     expect(missing?.body.issues?.[0].path).toBe("accountId");
 
     const inactive = await onCall("POST", "/type-persembahan", {

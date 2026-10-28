@@ -248,7 +248,7 @@ describe("tulis: tanggal", () => {
         "/absensi-karyawan?startDate=1970-01-01&endDate=1970-12-31",
       ),
     );
-    expect(listed.data).toBeUndefined();
+    expect(listed.data).toEqual([]);
   });
 });
 
@@ -353,7 +353,7 @@ describe("tulis: karyawan dan catatan", () => {
       body: payload({ karyawanId: 999, date: addDays(TODAY, -8) }),
     });
 
-    expect(response?.status).toBe(200);
+    expect(response?.status).toBe(404);
     expect((await bodyOf<{ error: string }>(response)).error).toBe(
       "Karyawan Tidak Ditemukan",
     );

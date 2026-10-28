@@ -105,17 +105,17 @@ const onRender = (
         );
       }
 
-      return usage.length
-        ? Response.json({ status: 200, data: usage })
-        : Response.json(
-            { status: 200, message: "Berhasil Mendapatkan Data", data: [] },
-            { status: 200 },
-          );
+      return Response.json({
+        status: 200,
+        totalData: usage.length,
+        totalPage: 1,
+        data: usage,
+      });
     }
     if (options.room === null) {
       return Response.json(
-        { status: 200, message: "Berhasil Mendapatkan Data", data: [] },
-        { status: 200 },
+        { status: 404, error: "Ruang Tidak Ditemukan" },
+        { status: 404 },
       );
     }
 

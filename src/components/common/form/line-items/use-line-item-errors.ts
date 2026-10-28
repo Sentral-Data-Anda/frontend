@@ -23,7 +23,7 @@ export function useLineItemErrors<T extends FieldValues, F extends string>(
 
   const idOf = (field: F) => `${path}.${field}`;
   const messageOf = (field: F): string | undefined =>
-    get(errors, idOf(field))?.message;
+    (get(errors, idOf(field)) as { message?: string } | undefined)?.message;
   const isInvalid = (field: F) => Boolean(messageOf(field));
   const messageIdOf = (field: F) =>
     isInvalid(field) ? lineItemMessageId(idOf(field)) : undefined;

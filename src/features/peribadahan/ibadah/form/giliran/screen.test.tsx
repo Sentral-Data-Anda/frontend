@@ -114,13 +114,7 @@ const onMockApi = (save?: Failure) => {
     if (path === "/ddl/zone-church") return ok(ZONES);
     if (path === "/ddl/keluarga") return ok(SUGGESTIONS);
     if (path === "/ibadah/saran-tuan-rumah") {
-      return query.get("zoneChurchId") === "1"
-        ? ok(SUGGESTIONS)
-        : fail({
-            status: 404,
-            error:
-              "Tidak Ada Keluarga Yang Dapat Menjadi Tuan Rumah di Wilayah Ini",
-          });
+      return query.get("zoneChurchId") === "1" ? ok(SUGGESTIONS) : ok([]);
     }
     if (path === "/ibadah" && query.get("limit") === "1") {
       return ok([
@@ -134,6 +128,7 @@ const onMockApi = (save?: Failure) => {
     if (path === "/ibadah" && query.get("startDate")) {
       return ok([{ date: `${addDays(START, 7)}T00:00:00.000Z` }]);
     }
+    if (path === "/ibadah") return ok([]);
 
     return fail({ status: 404, error: "Tidak Ditemukan" });
   }) as typeof fetch;

@@ -8,6 +8,7 @@ import { supplierMock } from "./supplier";
 
 type Json = {
   status: number;
+  totalPage?: number;
   error?: string;
   message?: string;
   issues?: { path: string; message: string }[];

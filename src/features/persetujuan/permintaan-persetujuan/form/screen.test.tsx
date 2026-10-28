@@ -61,8 +61,8 @@ const onMockApi = (
     return detail
       ? Response.json({ status: 200, message: "ok", data: detail })
       : Response.json(
-          { status: 200, message: "Berhasil Mendapatkan Data", data: [] },
-          { status: 200 },
+          { status: 404, error: "Permintaan Persetujuan Tidak Ditemukan" },
+          { status: 404 },
         );
   }) as typeof fetch;
 

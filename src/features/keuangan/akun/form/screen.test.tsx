@@ -92,8 +92,8 @@ const onMockApi = (failure?: Failure) => {
       return url === "/api/v1/account/1-100"
         ? Response.json({ status: 200, message: "OK", data: DETAIL })
         : Response.json(
-            { status: 200, message: "Berhasil Mendapatkan Data", data: [] },
-            { status: 200 },
+            { status: 404, error: "Akun Tidak Ditemukan" },
+            { status: 404 },
           );
     }
 

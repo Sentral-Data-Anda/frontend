@@ -168,10 +168,7 @@ const onMockApi = (
       return Response.json({ status: 200, message: "OK", data: detail });
     }
 
-    return Response.json(
-      { status: 200, message: "Berhasil Mendapatkan Data", data: [] },
-      { status: 200 },
-    );
+    return Response.json({ status: 404, error: "?" }, { status: 404 });
   }) as typeof fetch;
 
   return calls;

@@ -127,7 +127,7 @@ describe("mock /account", () => {
       ...VALID,
       parentAccountId: 999,
     });
-    expect(missing?.status).toBe(200);
+    expect(missing?.status).toBe(404);
     expect(missing?.body.issues?.[0]?.path).toBe("parentAccountId");
 
     const wrongType = await onCall("POST", "/account", {

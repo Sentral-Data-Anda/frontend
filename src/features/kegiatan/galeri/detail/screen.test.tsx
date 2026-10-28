@@ -114,8 +114,8 @@ describe("halaman album", () => {
     onRender(
       ["VIEW"],
       Response.json(
-        { status: 200, message: "Berhasil Mendapatkan Data", data: [] },
-        { status: 200 },
+        { status: 404, error: "Album Tidak Ditemukan" },
+        { status: 404 },
       ),
     );
 

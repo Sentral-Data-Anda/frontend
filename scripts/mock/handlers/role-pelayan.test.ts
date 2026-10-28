@@ -7,6 +7,8 @@ import { rolePelayanMock } from "./role-pelayan";
 
 type Json = {
   status: number;
+  totalData?: number;
+  totalPage?: number;
   error?: string;
   message?: string;
   issues?: { path: string; message: string }[];

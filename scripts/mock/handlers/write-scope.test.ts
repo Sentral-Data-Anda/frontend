@@ -123,7 +123,7 @@ describe("jalur tulis melingkupi kunci pemilik, bukan cuma memeriksa ada", () =>
       issues?: { path: string }[];
     };
 
-    expect(response?.status).toBe(200);
+    expect(response?.status).toBe(404);
     expect(body.issues?.[0]?.path).toBe("bapelId");
   });
 
@@ -155,7 +155,7 @@ describe("jalur tulis melingkupi kunci pemilik, bukan cuma memeriksa ada", () =>
         issues?: { path: string }[];
       };
 
-      expect(response?.status).toBe(200);
+      expect(response?.status).toBe(404);
       expect(body.issues?.[0]?.path).toBe("bapelId");
     } finally {
       clear();

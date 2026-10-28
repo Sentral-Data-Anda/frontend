@@ -8,6 +8,8 @@ import { satuanMock } from "./satuan";
 
 type Json = {
   status: number;
+  totalData?: number;
+  totalPage?: number;
   error?: string;
   message?: string;
   issues?: { path: string; message: string }[];

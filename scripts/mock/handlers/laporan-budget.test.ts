@@ -174,12 +174,13 @@ const liveRow = (): BudgetReportRow =>
   )!;
 
 describe("bacaan", () => {
-  test("daftar kosong dijawab 404, seperti be-sada", async () => {
+  test("daftar kosong dijawab 200 dengan array kosong", async () => {
     BUDGET_USAGE_REPORT.splice(0, BUDGET_USAGE_REPORT.length);
 
     const response = await onCall("GET", "/laporan-budget");
 
     expect(response?.status).toBe(200);
+    expect((response?.body.data as unknown[]).length).toBe(0);
   });
 
   test("detail membawa programId, bapelId, dan publicId tiap tahap", async () => {
@@ -351,7 +352,7 @@ describe("mock menolak apa yang server tolak", () => {
 
   test("akun tidak ada atau bukan beban/aset ditolak", async () => {
     const month = freeMonth();
-    const _missing = await onCall(
+    const missing = await onCall(
       "POST",
       "/laporan-budget",
       createBody(month, [
@@ -359,7 +360,7 @@ describe("mock menolak apa yang server tolak", () => {
       ]),
     );
 
-    expect(response?.status).toBe(200);
+    expect(missing?.status).toBe(404);
 
     const income = await onCall(
       "POST",
@@ -469,7 +470,7 @@ describe("mock menolak apa yang server tolak", () => {
     const row = liveRow();
     const response = await onCall("GET", `/laporan-budget/${row.code}`);
 
-    expect(response?.status).toBe(200);
+    expect(response?.status).toBe(404);
   });
 });
 
@@ -587,6 +588,7 @@ describe("lingkup komisi", () => {
     );
 
     expect(response?.status).toBe(200);
+    expect((response?.body.data as unknown[]).length).toBe(0);
   });
 
   test("pemegang BUDGET VIEW melihat setiap komisi", async () => {
@@ -615,7 +617,7 @@ describe("lingkup komisi", () => {
       false,
     );
 
-    expect(response?.status).toBe(200);
+    expect(response?.status).toBe(404);
   });
 
   test("query bapelId tidak melebarkan lingkup", async () => {
@@ -631,6 +633,7 @@ describe("lingkup komisi", () => {
     );
 
     expect(response?.status).toBe(200);
+    expect((response?.body.data as unknown[]).length).toBe(0);
   });
 
   test("membuat laporan untuk komisi lain dijawab 404 ke field komisi", async () => {
@@ -643,7 +646,7 @@ describe("lingkup komisi", () => {
       false,
     );
 
-    expect(response?.status).toBe(200);
+    expect(response?.status).toBe(404);
     expect(response?.body.issues?.[0]?.path).toBe("bapelId");
   });
 

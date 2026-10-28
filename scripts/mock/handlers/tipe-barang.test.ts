@@ -8,6 +8,8 @@ import { tipeBarangMock } from "./tipe-barang";
 
 type Json = {
   status: number;
+  totalData?: number;
+  totalPage?: number;
   error?: string;
   message?: string;
   issues?: { path: string; message: string }[];
