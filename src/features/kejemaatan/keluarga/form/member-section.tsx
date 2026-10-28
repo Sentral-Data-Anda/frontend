@@ -98,6 +98,9 @@ const MemberRow = (props: RowPropTypes) => {
               disabled={isDisabled}
               placeholder="Cari nama atau kode jemaat"
               emptyMessage="Belum ada data jemaat"
+              onLoadMore={jemaat.onLoadMore}
+              hasMore={jemaat.hasMore}
+              isLoadingMore={jemaat.isLoadingMore}
             />
           )}
         />

@@ -47,6 +47,9 @@ export const FamilySection = (props: PropTypes) => {
             disabled={isDisabled}
             placeholder="Pilih keluarga asal"
             emptyMessage="Belum ada data keluarga"
+            onLoadMore={keluarga.onLoadMore}
+            hasMore={keluarga.hasMore}
+            isLoadingMore={keluarga.isLoadingMore}
           />
         )}
       </ControlField>

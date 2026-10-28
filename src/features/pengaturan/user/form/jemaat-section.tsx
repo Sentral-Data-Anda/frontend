@@ -36,6 +36,9 @@ export const JemaatSection = (props: PropTypes) => {
             disabled={isDisabled}
             placeholder="Ketik nama jemaat"
             emptyMessage="Tidak ada jemaat tanpa akun dengan nama itu"
+            onLoadMore={jemaat.onLoadMore}
+            hasMore={jemaat.hasMore}
+            isLoadingMore={jemaat.isLoadingMore}
           />
         )}
       </ControlField>

@@ -1,9 +1,10 @@
 "use client";
 
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import type { SelectOption } from "@/components/common/control";
+import { useBoolean } from "@/hooks/use-boolean";
 import { fetchList } from "@/lib/api/fetcher";
 
 export type DdlOption = {
@@ -74,16 +75,26 @@ export const useDdlOptions = <T extends DdlOption = DdlOption>(
   hintOf?: HintOf<T>,
 ) => useDdlQuery(path, valueKey, false, keepValue, hintOf);
 
+export type UseDdlSearchResult<T extends DdlOption = DdlOption> = {
+  rows: T[];
+  options: SelectOption[];
+  isLoading: boolean;
+  hasMore: boolean;
+  isLoadingMore: boolean;
+  onSearch: (query: string) => void;
+  onLoadMore: () => void;
+};
+
 export function useDdlSearch<T extends DdlOption = DdlOption>(
   resource: string,
   valueKey: ValueKey = "id",
   pinned: SelectOption | null = null,
   hintOf?: HintOf<T>,
-) {
+): UseDdlSearchResult<T> {
   const [query, setQuery] = useState("");
   const [debounced, setDebounced] = useState("");
 
-  const ddl = useDdlQuery(
+  const initial = useDdlQuery(
     ddlSearchPath(resource, debounced),
     valueKey,
     true,
@@ -91,21 +102,76 @@ export function useDdlSearch<T extends DdlOption = DdlOption>(
     hintOf,
   );
 
-  const isPinnedMissing =
-    pinned !== null &&
-    !ddl.options.some((option) => option.value === pinned.value);
+  const [allOptions, setAllOptions] = useState<SelectOption[]>([]);
+  const isHasMore = useBoolean(false);
+  const isLoadingMore = useBoolean(false);
+  const abortRef = useRef(false);
+
+  const pageSize = 20;
+
+  // Reset when query changes
 
   useEffect(() => {
-    if (query === debounced) return;
-
-    const timer = setTimeout(() => setDebounced(query), 300);
-
+    const timer = setTimeout(() => {
+      setAllOptions(initial.options);
+      isHasMore.setValue(initial.options.length >= pageSize);
+    }, 0);
     return () => clearTimeout(timer);
-  }, [query, debounced]);
+  }, [initial.options, debounced]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebounced(query), 150);
+    return () => clearTimeout(timer);
+  }, [query, setDebounced]);
+
+  const isPinnedMissing =
+    pinned !== null &&
+    !allOptions.some((option) => option.value === pinned.value);
+
+  const options = isPinnedMissing ? [pinned, ...allOptions] : allOptions;
+
+  const onLoadMore = async () => {
+    if (isLoadingMore.value || !isHasMore.value || abortRef.current) return;
+
+    isLoadingMore.setValue(true);
+    abortRef.current = false;
+    try {
+      const nextLimit = allOptions.length + pageSize;
+      const path = `${resource}${resource.includes("?") ? "&" : "?"}limit=${nextLimit}${debounced ? `&filter=${encodeURIComponent(debounced)}` : ""}`;
+
+      const result = await fetchList<T>(`/ddl/${path}`);
+      const newOptions = toDdlOptions(result.data, valueKey, "", hintOf);
+
+      if (abortRef.current) return;
+
+      setAllOptions((prev) => {
+        const map = new Map(prev.map((option) => [option.value, option]));
+        for (const option of newOptions) {
+          map.set(option.value, option);
+        }
+        return [...map.values()];
+      });
+
+      isHasMore.setValue(newOptions.length >= pageSize);
+    } finally {
+      if (!abortRef.current) {
+        isLoadingMore.setValue(false);
+      }
+    }
+  };
+
+  const onSearch = (next: string) => {
+    setQuery(next);
+    abortRef.current = true;
+  };
 
   return {
-    ...ddl,
-    options: isPinnedMissing ? [pinned, ...ddl.options] : ddl.options,
-    onSearch: setQuery,
+    rows: initial.rows,
+    options,
+    isLoading: initial.isLoading,
+    hasMore: isHasMore.value,
+    isLoadingMore: isLoadingMore.value,
+    onSearch,
+    onLoadMore,
   };
 }

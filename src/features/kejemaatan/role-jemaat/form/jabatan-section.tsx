@@ -38,6 +38,9 @@ export const JabatanSection = (props: PropTypes) => {
             disabled={isDisabled}
             placeholder="Ketik nama jemaat"
             emptyMessage="Tidak ada jemaat dengan nama itu"
+            onLoadMore={jemaat.onLoadMore}
+            hasMore={jemaat.hasMore}
+            isLoadingMore={jemaat.isLoadingMore}
           />
         )}
       </ControlField>

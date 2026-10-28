@@ -49,6 +49,9 @@ export const IdentitySection = (props: PropTypes) => {
             disabled={isDisabled}
             placeholder="Pilih jemaat"
             emptyMessage="Jemaat tidak ditemukan"
+            onLoadMore={jemaat.onLoadMore}
+            hasMore={jemaat.hasMore}
+            isLoadingMore={jemaat.isLoadingMore}
           />
         )}
       </ControlField>

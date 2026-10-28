@@ -153,6 +153,9 @@ export const PreviewRow = memo(function PreviewRow(props: PropTypes) {
             emptyMessage="Belum ada data keluarga"
             aria-invalid={isHostInvalid || undefined}
             aria-describedby={isHostInvalid ? messageId : undefined}
+            onLoadMore={hosts.onLoadMore}
+            hasMore={hosts.hasMore}
+            isLoadingMore={hosts.isLoadingMore}
           />
 
           {row.hostId && address.isError ? (

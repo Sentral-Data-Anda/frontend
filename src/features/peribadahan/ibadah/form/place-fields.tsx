@@ -243,6 +243,9 @@ export const PlaceFields = (props: PropTypes) => {
               disabled={isDisabled}
               placeholder="Cari keluarga"
               emptyMessage="Belum ada data keluarga"
+              onLoadMore={hosts.onLoadMore}
+              hasMore={hosts.hasMore}
+              isLoadingMore={hosts.isLoadingMore}
             />
           )}
         </ControlField>

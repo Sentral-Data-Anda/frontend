@@ -2,7 +2,7 @@
 
 import { Combobox } from "@base-ui/react/combobox";
 import { Check, ChevronDown, Plus, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { EmptyState } from "@/components/common/feedback";
 import { inputVariants } from "@/components/ui";
@@ -39,6 +39,9 @@ interface PropTypes {
   className?: string;
   "aria-invalid"?: boolean;
   "aria-describedby"?: string;
+  onLoadMore?: () => void;
+  hasMore?: boolean;
+  isLoadingMore?: boolean;
 }
 
 export const ComboboxField = (props: PropTypes) => {
@@ -55,6 +58,9 @@ export const ComboboxField = (props: PropTypes) => {
     onSearch,
     onCreate,
     className,
+    onLoadMore,
+    hasMore = false,
+    isLoadingMore = false,
     ...aria
   } = props;
 
@@ -62,6 +68,8 @@ export const ComboboxField = (props: PropTypes) => {
   const collator = Combobox.useFilter();
 
   const [held, setHeld] = useState<SelectOption | null>(null);
+  const listRef = useRef<HTMLDivElement>(null);
+  const isNearBottomRef = useRef(true);
 
   const found = options.find((option) => option.value === value);
   const isHeld =
@@ -97,6 +105,30 @@ export const ComboboxField = (props: PropTypes) => {
   const onFilter = (option: SelectOption, text: string) =>
     option.value === CREATE_VALUE ||
     collator.contains(option, text, (item) => item.label);
+
+  useEffect(() => {
+    const el = listRef.current;
+    if (!el || !onLoadMore || !hasMore || isLoadingMore) return;
+
+    const handleScroll = () => {
+      const distanceFromBottom =
+        el.scrollHeight - el.scrollTop - el.clientHeight;
+      isNearBottomRef.current = distanceFromBottom < 80;
+
+      if (isNearBottomRef.current) {
+        onLoadMore();
+      }
+    };
+
+    el.addEventListener("scroll", handleScroll, { passive: true });
+
+    const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+    if (distanceFromBottom < 80) {
+      onLoadMore();
+    }
+
+    return () => el.removeEventListener("scroll", handleScroll);
+  }, [onLoadMore, hasMore, isLoadingMore]);
 
   return (
     <Combobox.Root
@@ -166,8 +198,8 @@ export const ComboboxField = (props: PropTypes) => {
                   />
                 </Combobox.Empty>
 
-                <Combobox.List>
-                  {(option: SelectOption) =>
+                <Combobox.List className="max-h-72 overflow-auto">
+                  {items.map((option) =>
                     option.value === CREATE_VALUE ? (
                       <Combobox.Item
                         key={option.value}
@@ -203,8 +235,18 @@ export const ComboboxField = (props: PropTypes) => {
                           </span>
                         )}
                       </Combobox.Item>
-                    )
-                  }
+                    ),
+                  )}
+
+                  {hasMore && (
+                    <div className={cn(FIELD_ITEM, "text-muted-foreground")}>
+                      <span className="col-start-2 truncate">
+                        {isLoadingMore
+                          ? "Memuat lebih banyak…"
+                          : "Scroll untuk lebih banyak"}
+                      </span>
+                    </div>
+                  )}
                 </Combobox.List>
               </>
             )}

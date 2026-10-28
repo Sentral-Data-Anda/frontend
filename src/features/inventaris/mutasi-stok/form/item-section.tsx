@@ -48,6 +48,9 @@ export const ItemSection = (props: PropTypes) => {
             disabled={isDisabled}
             placeholder="Pilih barang persediaan"
             emptyMessage="Tidak ada barang persediaan dengan nama atau kode itu"
+            onLoadMore={stock.onLoadMore}
+            hasMore={stock.hasMore}
+            isLoadingMore={stock.isLoadingMore}
           />
         )}
       </ControlField>
