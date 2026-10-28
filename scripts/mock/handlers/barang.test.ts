@@ -1,7 +1,7 @@
-import { afterEach, describe, expect, test } from "bun:test";
+import { afterEach, beforeAll, describe, expect, test } from "bun:test";
 
 import { ROOM } from "../fasilitas-store";
-import { ASSET } from "../inventaris-store";
+import { ASSET, resetInventaris } from "../inventaris-store";
 import type { MockAction } from "../kit";
 
 import { barangMock } from "./barang";
@@ -115,6 +115,11 @@ const formFieldsOf = (row: (typeof ASSET)[number]) => ({
   bapelId: String(row.bapelId),
   roomId: String(row.roomId),
 });
+
+// Berkas ini menilai benih apa adanya: Printer Canon G2010 harus masih berstatus
+// menunggu pelepasan. Berkas lain dalam proses yang sama bisa melepasnya lebih
+// dulu (urutan berkas berbeda di runner CI), jadi benih dikembalikan dulu.
+beforeAll(resetInventaris);
 
 describe("baca", () => {
   test("daftar urut nama, filter status; tanpa izin 403", async () => {

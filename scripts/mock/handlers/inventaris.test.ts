@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { afterAll, describe, expect, test } from "bun:test";
 
 import { MENU, type MenuSlug } from "../../../src/config/menu";
 import { addDays } from "../../../src/lib/date";
@@ -22,6 +22,7 @@ import {
   decideDisposal,
   openRun,
   postRun,
+  resetInventaris,
   roomHoldsInventory,
   runOpenFailure,
   stockItemDdl,
@@ -67,6 +68,10 @@ const stockNamed = (name: string) => {
 
   return found;
 };
+
+// Berkas ini menyetujui pelepasan seed Printer Canon G2010. Tanpa
+// pengembalian benih, berkas berikutnya melihat aset yang sudah dilepas.
+afterAll(resetInventaris);
 
 describe("kode", () => {
   test("kode baru master melanjutkan urutan seed, tidak bertabrakan", () => {
