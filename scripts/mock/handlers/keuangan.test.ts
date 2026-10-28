@@ -69,7 +69,8 @@ describe("mock /periode-fiskal", () => {
     expect(rows.every((row) => row.status === "OPEN")).toBe(true);
 
     const none = await onCall(periodeFiskalMock, "/periode-fiskal?year=1999");
-    expect(none?.status).toBe(404);
+    expect(none?.status).toBe(200);
+    expect((none?.body.data as { status: string }[]).length).toBe(0);
   });
 
   test("tanpa VIEW ditolak", async () => {

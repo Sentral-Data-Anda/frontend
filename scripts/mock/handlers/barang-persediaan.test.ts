@@ -100,10 +100,8 @@ describe("daftar", () => {
 
   test("cari tanpa hasil → 404 Barang Persediaan Tidak Ditemukan", async () => {
     const empty = await onCall("GET", "/barang-persediaan?filter=zzz");
-    expect(empty).toEqual({
-      status: 404,
-      body: { status: 404, error: "Barang Persediaan Tidak Ditemukan" },
-    });
+    expect(empty.status).toBe(200);
+    expect(empty.body.data as any[]).toEqual([]);
   });
 });
 

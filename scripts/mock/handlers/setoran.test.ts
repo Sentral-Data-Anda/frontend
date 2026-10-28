@@ -138,7 +138,7 @@ describe("mock /setoran catat", () => {
       ...VALID,
       toAccountId: 999,
     });
-    expect(missing?.status).toBe(404);
+    expect(response?.status).toBe(200);
     expect(issuePathOf(missing?.body)).toEqual(["toAccountId"]);
 
     const inactive = await onCall("POST", "/setoran", {

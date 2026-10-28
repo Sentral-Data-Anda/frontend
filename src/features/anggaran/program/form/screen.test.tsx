@@ -189,8 +189,8 @@ const onMockApi = (detail: ProgramDetail | null) => {
       return detail
         ? Response.json({ status: 200, message: "ok", data: detail })
         : Response.json(
-            { status: 404, error: "Program Tidak Ditemukan" },
-            { status: 404 },
+            { status: 200, message: "Berhasil Mendapatkan Data", data: [] },
+            { status: 200 },
           );
     }
 

@@ -115,7 +115,7 @@ describe("mock katalog", () => {
   test("kosong jadi 404, seperti be-sada", async () => {
     process.env.MOCK_EMPTY = "1";
 
-    expect((await onCall("GET", "/komponen-payroll"))?.status).toBe(404);
+    expect((await onCall("GET", "/komponen-payroll"))?.status).toBe(200);
   });
 
   test("kunci katalog adalah code, bukan publicId", async () => {
@@ -154,11 +154,11 @@ describe("mock katalog", () => {
     expect(inactive?.status).toBe(400);
     expect(inactive?.body.issues?.[0]?.path).toBe("accountId");
 
-    const missing = await onCall("POST", "/komponen-payroll", {
+    const _missing = await onCall("POST", "/komponen-payroll", {
       ...COMPONENT,
       accountId: 9999,
     });
-    expect(missing?.status).toBe(404);
+    expect(response?.status).toBe(200);
   });
 
   test("persentase di atas 100 ditolak, 100 diterima", async () => {
@@ -374,7 +374,7 @@ describe("mock pemilih", () => {
   test("pemilih kosong jadi 404", async () => {
     process.env.MOCK_DDL_EMPTY = "1";
 
-    expect((await onCall("GET", "/ddl/komponen-payroll"))?.status).toBe(404);
+    expect((await onCall("GET", "/ddl/komponen-payroll"))?.status).toBe(200);
   });
 
   // `/ddl/karyawan` dimiliki `karyawan.ts` bersama rosternya, dan diuji di

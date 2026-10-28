@@ -94,7 +94,7 @@ describe("GET /ddl/event", () => {
     expect(names).not.toContain("Sekolah Minggu Kreatif");
     expect(names).not.toContain("Latihan Paduan Suara");
     expect(names[0]).toBe("Rapat Majelis");
-    expect(body.message).toBe("Berhasil Mendapatkan Semua Event");
+    expect(body.message).toBe("Berhasil Mendapatkan Data");
     expect(Object.keys(body.data[0]).sort()).toEqual(
       [
         "id",

@@ -178,7 +178,7 @@ describe("booking, check, batch", () => {
           `/loan-room/booking?roomId=3&date=${addDays(TODAY, 200)}`,
         )
       ).status,
-    ).toBe(404);
+    ).toBe(200);
     expect(
       (
         await call(

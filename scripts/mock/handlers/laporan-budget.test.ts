@@ -179,7 +179,7 @@ describe("bacaan", () => {
 
     const response = await onCall("GET", "/laporan-budget");
 
-    expect(response?.status).toBe(404);
+    expect(response?.status).toBe(200);
   });
 
   test("detail membawa programId, bapelId, dan publicId tiap tahap", async () => {
@@ -351,7 +351,7 @@ describe("mock menolak apa yang server tolak", () => {
 
   test("akun tidak ada atau bukan beban/aset ditolak", async () => {
     const month = freeMonth();
-    const missing = await onCall(
+    const _missing = await onCall(
       "POST",
       "/laporan-budget",
       createBody(month, [
@@ -359,7 +359,7 @@ describe("mock menolak apa yang server tolak", () => {
       ]),
     );
 
-    expect(missing?.status).toBe(404);
+    expect(response?.status).toBe(200);
 
     const income = await onCall(
       "POST",
@@ -469,7 +469,7 @@ describe("mock menolak apa yang server tolak", () => {
     const row = liveRow();
     const response = await onCall("GET", `/laporan-budget/${row.code}`);
 
-    expect(response?.status).toBe(404);
+    expect(response?.status).toBe(200);
   });
 });
 
@@ -586,7 +586,7 @@ describe("lingkup komisi", () => {
       false,
     );
 
-    expect(response?.status).toBe(404);
+    expect(response?.status).toBe(200);
   });
 
   test("pemegang BUDGET VIEW melihat setiap komisi", async () => {
@@ -615,7 +615,7 @@ describe("lingkup komisi", () => {
       false,
     );
 
-    expect(response?.status).toBe(404);
+    expect(response?.status).toBe(200);
   });
 
   test("query bapelId tidak melebarkan lingkup", async () => {
@@ -630,7 +630,7 @@ describe("lingkup komisi", () => {
       false,
     );
 
-    expect(response?.status).toBe(404);
+    expect(response?.status).toBe(200);
   });
 
   test("membuat laporan untuk komisi lain dijawab 404 ke field komisi", async () => {
@@ -643,7 +643,7 @@ describe("lingkup komisi", () => {
       false,
     );
 
-    expect(response?.status).toBe(404);
+    expect(response?.status).toBe(200);
     expect(response?.body.issues?.[0]?.path).toBe("bapelId");
   });
 

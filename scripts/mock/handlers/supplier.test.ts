@@ -101,8 +101,14 @@ describe("mock /supplier", () => {
     ]);
 
     expect(await onCall("GET", "/supplier?filter=zzz")).toEqual({
-      status: 404,
-      body: { status: 404, error: "Supplier Tidak Ditemukan" },
+      status: 200,
+      body: {
+        status: 200,
+        message: "Berhasil Mendapatkan Semua Supplier",
+        totalData: 0,
+        totalPage: 0,
+        data: [],
+      },
     });
   });
 

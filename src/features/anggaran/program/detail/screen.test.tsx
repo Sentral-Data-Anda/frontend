@@ -529,8 +529,8 @@ describe("halaman usulan: lingkup dan status mati", () => {
       {
         "GET /api/v1/program/prg-0001": () =>
           Response.json(
-            { status: 404, error: "Program Tidak Ditemukan" },
-            { status: 404 },
+            { status: 200, message: "Berhasil Mendapatkan Data", data: [] },
+            { status: 200 },
           ),
       },
     );

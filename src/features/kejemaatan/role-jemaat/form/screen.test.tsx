@@ -224,8 +224,8 @@ describe("id tidak dikenal", () => {
   test("404 detail: FormNotFound, bukan form kosong dengan Hapus", async () => {
     globalThis.fetch = (async () =>
       Response.json(
-        { status: 404, error: "Role Jemaat Tidak Ditemukan" },
-        { status: 404 },
+        { status: 200, message: "Berhasil Mendapatkan Data", data: [] },
+        { status: 200 },
       )) as unknown as typeof fetch;
     onRenderForm(["VIEW", "UPDATE", "DELETE"], "999");
 

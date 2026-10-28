@@ -49,7 +49,7 @@ export const paging = (url: URL) => {
   return { page, limit };
 };
 
-// Daftar berpaginasi be-sada; kosong = 404 "<X> Tidak Ditemukan".
+// Daftar berpaginasi be-sada; kosong = 200 + `data: []`.
 export const list = (
   rows: unknown[],
   url: URL,
@@ -57,15 +57,15 @@ export const list = (
   emptyName: string,
   message = `Berhasil Mendapatkan Semua ${okName}`,
 ) => {
-  if (rows.length === 0 || process.env.MOCK_EMPTY) {
-    return json({ status: 404, error: `${emptyName} Tidak Ditemukan` }, 404);
+  if (process.env.MOCK_EMPTY) {
+    rows = [];
   }
   const { page, limit } = paging(url);
   return json({
     status: 200,
     message,
     totalData: rows.length,
-    totalPage: Math.ceil(rows.length / limit),
+    totalPage: rows.length === 0 ? 0 : Math.ceil(rows.length / limit),
     data: rows.slice((page - 1) * limit, page * limit),
   });
 };

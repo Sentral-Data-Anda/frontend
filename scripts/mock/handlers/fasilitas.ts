@@ -26,13 +26,13 @@ export const fasilitasMock: MockHandler = (ctx) => {
 
     const rows = roomDdl();
 
-    return rows.length === 0 || process.env.MOCK_DDL_EMPTY
-      ? json({ status: 404, error: "Ruang Tidak Ditemukan" }, 404)
-      : json({
-          status: 200,
-          message: "Berhasil Mendapatkan Semua Ruang",
-          data: rows,
-        });
+    return json({
+      status: 200,
+      message: "Berhasil Mendapatkan Data",
+      data: rows,
+      totalData: rows.length,
+      totalPage: rows.length === 0 ? 0 : Math.ceil(rows.length / 10),
+    });
   }
 
   return null;

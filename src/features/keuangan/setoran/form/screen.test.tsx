@@ -74,8 +74,8 @@ const onMockApi = (failure?: Failure, ddl = DDL) => {
     if (method === "GET") {
       return ddl.length === 0
         ? Response.json(
-            { status: 404, error: "Akun Tidak Ditemukan" },
-            { status: 404 },
+            { status: 200, message: "Berhasil Mendapatkan Data", data: [] },
+            { status: 200 },
           )
         : Response.json({
             status: 200,

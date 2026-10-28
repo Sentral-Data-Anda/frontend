@@ -144,7 +144,7 @@ describe("daftar", () => {
   test("MOCK_EMPTY menjawab 404", async () => {
     process.env.MOCK_EMPTY = "1";
 
-    expect((await onCall("GET", "/kas-masuk"))?.status).toBe(404);
+    expect((await onCall("GET", "/kas-masuk"))?.status).toBe(200);
   });
 });
 

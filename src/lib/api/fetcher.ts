@@ -66,8 +66,7 @@ const readError = async (
   return { message: fallbackMessage(response.status), issues, code };
 };
 
-const readErrorMessage = async (response: Response): Promise<string> =>
-  (await readError(response)).message;
+(await readError(response)).message;
 
 const request = (path: string, init?: RequestInit): Promise<Response> =>
   fetch(`${BASE_PATH}${path}`, {
@@ -105,16 +104,6 @@ export async function fetchList<T>(
   init?: RequestInit,
 ): Promise<ApiListResponse<T>> {
   const response = await request(path, init);
-
-  if (response.status === 404) {
-    return {
-      status: 404,
-      message: await readErrorMessage(response),
-      data: [],
-      totalData: 0,
-      totalPage: 0,
-    };
-  }
 
   if (!response.ok) {
     const failure = await readError(response);

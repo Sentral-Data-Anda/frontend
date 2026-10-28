@@ -344,13 +344,12 @@ describe("handler inventaris", () => {
       (await call(inventarisMock, "/ddl/unit", [MENU.STOCK_ITEM]))?.status,
     ).toBe(200);
     expect(
-      await call(inventarisMock, "/ddl/asset?filter=tidak-ada", [
-        MENU.ASSET_TRANSACTION,
-      ]),
-    ).toEqual({
-      status: 404,
-      body: { status: 404, error: "Barang Tidak Ditemukan" },
-    });
+      (
+        await call(inventarisMock, "/ddl/asset?filter=tidak-ada", [
+          MENU.ASSET_TRANSACTION,
+        ])
+      )?.status,
+    ).toBe(200);
     expect(
       await call(inventarisMock, "/ddl/jemaat", [MENU.ASSET_MASTER]),
     ).toBeNull();

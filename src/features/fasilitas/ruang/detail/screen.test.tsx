@@ -108,14 +108,14 @@ const onRender = (
       return usage.length
         ? Response.json({ status: 200, data: usage })
         : Response.json(
-            { status: 404, error: "Pemakaian Ruang Tidak Ditemukan" },
-            { status: 404 },
+            { status: 200, message: "Berhasil Mendapatkan Data", data: [] },
+            { status: 200 },
           );
     }
     if (options.room === null) {
       return Response.json(
-        { status: 404, error: "Ruang Tidak Ditemukan" },
-        { status: 404 },
+        { status: 200, message: "Berhasil Mendapatkan Data", data: [] },
+        { status: 200 },
       );
     }
 

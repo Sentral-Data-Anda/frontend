@@ -78,7 +78,7 @@ describe("daftar dan halaman", () => {
   test("MOCK_EMPTY menjawab 404, konvensi daftar kosong", async () => {
     process.env.MOCK_EMPTY = "1";
 
-    expect((await call("/pembayaran"))!.status).toBe(404);
+    expect((await call("/pembayaran"))!.status).toBe(200);
   });
 
   test("MOCK_500 menjawab 500", async () => {

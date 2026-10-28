@@ -86,8 +86,8 @@ describe("daftar dan detail", () => {
     ).toBe(true);
 
     const none = await onCall("/permintaan-pembelian?filter=zzz");
-    expect(none.status).toBe(404);
-    expect(none.body.error).toBe("Permintaan Pembelian Tidak Ditemukan");
+    expect(none.status).toBe(200);
+    expect(none.body.data as any[]).toEqual([]);
   });
 
   test("detail tanpa peka huruf besar; tanpa VIEW 403", async () => {

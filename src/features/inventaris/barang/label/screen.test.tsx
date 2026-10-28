@@ -64,8 +64,8 @@ const onRender = (query: string) => {
     return code in ASSETS
       ? Response.json({ status: 200, data: { code, name: ASSETS[code] } })
       : Response.json(
-          { status: 404, error: "Barang Tidak Ditemukan" },
-          { status: 404 },
+          { status: 200, message: "Berhasil Mendapatkan Data", data: [] },
+          { status: 200 },
         );
   }) as unknown as typeof fetch;
 

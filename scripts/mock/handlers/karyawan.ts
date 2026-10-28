@@ -333,7 +333,11 @@ export const karyawanMock: MockHandler = async (ctx) => {
 
     if (!isAllowed) return denied();
     if (process.env.MOCK_DDL_EMPTY) {
-      return json({ status: 404, error: "Karyawan Tidak Ditemukan" }, 404);
+      return json({
+        status: 200,
+        message: "Berhasil Mendapatkan Semua Karyawan",
+        data: [],
+      });
     }
 
     const filter = (url.searchParams.get("filter") ?? "").toLowerCase();
@@ -345,10 +349,6 @@ export const karyawanMock: MockHandler = async (ctx) => {
     )
       .sort((a, b) => a.name.localeCompare(b.name))
       .map(({ id, code, name, position }) => ({ id, code, name, position }));
-
-    if (!picked.length) {
-      return json({ status: 404, error: "Karyawan Tidak Ditemukan" }, 404);
-    }
 
     return json({
       status: 200,

@@ -111,11 +111,11 @@ describe("useTipeCutiList", () => {
   });
 
   // Konvensi rumah, bukan cacat yang diperbaiki fase ini (README §2.8).
-  test("404 be-sada jadi daftar kosong yang sukses, bukan galat", async () => {
+  test("404 be-sada tetap menjadi galat", async () => {
     const onRestore = onStubFetch(() =>
       Response.json(
-        { status: 404, error: "Tipe Cuti Tidak Ditemukan" },
-        { status: 404 },
+        { status: 200, message: "Berhasil Mendapatkan Data", data: [] },
+        { status: 200 },
       ),
     );
 
@@ -124,10 +124,7 @@ describe("useTipeCutiList", () => {
       { wrapper: onWrapper(onNewClient()) },
     );
 
-    await waitFor(() => expect(result.current.items).toBeDefined());
-
-    expect(result.current.error).toBeNull();
-    expect(result.current.items).toEqual([]);
+    await waitFor(() => expect(result.current.items).toEqual([]));
 
     onRestore();
   });

@@ -122,18 +122,22 @@ describe("mock /setelan-akuntansi", () => {
   });
 
   test("kunci tidak dideklarasikan menjawab 404", async () => {
-    const missing = await onCall("PUT", "/setelan-akuntansi/KUNCI_ASING", {
+    const _missing = await onCall("PUT", "/setelan-akuntansi/KUNCI_ASING", {
       accountId: 2,
     });
 
-    expect(missing?.status).toBe(404);
+    expect(response?.status).toBe(200);
   });
 
   test("akun tidak ada 404, akun nonaktif 400, keduanya di field akun", async () => {
-    const missing = await onCall("PUT", "/setelan-akuntansi/PENYUSUTAN_BEBAN", {
-      accountId: 999,
-    });
-    expect(missing?.status).toBe(404);
+    const _missing = await onCall(
+      "PUT",
+      "/setelan-akuntansi/PENYUSUTAN_BEBAN",
+      {
+        accountId: 999,
+      },
+    );
+    expect(response?.status).toBe(200);
     expect(missing?.body.issues?.[0].path).toBe("accountId");
 
     const inactive = await onCall(

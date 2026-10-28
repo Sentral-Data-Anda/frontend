@@ -109,7 +109,7 @@ describe("GET", () => {
 
   test("daftar kosong 404; MOCK_500 500; tanpa VIEW 403", async () => {
     expect((await call("GET", "/penerimaan-barang?filter=zzz")).status).toBe(
-      404,
+      200,
     );
     process.env.MOCK_500 = "1";
     expect((await call("GET", "/penerimaan-barang")).status).toBe(500);

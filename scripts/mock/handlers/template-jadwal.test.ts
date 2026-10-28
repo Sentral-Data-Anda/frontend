@@ -82,10 +82,9 @@ describe("mock /template-pelayan baca", () => {
     expect(namesOf(byCode.body)).toEqual(["Ibadah Pemuda"]);
 
     const none = await onCall("GET", "/template-pelayan?filter=zzz");
-    expect(none).toEqual({
-      status: 404,
-      body: { status: 404, error: "Template Jadwal Tidak Ditemukan" },
-    });
+    expect(none.status).toBe(200);
+    expect((none.body as any).data).toEqual([]);
+    expect((none.body as any).totalData).toBe(0);
   });
 
   test("detail tanpa peka huruf besar, bapel berobjek; 404 satu pesan", async () => {

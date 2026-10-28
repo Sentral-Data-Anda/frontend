@@ -240,12 +240,12 @@ const ddl = (url: URL) => {
     }),
   );
 
-  if (rows.length === 0) return notFound();
-
   return json({
     status: 200,
-    message: "Berhasil Mendapatkan Semua Tipe Cuti",
+    message: "Berhasil Mendapatkan Data",
     data: rows,
+    totalData: rows.length,
+    totalPage: rows.length === 0 ? 0 : Math.ceil(rows.length / 10),
   });
 };
 

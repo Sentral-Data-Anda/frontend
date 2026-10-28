@@ -163,7 +163,8 @@ describe("mock /mata-uang/kurs", () => {
       "GET",
       "/mata-uang/kurs?currencyCode=USD&startDate=2000-01-01&endDate=2000-01-31",
     );
-    expect(none?.body.error).toBe("Kurs Tidak Ditemukan");
+    expect(none?.status).toBe(200);
+    expect(none?.body.data as any[]).toEqual([]);
   });
 
   test("kurs: batas angka dan desimal", async () => {

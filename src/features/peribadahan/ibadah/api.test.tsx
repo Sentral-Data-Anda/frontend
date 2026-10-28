@@ -57,8 +57,8 @@ const onStubFetch = (
 
 const EMPTY_LIST = () =>
   Response.json(
-    { status: 404, error: "Ibadah Tidak Ditemukan" },
-    { status: 404 },
+    { status: 200, message: "Berhasil Mendapatkan Data", data: [] },
+    { status: 200 },
   );
 
 describe("useIbadahList", () => {

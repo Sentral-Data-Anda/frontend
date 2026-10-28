@@ -97,8 +97,11 @@ describe("daftar dan baca", () => {
     expect(found.body.totalData).toBe(1);
 
     expect((await onCall("/siklus-aset/pelepasan?filter=zzz")).status).toBe(
-      404,
+      200,
     );
+    expect(
+      (await onCall("/siklus-aset/pelepasan?filter=zzz")).body.data as any[],
+    ).toEqual([]);
 
     otherPending();
     const history = await onCall(

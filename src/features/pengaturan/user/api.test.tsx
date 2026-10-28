@@ -98,20 +98,17 @@ describe("useUserList", () => {
     onRestore();
   });
 
-  test("404 dari be-sada menjadi daftar kosong yang sukses", async () => {
+  test("daftar kosong mengembalikan array kosong", async () => {
     const onRestore = onStubFetch(() =>
       Response.json(
-        { status: 404, error: "User Tidak Ditemukan" },
-        { status: 404 },
+        { status: 200, message: "Berhasil Mendapatkan Data", data: [] },
+        { status: 200 },
       ),
     );
 
     const { result } = onRenderQuery(onParams({}));
 
-    await waitFor(() => expect(result.current.items).toBeDefined());
-
-    expect(result.current.error).toBeNull();
-    expect(result.current.items).toEqual([]);
+    await waitFor(() => expect(result.current.items).toEqual([]));
 
     onRestore();
   });

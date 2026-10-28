@@ -139,8 +139,9 @@ describe("mock /pagu-anggaran baca", () => {
   test("tahun tanpa baris menjawab 404, bukan 200 kosong", async () => {
     const list = await onCall("GET", `/pagu-anggaran?year=${YEAR + 5}`);
 
-    expect(list?.status).toBe(404);
-    expect(list?.body.error).toBe("Pagu Anggaran Tidak Ditemukan");
+    expect(list?.status).toBe(200);
+    expect((list?.body as any).data).toEqual([]);
+    expect((list?.body as any).totalData).toBe(0);
   });
 
   test("saring komisi dan cari nama", async () => {

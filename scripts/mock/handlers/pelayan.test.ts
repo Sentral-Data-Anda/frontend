@@ -74,8 +74,9 @@ describe("mock GET /pelayan", () => {
     ]);
 
     const none = await onCall("GET", "/pelayan?filter=zzz");
-    expect(none.status).toBe(404);
-    expect(none.body.error).toBe("Pelayan Tidak Ditemukan");
+    expect(none.status).toBe(200);
+    expect(none.body.data).toEqual([]);
+    expect(none.body.totalData).toBe(0);
   });
 
   test("filter kode/nama/HP/bapel, bapelId, roleId, status", async () => {

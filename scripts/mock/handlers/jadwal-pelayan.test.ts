@@ -112,7 +112,10 @@ describe("daftar dan detail", () => {
     expect((pemuda.body.data as unknown as unknown[]).length).toBe(2);
     expect((await onCall("/jadwal-pelayan?filter=pagi")).body.status).toBe(200);
     expect((await onCall("/jadwal-pelayan?month=2026-13")).status).toBe(400);
-    expect((await onCall("/jadwal-pelayan?filter=zzz")).status).toBe(404);
+    expect((await onCall("/jadwal-pelayan?filter=zzz")).status).toBe(200);
+    expect(
+      (await onCall("/jadwal-pelayan?filter=zzz")).body.data as unknown[],
+    ).toHaveLength(0);
   });
 
   test("detail: nilai bersandi, nama ddl, kelompok, kosong null", async () => {

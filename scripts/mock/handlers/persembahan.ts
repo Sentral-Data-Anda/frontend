@@ -350,10 +350,6 @@ export const persembahanMock: MockHandler = async (ctx) => {
     const date = url.searchParams.get("date");
     const rows = IBADAH_OPTION.filter((item) => !date || item.date === date);
 
-    if (rows.length === 0) {
-      return json({ status: 404, error: "Ibadah Tidak Ditemukan" }, 404);
-    }
-
     return json({
       status: 200,
       message: "Berhasil Mendapatkan Data",

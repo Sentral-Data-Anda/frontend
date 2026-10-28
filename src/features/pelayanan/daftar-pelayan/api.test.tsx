@@ -12,7 +12,6 @@ import type { ReactNode } from "react";
 
 import { ddlKeys } from "@/hooks/use-ddl-options";
 import type { ListState } from "@/hooks/use-list-params";
-import { FetchError } from "@/lib/api/fetcher";
 
 import { onStubViewport } from "../../../../tests/viewport";
 
@@ -120,11 +119,11 @@ describe("useDaftarPelayanList", () => {
     ).toBe("/api/v1/pelayan?page=1&limit=10&bapelId=2&roleId=4");
   });
 
-  test("404 dari be-sada tetap menjadi galat", async () => {
+  test("daftar kosong mengembalikan array kosong", async () => {
     const onRestore = onStubFetch(() =>
       Response.json(
-        { status: 404, error: "Pelayan Tidak Ditemukan" },
-        { status: 404 },
+        { status: 200, message: "Berhasil Mendapatkan Data", data: [] },
+        { status: 200 },
       ),
     );
 
@@ -132,11 +131,7 @@ describe("useDaftarPelayanList", () => {
       wrapper: onWrapper(onNewClient()),
     });
 
-    await waitFor(() =>
-      expect(result.current.error).toBeInstanceOf(FetchError),
-    );
-    expect(result.current.error?.status).toBe(404);
-    expect(result.current.error?.message).toBe("Pelayan Tidak Ditemukan");
+    await waitFor(() => expect(result.current.items).toEqual([]));
 
     onRestore();
   });

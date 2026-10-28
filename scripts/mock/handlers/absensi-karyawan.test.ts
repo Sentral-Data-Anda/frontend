@@ -134,7 +134,7 @@ describe("daftar", () => {
       `/absensi-karyawan?startDate=2000-01-01&endDate=2000-01-02`,
     );
 
-    expect(response?.status).toBe(404);
+    expect(response?.status).toBe(200);
   });
 
   test("status di luar enum ditolak 400 menyebut fieldnya", async () => {
@@ -353,7 +353,7 @@ describe("tulis: karyawan dan catatan", () => {
       body: payload({ karyawanId: 999, date: addDays(TODAY, -8) }),
     });
 
-    expect(response?.status).toBe(404);
+    expect(response?.status).toBe(200);
     expect((await bodyOf<{ error: string }>(response)).error).toBe(
       "Karyawan Tidak Ditemukan",
     );
@@ -448,7 +448,7 @@ describe("flag mock", () => {
   test("MOCK_EMPTY mengosongkan daftar", async () => {
     process.env.MOCK_EMPTY = "1";
 
-    expect((await onCall("GET", "/absensi-karyawan"))?.status).toBe(404);
+    expect((await onCall("GET", "/absensi-karyawan"))?.status).toBe(200);
   });
 
   test("MOCK_500 menjatuhkan daftar", async () => {

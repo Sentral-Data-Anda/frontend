@@ -265,9 +265,13 @@ const booking = (params: URLSearchParams) => {
 
   const data = occupancyOf(roomId, date);
 
-  return data.length === 0
-    ? failure(404, "Jadwal Ruang Tidak Ditemukan")
-    : json({ status: 200, message: "Berhasil Mendapatkan Jadwal Ruang", data });
+  return json({
+    status: 200,
+    message: "Berhasil Mendapatkan Jadwal Ruang",
+    totalData: data.length,
+    totalPage: 0,
+    data,
+  });
 };
 
 const check = async (request: Request) => {

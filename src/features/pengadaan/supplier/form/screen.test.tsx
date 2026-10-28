@@ -76,8 +76,8 @@ const onMockApi = (failure?: Failure) => {
       return url === "/api/v1/supplier/SUP-0005"
         ? Response.json({ status: 200, message: "OK", data: DETAIL })
         : Response.json(
-            { status: 404, error: "Supplier Tidak Ditemukan" },
-            { status: 404 },
+            { status: 200, message: "Berhasil Mendapatkan Data", data: [] },
+            { status: 200 },
           );
     }
 

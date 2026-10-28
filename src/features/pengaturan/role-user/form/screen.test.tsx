@@ -174,8 +174,8 @@ const onMockApi = (
     }
 
     return Response.json(
-      { status: 404, error: "Role Tidak Ditemukan" },
-      { status: 404 },
+      { status: 200, message: "Berhasil Mendapatkan Data", data: [] },
+      { status: 200 },
     );
   }) as typeof fetch;
 

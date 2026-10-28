@@ -61,8 +61,8 @@ const onWrapper = (queryClient: QueryClient) =>
 test("filter daftar → query be-sada; 404 = kosong", async () => {
   onStubFetch(() =>
     Response.json(
-      { status: 404, error: "Barang Tidak Ditemukan" },
-      { status: 404 },
+      { status: 200, message: "Berhasil Mendapatkan Data", data: [] },
+      { status: 200 },
     ),
   );
 

@@ -118,14 +118,14 @@ const onRender = (
             totalPage: 1,
           })
         : Response.json(
-            { status: 404, error: "Mutasi Stok Tidak Ditemukan" },
-            { status: 404 },
+            { status: 200, message: "Berhasil Mendapatkan Data", data: [] },
+            { status: 200 },
           );
     }
     if (options.item === null) {
       return Response.json(
-        { status: 404, error: "Barang Persediaan Tidak Ditemukan" },
-        { status: 404 },
+        { status: 200, message: "Berhasil Mendapatkan Data", data: [] },
+        { status: 200 },
       );
     }
 

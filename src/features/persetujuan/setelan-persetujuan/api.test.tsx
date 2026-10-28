@@ -69,7 +69,12 @@ const notFound = (error: string) => () =>
 
 describe("useSetelanList", () => {
   test("jenis jadi documentType, status jadi isActive", async () => {
-    const requested = onStubFetch(notFound("Alur Persetujuan Tidak Ditemukan"));
+    const requested = onStubFetch(() =>
+      Response.json(
+        { status: 200, message: "Berhasil Mendapatkan Data", data: [] },
+        { status: 200 },
+      ),
+    );
 
     const { result } = renderHook(
       () =>
@@ -90,8 +95,13 @@ describe("useSetelanList", () => {
     );
   });
 
-  test("404 dari be-sada menjadi daftar kosong yang sukses", async () => {
-    onStubFetch(notFound("Alur Persetujuan Tidak Ditemukan"));
+  test("daftar kosong mengembalikan array kosong", async () => {
+    onStubFetch(() =>
+      Response.json(
+        { status: 200, message: "Berhasil Mendapatkan Data", data: [] },
+        { status: 200 },
+      ),
+    );
 
     const { result } = renderHook(() => useSetelanList(onParams({})), {
       wrapper,

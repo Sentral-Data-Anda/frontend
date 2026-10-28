@@ -110,8 +110,8 @@ const onMockApi = (run: RunDetail | null, failure?: Failure) => {
     }
     if (!run) {
       return Response.json(
-        { status: 404, error: "Penyusutan Tidak Ditemukan" },
-        { status: 404 },
+        { status: 200, message: "Berhasil Mendapatkan Data", data: [] },
+        { status: 200 },
       );
     }
 

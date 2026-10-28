@@ -64,8 +64,14 @@ describe("mock /role-pelayan", () => {
       namesOf((await onCall("GET", "/role-pelayan?filter=PEM")).body),
     ).toEqual(["Pemandu Pujian", "Pemusik"]);
     expect(await onCall("GET", "/role-pelayan?filter=zzz")).toEqual({
-      status: 404,
-      body: { status: 404, error: "Role Pelayan Tidak Ditemukan" },
+      status: 200,
+      body: {
+        status: 200,
+        message: "Berhasil Mendapatkan Semua Role Pelayan",
+        totalData: 0,
+        totalPage: 0,
+        data: [],
+      },
     });
   });
 

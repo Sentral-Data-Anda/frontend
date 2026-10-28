@@ -104,8 +104,8 @@ const onMockApi = (rows: JournalEntry[], accounts = ACCOUNTS) => {
     if (url.startsWith("/api/v1/ddl/account")) {
       return accounts.length === 0
         ? Response.json(
-            { status: 404, error: "Akun Tidak Ditemukan" },
-            { status: 404 },
+            { status: 200, message: "Berhasil Mendapatkan Data", data: [] },
+            { status: 200 },
           )
         : Response.json({
             status: 200,
@@ -117,8 +117,8 @@ const onMockApi = (rows: JournalEntry[], accounts = ACCOUNTS) => {
 
     return rows.length === 0
       ? Response.json(
-          { status: 404, error: "Jurnal Tidak Ditemukan" },
-          { status: 404 },
+          { status: 200, message: "Berhasil Mendapatkan Data", data: [] },
+          { status: 200 },
         )
       : Response.json({
           status: 200,

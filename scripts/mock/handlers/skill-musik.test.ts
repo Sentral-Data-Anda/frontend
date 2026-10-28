@@ -59,8 +59,14 @@ describe("mock /musik-skill", () => {
       namesOf((await onCall("GET", "/musik-skill?filter=GI")).body),
     ).toEqual(["Gitar"]);
     expect(await onCall("GET", "/musik-skill?filter=zzz")).toEqual({
-      status: 404,
-      body: { status: 404, error: "Skill Musik Tidak Ditemukan" },
+      status: 200,
+      body: {
+        status: 200,
+        message: "Berhasil Mendapatkan Semua Skill Musik",
+        totalData: 0,
+        totalPage: 0,
+        data: [],
+      },
     });
   });
 

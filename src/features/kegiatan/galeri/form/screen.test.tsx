@@ -331,8 +331,8 @@ describe("galat server", () => {
   test("404: FormNotFound", async () => {
     globalThis.fetch = (async () =>
       Response.json(
-        { status: 404, error: "Album Tidak Ditemukan" },
-        { status: 404 },
+        { status: 200, message: "Berhasil Mendapatkan Data", data: [] },
+        { status: 200 },
       )) as unknown as typeof fetch;
     onRenderForm(["VIEW", "UPDATE"], CODE);
 

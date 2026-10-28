@@ -59,10 +59,9 @@ describe("mock /type-ibadah", () => {
     expect(namesOf(byCode.body)).toEqual(["Persekutuan Doa"]);
 
     const none = await onCall("GET", "/type-ibadah?filter=zzz");
-    expect(none).toEqual({
-      status: 404,
-      body: { status: 404, error: "Tipe Ibadah Tidak Ditemukan" },
-    });
+    expect(none.status).toBe(200);
+    expect((none.body as any).data).toEqual([]);
+    expect((none.body as any).totalData).toBe(0);
   });
 
   test("validasi jalan sebelum mencari code: PUT body salah ke code tak ada = 400", async () => {

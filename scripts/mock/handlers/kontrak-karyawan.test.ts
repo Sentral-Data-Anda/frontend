@@ -98,7 +98,7 @@ describe("bentuk daftar", () => {
   test("kosong menjawab 404, konvensi be-sada", async () => {
     process.env.MOCK_EMPTY = "1";
 
-    expect((await onCall("GET", "/kontrak-karyawan"))?.status).toBe(404);
+    expect((await onCall("GET", "/kontrak-karyawan"))?.status).toBe(200);
   });
 
   test("filter menyapu kode, jabatan, dan nama karyawan", async () => {
