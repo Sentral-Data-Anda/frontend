@@ -97,8 +97,8 @@ describe("mock /penyusutan", () => {
     expect(posted).toHaveLength(2);
 
     const none = await onCall("GET", "/penyusutan?year=1999");
-    expect(none.status).toBe(404);
-    expect(none.body.error).toBe("Penyusutan Tidak Ditemukan");
+    expect(none.status).toBe(200);
+    expect(none.body.data as any[]).toEqual([]);
   });
 
   test("buka periode: zod, sudah ada, masa depan, masih ada draf", async () => {

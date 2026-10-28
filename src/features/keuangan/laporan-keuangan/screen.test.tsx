@@ -283,7 +283,10 @@ const onRender = (
     if (url.includes("/buku-besar")) return Promise.resolve(ok(state.ledger));
 
     return Promise.resolve(
-      Response.json({ status: 404, error: "Tidak Ditemukan" }, { status: 404 }),
+      Response.json(
+        { status: 200, message: "Berhasil Mendapatkan Data", data: [] },
+        { status: 200 },
+      ),
     );
   }) as typeof fetch;
 

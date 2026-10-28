@@ -2091,3 +2091,44 @@ export const roomHoldsInventory = (roomId: number) =>
       row.roomId === roomId &&
       assetStatusOf(row.id) !== "DILEPAS",
   ) || STOCK_ITEM.some((row) => isLive(row) && row.roomId === roomId);
+
+/**
+ * Pedoman §7.2: benih dimiliki modul yang menyemainya.
+ *
+ * Satu proses `bun test` memuat semua berkas, jadi aset yang dilepas atau
+ * dihapus di satu berkas masih terlihat oleh berkas berikutnya. Urutan berkas
+ * tidak sama antara macOS dan runner Linux: `inventaris.test.ts` yang berjalan
+ * lebih dulu menyetujui pelepasan Printer Canon G2010, lalu `barang.test.ts`
+ * tidak lagi melihat satu pun aset berstatus menunggu. Test yang menulis
+ * memanggil ini di `afterAll` supaya berkas sesudahnya melihat benih utuh.
+ *
+ * Penghitung kode (`counters`) SENGAJA tidak dikembalikan: `pengadaan-store`
+ * memakai `codeOf` dari modul ini saat menyemai faktur dan penerimaannya, jadi
+ * mengembalikan penghitung ke angka sebelum penyemaian itu membuat kode
+ * berikutnya bertabrakan dengan kode benih. Kode yang terus maju tetap unik.
+ */
+const SEED = {
+  asset: structuredClone(ASSET),
+  maintenance: structuredClone(MAINTENANCE),
+  transfer: structuredClone(TRANSFER),
+  disposal: structuredClone(DISPOSAL),
+  run: structuredClone(RUN),
+  stockItem: structuredClone(STOCK_ITEM),
+  stockMovement: structuredClone(STOCK_MOVEMENT),
+  opname: structuredClone(OPNAME),
+};
+
+export const resetInventaris = () => {
+  const restore = <T>(target: T[], seed: T[]) => {
+    target.splice(0, target.length, ...structuredClone(seed));
+  };
+
+  restore(ASSET, SEED.asset);
+  restore(MAINTENANCE, SEED.maintenance);
+  restore(TRANSFER, SEED.transfer);
+  restore(DISPOSAL, SEED.disposal);
+  restore(RUN, SEED.run);
+  restore(STOCK_ITEM, SEED.stockItem);
+  restore(STOCK_MOVEMENT, SEED.stockMovement);
+  restore(OPNAME, SEED.opname);
+};

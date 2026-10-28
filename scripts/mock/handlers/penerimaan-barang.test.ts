@@ -1,7 +1,12 @@
-import { afterEach, describe, expect, test } from "bun:test";
+import { afterAll, afterEach, describe, expect, test } from "bun:test";
 
 import { MENU } from "../../../src/config/menu";
-import { ASSET, STOCK_ITEM, STOCK_MOVEMENT } from "../inventaris-store";
+import {
+  ASSET,
+  STOCK_ITEM,
+  STOCK_MOVEMENT,
+  resetInventaris,
+} from "../inventaris-store";
 import type { MockAction, MockContext } from "../kit";
 import {
   GOODS_RECEIPT,
@@ -90,6 +95,10 @@ const formOf = (
 const photo = (name: string) =>
   new File([new Uint8Array([1, 2, 3])], name, { type: "image/jpeg" });
 
+// Berkas ini menerima barang sehingga aset dan stok bertambah; benih
+// dikembalikan supaya berkas berikutnya melihat jumlah awal.
+afterAll(resetInventaris);
+
 describe("GET", () => {
   test("daftar: urut tanggal terima, itemCount = baris pesanan, cari supplier", async () => {
     const { status, body } = await call(
@@ -109,7 +118,7 @@ describe("GET", () => {
 
   test("daftar kosong 404; MOCK_500 500; tanpa VIEW 403", async () => {
     expect((await call("GET", "/penerimaan-barang?filter=zzz")).status).toBe(
-      404,
+      200,
     );
     process.env.MOCK_500 = "1";
     expect((await call("GET", "/penerimaan-barang")).status).toBe(500);

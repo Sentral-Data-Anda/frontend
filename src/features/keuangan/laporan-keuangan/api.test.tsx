@@ -2,8 +2,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
-import { FetchError } from "@/lib/api/fetcher";
-
 import { reportKeys, useLedger, useNeraca, useSurplusDefisit } from "./api";
 
 afterEach(cleanup);
@@ -160,17 +158,13 @@ describe("useLedger", () => {
         }),
       () =>
         Response.json(
-          { status: 404, error: "Akun Tidak Ditemukan" },
-          { status: 404 },
+          { status: 200, message: "Berhasil Mendapatkan Data", data: [] },
+          { status: 200 },
         ),
     );
 
-    await waitFor(() => expect(view.result.current.isError).toBe(true));
-
-    const error = view.result.current.error;
-
-    expect(error).toBeInstanceOf(FetchError);
-    expect((error as FetchError).status).toBe(404);
+    await waitFor(() => expect(view.result.current.isSuccess).toBe(true));
+    expect(view.result.current.data as unknown as unknown[]).toEqual([]);
     view.onRestore();
   });
 

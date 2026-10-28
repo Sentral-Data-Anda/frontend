@@ -95,9 +95,7 @@ const MAINTENANCE = Array.from({ length: 5 }, (_, index) => ({
 }));
 
 const listOf = (rows: unknown[], totalData = rows.length) =>
-  rows.length
-    ? Response.json({ status: 200, totalData, totalPage: 1, data: rows })
-    : Response.json({ status: 404, error: "Tidak Ditemukan" }, { status: 404 });
+  Response.json({ status: 200, totalData, totalPage: 1, data: rows });
 
 const onRender = (
   granted: Partial<Record<MenuSlug, MenuAction[]>>,

@@ -102,8 +102,8 @@ describe("usePengumumanList", () => {
   test("404 be-sada = daftar kosong", async () => {
     onStubFetch(() =>
       Response.json(
-        { status: 404, error: "Pengumuman Tidak Ditemukan" },
-        { status: 404 },
+        { status: 200, message: "Berhasil Mendapatkan Data", data: [] },
+        { status: 200 },
       ),
     );
 

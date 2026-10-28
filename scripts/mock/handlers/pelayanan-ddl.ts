@@ -74,10 +74,6 @@ export const pelayananDdlMock: MockHandler = ({ url, path, method, can }) => {
 
   const rows = process.env.MOCK_DDL_EMPTY ? [] : rowsOf(path, url);
 
-  if (rows.length === 0) {
-    return json({ status: 404, error: `${NAMES[path]} Tidak Ditemukan` }, 404);
-  }
-
   return json({
     status: 200,
     message: `Berhasil Mendapatkan Semua ${NAMES[path]}`,

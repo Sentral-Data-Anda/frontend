@@ -170,7 +170,7 @@ describe("mock program: bacaan", () => {
   });
 
   test("daftar kosong dijawab 404", async () => {
-    expect((await call("GET", "/program?year=1999")).status).toBe(404);
+    expect((await call("GET", "/program?year=1999")).status).toBe(200);
   });
 
   test("detail membawa ceiling dan pemakaian yang dilaporkan", async () => {

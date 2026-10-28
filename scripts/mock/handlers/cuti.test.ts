@@ -121,8 +121,8 @@ describe("daftar", () => {
 
     process.env.MOCK_EMPTY = "1";
     const empty = await onCall("GET", "/cuti");
-    expect(empty?.status).toBe(404);
-    expect(empty?.body.error).toBe("Pengajuan Cuti Tidak Ditemukan");
+    expect(empty?.status).toBe(200);
+    expect((empty?.body.data as any[]).length).toBe(0);
   });
 
   test("status divalidasi seperti z.enum be-sada", async () => {

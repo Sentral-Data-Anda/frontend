@@ -495,10 +495,13 @@ export const komponenPayrollMock: MockHandler = async (context) => {
   if (path === "/ddl/komponen-payroll" && method === "GET") {
     if (!can(MENU.PAYROLL_COMPONENT, "VIEW")) return denied();
     if (process.env.MOCK_DDL_EMPTY) {
-      return json(
-        { status: 404, error: "Komponen Payroll Tidak Ditemukan" },
-        404,
-      );
+      return json({
+        status: 200,
+        message: "Berhasil Mendapatkan Data",
+        data: [],
+        totalData: 0,
+        totalPage: 0,
+      });
     }
 
     const filter = (url.searchParams.get("filter") ?? "").toLowerCase();
@@ -511,16 +514,9 @@ export const komponenPayrollMock: MockHandler = async (context) => {
           row.code.toLowerCase().includes(filter)),
     );
 
-    if (rows.length === 0) {
-      return json(
-        { status: 404, error: "Komponen Payroll Tidak Ditemukan" },
-        404,
-      );
-    }
-
     return json({
       status: 200,
-      message: "Berhasil Mendapatkan Semua Komponen Payroll",
+      message: "Berhasil Mendapatkan Data",
       data: rows
         .slice()
         .sort(
@@ -535,6 +531,8 @@ export const komponenPayrollMock: MockHandler = async (context) => {
           calculationType,
           defaultValue,
         })),
+      totalData: rows.length,
+      totalPage: rows.length === 0 ? 0 : Math.ceil(rows.length / 10),
     });
   }
 

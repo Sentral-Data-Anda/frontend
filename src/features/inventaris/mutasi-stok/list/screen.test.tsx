@@ -56,8 +56,8 @@ const onRender = (granted: MenuAction[], query = "") => {
     urls.push(String(input));
 
     return Response.json(
-      { status: 404, error: "Mutasi Stok Tidak Ditemukan" },
-      { status: 404 },
+      { status: 200, message: "Berhasil Mendapatkan Data", data: [] },
+      { status: 200 },
     );
   }) as unknown as typeof fetch;
 

@@ -111,8 +111,8 @@ const onMockApi = (rows: Cuti[] = ROWS) => {
     if (rows.length === 0) {
       return Promise.resolve(
         Response.json(
-          { status: 404, error: "Pengajuan Cuti Tidak Ditemukan" },
-          { status: 404 },
+          { status: 200, message: "ok", totalData: 0, totalPage: 0, data: [] },
+          { status: 200 },
         ),
       );
     }

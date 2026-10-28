@@ -119,12 +119,32 @@ describe("useDaftarPelayanList", () => {
     ).toBe("/api/v1/pelayan?page=1&limit=10&bapelId=2&roleId=4");
   });
 
-  test("404 dari be-sada menjadi daftar kosong yang sukses", async () => {
+  test("daftar kosong mengembalikan array kosong", async () => {
     const onRestore = onStubFetch(() =>
       Response.json(
-        { status: 404, error: "Pelayan Tidak Ditemukan" },
-        { status: 404 },
+        { status: 200, message: "Berhasil Mendapatkan Data", data: [] },
+        { status: 200 },
       ),
+    );
+
+    const { result } = renderHook(() => useDaftarPelayanList(onParams({})), {
+      wrapper: onWrapper(onNewClient()),
+    });
+
+    await waitFor(() => expect(result.current.items).toEqual([]));
+
+    onRestore();
+  });
+
+  test("sukses mengembalikan daftar kosong", async () => {
+    const onRestore = onStubFetch(() =>
+      Response.json({
+        status: 200,
+        message: "Berhasil Mendapatkan Semua Pelayan",
+        totalData: 0,
+        totalPage: 1,
+        data: [],
+      }),
     );
 
     const { result } = renderHook(() => useDaftarPelayanList(onParams({})), {

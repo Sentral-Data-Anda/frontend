@@ -32,14 +32,12 @@ const ddl = (ctx: MockContext, name: string) => {
 
   const rows = entry.rows(ctx.url.searchParams);
 
-  if (rows.length === 0) {
-    return json({ status: 404, error: entry.empty }, 404);
-  }
-
   return json({
     status: 200,
     message: "Berhasil Mendapatkan Data",
     data: rows,
+    totalData: rows.length,
+    totalPage: rows.length === 0 ? 0 : Math.ceil(rows.length / 10),
   });
 };
 

@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, test } from "bun:test";
+import { afterAll, afterEach, describe, expect, test } from "bun:test";
 
 import { addDays, todayJakarta } from "../../../src/lib/date";
 import {
@@ -8,6 +8,7 @@ import {
   TRANSFER,
   assetDdl,
   assetStatusOf,
+  resetInventaris,
   submitDisposal,
 } from "../inventaris-store";
 import type { MockAction } from "../kit";
@@ -83,6 +84,10 @@ const otherPending = () => {
   return row;
 };
 
+// Berkas ini mengajukan dan memutuskan pelepasan aset seed; benih dikembalikan
+// supaya berkas berikutnya tidak mewarisi aset yang sudah dilepas.
+afterAll(resetInventaris);
+
 describe("daftar dan baca", () => {
   test("filter status, cara, cari; kosong 404; ?assetId= dijawab", async () => {
     const done = await onCall("/siklus-aset/perawatan?status=DONE&limit=100");
@@ -97,8 +102,11 @@ describe("daftar dan baca", () => {
     expect(found.body.totalData).toBe(1);
 
     expect((await onCall("/siklus-aset/pelepasan?filter=zzz")).status).toBe(
-      404,
+      200,
     );
+    expect(
+      (await onCall("/siklus-aset/pelepasan?filter=zzz")).body.data as any[],
+    ).toEqual([]);
 
     otherPending();
     const history = await onCall(

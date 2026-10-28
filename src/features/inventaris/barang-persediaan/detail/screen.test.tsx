@@ -117,10 +117,7 @@ const onRender = (
             totalData: options.total ?? movements.length,
             totalPage: 1,
           })
-        : Response.json(
-            { status: 404, error: "Mutasi Stok Tidak Ditemukan" },
-            { status: 404 },
-          );
+        : Response.json({ status: 200, totalData: 0, totalPage: 1, data: [] });
     }
     if (options.item === null) {
       return Response.json(

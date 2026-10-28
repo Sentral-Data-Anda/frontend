@@ -67,9 +67,8 @@ describe("daftar dan detail", () => {
     expect(drafts.body.data.map((row) => row.code)).toEqual([codeOf(5)]);
 
     const none = await onCall("/stok-opname?filter=zzz");
-
-    expect(none.status).toBe(404);
-    expect(none.body.error).toBe("Stok Opname Tidak Ditemukan");
+    expect(none.status).toBe(200);
+    expect(none.body.data as any[]).toEqual([]);
   });
 
   test("detail tanpa peka huruf besar; tanpa VIEW 403", async () => {

@@ -8,6 +8,8 @@ import { satuanMock } from "./satuan";
 
 type Json = {
   status: number;
+  totalData?: number;
+  totalPage?: number;
   error?: string;
   message?: string;
   issues?: { path: string; message: string }[];
@@ -66,8 +68,14 @@ describe("mock /unit", () => {
     expect(namesOf(filtered?.body)).toEqual(["Buah"]);
 
     expect(await onCall("GET", "/unit?filter=dus")).toEqual({
-      status: 404,
-      body: { status: 404, error: "Satuan Tidak Ditemukan" },
+      status: 200,
+      body: {
+        status: 200,
+        message: "Berhasil Mendapatkan Semua Satuan",
+        totalData: 0,
+        totalPage: 0,
+        data: [],
+      },
     });
   });
 

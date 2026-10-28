@@ -69,7 +69,8 @@ describe("mock GET /hari-libur dengan year", () => {
     expect(idsOf((await onList("year=2028")).body)).toEqual([14, 13]);
     expect(idsOf((await onList("year=2027")).body)).toEqual([13]);
     expect(idsOf((await onList("year=2023")).body)).toEqual([13]);
-    expect((await onList("year=1984")).status).toBe(404);
+    expect((await onList("year=1984")).status).toBe(200);
+    expect(idsOf((await onList("year=1984")).body)).toHaveLength(0);
   });
 });
 

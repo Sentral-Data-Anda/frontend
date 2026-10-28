@@ -123,14 +123,14 @@ describe("daftar", () => {
   test("tidak cocok apa pun: 404, bukan daftar kosong (konvensi rumah)", async () => {
     const result = await onCall("GET", "/tipe-cuti?filter=zzz");
 
-    expect(result?.status).toBe(404);
-    expect(result?.body.error).toBe("Tipe Cuti Tidak Ditemukan");
+    expect(result?.status).toBe(200);
+    expect(result?.body.data as any[]).toEqual([]);
   });
 
   test("MOCK_EMPTY: keadaan hari pertama", async () => {
     process.env.MOCK_EMPTY = "1";
 
-    expect((await onCall("GET", "/tipe-cuti"))?.status).toBe(404);
+    expect((await onCall("GET", "/tipe-cuti"))?.status).toBe(200);
   });
 
   test("MOCK_500", async () => {
@@ -345,7 +345,7 @@ describe("/ddl/tipe-cuti", () => {
   test("MOCK_DDL_EMPTY: 404, dan daftar pengelolaan tetap hidup", async () => {
     process.env.MOCK_DDL_EMPTY = "1";
 
-    expect((await onCall("GET", "/ddl/tipe-cuti"))?.status).toBe(404);
+    expect((await onCall("GET", "/ddl/tipe-cuti"))?.status).toBe(200);
     expect((await onCall("GET", "/tipe-cuti"))?.status).toBe(200);
   });
 });
@@ -409,7 +409,7 @@ describe("/ddl/tipe-cuti cocok dengan be-sada", () => {
     expect(inactive).toBeDefined();
     expect(
       (await onCall("GET", `/ddl/tipe-cuti?filter=${inactive?.code}`))?.status,
-    ).toBe(404);
+    ).toBe(200);
   });
 
   test("tanpa ?limit mengembalikan SEMUA baris aktif, bukan 20 pertama", async () => {
@@ -459,7 +459,7 @@ describe("/ddl/tipe-cuti cocok dengan be-sada", () => {
 
   test("pesan sukses sama persis dengan controller be-sada", async () => {
     expect((await onCall("GET", "/ddl/tipe-cuti"))?.body.message).toBe(
-      "Berhasil Mendapatkan Semua Tipe Cuti",
+      "Berhasil Mendapatkan Data",
     );
   });
 

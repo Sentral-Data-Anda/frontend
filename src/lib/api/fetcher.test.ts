@@ -87,7 +87,7 @@ describe("fetchList", () => {
     expect(result.data).toHaveLength(1);
   });
 
-  test("404 pada daftar jadi daftar kosong, bukan error", async () => {
+  test("404 pada daftar tetap error", async () => {
     stubFetch(() =>
       Response.json(
         { status: 404, error: "Jemaat Tidak Ditemukan" },
@@ -95,11 +95,13 @@ describe("fetchList", () => {
       ),
     );
 
-    const result = await fetchList("/jemaat?search=zzz");
+    const error = await fetchList("/jemaat?search=zzz").catch(
+      (caught) => caught,
+    );
 
-    expect(result.data).toEqual([]);
-    expect(result.totalData).toBe(0);
-    expect(result.status).toBe(404);
+    expect(error).toBeInstanceOf(FetchError);
+    expect(error.status).toBe(404);
+    expect(error.message).toBe("Jemaat Tidak Ditemukan");
   });
 
   test("500 pada daftar tetap error", async () => {

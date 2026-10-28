@@ -75,9 +75,13 @@ const ddl = (ctx: MockContext, name: string) => {
     ? []
     : entry.rows(ctx.url.searchParams);
 
-  return rows.length === 0
-    ? json({ status: 404, error: entry.empty }, 404)
-    : json({ status: 200, message: "Berhasil Mendapatkan Data", data: rows });
+  return json({
+    status: 200,
+    message: "Berhasil Mendapatkan Data",
+    data: rows,
+    totalData: rows.length,
+    totalPage: rows.length === 0 ? 0 : Math.ceil(rows.length / 10),
+  });
 };
 
 export const inventarisMock: MockHandler = (ctx) => {

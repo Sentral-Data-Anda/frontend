@@ -262,6 +262,6 @@ describe("ddl ibadah", () => {
     expect(
       (await call("/ddl/ibadah", [MENU.PERSEMBAHAN], {}, "?date=2019-01-01"))
         ?.status,
-    ).toBe(404);
+    ).toBe(200);
   });
 });

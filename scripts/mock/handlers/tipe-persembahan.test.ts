@@ -67,7 +67,8 @@ describe("mock /type-persembahan", () => {
     expect((all?.body.data as { name: string }[]).length).toBe(SEED.length);
 
     const off = await onCall("GET", "/type-persembahan?isActive=false");
-    expect(off?.status).toBe(404);
+    expect(off?.status).toBe(200);
+    expect((off?.body.data as { name: string }[]).length).toBe(0);
   });
 
   test("isActive menerima 1/true dan 0/false", async () => {
@@ -80,9 +81,9 @@ describe("mock /type-persembahan", () => {
     expect(one?.body.totalData).toBe(truthy?.body.totalData);
     expect(one?.body.totalData).toBe(SEED.length);
 
-    expect((await onCall("GET", "/type-persembahan?isActive=0"))?.status).toBe(
-      404,
-    );
+    const falsy = await onCall("GET", "/type-persembahan?isActive=0");
+    expect(falsy?.status).toBe(200);
+    expect((falsy?.body.data as { name: string }[]).length).toBe(0);
   });
 
   test("guard per aksi", async () => {

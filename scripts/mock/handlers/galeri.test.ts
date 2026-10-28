@@ -8,6 +8,8 @@ import { galeriMock } from "./galeri";
 
 type Json = {
   status: number;
+  totalData?: number;
+  totalPage?: number;
   error?: string;
   message?: string;
   issues?: { path: string; message: string }[];
@@ -74,8 +76,14 @@ describe("mock /gallery", () => {
     expect(namesOf(byBapel.body)).toEqual(["Sekolah Minggu Juli"]);
 
     expect(await onCall("GET", "/gallery?filter=zzz")).toEqual({
-      status: 404,
-      body: { status: 404, error: "Album Tidak Ditemukan" },
+      status: 200,
+      body: {
+        status: 200,
+        message: "Berhasil Mendapatkan Semua Album",
+        totalData: 0,
+        totalPage: 0,
+        data: [],
+      },
     });
   });
 

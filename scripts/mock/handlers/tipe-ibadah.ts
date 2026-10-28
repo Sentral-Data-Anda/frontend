@@ -154,14 +154,27 @@ export const tipeIbadahMock: MockHandler = async ({
     if (!can(MENU.TIPE_IBADAH, "VIEW") && !can(MENU.IBADAH, "VIEW")) {
       return denied();
     }
-    if (process.env.MOCK_DDL_EMPTY || rows.length === 0) return notFound();
+
+    const filter = (url.searchParams.get("filter") ?? "").toLowerCase();
+    const matched = process.env.MOCK_DDL_EMPTY
+      ? []
+      : rows.filter(
+          (item) =>
+            item.name.toLowerCase().includes(filter) ||
+            item.code.toLowerCase().includes(filter),
+        );
 
     return json({
       status: 200,
-      message: "Berhasil Mendapatkan Semua Tipe Ibadah",
-      data: [...rows]
-        .sort(byName)
-        .map(({ id, code, name, isActive }) => ({ id, code, name, isActive })),
+      message: "Berhasil Mendapatkan Data",
+      data: matched.map(({ id, code, name, isActive }) => ({
+        id,
+        code,
+        name,
+        isActive,
+      })),
+      totalData: matched.length,
+      totalPage: matched.length === 0 ? 0 : Math.ceil(matched.length / 10),
     });
   }
 

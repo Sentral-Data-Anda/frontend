@@ -53,7 +53,7 @@ const onServer = (total: number, failPage?: number) => {
     })).slice((page - 1) * limit, page * limit);
 
     if (data.length === 0) {
-      return { status: 404, message: "", data: [], totalData: 0, totalPage: 0 };
+      return { status: 200, message: "", data: [], totalData: 0, totalPage: 0 };
     }
 
     return {

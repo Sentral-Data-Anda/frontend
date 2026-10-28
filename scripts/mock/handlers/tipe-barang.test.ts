@@ -8,6 +8,8 @@ import { tipeBarangMock } from "./tipe-barang";
 
 type Json = {
   status: number;
+  totalData?: number;
+  totalPage?: number;
   error?: string;
   message?: string;
   issues?: { path: string; message: string }[];
@@ -98,8 +100,14 @@ describe("mock /type-item", () => {
     expect(namesOf(filtered?.body)).toEqual(["Kebersihan", "Kendaraan"]);
 
     expect(await onCall("GET", "/type-item?filter=zzz")).toEqual({
-      status: 404,
-      body: { status: 404, error: "Tipe Barang Tidak Ditemukan" },
+      status: 200,
+      body: {
+        status: 200,
+        message: "Berhasil Mendapatkan Semua Tipe Barang",
+        totalData: 0,
+        totalPage: 0,
+        data: [],
+      },
     });
   });
 

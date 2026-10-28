@@ -105,8 +105,8 @@ const onMockApi = (rows: FiscalPeriod[], failure?: Response) => {
 
     if (data.length === 0) {
       return Response.json(
-        { status: 404, error: "Periode Fiskal Tidak Ditemukan" },
-        { status: 404 },
+        { status: 200, message: "Berhasil Mendapatkan Data", data: [] },
+        { status: 200 },
       );
     }
 

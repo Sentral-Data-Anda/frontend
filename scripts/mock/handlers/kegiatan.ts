@@ -70,13 +70,13 @@ export const kegiatanMock: MockHandler = (ctx) => {
 
     const rows = process.env.MOCK_DDL_EMPTY ? [] : ddlEvents(ctx.url);
 
-    return rows.length === 0
-      ? json({ status: 404, error: "Event Tidak Ditemukan" }, 404)
-      : json({
-          status: 200,
-          message: "Berhasil Mendapatkan Semua Event",
-          data: rows,
-        });
+    return json({
+      status: 200,
+      message: "Berhasil Mendapatkan Data",
+      data: rows,
+      totalData: rows.length,
+      totalPage: rows.length === 0 ? 0 : Math.ceil(rows.length / 10),
+    });
   }
 
   if (ctx.path === "/public/announcement") {

@@ -102,8 +102,8 @@ describe("useBirthdayReport", () => {
   test("menembak bulan terpilih; 404 be-sada menjadi daftar kosong", async () => {
     const stub = onStubFetch(() =>
       Response.json(
-        { status: 404, error: "Report Tidak Ditemukan" },
-        { status: 404 },
+        { status: 200, message: "Berhasil Mendapatkan Data", data: [] },
+        { status: 200 },
       ),
     );
 

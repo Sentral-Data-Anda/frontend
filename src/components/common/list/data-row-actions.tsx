@@ -107,7 +107,7 @@ export const DataRowActions = (props: PropTypes) => {
 
   return (
     <>
-      <span className="hidden items-center gap-0.5 @min-[52rem]:flex">
+      <span className="hidden items-center gap-0.5 @min-[64rem]:flex">
         {renderButton(view, ChevronRight, "Lihat", iconClass)}
         {renderButton(edit, Pencil, "Ubah", iconClass)}
         {renderButton(
@@ -122,7 +122,7 @@ export const DataRowActions = (props: PropTypes) => {
         type="button"
         onClick={isSheetOpen.onTrue}
         aria-label={`Tindakan untuk ${label}`}
-        className={cn(iconClass, "@min-[52rem]:hidden")}
+        className={cn(iconClass, "@min-[64rem]:hidden")}
       >
         <MoreVertical aria-hidden />
       </button>

@@ -215,9 +215,7 @@ const onMockApi = (
     if (url.startsWith("/api/v1/ddl/jadwal-pelayan?date=")) {
       if (rosters.failure) return fail(rosters.failure);
 
-      return url.endsWith("=2026-09-20")
-        ? ok(ROSTERS)
-        : fail({ status: 404, error: "Jadwal Pelayan Tidak Ditemukan" });
+      return url.endsWith("=2026-09-20") ? ok(ROSTERS) : ok([]);
     }
     if (url === "/api/v1/ddl/type-ibadah") return ok(TYPES);
     if (url === "/api/v1/ddl/zone-church") return ok(ZONES);

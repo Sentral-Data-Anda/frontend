@@ -95,8 +95,9 @@ describe("mock /account", () => {
     process.env.MOCK_NO_ACCOUNTS = "1";
     const all = await onCall("GET", "/account");
 
-    expect(all?.status).toBe(404);
-    expect(all?.body.error).toBe("Akun Tidak Ditemukan");
+    expect(all?.status).toBe(200);
+    expect((all?.body as any).data).toEqual([]);
+    expect((all?.body as any).totalData).toBe(0);
   });
 
   test("izin per aksi", async () => {

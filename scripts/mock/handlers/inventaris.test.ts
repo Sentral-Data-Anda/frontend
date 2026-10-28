@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { afterAll, describe, expect, test } from "bun:test";
 
 import { MENU, type MenuSlug } from "../../../src/config/menu";
 import { addDays } from "../../../src/lib/date";
@@ -22,6 +22,7 @@ import {
   decideDisposal,
   openRun,
   postRun,
+  resetInventaris,
   roomHoldsInventory,
   runOpenFailure,
   stockItemDdl,
@@ -67,6 +68,10 @@ const stockNamed = (name: string) => {
 
   return found;
 };
+
+// Berkas ini menyetujui pelepasan seed Printer Canon G2010. Tanpa
+// pengembalian benih, berkas berikutnya melihat aset yang sudah dilepas.
+afterAll(resetInventaris);
 
 describe("kode", () => {
   test("kode baru master melanjutkan urutan seed, tidak bertabrakan", () => {
@@ -344,13 +349,12 @@ describe("handler inventaris", () => {
       (await call(inventarisMock, "/ddl/unit", [MENU.STOCK_ITEM]))?.status,
     ).toBe(200);
     expect(
-      await call(inventarisMock, "/ddl/asset?filter=tidak-ada", [
-        MENU.ASSET_TRANSACTION,
-      ]),
-    ).toEqual({
-      status: 404,
-      body: { status: 404, error: "Barang Tidak Ditemukan" },
-    });
+      (
+        await call(inventarisMock, "/ddl/asset?filter=tidak-ada", [
+          MENU.ASSET_TRANSACTION,
+        ])
+      )?.status,
+    ).toBe(200);
     expect(
       await call(inventarisMock, "/ddl/jemaat", [MENU.ASSET_MASTER]),
     ).toBeNull();

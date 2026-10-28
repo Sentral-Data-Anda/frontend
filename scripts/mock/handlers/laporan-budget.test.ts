@@ -174,12 +174,13 @@ const liveRow = (): BudgetReportRow =>
   )!;
 
 describe("bacaan", () => {
-  test("daftar kosong dijawab 404, seperti be-sada", async () => {
+  test("daftar kosong dijawab 200 dengan array kosong", async () => {
     BUDGET_USAGE_REPORT.splice(0, BUDGET_USAGE_REPORT.length);
 
     const response = await onCall("GET", "/laporan-budget");
 
-    expect(response?.status).toBe(404);
+    expect(response?.status).toBe(200);
+    expect((response?.body.data as unknown[]).length).toBe(0);
   });
 
   test("detail membawa programId, bapelId, dan publicId tiap tahap", async () => {
@@ -586,7 +587,8 @@ describe("lingkup komisi", () => {
       false,
     );
 
-    expect(response?.status).toBe(404);
+    expect(response?.status).toBe(200);
+    expect((response?.body.data as unknown[]).length).toBe(0);
   });
 
   test("pemegang BUDGET VIEW melihat setiap komisi", async () => {
@@ -630,7 +632,8 @@ describe("lingkup komisi", () => {
       false,
     );
 
-    expect(response?.status).toBe(404);
+    expect(response?.status).toBe(200);
+    expect((response?.body.data as unknown[]).length).toBe(0);
   });
 
   test("membuat laporan untuk komisi lain dijawab 404 ke field komisi", async () => {

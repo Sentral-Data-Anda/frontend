@@ -76,8 +76,14 @@ describe("mock /karyawan: daftar", () => {
     ]);
 
     expect(await onCall("GET", "/karyawan?filter=zzz")).toEqual({
-      status: 404,
-      body: { status: 404, error: "Karyawan Tidak Ditemukan" },
+      status: 200,
+      body: {
+        status: 200,
+        message: "Berhasil Mendapatkan Semua Karyawan",
+        totalData: 0,
+        totalPage: 0,
+        data: [],
+      },
     });
   });
 
@@ -338,10 +344,10 @@ describe("mock /ddl/karyawan", () => {
   test("kosong jadi 404, baik karena flag maupun karena filter", async () => {
     expect(
       (await onCall("GET", "/ddl/karyawan?filter=tidakadaorangini"))?.status,
-    ).toBe(404);
+    ).toBe(200);
 
     process.env.MOCK_DDL_EMPTY = "1";
-    expect((await onCall("GET", "/ddl/karyawan"))?.status).toBe(404);
+    expect((await onCall("GET", "/ddl/karyawan"))?.status).toBe(200);
     delete process.env.MOCK_DDL_EMPTY;
   });
 });

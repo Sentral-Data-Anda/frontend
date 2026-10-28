@@ -24,6 +24,61 @@ const CREATE_VALUE = "\u0000create";
 const isSameOption = (item: SelectOption, value: SelectOption) =>
   item.value === value.value;
 
+// Daftar memakai hasil saring Base UI, bukan `items` mentah: tanpa itu teks yang
+// tidak cocok dengan opsi apa pun tetap menampilkan semua opsi, dan panah
+// keyboard mendarat di opsi pertama alih-alih di baris "Tambah …".
+const PilihanItems = (props: { hasMore: boolean; isLoadingMore: boolean }) => {
+  const items = Combobox.useFilteredItems<SelectOption>();
+
+  return (
+    <>
+      {items.map((option) =>
+        option.value === CREATE_VALUE ? (
+          <Combobox.Item
+            key={option.value}
+            value={option}
+            className={cn(FIELD_ITEM, "text-primary font-medium")}
+          >
+            <Plus className="col-start-1 size-3.5" aria-hidden />
+            <span className="col-start-2 truncate">
+              Tambah “{option.label}”
+            </span>
+          </Combobox.Item>
+        ) : (
+          <Combobox.Item
+            key={option.value}
+            value={option}
+            disabled={option.isDisabled}
+            className={cn(FIELD_ITEM, option.hint && FIELD_ITEM_HINTED)}
+          >
+            <Combobox.ItemIndicator className="col-start-1">
+              <Check className="size-3.5" aria-hidden />
+            </Combobox.ItemIndicator>
+            {option.hint ? (
+              <span className={FIELD_LABELED}>
+                <span className={FIELD_LABEL}>{option.label}</span>
+                <span className={FIELD_HINT}>{option.hint}</span>
+              </span>
+            ) : (
+              <span className="col-start-2 truncate">{option.label}</span>
+            )}
+          </Combobox.Item>
+        ),
+      )}
+
+      {props.hasMore ? (
+        <div className={cn(FIELD_ITEM, "text-muted-foreground")}>
+          <span className="col-start-2 truncate">
+            {props.isLoadingMore
+              ? "Memuat lebih banyak…"
+              : "Scroll untuk lebih banyak"}
+          </span>
+        </div>
+      ) : null}
+    </>
+  );
+};
+
 interface PropTypes {
   id?: string;
   value: string;
@@ -199,54 +254,10 @@ export const ComboboxField = (props: PropTypes) => {
                 </Combobox.Empty>
 
                 <Combobox.List className="max-h-72 overflow-auto">
-                  {items.map((option) =>
-                    option.value === CREATE_VALUE ? (
-                      <Combobox.Item
-                        key={option.value}
-                        value={option}
-                        className={cn(FIELD_ITEM, "text-primary font-medium")}
-                      >
-                        <Plus className="col-start-1 size-3.5" aria-hidden />
-                        <span className="col-start-2 truncate">
-                          Tambah “{option.label}”
-                        </span>
-                      </Combobox.Item>
-                    ) : (
-                      <Combobox.Item
-                        key={option.value}
-                        value={option}
-                        disabled={option.isDisabled}
-                        className={cn(
-                          FIELD_ITEM,
-                          option.hint && FIELD_ITEM_HINTED,
-                        )}
-                      >
-                        <Combobox.ItemIndicator className="col-start-1">
-                          <Check className="size-3.5" aria-hidden />
-                        </Combobox.ItemIndicator>
-                        {option.hint ? (
-                          <span className={FIELD_LABELED}>
-                            <span className={FIELD_LABEL}>{option.label}</span>
-                            <span className={FIELD_HINT}>{option.hint}</span>
-                          </span>
-                        ) : (
-                          <span className="col-start-2 truncate">
-                            {option.label}
-                          </span>
-                        )}
-                      </Combobox.Item>
-                    ),
-                  )}
-
-                  {hasMore && (
-                    <div className={cn(FIELD_ITEM, "text-muted-foreground")}>
-                      <span className="col-start-2 truncate">
-                        {isLoadingMore
-                          ? "Memuat lebih banyak…"
-                          : "Scroll untuk lebih banyak"}
-                      </span>
-                    </div>
-                  )}
+                  <PilihanItems
+                    hasMore={hasMore}
+                    isLoadingMore={isLoadingMore}
+                  />
                 </Combobox.List>
               </>
             )}

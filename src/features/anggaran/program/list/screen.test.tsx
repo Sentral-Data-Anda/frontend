@@ -123,8 +123,8 @@ const onMockApi = (rows: Program[] = ROWS) => {
     if (url.startsWith("/api/v1/program")) {
       return rows.length === 0
         ? Response.json(
-            { status: 404, error: "Program Tidak Ditemukan" },
-            { status: 404 },
+            { status: 200, message: "Berhasil Mendapatkan Data", data: [] },
+            { status: 200 },
           )
         : Response.json({
             status: 200,

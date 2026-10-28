@@ -119,16 +119,21 @@ const isNameTaken = (name: string, ownId?: number) =>
 const taken = () => json({ status: 409, error: "Wilayah Sudah Tersedia" }, 409);
 
 const ddl = () => {
-  if (process.env.MOCK_DDL_EMPTY || rows.length === 0) {
-    return json({ status: 404, error: "Data Tidak Ditemukan" }, 404);
-  }
+  const data = process.env.MOCK_DDL_EMPTY
+    ? []
+    : [...rows].sort((a, b) => a.id - b.id);
 
   return json({
     status: 200,
     message: "Berhasil Mendapatkan Data",
-    data: [...rows]
-      .sort((a, b) => a.id - b.id)
-      .map(({ id, code, name, isActive }) => ({ id, code, name, isActive })),
+    data: data.map(({ id, code, name, isActive }) => ({
+      id,
+      code,
+      name,
+      isActive,
+    })),
+    totalData: data.length,
+    totalPage: data.length === 0 ? 0 : Math.ceil(data.length / 10),
   });
 };
 

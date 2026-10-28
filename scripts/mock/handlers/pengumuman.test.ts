@@ -132,8 +132,11 @@ describe("GET /pengumuman", () => {
 
   test("kosong = 404; tanpa VIEW = 403", async () => {
     expect((await call("/pengumuman?filter=zzz")).body).toEqual({
-      status: 404,
-      error: "Pengumuman Tidak Ditemukan",
+      status: 200,
+      message: "Berhasil Mendapatkan Semua Pengumuman",
+      totalData: 0,
+      totalPage: 0,
+      data: [],
     });
     expect((await call("/pengumuman", {}, [])).status).toBe(403);
   });
