@@ -11,6 +11,7 @@ import {
 import type { ReactNode } from "react";
 
 import type { ListState } from "@/hooks/use-list-params";
+import { FetchError } from "@/lib/api/fetcher";
 
 import { onStubViewport } from "../../../../tests/viewport";
 
@@ -103,12 +104,36 @@ describe("useRunList", () => {
     );
   });
 
-  test("404 dari be-sada menjadi daftar kosong", async () => {
+  test("404 dari be-sada tetap menjadi galat", async () => {
     const onRestore = onStubFetch(() =>
       Response.json(
         { status: 404, error: "Penyusutan Tidak Ditemukan" },
         { status: 404 },
       ),
+    );
+
+    const { result } = renderHook(() => useRunList(onParams({})), {
+      wrapper: onWrapper(onNewClient()),
+    });
+
+    await waitFor(() =>
+      expect(result.current.error).toBeInstanceOf(FetchError),
+    );
+    expect(result.current.error?.status).toBe(404);
+    expect(result.current.error?.message).toBe("Penyusutan Tidak Ditemukan");
+
+    onRestore();
+  });
+
+  test("sukses mengembalikan daftar kosong", async () => {
+    const onRestore = onStubFetch(() =>
+      Response.json({
+        status: 200,
+        message: "Berhasil Mendapatkan Penyusutan",
+        totalData: 0,
+        totalPage: 0,
+        data: [],
+      }),
     );
 
     const { result } = renderHook(() => useRunList(onParams({})), {

@@ -16,7 +16,7 @@ export const ROW_LINE = TABLE_ROW_LINE_ON_CANVAS;
 
 export const TABLE_CONTAINER = "@container px-gutter";
 export const TABLE_GRID =
-  "grid grid-cols-(--cols-narrow) items-center gap-4 @min-[52rem]:grid-cols-(--cols)";
+  "grid grid-cols-(--cols-narrow) items-center gap-4 @min-[64rem]:grid-cols-(--cols)";
 
 type SkeletonColumn = Pick<
   DataTableColumn<never>,
