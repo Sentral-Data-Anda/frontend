@@ -56,6 +56,9 @@ export const JemaatField = (props: PropTypes) => {
       emptyMessage="Jemaat tidak ditemukan"
       aria-invalid={isInvalid || undefined}
       aria-describedby={describedBy}
+      onLoadMore={search.onLoadMore}
+      hasMore={search.hasMore}
+      isLoadingMore={search.isLoadingMore}
     />
   );
 };

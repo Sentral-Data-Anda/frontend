@@ -37,6 +37,9 @@ export const JemaatField = (props: PropTypes) => {
           disabled={isDisabled}
           placeholder="Pilih jemaat"
           emptyMessage="Tidak ada jemaat aktif dengan nama itu"
+          onLoadMore={jemaat.onLoadMore}
+          hasMore={jemaat.hasMore}
+          isLoadingMore={jemaat.isLoadingMore}
         />
       )}
     </ControlField>

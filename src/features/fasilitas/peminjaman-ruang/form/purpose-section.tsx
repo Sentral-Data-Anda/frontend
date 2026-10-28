@@ -89,6 +89,9 @@ export const PurposeSection = (props: PropTypes) => {
             disabled={isDisabled}
             placeholder="Pilih peminjam"
             emptyMessage="Jemaat tidak ditemukan"
+            onLoadMore={jemaat.onLoadMore}
+            hasMore={jemaat.hasMore}
+            isLoadingMore={jemaat.isLoadingMore}
           />
         )}
       </ControlField>

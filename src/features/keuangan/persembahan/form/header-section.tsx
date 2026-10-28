@@ -118,6 +118,9 @@ export const HeaderSection = (props: PropTypes) => {
             isClearable
             placeholder="Cari nama penghitung"
             emptyMessage="Jemaat tidak ditemukan"
+            onLoadMore={receivedBy.onLoadMore}
+            hasMore={receivedBy.hasMore}
+            isLoadingMore={receivedBy.isLoadingMore}
           />
         )}
       </ControlField>

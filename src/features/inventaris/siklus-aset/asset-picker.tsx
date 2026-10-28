@@ -66,6 +66,9 @@ export const AssetPicker = (props: PropTypes) => {
       disabled={disabled}
       placeholder="Pilih barang"
       emptyMessage="Tidak ada barang aktif dengan nama atau kode itu"
+      onLoadMore={assets.onLoadMore}
+      hasMore={assets.hasMore}
+      isLoadingMore={assets.isLoadingMore}
     />
   );
 };

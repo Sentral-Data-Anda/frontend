@@ -147,6 +147,9 @@ export function useHostOptions(params: HostParams) {
     ),
     isLoading: keluarga.isLoading || suggestions.isFetching,
     onSearch,
+    hasMore: keluarga.hasMore,
+    isLoadingMore: keluarga.isLoadingMore,
+    onLoadMore: keluarga.onLoadMore,
   };
 }
 

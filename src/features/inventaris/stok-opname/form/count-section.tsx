@@ -154,6 +154,9 @@ export const CountSection = (props: PropTypes) => {
               }
               aria-invalid={itemsError ? true : undefined}
               aria-describedby={itemsError ? "items-error" : undefined}
+              onLoadMore={search.onLoadMore}
+              hasMore={search.hasMore}
+              isLoadingMore={search.isLoadingMore}
             />
           </div>
         </div>

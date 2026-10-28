@@ -17,10 +17,21 @@ interface PropTypes {
   emptyMessage: string;
   "aria-invalid"?: boolean;
   "aria-describedby"?: string;
+  onLoadMore?: () => void;
+  hasMore?: boolean;
+  isLoadingMore?: boolean;
 }
 
 export const DdlField = (props: PropTypes) => {
-  const { isLoading, placeholder, isClearable, ...rest } = props;
+  const {
+    isLoading,
+    placeholder,
+    isClearable,
+    onLoadMore,
+    hasMore,
+    isLoadingMore,
+    ...rest
+  } = props;
 
   // SelectField tidak punya tombol kosongkan; pilihan yang boleh dikosongkan
   // memakai ComboboxField berapa pun jumlahnya, bukan diam-diam tanpa tombol.
@@ -30,6 +41,9 @@ export const DdlField = (props: PropTypes) => {
       isClearable={isClearable}
       isLoading={isLoading}
       placeholder={placeholder}
+      onLoadMore={onLoadMore}
+      hasMore={hasMore}
+      isLoadingMore={isLoadingMore}
     />
   ) : (
     <SelectField {...rest} placeholder={isLoading ? "Memuat…" : placeholder} />
