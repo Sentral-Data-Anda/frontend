@@ -58,16 +58,39 @@ export function applyServerError<T extends FieldValues>(
 // Galat validasi klien: field bergalat pertama menurut urutan DOM, bukan urutan skema.
 export const FIRST_INVALID = "*";
 
+const FOCUS_RETRY_MS = 16;
+const FOCUS_RETRY_LIMIT = 40; // ~0,6 detik: cukup untuk menunggu kontrol aktif lagi.
+
+// Kontrol yang sedang memuat atau berada di dalam fieldset nonaktif menolak
+// fokus. Fokus yang gagal diam-diam membuat pengguna tidak tahu field mana yang
+// bergalat, jadi coba lagi sebentar alih-alih menyerah pada frame pertama.
+const isFocusable = (element: HTMLElement) =>
+  !(element as HTMLButtonElement).disabled &&
+  element.getAttribute("aria-disabled") !== "true" &&
+  !(element.closest("fieldset") as HTMLFieldSetElement | null)?.disabled;
+
 export function revealField(field: string | null | undefined): void {
   if (!field) return;
 
-  const control =
+  const find = () =>
     field === FIRST_INVALID
       ? document.querySelector<HTMLElement>('form [aria-invalid="true"]')
       : document.getElementById(field);
 
-  if (!control) return;
+  const attempt = (remaining: number) => {
+    const control = find();
 
-  control.focus({ preventScroll: true });
-  control.scrollIntoView({ block: "center", behavior: "smooth" });
+    if (control && isFocusable(control)) {
+      control.focus({ preventScroll: true });
+
+      if (document.activeElement === control) {
+        control.scrollIntoView?.({ block: "center", behavior: "smooth" });
+        return;
+      }
+    }
+
+    if (remaining > 0) setTimeout(() => attempt(remaining - 1), FOCUS_RETRY_MS);
+  };
+
+  attempt(FOCUS_RETRY_LIMIT);
 }
