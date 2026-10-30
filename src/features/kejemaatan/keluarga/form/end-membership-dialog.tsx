@@ -82,15 +82,20 @@ export const EndMembershipDialog = (props: PropTypes) => {
 
   // Only somebody who stays can take over, and a head who left must name one.
   // A death is the exception: the household may sit headless until the family
-  // decides, so nobody is made to invent a name at the funeral. Asked once and
-  // used by both the form and the schema — two copies drift, and the copy that
-  // drifts leaves a required field with no input to fill it.
+  // decides, so nobody is made to invent a name at the funeral. An unanswered
+  // reason is not a death either, so the question waits until a reason is
+  // picked. Asked once and used by both the form and the schema — two copies
+  // drift, and the copy that drifts leaves a required field with no input to
+  // fill it.
   const needsSuccessorWith = (
     reason: string,
     isPartnerClosed: boolean,
     stayingCount: number,
   ) =>
-    reason !== "MENINGGAL" && endsHeadWith(isPartnerClosed) && stayingCount > 0;
+    reason !== "" &&
+    reason !== "MENINGGAL" &&
+    endsHeadWith(isPartnerClosed) &&
+    stayingCount > 0;
 
   const form = useForm<EndMembershipValues>({
     defaultValues: EMPTY_END_MEMBERSHIP,
