@@ -369,10 +369,22 @@ const onSplitCouple = async (dialog: HTMLElement) => {
 };
 
 describe("akhiri keanggotaan", () => {
+  test("alasan mulai kosong dan wajib dipilih sebelum menyimpan", async () => {
+    const dialog = await onOpenEnd(2);
+
+    expect(
+      within(dialog).getByRole("combobox", { name: "Alasan berakhir" })
+        .textContent,
+    ).toContain("Pilih alasan");
+
+    onSubmitEnd(dialog);
+
+    expect(await hasText(dialog, "Pilih alasan berakhir.")).toBe(true);
+  });
+
   test("kepala keluar: pengganti wajib, hanya yang tetap ditawarkan", async () => {
     const dialog = await onOpenEnd(0);
 
-    // Dying is the default reason and asks for nobody; leaving does.
     fireEvent.click(
       within(dialog).getByRole("combobox", { name: "Alasan berakhir" }),
     );

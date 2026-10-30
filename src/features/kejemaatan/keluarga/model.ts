@@ -36,6 +36,8 @@ export const END_REASON_LABEL: Record<EndReason, string> = {
 /** Kept where the child is now. */
 export const CHILD_STAYS = "TETAP";
 
+const END_REASON_VALUES = ["", ...END_REASONS] as const;
+
 /**
  * What an ending has to answer depends on who is leaving, so the schema is
  * built per member rather than once: only a head hands the role over, only a
@@ -49,7 +51,9 @@ export const endMembershipSchemaFor = (context: {
   z
     .object({
       endedAt: required("Tanggal berakhir wajib diisi."),
-      endReason: z.enum(END_REASONS, { error: "Pilih alasan berakhir." }),
+      endReason: z.enum(END_REASON_VALUES, {
+        error: "Pilih alasan berakhir.",
+      }),
       endNote: z.string(),
 
       // "" means unanswered. A boolean would make an unanswered question read
@@ -63,6 +67,10 @@ export const endMembershipSchemaFor = (context: {
     .superRefine((values, ctx) => {
       const add = (path: (string | number)[], message: string) =>
         ctx.addIssue({ code: "custom", path, message });
+
+      // Empty is a valid enum member only so the placeholder can start there;
+      // it is still an unanswered question, not "Lainnya".
+      if (!values.endReason) add(["endReason"], "Pilih alasan berakhir.");
 
       if (context.requiresSuccessor && !values.newHeadJemaatCode) {
         add(
@@ -102,7 +110,7 @@ export type EndMembershipValues = z.infer<
 
 export const EMPTY_END_MEMBERSHIP: EndMembershipValues = {
   endedAt: "",
-  endReason: "MENINGGAL",
+  endReason: "",
   endNote: "",
   newHeadJemaatCode: "",
   alsoEndPartner: "",
@@ -119,7 +127,8 @@ export function toEndMembershipPayload(
 
   return {
     endedAt: values.endedAt,
-    endReason: values.endReason,
+    // The schema rejects "", so a payload only exists after a reason is picked.
+    endReason: values.endReason as EndReason,
     endNote: values.endNote.trim() || null,
     newHeadJemaatCode: values.newHeadJemaatCode || null,
     alsoEndPartner: isDivorce ? alsoEndPartner : null,

@@ -265,11 +265,20 @@ describe("endMembershipSchemaFor", () => {
     endMembershipSchemaFor({ ...CONTEXT, ...context }).safeParse({
       ...EMPTY_END_MEMBERSHIP,
       endedAt: "2026-03-01",
+      endReason: "MENIKAH",
       ...values,
     });
 
   const messages = (values: Partial<EndMembershipValues>, context = {}) =>
     parse(values, context).error?.issues.map((issue) => issue.message) ?? [];
+
+  test("bentuk awal tidak memilih alasan apa pun", () => {
+    expect(EMPTY_END_MEMBERSHIP.endReason).toBe("");
+  });
+
+  test("alasan berakhir wajib dipilih, bukan diam-diam dianggap meninggal", () => {
+    expect(messages({ endReason: "" })).toContain("Pilih alasan berakhir.");
+  });
 
   test("tanggal berakhir wajib diisi", () => {
     expect(messages({ endedAt: "" })).toContain(
@@ -372,6 +381,7 @@ describe("toEndMembershipPayload", () => {
   const base: EndMembershipValues = {
     ...EMPTY_END_MEMBERSHIP,
     endedAt: "2026-03-01",
+    endReason: "MENIKAH",
   };
 
   test("catatan kosong dikirim null, bukan string kosong", () => {
