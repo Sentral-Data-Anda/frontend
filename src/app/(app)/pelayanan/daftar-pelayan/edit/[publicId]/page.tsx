@@ -13,5 +13,5 @@ export default async function Page({
 }) {
   const { publicId } = await params;
 
-  return <DaftarPelayanFormScreen code={publicId} />;
+  return <DaftarPelayanFormScreen publicId={publicId} />;
 }

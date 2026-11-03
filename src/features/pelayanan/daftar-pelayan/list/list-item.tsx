@@ -9,7 +9,7 @@ import { TYPE_PELAYAN_LABEL, type PelayanListItem } from "../types";
 import { PelayanStatus } from "./pelayan-status";
 
 const editHrefOf = (pelayan: PelayanListItem) =>
-  editHref(MENU.PELAYANAN, MENU.DAFTAR_PELAYAN, pelayan.code);
+  editHref(MENU.PELAYANAN, MENU.DAFTAR_PELAYAN, pelayan.publicId);
 
 const saveFocus = (pelayan: PelayanListItem) =>
   saveListFocus(DAFTAR_PELAYAN_LIST_PATH, pelayan.code);

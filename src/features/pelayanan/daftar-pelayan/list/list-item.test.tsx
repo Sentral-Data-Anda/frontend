@@ -10,6 +10,7 @@ import { PelayanListItemRow, daftarPelayanTable, jenisOf } from "./list-item";
 afterEach(cleanup);
 
 const BETHARI: PelayanListItem = {
+  publicId: "a1b2c3d4-0000-4000-8000-000000000001",
   code: "PLYN_0001-0002",
   typePelayan: "INDIVIDUAL",
   namePelayan: "Bethari Ayu Kusuma",
@@ -22,6 +23,7 @@ const BETHARI: PelayanListItem = {
 };
 
 const BAND: PelayanListItem = {
+  publicId: "a1b2c3d4-0000-4000-8000-000000000002",
   code: "GPLYN_0002-0001",
   typePelayan: "GROUP",
   namePelayan: "Band Pemuda",
@@ -55,7 +57,7 @@ describe("baris HP", () => {
       screen
         .getByRole("link", { name: "Ubah Bethari Ayu Kusuma" })
         .getAttribute("href"),
-    ).toBe("/pelayanan/daftar-pelayan/edit/PLYN_0001-0002");
+    ).toBe(`/pelayanan/daftar-pelayan/edit/${BETHARI.publicId}`);
   });
 
   test("kelompok nonaktif: badge Kelompok dan Nonaktif", () => {
@@ -110,7 +112,7 @@ describe("konfigurasi tabel", () => {
       ["Status", "minmax(0,1fr)", false],
     ]);
     expect(table.getRowActions?.(BAND)?.edit?.href).toBe(
-      "/pelayanan/daftar-pelayan/edit/GPLYN_0002-0001",
+      `/pelayanan/daftar-pelayan/edit/${BAND.publicId}`,
     );
     expect(
       daftarPelayanTable(false).getRowActions?.(BAND)?.edit?.href,

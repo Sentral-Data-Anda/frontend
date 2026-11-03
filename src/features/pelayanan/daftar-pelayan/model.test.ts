@@ -96,8 +96,10 @@ describe("skema per jenis", () => {
 });
 
 describe("payload", () => {
-  test("perorangan: semua kunci ada, nama/HP null, anggota [], isPemusik dari alat", () => {
-    expect(toPelayanPayload(INDIVIDUAL)).toEqual({
+  test("perorangan: semua kunci ada, nama/HP null, anggota [], tanpa isPemusik", () => {
+    const payload = toPelayanPayload(INDIVIDUAL);
+
+    expect(payload).toEqual({
       typePelayan: "INDIVIDUAL",
       bapelId: 1,
       jemaatId: 2,
@@ -105,13 +107,12 @@ describe("payload", () => {
       phone: null,
       members: [],
       rolePelayan: [2, 4],
-      isPemusik: true,
       musikSkill: [1],
       status: true,
     });
-    expect(toPelayanPayload({ ...INDIVIDUAL, musikSkill: [] }).isPemusik).toBe(
-      false,
-    );
+    // `isPemusik` is derived from the role and the instruments by the backend;
+    // sending it as a second source of truth is what used to drop skills.
+    expect(payload).not.toHaveProperty("isPemusik");
   });
 
   test("kelompok: jemaatId null, nama dinormalkan, anggota berupa id", () => {
@@ -123,7 +124,6 @@ describe("payload", () => {
       phone: "081234567890",
       members: [9, 10],
       rolePelayan: [4],
-      isPemusik: false,
       musikSkill: [],
       status: false,
     });
@@ -131,6 +131,7 @@ describe("payload", () => {
 
   test("ubah: form dari detail mengirim ulang typePelayan dan jemaatId tersimpan", () => {
     const detail: PelayanDetail = {
+      publicId: "a1b2c3d4-0000-4000-8000-000000000003",
       code: "PLYN_0002-0003",
       typePelayan: "INDIVIDUAL",
       jemaatId: "3",

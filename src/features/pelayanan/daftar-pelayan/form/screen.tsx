@@ -31,6 +31,7 @@ import {
   DAFTAR_PELAYAN_LIST_PATH,
   EMPTY_PELAYAN_FORM,
   futureSlotLines,
+  futureSlotsReason,
   futureSlotsTitle,
   nameOfDetail,
   pelayanFormSchema,
@@ -47,23 +48,23 @@ import { IdentitySection } from "./identity-section";
 import { TugasSection } from "./tugas-section";
 
 interface PropTypes {
-  code?: string;
+  publicId?: string;
 }
 
 export const DaftarPelayanFormScreen = (props: PropTypes) => {
-  const { code } = props;
+  const { publicId } = props;
 
   const router = useRouter();
   const toast = useToast();
-  const isEdit = Boolean(code);
+  const isEdit = Boolean(publicId);
   const { isCanView, isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
     MENU.DAFTAR_PELAYAN,
   );
   const listReturn = useListReturn(DAFTAR_PELAYAN_LIST_PATH);
   const [rejectedField, setRejectedField] = useState<string | null>(null);
-  const savePelayan = useSavePelayan(code);
-  const deletePelayan = useDeletePelayan(code);
-  const detail = usePelayanDetail(isCanUpdate ? code : undefined);
+  const savePelayan = useSavePelayan(publicId);
+  const deletePelayan = useDeletePelayan(publicId);
+  const detail = usePelayanDetail(isCanUpdate ? publicId : undefined);
   const confirm = useFormConfirm();
   const saveRef = useRef<HTMLButtonElement>(null);
   const deleteRef = useRef<HTMLButtonElement>(null);
@@ -114,7 +115,10 @@ export const DaftarPelayanFormScreen = (props: PropTypes) => {
       timeout: 0,
       priority: "high",
       title: futureSlotsTitle(name, slots),
-      description: futureSlotLines(slots).map((line) => (
+      description: futureSlotLines(
+        slots,
+        futureSlotsReason(values, detail.data),
+      ).map((line) => (
         <span key={line} className="block">
           {line}
         </span>
@@ -244,7 +248,7 @@ export const DaftarPelayanFormScreen = (props: PropTypes) => {
       header={
         <PageHeader
           title={isEdit ? "Ubah Pelayan" : "Tambah Pelayan"}
-          subtitle={title || code}
+          subtitle={title || publicId}
           backHref={listReturn}
           isBackPersistent
           onBack={confirm.onBack(isDirty)}

@@ -18,7 +18,10 @@ import type {
 export const daftarPelayanKeys = {
   all: ["daftar-pelayan"] as const,
   lists: () => [...daftarPelayanKeys.all, "list"] as const,
-  detail: (code: string) => [...daftarPelayanKeys.all, "detail", code] as const,
+  // The row's uuid, as the contract says: the business code is only an alias
+  // the backend still accepts for older links.
+  detail: (publicId: string) =>
+    [...daftarPelayanKeys.all, "detail", publicId] as const,
 };
 
 const pathOf = (key: string) => `/pelayan/${encodeURIComponent(key)}`;
@@ -31,24 +34,24 @@ export function useDaftarPelayanList(params: ListState) {
   });
 }
 
-export function usePelayanDetail(code: string | undefined) {
+export function usePelayanDetail(publicId: string | undefined) {
   return useQuery({
-    queryKey: daftarPelayanKeys.detail(code ?? ""),
-    queryFn: () => fetchOne<PelayanDetail>(pathOf(code ?? "")),
-    enabled: Boolean(code),
+    queryKey: daftarPelayanKeys.detail(publicId ?? ""),
+    queryFn: () => fetchOne<PelayanDetail>(pathOf(publicId ?? "")),
+    enabled: Boolean(publicId),
     staleTime: 0,
     select: (response) => response.data,
   });
 }
 
-function useInvalidatePelayan(code: string | undefined) {
+function useInvalidatePelayan(publicId: string | undefined) {
   const queryClient = useQueryClient();
 
   return () =>
     Promise.all([
       queryClient.invalidateQueries({ queryKey: daftarPelayanKeys.lists() }),
       queryClient.invalidateQueries({
-        queryKey: daftarPelayanKeys.detail(code ?? ""),
+        queryKey: daftarPelayanKeys.detail(publicId ?? ""),
         refetchType: "none",
       }),
       queryClient.invalidateQueries({ queryKey: ["jadwal-pelayan"] }),
@@ -59,25 +62,25 @@ function useInvalidatePelayan(code: string | undefined) {
     ]);
 }
 
-export function useSavePelayan(code?: string) {
-  const onInvalidate = useInvalidatePelayan(code);
+export function useSavePelayan(publicId?: string) {
+  const onInvalidate = useInvalidatePelayan(publicId);
 
   return useMutation({
     mutationFn: (payload: PelayanPayload) =>
-      fetchOne<{ code: string }>(code ? pathOf(code) : "/pelayan", {
-        method: code ? "PUT" : "POST",
+      fetchOne<{ code: string }>(publicId ? pathOf(publicId) : "/pelayan", {
+        method: publicId ? "PUT" : "POST",
         body: JSON.stringify(payload),
       }) as Promise<PelayanSaved>,
     onSuccess: onInvalidate,
   });
 }
 
-export function useDeletePelayan(code: string | undefined) {
-  const onInvalidate = useInvalidatePelayan(code);
+export function useDeletePelayan(publicId: string | undefined) {
+  const onInvalidate = useInvalidatePelayan(publicId);
 
   return useMutation({
     mutationFn: () =>
-      fetchOne<unknown>(pathOf(code ?? ""), { method: "DELETE" }),
+      fetchOne<unknown>(pathOf(publicId ?? ""), { method: "DELETE" }),
     onSuccess: onInvalidate,
   });
 }

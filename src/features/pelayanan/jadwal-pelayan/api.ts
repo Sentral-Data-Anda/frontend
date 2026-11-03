@@ -76,7 +76,8 @@ export function useSaveJadwalPelayan(code?: string) {
           : "/jadwal-pelayan",
         { method: code ? "PUT" : "POST", body: JSON.stringify(payload) },
       ),
-    onSuccess: (_, payload) => onInvalidate(payload.makeTemplate),
+    // `undefined` on an edit: no template can have been made from a PUT.
+    onSuccess: (_, payload) => onInvalidate(payload.makeTemplate ?? false),
   });
 }
 

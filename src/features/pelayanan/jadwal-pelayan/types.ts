@@ -57,7 +57,8 @@ export type JadwalPelayanPayload = {
   name: string;
   startTime: string;
   endTime: string;
-  makeTemplate: boolean;
+  /** Only a create sends it: a roster save asks for a template, an edit does not. */
+  makeTemplate?: boolean;
   detail: (SlotPayload & { order: number; rolePelayanId: number })[];
 };
 
