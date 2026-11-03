@@ -18,6 +18,7 @@ export {
   ROLE_IN_FAMILY_LABEL,
   SACRAMENT_ONCE,
   SACRAMENT_TYPE_LABEL,
+  SACRAMENT_WRITABLE,
   STATUS_JEMAAT_LABEL,
   STATUS_PERNIKAHAN_LABEL,
   TYPE_JEMAAT_LABEL,
@@ -60,13 +61,27 @@ export const HOUSEHOLD_OPTIONS: SelectOption[] = [
 ];
 
 export type JemaatAdditional = {
+  /** Ada pada baris tersimpan; tidak ada pada baris baru yang belum disimpan. */
+  publicId?: string;
   type: SacramentType;
   date: string;
   certificateNumber: string | null;
   place: string | null;
+
+  // Hanya terisi pada baris NIKAH, dan hanya dibaca: pernikahan dicatat dari
+  // fitur Keluarga. Form ini menampilkannya, tidak mengirimkannya balik.
   partnerId?: number | null;
+  partnerJemaat?: { code: string; name: string } | null;
   endedAt?: string | null;
+  endReason?: "CERAI_HIDUP" | "CERAI_MATI" | null;
+  endNote?: string | null;
 };
+
+/** Baris riwayat yang form ini boleh menulis. */
+export type JemaatAdditionalInput = Pick<
+  JemaatAdditional,
+  "publicId" | "type" | "date" | "certificateNumber" | "place"
+>;
 
 export type JemaatPayload = {
   name: string;

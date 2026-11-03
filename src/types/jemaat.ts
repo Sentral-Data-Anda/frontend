@@ -1,7 +1,13 @@
 export type Gender = "L" | "P";
 export type TypeJemaat = "ANGGOTA" | "SIMPATISAN";
 export type StatusJemaat = "AKTIF" | "TIDAK_AKTIF";
-export type RoleInFamily = "KEPALA_KELUARGA" | "PASANGAN" | "ANAK";
+// Hubungan ke rumah tangga, bukan jabatan di dalamnya: SUAMI berarti
+// "laki-laki dari rumah tangga ini" dan ISTRI "perempuan dari rumah tangga
+// ini" — bukan "yang menikah dengan satu sama lain". Satu KK boleh berisi
+// ISTRI tanpa SUAMI (janda, atau ibu yang bercerai). Siapa kepala keluarganya
+// adalah `kepalaKeluarga`, boolean tersendiri. Lihat
+// ../../../docs/decisions/specs/2026-11-02-peran-keluarga-dan-pernikahan-design.md.
+export type RoleInFamily = "SUAMI" | "ISTRI" | "ANAK";
 
 export type StatusPernikahan = "SM" | "BM" | "CM" | "CH";
 
@@ -47,11 +53,14 @@ export const STATUS_PERNIKAHAN_LABEL: Record<StatusPernikahan, string> = {
 };
 
 export const ROLE_IN_FAMILY_LABEL: Record<RoleInFamily, string> = {
-  KEPALA_KELUARGA: "Kepala keluarga",
-  PASANGAN: "Pasangan",
+  SUAMI: "Suami",
+  ISTRI: "Istri",
   ANAK: "Anak",
 };
 
+// NIKAH dan CERAI tetap ada karena detail jemaat MENAMPILKANNYA, tapi form
+// Daftar Jemaat tidak lagi bisa menulis keduanya — pernikahan dicatat dari
+// fitur Keluarga. Pilihan jenis riwayat memakai SACRAMENT_WRITABLE.
 export type SacramentType =
   | "BAPTIS"
   | "SIDI"
@@ -76,6 +85,30 @@ export const SACRAMENT_ONCE: readonly SacramentType[] = [
   "SIDI",
   "MENINGGAL",
 ];
+
+/**
+ * Jenis riwayat yang boleh dipilih di form Daftar Jemaat.
+ *
+ * NIKAH dan CERAI tidak ada di sini: pernikahan dicatat dari fitur Keluarga,
+ * yang tahu rumah tangga mana yang dimaksud. Backend menolaknya, bukan
+ * mengabaikannya — petugas yang memilih "Menikah" lalu mendapat 201 akan
+ * percaya datanya tersimpan.
+ */
+export const SACRAMENT_WRITABLE = [
+  "BAPTIS",
+  "SIDI",
+  "ATESTASI_MASUK",
+  "ATESTASI_KELUAR",
+  "MENINGGAL",
+] as const satisfies readonly SacramentType[];
+
+export type WritableSacramentType = (typeof SACRAMENT_WRITABLE)[number];
+
+/** Baris riwayat yang form Daftar Jemaat boleh menulis. */
+export const isWritableSacrament = (
+  type: SacramentType,
+): type is WritableSacramentType =>
+  (SACRAMENT_WRITABLE as readonly SacramentType[]).includes(type);
 
 export type BloodType = "A" | "B" | "AB" | "O";
 export type LastEducation =

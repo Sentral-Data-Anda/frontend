@@ -144,7 +144,7 @@ export const AddressSection = (props: PropTypes) => {
           {(field) => (
             <Textarea
               {...field}
-              maxLength={150}
+              maxLength={250}
               autoComplete="street-address"
             />
           )}

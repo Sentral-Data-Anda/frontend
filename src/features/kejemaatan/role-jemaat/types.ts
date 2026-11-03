@@ -6,7 +6,16 @@ export type RoleJemaatItem = {
   name: string;
   startPeriode: string;
   endPeriode: string;
-  status: boolean;
+  /**
+   * Apakah jabatan ini sedang dipegang hari ini.
+   *
+   * **Diturunkan backend dari periodenya, bukan disimpan dan bukan dikirim.**
+   * Dulu ada kolom `status` yang diisi petugas di samping periodenya, dan
+   * keduanya tidak sepakat: penjadwalan membaca boolean itu dan mengabaikan
+   * tanggal, routing persetujuan membaca tanggal dan mengabaikan boolean. Yang
+   * memutuskan "hari ini" adalah hari gereja di server, bukan jam browser.
+   */
+  isActive: boolean;
   jemaat: Ref;
   bapel: Ref | null;
 };
@@ -15,12 +24,12 @@ export type RoleJemaatPayload = {
   name: string;
   startPeriode: string;
   endPeriode: string;
-  status: boolean;
   jemaatId: number;
-  bapelId: number;
+  /** Null untuk jabatan gerejawi, yang bukan milik komisi mana pun. */
+  bapelId: number | null;
 };
 
 export const ROLE_STATUS_LABEL: Record<"true" | "false", string> = {
-  true: "Aktif",
-  false: "Tidak aktif",
+  true: "Sedang menjabat",
+  false: "Tidak menjabat",
 };

@@ -117,7 +117,7 @@ export const ContactSection = (props: PropTypes) => {
             inputMode="numeric"
             autoComplete="tel"
             className="tabular-nums"
-            maxLength={12}
+            maxLength={15}
           />
         )}
       </ControlField>

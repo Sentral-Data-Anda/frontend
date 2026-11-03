@@ -66,7 +66,7 @@ const DETAIL: RoleJemaatItem = {
   name: "Sekretaris",
   startPeriode: "2025-01-01T00:00:00.000Z",
   endPeriode: "2026-12-31T00:00:00.000Z",
-  status: true,
+  isActive: true,
   jemaat: { id: 4, code: "JMT-0004", name: "Debora Manurung" },
   bapel: { id: 2, code: "BPL-0002", name: "Komisi Pemuda" },
 };

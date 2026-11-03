@@ -1,14 +1,10 @@
 "use client";
 
-import { DateField, SelectField, optionsOf } from "@/components/common/control";
+import { DateField } from "@/components/common/control";
 import { ControlField, FormSection } from "@/components/common/form";
 import { endOfYearIso } from "@/lib/date";
 
-import { ROLE_STATUS_LABEL } from "../types";
-
 import { type RoleJemaatForm } from "./form-options";
-
-const STATUS_OPTIONS = optionsOf(ROLE_STATUS_LABEL);
 
 const DATE_MAX = endOfYearIso(5);
 
@@ -54,23 +50,6 @@ export const PeriodeSection = (props: PropTypes) => {
             disabled={field.disabled}
             max={DATE_MAX}
             label="Tanggal selesai"
-          />
-        )}
-      </ControlField>
-
-      <ControlField
-        control={form.control}
-        name="status"
-        label="Status"
-        isRequired
-      >
-        {(field) => (
-          <SelectField
-            value={field.value}
-            onValueChange={field.onChange}
-            options={STATUS_OPTIONS}
-            disabled={isDisabled}
-            placeholder="Pilih status"
           />
         )}
       </ControlField>

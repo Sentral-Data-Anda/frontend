@@ -19,10 +19,10 @@ export const BapelSection = (props: PropTypes) => {
         control={form.control}
         name="name"
         label="Nama"
-        hint="4–25 karakter, mis. Komisi Pemuda."
+        hint="4–50 karakter, mis. Komisi Pemuda."
         isRequired
       >
-        {(field) => <Input {...field} maxLength={25} autoCapitalize="words" />}
+        {(field) => <Input {...field} maxLength={50} autoCapitalize="words" />}
       </ControlField>
     </FormSection>
   );

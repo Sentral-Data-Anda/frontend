@@ -5,10 +5,17 @@ import { toDateInput } from "@/lib/date";
 import { collapseSpaces } from "@/lib/name";
 import { keepDigits } from "@/lib/number";
 import { emptyToNull } from "@/lib/utils";
-import { BLOOD_TYPES, GENDERS, LAST_EDUCATION } from "@/types/jemaat";
+import {
+  BLOOD_TYPES,
+  GENDERS,
+  isWritableSacrament,
+  LAST_EDUCATION,
+  type WritableSacramentType,
+} from "@/types/jemaat";
 
 import type {
   JemaatAdditional,
+  JemaatAdditionalInput,
   JemaatDetail,
   JemaatPayload,
   RoleInFamily,
@@ -17,34 +24,31 @@ import type {
 export const STATUS_PERNIKAHAN = ["SM", "BM", "CM", "CH"] as const;
 export const TYPE_JEMAAT = ["ANGGOTA", "SIMPATISAN"] as const;
 export const STATUS_JEMAAT = ["AKTIF", "TIDAK_AKTIF"] as const;
-export const ROLE_IN_FAMILY = ["KEPALA_KELUARGA", "PASANGAN", "ANAK"] as const;
+export const ROLE_IN_FAMILY = ["SUAMI", "ISTRI", "ANAK"] as const;
+
+// Tanpa NIKAH dan CERAI: pernikahan dicatat dari fitur Keluarga, dan backend
+// menolak keduanya dari form ini. Lihat SACRAMENT_WRITABLE di types/jemaat.
 export const SACRAMENT_TYPES = [
   "BAPTIS",
   "SIDI",
   "ATESTASI_MASUK",
   "ATESTASI_KELUAR",
   "MENINGGAL",
-  "NIKAH",
-  "CERAI",
 ] as const;
 
 const optionalEnum = <T extends string>(values: readonly [T, ...T[]]) =>
   z.enum(values).or(z.literal(""));
 
 const additionalSchema = z.object({
+  // Baris tersimpan membawa publicId-nya, supaya backend bisa men-diff per
+  // baris alih-alih menghapus seluruh blok dan menulisnya ulang — yang dulu
+  // membuat "siapa yang pertama memasukkan baptis ini" hilang setiap kali ada
+  // yang memperbaiki nomor telepon.
+  publicId: z.string().optional(),
   type: optionalEnum(SACRAMENT_TYPES),
   date: z.string(),
   certificateNumber: z.string().max(50, "Nomor surat maksimal 50 karakter"),
   place: z.string().max(100, "Tempat maksimal 100 karakter"),
-  partnerId: z.string().optional().nullable(),
-  endedAt: z
-    .string()
-    .optional()
-    .nullable()
-    .refine(
-      (value) => !value || /^\d{4}-\d{2}-\d{2}$/.test(value),
-      "Format tanggal akhir pernikahan tidak valid",
-    ),
 });
 
 const baseSchema = z.object({
@@ -71,7 +75,7 @@ const baseSchema = z.object({
     .string()
     .trim()
     .regex(/^[0-9]*$/, "Telepon hanya angka, mis. 081234567890.")
-    .max(12, "Telepon maksimal 12 angka"),
+    .max(15, "Telepon maksimal 15 angka"),
   email: z
     .string()
     .trim()
@@ -201,7 +205,7 @@ const idToNumber = (value: string): number | null =>
   value.trim() ? Number(value) : null;
 
 export const normalizePhone = (value: string): string =>
-  keepDigits(value.replace(/^\+?62/, "0"), 12);
+  keepDigits(value.replace(/^\+?62/, "0"), 15);
 
 export function toJemaatPayload(values: JemaatFormValues): JemaatPayload {
   const payload: JemaatPayload = {
@@ -229,21 +233,33 @@ export function toJemaatPayload(values: JemaatFormValues): JemaatPayload {
     roleInFamily: (values.roleInFamily || null) as RoleInFamily | null,
     keluargaAsalId: idToNumber(values.keluargaAsalId),
     joinedAt: emptyToNull(values.joinedAt),
-    // Sent on create and on edit alike: this form is the only place the
-    // sacrament list is written now, and the backend replaces the live set with
-    // whatever arrives here.
+    // Sent on create and on edit alike. The backend diffs it per row: a row
+    // with a publicId is the stored one, a row without is new, and a stored row
+    // missing from here is the one the clerk removed.
+    //
+    // Marriage rows are NOT here. They are written by the Keluarga feature and
+    // shown read-only, so they never make the round trip — which is also what
+    // stops an ordinary edit from ending somebody's marriage.
     additional: values.additional.map((row) => ({
-      type: row.type as JemaatAdditional["type"],
+      ...(row.publicId ? { publicId: row.publicId } : {}),
+      type: row.type as JemaatAdditionalInput["type"],
       date: row.date,
       certificateNumber: emptyToNull(row.certificateNumber),
       place: emptyToNull(row.place),
-      partnerId: row.partnerId ? Number(row.partnerId) : null,
-      endedAt: row.endedAt ? emptyToNull(row.endedAt) : null,
     })),
   };
 
   return payload;
 }
+
+/**
+ * A guard on the ROW, not on the type: `isWritableSacrament` narrows
+ * `row.type`, which TypeScript cannot carry back to `row` through a `.filter`.
+ */
+const isWritableRow = (
+  row: JemaatAdditional,
+): row is JemaatAdditional & { type: WritableSacramentType } =>
+  isWritableSacrament(row.type);
 
 export function toJemaatForm(detail: JemaatDetail): JemaatFormValues {
   return {
@@ -273,13 +289,16 @@ export function toJemaatForm(detail: JemaatDetail): JemaatFormValues {
     lastEducation: (detail.lastEducation ??
       "") as JemaatFormValues["lastEducation"],
     bloodType: detail.bloodType ?? "",
-    additional: (detail.additional ?? []).map((row) => ({
+    // Hanya baris yang form ini boleh menulis. Baris NIKAH ikut datang dari
+    // detail — ia ditampilkan terpisah dan read-only, dan memasukkannya ke
+    // array yang bisa diedit akan membuatnya dikirim balik lalu ditolak
+    // backend.
+    additional: (detail.additional ?? []).filter(isWritableRow).map((row) => ({
+      publicId: row.publicId,
       type: row.type,
       date: toDateInput(row.date),
       certificateNumber: row.certificateNumber ?? "",
       place: row.place ?? "",
-      partnerId: row.partnerId?.toString(),
-      endedAt: row.endedAt ? toDateInput(row.endedAt) : "",
     })),
   };
 }

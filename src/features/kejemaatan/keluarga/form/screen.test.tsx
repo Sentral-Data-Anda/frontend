@@ -139,13 +139,15 @@ const onRenderLoadedEdit = async (granted: MenuAction[] = ["UPDATE"]) => {
 };
 
 describe("simpan", () => {
-  test("tambah tanpa kepala keluarga: konfirmasi tidak muncul", async () => {
+  test("tambah tanpa anggota: konfirmasi tidak muncul", async () => {
     onMockApi();
     onRenderForm(["VIEW", "CREATE"]);
 
     fireEvent.click(screen.getByRole("button", { name: "Simpan" }));
 
-    await screen.findByText("Tentukan tepat satu kepala keluarga.");
+    // Siapa kepalanya tidak lagi ditanyakan — rantai suami → istri → anak
+    // tertua menjawabnya — tapi keluarga tanpa anggota tetap tidak berarti.
+    await screen.findByText("Tambahkan minimal satu anggota.");
     expect(screen.queryByText(/Apakah Anda ingin menyimpan/)).toBeNull();
   });
 
@@ -245,7 +247,10 @@ describe("hapus", () => {
 const MEMBERS: KeluargaMember[] = [
   {
     id: "m1",
-    role: "KEPALA_KELUARGA",
+    role: "SUAMI",
+    // Kepala keluarganya, dan itu field tersendiri sekarang: seorang janda
+    // yang naik menggantikannya tetap berperan ISTRI.
+    isHead: true,
     jemaatCode: "JMT-0001",
     name: "Yosua Saragih",
     gender: "L",
@@ -257,7 +262,8 @@ const MEMBERS: KeluargaMember[] = [
   },
   {
     id: "m2",
-    role: "PASANGAN",
+    role: "ISTRI",
+    isHead: false,
     jemaatCode: "JMT-0002",
     name: "Ruth Saragih",
     gender: "P",
@@ -270,6 +276,7 @@ const MEMBERS: KeluargaMember[] = [
   {
     id: "m3",
     role: "ANAK",
+    isHead: false,
     jemaatCode: "JMT-0003",
     name: "Samuel Saragih",
     gender: "L",
@@ -282,6 +289,7 @@ const MEMBERS: KeluargaMember[] = [
   {
     id: "m4",
     role: "ANAK",
+    isHead: false,
     jemaatCode: "JMT-0004",
     name: "Debora Saragih",
     gender: "P",
@@ -382,7 +390,10 @@ describe("akhiri keanggotaan", () => {
     expect(await hasText(dialog, "Pilih alasan berakhir.")).toBe(true);
   });
 
-  test("kepala keluar: pengganti wajib, hanya yang tetap ditawarkan", async () => {
+  // Pengganti ditawarkan, tidak diwajibkan: backend meneruskan jabatannya
+  // sendiri lewat rantai suami → istri → anak tertua, dan mengisi field ini
+  // menimpa rantai itu.
+  test("kepala keluar: pengganti ditawarkan, hanya yang tetap", async () => {
     const dialog = await onOpenEnd(0);
 
     fireEvent.click(
@@ -401,7 +412,7 @@ describe("akhiri keanggotaan", () => {
         dialog,
         "Pilih kepala keluarga pengganti. Keluarga selalu terdaftar atas nama seseorang.",
       ),
-    ).toBe(true);
+    ).toBe(false);
     expect(await hasText(dialog, "Tanggal berakhir wajib diisi.")).toBe(true);
 
     fireEvent.click(
@@ -416,9 +427,9 @@ describe("akhiri keanggotaan", () => {
       .getAllByRole("option")
       .map((option) => option.textContent);
 
-    expect(offered).toContain("Ruth Saragih — Pasangan");
+    expect(offered).toContain("Ruth Saragih — Istri");
     expect(offered).toContain("Samuel Saragih — Anak");
-    expect(offered).not.toContain("Yosua Saragih — Kepala keluarga");
+    expect(offered).not.toContain("Yosua Saragih — Suami");
     expect(offered).not.toContain("Debora Saragih — Anak");
   });
 
@@ -430,7 +441,7 @@ describe("akhiri keanggotaan", () => {
     ).toBe(false);
   });
 
-  test("pasangan cerai hidup: pasangan ditanya, anak dibagi, pengganti wajib", async () => {
+  test("pasangan cerai hidup: pasangan ditanya, anak dibagi", async () => {
     const dialog = await onOpenEnd(1);
 
     await onSplitCouple(dialog);
@@ -442,14 +453,10 @@ describe("akhiri keanggotaan", () => {
 
     onSubmitEnd(dialog);
 
+    // Anak wajib ditentukan ikut siapa — membiarkannya adalah tebakan soal
+    // hak asuh. Kepala pengganti tidak, karena rantainya menjawabnya.
     expect(
       await hasText(dialog, "Tentukan Samuel Saragih ikut keluarga yang mana."),
-    ).toBe(true);
-    expect(
-      await hasText(
-        dialog,
-        "Pilih kepala keluarga pengganti. Keluarga selalu terdaftar atas nama seseorang.",
-      ),
     ).toBe(true);
 
     fireEvent.click(
@@ -464,31 +471,26 @@ describe("akhiri keanggotaan", () => {
       screen
         .getAllByRole("option")
         .map((option) => option.textContent)
-        .includes("Yosua Saragih — Kepala keluarga"),
+        .includes("Yosua Saragih — Suami"),
     ).toBe(false);
   });
 
-  test("kepala meninggal: pengganti tidak diminta, keluarga boleh tanpa kepala", async () => {
+  // Kematian tidak dicatat dari sini sama sekali: pintunya Riwayat Jemaat pada
+  // data jemaat yang bersangkutan, dan dari sanalah keanggotaan, pernikahan,
+  // jabatan kepala, dan statusMarital diperbarui sekaligus. Backend menolaknya
+  // di endpoint ini, jadi menawarkannya hanya akan membuat petugas menemukan
+  // galat setelah menekan simpan.
+  test("meninggal tidak ditawarkan sebagai alasan berakhir", async () => {
     const dialog = await onOpenEnd(0);
 
     fireEvent.click(
       within(dialog).getByRole("combobox", { name: "Alasan berakhir" }),
     );
-    await onPick("Meninggal");
+    await screen.findByRole("option", { name: "Cerai hidup" });
 
     expect(
-      Boolean(within(dialog).queryByText("Kepala keluarga pengganti")),
-    ).toBe(false);
-
-    onSubmitEnd(dialog);
-
-    expect(await hasText(dialog, "Tanggal berakhir wajib diisi.")).toBe(true);
-    expect(
-      await hasText(
-        dialog,
-        "Pilih kepala keluarga pengganti. Keluarga selalu terdaftar atas nama seseorang.",
-      ),
-    ).toBe(false);
+      screen.getAllByRole("option").map((option) => option.textContent),
+    ).not.toContain("Meninggal");
   });
 
   test("anak pindah ke keluarga lain: isian pengganti hilang", async () => {
@@ -528,38 +530,38 @@ describe("peran bawaan baris anggota", () => {
     return screen.getAllByRole("option").map((option) => option.textContent);
   };
 
-  test("keluarga baru: baris pertama kepala keluarga, sesudahnya anak", () => {
+  // Keluarga dibangun dari pasangannya ke bawah: suami, lalu istri, lalu anak.
+  test("keluarga baru: suami, istri, lalu anak", () => {
     onMockApi();
     onRenderForm(["VIEW", "CREATE"]);
 
     onAddRow();
-    expect(roleOf(0)?.textContent).toBe("Kepala keluarga");
+    expect(roleOf(0)?.textContent).toBe("Suami");
 
     onAddRow();
-    expect(roleOf(1)?.textContent).toBe("Anak");
+    expect(roleOf(1)?.textContent).toBe("Istri");
+
+    onAddRow();
+    expect(roleOf(2)?.textContent).toBe("Anak");
   });
 
-  test("kepala sudah dipegang satu baris: baris lain tidak menawarkannya", async () => {
+  test("suami sudah dipegang satu baris: baris lain tidak menawarkannya", async () => {
     onMockApi();
     onRenderForm(["VIEW", "CREATE"]);
 
     onAddRow();
     onAddRow();
 
-    expect(await onOfferedRoles(1)).toEqual(["Pasangan", "Anak"]);
+    expect(await onOfferedRoles(1)).toEqual(["Istri", "Anak"]);
   });
 
-  test("baris pemegang kepala tetap boleh berganti peran", async () => {
+  test("baris pemegang suami tetap boleh berganti peran", async () => {
     onMockApi();
     onRenderForm(["VIEW", "CREATE"]);
 
     onAddRow();
 
-    expect(await onOfferedRoles(0)).toEqual([
-      "Kepala keluarga",
-      "Pasangan",
-      "Anak",
-    ]);
+    expect(await onOfferedRoles(0)).toEqual(["Suami", "Istri", "Anak"]);
   });
 
   test("keluarga lama yang sudah punya kepala: baris baru langsung anak", async () => {
@@ -571,7 +573,7 @@ describe("peran bawaan baris anggota", () => {
     expect(roleOf(0)?.textContent).toBe("Anak");
   });
 
-  test("kepala dan pasangan sudah tersimpan: baris baru cuma boleh anak", async () => {
+  test("suami dan istri sudah tersimpan: baris baru cuma boleh anak", async () => {
     onMockMembers();
     await onRenderLoadedEdit();
 
@@ -580,7 +582,7 @@ describe("peran bawaan baris anggota", () => {
     expect(await onOfferedRoles(0)).toEqual(["Anak"]);
   });
 
-  test("pasangan sudah dipegang satu baris: baris lain tidak menawarkannya", async () => {
+  test("istri sudah dipegang satu baris: baris lain tidak menawarkannya", async () => {
     onMockApi();
     onRenderForm(["VIEW", "CREATE"]);
 
@@ -588,14 +590,14 @@ describe("peran bawaan baris anggota", () => {
     onAddRow();
 
     fireEvent.click(roleOf(1)!);
-    await onPick("Pasangan");
+    await onPick("Istri");
 
     onAddRow();
 
     expect(await onOfferedRoles(2)).toEqual(["Anak"]);
   });
 
-  test("baris pemegang pasangan tetap boleh berganti peran", async () => {
+  test("baris pemegang istri tetap boleh berganti peran", async () => {
     onMockApi();
     onRenderForm(["VIEW", "CREATE"]);
 
@@ -603,8 +605,8 @@ describe("peran bawaan baris anggota", () => {
     onAddRow();
 
     fireEvent.click(roleOf(1)!);
-    await onPick("Pasangan");
+    await onPick("Istri");
 
-    expect(await onOfferedRoles(1)).toEqual(["Pasangan", "Anak"]);
+    expect(await onOfferedRoles(1)).toEqual(["Istri", "Anak"]);
   });
 });

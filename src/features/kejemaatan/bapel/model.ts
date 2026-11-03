@@ -31,7 +31,7 @@ const baseSchema = z.object({
     .trim()
     .min(1, "Nama wajib diisi")
     .min(4, "Nama minimal 4 karakter")
-    .max(25, "Nama maksimal 25 karakter"),
+    .max(50, "Nama maksimal 50 karakter"),
   rules: z.array(ruleSchema),
 });
 

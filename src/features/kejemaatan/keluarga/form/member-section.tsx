@@ -26,7 +26,7 @@ const ROLE_OPTIONS = optionsOf(MEMBER_ROLE_LABEL);
 
 // A household seats one head and one spouse — the database holds that rule with
 // partial unique indexes, so a seat already taken stops being offered here.
-const SINGLE_SEAT_ROLES: readonly string[] = ["KEPALA_KELUARGA", "PASANGAN"];
+const SINGLE_SEAT_ROLES: readonly string[] = ["SUAMI", "ISTRI"];
 
 const FIELDS = ["jemaatCode", "roleInFamily"] as const;
 
@@ -161,12 +161,25 @@ export const MemberSection = (props: PropTypes) => {
 
   // The household is named after its head, so show that name while it is being
   // chosen — the rule is easier to trust when it is visible.
-  const savedHead = saved.find(
-    (row) => row.role === "KEPALA_KELUARGA" && !row.endedAt,
-  );
-  const typedHeadIndex = (members ?? []).findIndex(
-    (row) => row.roleInFamily === "KEPALA_KELUARGA",
-  );
+  //
+  // The head is a flag now, not a seat: it may sit on any of the three roles,
+  // and when nobody is marked the chain decides — SUAMI, then ISTRI, then the
+  // eldest child. The same order is mirrored here so the name on screen is the
+  // one the backend will register.
+  const savedHead = saved.find((row) => row.isHead && !row.endedAt);
+  const typedHeadIndex = (() => {
+    const marked = (members ?? []).findIndex((row) => row.kepalaKeluarga);
+    if (marked !== -1) return marked;
+
+    for (const role of ["SUAMI", "ISTRI"] as const) {
+      const seat = (members ?? []).findIndex(
+        (row) => row.roleInFamily === role,
+      );
+      if (seat !== -1) return seat;
+    }
+
+    return (members ?? []).findIndex((row) => row.roleInFamily === "ANAK");
+  })();
   const headName =
     savedHead?.name ??
     jemaat.options.find(
@@ -179,15 +192,17 @@ export const MemberSection = (props: PropTypes) => {
       (members ?? []).some((row) => row.roleInFamily === role),
   );
 
-  // A household is built from its head down, so the first row opens as the
-  // head and every row after it opens as a child.
+  // A household is built from its couple down: the first row opens as the
+  // husband, the next as the wife, and everything after as a child.
   const onAdd = () => {
     rows.append(
       {
         ...EMPTY_MEMBER_ROW,
-        roleInFamily: takenSeats.includes("KEPALA_KELUARGA")
-          ? "ANAK"
-          : "KEPALA_KELUARGA",
+        roleInFamily: !takenSeats.includes("SUAMI")
+          ? "SUAMI"
+          : !takenSeats.includes("ISTRI")
+            ? "ISTRI"
+            : "ANAK",
       },
       { shouldFocus: false },
     );

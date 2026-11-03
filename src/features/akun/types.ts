@@ -42,7 +42,7 @@ export type MyProfile = {
   zoneChurch: Named;
 };
 
-/** Badan `PUT /jemaat/saya`: sepuluh field pribadi, tanpa yang keorganisasian. */
+/** Badan `PUT /jemaat/saya`: lima belas field pribadi, tanpa yang keorganisasian. */
 export type MyProfilePayload = {
   name: string;
   gender: "L" | "P";

@@ -23,9 +23,21 @@ export const keluargaKeys = {
   members: (code: string) => [...keluargaKeys.all, "members", code] as const,
 };
 
-/** Search jemaat by name or code, to pick the people in a household. */
+/**
+ * Search jemaat by name or code, to pick the people in a household.
+ *
+ * `household=placeable` leaves out anybody who already has a household of
+ * their own, except a child — marrying out of their parents' KK is the
+ * ordinary way a new household starts. The backend refused those people
+ * anyway, but only after the clerk had picked them and pressed save; this is
+ * the same rule, said earlier.
+ *
+ * Widows and widowers do not appear, because they are still live members of
+ * their own KK. Remarriage for them is the other shape: the new spouse is
+ * added to THEIR household.
+ */
 export const useJemaatOptions = (pinned: SelectOption | null = null) =>
-  useDdlSearch("jemaat", "code", pinned);
+  useDdlSearch("jemaat?household=placeable", "code", pinned);
 
 /** Households a child can be moved into when a couple breaks up. */
 export const useKeluargaOptions = (pinned: SelectOption | null = null) =>

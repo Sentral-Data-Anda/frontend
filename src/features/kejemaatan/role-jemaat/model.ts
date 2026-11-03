@@ -16,7 +16,11 @@ const required = (message: string) => z.string().min(1, message);
 export const roleJemaatFormSchema = z
   .object({
     jemaatId: required("Mohon lengkapi jemaat"),
-    bapelId: required("Mohon lengkapi badan pelayanan"),
+    // Boleh kosong: jabatan gerejawi tidak dimiliki komisi mana pun, dan
+    // kolomnya di database memang nullable. Dulu field ini wajib, lalu
+    // backend meng-coerce string kosong jadi 0 dan menjawab 404 tentang
+    // badan pelayanan yang tidak pernah dipilih petugas.
+    bapelId: z.string(),
     name: z
       .string()
       .trim()
@@ -25,7 +29,8 @@ export const roleJemaatFormSchema = z
       .max(50, "Nama jabatan maksimal 50 karakter"),
     startPeriode: required("Mohon lengkapi tanggal mulai periode"),
     endPeriode: required("Mohon lengkapi tanggal selesai periode"),
-    status: z.enum(["true", "false"], "Mohon lengkapi status jabatan"),
+    // Tidak ada field status. Apakah jabatan sedang dipegang diturunkan dari
+    // periodenya — menangguhkan seseorang berarti memendekkan periodenya.
   })
   .refine(
     (values) =>
@@ -46,7 +51,6 @@ export const EMPTY_ROLE_JEMAAT_FORM: RoleJemaatFormValues = {
   name: "",
   startPeriode: "",
   endPeriode: "",
-  status: "true",
 };
 
 export function toRoleJemaatPayload(
@@ -56,9 +60,8 @@ export function toRoleJemaatPayload(
     name: values.name.trim(),
     startPeriode: values.startPeriode,
     endPeriode: values.endPeriode,
-    status: values.status === "true",
     jemaatId: Number(values.jemaatId),
-    bapelId: Number(values.bapelId),
+    bapelId: values.bapelId ? Number(values.bapelId) : null,
   };
 }
 
@@ -69,7 +72,6 @@ export function toRoleJemaatForm(detail: RoleJemaatItem): RoleJemaatFormValues {
     name: detail.name,
     startPeriode: toDateInput(detail.startPeriode),
     endPeriode: toDateInput(detail.endPeriode),
-    status: detail.status ? "true" : "false",
   };
 }
 

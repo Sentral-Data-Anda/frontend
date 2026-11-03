@@ -34,7 +34,7 @@ export const RoleJemaatListItemRow = (props: PropTypes) => {
       meta={meta}
       trailing={
         <>
-          <RoleStatus status={role.status} />
+          <RoleStatus status={role.isActive} />
         </>
       }
     />
@@ -104,7 +104,7 @@ export function roleJemaatTable(
         header: "Status",
         width: "minmax(0,1fr)",
         narrowWidth: "minmax(0,1fr)",
-        cell: (role) => <RoleStatus status={role.status} />,
+        cell: (role) => <RoleStatus status={role.isActive} />,
       },
     ],
     getRowActions: (x) => ({

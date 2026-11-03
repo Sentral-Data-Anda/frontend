@@ -4,6 +4,7 @@ import { afterEach, describe, expect, test } from "bun:test";
 import { useForm } from "react-hook-form";
 
 import { EMPTY_JEMAAT_FORM, type JemaatFormValues } from "../model";
+import { type JemaatAdditional } from "../types";
 
 import { RiwayatSection } from "./riwayat-fields";
 
@@ -18,19 +19,20 @@ const rowOf = (overrides: Partial<AdditionalRow> = {}): AdditionalRow => ({
   date: "",
   certificateNumber: "",
   place: "",
-  partnerId: "",
-  endedAt: "",
   ...overrides,
 });
 
-const Harness = (props: { rows: AdditionalRow[] }) => {
+const Harness = (props: {
+  rows: AdditionalRow[];
+  stored?: JemaatAdditional[];
+}) => {
   const form = useForm<JemaatFormValues>({
     defaultValues: { ...EMPTY_JEMAAT_FORM, additional: props.rows },
   });
 
   return (
     <QueryClientProvider client={queryClient}>
-      <RiwayatSection form={form} isDisabled={false} />
+      <RiwayatSection form={form} isDisabled={false} stored={props.stored} />
     </QueryClientProvider>
   );
 };
@@ -153,5 +155,83 @@ describe("riwayat gerejawi — layar Ubah", () => {
     render(<Harness rows={SAVED} />);
 
     expect(screen.queryByRole("link")).toBeNull();
+  });
+});
+
+describe("pernikahan tidak bisa ditulis dari form ini", () => {
+  test("Menikah dan Cerai tidak ada di pilihan jenis", async () => {
+    render(<Harness rows={[rowOf()]} />);
+
+    fireEvent.click(screen.getByRole("combobox", { name: "Jenis baris 1" }));
+
+    expect(await screen.findByRole("option", { name: "Baptis" })).toBeTruthy();
+    // Pernikahan dicatat dari fitur Keluarga, yang tahu rumah tangga mana yang
+    // dimaksud. Menawarkannya di sini akan membuat petugas memilih satu nama
+    // dari daftar seluruh jemaat, lalu backend menolaknya.
+    expect(screen.queryByRole("option", { name: "Menikah" })).toBeNull();
+    expect(screen.queryByRole("option", { name: "Cerai" })).toBeNull();
+  });
+
+  test("tidak ada dropdown pasangan maupun kolom tanggal cerai", () => {
+    render(<Harness rows={[rowOf({ type: "BAPTIS", date: "1990-08-01" })]} />);
+
+    expect(screen.queryByLabelText(/Pasangan/)).toBeNull();
+    expect(screen.queryByLabelText(/Tanggal cerai/)).toBeNull();
+  });
+
+  test("pernikahan tersimpan ditampilkan, baca saja", () => {
+    render(
+      <Harness
+        rows={[]}
+        stored={[
+          {
+            publicId: "m-1",
+            type: "NIKAH",
+            date: "2015-08-20",
+            certificateNumber: "N/001",
+            place: "Gereja Pusat",
+            partnerId: 9,
+            partnerJemaat: { code: "JMT-09", name: "Rina" },
+            endedAt: null,
+          },
+        ]}
+      />,
+    );
+
+    expect(screen.getByText("Rina")).toBeTruthy();
+    expect(screen.getByText("Gereja Pusat")).toBeTruthy();
+    // Dibaca, bukan diisi: tidak ada input apa pun yang memuat nama pasangan.
+    expect(screen.queryByDisplayValue("Rina")).toBeNull();
+  });
+
+  test("pernikahan yang sudah berakhir menyebut alasannya", () => {
+    render(
+      <Harness
+        rows={[]}
+        stored={[
+          {
+            publicId: "m-1",
+            type: "NIKAH",
+            date: "2015-08-20",
+            certificateNumber: null,
+            place: null,
+            partnerId: 9,
+            partnerJemaat: { code: "JMT-09", name: "Rina" },
+            endedAt: "2026-05-01",
+            endReason: "CERAI_MATI",
+          },
+        ]}
+      />,
+    );
+
+    expect(screen.getByText("Cerai mati")).toBeTruthy();
+  });
+
+  test("jemaat tanpa pernikahan tidak menampilkan blok itu", () => {
+    render(<Harness rows={[]} stored={[]} />);
+
+    expect(
+      screen.queryByText(/Pernikahan dicatat dari menu Keluarga/),
+    ).toBeNull();
   });
 });

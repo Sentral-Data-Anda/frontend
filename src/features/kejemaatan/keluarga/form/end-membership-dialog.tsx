@@ -68,63 +68,47 @@ export const EndMembershipDialog = (props: PropTypes) => {
   const { member, live, isPending, errorMessage, onClose, onSubmit } = props;
 
   const others = live.filter((row) => row.id !== member?.id);
+  // The other half of a couple, which a divorce ends too. Read off the seats:
+  // SUAMI ↔ ISTRI, regardless of which of them the KK is registered under.
   const partner =
-    member?.role === "KEPALA_KELUARGA"
-      ? (others.find((row) => row.role === "PASANGAN") ?? null)
-      : member?.role === "PASANGAN"
-        ? (others.find((row) => row.role === "KEPALA_KELUARGA") ?? null)
+    member?.role === "SUAMI"
+      ? (others.find((row) => row.role === "ISTRI") ?? null)
+      : member?.role === "ISTRI"
+        ? (others.find((row) => row.role === "SUAMI") ?? null)
         : null;
   const children = others.filter((row) => row.role === "ANAK");
 
   const endsHeadWith = (isPartnerClosed: boolean) =>
-    member?.role === "KEPALA_KELUARGA" ||
-    (isPartnerClosed && partner?.role === "KEPALA_KELUARGA");
+    member?.isHead === true || (isPartnerClosed && partner?.isHead === true);
 
-  // Only somebody who stays can take over, and a head who left must name one.
-  // A death is the exception: the household may sit headless until the family
-  // decides, so nobody is made to invent a name at the funeral. An unanswered
-  // reason is not a death either, so the question waits until a reason is
-  // picked. Asked once and used by both the form and the schema — two copies
-  // drift, and the copy that drifts leaves a required field with no input to
-  // fill it.
-  const needsSuccessorWith = (
+  // Whether a replacement may be OFFERED, not required. Since 2026-11-02 the
+  // backend hands the headship on by itself — SUAMI → ISTRI → eldest live
+  // ANAK — so the clerk is no longer made to invent a name. Naming one still
+  // overrides the chain, because a father may be alive while his son is the
+  // registered head. Asked once and used by both the form and the schema: two
+  // copies drift, and the copy that drifts leaves a field with no input.
+  const canNameSuccessorWith = (
     reason: string,
     isPartnerClosed: boolean,
     stayingCount: number,
-  ) =>
-    reason !== "" &&
-    reason !== "MENINGGAL" &&
-    endsHeadWith(isPartnerClosed) &&
-    stayingCount > 0;
+  ) => reason !== "" && endsHeadWith(isPartnerClosed) && stayingCount > 0;
 
   const form = useForm<EndMembershipValues>({
     defaultValues: EMPTY_END_MEMBERSHIP,
-    resolver: (values, context, options) => {
-      const isDivorce = values.endReason === "CERAI_HIDUP";
-      const isPartnerClosed = isDivorce && values.alsoEndPartner === "true";
-      // Whoever is left after this ending needs somebody registered over them.
-      const staying = stayingAfter(
-        others,
-        partner,
-        isPartnerClosed,
-        values.childPlacements,
-      );
-
-      return zodResolver(
+    // Built per submission rather than once: what has to be answered depends
+    // on who is leaving and on the answers given so far. Who takes over as
+    // head is no longer one of them — the backend walks the chain — so this
+    // only needs to know about the partner and the children.
+    resolver: (values, context, options) =>
+      zodResolver(
         endMembershipSchemaFor({
-          requiresSuccessor: needsSuccessorWith(
-            values.endReason,
-            isPartnerClosed,
-            staying.length,
-          ),
           partnerName: partner?.name ?? null,
           children: children.map((row) => ({
             jemaatCode: row.jemaatCode,
             name: row.name,
           })),
         }),
-      )(values, context, options);
-    },
+      )(values, context, options),
   });
 
   const endReason = useWatch({ control: form.control, name: "endReason" });
@@ -147,7 +131,7 @@ export const EndMembershipDialog = (props: PropTypes) => {
     name: "childPlacements",
   });
   const staying = stayingAfter(others, partner, isSplitting, placements);
-  const requiresSuccessor = needsSuccessorWith(
+  const canNameSuccessor = canNameSuccessorWith(
     endReason,
     isSplitting,
     staying.length,
@@ -272,11 +256,12 @@ export const EndMembershipDialog = (props: PropTypes) => {
           </fieldset>
         ) : null}
 
-        {requiresSuccessor ? (
+        {canNameSuccessor ? (
           <ControlField
             control={form.control}
             name="newHeadJemaatCode"
             label="Kepala keluarga pengganti"
+            hint="Kosongkan untuk mengikuti urutan: suami, lalu istri, lalu anak tertua."
           >
             {(field) => (
               <SelectField
@@ -284,7 +269,7 @@ export const EndMembershipDialog = (props: PropTypes) => {
                 onValueChange={field.onChange}
                 disabled={isPending}
                 options={successorOptions}
-                placeholder="Pilih anggota yang tetap"
+                placeholder="Ikuti urutan"
               />
             )}
           </ControlField>
@@ -296,7 +281,7 @@ export const EndMembershipDialog = (props: PropTypes) => {
           label="Catatan"
           isOptional
         >
-          {(field) => <Input {...field} maxLength={255} />}
+          {(field) => <Input {...field} maxLength={250} />}
         </ControlField>
 
         {errorMessage ? (

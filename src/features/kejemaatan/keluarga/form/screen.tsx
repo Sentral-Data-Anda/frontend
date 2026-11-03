@@ -49,6 +49,7 @@ import type { KeluargaMember } from "../types";
 import { EndMembershipDialog } from "./end-membership-dialog";
 import { KeluargaSection } from "./keluarga-section";
 import { MemberSection } from "./member-section";
+import { PernikahanSection } from "./pernikahan-section";
 
 interface PropTypes {
   code?: string;
@@ -258,6 +259,7 @@ export const KeluargaFormScreen = (props: PropTypes) => {
           isCanEndMembership={isEdit && isCanUpdate}
           onEndMembership={setEndingMember}
         />
+        <PernikahanSection form={form} isDisabled={isBusy} />
 
         <EndMembershipDialog
           member={endingMember}

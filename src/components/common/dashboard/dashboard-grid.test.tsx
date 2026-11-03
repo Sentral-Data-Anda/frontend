@@ -52,3 +52,20 @@ test("isi dashboard punya kotak gulir sendiri di bawah ambang terbelah", () => {
 
   expect(stacked).toBe(true);
 });
+
+/**
+ * Di bawah 60rem kolomnya tidak terbelah, jadi gridnya tinggal dua baris
+ * bertumpuk dengan tinggi yang sudah dikunci sejak `lg:`. `align-content`
+ * bawaannya meregangkan baris auto dan `items-start` menahan kartunya di puncak
+ * baris, sehingga sisa tinggi muncul sebagai lubang DI ANTARA kartu -- paling
+ * kentara pada role dengan sedikit akses menu.
+ */
+test("baris bertumpuk rapat dari atas, sisa tingginya jatuh ke bawah", () => {
+  const { container } = renderGrid();
+
+  const stacked = [...container.querySelectorAll("div")].some((el) =>
+    el.className.includes("@max-[59.9375rem]:content-start"),
+  );
+
+  expect(stacked).toBe(true);
+});

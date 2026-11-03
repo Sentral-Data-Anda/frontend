@@ -30,7 +30,7 @@ const issuesOf = (values: BapelFormValues) => {
 };
 
 describe("bapelFormSchema — nama", () => {
-  test("nama 4–25 karakter lolos, tanpa aturan pun", () => {
+  test("nama 4–50 karakter lolos, tanpa aturan pun", () => {
     expect(issuesOf(VALID)).toEqual([]);
   });
 
@@ -41,8 +41,8 @@ describe("bapelFormSchema — nama", () => {
     expect(issuesOf({ ...VALID, name: "Abc" })).toEqual([
       "name: Nama minimal 4 karakter",
     ]);
-    expect(issuesOf({ ...VALID, name: "x".repeat(26) })).toEqual([
-      "name: Nama maksimal 25 karakter",
+    expect(issuesOf({ ...VALID, name: "x".repeat(51) })).toEqual([
+      "name: Nama maksimal 50 karakter",
     ]);
   });
 });
