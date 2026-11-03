@@ -15,7 +15,7 @@ const ROLE: RoleJemaatItem = {
   name: "Sekretaris",
   startPeriode: "2025-01-01T00:00:00.000Z",
   endPeriode: "2026-12-31T00:00:00.000Z",
-  status: true,
+  isActive: true,
   jemaat: { id: 4, code: "JMT-0004", name: "Debora Manurung" },
   bapel: { id: 2, code: "BPL-0002", name: "Komisi Pemuda" },
 };
@@ -32,12 +32,12 @@ const onRenderRow = (isCanUpdate: boolean) =>
   );
 
 describe("baris HP", () => {
-  test("judul nama jemaat, meta jabatan · bapel, status teks", () => {
+  test("judul nama jemaat, meta jabatan · bapel, dan apakah sedang menjabat", () => {
     onRenderRow(false);
 
     expect(screen.getByText("Debora Manurung")).toBeTruthy();
     expect(screen.getByText("Sekretaris · Komisi Pemuda")).toBeTruthy();
-    expect(screen.getByText("Aktif")).toBeTruthy();
+    expect(screen.getByText("Sedang menjabat")).toBeTruthy();
   });
 
   test("dengan UPDATE: tautan ubah menunjuk rute id angka", () => {

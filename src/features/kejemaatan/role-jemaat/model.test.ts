@@ -18,7 +18,6 @@ const VALID: RoleJemaatFormValues = {
   name: " Ketua ",
   startPeriode: "2025-01-01",
   endPeriode: "2026-12-31",
-  status: "true",
 };
 
 const ITEM: RoleJemaatItem = {
@@ -27,7 +26,8 @@ const ITEM: RoleJemaatItem = {
   name: "Ketua",
   startPeriode: "2025-01-01T00:00:00.000Z",
   endPeriode: "2026-12-31T00:00:00.000Z",
-  status: false,
+  // Diturunkan backend dari periodenya; form tidak pernah mengirimnya balik.
+  isActive: false,
   jemaat: { id: 4, code: "JMT-0004", name: "Debora Manurung" },
   bapel: { id: 2, code: "BPL-0002", name: "Komisi Pemuda" },
 };
@@ -50,9 +50,12 @@ describe("roleJemaatFormSchema", () => {
     expect(roleJemaatFormSchema.safeParse(VALID).success).toBe(true);
   });
 
+  // Tanpa `bapelId`: jabatan gerejawi tidak dimiliki komisi mana pun, dan
+  // kolomnya memang nullable. Dulu field ini wajib, lalu backend meng-coerce
+  // string kosong jadi 0 dan menjawab 404 tentang badan pelayanan yang tidak
+  // pernah dipilih petugas.
   test("form kosong: semua field wajib ditolak per field", () => {
     expect(Object.keys(messagesOf(EMPTY_ROLE_JEMAAT_FORM)).sort()).toEqual([
-      "bapelId",
       "endPeriode",
       "jemaatId",
       "name",
@@ -83,18 +86,20 @@ describe("roleJemaatFormSchema", () => {
 });
 
 describe("form ↔ payload", () => {
-  test("payload: angka untuk id, boolean untuk status, nama di-trim", () => {
+  test("payload: angka untuk id, nama di-trim, tanpa status", () => {
     expect(toRoleJemaatPayload(VALID)).toEqual({
       name: "Ketua",
       startPeriode: "2025-01-01",
       endPeriode: "2026-12-31",
-      status: true,
       jemaatId: 4,
       bapelId: 2,
     });
-    expect(toRoleJemaatPayload({ ...VALID, status: "false" }).status).toBe(
-      false,
-    );
+  });
+
+  // Dikirim null, bukan 0: `Number("")` adalah 0, dan backend dulu menjawab
+  // 404 tentang badan pelayanan nomor nol.
+  test("bapel dikosongkan dikirim null", () => {
+    expect(toRoleJemaatPayload({ ...VALID, bapelId: "" }).bapelId).toBeNull();
   });
 
   test("detail be-sada menjadi nilai form string", () => {
@@ -104,8 +109,11 @@ describe("form ↔ payload", () => {
       name: "Ketua",
       startPeriode: "2025-01-01",
       endPeriode: "2026-12-31",
-      status: "false",
     });
+  });
+
+  test("jabatan gerejawi terbaca sebagai bapel kosong", () => {
+    expect(toRoleJemaatForm({ ...ITEM, bapel: null }).bapelId).toBe("");
   });
 
   test("bapel null (data lama) menjadi pilihan kosong yang wajib diisi ulang", () => {

@@ -49,7 +49,8 @@ export const JabatanSection = (props: PropTypes) => {
         control={form.control}
         name="bapelId"
         label="Badan pelayanan"
-        isRequired
+        hint="Kosongkan untuk jabatan gerejawi, yang tidak dimiliki komisi mana pun."
+        isOptional
       >
         {(field) => (
           <DdlField
@@ -57,6 +58,7 @@ export const JabatanSection = (props: PropTypes) => {
             onValueChange={field.onChange}
             options={bapel.options}
             isLoading={bapel.isLoading}
+            isClearable
             disabled={isDisabled}
             placeholder="Pilih badan pelayanan"
             emptyMessage="Belum ada data badan pelayanan"

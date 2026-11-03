@@ -112,8 +112,12 @@ describe("jemaatFormSchema — batas nilai (test wajib 2)", () => {
     expect(issuesOf({ ...SIMPATISAN, phone: "0812-3456" })).toEqual(["phone"]);
   });
 
-  test("telepon lebih dari 12 angka ditolak", () => {
-    expect(issuesOf({ ...SIMPATISAN, phone: "0812345678901" })).toEqual([
+  test("telepon 13 angka diterima — nomor seluler yang umum (K-13)", () => {
+    expect(issuesOf({ ...SIMPATISAN, phone: "0812345678901" })).toEqual([]);
+  });
+
+  test("telepon lebih dari 15 angka ditolak", () => {
+    expect(issuesOf({ ...SIMPATISAN, phone: "0".repeat(16) })).toEqual([
       "phone",
     ]);
   });
@@ -226,16 +230,31 @@ describe("form ubah TIDAK mengirim additional (test wajib 5)", () => {
     householdZoneChurch: { id: 3, name: "Wilayah 3" },
     additional: [
       {
+        publicId: "riw-1",
         type: "BAPTIS",
         date: "1990-08-01T00:00:00.000Z",
         certificateNumber: "B/12/1990",
         place: "GKI Bandung",
       },
       {
+        publicId: "riw-2",
         type: "SIDI",
         date: "2006-04-16T00:00:00.000Z",
         certificateNumber: null,
         place: null,
+      },
+      // Datang dari detail untuk ditampilkan, tapi tidak boleh ikut kembali:
+      // pernikahan ditulis dari fitur Keluarga, dan mengirimkannya balik akan
+      // ditolak backend — atau, lebih buruk, mengakhiri pernikahan orang.
+      {
+        publicId: "riw-3",
+        type: "NIKAH",
+        date: "2015-08-20T00:00:00.000Z",
+        certificateNumber: "N/001",
+        place: "Gereja Pusat",
+        partnerId: 9,
+        partnerJemaat: { code: "JMT-09", name: "Rina" },
+        endedAt: null,
       },
     ],
   };
@@ -262,22 +281,56 @@ describe("form ubah TIDAK mengirim additional (test wajib 5)", () => {
 
     expect(payload.additional).toEqual([
       {
+        publicId: "riw-1",
         type: "BAPTIS",
         date: "1990-08-01",
         certificateNumber: "B/12/1990",
         place: "GKI Bandung",
-        partnerId: null,
-        endedAt: null,
       },
       {
+        publicId: "riw-2",
         type: "SIDI",
         date: "2006-04-16",
         certificateNumber: null,
         place: null,
-        partnerId: null,
-        endedAt: null,
       },
     ]);
+  });
+
+  // The publicId is what lets the backend diff per row instead of deleting the
+  // whole block and writing it again — which moved every id and rewrote
+  // createdBy to whoever last touched the form.
+  test("baris tersimpan mengirim publicId-nya kembali", () => {
+    const payload = toJemaatPayload(toJemaatForm(detail));
+
+    expect(payload.additional?.map((row) => row.publicId)).toEqual([
+      "riw-1",
+      "riw-2",
+    ]);
+  });
+
+  test("baris pernikahan tidak pernah dikirim kembali", () => {
+    const payload = toJemaatPayload(toJemaatForm(detail));
+
+    expect(payload.additional?.some((row) => row.type === "NIKAH")).toBe(false);
+  });
+
+  test("baris baru tanpa publicId dikirim tanpa kunci itu", () => {
+    const form = toJemaatForm(detail);
+    const payload = toJemaatPayload({
+      ...form,
+      additional: [
+        ...form.additional,
+        {
+          type: "ATESTASI_MASUK",
+          date: "2026-01-01",
+          certificateNumber: "",
+          place: "",
+        },
+      ],
+    });
+
+    expect(payload.additional?.[2]).not.toHaveProperty("publicId");
   });
 
   test("seluruh field detail ikut terkirim, bukan hanya yang disentuh", () => {
@@ -337,7 +390,9 @@ describe("serverFieldError (test wajib 6)", () => {
 describe("pembantu", () => {
   test("normalizePhone membuang +62, spasi, dan tanda hubung", () => {
     expect(normalizePhone("+62 812-3456-7890")).toBe("081234567890");
-    expect(normalizePhone("(0812) 3456 7890 123")).toBe("081234567890");
+    // Fifteen digits fit now (K-13); the sixteenth is dropped.
+    expect(normalizePhone("(0812) 3456 7890 123")).toBe("081234567890123");
+    expect(normalizePhone("0812 3456 7890 1234")).toBe("081234567890123");
   });
 
   test("incompleteFields menandai yang belum lengkap, tanpa menolak", () => {

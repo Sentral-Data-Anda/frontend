@@ -107,7 +107,9 @@ export const DataRowActions = (props: PropTypes) => {
 
   return (
     <>
-      <span className="hidden items-center gap-0.5 @min-[64rem]:flex">
+      {/* Patokannya sidebar, bukan lebar tabel: selama sidebar tampil (lg),
+          aksinya ikut di baris; sheet hanya untuk layar tanpa sidebar. */}
+      <span className="hidden items-center gap-0.5 lg:flex">
         {renderButton(view, ChevronRight, "Lihat", iconClass)}
         {renderButton(edit, Pencil, "Ubah", iconClass)}
         {renderButton(
@@ -122,7 +124,7 @@ export const DataRowActions = (props: PropTypes) => {
         type="button"
         onClick={isSheetOpen.onTrue}
         aria-label={`Tindakan untuk ${label}`}
-        className={cn(iconClass, "@min-[64rem]:hidden")}
+        className={cn(iconClass, "lg:hidden")}
       >
         <MoreVertical aria-hidden />
       </button>

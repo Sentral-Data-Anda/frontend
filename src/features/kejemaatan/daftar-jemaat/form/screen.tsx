@@ -214,7 +214,11 @@ export const JemaatFormScreen = (props: PropTypes) => {
         <AddressSection form={form} isDisabled={isSubmitting} />
         <FamilySection form={form} isDisabled={isSubmitting} />
         <SocialSection form={form} isDisabled={isSubmitting} />
-        <RiwayatSection form={form} isDisabled={isSubmitting} />
+        <RiwayatSection
+          form={form}
+          isDisabled={isSubmitting}
+          stored={detail.data?.additional ?? []}
+        />
       </div>
 
       <div className="space-y-3 px-gutter pb-4 empty:hidden">

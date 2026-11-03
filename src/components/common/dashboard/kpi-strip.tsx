@@ -24,6 +24,11 @@ export function KpiStrip({
   // Mulai tiga sel batas itu justru menyisakan lubang di kanan strip, sementara
   // baris kartu di bawahnya tetap selebar penuh.
   const isCapped = count <= 2;
+  // Satu sel: batas 28rem itu berlaku lebih awal. Dari 36rem strip sudah turun
+  // ke satu kolom `1fr`, jadi di 36--55rem kartunya melar selebar strip dan
+  // angkanya menempel di kiri kartu sepanjang itu -- persis keluhan §10.12,
+  // dan itu keadaan yang wajar bagi role yang cuma punya satu KPI.
+  const isLone = count === 1;
 
   return (
     <div className="@container/strip">
@@ -34,7 +39,9 @@ export function KpiStrip({
           "grid grid-cols-2 gap-4",
           isFive
             ? "@min-[36rem]/strip:grid-cols-6"
-            : "@min-[36rem]/strip:grid-cols-[repeat(var(--kpi-cols),minmax(0,1fr))]",
+            : isLone
+              ? "@min-[36rem]/strip:grid-cols-[minmax(0,28rem)]"
+              : "@min-[36rem]/strip:grid-cols-[repeat(var(--kpi-cols),minmax(0,1fr))]",
           isCapped
             ? "@min-[55rem]/strip:grid-cols-[repeat(var(--kpi-cols),minmax(0,28rem))]"
             : "@min-[55rem]/strip:grid-cols-[repeat(var(--kpi-cols),minmax(0,1fr))]",

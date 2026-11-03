@@ -20,7 +20,7 @@ const VALID: KeluargaFormValues = {
   members: [
     {
       jemaatCode: "JMT-0001",
-      roleInFamily: "KEPALA_KELUARGA",
+      roleInFamily: "SUAMI",
     },
   ],
 };
@@ -67,10 +67,13 @@ describe("toKeluargaPayload", () => {
       members: [
         {
           jemaatCode: "JMT-0001",
-          roleInFamily: "KEPALA_KELUARGA",
+          roleInFamily: "SUAMI",
           startedAt: null,
         },
       ],
+      // Tidak ada pasangan di baris ini, jadi tidak ada pernikahan untuk
+      // dicatat — dan backend menolaknya kalau tetap dikirim.
+      marriage: null,
     });
   });
 
@@ -107,6 +110,7 @@ describe("toKeluargaForm", () => {
       zoneChurchId: null,
       worshipsHere: false,
       members: [],
+      marriage: null,
     });
   });
 });
@@ -136,7 +140,7 @@ describe("anggota keluarga", () => {
       members: [
         {
           jemaatCode: "JMT-0001",
-          roleInFamily: "KEPALA_KELUARGA",
+          roleInFamily: "SUAMI",
         },
       ],
     });
@@ -144,7 +148,7 @@ describe("anggota keluarga", () => {
     expect(payload.members).toEqual([
       {
         jemaatCode: "JMT-0001",
-        roleInFamily: "KEPALA_KELUARGA",
+        roleInFamily: "SUAMI",
         startedAt: null,
       },
     ]);
@@ -165,31 +169,31 @@ describe("anggota keluarga", () => {
     expect(parsed.success).toBe(false);
   });
 
-  test("dua kepala keluarga ditolak", () => {
+  test("dua suami ditolak", () => {
     const parsed = withMembers([
       {
         jemaatCode: "JMT-0001",
-        roleInFamily: "KEPALA_KELUARGA",
+        roleInFamily: "SUAMI",
       },
       {
         jemaatCode: "JMT-0002",
-        roleInFamily: "KEPALA_KELUARGA",
+        roleInFamily: "SUAMI",
       },
     ]);
 
     expect(parsed.error?.issues[0]?.message).toBe(
-      "Satu keluarga hanya punya satu kepala keluarga.",
+      "Satu keluarga hanya punya satu suami.",
     );
   });
 
-  test("dua pasangan ditolak", () => {
+  test("dua istri ditolak", () => {
     const parsed = withMembers([
-      { jemaatCode: "JMT-0001", roleInFamily: "PASANGAN" },
-      { jemaatCode: "JMT-0002", roleInFamily: "PASANGAN" },
+      { jemaatCode: "JMT-0001", roleInFamily: "ISTRI" },
+      { jemaatCode: "JMT-0002", roleInFamily: "ISTRI" },
     ]);
 
     expect(parsed.error?.issues[0]?.message).toBe(
-      "Satu keluarga hanya punya satu pasangan.",
+      "Satu keluarga hanya punya satu istri.",
     );
   });
 
@@ -197,7 +201,7 @@ describe("anggota keluarga", () => {
     const parsed = withMembers([
       {
         jemaatCode: "JMT-0001",
-        roleInFamily: "KEPALA_KELUARGA",
+        roleInFamily: "SUAMI",
       },
       { jemaatCode: "jmt-0001", roleInFamily: "ANAK" },
     ]);
@@ -218,22 +222,105 @@ describe("anggota keluarga", () => {
     expect(messages).not.toContain("Satu jemaat hanya boleh dipilih sekali.");
   });
 
-  test("keluarga tanpa kepala keluarga ditolak saat dibuat", () => {
+  // Siapa kepalanya tidak lagi ditanyakan: rantai SUAMI → ISTRI → anak tertua
+  // menjawabnya, dan form yang harus memutuskannya akan menyalin rantai itu.
+  test("keluarga dengan suami saja diterima tanpa menandai kepala", () => {
+    expect(
+      onCreating([{ jemaatCode: "JMT-0001", roleInFamily: "SUAMI" }]).success,
+    ).toBe(true);
+  });
+
+  // Rumah tangga yatim piatu itu nyata, tapi urutan lahir bukan keputusan yang
+  // boleh diambil diam-diam oleh sistem.
+  test("keluarga berisi anak saja harus menunjuk kepalanya", () => {
     const parsed = onCreating([
       { jemaatCode: "JMT-0001", roleInFamily: "ANAK" },
+      { jemaatCode: "JMT-0002", roleInFamily: "ANAK" },
     ]);
 
     expect(parsed.error?.issues[0]?.message).toBe(
-      "Tentukan tepat satu kepala keluarga.",
+      "Tentukan siapa kepala keluarganya.",
     );
   });
 
-  test("keluarga dengan kepala keluarga diterima", () => {
+  test("anak yang ditandai kepala diterima", () => {
+    expect(
+      onCreating([
+        { jemaatCode: "JMT-0001", roleInFamily: "ANAK", kepalaKeluarga: true },
+      ]).success,
+    ).toBe(true);
+  });
+
+  test("dua anggota ditandai kepala ditolak", () => {
+    const parsed = withMembers([
+      { jemaatCode: "JMT-0001", roleInFamily: "SUAMI", kepalaKeluarga: true },
+      { jemaatCode: "JMT-0002", roleInFamily: "ANAK", kepalaKeluarga: true },
+    ]);
+
+    expect(parsed.error?.issues[0]?.message).toBe(
+      "Hanya satu anggota yang boleh ditandai kepala keluarga.",
+    );
+  });
+
+  test("keluarga tanpa anggota ditolak saat dibuat", () => {
+    expect(onCreating([]).error?.issues[0]?.message).toBe(
+      "Tambahkan minimal satu anggota.",
+    );
+  });
+
+  describe("pernikahan", () => {
+    const couple = [
+      { jemaatCode: "JMT-0001", roleInFamily: "SUAMI" as const },
+      { jemaatCode: "JMT-0002", roleInFamily: "ISTRI" as const },
+    ];
+
+    test("suami dan istri sekaligus mewajibkan tanggal pernikahan", () => {
+      const parsed = keluargaFormSchema.safeParse({
+        ...VALID,
+        members: couple,
+      });
+
+      expect(parsed.error?.issues.map((issue) => issue.path.join("."))).toEqual(
+        ["marriage.date"],
+      );
+    });
+
+    test("tanggalnya terisi: lolos, dan ikut terkirim", () => {
+      const payload = toKeluargaPayload({
+        ...VALID,
+        members: couple,
+        marriage: {
+          date: "2015-08-20",
+          place: "Gereja Pusat",
+          certificateNumber: "",
+        },
+      });
+
+      expect(payload.marriage).toEqual({
+        date: "2015-08-20",
+        place: "Gereja Pusat",
+        certificateNumber: null,
+      });
+    });
+
+    // Tanpa pasangan tidak ada siapa pun untuk dinikahi, dan backend menolak
+    // data pernikahan yang tidak melengkapi siapa pun.
+    test("tanpa pasangan, data pernikahan tidak dikirim", () => {
+      const payload = toKeluargaPayload({
+        ...VALID,
+        marriage: { date: "2015-08-20", place: "", certificateNumber: "" },
+      });
+
+      expect(payload.marriage).toBeNull();
+    });
+  });
+
+  test("keluarga dengan suami dan anak diterima", () => {
     expect(
       withMembers([
         {
           jemaatCode: "JMT-0001",
-          roleInFamily: "KEPALA_KELUARGA",
+          roleInFamily: "SUAMI",
         },
         { jemaatCode: "JMT-0002", roleInFamily: "ANAK" },
       ]).success,
@@ -245,7 +332,7 @@ describe("anggota keluarga", () => {
       withMembers([
         {
           jemaatCode: "JMT-0001",
-          roleInFamily: "KEPALA_KELUARGA",
+          roleInFamily: "SUAMI",
         },
         { jemaatCode: "JMT-0002", roleInFamily: "ANAK" },
         { jemaatCode: "JMT-0003", roleInFamily: "ANAK" },
@@ -256,7 +343,6 @@ describe("anggota keluarga", () => {
 
 describe("endMembershipSchemaFor", () => {
   const CONTEXT = {
-    requiresSuccessor: false,
     partnerName: null as string | null,
     children: [] as { jemaatCode: string; name: string }[],
   };
@@ -290,18 +376,17 @@ describe("endMembershipSchemaFor", () => {
     expect(parse({}).success).toBe(true);
   });
 
+  // Pengganti tidak lagi wajib dijawab: backend meneruskan jabatannya sendiri
+  // lewat rantai SUAMI → ISTRI → anak tertua. Dulu petugas dipaksa menyebut
+  // nama, dan kematian dikecualikan sama sekali — yang meninggalkan KK janda
+  // tanpa nama dan karena itu tidak bisa dicari.
   describe("kepala keluarga pengganti", () => {
-    test("wajib saat kepala keluar dan masih ada yang tinggal", () => {
-      expect(messages({}, { requiresSuccessor: true })[0]).toContain(
-        "Pilih kepala keluarga pengganti",
-      );
+    test("tidak wajib: dikosongkan berarti ikut urutan", () => {
+      expect(parse({ newHeadJemaatCode: "" }).success).toBe(true);
     });
 
-    test("terjawab sudah cukup", () => {
-      expect(
-        parse({ newHeadJemaatCode: "JMT-02" }, { requiresSuccessor: true })
-          .success,
-      ).toBe(true);
+    test("terjawab juga diterima, dan menimpa urutan itu", () => {
+      expect(parse({ newHeadJemaatCode: "JMT-02" }).success).toBe(true);
     });
   });
 
@@ -323,7 +408,8 @@ describe("endMembershipSchemaFor", () => {
 
     test("alasan lain tidak menanyakan pasangan", () => {
       expect(
-        parse({ endReason: "MENINGGAL" }, { partnerName: "Rina" }).success,
+        parse({ endReason: "MEMISAHKAN_DIRI" }, { partnerName: "Rina" })
+          .success,
       ).toBe(true);
     });
   });
@@ -393,7 +479,7 @@ describe("toEndMembershipPayload", () => {
   test("alasan selain cerai tidak mengirim jawaban pasangan", () => {
     const payload = toEndMembershipPayload({
       ...base,
-      endReason: "MENINGGAL",
+      endReason: "MEMISAHKAN_DIRI",
       alsoEndPartner: "true",
     });
 

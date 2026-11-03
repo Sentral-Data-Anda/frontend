@@ -60,8 +60,18 @@ const COLUMN_SCROLL =
 // mana pun dan ikut menentukan tinggi dokumen -- halamannya menggulir persis
 // sampai label terakhir, dan `overflow: hidden` di leluhur mana pun tidak
 // menahannya karena bukan leluhur itu yang menjadi penampungnya.
+//
+// `content-start` pada ambang yang sama, dan itu yang menutup lubangnya: di
+// bawah 60rem kolomnya tidak terbelah, jadi grid ini tinggal dua baris
+// bertumpuk (utama lalu sisi) dengan tinggi yang SUDAH dikunci sejak `lg:`.
+// `align-content` bawaannya meregangkan baris auto, jadi sisa tinggi dibagi
+// rata ke kedua baris sementara `items-start` menahan kartunya di puncak
+// barisnya masing-masing -- hasilnya lubang di antara kartu, bukan di bawahnya.
+// Paling kentara pada role dengan sedikit akses menu: dua tiga kartu saja, sisa
+// tingginya besar, dan lubangnya ikut besar. Dengan `content-start` kartunya
+// rapat dari atas dan sisanya jatuh seluruhnya ke bawah.
 const STACKED_SCROLL =
-  "relative @max-[59.9375rem]:min-h-0 @max-[59.9375rem]:overflow-y-auto @max-[59.9375rem]:overscroll-contain";
+  "relative @max-[59.9375rem]:min-h-0 @max-[59.9375rem]:content-start @max-[59.9375rem]:overflow-y-auto @max-[59.9375rem]:overscroll-contain";
 
 interface PropTypes {
   kpi?: ReactNode;

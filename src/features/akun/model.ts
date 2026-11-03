@@ -106,7 +106,7 @@ const profileFields = z.object({
     .string()
     .trim()
     .regex(/^[0-9]*$/, "Telepon hanya angka, mis. 081234567890.")
-    .max(12, "Telepon maksimal 12 angka"),
+    .max(15, "Telepon maksimal 15 angka"),
   email: z
     .string()
     .trim()
@@ -194,7 +194,7 @@ export function toProfilePayload(values: ProfileFormValues): MyProfilePayload {
     birthPlace: values.birthPlace.trim(),
     birthDate: emptyToNull(values.birthDate),
     email: emptyToNull(values.email),
-    phone: emptyToNull(keepDigits(values.phone.replace(/^\+?62/, "0"), 12)),
+    phone: emptyToNull(keepDigits(values.phone.replace(/^\+?62/, "0"), 15)),
     bloodType: values.bloodType || null,
     lastEducation: values.lastEducation || null,
     professionId: idToNumber(values.professionId),

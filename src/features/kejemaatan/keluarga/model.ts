@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { MENU, menuHref } from "@/config/menu";
+import { emptyToNull } from "@/lib/utils";
 
 import {
   END_REASONS,
@@ -20,8 +21,8 @@ export const WORSHIPS_HERE_LABEL = { true: "Ya", false: "Tidak" } as const;
 const required = (message: string) => z.string().trim().min(1, message);
 
 export const MEMBER_ROLE_LABEL: Record<MemberRole, string> = {
-  KEPALA_KELUARGA: "Kepala keluarga",
-  PASANGAN: "Pasangan",
+  SUAMI: "Suami",
+  ISTRI: "Istri",
   ANAK: "Anak",
 };
 
@@ -29,7 +30,6 @@ export const END_REASON_LABEL: Record<EndReason, string> = {
   MENIKAH: "Menikah, membentuk keluarga sendiri",
   MEMISAHKAN_DIRI: "Memisahkan diri, mendaftarkan KK sendiri",
   CERAI_HIDUP: "Cerai hidup",
-  MENINGGAL: "Meninggal",
   LAINNYA: "Lainnya",
 };
 
@@ -44,7 +44,6 @@ const END_REASON_VALUES = ["", ...END_REASONS] as const;
  * divorce closes a partner, and only a couple breaking up splits the children.
  */
 export const endMembershipSchemaFor = (context: {
-  requiresSuccessor: boolean;
   partnerName: string | null;
   children: readonly { jemaatCode: string; name: string }[];
 }) =>
@@ -72,12 +71,10 @@ export const endMembershipSchemaFor = (context: {
       // it is still an unanswered question, not "Lainnya".
       if (!values.endReason) add(["endReason"], "Pilih alasan berakhir.");
 
-      if (context.requiresSuccessor && !values.newHeadJemaatCode) {
-        add(
-          ["newHeadJemaatCode"],
-          "Pilih kepala keluarga pengganti. Keluarga selalu terdaftar atas nama seseorang.",
-        );
-      }
+      // Kepala pengganti tidak lagi wajib dijawab: backend meneruskan
+      // jabatannya sendiri lewat rantai SUAMI → ISTRI → anak tertua. Mengisi
+      // field ini menimpa rantai itu, dan membiarkannya kosong adalah jawaban
+      // yang benar untuk hampir semua keluarga.
 
       const isDivorce = values.endReason === "CERAI_HIDUP";
 
@@ -148,6 +145,12 @@ export function toEndMembershipPayload(
 export const memberRowSchema = z.object({
   jemaatCode: required("Pilih jemaat untuk baris ini."),
   roleInFamily: z.enum(MEMBER_ROLES, { error: "Pilih peran anggota." }),
+  /**
+   * Dikosongkan, backend memilih lewat rantai SUAMI → ISTRI → anak tertua,
+   * yang benar untuk hampir semua keluarga. Ditandai, ia menimpa rantai itu —
+   * ada kasus ayah masih hidup tapi anaknya yang terdaftar sebagai kepala.
+   */
+  kepalaKeluarga: z.boolean().optional(),
 });
 
 export type MemberRow = z.infer<typeof memberRowSchema>;
@@ -157,14 +160,45 @@ export const EMPTY_MEMBER_ROW: MemberRow = {
   roleInFamily: "ANAK",
 };
 
+/**
+ * Data pernikahan, diminta hanya ketika satu KK memuat suami dan istri.
+ *
+ * Tanggalnya TIDAK wajib di tingkat field: setiap field di form ini hidup
+ * sebagai string kosong sampai diisi, dan mewajibkannya di sini akan membuat
+ * form keluarga biasa — yang tidak memuat pasangan sama sekali — gagal
+ * validasi pada field yang tidak ditampilkan. Kewajibannya dipegang
+ * `keluargaFormSchema`, yang bisa melihat susunan anggotanya.
+ */
+export const marriageSchema = z.object({
+  date: z.string(),
+  place: z.string().max(100, "Tempat maksimal 100 karakter"),
+  certificateNumber: z.string().max(50, "Nomor surat maksimal 50 karakter"),
+});
+
+export type MarriageRow = z.infer<typeof marriageSchema>;
+
+export const EMPTY_MARRIAGE: MarriageRow = {
+  date: "",
+  place: "",
+  certificateNumber: "",
+};
+
+/** Apakah susunan baris ini memuat suami dan istri sekaligus. */
+export const isCouple = (members: readonly { roleInFamily: string }[]) =>
+  members.filter((row) => row.roleInFamily === "SUAMI").length === 1 &&
+  members.filter((row) => row.roleInFamily === "ISTRI").length === 1;
+
 export const keluargaFormSchema = z
   .object({
     zoneChurchId: z.string(),
     worshipsHere: z.enum(["true", "false"]),
     members: z.array(memberRowSchema),
+    // Diminta hanya ketika barisnya memuat suami dan istri sekaligus; di luar
+    // itu field-nya tidak ditampilkan dan tidak dikirim.
+    marriage: marriageSchema.optional(),
   })
   .superRefine((values, ctx) => {
-    for (const role of ["KEPALA_KELUARGA", "PASANGAN"] as const) {
+    for (const role of ["SUAMI", "ISTRI"] as const) {
       if (
         values.members.filter((row) => row.roleInFamily === role).length > 1
       ) {
@@ -172,11 +206,19 @@ export const keluargaFormSchema = z
           code: "custom",
           path: ["members"],
           message:
-            role === "KEPALA_KELUARGA"
-              ? "Satu keluarga hanya punya satu kepala keluarga."
-              : "Satu keluarga hanya punya satu pasangan.",
+            role === "SUAMI"
+              ? "Satu keluarga hanya punya satu suami."
+              : "Satu keluarga hanya punya satu istri.",
         });
       }
+    }
+
+    if (values.members.filter((row) => row.kepalaKeluarga).length > 1) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["members"],
+        message: "Hanya satu anggota yang boleh ditandai kepala keluarga.",
+      });
     }
 
     // Rows still being filled share an empty code; only chosen jemaat can clash.
@@ -191,6 +233,16 @@ export const keluargaFormSchema = z
         message: "Satu jemaat hanya boleh dipilih sekali.",
       });
     }
+
+    // Kolomnya NOT NULL dan tidak ada tempat lain yang bisa menanyakannya:
+    // fitur Keluarga satu-satunya penulis pernikahan.
+    if (isCouple(values.members) && !values.marriage?.date) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["marriage", "date"],
+        message: "Mohon lengkapi tanggal pernikahan.",
+      });
+    }
   });
 
 export type KeluargaFormValues = z.infer<typeof keluargaFormSchema>;
@@ -203,15 +255,29 @@ export type KeluargaFormValues = z.infer<typeof keluargaFormSchema>;
  */
 export const keluargaCreateFormSchema = keluargaFormSchema.superRefine(
   (values, ctx) => {
-    const heads = values.members.filter(
-      (row) => row.roleInFamily === "KEPALA_KELUARGA",
-    );
-
-    if (heads.length !== 1) {
+    if (values.members.length === 0) {
       ctx.addIssue({
         code: "custom",
         path: ["members"],
-        message: "Tentukan tepat satu kepala keluarga.",
+        message: "Tambahkan minimal satu anggota.",
+      });
+
+      return;
+    }
+
+    // Siapa kepalanya tidak perlu ditentukan: rantai SUAMI → ISTRI → anak
+    // tertua menjawabnya. Kecuali kalau yang ada hanya anak-anak — rumah
+    // tangga yatim piatu itu nyata, tapi urutan lahir bukan keputusan yang
+    // boleh diambil diam-diam oleh sistem.
+    const onlyChildren = values.members.every(
+      (row) => row.roleInFamily === "ANAK",
+    );
+
+    if (onlyChildren && !values.members.some((row) => row.kepalaKeluarga)) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["members"],
+        message: "Tentukan siapa kepala keluarganya.",
       });
     }
   },
@@ -234,6 +300,7 @@ export const EMPTY_KELUARGA_FORM: KeluargaFormValues = {
   zoneChurchId: "",
   worshipsHere: "true",
   members: [],
+  marriage: EMPTY_MARRIAGE,
 };
 
 export function toKeluargaPayload(values: KeluargaFormValues): KeluargaPayload {
@@ -245,8 +312,21 @@ export function toKeluargaPayload(values: KeluargaFormValues): KeluargaPayload {
     members: values.members.map((row): KeluargaMemberPayload => ({
       jemaatCode: row.jemaatCode,
       roleInFamily: row.roleInFamily,
+      ...(row.kepalaKeluarga ? { kepalaKeluarga: true } : {}),
       startedAt: null,
     })),
+    // Dikirim hanya kalau barisnya benar-benar memuat pasangan: backend
+    // menolak data pernikahan yang tidak melengkapi siapa pun.
+    marriage:
+      isCouple(values.members) && values.marriage?.date
+        ? {
+            date: values.marriage.date,
+            place: emptyToNull(values.marriage.place ?? ""),
+            certificateNumber: emptyToNull(
+              values.marriage.certificateNumber ?? "",
+            ),
+          }
+        : null,
   };
 }
 
@@ -257,6 +337,7 @@ export function toKeluargaForm(detail: Keluarga): KeluargaFormValues {
     // Members already in the household are shown from their own endpoint;
     // this list only carries the rows being added right now.
     members: [],
+    marriage: EMPTY_MARRIAGE,
   };
 }
 

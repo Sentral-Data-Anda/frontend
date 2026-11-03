@@ -270,8 +270,8 @@ describe("simpan", () => {
     );
   });
 
-  test("nama ganda (404 be-sada): galat di field nama", async () => {
-    onMockApi({ save: { status: 404, error: "Bapel Sudah Tersedia" } });
+  test("nama ganda (409 be-sada): galat di field nama", async () => {
+    onMockApi({ save: { status: 409, error: "Bapel Sudah Tersedia" } });
     await onRenderLoadedEdit();
 
     fireEvent.click(screen.getByRole("button", { name: "Simpan" }));
