@@ -330,9 +330,8 @@ describe("form ubah", () => {
       (sent[0].body as { detail: { pelayanId: number | null }[] }).detail[5]
         .pelayanId,
     ).toBe(10);
-    expect((sent[0].body as { makeTemplate: boolean }).makeTemplate).toBe(
-      false,
-    );
+    // P-06: an edit does not ask for a template.
+    expect(sent[0].body).not.toHaveProperty("makeTemplate");
   });
 
   test("409 bentrok dipetakan ke field Pelayan baris itu, isian utuh", async () => {

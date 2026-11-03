@@ -44,6 +44,7 @@ afterEach(() => {
 });
 
 const BETHARI: PelayanDetail = {
+  publicId: "a1b2c3d4-0000-4000-8000-000000000001",
   code: "PLYN_0001-0002",
   typePelayan: "INDIVIDUAL",
   jemaatId: "2",
@@ -59,6 +60,7 @@ const BETHARI: PelayanDetail = {
 };
 
 const EFRATA: PelayanDetail = {
+  publicId: "a1b2c3d4-0000-4000-8000-000000000002",
   code: "GPLYN_0001-0001",
   typePelayan: "GROUP",
   jemaatId: null,
@@ -77,8 +79,8 @@ const EFRATA: PelayanDetail = {
 };
 
 const DETAILS: Record<string, PelayanDetail> = {
-  [BETHARI.code]: BETHARI,
-  [EFRATA.code]: EFRATA,
+  [BETHARI.publicId]: BETHARI,
+  [EFRATA.publicId]: EFRATA,
 };
 
 const DDL: Record<string, { id: number; code?: string; name: string }[]> = {
@@ -146,7 +148,10 @@ const onMockApi = (
               : method === "POST"
                 ? "Berhasil Membuat Pelayan"
                 : "Berhasil Memperbarui Pelayan",
-          data: { code: code ?? "PLYN_0001-0009" },
+          data: {
+            publicId: code ?? "",
+            code: DETAILS[code ?? ""]?.code ?? "PLYN_0001-0009",
+          },
           ...(method === "PUT"
             ? { futureSlots: options.futureSlots ?? [] }
             : {}),
@@ -167,7 +172,7 @@ const onMockApi = (
   return calls;
 };
 
-const onRenderForm = (granted: MenuAction[], code?: string) => {
+const onRenderForm = (granted: MenuAction[], publicId?: string) => {
   actions.current = granted;
 
   return render(
@@ -177,17 +182,17 @@ const onRenderForm = (granted: MenuAction[], code?: string) => {
       }
     >
       <ToastHost>
-        <DaftarPelayanFormScreen code={code} />
+        <DaftarPelayanFormScreen publicId={publicId} />
       </ToastHost>
     </QueryClientProvider>,
   );
 };
 
 const onRenderLoaded = async (
-  code = BETHARI.code,
+  publicId = BETHARI.publicId,
   granted: MenuAction[] = ["UPDATE"],
 ) => {
-  onRenderForm(["VIEW", ...granted], code);
+  onRenderForm(["VIEW", ...granted], publicId);
 
   await waitFor(() =>
     expect(
@@ -222,7 +227,7 @@ describe("gerbang izin rute form", () => {
 
   test("tanpa UPDATE: rute /edit tidak merender form", () => {
     onMockApi();
-    onRenderForm(["VIEW", "CREATE"], BETHARI.code);
+    onRenderForm(["VIEW", "CREATE"], BETHARI.publicId);
 
     expect(screen.getByText("Tidak bisa mengubah pelayan")).toBeTruthy();
   });
@@ -233,7 +238,7 @@ describe("gerbang izin rute form", () => {
     expect(screen.queryByRole("button", { name: "Hapus" })).toBeNull();
 
     cleanup();
-    await onRenderLoaded(BETHARI.code, ["UPDATE", "DELETE"]);
+    await onRenderLoaded(BETHARI.publicId, ["UPDATE", "DELETE"]);
     expect(screen.getByRole("button", { name: "Hapus" })).toBeTruthy();
 
     cleanup();
@@ -281,7 +286,7 @@ describe("form ubah", () => {
     expect(calls).toEqual([
       {
         method: "PUT",
-        url: "/api/v1/pelayan/PLYN_0001-0002",
+        url: `/api/v1/pelayan/${BETHARI.publicId}`,
         body: {
           typePelayan: "INDIVIDUAL",
           bapelId: 1,
@@ -290,7 +295,6 @@ describe("form ubah", () => {
           phone: null,
           members: [],
           rolePelayan: [2, 4],
-          isPemusik: true,
           musikSkill: [1],
           status: true,
         },
@@ -320,7 +324,6 @@ describe("form ubah", () => {
     await waitFor(() => expect(calls).toHaveLength(1));
     expect(calls[0].body).toMatchObject({
       rolePelayan: [4],
-      isPemusik: false,
       musikSkill: [],
     });
   });
@@ -357,10 +360,29 @@ describe("form ubah", () => {
     expect(toast).toContain("6 Okt 2026 · Pelayan Ibadah 6");
     expect(toast).not.toContain("Pelayan Ibadah 7");
     expect(toast).toContain("dan 1 lainnya");
+    expect(toast).toContain("Pelayan ini dinonaktifkan");
     expect(toast).toContain("Ganti petugasnya di Jadwal Pelayan.");
     expect(toast).not.toContain("Berhasil Memperbarui Pelayan");
     expect(calls[0].body).toMatchObject({ status: false });
     expect(replaced).toHaveLength(1);
+  });
+
+  // P-02: moving to another bapel is reported too, and the warning names that
+  // cause rather than claiming the pelayan was deactivated.
+  test("pindah bapel dengan futureSlots: toast menyebut sebab yang benar", async () => {
+    onMockApi({ futureSlots: [slot(4)] });
+    await onRenderLoaded();
+
+    await onPick("Badan pelayanan", "Komisi Pemuda");
+    await onSaveConfirmed();
+
+    await waitFor(() =>
+      expect(document.querySelector('[data-type="warning"]')).not.toBeNull(),
+    );
+    const toast = document.querySelector('[data-type="warning"]')?.textContent;
+
+    expect(toast).toContain("Pelayan ini dipindahkan ke badan pelayanan lain");
+    expect(toast).not.toContain("dinonaktifkan");
   });
 
   test("pindah ke bapel tempat jemaat sudah terdaftar: galat di badan pelayanan", async () => {
@@ -400,7 +422,7 @@ describe("form ubah", () => {
     const message =
       "Pelayan Tidak Dapat Dihapus Karena Masih Terjadwal pada 4 Oktober 2026. Nonaktifkan Pelayan Ini Jika Tidak Ingin Dipakai Lagi";
     onMockApi({ remove: { status: 400, error: message } });
-    await onRenderLoaded(BETHARI.code, ["UPDATE", "DELETE"]);
+    await onRenderLoaded(BETHARI.publicId, ["UPDATE", "DELETE"]);
 
     fireEvent.click(screen.getByRole("button", { name: "Hapus" }));
     fireEvent.click(await screen.findByRole("button", { name: "Ya" }));
@@ -412,7 +434,7 @@ describe("form ubah", () => {
 
   test("hapus berhasil: DELETE lalu kembali ke daftar", async () => {
     const calls = onMockApi();
-    await onRenderLoaded(BETHARI.code, ["UPDATE", "DELETE"]);
+    await onRenderLoaded(BETHARI.publicId, ["UPDATE", "DELETE"]);
 
     fireEvent.click(screen.getByRole("button", { name: "Hapus" }));
     fireEvent.click(await screen.findByRole("button", { name: "Ya" }));
@@ -425,7 +447,7 @@ describe("form ubah", () => {
 describe("anggota kelompok", () => {
   test("ubah memuat anggota dari memberList; hapus mengumumkan dan memindah fokus", async () => {
     onMockApi();
-    await onRenderLoaded(EFRATA.code);
+    await onRenderLoaded(EFRATA.publicId);
 
     expect(screen.getByText("2 anggota")).toBeTruthy();
     expect(
@@ -456,7 +478,7 @@ describe("anggota kelompok", () => {
 
   test("tambah: memilih jemaat menambah ke daftar; anggota tidak ditawarkan lagi", async () => {
     onMockApi();
-    await onRenderLoaded(EFRATA.code);
+    await onRenderLoaded(EFRATA.publicId);
 
     const input = screen.getByLabelText("Tambah anggota");
     fireEvent.focus(input);
@@ -485,7 +507,7 @@ describe("anggota kelompok", () => {
         issues: [{ path: "members", message }],
       },
     });
-    await onRenderLoaded(EFRATA.code);
+    await onRenderLoaded(EFRATA.publicId);
 
     await onSaveConfirmed();
 

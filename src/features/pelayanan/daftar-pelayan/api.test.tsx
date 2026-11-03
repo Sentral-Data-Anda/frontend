@@ -211,7 +211,6 @@ describe("invalidasi sesudah simpan dan hapus", () => {
             phone: null,
             members: [],
             rolePelayan: [2],
-            isPemusik: false,
             musikSkill: [],
             status: false,
           }),

@@ -4,6 +4,7 @@ import type { ApiResponse } from "@/types/api";
 export type TypePelayan = "INDIVIDUAL" | "GROUP";
 
 export type PelayanListItem = {
+  publicId: string;
   code: string;
   typePelayan: TypePelayan;
   namePelayan: string;
@@ -18,6 +19,7 @@ export type PelayanListItem = {
 export type JemaatRef = { id: number; code: string; name: string };
 
 export type PelayanDetail = {
+  publicId: string;
   code: string;
   typePelayan: TypePelayan;
   jemaatId: string | null;
@@ -40,7 +42,6 @@ export type PelayanPayload = {
   phone: string | null;
   members: number[];
   rolePelayan: number[];
-  isPemusik: boolean;
   musikSkill: number[];
   status: boolean;
 };

@@ -103,7 +103,6 @@ export const toPelayanPayload = (values: PelayanFormValues): PelayanPayload => {
     phone: isGroup ? values.phone : null,
     members: isGroup ? values.members.map((member) => Number(member.id)) : [],
     rolePelayan: values.rolePelayan.map(Number),
-    isPemusik: musikSkill.length > 0,
     musikSkill,
     status: values.status === "true",
   };
@@ -233,10 +232,27 @@ export const withFieldMessages = (error: unknown, isEdit: boolean): unknown =>
 export const futureSlotsTitle = (name: string, slots: FutureSlot[]) =>
   `${name} masih terjadwal di ${slots.length} jadwal`;
 
-export const futureSlotLines = (slots: FutureSlot[]): string[] => [
+/**
+ * Why the pelayan still has rosters ahead of them. Deactivating and moving to
+ * another bapel both leave the old rosters naming them, and a warning that
+ * only says "dinonaktifkan" is wrong for the second (P-02).
+ */
+export const futureSlotsReason = (
+  values: Pick<PelayanFormValues, "bapelId">,
+  detail: Pick<PelayanDetail, "bapelId"> | undefined,
+) =>
+  detail && values.bapelId !== detail.bapelId
+    ? "Pelayan ini dipindahkan ke badan pelayanan lain; jadwal di badan pelayanan sebelumnya masih memuatnya."
+    : "Pelayan ini dinonaktifkan; jadwal berikut tetap memuatnya.";
+
+export const futureSlotLines = (
+  slots: FutureSlot[],
+  reason?: string,
+): string[] => [
   ...slots
     .slice(0, 3)
     .map((slot) => `${formatDateShort(slot.date)} · ${slot.name}`),
   ...(slots.length > 3 ? [`dan ${slots.length - 3} lainnya`] : []),
+  ...(reason ? [reason] : []),
   "Ganti petugasnya di Jadwal Pelayan.",
 ];

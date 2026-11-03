@@ -41,7 +41,7 @@ export const PelayanList = () => {
   // Satu keadaan menyimpan baris yang akan dihapus sekaligus status terbuka
   // dialognya. Hook hapus dibuat ulang mengikuti kunci baris ini.
   const [target, setTarget] = useState<PelayanListItem | null>(null);
-  const deleteRow = useDeletePelayan(target?.code);
+  const deleteRow = useDeletePelayan(target?.publicId);
   const listParams = useListParams({ filters: LIST_FILTERS });
   const pelayanList = useDaftarPelayanList(listParams);
   const bapelOptions = useFilterOptions("bapel", "Semua badan pelayanan");

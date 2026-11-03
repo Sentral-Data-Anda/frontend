@@ -192,19 +192,26 @@ export const filledCount = (slots: readonly SlotRow[]) =>
 export const toJadwalPayload = (
   values: JadwalFormValues,
   isEdit: boolean,
-): JadwalPelayanPayload => ({
-  bapelId: Number(values.bapelId),
-  date: values.date,
-  name: normalizeName(values.name),
-  startTime: values.startTime,
-  endTime: values.endTime,
-  makeTemplate: !isEdit && values.makeTemplate === "true",
-  detail: values.slots.map((slot, index) => ({
-    order: index + 1,
-    rolePelayanId: Number(slot.roleId),
-    ...toSlotPayload(slot.pelayan),
-  })),
-});
+): JadwalPelayanPayload => {
+  const base = {
+    bapelId: Number(values.bapelId),
+    date: values.date,
+    name: normalizeName(values.name),
+    startTime: values.startTime,
+    endTime: values.endTime,
+    detail: values.slots.map((slot, index) => ({
+      order: index + 1,
+      rolePelayanId: Number(slot.roleId),
+      ...toSlotPayload(slot.pelayan),
+    })),
+  };
+
+  // The update payload has no `makeTemplate`: the backend refuses it as an
+  // unknown field, because an edit cannot ask for a template to be made (P-06).
+  return isEdit
+    ? base
+    : { ...base, makeTemplate: values.makeTemplate === "true" };
+};
 
 const byOrder = <T extends { order: number }>(slots: readonly T[]) =>
   [...slots].sort((a, b) => a.order - b.order);

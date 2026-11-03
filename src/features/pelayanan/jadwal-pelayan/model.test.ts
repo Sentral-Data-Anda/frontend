@@ -250,10 +250,12 @@ describe("payload dan detail", () => {
     ]);
   });
 
-  test("PUT selalu makeTemplate false", () => {
+  // P-06: the update payload has no `makeTemplate` at all. The field is not a
+  // quiet false any more — the backend refuses it on a PUT.
+  test("PUT tidak mengirim makeTemplate", () => {
     expect(
-      toJadwalPayload({ ...VALID, makeTemplate: "true" }, true).makeTemplate,
-    ).toBe(false);
+      toJadwalPayload({ ...VALID, makeTemplate: "true" }, true),
+    ).not.toHaveProperty("makeTemplate");
   });
 
   test("detail tak berurutan → baris berurutan, nilai bersandi apa adanya", () => {
