@@ -74,7 +74,8 @@ export const LineItemCard = (props: PropTypes) => {
       </div>
 
       {children ? (
-        <div className="mt-3 flex flex-wrap items-end gap-x-4 gap-y-3 @min-[28rem]/line:pl-8">
+        // Sejajar atas: satu sel berpetunjuk tidak boleh menurunkan label sel lain.
+        <div className="mt-3 flex flex-wrap items-start gap-x-4 gap-y-3 @min-[28rem]/line:pl-8">
           {children}
         </div>
       ) : null}
