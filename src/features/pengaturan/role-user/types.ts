@@ -5,6 +5,7 @@ export type RoleUserItem = {
   publicId: string;
   name: string;
   isAdmin: boolean;
+  dashboardView?: "UMUM" | "KEUANGAN";
   userCount?: number;
 };
 
@@ -29,6 +30,7 @@ export type MenuOption = {
 export type RoleUserPayload = {
   name: string;
   isAdmin: boolean;
+  dashboardView?: "UMUM" | "KEUANGAN";
   menuAccess?: { slug: string; actions: MenuAction[] }[];
 };
 

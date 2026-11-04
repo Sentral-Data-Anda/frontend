@@ -403,6 +403,7 @@ describe("simpan", () => {
         body: {
           name: "Operator Sistem",
           isAdmin: false,
+          dashboardView: "UMUM",
           menuAccess: [
             { slug: "USER_ROLE", actions: ["VIEW"] },
             { slug: "KELUARGA", actions: ["VIEW", "UPDATE"] },

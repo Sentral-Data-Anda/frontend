@@ -13,7 +13,7 @@ import { EmptyState } from "@/components/common/feedback";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 
-import { useEventRange, useIbadahRange } from "../../api";
+import { useDashboardUmum } from "../../api";
 import {
   addDaysKey,
   formatDayMonth,
@@ -36,69 +36,59 @@ export const AgendaWeekWidget = () => {
   const today = toDateKey(new Date());
   const start = addDaysKey(today, offset * 7);
   const days = weekKeys(new Date(`${start}T00:00:00Z`));
-  const isEventShown = useMenuAccess(MENU.EVENT).isCanView;
-  const ibadah = useIbadahRange(days[0], days[6]);
-  const events = useEventRange(days[0], days[6], isEventShown);
+  const isIbadahLinked = useMenuAccess(MENU.IBADAH).isCanView;
+  const isEventLinked = useMenuAccess(MENU.EVENT).isCanView;
+  const agenda = useDashboardUmum(days[0], days[6]);
 
-  const rows = buildAgenda(ibadah.data ?? [], events.data ?? [], days);
+  const rows = buildAgenda(
+    agenda.data?.ibadah ?? [],
+    agenda.data?.events ?? [],
+    days,
+  );
 
-  /**
-   * Sumber yang gagal dimuat, disebut namanya.
-   *
-   * Ibadah dan kegiatan dimuat terpisah, dan sebelumnya satu yang gagal
-   * menghapus keduanya dari layar. Yang berhasil tetap tampil; yang gagal
-   * disebut, bukan dibiarkan senyap.
-   */
-  const failed = [
-    ibadah.error ? "Ibadah" : null,
-    isEventShown && events.error ? "Kegiatan" : null,
-  ].filter((name): name is string => name !== null);
-  const tableRows: TableRow[] = rows.map((row) => ({
-    key: row.key,
-    href: row.href,
-    label: row.name,
-    cells: [
-      <span key="day" className="text-muted-foreground truncate">
-        {formatWeekdayShort(row.day)} {Number(row.day.slice(8, 10))}
-      </span>,
-      <span key="time" className="text-muted-foreground truncate">
-        {row.time ? row.time.replace(":", ".") : "—"}
-      </span>,
-      <TableTitle
-        key="name"
-        title={row.name}
-        meta={row.until ? `s.d. ${formatDayMonth(row.until)}` : undefined}
-      />,
-      <span key="room" className="text-muted-foreground truncate">
-        {row.room}
-      </span>,
-    ],
-    compact: {
-      title: row.name,
-      meta: (
-        <span className="truncate">
-          {formatWeekdayShort(row.day)} {formatDayMonth(row.day)} ·{" "}
-          {row.time ? row.time.replace(":", ".") : "sepanjang hari"} ·{" "}
+  const tableRows: TableRow[] = rows.map((row) => {
+    const canOpen = row.key.startsWith("event-")
+      ? isEventLinked
+      : isIbadahLinked;
+
+    return {
+      key: row.key,
+      href: canOpen ? row.href : undefined,
+      label: row.name,
+      cells: [
+        <span key="day" className="text-muted-foreground truncate">
+          {formatWeekdayShort(row.day)} {Number(row.day.slice(8, 10))}
+        </span>,
+        <span key="time" className="text-muted-foreground truncate">
+          {row.time ? row.time.replace(":", ".") : "—"}
+        </span>,
+        <TableTitle
+          key="name"
+          title={row.name}
+          meta={row.until ? `s.d. ${formatDayMonth(row.until)}` : undefined}
+        />,
+        <span key="room" className="text-muted-foreground truncate">
           {row.room}
-        </span>
-      ),
-    },
-  }));
+        </span>,
+      ],
+      compact: {
+        title: row.name,
+        meta: (
+          <span className="truncate">
+            {formatWeekdayShort(row.day)} {formatDayMonth(row.day)} ·{" "}
+            {row.time ? row.time.replace(":", ".") : "sepanjang hari"} ·{" "}
+            {row.room}
+          </span>
+        ),
+      },
+    };
+  });
 
   return (
     <DashboardCard
       title="Agenda Mingguan"
       isScrollable
-      query={{
-        isPending: ibadah.isPending || (isEventShown && events.isPending),
-        isFetching: ibadah.isFetching || events.isFetching,
-        // Hanya error kalau tidak ada satu baris pun yang berhasil dimuat.
-        error: rows.length ? null : (ibadah.error ?? events.error),
-        refetch: () => {
-          void ibadah.refetch();
-          if (isEventShown) void events.refetch();
-        },
-      }}
+      query={agenda}
       isEmpty={rows.length === 0}
       minHeight="min-h-48"
       trailing={
@@ -131,22 +121,11 @@ export const AgendaWeekWidget = () => {
           title="Tidak ada ibadah atau kegiatan minggu ini"
         />
       ) : (
-        <>
-          <DashboardTable
-            label="Agenda Mingguan"
-            columns={COLUMNS}
-            rows={tableRows}
-          />
-
-          {failed.length ? (
-            <p
-              role="status"
-              className="text-muted-foreground px-2.5 pt-3 text-caption"
-            >
-              {failed.join(", ")} gagal dimuat.
-            </p>
-          ) : null}
-        </>
+        <DashboardTable
+          label="Agenda Mingguan"
+          columns={COLUMNS}
+          rows={tableRows}
+        />
       )}
     </DashboardCard>
   );

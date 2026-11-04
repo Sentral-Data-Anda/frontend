@@ -3,7 +3,11 @@
 import { Input, SelectField } from "@/components/common/control";
 import { ControlField, FormSection } from "@/components/common/form";
 
-import { ADMIN_OPTIONS, type RoleUserForm } from "./form-options";
+import {
+  ADMIN_OPTIONS,
+  DASHBOARD_OPTIONS,
+  type RoleUserForm,
+} from "./form-options";
 
 interface PropTypes {
   form: RoleUserForm;
@@ -49,6 +53,24 @@ export const RoleSection = (props: PropTypes) => {
             options={ADMIN_OPTIONS}
             disabled={isDisabled || isAdminLocked}
             placeholder="Pilih akses penuh"
+          />
+        )}
+      </ControlField>
+
+      <ControlField
+        control={form.control}
+        name="dashboardView"
+        label="Tampilan dashboard"
+        isRequired
+        hint="Menentukan Beranda role ini. Administrator tetap bisa berganti."
+      >
+        {(field) => (
+          <SelectField
+            value={field.value}
+            onValueChange={field.onChange}
+            options={DASHBOARD_OPTIONS}
+            disabled={isDisabled}
+            placeholder="Pilih tampilan dashboard"
           />
         )}
       </ControlField>

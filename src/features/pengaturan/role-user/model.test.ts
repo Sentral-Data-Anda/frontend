@@ -100,11 +100,23 @@ describe("form ↔ payload", () => {
     expect(toRoleUserPayload(form)).toEqual({
       name: "Operator Sistem",
       isAdmin: false,
+      dashboardView: "UMUM",
       menuAccess: [
         { slug: "USER", actions: ["VIEW", "UPDATE"] },
         { slug: "ACTIVITY_LOG", actions: ["VIEW"] },
       ],
     });
+  });
+
+  test("tampilan dashboard pilihan role ikut terkirim", () => {
+    const payload = toRoleUserPayload({
+      ...EMPTY_ROLE_USER_FORM,
+      name: "Bendahara",
+      dashboardView: "KEUANGAN",
+      access: { KAS_MASUK: ["VIEW"] },
+    });
+
+    expect(payload.dashboardView).toBe("KEUANGAN");
   });
 
   test("isAdmin Ya: payload tanpa menuAccess", () => {
@@ -114,7 +126,7 @@ describe("form ↔ payload", () => {
         isAdmin: "true",
         access: { USER: ["VIEW"] },
       }),
-    ).toEqual({ name: "Admin", isAdmin: true });
+    ).toEqual({ name: "Admin", isAdmin: true, dashboardView: "UMUM" });
   });
 
   test("aksi di luar editor (APPROVE) dibuang, menu tanpa aksi tidak dikirim", () => {

@@ -13,7 +13,9 @@ export const sessionSchema = z.object({
   roleUser: z.object({
     name: z.string(),
     isAdmin: z.boolean(),
+    dashboardView: z.enum(["UMUM", "KEUANGAN"]).optional(),
   }),
+  isPelayan: z.boolean().optional(),
   jemaat: z
     .object({
       name: z.string(),

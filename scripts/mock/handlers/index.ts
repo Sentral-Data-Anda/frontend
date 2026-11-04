@@ -8,6 +8,7 @@ import { bapelMock } from "./bapel";
 import { barangMock } from "./barang";
 import { barangPersediaanMock } from "./barang-persediaan";
 import { cutiMock } from "./cuti";
+import { dashboardUmumMock } from "./dashboard-umum";
 import { eventMock } from "./event";
 import { fakturSupplierMock } from "./faktur-supplier";
 import { fasilitasMock } from "./fasilitas";
@@ -77,6 +78,7 @@ import { wilayahMock } from "./wilayah";
 
 // Satu berkas per sub menu; berkas ini tidak perlu disentuh agent fitur.
 export const MOCK_HANDLERS: MockHandler[] = [
+  dashboardUmumMock,
   keluargaMock,
   roleJemaatMock,
   bapelMock,

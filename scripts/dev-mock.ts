@@ -83,9 +83,11 @@ import {
   paging,
   readBody,
 } from "./mock/kit";
+import { PELAYAN } from "./mock/pelayanan-store";
 import {
   PERSONA_KEY,
   PERSONA_POSITIONS,
+  DDL_JEMAAT,
   actionsOf,
   currentPersona,
   ddlRows,
@@ -301,11 +303,25 @@ const menu = Object.entries(TREE).flatMap(([domain, leaves], domainIndex) => {
     : [];
 });
 
+const jemaatIdOf = (name: string) =>
+  DDL_JEMAAT.find((row) => row.name === name)?.id ?? -1;
+
+const isPelayan = PELAYAN.some(
+  (row) =>
+    row.jemaatId === jemaatIdOf(persona.jemaatName) &&
+    row.status &&
+    row.deletedAt === null,
+);
+
 const session = {
   code: "U-0001",
   username: "A-0184",
   status: process.env.MOCK_PENDING ? "PENDING" : "ACTIVE",
-  roleUser: { name: persona.roleName, isAdmin: persona.isAdmin },
+  roleUser: {
+    name: persona.roleName,
+    isAdmin: persona.isAdmin,
+    dashboardView: persona.dashboardView ?? "UMUM",
+  },
   jemaat: process.env.MOCK_NO_JEMAAT
     ? null
     : {
@@ -343,6 +359,7 @@ const session = {
           ({ name, bapel }) => ({ name, bapel }),
         ),
       },
+  isPelayan,
   menu,
 };
 
@@ -590,6 +607,25 @@ Bun.serve({
     if (answered) return answered;
 
     // Daftar pilihan form: tanpa paginasi, 404 saat kosong.
+    if (path === "/ddl/bapel" && url.searchParams.get("scope") === "jabatan") {
+      const rows = (ddlRows("bapel", url.searchParams) ?? []) as {
+        id: number;
+        name: string;
+      }[];
+      const positionIds = (PERSONA_POSITIONS[PERSONA_KEY] ?? []).flatMap(
+        (position) => (position.bapelId === null ? [] : [position.bapelId]),
+      );
+      const data = persona.isAdmin
+        ? rows
+        : rows.filter((row) => positionIds.includes(row.id));
+
+      return json({
+        status: 200,
+        message: "Berhasil Mendapatkan Data",
+        data,
+      });
+    }
+
     if (path.startsWith("/ddl/")) {
       const rows = ddlRows(path.slice(5), url.searchParams);
 
@@ -735,6 +771,7 @@ Bun.serve({
 
       const filter = (url.searchParams.get("filter") ?? "").toLowerCase();
       const status = url.searchParams.get("status") ?? "";
+      const type = url.searchParams.get("type") ?? "";
       const page = Number(url.searchParams.get("page") ?? 1);
 
       // Kontrak B15: `zone=2`, `zone=1,2`, dan `zone=1&zone=2` (boleh
@@ -782,6 +819,7 @@ Bun.serve({
             row.name.toLowerCase().includes(filter) ||
             row.code.toLowerCase().includes(filter)) &&
           (!status || row.status === status) &&
+          (!type || row.type === type) &&
           (zones.size === 0 || zones.has(row.zoneChurch?.id ?? -1)),
       );
 

@@ -30,7 +30,7 @@ export const TugasSayaWidget = () => {
       actionLabel={access.isCanView ? "Semua" : undefined}
       actionHref={
         access.isCanView
-          ? menuHref(MENU.PELAYANAN, MENU.JADWAL_PELAYAN)
+          ? `${menuHref(MENU.PELAYANAN, MENU.JADWAL_PELAYAN)}?tampilan=tugas`
           : undefined
       }
       query={query}

@@ -190,14 +190,22 @@ describe("persona dev:mock", () => {
       return children.length ? [{ ...leaf(slug, []), children }] : [];
     });
 
-  const picked = (key: string, isDummyShown = false, view?: DashboardView) => {
+  const picked = (
+    key: string,
+    isDummyShown = false,
+    view?: DashboardView,
+    isPelayan = true,
+  ) => {
     const {
       view: picked,
       groups,
       kpi,
       main,
       side,
-    } = selectWidgets(menuOf(key), undefined, isDummyShown, view);
+    } = selectWidgets(menuOf(key), undefined, isDummyShown, view, {
+      isViewLocked: view !== undefined,
+      isPelayan,
+    });
     return {
       kind: picked,
       groups,
@@ -227,7 +235,7 @@ describe("persona dev:mock", () => {
   });
 
   test("bendahara: dashboard keuangan (§10.3)", () => {
-    const { kind, kpi, main, side } = picked("bendahara", true);
+    const { kind, kpi, main, side } = picked("bendahara", true, "finance");
 
     expect(kind).toBe("finance");
     // Strip Keuangan tinggal tiga: "Saldo kas & bank" dan "Perlu dibayar" dicabut
@@ -276,7 +284,7 @@ describe("persona dev:mock", () => {
     expect(picked("bendahara", true).groups).toEqual(["finance", "umum"]);
   });
 
-  test("tugas saya: tanpa gerbang, kartu sisi pertama tampilan Umum", () => {
+  test("tugas saya: hanya untuk pelayan", () => {
     const sideIds = WIDGETS.filter(
       (w) => w.slot === "side" && w.kind !== "finance",
     ).map((w) => w.id);
@@ -284,6 +292,7 @@ describe("persona dev:mock", () => {
 
     expect(tugas?.gate).toEqual([]);
     expect(tugas?.gateAny).toBeUndefined();
+    expect(tugas?.requiresPelayan).toBe(true);
     // Urutan baca: tugas pribadi dulu, baru jadwal, baru bacaan.
     expect(sideIds).toEqual([
       "tugas-saya",
@@ -292,20 +301,29 @@ describe("persona dev:mock", () => {
       "jemaat",
     ]);
 
-    // Di tampilan Umum tugas-saya selalu tampil; kolomnya bisa berbeda karena
-    // persona tanpa widget main menaikkan kartu sisi pertama ke kolom utama.
-    // Di tampilan Keuangan ia sengaja tidak ada (keputusan user 2026-10-09).
+    // Di tampilan Umum tugas-saya tampil untuk pelayan; kolomnya bisa berbeda
+    // karena persona tanpa widget main menaikkan kartu sisi pertama ke main.
     for (const key of Object.keys(PERSONAS)) {
       const { main, side } = picked(key, false, "umum");
       expect([...main, ...side]).toContain("tugas-saya");
     }
+
+    const nonPelayan = picked("majelis", false, "umum", false);
+    expect([...nonPelayan.main, ...nonPelayan.side]).not.toContain(
+      "tugas-saya",
+    );
   });
 
-  test("operator dan koordinator: kartu sisi pertama naik ke main", () => {
+  test("operator dan koordinator: kartu default mengisi kolom utama", () => {
     for (const key of ["operator", "koordinator"]) {
       const { main, side } = picked(key);
-      expect(main).toEqual(["tugas-saya"]);
-      expect(side).toEqual(["announcements"]);
+      expect(main).toEqual(["agenda-week"]);
+      expect(side).toEqual([
+        "tugas-saya",
+        "loan-rooms",
+        "announcements",
+        "jemaat",
+      ]);
     }
   });
 

@@ -19,19 +19,25 @@ const node = (slug: string, action: MenuNode["action"]): MenuNode => ({
   children: [],
 });
 
-const sessionWith = (menu: MenuNode[]): Session => ({
+const sessionWith = (
+  menu: MenuNode[],
+  dashboardView: "UMUM" | "KEUANGAN" = "UMUM",
+): Session => ({
   code: "U1",
   username: "u1",
   status: "ACTIVE",
-  roleUser: { name: "Peran", isAdmin: false },
+  roleUser: { name: "Peran", isAdmin: false, dashboardView },
   jemaat: { name: "Maria" },
   menu,
 });
 
-const renderHome = (menu: MenuNode[]) =>
+const renderHome = (
+  menu: MenuNode[],
+  dashboardView: "UMUM" | "KEUANGAN" = "UMUM",
+) =>
   render(
     <QueryClientProvider client={new QueryClient()}>
-      <SessionProvider session={sessionWith(menu)}>
+      <SessionProvider session={sessionWith(menu, dashboardView)}>
         <HomeScreen />
       </SessionProvider>
     </QueryClientProvider>,
@@ -50,15 +56,18 @@ describe("saldo rekening di Beranda", () => {
   });
 
   test("dengan FINANCIAL_STATEMENT VIEW dirender", () => {
-    renderHome([
-      {
-        ...node(MENU.FINANCE, []),
-        children: [
-          node(MENU.FINANCIAL_STATEMENT, ["VIEW"]),
-          node(MENU.KAS_KELUAR, ["VIEW"]),
-        ],
-      },
-    ]);
+    renderHome(
+      [
+        {
+          ...node(MENU.FINANCE, []),
+          children: [
+            node(MENU.FINANCIAL_STATEMENT, ["VIEW"]),
+            node(MENU.KAS_KELUAR, ["VIEW"]),
+          ],
+        },
+      ],
+      "KEUANGAN",
+    );
 
     expect(screen.getByText("Saldo Rekening")).toBeTruthy();
   });

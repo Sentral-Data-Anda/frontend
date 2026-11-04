@@ -73,7 +73,7 @@ test("dengan VIEW Jadwal Pelayan: baris ke halaman baca, aksi ke daftar", () => 
     screen.getByRole("link", { name: "Tugas 1" }).getAttribute("href"),
   ).toBe("/pelayanan/jadwal-pelayan/JDL-1");
   expect(screen.getByRole("link", { name: "Semua" }).getAttribute("href")).toBe(
-    "/pelayanan/jadwal-pelayan",
+    "/pelayanan/jadwal-pelayan?tampilan=tugas",
   );
 });
 

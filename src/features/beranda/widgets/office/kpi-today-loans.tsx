@@ -8,7 +8,7 @@ import { useUpcomingLoans } from "./data";
 
 export const KpiTodayLoans = () => {
   const { today, query } = useUpcomingLoans();
-  const items = query.data ?? [];
+  const items = query.data;
 
   return (
     <KpiCell

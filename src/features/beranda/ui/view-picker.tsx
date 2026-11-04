@@ -7,23 +7,20 @@ import { buttonVariants } from "@/components/common/control";
 import { MENU_ITEM, MENU_POPUP } from "@/components/common/overlay";
 import { cn } from "@/lib/utils";
 
-import {
-  isViewPickable,
-  VIEW_LABEL,
-  type DashboardView,
-  type KpiGroup,
-} from "../view";
+import { VIEW_LABEL, type DashboardView, type KpiGroup } from "../view";
 
 interface PropTypes {
   value: DashboardView;
   groups: readonly KpiGroup[];
   onPick: (view: DashboardView) => void;
+  /** An administrator may switch even when the role fixed one view. */
+  isAdmin?: boolean;
 }
 
 export const ViewPicker = (props: PropTypes) => {
-  const { value, groups, onPick } = props;
+  const { value, groups, onPick, isAdmin = false } = props;
 
-  if (!isViewPickable(groups)) return null;
+  if (!isAdmin) return null;
 
   return (
     <Menu.Root>
