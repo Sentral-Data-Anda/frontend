@@ -25,7 +25,11 @@ export type ChurchEvent = {
   registeredCount: number;
 };
 
-export type EventSaved = { code: string };
+export type EventSaved = {
+  code: string;
+  /** How many people hold a seat and would be affected by a move (G-03). */
+  affectedRegistrations?: number;
+};
 
 export type EventStatus = "DRAFT" | "DONE" | "ONGOING" | "UPCOMING";
 

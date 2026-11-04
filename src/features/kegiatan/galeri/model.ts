@@ -41,6 +41,15 @@ export const galeriFormSchema = z
     isPublish: z.enum(["true", "false"]),
     isPickingPhotos: z.boolean(),
     listImage: z.array(z.custom<AttachmentValue>()).max(MAX_PHOTOS),
+    // Foto tersimpan yang dipertahankan, lengkap dengan status tampil di
+    // website-nya. Dikirim sebagai `keepFiles` supaya satu foto bisa dibuang
+    // tanpa mengunggah ulang sisanya (G-02).
+    keepFiles: z.array(
+      z.object({
+        publicId: z.string(),
+        showOnWebsite: z.boolean(),
+      }),
+    ),
   })
   .superRefine((values, context) => {
     if (values.isPickingPhotos && values.listImage.length === 0) {
@@ -48,6 +57,13 @@ export const galeriFormSchema = z
         code: "custom",
         path: ["listImage"],
         message: "Pilih minimal satu foto",
+      });
+    }
+    if (!values.isPickingPhotos && values.keepFiles.length === 0) {
+      context.addIssue({
+        code: "custom",
+        path: ["listImage"],
+        message: "Album harus punya minimal satu foto",
       });
     }
   });
@@ -60,6 +76,7 @@ export const EMPTY_GALERI_FORM: GaleriFormValues = {
   isPublish: "false",
   isPickingPhotos: true,
   listImage: [],
+  keepFiles: [],
 };
 
 export const toGaleriForm = (album: Album): GaleriFormValues => ({
@@ -68,6 +85,10 @@ export const toGaleriForm = (album: Album): GaleriFormValues => ({
   isPublish: album.isPublish ? "true" : "false",
   isPickingPhotos: false,
   listImage: [],
+  keepFiles: album.listImage.map(({ publicId, showOnWebsite }) => ({
+    publicId,
+    showOnWebsite,
+  })),
 });
 
 export const toGaleriFormData = (values: GaleriFormValues) =>
@@ -76,6 +97,11 @@ export const toGaleriFormData = (values: GaleriFormValues) =>
       name: normalizeName(values.name),
       bapelId: values.bapelId,
       isPublish: values.isPublish === "true",
+      // Selalu dikirim saat mengubah tanpa memilih ulang: `[]` berarti
+      // "buang semua" dan ditolak server, bukan diabaikan.
+      keepFiles: values.isPickingPhotos
+        ? null
+        : JSON.stringify(values.keepFiles),
     },
     values.isPickingPhotos
       ? newAttachments(values.listImage).map((item) => ({

@@ -10,7 +10,7 @@ import {
   type FormEvent,
   type MouseEvent,
 } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 
 import { Button } from "@/components/common/control";
 import { useToast } from "@/components/common/feedback";
@@ -38,6 +38,8 @@ import {
   EVENT_LIST_PATH,
   eventFormSchema,
   formatEventWhen,
+  moveWarningOf,
+  movesEvent,
   toEventForm,
   type EventFormValues,
 } from "../model";
@@ -85,6 +87,15 @@ export const EventFormScreen = (props: PropTypes) => {
 
   const { isDirty, isSubmitting, submitCount } = form.formState;
   const rootError = form.formState.errors.root?.message;
+  const watched = useWatch({ control: form.control });
+  // G-03: a move of an event somebody registered for is confirmed before it is
+  // saved. A description or capacity change is not a move.
+  const moveWarning =
+    isEdit && detail.data && registeredCount > 0
+      ? movesEvent(watched as EventFormValues, detail.data)
+        ? moveWarningOf(registeredCount)
+        : undefined
+      : undefined;
   const isBusy = isSubmitting || deleteEvent.isPending;
   const isHidden = isEdit && !detail.data;
   const isLocked = isBusy || isHidden;
@@ -133,8 +144,21 @@ export const EventFormScreen = (props: PropTypes) => {
 
     try {
       const saved = await saveEvent.mutateAsync(values);
+      const affected = saved.data.affectedRegistrations ?? 0;
 
       toast.add({ title: saved.message });
+
+      if (affected > 0) {
+        toast.add({
+          type: "warning",
+          title: `${affected} pendaftar tidak diberi tahu otomatis`,
+          description:
+            "Waktu atau tempat event sudah berubah. Hubungi pendaftar secara langsung bila perlu.",
+          timeout: 0,
+          priority: "high",
+        });
+      }
+
       saveListFocus(EVENT_LIST_PATH, saved.data.code);
       router.replace(listReturn);
     } catch (error) {
@@ -312,6 +336,7 @@ export const EventFormScreen = (props: PropTypes) => {
       <FormConfirmDialog
         confirm={confirm}
         noun="event"
+        descriptions={moveWarning ? { update: moveWarning } : undefined}
         onSave={() => void onSave()}
         onLeave={onLeave}
         onDelete={onDelete}

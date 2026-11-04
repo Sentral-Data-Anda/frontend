@@ -21,7 +21,7 @@ import {
 const VALUES: LoanFormValues = {
   ...EMPTY_LOAN_FORM,
   roomId: "2",
-  date: "2026-10-01",
+  date: "2027-10-01",
   startTime: "19:00",
   endTime: "21:00",
   purpose: "  Latihan paduan suara ",
@@ -63,27 +63,21 @@ describe("loanFormSchema", () => {
   test("tiap minggu: hari wajib; sampai wajib, sesudah tanggal mulai, paling banyak 26", () => {
     const weekly = { ...VALUES, repeat: "WEEKLY" as const, weekdays: ["3"] };
 
-    expect(issuesOf({ ...weekly, weekdays: [], until: "2026-10-15" })).toEqual({
+    expect(issuesOf({ ...weekly, weekdays: [], until: "2027-10-15" })).toEqual({
       weekdays: "Pilih minimal satu hari",
     });
     expect(issuesOf(weekly)).toEqual({ until: "Isi tanggal akhir" });
-    expect(issuesOf({ ...weekly, until: "2026-10-01" })).toEqual({
+    expect(issuesOf({ ...weekly, until: "2027-10-01" })).toEqual({
       until: "Tanggal akhir harus sesudah tanggal mulai",
     });
-    expect(issuesOf({ ...weekly, until: "2027-03-25" })).toEqual({});
-    expect(repeatDatesOf({ ...weekly, until: "2027-03-25" })).toHaveLength(26);
-    expect(issuesOf({ ...weekly, until: "2027-04-01" })).toEqual({
+    expect(issuesOf({ ...weekly, until: "2028-03-31" })).toEqual({});
+    expect(repeatDatesOf({ ...weekly, until: "2028-03-31" })).toHaveLength(26);
+    expect(issuesOf({ ...weekly, until: "2028-04-07" })).toEqual({
       until: "Paling banyak 26 tanggal. Majukan tanggal akhir.",
     });
     expect(
-      repeatDatesOf({ ...weekly, weekdays: ["1", "3"], until: "2026-10-15" }),
-    ).toEqual([
-      "2026-10-01",
-      "2026-10-06",
-      "2026-10-08",
-      "2026-10-13",
-      "2026-10-15",
-    ]);
+      repeatDatesOf({ ...weekly, weekdays: ["1", "3"], until: "2027-10-15" }),
+    ).toEqual(["2027-10-05", "2027-10-07", "2027-10-12", "2027-10-14"]);
   });
 });
 
@@ -91,7 +85,7 @@ describe("payload", () => {
   test("tanggal YYYY-MM-DD, id angka, keperluan di-trim, bapelId hanya bila diisi", () => {
     expect(toLoanBody(VALUES)).toEqual({
       roomId: 2,
-      date: "2026-10-01",
+      date: "2027-10-01",
       startTime: "19:00",
       endTime: "21:00",
       purpose: "Latihan paduan suara",
@@ -102,11 +96,11 @@ describe("payload", () => {
 
   test("toBatchRows: hanya yang tercentang, dengan peta indeks ke baris pratinjau", () => {
     const rows = previewRowsOf(
-      ["2026-10-01", "2026-10-08", "2026-10-15", "2026-10-22"],
+      ["2027-10-01", "2027-10-08", "2027-10-15", "2027-10-22"],
       [
-        { date: "2026-10-01", clashes: [] },
+        { date: "2027-10-01", clashes: [] },
         {
-          date: "2026-10-08",
+          date: "2027-10-08",
           clashes: [
             {
               kind: "IBADAH",
@@ -117,10 +111,10 @@ describe("payload", () => {
             },
           ],
         },
-        { date: "2026-10-15", clashes: [] },
-        { date: "2026-10-22", clashes: [] },
+        { date: "2027-10-15", clashes: [] },
+        { date: "2027-10-22", clashes: [] },
       ],
-      new Set(["2026-10-15"]),
+      new Set(["2027-10-15"]),
     );
 
     expect(rows.map((row) => row.isTicked)).toEqual([true, false, false, true]);
@@ -129,8 +123,8 @@ describe("payload", () => {
 
     expect(batch.previewIndexOf).toEqual([0, 3]);
     expect(batch.rows.map((row) => row.date)).toEqual([
-      "2026-10-01",
-      "2026-10-22",
+      "2027-10-01",
+      "2027-10-22",
     ]);
   });
 });
@@ -186,7 +180,7 @@ describe("bentrok", () => {
 
 describe("loanStatusOf", () => {
   const row = {
-    date: "2026-10-01T00:00:00.000Z",
+    date: "2027-10-01T00:00:00.000Z",
     startTime: "18:00",
     endTime: "20:00",
   };
@@ -194,11 +188,11 @@ describe("loanStatusOf", () => {
 
   test("batas waktu WIB", () => {
     expect(loanStatusOf(row, at("2026-09-30T23:59:00"))).toBe("UPCOMING");
-    expect(loanStatusOf(row, at("2026-10-01T17:59:00"))).toBe("UPCOMING");
-    expect(loanStatusOf(row, at("2026-10-01T18:00:00"))).toBe("ONGOING");
-    expect(loanStatusOf(row, at("2026-10-01T19:59:00"))).toBe("ONGOING");
-    expect(loanStatusOf(row, at("2026-10-01T20:00:00"))).toBe("DONE");
-    expect(loanStatusOf(row, at("2026-10-02T00:00:00"))).toBe("DONE");
+    expect(loanStatusOf(row, at("2027-10-01T17:59:00"))).toBe("UPCOMING");
+    expect(loanStatusOf(row, at("2027-10-01T18:00:00"))).toBe("ONGOING");
+    expect(loanStatusOf(row, at("2027-10-01T19:59:00"))).toBe("ONGOING");
+    expect(loanStatusOf(row, at("2027-10-01T20:00:00"))).toBe("DONE");
+    expect(loanStatusOf(row, at("2027-10-02T00:00:00"))).toBe("DONE");
   });
 });
 
@@ -223,10 +217,10 @@ describe("toLoanApiFilters", () => {
 
 describe("batchRowErrors", () => {
   const rows = [
-    { date: "2026-10-01" },
-    { date: "2026-10-08" },
-    { date: "2026-10-15" },
-    { date: "2026-10-22" },
+    { date: "2027-10-01" },
+    { date: "2027-10-08" },
+    { date: "2027-10-15" },
+    { date: "2027-10-22" },
   ];
   const previewIndexOf = [0, 2, 3];
 
@@ -247,7 +241,7 @@ describe("batchRowErrors", () => {
 
     expect([...failure.rowErrors]).toEqual([
       [2, "Ruang Sudah Dipakai Event Bazar Pukul 09.00–15.00"],
-      [3, "Bentrok dengan Kam, 1 Okt 2026"],
+      [3, "Bentrok dengan Jum, 1 Okt 2027"],
     ]);
     expect([...failure.fieldErrors]).toEqual([["roomId", "Ruang Tidak Aktif"]]);
     expect(failure.root).toBeNull();
