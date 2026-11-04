@@ -48,6 +48,8 @@ describe("gate aksi Ubah per baris", () => {
     onRenderRow(false);
 
     expect(screen.queryByRole("link", { name: /Ubah/ })).toBeNull();
+    // Tanpa satu pun aksi, tombol titik-tiga tidak boleh tersisa.
+    expect(screen.queryByRole("button", { name: /Tindakan untuk/ })).toBeNull();
   });
 
   test("baris membawa id supaya bisa disorot saat kembali", () => {

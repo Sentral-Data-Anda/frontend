@@ -42,6 +42,22 @@ describe("tombol aksi di ujung baris", () => {
     expect(container.innerHTML).toBe("");
   });
 
+  // Regresi: pemanggil tanpa izin sering tetap mengirim `edit` dengan href
+  // kosong. Tombol titik-tiga sempat tetap tampil dan membuka sheet kosong.
+  test("aksi tanpa href/onSelect tidak dihitung: titik-tiga pun tidak dirender", () => {
+    const { container } = render(
+      <DataRowActions
+        actions={{
+          label: "Ubah Maria Sitompul",
+          edit: { href: undefined, label: "Ubah Maria Sitompul" },
+        }}
+      />,
+    );
+
+    expect(container.innerHTML).toBe("");
+    expect(screen.queryByRole("button", { name: /Tindakan untuk/ })).toBeNull();
+  });
+
   test("tanpa izin hapus: tombol Hapus tidak ada, Ubah tetap ada", () => {
     render(<DataRowActions actions={actions({ remove: undefined })} />);
 

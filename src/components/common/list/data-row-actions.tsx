@@ -37,13 +37,22 @@ interface PropTypes {
   actions: RowActions;
 }
 
+/**
+ * An action the row can actually offer. A caller without permission commonly
+ * still passes the key with `href`/`onSelect` undefined — `renderButton` draws
+ * nothing for it. Counting that object as an action was what left the
+ * three-dot button on a row whose sheet had nothing in it.
+ */
+const isOffered = (action?: RowAction): boolean =>
+  Boolean(action?.href || action?.onSelect);
+
 // Baris sengaja bukan tautan: satu-satunya jalan masuk ke form adalah tombol ini.
 export const DataRowActions = (props: PropTypes) => {
   const { actions } = props;
   const { label, view, edit, remove } = actions;
   const isSheetOpen = useBoolean();
 
-  if (!view && !edit && !remove) return null;
+  if (!isOffered(view) && !isOffered(edit) && !isOffered(remove)) return null;
 
   const renderButton = (
     action: RowAction | undefined,
