@@ -370,7 +370,7 @@ describe("tempat di payload", () => {
     };
   };
 
-  test("field yang bukan milik tipe tempat dikirim null; wilayah hanya untuk rumah jemaat", () => {
+  test("field yang bukan milik tipe tempat dikirim null; wilayah untuk rumah jemaat dan lainnya", () => {
     expect(placeOf("GEREJA")).toEqual({
       placeType: "GEREJA",
       roomId: 1,
@@ -393,7 +393,7 @@ describe("tempat di payload", () => {
       hostKeluargaId: null,
       placeName: "Villa",
       address: "Jl. A",
-      zoneChurchId: null,
+      zoneChurchId: 2,
     });
   });
 
@@ -416,7 +416,7 @@ describe("tempat di payload", () => {
     expect(toIbadahPayload(toIbadahForm(OTHER))).toMatchObject({
       placeName: "Villa Ciater",
       address: "Jl. Raya Ciater KM 12",
-      zoneChurchId: null,
+      zoneChurchId: 5,
     });
   });
 });
@@ -456,13 +456,25 @@ describe("salin", () => {
     });
   });
 
-  test("lainnya: nama dan alamat ikut; wilayah nonaktif tidak", () => {
-    expect(toIbadahCopy(OTHER, ["1"], ["1", "2"])).toMatchObject({
+  test("lainnya: nama, alamat, dan wilayah aktif ikut", () => {
+    expect(toIbadahCopy(OTHER, ["1"], ["1", "2", "5"])).toMatchObject({
       placeType: "LAINNYA",
       placeName: "Villa Ciater",
       address: "Jl. Raya Ciater KM 12",
-      zoneChurchId: "",
+      zoneChurchId: "5",
       roomId: "",
+    });
+  });
+
+  test("lainnya: wilayah nonaktif tidak ikut", () => {
+    expect(toIbadahCopy(OTHER, ["1"], ["1", "2"])).toMatchObject({
+      zoneChurchId: "",
+    });
+  });
+
+  test("gereja: wilayah tidak pernah ikut", () => {
+    expect(toIbadahCopy(DETAIL, ["1"], ["1"])).toMatchObject({
+      zoneChurchId: "",
     });
   });
 });
@@ -552,6 +564,42 @@ describe("pesan server → field", () => {
       field: "startTime",
       message:
         "Ibadah Minggu I pada tanggal, jam, dan wilayah ini sudah tercatat. Ubah jam mulai atau wilayah, atau buka data yang sudah ada dari daftar.",
+    });
+  });
+
+  test("409 tanpa saran wilayah: pesan gereja tidak menyebut wilayah", () => {
+    expect(
+      serverFieldError(
+        "Ibadah dengan tipe, tanggal, jam mulai dan wilayah yang sama sudah tercatat",
+        "Ibadah Minggu I",
+      ),
+    ).toEqual({
+      field: "startTime",
+      message:
+        "Ibadah Minggu I pada tanggal dan jam ini sudah tercatat. Ubah jam mulai, atau buka data yang sudah ada dari daftar.",
+    });
+  });
+
+  test("wilayah tuan rumah yang berselisih dan ibadah berpersembahan", () => {
+    expect(
+      serverFieldError(
+        "Wilayah Ibadah (Dua) Berbeda Dengan Wilayah Keluarga Tuan Rumah (Satu). Samakan Salah Satunya",
+        "Ibadah Wilayah",
+      ),
+    ).toEqual({
+      field: "zoneChurchId",
+      message:
+        "Wilayah ibadah harus sama dengan wilayah keluarga tuan rumah. Samakan salah satunya.",
+    });
+    expect(
+      serverFieldError(
+        "Ibadah Tidak Dapat Diubah Tanggal, Jam, Tipe, atau Wilayahnya Karena Sudah Memiliki 2 Data Persembahan. Buat Ibadah Baru Jika Perlu",
+        "Ibadah Minggu I",
+      ),
+    ).toEqual({
+      field: "date",
+      message:
+        "Ibadah ini sudah punya data persembahan, jadi tanggal, jam, tipe, dan wilayahnya tidak bisa diubah. Buat ibadah baru, atau ubah tema dan hitungan hadir saja.",
     });
   });
 

@@ -35,6 +35,7 @@ const PLACE_FIELDS = [
   "hostKeluargaId",
   "placeName",
   "address",
+  "zoneChurchId",
 ] as const;
 
 type AddressStatus = "idle" | "loading" | "failed";
@@ -57,6 +58,7 @@ export const PlaceFields = (props: PropTypes) => {
   });
   const isHome = placeType === "RUMAH_JEMAAT";
   const isOther = placeType === "LAINNYA";
+  const isChurch = placeType === "GEREJA";
   const savedHost = saved?.hostKeluarga ?? null;
   const savedHostId = String(savedHost?.id ?? "");
   const pinnedHost = savedHost
@@ -176,15 +178,15 @@ export const PlaceFields = (props: PropTypes) => {
         />
       </FormWide>
 
-      {isHome ? (
+      {isChurch ? null : (
         <ControlField
           control={form.control}
           name="zoneChurchId"
           label="Wilayah"
           hint={
-            isCanCreate
-              ? "Isi untuk ibadah wilayah; ikut terisi dari keluarga tuan rumah."
-              : "Isi untuk ibadah wilayah."
+            isHome && isCanCreate
+              ? "Opsional; ikut terisi dari keluarga tuan rumah."
+              : "Opsional; isi jika ibadah ini untuk satu wilayah."
           }
           isOptional
         >
@@ -200,9 +202,9 @@ export const PlaceFields = (props: PropTypes) => {
             />
           )}
         </ControlField>
-      ) : null}
+      )}
 
-      {placeType === "GEREJA" ? (
+      {isChurch ? (
         <ControlField
           control={form.control}
           name="roomId"

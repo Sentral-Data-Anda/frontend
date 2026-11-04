@@ -110,7 +110,17 @@ export const IbadahListContent = () => {
             key: "wilayah",
             label: "Wilayah",
             kind: "select",
-            options: [{ value: "", label: "Semua wilayah" }, ...zones.options],
+            options: [
+              { value: "", label: "Semua wilayah" },
+              // A church building has no wilayah, so without this option the
+              // filter hides every church service while claiming to show all
+              // (I-01).
+              {
+                value: "0",
+                label: "Tanpa wilayah (termasuk ibadah gereja)",
+              },
+              ...zones.options,
+            ],
           },
           {
             key: "bulan",
