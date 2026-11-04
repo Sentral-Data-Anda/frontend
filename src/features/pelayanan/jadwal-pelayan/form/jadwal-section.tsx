@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
   DateField,
@@ -31,10 +31,12 @@ interface PropTypes {
 export const JadwalSection = (props: PropTypes) => {
   const { form, bapelId, isEdit, isCopy, isDisabled } = props;
 
-  const bapel = useDdlOptions("bapel");
+  const bapel = useDdlOptions("bapel?scope=jabatan");
   const [pickBapel, setPickBapel] = useState("");
   const isConfirmOpen = useBoolean();
   const dateMax = endOfYearIso(1);
+  const isBapelLocked = !bapel.isLoading && bapel.options.length === 1;
+  const isBapelEmpty = !bapel.isLoading && bapel.options.length === 0;
 
   const onApplyBapel = (next: string) => {
     const slots = form.getValues("slots");
@@ -56,6 +58,15 @@ export const JadwalSection = (props: PropTypes) => {
     isConfirmOpen.onTrue();
   };
 
+  useEffect(() => {
+    if (!isBapelLocked) return;
+
+    const only = bapel.options[0]?.value;
+    if (only && !form.getValues("bapelId")) {
+      form.setValue("bapelId", only);
+    }
+  }, [bapel.options, form, isBapelLocked]);
+
   return (
     <FormSection legend="Jadwal" disabled={isDisabled}>
       <ControlField
@@ -70,9 +81,9 @@ export const JadwalSection = (props: PropTypes) => {
             onValueChange={onPickBapel}
             options={bapel.options}
             isLoading={bapel.isLoading}
-            disabled={isDisabled}
+            disabled={isDisabled || isBapelLocked || isBapelEmpty}
             placeholder="Pilih badan pelayanan"
-            emptyMessage="Belum ada data badan pelayanan"
+            emptyMessage="Anda belum memegang jabatan di badan pelayanan mana pun"
           />
         )}
       </ControlField>

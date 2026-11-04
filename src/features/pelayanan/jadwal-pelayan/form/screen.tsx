@@ -84,7 +84,7 @@ export const JadwalPelayanFormScreen = (props: PropTypes) => {
   const deleteJadwal = useDeleteJadwalPelayan(code);
   const detail = useJadwalPelayanDetail(code ?? (copyCode || undefined));
   const roles = useDdlOptions("role-pelayan");
-  const bapel = useDdlOptions("bapel");
+  const bapel = useDdlOptions("bapel?scope=jabatan");
   const confirm = useFormConfirm();
   const saveRef = useRef<HTMLButtonElement>(null);
   const deleteRef = useRef<HTMLButtonElement>(null);

@@ -1,76 +1,69 @@
 "use client";
 
-import { useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-import { useToast } from "@/components/common/feedback";
-import {
-  DataList,
-  ListToolbar,
-  RowDeleteDialog,
-} from "@/components/common/list";
+import { ListTabs } from "@/components/common/list";
 import { PageHeader, PageHeaderAdd } from "@/components/layout";
 import { MENU, domainHref } from "@/config/menu";
-import { useMenuAccess } from "@/features/auth";
-import { useDdlOptions } from "@/hooks/use-ddl-options";
-import { useListParams, type ListFilterSchema } from "@/hooks/use-list-params";
+import { useMenuAccess, useSession } from "@/features/auth";
 
-import { useDeleteJadwalPelayan, useJadwalPelayanList } from "../api";
-import { JADWAL_PELAYAN_CREATE_PATH, monthOptions } from "../model";
-import type { JadwalPelayan } from "../types";
+import { JADWAL_PELAYAN_CREATE_PATH } from "../model";
 
-import {
-  deleteTargetLabelOf,
-  JadwalPelayanListItemRow,
-  jadwalPelayanTable,
-} from "./list-item";
+import { KelolaJadwalPanel } from "./kelola-jadwal-panel";
+import { TugasSayaPanel } from "./tugas-saya-panel";
 
-const LIST_FILTERS = {
-  bulan: { api: "month" },
-  bapel: { api: "bapelId" },
-} satisfies ListFilterSchema;
+type Tab = "tugas" | "kelola";
+
+const TABS: readonly { value: Tab; label: string }[] = [
+  { value: "tugas", label: "Tugas Saya" },
+  { value: "kelola", label: "Kelola Jadwal" },
+];
 
 export const JadwalPelayanListContent = () => {
-  const { isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
-    MENU.JADWAL_PELAYAN,
+  const session = useSession();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const { isCanCreate } = useMenuAccess(MENU.JADWAL_PELAYAN);
+
+  const isAdmin = session.roleUser.isAdmin;
+  const isPelayan = session.isPelayan ?? false;
+  const hasPosition = (session.jemaat?.roleJemaat ?? []).some(
+    (role) => role.bapel !== null,
   );
+  const canKelola = isAdmin || hasPosition;
 
-  const toast = useToast();
+  const tabs = canKelola
+    ? TABS.filter((tab) => tab.value === "kelola" || isPelayan)
+    : TABS.filter((tab) => tab.value === "tugas");
 
-  // Satu keadaan menyimpan baris yang akan dihapus sekaligus status terbuka
-  // dialognya. Hook hapus dibuat ulang mengikuti kunci baris ini.
-  const [target, setTarget] = useState<JadwalPelayan | null>(null);
-  const deleteRow = useDeleteJadwalPelayan(target?.code);
-  const listParams = useListParams({ filters: LIST_FILTERS });
-  const jadwalList = useJadwalPelayanList(listParams);
-  const bapel = useDdlOptions("bapel", "id", listParams.filters.bapel);
-  const isNarrowed = Boolean(listParams.search) || listParams.isFiltered;
+  const fallback: Tab =
+    canKelola && (!isPelayan || isAdmin) ? "kelola" : "tugas";
+  const requested = searchParams.get("tampilan");
+  const tab =
+    requested && tabs.some((item) => item.value === requested)
+      ? (requested as Tab)
+      : fallback;
 
-  const onDelete = () => {
-    deleteRow.mutate(undefined, {
-      onSuccess: (deleted) => {
-        toast.add({ title: deleted.message });
-        setTarget(null);
-      },
+  const onPickTab = (value: string) => {
+    const url = new URLSearchParams(searchParams);
+
+    if (value === "tugas") url.set("tampilan", "tugas");
+    else url.delete("tampilan");
+
+    const query = url.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname, {
+      scroll: false,
     });
-  };
-
-  const onCancelDelete = () => {
-    deleteRow.reset();
-    setTarget(null);
   };
 
   return (
     <div className="pb-6">
       <PageHeader
         title="Jadwal Pelayan"
-        subtitle={
-          jadwalList.totalData === undefined
-            ? undefined
-            : `${jadwalList.totalData} jadwal`
-        }
         backHref={domainHref(MENU.PELAYANAN)}
         action={
-          isCanCreate ? (
+          isCanCreate && canKelola ? (
             <PageHeaderAdd
               href={JADWAL_PELAYAN_CREATE_PATH}
               label="Tambah jadwal pelayan"
@@ -79,67 +72,21 @@ export const JadwalPelayanListContent = () => {
         }
       />
 
-      <ListToolbar
-        listParams={listParams}
-        searchLabel="Cari jadwal pelayan"
-        searchPlaceholder="Cari nama atau kode jadwal"
-        filters={[
-          {
-            key: "bulan",
-            label: "Bulan",
-            kind: "select",
-            options: [{ value: "", label: "Semua bulan" }, ...monthOptions()],
-          },
-          {
-            key: "bapel",
-            label: "Badan pelayanan",
-            kind: "select",
-            options: [
-              { value: "", label: "Semua badan pelayanan" },
-              ...bapel.options,
-            ],
-          },
-        ]}
-      />
+      {tabs.length > 1 ? (
+        <ListTabs
+          label="Tampilan jadwal pelayan"
+          value={tab}
+          options={tabs}
+          onValueChange={onPickTab}
+        />
+      ) : null}
 
-      <DataList
-        loadingShape="trailing"
-        items={jadwalList.items}
-        getKey={(jadwal) => jadwal.code}
-        label="Daftar jadwal pelayan"
-        isLoading={jadwalList.isLoading}
-        isRefreshing={jadwalList.isRefreshing}
-        error={jadwalList.error}
-        onRetry={jadwalList.onRetry}
-        emptyTitle={
-          isNarrowed ? "Tidak ada jadwal" : "Belum ada jadwal pelayan"
-        }
-        emptyDescription={
-          isNarrowed
-            ? "Tidak ada jadwal yang cocok dengan pencarian atau filter ini."
-            : "Atur siapa melayani di tiap ibadah. Mulai dari template supaya susunan tugas langsung terisi."
-        }
-        onClearFilter={
-          listParams.isFiltered ? listParams.onClearFilters : undefined
-        }
-        pagination={jadwalList.pagination}
-        table={jadwalPelayanTable(
-          isCanUpdate,
-          isCanDelete ? setTarget : undefined,
-        )}
-        itemNoun="jadwal"
+      <div
+        role="tabpanel"
+        aria-label={tab === "tugas" ? "Tugas Saya" : "Kelola Jadwal"}
       >
-        {(jadwal) => <JadwalPelayanListItemRow jadwal={jadwal} />}
-      </DataList>
-
-      <RowDeleteDialog
-        target={target ? { label: deleteTargetLabelOf(target) } : null}
-        entity="jadwal"
-        isPending={deleteRow.isPending}
-        errorMessage={deleteRow.error?.message}
-        onCancel={onCancelDelete}
-        onConfirm={onDelete}
-      />
+        {tab === "tugas" ? <TugasSayaPanel /> : <KelolaJadwalPanel />}
+      </div>
     </div>
   );
 };

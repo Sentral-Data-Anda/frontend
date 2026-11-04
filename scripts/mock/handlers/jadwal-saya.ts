@@ -24,7 +24,11 @@ const nameOf = (rows: { id: number; name: string }[], id: number | null) => {
   return row ? { name: row.name } : null;
 };
 
-export const tasksOf = (jemaatName: string, today = todayJakarta()) => {
+export const tasksOf = (
+  jemaatName: string,
+  today = todayJakarta(),
+  options: { isAll?: boolean; month?: string } = {},
+) => {
   const jemaat = DDL_JEMAAT.find((row) => row.name === jemaatName);
 
   if (!jemaat) return [];
@@ -35,14 +39,21 @@ export const tasksOf = (jemaatName: string, today = todayJakarta()) => {
   const groupIds = GROUP_PELAYAN.filter((row) =>
     row.memberIds.includes(jemaat.id),
   ).map((row) => row.id);
-  const end = addDays(today, 27);
+  const end = options.isAll ? "9999-12-31" : addDays(today, 27);
+  const start = options.isAll ? "0000-01-01" : today;
 
   return JADWAL_PELAYAN.filter(
-    (row) => row.deletedAt === null && row.date >= today && row.date <= end,
+    (row) =>
+      row.deletedAt === null &&
+      row.date >= start &&
+      row.date <= end &&
+      (!options.month || row.date.slice(0, 7) === options.month),
   )
-    .sort(
-      (a, b) =>
-        a.date.localeCompare(b.date) || a.startTime.localeCompare(b.startTime),
+    .sort((a, b) =>
+      options.isAll
+        ? b.date.localeCompare(a.date) || b.startTime.localeCompare(a.startTime)
+        : a.date.localeCompare(b.date) ||
+          a.startTime.localeCompare(b.startTime),
     )
     .flatMap((row) =>
       [...row.detail]
@@ -67,7 +78,7 @@ export const tasksOf = (jemaatName: string, today = todayJakarta()) => {
     );
 };
 
-export const jadwalSayaMock: MockHandler = ({ path, method }) => {
+export const jadwalSayaMock: MockHandler = ({ path, method, url }) => {
   if (path !== "/jadwal-pelayan/saya" || method !== "GET") return null;
 
   if (process.env.MOCK_TUGAS_SAYA_500 || process.env.MOCK_500) {
@@ -77,6 +88,9 @@ export const jadwalSayaMock: MockHandler = ({ path, method }) => {
   return json({
     status: 200,
     message: "Berhasil Mendapatkan Jadwal Pelayanan Anda",
-    data: tasksOf(currentPersona().jemaatName),
+    data: tasksOf(currentPersona().jemaatName, todayJakarta(), {
+      isAll: url.searchParams.get("range") === "all",
+      month: url.searchParams.get("month") ?? undefined,
+    }),
   });
 };

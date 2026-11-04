@@ -176,3 +176,23 @@ export function usePelayanRows(
 
   return { isReady, byRole };
 }
+
+export type TugasSayaItem = {
+  date: string;
+  startTime: string;
+  endTime: string;
+  jadwal: { code: string; name: string };
+  bapel: { name: string };
+  role: { name: string };
+  musikSkill: { name: string } | null;
+  group: { name: string } | null;
+  ibadah: { code: string; typeIbadah: { name: string } }[];
+};
+
+export function useTugasSayaAll() {
+  return useQuery({
+    queryKey: ["jadwal-pelayan", "saya", "all"],
+    queryFn: () => fetchList<TugasSayaItem>("/jadwal-pelayan/saya?range=all"),
+    select: (response) => response.data,
+  });
+}
