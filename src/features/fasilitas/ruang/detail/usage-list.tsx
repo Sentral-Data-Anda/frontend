@@ -1,8 +1,10 @@
 "use client";
 
+import Link from "next/link";
+
 import { Button } from "@/components/common/control";
 import { EmptyState } from "@/components/common/feedback";
-import { MENU } from "@/config/menu";
+import { MENU, menuHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 
 import { useRuangUsage } from "../api";
@@ -12,14 +14,20 @@ import { UsageRow } from "./usage-row";
 
 interface PropTypes {
   code: string;
+  /** Numeric id for the loan list's `ruang` filter. */
+  roomId?: number;
 }
 
 export const UsageList = (props: PropTypes) => {
-  const { code } = props;
+  const { code, roomId } = props;
 
   const usage = useRuangUsage(code);
   const { isCanUpdate: isCanUpdateLoan } = useMenuAccess(MENU.PEMINJAMAN_RUANG);
-  const days = groupUsage(usage.data ?? []);
+  const page = usage.data;
+  const days = groupUsage(page?.rows ?? []);
+  const loanHref = roomId
+    ? `${menuHref(MENU.FASILITAS, MENU.PEMINJAMAN_RUANG)}?ruang=${roomId}`
+    : menuHref(MENU.FASILITAS, MENU.PEMINJAMAN_RUANG);
 
   if (usage.error && !usage.data) {
     return (
@@ -62,27 +70,39 @@ export const UsageList = (props: PropTypes) => {
   }
 
   return (
-    <div className="divide-hairline divide-y">
-      {days.map((day) => (
-        <section
-          key={day.date}
-          aria-label={usageDayOf(day.date)}
-          className="py-2"
-        >
-          <h3 className="text-muted-foreground pt-1 text-caption font-medium">
-            {usageDayOf(day.date)}
-          </h3>
-          <ul>
-            {day.rows.map((row) => (
-              <UsageRow
-                key={`${row.kind}-${row.code}-${row.startTime}`}
-                usage={row}
-                isLinked={row.kind === "LOAN" && isCanUpdateLoan}
-              />
-            ))}
-          </ul>
-        </section>
-      ))}
-    </div>
+    <>
+      <div className="divide-hairline divide-y">
+        {days.map((day) => (
+          <section
+            key={day.date}
+            aria-label={usageDayOf(day.date)}
+            className="py-2"
+          >
+            <h3 className="text-muted-foreground pt-1 text-caption font-medium">
+              {usageDayOf(day.date)}
+            </h3>
+            <ul>
+              {day.rows.map((row) => (
+                <UsageRow
+                  key={`${row.kind}-${row.code}-${row.startTime}`}
+                  usage={row}
+                  isLinked={row.kind === "LOAN" && isCanUpdateLoan}
+                />
+              ))}
+            </ul>
+          </section>
+        ))}
+      </div>
+
+      {page?.isTruncated ? (
+        <p className="text-muted-foreground border-hairline mt-2 border-t pt-2 text-caption">
+          Menampilkan {page.rows.length} dari {page.totalData} pemakaian.{" "}
+          <Link href={loanHref} className="underline underline-offset-2">
+            Buka Peminjaman Ruang
+          </Link>{" "}
+          untuk daftar lengkapnya.
+        </p>
+      ) : null}
+    </>
   );
 };

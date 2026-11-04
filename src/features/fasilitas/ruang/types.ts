@@ -28,6 +28,12 @@ export type RoomUsage = {
   endTime: string;
 };
 
+export type RoomUsagePage = {
+  rows: RoomUsage[];
+  totalData: number;
+  isTruncated: boolean;
+};
+
 export const USAGE_KIND_LABEL: Record<UsageKind, string> = {
   LOAN: "Peminjaman",
   IBADAH: "Ibadah",

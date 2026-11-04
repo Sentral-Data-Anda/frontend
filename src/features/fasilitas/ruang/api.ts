@@ -48,9 +48,20 @@ export function useRuangDetail(code: string | undefined) {
 export function useRuangUsage(code: string | undefined) {
   return useQuery({
     queryKey: ruangKeys.usage(code ?? ""),
-    queryFn: () => fetchList<RoomUsage>(`${pathOf(code)}/usage`),
+    // Bukan daftar berpaginasi biasa: jawabannya menyebut apakah 50 barisnya
+    // terpotong, supaya layar tidak menyimpulkan ruang kosong setelahnya
+    // (R-02).
+    queryFn: async () => {
+      const response = await fetchList<RoomUsage>(`${pathOf(code)}/usage`);
+      const page = response as typeof response & { isTruncated?: boolean };
+
+      return {
+        rows: response.data,
+        totalData: response.totalData,
+        isTruncated: page.isTruncated ?? false,
+      };
+    },
     enabled: Boolean(code),
-    select: (response) => response.data,
   });
 }
 

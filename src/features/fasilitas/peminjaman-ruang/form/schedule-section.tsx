@@ -5,7 +5,7 @@ import { useWatch } from "react-hook-form";
 import { DateField, DdlField, TimeField } from "@/components/common/control";
 import { ControlField, FormSection, FormWide } from "@/components/common/form";
 import { useDdlOptions } from "@/hooks/use-ddl-options";
-import { endOfYearIso } from "@/lib/date";
+import { endOfYearIso, todayJakarta } from "@/lib/date";
 
 import type { LoanRoomDetail } from "../types";
 
@@ -30,6 +30,9 @@ export const ScheduleSection = (props: PropTypes) => {
   const savedRoomId = saved ? String(saved.room.id) : "";
   const rooms = useDdlOptions("room", "id", savedRoomId);
   const dateMax = endOfYearIso(1);
+  // R-03 (2026-11-04): a booking may not be made for a day that has passed.
+  // The server refuses it; the field stops the mistake before it is typed.
+  const dateMin = todayJakarta();
   const dateLabel = repeat === "WEEKLY" ? "Tanggal mulai" : "Tanggal";
   const roomName =
     roomId === savedRoomId && saved
@@ -70,6 +73,7 @@ export const ScheduleSection = (props: PropTypes) => {
             onBlur={field.onBlur}
             disabled={isOff}
             variant="dekat"
+            min={dateMin}
             max={dateMax}
             label={dateLabel}
           />

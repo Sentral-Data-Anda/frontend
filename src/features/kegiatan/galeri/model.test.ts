@@ -99,7 +99,7 @@ describe("skema album", () => {
     );
     expect(
       errorsOf({ ...VALID, isPickingPhotos: false, listImage: [] }),
-    ).toEqual({});
+    ).toEqual({ listImage: "Album harus punya minimal satu foto" });
   });
 });
 
@@ -123,7 +123,7 @@ describe("payload multipart", () => {
     expect(toGaleriFormData(VALID).get("isPublish")).toBe("0");
   });
 
-  test("ubah tanpa ganti foto: tanpa image dan tanpa showOnWebsite", () => {
+  test("ubah tanpa ganti foto: keepFiles berisi semua foto lama, tanpa image", () => {
     const body = toGaleriFormData({
       ...toGaleriForm(ALBUM),
       listImage: [photo("sisa")],
@@ -131,7 +131,24 @@ describe("payload multipart", () => {
 
     expect(body.getAll("image")).toEqual([]);
     expect(body.getAll("showOnWebsite")).toEqual([]);
+    expect(JSON.parse(String(body.get("keepFiles")))).toEqual([
+      { publicId: "a", showOnWebsite: true },
+      { publicId: "b", showOnWebsite: false },
+    ]);
     expect(body.get("isPublish")).toBe("1");
+  });
+
+  // G-02: one photo can be dropped without re-uploading the rest.
+  test("ubah dan buang satu foto: keepFiles hanya sisanya", () => {
+    const form = toGaleriForm(ALBUM);
+    const body = toGaleriFormData({
+      ...form,
+      keepFiles: form.keepFiles.filter((file) => file.publicId !== "a"),
+    });
+
+    expect(JSON.parse(String(body.get("keepFiles")))).toEqual([
+      { publicId: "b", showOnWebsite: false },
+    ]);
   });
 });
 

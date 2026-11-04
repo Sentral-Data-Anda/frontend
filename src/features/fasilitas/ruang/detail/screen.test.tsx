@@ -109,7 +109,8 @@ const onRender = (
         status: 200,
         totalData: usage.length,
         totalPage: 1,
-        data: usage,
+        isTruncated: usage.length > 50,
+        data: usage.slice(0, 50),
       });
     }
     if (options.room === null) {
@@ -134,6 +135,36 @@ const onRender = (
 };
 
 describe("halaman ruang", () => {
+  // R-02: a cut list says so, with the real total and a filtered link.
+  test("pemakaian terpotong: menyebut 50 dari total dan tautan tersaring", async () => {
+    const many: RoomUsage[] = Array.from({ length: 51 }, (_, index) => ({
+      kind: "LOAN",
+      publicId: `loan-${index}`,
+      code: `LR-${index}`,
+      name: "Rapat",
+      date: "2026-10-04",
+      startTime: "10:00",
+      endTime: "11:00",
+    }));
+
+    onRender({ RUANG: ["VIEW"] }, { usage: many });
+
+    expect(
+      await screen.findByText(/Menampilkan 50 dari 51 pemakaian/),
+    ).toBeTruthy();
+    expect(
+      screen
+        .getByRole("link", { name: "Buka Peminjaman Ruang" })
+        .getAttribute("href"),
+    ).toBe("/fasilitas/peminjaman-ruang?ruang=1");
+  });
+
+  test("pemakaian pendek: tanpa keterangan terpotong", () => {
+    onRender({ RUANG: ["VIEW"] });
+
+    expect(screen.queryByText(/Menampilkan 50 dari/)).toBeNull();
+  });
+
   test("tanpa VIEW: keadaan tanpa akses", () => {
     onRender({});
 

@@ -26,18 +26,34 @@ interface PropTypes {
 export const PhotosSection = (props: PropTypes) => {
   const { form, savedPhotos, isDisabled } = props;
 
-  const [isPickingPhotos, isPublish, listImage] = useWatch({
+  const [isPickingPhotos, isPublish, listImage, keepFiles] = useWatch({
     control: form.control,
-    name: ["isPickingPhotos", "isPublish", "listImage"],
+    name: ["isPickingPhotos", "isPublish", "listImage", "keepFiles"],
   });
   const isReadOnly = savedPhotos !== null && !isPickingPhotos;
+  // Yang tampil hanya foto yang masih dipertahankan, supaya "Buang" langsung
+  // terlihat akibatnya sebelum simpan (G-02).
+  const keptPhotos =
+    savedPhotos?.filter((photo) =>
+      keepFiles.some((kept) => kept.publicId === photo.publicId),
+    ) ?? null;
+  const isKeptEmpty = keptPhotos !== null && keptPhotos.length === 0;
   const websiteStatus = websiteStatusOf(
     isPublish === "true",
-    isReadOnly ? savedPhotos : listImage,
+    isReadOnly ? (keptPhotos ?? []) : listImage,
   );
   const status = websiteStatus ? (
     <p className="text-muted-foreground text-body">{websiteStatus}</p>
   ) : null;
+
+  const onRemovePhoto = (publicId: string) => {
+    form.setValue(
+      "keepFiles",
+      keepFiles.filter((photo) => photo.publicId !== publicId),
+      { shouldDirty: true },
+    );
+    form.clearErrors("listImage");
+  };
 
   const onStartReplace = () => {
     form.setValue("isPickingPhotos", true, { shouldDirty: true });
@@ -60,7 +76,16 @@ export const PhotosSection = (props: PropTypes) => {
       <FormWide className="flex flex-col gap-3">
         {isReadOnly ? (
           <>
-            <SavedPhotos photos={savedPhotos} />
+            <SavedPhotos
+              photos={keptPhotos ?? []}
+              onRemove={isDisabled ? undefined : onRemovePhoto}
+            />
+            {isKeptEmpty ? (
+              <p className="border-warning bg-warning/10 rounded-control border px-2 py-1 text-body">
+                Album harus punya minimal satu foto. Tambahkan foto baru atau
+                batalkan perubahan.
+              </p>
+            ) : null}
             {status}
             <div className="flex flex-col items-start gap-1.5">
               <Button
@@ -74,8 +99,8 @@ export const PhotosSection = (props: PropTypes) => {
                 Ganti semua foto
               </Button>
               <p className="text-muted-foreground text-caption">
-                Foto tersimpan tidak bisa diubah satu per satu. Untuk mengganti
-                foto atau centang website, pilih ulang semua foto.
+                Buang satu foto dengan tombol ×, atau ganti seluruhnya. Foto
+                yang dipertahankan tidak perlu diunggah ulang.
               </p>
             </div>
           </>

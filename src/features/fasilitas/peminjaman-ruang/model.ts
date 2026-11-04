@@ -130,6 +130,10 @@ export const loanFormSchema = z
     const issue = (path: string, message: string) =>
       ctx.addIssue({ code: "custom", path: [path], message });
 
+    // R-03 (2026-11-04): the server refuses a past date; say so here before
+    // the request is sent.
+    if (values.date && values.date < todayJakarta())
+      issue("date", "Tanggal tidak boleh sebelum hari ini");
     if (
       values.startTime &&
       values.endTime &&

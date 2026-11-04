@@ -165,7 +165,7 @@ export const RuangDetailScreen = (props: PropTypes) => {
           className="flex-[999_1_32rem] px-gutter py-4"
         >
           <h2 className={HEADING}>Pemakaian 30 hari ke depan</h2>
-          <UsageList code={room.code} />
+          <UsageList code={room.code} roomId={room.id} />
         </Panel>
       </div>
     </div>

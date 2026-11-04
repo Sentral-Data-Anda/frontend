@@ -227,6 +227,33 @@ export const toEventForm = (event: ChurchEvent): EventFormValues => ({
   isPublish: flagOf(event.isPublish),
 });
 
+/**
+ * Whether an edit moves the event's time or place (G-03). A description or
+ * capacity change is not a move, and does not need a warning.
+ */
+export const movesEvent = (
+  values: EventFormValues,
+  event: ChurchEvent,
+): boolean => {
+  const isIndoor = values.isIndoor === "1";
+  const placeChanged = isIndoor
+    ? values.roomId !== (event.room ? String(event.room.id) : "")
+    : values.location.trim() !== (event.location ?? "");
+
+  return (
+    values.startDate !== toDateInput(event.startDate) ||
+    values.endDate !== toDateInput(event.endDate) ||
+    values.startTime !== (event.startTime ?? "") ||
+    values.endTime !== (event.endTime ?? "") ||
+    isIndoor !== event.isIndoor ||
+    placeChanged
+  );
+};
+
+/** The confirmation line shown before saving a move (G-03). */
+export const moveWarningOf = (count: number) =>
+  `Event ini punya ${count} pendaftar. Mereka tidak diberi tahu otomatis, dan perubahan dalam 24 jam terakhir sebelum acara akan ditolak.`;
+
 export function toEventFormData(values: EventFormValues): FormData {
   const isIndoor = values.isIndoor === "1";
   const isPaid = values.isPaid === "1";
