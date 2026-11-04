@@ -22,7 +22,12 @@ import { SHOW_DUMMY } from "./fixtures";
 import { formatLongDate, greetingOf, toDateKey } from "./model";
 import { NotificationBell } from "./ui/notification-bell";
 import { ViewPicker } from "./ui/view-picker";
-import { saveDashboardView, type DashboardView } from "./view";
+import {
+  KPI_GROUPS,
+  saveDashboardView,
+  viewOfRole,
+  type DashboardView,
+} from "./view";
 import { selectWidgets } from "./widgets/registry";
 
 interface PropTypes {
@@ -34,10 +39,16 @@ export const HomeScreen = (props: PropTypes) => {
 
   const session = useSession();
   const ibadahAccess = useMenuAccess(MENU.IBADAH);
+  const isAdmin = session.roleUser.isAdmin;
+  const roleView = viewOfRole(session.roleUser.dashboardView ?? "UMUM");
   const [pickView, setPickView] = useState<DashboardView | undefined>(
-    defaultView,
+    defaultView ?? roleView,
   );
-  const widgets = selectWidgets(session.menu, undefined, undefined, pickView);
+  const view = isAdmin ? (pickView ?? roleView) : roleView;
+  const widgets = selectWidgets(session.menu, undefined, undefined, view, {
+    isViewLocked: !isAdmin,
+    isPelayan: session.isPelayan ?? false,
+  });
 
   const now = new Date();
   const ibadah = useIbadahByDate(toDateKey(now), ibadahAccess.isCanView);
@@ -75,8 +86,9 @@ export const HomeScreen = (props: PropTypes) => {
         picker={
           <ViewPicker
             value={widgets.view}
-            groups={widgets.groups}
+            groups={isAdmin ? KPI_GROUPS : widgets.groups}
             onPick={onPickView}
+            isAdmin={isAdmin}
           />
         }
         trailing={bell}

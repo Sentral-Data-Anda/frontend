@@ -1,6 +1,7 @@
 import type { SelectOption } from "@/components/common/control";
 import {
   STATUS_JEMAAT_LABEL,
+  TYPE_JEMAAT_LABEL,
   type BloodType,
   type Gender,
   type LastEducation,
@@ -52,12 +53,10 @@ export const STATUS_JEMAAT_OPTIONS: SelectOption[] = [
   { label: STATUS_JEMAAT_LABEL.TIDAK_AKTIF, value: "TIDAK_AKTIF" },
 ];
 
-// Siapa yang belum masuk kartu keluarga. Wilayah dan nama keluarga diturunkan
-// dari KK, jadi yang belum masuk tidak terhitung di mana pun.
-export const HOUSEHOLD_OPTIONS: SelectOption[] = [
+export const TYPE_JEMAAT_OPTIONS: SelectOption[] = [
   { label: "Semua", value: "" },
-  { label: "Belum masuk keluarga", value: "none" },
-  { label: "Sudah masuk keluarga", value: "any" },
+  { label: TYPE_JEMAAT_LABEL.ANGGOTA, value: "ANGGOTA" },
+  { label: TYPE_JEMAAT_LABEL.SIMPATISAN, value: "SIMPATISAN" },
 ];
 
 export type JemaatAdditional = {

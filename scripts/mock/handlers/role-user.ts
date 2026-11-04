@@ -22,6 +22,7 @@ type Row = {
   publicId: string;
   name: string;
   isAdmin: boolean;
+  dashboardView: "UMUM" | "KEUANGAN";
   grants: Grants;
   userCount: number;
 };
@@ -29,6 +30,7 @@ type Row = {
 type Body = {
   name?: string;
   isAdmin?: boolean;
+  dashboardView?: "UMUM" | "KEUANGAN";
   menuAccess?: { slug: string; actions: MenuAction[] }[];
 };
 
@@ -98,6 +100,7 @@ const rows: Row[] = [...ROLE_USERS]
       publicId: `role-${id}`,
       name,
       isAdmin: persona?.isAdmin ?? false,
+      dashboardView: persona?.dashboardView ?? "UMUM",
       grants: persona?.isAdmin ? {} : toGrants(persona?.grants ?? null),
       userCount: USER_COUNT[id] ?? 0,
     };
@@ -304,6 +307,7 @@ export const roleUserMock: MockHandler = async ({
       publicId: `role-${id}`,
       name: (body.name ?? "").trim(),
       isAdmin: body.isAdmin ?? false,
+      dashboardView: body.dashboardView ?? "UMUM",
       grants: toRowGrants(body),
       userCount: 0,
     };
@@ -340,6 +344,7 @@ export const roleUserMock: MockHandler = async ({
 
     row.name = (body.name ?? "").trim();
     row.isAdmin = body.isAdmin ?? false;
+    row.dashboardView = body.dashboardView ?? row.dashboardView;
     row.grants = toRowGrants(body);
 
     return json({

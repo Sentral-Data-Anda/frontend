@@ -7,13 +7,13 @@ import { useMenuAccess } from "@/features/auth";
 import { useListParams, type ListFilterSchema } from "@/hooks/use-list-params";
 
 import { useJemaatList, useZoneFilterOptions } from "../api";
-import { HOUSEHOLD_OPTIONS, STATUS_JEMAAT_OPTIONS } from "../types";
+import { STATUS_JEMAAT_OPTIONS, TYPE_JEMAAT_OPTIONS } from "../types";
 
 import { JemaatListItemRow, jemaatTable } from "./list-item";
 
 const LIST_FILTERS = {
   wilayah: { api: "zone" },
-  keluarga: { api: "household" },
+  tipe: { api: "type" },
 } satisfies ListFilterSchema;
 
 export const JemaatListScreen = () => {
@@ -61,10 +61,10 @@ export const JemaatListScreen = () => {
             options: STATUS_JEMAAT_OPTIONS,
           },
           {
-            key: "keluarga",
-            label: "Keluarga",
+            key: "tipe",
+            label: "Tipe jemaat",
             kind: "choice",
-            options: HOUSEHOLD_OPTIONS,
+            options: TYPE_JEMAAT_OPTIONS,
           },
         ]}
       />

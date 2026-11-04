@@ -16,6 +16,11 @@ export const VIEW_LABEL: Record<DashboardView, string> = {
   umum: "Umum",
 };
 
+/** The stored role value, mapped to the view the widgets already speak. */
+export const viewOfRole = (
+  dashboardView: "UMUM" | "KEUANGAN",
+): DashboardView => (dashboardView === "KEUANGAN" ? "finance" : "umum");
+
 export const readDashboardView = (
   value: string | undefined,
 ): DashboardView | undefined =>

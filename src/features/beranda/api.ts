@@ -392,6 +392,28 @@ export function useJemaatStats() {
   });
 }
 
+export type DashboardBirthday = BirthdayItem & { dayKey: string };
+
+export type DashboardUmum = {
+  range: { from: string; to: string };
+  jemaat: { total: number; member: number };
+  ibadah: IbadahWeekItem[];
+  events: EventItem[];
+  loans: LoanRoomItem[];
+  birthdays: DashboardBirthday[];
+};
+
+export function useDashboardUmum(start: string, end: string) {
+  return useQuery({
+    queryKey: ["dashboard", "umum", start, end],
+    queryFn: () =>
+      fetchOne<DashboardUmum>(
+        `/dashboard/umum?startDate=${start}&endDate=${end}`,
+      ),
+    select: (response) => response.data,
+  });
+}
+
 export type TugasSayaItem = {
   date: string;
   startTime: string;

@@ -14,12 +14,35 @@ describe("ViewPicker", () => {
     expect(container.innerHTML).toBe("");
   });
 
+  test("admin tetap melihat pemilih walau hanya satu grup", () => {
+    render(
+      <ViewPicker value="umum" groups={["umum"]} onPick={() => {}} isAdmin />,
+    );
+
+    expect(
+      screen.getByRole("button", { name: "Tampilan dashboard: Umum" }),
+    ).toBeTruthy();
+  });
+
+  test("non-admin tidak mendapat pemilih walau punya dua grup", () => {
+    const { container } = render(
+      <ViewPicker
+        value="umum"
+        groups={["finance", "umum"]}
+        onPick={() => {}}
+      />,
+    );
+
+    expect(container.innerHTML).toBe("");
+  });
+
   test("pemicunya menyebut tampilan yang sedang aktif", () => {
     render(
       <ViewPicker
         value="finance"
         groups={["finance", "umum"]}
         onPick={() => {}}
+        isAdmin
       />,
     );
 
@@ -38,6 +61,7 @@ describe("ViewPicker", () => {
         value="umum"
         groups={["finance", "umum"]}
         onPick={(view) => dipilih.push(view)}
+        isAdmin
       />,
     );
 

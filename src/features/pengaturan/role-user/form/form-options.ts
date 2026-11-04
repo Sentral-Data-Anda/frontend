@@ -10,6 +10,11 @@ export type RoleUserForm = UseFormReturn<RoleUserFormValues>;
 
 export const ADMIN_OPTIONS = optionsOf(ADMIN_LABEL);
 
+export const DASHBOARD_OPTIONS = [
+  { value: "UMUM", label: "Umum" },
+  { value: "KEUANGAN", label: "Keuangan" },
+];
+
 export const NOT_HELD_HINT = "Anda tidak memegang izin ini";
 
 export type OnPickAction = (

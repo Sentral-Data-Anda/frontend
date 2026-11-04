@@ -2,8 +2,11 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, expect, test } from "bun:test";
 
+import { MENU } from "@/config/menu";
+import { SessionProvider, type Session } from "@/features/auth";
+
 import type { LoanRoomItem } from "../../api";
-import { addDaysKey, toDateKey } from "../../model";
+import { addDaysKey, toDateKey, weekKeys } from "../../model";
 
 import { KpiTodayLoans } from "./kpi-today-loans";
 import { LoanRoomsWidget } from "./loan-rooms-widget";
@@ -22,17 +25,39 @@ const loan = (offset: number, purpose: string): LoanRoomItem => ({
   jemaat: { name: "Sari Lubis" },
 });
 
+const SESSION: Session = {
+  code: "U1",
+  username: "u1",
+  status: "ACTIVE",
+  roleUser: { name: "Sekretariat", isAdmin: false },
+  jemaat: { name: "Maria" },
+  menu: [
+    {
+      publicId: "loan",
+      slug: MENU.PEMINJAMAN_RUANG,
+      name: "Peminjaman Ruangan",
+      order: 1,
+      action: ["VIEW"],
+      children: [],
+    },
+  ],
+};
+
 const renderWith = (items: LoanRoomItem[]) => {
   const client = new QueryClient({
     defaultOptions: { queries: { staleTime: Infinity, retry: false } },
   });
-  const query = `startDate=${today}&endDate=${addDaysKey(today, 6)}&limit=100`;
-  client.setQueryData(["loan-room", "list", query], { data: items });
+  const days = weekKeys(new Date());
+  client.setQueryData(["dashboard", "umum", days[0], days[6]], {
+    data: { loans: items },
+  });
 
   return render(
     <QueryClientProvider client={client}>
-      <KpiTodayLoans />
-      <LoanRoomsWidget />
+      <SessionProvider session={SESSION}>
+        <KpiTodayLoans />
+        <LoanRoomsWidget />
+      </SessionProvider>
     </QueryClientProvider>,
   );
 };

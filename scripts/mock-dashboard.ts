@@ -20,6 +20,7 @@ export type Persona = {
   roleName: string;
   isAdmin: boolean;
   jemaatName: string;
+  dashboardView?: "UMUM" | "KEUANGAN";
   /** null = semua layar, semua aksi. */
   grants: Partial<Record<MenuSlug, Action[]>> | null;
 };
@@ -156,6 +157,7 @@ export const PERSONAS: Record<string, Persona> = {
     roleName: "Bendahara",
     isAdmin: false,
     jemaatName: "Maria Hutapea",
+    dashboardView: "KEUANGAN",
     grants: {
       [MENU.PERSEMBAHAN]: PERSEMBAHAN_ACTIONS,
       [MENU.KAS_MASUK]: KEJEMAATAN_ACTIONS,

@@ -26,6 +26,7 @@ export const roleUserFormSchema = z
       .min(4, "Nama role minimal 4 karakter")
       .max(25, "Nama role maksimal 25 karakter"),
     isAdmin: z.enum(["true", "false"]),
+    dashboardView: z.enum(["UMUM", "KEUANGAN"]).default("UMUM"),
     access: z.record(z.string(), z.array(z.enum(MENU_ACTIONS))),
   })
   .superRefine((values, ctx) => {
@@ -45,6 +46,7 @@ export type Access = RoleUserFormValues["access"];
 export const EMPTY_ROLE_USER_FORM: RoleUserFormValues = {
   name: "",
   isAdmin: "false",
+  dashboardView: "UMUM",
   access: {},
 };
 
@@ -171,6 +173,7 @@ export function toRoleUserForm(detail: RoleUserDetail): RoleUserFormValues {
   return {
     name: detail.name,
     isAdmin: detail.isAdmin ? "true" : "false",
+    dashboardView: detail.dashboardView ?? "UMUM",
     access: detail.menuAccess.reduce<Access>(
       (access, { action, menu }) =>
         withMenu(access, menu.slug, [...(access[menu.slug] ?? []), action]),
@@ -182,11 +185,17 @@ export function toRoleUserForm(detail: RoleUserDetail): RoleUserFormValues {
 export function toRoleUserPayload(values: RoleUserFormValues): RoleUserPayload {
   const name = values.name.trim();
 
-  if (values.isAdmin === "true") return { name, isAdmin: true };
+  if (values.isAdmin === "true")
+    return {
+      name,
+      isAdmin: true,
+      dashboardView: values.dashboardView ?? "UMUM",
+    };
 
   return {
     name,
     isAdmin: false,
+    dashboardView: values.dashboardView ?? "UMUM",
     menuAccess: Object.entries(values.access).map(([slug, actions]) => ({
       slug,
       actions,

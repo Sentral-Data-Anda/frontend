@@ -44,6 +44,7 @@ export type Widget = {
   slot: WidgetSlot;
   gate: readonly WidgetGate[];
   gateAny?: readonly WidgetGate[];
+  requiresPelayan?: boolean;
   group?: KpiGroup;
   kind?: KpiGroup;
   isDummy?: boolean;
@@ -87,35 +88,35 @@ export const WIDGETS: readonly Widget[] = [
     id: "kpi-jemaat-total",
     slot: "kpi",
     group: "umum",
-    gate: [view(MENU.REPORT_JEMAAT)],
+    gate: [],
     Component: KpiJemaatTotal,
   },
   {
     id: "kpi-services-week",
     slot: "kpi",
     group: "umum",
-    gate: [view(MENU.IBADAH)],
+    gate: [],
     Component: KpiServicesWeek,
   },
   {
     id: "kpi-events-fortnight",
     slot: "kpi",
     group: "umum",
-    gate: [view(MENU.EVENT)],
+    gate: [],
     Component: KpiEventsFortnight,
   },
   {
     id: "kpi-birthdays",
     slot: "kpi",
     group: "umum",
-    gate: [view(MENU.REPORT_JEMAAT)],
+    gate: [],
     Component: KpiBirthdays,
   },
   {
     id: "kpi-today-loans",
     slot: "kpi",
     group: "umum",
-    gate: [view(MENU.PEMINJAMAN_RUANG)],
+    gate: [],
     Component: KpiTodayLoans,
   },
 
@@ -159,7 +160,7 @@ export const WIDGETS: readonly Widget[] = [
     id: "agenda-week",
     slot: "main",
     kind: "umum",
-    gate: [view(MENU.IBADAH)],
+    gate: [],
     Component: AgendaWeekWidget,
   },
 
@@ -192,13 +193,14 @@ export const WIDGETS: readonly Widget[] = [
     slot: "side",
     kind: "umum",
     gate: [],
+    requiresPelayan: true,
     Component: TugasSayaWidget,
   },
   {
     id: "loan-rooms",
     slot: "side",
     kind: "umum",
-    gate: [view(MENU.PEMINJAMAN_RUANG)],
+    gate: [],
     Component: LoanRoomsWidget,
   },
   {
@@ -211,7 +213,7 @@ export const WIDGETS: readonly Widget[] = [
     id: "jemaat",
     slot: "side",
     kind: "umum",
-    gate: [view(MENU.REPORT_JEMAAT)],
+    gate: [],
     Component: JemaatWidget,
   },
 ];
@@ -221,15 +223,23 @@ export const MAX_KPI = 5;
 export const isGranted = (menu: MenuNode[], { slug, action }: WidgetGate) =>
   findMenuNode(menu, slug)?.action.includes(action) ?? false;
 
+export type SelectWidgetOptions = {
+  /** The role fixed the view; the user has no picker to override it. */
+  isViewLocked?: boolean;
+  isPelayan?: boolean;
+};
+
 export function selectWidgets(
   menu: MenuNode[],
   widgets: readonly Widget[] = WIDGETS,
   isDummyShown: boolean = SHOW_DUMMY,
   view?: DashboardView,
+  options: SelectWidgetOptions = {},
 ) {
   const allowed = widgets.filter(
     (widget) =>
       (isDummyShown || !widget.isDummy) &&
+      (!widget.requiresPelayan || options.isPelayan === true) &&
       widget.gate.every((gate) => isGranted(menu, gate)) &&
       (!widget.gateAny || widget.gateAny.some((gate) => isGranted(menu, gate))),
   );
@@ -244,8 +254,11 @@ export function selectWidgets(
   const dominant: KpiGroup =
     finance.length > 0 && finance.length >= umum.length ? "finance" : "umum";
 
-  const kind: DashboardView =
-    isViewPickable(groups) && view && groups.includes(view) ? view : dominant;
+  const kind: DashboardView = options.isViewLocked
+    ? (view ?? dominant)
+    : isViewPickable(groups) && view && groups.includes(view)
+      ? view
+      : dominant;
 
   const of = (slot: WidgetSlot) =>
     allowed.filter((w) => w.slot === slot && (!w.kind || w.kind === kind));

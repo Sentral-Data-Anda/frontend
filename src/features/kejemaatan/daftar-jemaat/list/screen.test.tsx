@@ -1,6 +1,6 @@
 import { Toast } from "@base-ui/react/toast";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import {
   afterAll,
   afterEach,
@@ -72,49 +72,54 @@ const onRender = (granted: MenuAction[], query = "") => {
   );
 };
 
-// The jemaat list is the worklist for filling households in: a jemaat outside
-// one is counted by no wilayah and carries no family name, so the screen has to
-// be able to show exactly who is left.
-describe("filter keluarga di daftar jemaat", () => {
-  test("tanpa filter: tidak menyebut household sama sekali", async () => {
+describe("filter tipe jemaat di daftar jemaat", () => {
+  test("tanpa filter: tidak menyebut type sama sekali", async () => {
     onRender(["VIEW"]);
 
     expect(await screen.findByText("Tidak ada jemaat")).toBeTruthy();
     expect(urls[0]).toBe("/api/v1/jemaat?page=1&limit=10");
   });
 
-  test("keluarga=none dari URL → household=none", async () => {
-    onRender(["VIEW"], "keluarga=none");
+  test("tipe=ANGGOTA dari URL → type=ANGGOTA", async () => {
+    onRender(["VIEW"], "tipe=ANGGOTA");
 
     expect(await screen.findByText("Tidak ada jemaat")).toBeTruthy();
-    expect(urls[0]).toBe("/api/v1/jemaat?page=1&limit=10&household=none");
+    expect(urls[0]).toBe("/api/v1/jemaat?page=1&limit=10&type=ANGGOTA");
   });
 
-  test("keluarga=any dari URL → household=any", async () => {
-    onRender(["VIEW"], "keluarga=any");
+  test("tipe=SIMPATISAN dari URL → type=SIMPATISAN", async () => {
+    onRender(["VIEW"], "tipe=SIMPATISAN");
 
     expect(await screen.findByText("Tidak ada jemaat")).toBeTruthy();
-    expect(urls[0]).toBe("/api/v1/jemaat?page=1&limit=10&household=any");
+    expect(urls[0]).toBe("/api/v1/jemaat?page=1&limit=10&type=SIMPATISAN");
   });
 
-  // Placing people is done per wilayah in practice, so the two filters have to
-  // survive each other.
+  // Wilayah dan tipe dipakai bersama untuk menyaring daftar yang sama.
   test("bersama filter wilayah, keduanya terkirim", async () => {
-    onRender(["VIEW"], "keluarga=none&wilayah=3");
+    onRender(["VIEW"], "tipe=ANGGOTA&wilayah=3");
 
     expect(await screen.findByText("Tidak ada jemaat")).toBeTruthy();
-    expect(urls[0]).toBe(
-      "/api/v1/jemaat?page=1&limit=10&zone=3&household=none",
-    );
+    expect(urls[0]).toBe("/api/v1/jemaat?page=1&limit=10&zone=3&type=ANGGOTA");
   });
 
   test("filter aktif menawarkan jalan keluar, bukan jalan buntu", async () => {
-    onRender(["VIEW"], "keluarga=none");
+    onRender(["VIEW"], "tipe=ANGGOTA");
 
     expect(
       await screen.findByText(
         "Tidak ada jemaat yang cocok dengan pencarian atau filter ini.",
       ),
     ).toBeTruthy();
+  });
+
+  test("panel filter menawarkan Anggota dan Simpatisan, bukan Keluarga", async () => {
+    onRender(["VIEW"]);
+
+    await screen.findByText("Tidak ada jemaat");
+    fireEvent.click(screen.getByRole("button", { name: "Filter" }));
+
+    expect(await screen.findByRole("radio", { name: "Anggota" })).toBeTruthy();
+    expect(screen.getByRole("radio", { name: "Simpatisan" })).toBeTruthy();
+    expect(screen.queryByRole("radio", { name: /keluarga/i })).toBeNull();
   });
 });

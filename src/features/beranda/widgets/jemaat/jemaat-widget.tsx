@@ -10,6 +10,7 @@ import {
 import { Badge } from "@/components/common/display";
 import { EmptyState } from "@/components/common/feedback";
 import { MENU, menuHref } from "@/config/menu";
+import { useMenuAccess } from "@/features/auth";
 
 import { DUMMY_NEW_MEMBERS, SHOW_DUMMY } from "../../fixtures";
 import { formatDayMonth, formatWeekdayShort } from "../../model";
@@ -71,13 +72,14 @@ const NewMembers = () => (
 
 export const JemaatWidget = () => {
   const { days, query } = useWeekBirthdays();
+  const access = useMenuAccess(MENU.REPORT_JEMAAT);
   const birthdays = <Birthdays days={days} items={query.data} />;
 
   return (
     <DashboardCard
       title="Jemaat"
-      actionLabel="Semua"
-      actionHref={REPORT_JEMAAT_HREF}
+      actionLabel={access.isCanView ? "Semua" : undefined}
+      actionHref={access.isCanView ? REPORT_JEMAAT_HREF : undefined}
       query={query}
       minHeight="min-h-32"
     >

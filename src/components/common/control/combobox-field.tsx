@@ -197,7 +197,7 @@ export const ComboboxField = (props: PropTypes) => {
       <Combobox.InputGroup
         className={cn(
           inputVariants({ variant: "outline" }),
-          "relative flex items-center p-0 focus-within:border-primary has-disabled:cursor-not-allowed has-disabled:bg-primary-100 has-disabled:opacity-50 has-aria-invalid:border-destructive has-aria-invalid:bg-destructive/10 has-aria-invalid:focus-within:border-destructive has-aria-invalid:focus-within:ring-2 has-aria-invalid:focus-within:ring-ring",
+          "relative flex items-center p-0 hover:bg-accent focus-within:border-primary has-disabled:cursor-not-allowed has-disabled:bg-primary-100 has-disabled:hover:bg-primary-100 has-disabled:opacity-50 has-aria-invalid:border-destructive has-aria-invalid:bg-destructive/10 has-aria-invalid:hover:bg-destructive/10 has-aria-invalid:focus-within:border-destructive has-aria-invalid:focus-within:ring-2 has-aria-invalid:focus-within:ring-ring",
           className,
         )}
       >
@@ -214,7 +214,7 @@ export const ComboboxField = (props: PropTypes) => {
             <Combobox.Clear
               disabled={isOff}
               aria-label="Kosongkan pilihan"
-              className="flex size-control cursor-pointer items-center justify-center rounded-control hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+              className="flex size-control cursor-pointer items-center justify-center rounded-control hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
             >
               <X className="size-3.5" aria-hidden />
             </Combobox.Clear>
@@ -223,7 +223,7 @@ export const ComboboxField = (props: PropTypes) => {
           <Combobox.Trigger
             disabled={isOff}
             aria-label="Buka pilihan"
-            className="flex size-control cursor-pointer items-center justify-center rounded-control hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+            className="flex size-control cursor-pointer items-center justify-center rounded-control hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
           >
             <ChevronDown className="size-3.5" aria-hidden />
           </Combobox.Trigger>

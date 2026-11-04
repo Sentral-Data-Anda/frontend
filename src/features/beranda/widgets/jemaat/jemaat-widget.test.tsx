@@ -2,6 +2,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, expect, mock, test } from "bun:test";
 
+import { MENU } from "@/config/menu";
+import { SessionProvider, type Session } from "@/features/auth";
+
 import { weekKeys } from "../../model";
 
 const NEW_MEMBERS = [
@@ -32,27 +35,46 @@ afterEach(() => {
 
 const days = weekKeys(new Date());
 
+const SESSION: Session = {
+  code: "U1",
+  username: "u1",
+  status: "ACTIVE",
+  roleUser: { name: "Sekretariat", isAdmin: false },
+  jemaat: { name: "Maria" },
+  menu: [
+    {
+      publicId: "report",
+      slug: MENU.REPORT_JEMAAT,
+      name: "Laporan Jemaat",
+      order: 1,
+      action: ["VIEW"],
+      children: [],
+    },
+  ],
+};
+
 const renderWidget = (names: string[]) => {
   const client = new QueryClient({
     defaultOptions: { queries: { staleTime: Infinity, retry: false } },
   });
 
-  for (const month of [
-    ...new Set(days.map((day) => Number(day.slice(5, 7)))),
-  ]) {
-    const data = names
-      .map((name, index) => ({
-        name,
-        birthDate: `1990-${days[index].slice(5)}`,
-      }))
-      .filter((item) => Number(item.birthDate.slice(5, 7)) === month);
+  const birthdays = names.map((name, index) => ({
+    name,
+    gender: "P" as const,
+    birthDate: `1990-${days[index].slice(5)}T00:00:00.000Z`,
+    dayKey: days[index].slice(5),
+    umur: 36,
+  }));
 
-    client.setQueryData(["report", "birth", month], { data });
-  }
+  client.setQueryData(["dashboard", "umum", days[0], days[6]], {
+    data: { birthdays },
+  });
 
   return render(
     <QueryClientProvider client={client}>
-      <JemaatWidget />
+      <SessionProvider session={SESSION}>
+        <JemaatWidget />
+      </SessionProvider>
     </QueryClientProvider>,
   );
 };
