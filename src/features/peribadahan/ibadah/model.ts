@@ -208,7 +208,10 @@ export const toIbadahPayload = (values: IbadahFormValues): IbadahPayload => {
     hostKeluargaId: isHome(values) ? toId(values.hostKeluargaId) : null,
     placeName: isOther(values) ? emptyToNull(values.placeName) : null,
     address: isChurch ? null : emptyToNull(values.address),
-    zoneChurchId: isHome(values) ? toId(values.zoneChurchId) : null,
+    // LAINNYA may carry a wilayah too: two wilayahs holding a service at the
+    // same time in the same rented hall are two rows, and the duplicate key
+    // includes the wilayah (I-01). A church building stays without one.
+    zoneChurchId: isChurch ? null : toId(values.zoneChurchId),
     roomId: isChurch ? toId(values.roomId) : null,
     bapelId: toId(values.bapelId),
     jadwalPelayanId: toId(values.jadwalPelayanId),
@@ -255,9 +258,9 @@ export const toIbadahCopy = (
   endTime: source.endTime ?? "",
   placeType: source.placeType,
   zoneChurchId:
-    source.placeType === "RUMAH_JEMAAT"
-      ? keptOf(idOf(source.zoneChurch), activeZoneIds)
-      : "",
+    source.placeType === "GEREJA"
+      ? ""
+      : keptOf(idOf(source.zoneChurch), activeZoneIds),
   roomId: source.placeType === "GEREJA" ? idOf(source.room) : "",
   placeName: isOther(source) ? (source.placeName ?? "") : "",
   address: isOther(source) ? (source.address ?? "") : "",
@@ -315,9 +318,32 @@ export function serverFieldError(
   typeName: string,
 ): { field: keyof IbadahFormValues | "root"; message: string } | null {
   if (/sudah tercatat/i.test(message)) {
+    // The server only suggests filling in the wilayah when the place can have
+    // one; saying "wilayah" for a church service would point at a field the
+    // form does not show (I-01).
     return {
       field: "startTime",
-      message: `${typeName} pada tanggal, jam, dan wilayah ini sudah tercatat. Ubah jam mulai atau wilayah, atau buka data yang sudah ada dari daftar.`,
+      message: /isi wilayah/i.test(message)
+        ? `${typeName} pada tanggal, jam, dan wilayah ini sudah tercatat. Ubah jam mulai atau wilayah, atau buka data yang sudah ada dari daftar.`
+        : `${typeName} pada tanggal dan jam ini sudah tercatat. Ubah jam mulai, atau buka data yang sudah ada dari daftar.`,
+    };
+  }
+  if (
+    /wilayah ibadah .* berbeda dengan wilayah keluarga tuan rumah/i.test(
+      message,
+    )
+  ) {
+    return {
+      field: "zoneChurchId",
+      message:
+        "Wilayah ibadah harus sama dengan wilayah keluarga tuan rumah. Samakan salah satunya.",
+    };
+  }
+  if (/sudah memiliki \d+ data persembahan/i.test(message)) {
+    return {
+      field: "date",
+      message:
+        "Ibadah ini sudah punya data persembahan, jadi tanggal, jam, tipe, dan wilayahnya tidak bisa diubah. Buat ibadah baru, atau ubah tema dan hitungan hadir saja.",
     };
   }
   if (/^tipe ibadah tersebut sudah tidak aktif/i.test(message)) {

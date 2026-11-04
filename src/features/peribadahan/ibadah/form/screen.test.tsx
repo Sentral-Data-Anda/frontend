@@ -675,6 +675,7 @@ describe("tempat", () => {
 
     fireEvent.click(screen.getByLabelText("Lainnya"));
     expect(screen.queryByLabelText("Ruang")).toBeNull();
+    expect(screen.getByLabelText("Wilayah (opsional)")).toBeTruthy();
     fireEvent.change(screen.getByLabelText("Nama tempat"), {
       target: { value: "Aula Kelurahan" },
     });
@@ -682,6 +683,7 @@ describe("tempat", () => {
     expect(screen.getByLabelText("Ruang (opsional)").textContent).toContain(
       "Gedung Gereja",
     );
+    expect(screen.queryByLabelText("Wilayah (opsional)")).toBeNull();
     fireEvent.click(screen.getByLabelText("Lainnya"));
     expect(valueOf("Nama tempat")).toBe("Aula Kelurahan");
 
@@ -857,7 +859,7 @@ describe("tempat", () => {
     expect(valueOf("Tuan rumah")).toBe("Semb");
   });
 
-  test("salin lainnya: nama dan alamat ikut; wilayah tidak ditampilkan dan tidak ikut", async () => {
+  test("salin lainnya: nama dan alamat ikut; wilayah ditampilkan tetapi yang nonaktif tidak ikut", async () => {
     await onRenderCopy(VILLA);
 
     expect(valueOf("Nama tempat")).toBe("Villa Ciater");
@@ -867,7 +869,8 @@ describe("tempat", () => {
     expect(
       screen.queryByText(/sudah nonaktif, jadi tidak ikut disalin/),
     ).toBeNull();
-    expect(screen.queryByLabelText("Wilayah")).toBeNull();
+    expect(zoneText()).toContain("Pilih wilayah");
+    expect(zoneText()).not.toContain("Wilayah V");
   });
 });
 
