@@ -253,6 +253,21 @@ describe("form ubah berpendaftar", () => {
     );
   });
 
+  test("tempat wajib: lokasi dan ruang tidak ditandai opsional", async () => {
+    onMockApi();
+    await onRenderRetret();
+
+    expect(screen.getByLabelText("Lokasi").getAttribute("aria-required")).toBe(
+      "true",
+    );
+    expect(screen.queryByLabelText("Lokasi (opsional)")).toBeNull();
+
+    fireEvent.click(screen.getByRole("radio", { name: "Di gereja" }));
+
+    await waitFor(() => expect(screen.getByLabelText("Ruang")).toBeTruthy());
+    expect(screen.queryByLabelText("Ruang (opsional)")).toBeNull();
+  });
+
   test("hapus event berpendaftar: penolakan server di FormAlert", async () => {
     onMockApi();
     await onRenderRetret(["UPDATE", "DELETE"]);

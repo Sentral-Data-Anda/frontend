@@ -90,6 +90,7 @@ export const RuleSection = (props: PropTypes) => {
                     control={form.control}
                     name={`rules.${index}.dayOfWeek`}
                     label="Hari"
+                    isRequired
                   >
                     {(field) => (
                       <SelectField
@@ -108,6 +109,7 @@ export const RuleSection = (props: PropTypes) => {
                     control={form.control}
                     name={`rules.${index}.date`}
                     label="Tanggal"
+                    isRequired
                   >
                     {(field) => (
                       <DateField
@@ -127,6 +129,7 @@ export const RuleSection = (props: PropTypes) => {
                     control={form.control}
                     name={`rules.${index}.weekOfMonth`}
                     label="Pekan"
+                    isRequired
                   >
                     {(field) => (
                       <SelectField
@@ -146,6 +149,7 @@ export const RuleSection = (props: PropTypes) => {
                       control={form.control}
                       name={`rules.${index}.startTime`}
                       label="Jam mulai"
+                      isRequired
                     >
                       {(field) => (
                         <TimeField
@@ -162,6 +166,7 @@ export const RuleSection = (props: PropTypes) => {
                       control={form.control}
                       name={`rules.${index}.endTime`}
                       label="Jam selesai"
+                      isRequired
                     >
                       {(field) => (
                         <TimeField

@@ -81,11 +81,12 @@ export const RepeatSection = (props: PropTypes) => {
               <CheckboxGroupField
                 id="weekdays"
                 label="Hari"
+                isRequired
                 value={field.value}
                 onValueChange={field.onChange}
                 options={WEEKDAY_OPTIONS}
                 error={fieldState.error?.message}
-                hint="Bisa lebih dari satu, mis. Selasa dan Kamis."
+                hint="Wajib pilih minimal satu. Bisa lebih dari satu, mis. Selasa dan Kamis."
                 disabled={isDisabled}
               />
             )}
@@ -98,6 +99,7 @@ export const RepeatSection = (props: PropTypes) => {
           control={form.control}
           name="until"
           label="Sampai tanggal"
+          isRequired
         >
           {(field) => (
             <DateField

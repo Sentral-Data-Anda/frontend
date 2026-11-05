@@ -72,6 +72,7 @@ export const SettingsSection = (props: PropTypes) => {
         control={form.control}
         name="typeIbadahId"
         label="Tipe ibadah"
+        isRequired
       >
         {(field) => (
           <DdlField
@@ -86,7 +87,12 @@ export const SettingsSection = (props: PropTypes) => {
         )}
       </ControlField>
 
-      <ControlField control={form.control} name="zoneChurchId" label="Wilayah">
+      <ControlField
+        control={form.control}
+        name="zoneChurchId"
+        label="Wilayah"
+        isRequired
+      >
         {(field) => (
           <DdlField
             value={field.value}
@@ -100,7 +106,12 @@ export const SettingsSection = (props: PropTypes) => {
         )}
       </ControlField>
 
-      <ControlField control={form.control} name="startTime" label="Jam mulai">
+      <ControlField
+        control={form.control}
+        name="startTime"
+        label="Jam mulai"
+        isRequired
+      >
         {(field) => (
           <TimeField
             value={field.value}
@@ -112,7 +123,12 @@ export const SettingsSection = (props: PropTypes) => {
         )}
       </ControlField>
 
-      <ControlField control={form.control} name="endTime" label="Jam selesai">
+      <ControlField
+        control={form.control}
+        name="endTime"
+        label="Jam selesai"
+        isOptional
+      >
         {(field) => (
           <TimeField
             value={field.value}
@@ -129,6 +145,7 @@ export const SettingsSection = (props: PropTypes) => {
         control={form.control}
         name="startDate"
         label="Tanggal mulai"
+        isRequired
       >
         {(field) => (
           <DateField
@@ -160,6 +177,7 @@ export const SettingsSection = (props: PropTypes) => {
         name="count"
         label="Jumlah ibadah"
         hint="1 sampai 60."
+        isRequired
       >
         {(field) => (
           <Input

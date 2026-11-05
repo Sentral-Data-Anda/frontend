@@ -354,12 +354,17 @@ describe("ubah", () => {
     await onRenderLoadedEdit();
 
     expect(screen.getByText("Total 371 orang")).toBeTruthy();
+    expect(
+      screen
+        .getByLabelText("Pria (dewasa) (opsional)")
+        .getAttribute("aria-required"),
+    ).toBeNull();
 
-    fireEvent.change(screen.getByLabelText("Anak"), {
+    fireEvent.change(screen.getByLabelText("Anak (opsional)"), {
       target: { value: "1.200" },
     });
 
-    expect(valueOf("Anak")).toBe("1200");
+    expect(valueOf("Anak (opsional)")).toBe("1200");
     expect(screen.getByText("Total 1.522 orang")).toBeTruthy();
   });
 
@@ -577,7 +582,7 @@ describe("layar tambah hasil salin", () => {
     );
     expect(timeOf("Jam selesai")).toBe("09:30");
     expect(valueOf("Tema (opsional)")).toBe("");
-    expect(valueOf("Pria (dewasa)")).toBe("");
+    expect(valueOf("Pria (dewasa) (opsional)")).toBe("");
     expect(screen.getByText("Belum ada yang dicatat.")).toBeTruthy();
 
     fireEvent.click(screen.getByRole("button", { name: "Batal" }));
@@ -857,6 +862,29 @@ describe("tempat", () => {
       await screen.findByRole("option", { name: /Keluarga Sembiring/ }),
     ).toBeTruthy();
     expect(valueOf("Tuan rumah")).toBe("Semb");
+  });
+
+  test("alamat rumah jemaat wajib, alamat tempat lain opsional", async () => {
+    onMockApi();
+    onRenderForm(["VIEW", "UPDATE"], HOME.code);
+    await waitFor(() => expect(valueOf("Alamat")).toBe("Jl. Cijerah No. 1"));
+
+    expect(screen.getByLabelText("Alamat").getAttribute("aria-required")).toBe(
+      "true",
+    );
+    expect(screen.queryByLabelText("Alamat (opsional)")).toBeNull();
+
+    cleanup();
+
+    onMockApi();
+    onRenderForm(["VIEW", "UPDATE"], VILLA.code);
+    await waitFor(() =>
+      expect(valueOf("Alamat (opsional)")).toBe("Jl. Raya Ciater KM 12"),
+    );
+
+    expect(
+      screen.getByLabelText("Alamat (opsional)").getAttribute("aria-required"),
+    ).toBeNull();
   });
 
   test("salin lainnya: nama dan alamat ikut; wilayah ditampilkan tetapi yang nonaktif tidak ikut", async () => {

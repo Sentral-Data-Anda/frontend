@@ -70,7 +70,7 @@ export const EventSection = (props: PropTypes) => {
             <AttachmentField
               id="image"
               label="Foto utama"
-              isRequired
+              isRequired={!isEdit}
               value={field.value}
               onValueChange={field.onChange}
               max={1}
