@@ -73,8 +73,9 @@ export const AnggotaSection = (props: PropTypes) => {
         <FormField
           htmlFor={ADD_ID}
           label="Tambah anggota"
+          isRequired
           error={fieldState.error?.message}
-          hint="Cari jemaat aktif lalu pilih; ulangi untuk anggota berikutnya."
+          hint="Minimal satu anggota untuk kelompok. Cari jemaat aktif lalu pilih; ulangi untuk anggota berikutnya."
         >
           <ComboboxField
             value=""

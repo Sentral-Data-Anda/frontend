@@ -273,6 +273,7 @@ export const PlaceFields = (props: PropTypes) => {
             label="Alamat"
             hint={addressHint}
             isHintWarning={addressStatus === "failed"}
+            isRequired={isHome}
             isOptional={isOther}
           >
             {(field) => <Textarea {...field} maxLength={250} rows={2} />}

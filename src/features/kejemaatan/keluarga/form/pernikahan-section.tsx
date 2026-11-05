@@ -61,6 +61,7 @@ export const PernikahanSection = (props: PropTypes) => {
         control={form.control}
         name="marriage.place"
         label="Tempat pernikahan"
+        isOptional
       >
         {(field) => <Input {...field} maxLength={100} disabled={isDisabled} />}
       </ControlField>
@@ -69,6 +70,7 @@ export const PernikahanSection = (props: PropTypes) => {
         control={form.control}
         name="marriage.certificateNumber"
         label="Nomor surat nikah"
+        isOptional
       >
         {(field) => <Input {...field} maxLength={50} disabled={isDisabled} />}
       </ControlField>

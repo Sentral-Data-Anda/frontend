@@ -248,6 +248,9 @@ describe("pengaturan", () => {
     setTime("Jam mulai", "18:00");
     await onSettings();
 
+    expect(
+      screen.getByLabelText("Jumlah ibadah").getAttribute("aria-required"),
+    ).toBe("true");
     expect(timeOf("Jam mulai")).toBe("18:00");
     expect(valueOf("Tanggal mulai")).toBe(toInputText(START));
   });

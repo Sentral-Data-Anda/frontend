@@ -29,7 +29,7 @@ export const ConductSection = (props: PropTypes) => {
   return (
     <FormSection
       legend="Pelaksanaan"
-      note="Tempat bawaan Gereja. Selain itu semua opsional; bisa dilengkapi nanti."
+      note="Tema, ayat, pengkhotbah, dan catatan boleh dilengkapi nanti. Bila ibadah di rumah jemaat, alamat wajib diisi."
       disabled={isDisabled}
     >
       <ControlField control={form.control} name="theme" label="Tema" isOptional>

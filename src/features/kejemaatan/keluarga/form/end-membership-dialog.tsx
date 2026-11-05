@@ -215,6 +215,7 @@ export const EndMembershipDialog = (props: PropTypes) => {
             control={form.control}
             name="alsoEndPartner"
             label={`Keanggotaan ${partner.name}`}
+            isRequired
           >
             {(field) => (
               <SelectField
@@ -238,6 +239,7 @@ export const EndMembershipDialog = (props: PropTypes) => {
                 control={form.control}
                 name={`childPlacements.${index}.keluargaCode`}
                 label={child.name}
+                isRequired
               >
                 {(field) => (
                   <SelectField

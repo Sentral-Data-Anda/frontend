@@ -48,7 +48,7 @@ export const PlaceSection = (props: PropTypes) => {
           control={form.control}
           name="roomId"
           label="Ruang"
-          isOptional
+          isRequired
           hint="Hanya keterangan tempat. Pesan ruangnya lewat Peminjaman Ruang."
         >
           {(field) => (
@@ -68,7 +68,7 @@ export const PlaceSection = (props: PropTypes) => {
           control={form.control}
           name="location"
           label="Lokasi"
-          isOptional
+          isRequired
           hint="Nama tempat dan kotanya."
         >
           {(field) => <Input {...field} maxLength={100} />}
