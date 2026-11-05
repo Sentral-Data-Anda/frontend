@@ -22,3 +22,12 @@ export function resolveDomain(
     ? { kind: "page", domain }
     : { kind: "redirect", href };
 }
+
+// Domain satu layar mengalihkan ke layarnya, jadi kembali ke `/<domain>` akan
+// memutar balik ke layar yang sama. Induk layar itu Beranda.
+export function resolveBackHref(href: string, menu: MenuNode[]): string {
+  const slug = DOMAIN_SLUGS.find((item) => domainHref(item) === href);
+  const domain = slug ? findMenuNode(menu, slug) : null;
+
+  return domain?.children.length === 1 ? "/" : href;
+}

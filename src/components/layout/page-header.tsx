@@ -1,7 +1,11 @@
+"use client";
+
 import { ArrowLeft, Plus } from "lucide-react";
 import Link from "next/link";
 
 import { buttonVariants } from "@/components/common/control";
+import { resolveBackHref } from "@/config/resolve-domain";
+import { useOptionalSession } from "@/features/auth";
 import { cn } from "@/lib/utils";
 
 export function PageHeader({
@@ -21,6 +25,11 @@ export function PageHeader({
   leading?: React.ReactNode;
   action?: React.ReactNode;
 }) {
+  const session = useOptionalSession();
+  const href = backHref
+    ? resolveBackHref(backHref, session?.menu ?? [])
+    : undefined;
+
   return (
     <header
       className={cn(
@@ -29,9 +38,9 @@ export function PageHeader({
       )}
     >
       <div className={isBackPersistent ? "contents" : "contents lg:hidden"}>
-        {backHref ? (
+        {href ? (
           <Link
-            href={backHref}
+            href={href}
             onClick={onBack}
             aria-label="Kembali"
             className="border-border hover:bg-muted active:bg-accent focus-visible:ring-ring relative flex size-control shrink-0 items-center justify-center rounded-full border transition-colors outline-none after:absolute after:-inset-1.5 focus-visible:ring-2"

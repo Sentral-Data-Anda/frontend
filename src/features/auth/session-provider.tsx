@@ -26,3 +26,9 @@ export function useSession(): Session {
 
   return session;
 }
+
+// Komponen bersama (mis. `PageHeader`) tetap bisa dirender tanpa provider,
+// seperti pada test komponen; pemakai yang butuh sesi tetap memakai useSession.
+export function useOptionalSession(): Session | null {
+  return useContext(SessionContext);
+}
