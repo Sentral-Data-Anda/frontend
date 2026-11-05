@@ -1,8 +1,8 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "bun:test";
 
-import { MENU } from "@/config/menu";
+import { DOMAIN_SLUGS, MENU } from "@/config/menu";
 import { SessionProvider, type Session } from "@/features/auth";
 import type { MenuNode } from "@/types/menu";
 
@@ -70,5 +70,42 @@ describe("saldo rekening di Beranda", () => {
     );
 
     expect(screen.getByText("Saldo Rekening")).toBeTruthy();
+  });
+});
+
+describe("Aksi cepat di Beranda", () => {
+  test("menu yang tidak dipegang tidak tampil", () => {
+    renderHome([node(MENU.KEGIATAN, ["VIEW"])]);
+
+    expect(screen.getByText(MENU.KEGIATAN)).toBeTruthy();
+    expect(screen.queryByText(MENU.SETTINGS)).toBeNull();
+  });
+
+  test("menu yang dipegang di luar daftar Aksi cepat tetap tampil", () => {
+    renderHome([node(MENU.SETTINGS, ["VIEW"])]);
+
+    expect(screen.getByText(MENU.SETTINGS)).toBeTruthy();
+  });
+
+  test("selama belum melebihi batas, tidak ada tautan Tampilkan semua", () => {
+    renderHome([node(MENU.KEGIATAN, ["VIEW"]), node(MENU.FINANCE, ["VIEW"])]);
+
+    expect(screen.queryByRole("link", { name: "Tampilkan semua" })).toBeNull();
+  });
+
+  test("melebihi batas: delapan tile dan tautan Tampilkan semua", () => {
+    renderHome(DOMAIN_SLUGS.map((slug) => node(slug, ["VIEW"])));
+
+    const heading = screen.getByRole("heading", { name: "Aksi cepat" });
+    const section = heading.closest("section") as HTMLElement;
+
+    expect(within(section).getAllByRole("listitem")).toHaveLength(8);
+    expect(screen.getByText(MENU.HR)).toBeTruthy();
+    expect(screen.queryByText(MENU.PERIBADAHAN)).toBeNull();
+    expect(
+      screen
+        .getByRole("link", { name: "Tampilkan semua" })
+        .getAttribute("href"),
+    ).toBe("/modul");
   });
 });

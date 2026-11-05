@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 
 import type { MenuNode } from "@/types/menu";
 
-import { resolveDomain } from "./resolve-domain";
+import { resolveBackHref, resolveDomain } from "./resolve-domain";
 
 const node = (slug: string, children: MenuNode[] = []): MenuNode => ({
   publicId: slug,
@@ -46,5 +46,27 @@ describe("resolveDomain", () => {
       kind: "redirect",
       href: "/peribadahan/ibadah",
     });
+  });
+});
+
+describe("resolveBackHref", () => {
+  test("domain berlayar satu: kembali ke Beranda, bukan ke domain yang berputar", () => {
+    expect(resolveBackHref("/peribadahan", menu)).toBe("/");
+  });
+
+  test("domain berlayar banyak tetap ke halaman domain", () => {
+    expect(resolveBackHref("/kejemaatan", menu)).toBe("/kejemaatan");
+  });
+
+  test("bukan halaman domain: tidak diubah", () => {
+    expect(resolveBackHref("/kejemaatan/daftar-jemaat", menu)).toBe(
+      "/kejemaatan/daftar-jemaat",
+    );
+    expect(resolveBackHref("/", menu)).toBe("/");
+    expect(resolveBackHref("/akun", menu)).toBe("/akun");
+  });
+
+  test("domain di luar menu peran: tidak diubah", () => {
+    expect(resolveBackHref("/keuangan", menu)).toBe("/keuangan");
   });
 });

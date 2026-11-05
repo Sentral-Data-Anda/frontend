@@ -13,13 +13,14 @@ import {
   MobileOnly,
   PageHeader,
 } from "@/components/layout";
-import { BERANDA_SHORTCUTS, MENU } from "@/config/menu";
+import { MENU } from "@/config/menu";
 import { useSession, useMenuAccess } from "@/features/auth";
 import { firstNameOf } from "@/lib/format";
 
 import { useIbadahByDate } from "./api";
 import { SHOW_DUMMY } from "./fixtures";
 import { formatLongDate, greetingOf, toDateKey } from "./model";
+import { pickShortcuts } from "./shortcuts";
 import { NotificationBell } from "./ui/notification-bell";
 import { ViewPicker } from "./ui/view-picker";
 import {
@@ -57,9 +58,7 @@ export const HomeScreen = (props: PropTypes) => {
 
   const serviceCount = ibadahAccess.isCanView ? (ibadah.data?.length ?? 0) : 0;
 
-  const shortcuts = BERANDA_SHORTCUTS.flatMap(
-    (slug) => session.menu.find((domain) => domain.slug === slug) ?? [],
-  );
+  const { domains: shortcuts, isTruncated } = pickShortcuts(session.menu);
 
   const bell = SHOW_DUMMY ? <NotificationBell /> : null;
 
@@ -107,18 +106,20 @@ export const HomeScreen = (props: PropTypes) => {
             ) : null
           }
           between={
-            <MobileOnly>
-              <section className="pt-2">
-                <SectionHeader
-                  title="Aksi cepat"
-                  isTitleHidden
-                  actionLabel="Tampilkan semua"
-                  actionHref="/modul"
-                />
+            shortcuts.length ? (
+              <MobileOnly>
+                <section className="pt-2">
+                  <SectionHeader
+                    title="Aksi cepat"
+                    isTitleHidden
+                    actionLabel={isTruncated ? "Tampilkan semua" : undefined}
+                    actionHref={isTruncated ? "/modul" : undefined}
+                  />
 
-                <DomainTileGrid domains={shortcuts} />
-              </section>
-            </MobileOnly>
+                  <DomainTileGrid domains={shortcuts} />
+                </section>
+              </MobileOnly>
+            ) : null
           }
           main={widgets.main.map(({ id, Component }) => (
             <Component key={id} />
