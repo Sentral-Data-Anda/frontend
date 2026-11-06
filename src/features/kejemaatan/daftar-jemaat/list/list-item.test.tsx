@@ -13,6 +13,7 @@ const JEMAAT: JemaatListItem = {
   id: 1,
   publicId: "11111111-2222-4333-8444-555555555555",
   code: "JMT-0042",
+  codeInduk: "14.01.152",
   name: "Maria Sitompul",
   gender: "P",
   birthDate: "1990-05-12T00:00:00.000Z",
@@ -30,7 +31,7 @@ const onRenderRow = (isCanUpdate: boolean, jemaat: JemaatListItem = JEMAAT) =>
       value={jemaatTable(isCanUpdate).getRowActions?.(jemaat)}
     >
       <ul>
-        <JemaatListItemRow jemaat={jemaat} isCanUpdate={isCanUpdate} />
+        <JemaatListItemRow jemaat={jemaat} />
       </ul>
     </RowActionsProvider>,
   );
@@ -61,22 +62,31 @@ describe("gate aksi Ubah per baris", () => {
 });
 
 describe("penanda kelengkapan", () => {
-  test("baris lengkap tidak menampilkan ikon", () => {
+  test("baris lengkap tidak menyebut kelengkapan di meta", () => {
     onRenderRow(true);
 
+    expect(screen.queryByText(/Belum lengkap/)).toBeNull();
     expect(
       screen.queryByRole("button", { name: /Data belum lengkap/ }),
     ).toBeNull();
   });
 
-  test("baris kurang menampilkan ikon dengan nama field yang kurang", () => {
+  test("baris kurang menempelkan teks, bukan ikon, di samping tipe", () => {
     onRenderRow(true, { ...JEMAAT, missingFields: ["ethnicGroupId"] });
 
-    expect(
-      screen.getByRole("button", {
-        name: "Data belum lengkap: Suku",
-      }),
-    ).toBeTruthy();
+    expect(screen.getByText("/ Belum lengkap")).toBeTruthy();
+    // Tidak ada lagi tombol ikon yang harus ditekan dulu di layar sempit.
+    expect(screen.queryByRole("button", { name: /belum lengkap/i })).toBeNull();
+  });
+
+  test("meta memakai kode induk, dan em dash saat belum diisi", () => {
+    onRenderRow(true);
+    expect(screen.getByText(/14\.01\.152/)).toBeTruthy();
+    expect(screen.queryByText(/JMT-0042/)).toBeNull();
+
+    cleanup();
+    onRenderRow(true, { ...JEMAAT, codeInduk: null });
+    expect(screen.getByText("Tanpa kode induk")).toBeTruthy();
   });
 
   test("garis kiri hanya untuk field wajib simpan, bukan wilayah UNKNOWN", () => {
@@ -89,6 +99,14 @@ describe("penanda kelengkapan", () => {
     cleanup();
     onRenderRow(true, { ...JEMAAT, missingFields: ["address"] });
     expect(rowOf()?.className).toContain("border-l-2");
+  });
+
+  test("kolom tabel memakai Kode Induk, bukan kode internal", () => {
+    const config = jemaatTable(true);
+    const column = config.columns.find((x) => x.key === "codeInduk");
+
+    expect(column?.header).toBe("Kode Induk");
+    expect(config.columns.some((x) => x.key === "code")).toBe(false);
   });
 
   test("rowClassName tabel mengikuti aturan yang sama", () => {

@@ -1,18 +1,11 @@
 "use client";
 
 import { Popover } from "@base-ui/react/popover";
-import { CircleAlert } from "lucide-react";
 import Link from "next/link";
 import { useId } from "react";
 
-import {
-  Button,
-  buttonVariants,
-  FIELD_POPUP,
-} from "@/components/common/control";
-import { BottomSheet } from "@/components/common/overlay";
+import { buttonVariants, FIELD_POPUP } from "@/components/common/control";
 import { useBoolean } from "@/hooks/use-boolean";
-import { useIsTableWidth } from "@/hooks/use-media";
 import { cn } from "@/lib/utils";
 
 import {
@@ -21,126 +14,100 @@ import {
   type MissingFieldKey,
 } from "../completeness";
 
+export const INCOMPLETE_LABEL = "Tidak Lengkap";
+export const COMPLETE_LABEL = "Lengkap";
+
 interface PropTypes {
   missingFields: readonly MissingFieldKey[];
   editHref: string | null;
   onNavigate?: () => void;
-  isCompleteLabelVisible?: boolean;
 }
 
+/**
+ * Sel kolom "Kelengkapan" di tabel. Nilainya cuma dua kata — "Lengkap" atau
+ * "Tidak Lengkap" — supaya kolom bisa dibaca sekilas tanpa menerjemahkan ikon.
+ * Rincian field yang kurang pindah ke tooltip, muncul saat hover, fokus, atau
+ * klik, jadi baris yang sudah lengkap tidak menyisakan apa pun untuk dibuka.
+ *
+ * Versi ringkas untuk layar sempit ada di meta baris (`list-item.tsx`), bukan
+ * di sini: di sana tidak ada kolom, jadi statusnya ikut menempel ke teks tipe.
+ */
 export const CompletenessIndicator = (props: PropTypes) => {
-  const {
-    missingFields,
-    editHref,
-    onNavigate,
-    isCompleteLabelVisible = false,
-  } = props;
+  const { missingFields, editHref, onNavigate } = props;
 
   const isOpen = useBoolean();
-  const isTableWidth = useIsTableWidth();
   const panelId = useId();
-  const labels = missingFieldLabels(missingFields);
-  const summary = labels.join(", ");
-  const triggerLabel = `Data belum lengkap: ${summary}`;
-  const triggerTitle = `Belum lengkap: ${summary}`;
+  const titleId = useId();
 
   if (missingFields.length === 0) {
-    return isCompleteLabelVisible ? (
-      <span className="text-muted-foreground text-caption">Lengkap</span>
-    ) : null;
-  }
-
-  const body = (
-    <>
-      <ul className="mt-2 space-y-1">
-        {missingFields.map((field) => (
-          <li key={field} className="flex items-start gap-2 text-body">
-            <span aria-hidden className="text-warning-foreground">
-              •
-            </span>
-            {MISSING_FIELD_LABEL[field]}
-          </li>
-        ))}
-      </ul>
-
-      {editHref ? (
-        <Link
-          href={editHref}
-          onClick={onNavigate}
-          className={cn(
-            buttonVariants({ variant: "outline", size: "sm" }),
-            "mt-3 w-full",
-          )}
-        >
-          Lengkapi data
-        </Link>
-      ) : null}
-    </>
-  );
-
-  if (isTableWidth === false) {
     return (
-      <>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-sm"
-          aria-label={triggerLabel}
-          aria-haspopup="dialog"
-          aria-expanded={isOpen.value}
-          aria-controls={panelId}
-          title={triggerTitle}
-          onClick={isOpen.onTrue}
-          className="bg-warning text-warning-foreground hover:bg-warning/80 rounded-full"
-        >
-          <CircleAlert aria-hidden />
-        </Button>
-
-        <BottomSheet
-          id={panelId}
-          isOpen={isOpen.value}
-          title="Data belum lengkap"
-          onClose={isOpen.onFalse}
-        >
-          {isOpen.value ? <div className="px-gutter pb-4">{body}</div> : null}
-        </BottomSheet>
-      </>
+      <span className="text-muted-foreground text-caption">
+        {COMPLETE_LABEL}
+      </span>
     );
   }
+
+  const summary = missingFieldLabels(missingFields).join(", ");
 
   return (
     <Popover.Root open={isOpen.value} onOpenChange={isOpen.setValue}>
       <Popover.Trigger
-        render={
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-sm"
-            className="bg-warning text-warning-foreground hover:bg-warning/80 rounded-full"
-          />
-        }
-        aria-label={triggerLabel}
+        openOnHover
+        delay={120}
+        closeDelay={120}
+        aria-label={`${INCOMPLETE_LABEL}: ${summary}`}
         aria-haspopup="dialog"
         aria-controls={isOpen.value ? panelId : undefined}
-        title={triggerTitle}
+        className="text-warning-foreground cursor-help rounded-xs text-caption font-medium underline decoration-dotted underline-offset-4 outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
-        <CircleAlert aria-hidden />
+        {INCOMPLETE_LABEL}
       </Popover.Trigger>
 
       <Popover.Portal>
         <Popover.Positioner
           side="bottom"
-          align="end"
-          sideOffset={4}
+          align="start"
+          sideOffset={6}
           className="z-50 outline-none"
         >
           <Popover.Popup
             id={panelId}
-            aria-label="Data belum lengkap"
-            className={cn(FIELD_POPUP, "w-64 p-4")}
+            aria-labelledby={titleId}
+            className={cn(FIELD_POPUP, "w-60 p-3")}
           >
-            <p className="text-title font-semibold">Data belum lengkap</p>
-            {body}
+            <p
+              id={titleId}
+              className="text-muted-foreground text-caption font-medium"
+            >
+              Data belum lengkap
+            </p>
+
+            <ul className="mt-1.5 space-y-0.5">
+              {missingFields.map((field) => (
+                <li
+                  key={field}
+                  className="flex items-start gap-1.5 text-body leading-snug"
+                >
+                  <span aria-hidden className="text-warning-foreground">
+                    •
+                  </span>
+                  {MISSING_FIELD_LABEL[field]}
+                </li>
+              ))}
+            </ul>
+
+            {editHref ? (
+              <Link
+                href={editHref}
+                onClick={onNavigate}
+                className={cn(
+                  buttonVariants({ variant: "outline", size: "sm" }),
+                  "mt-3 w-full",
+                )}
+              >
+                Lengkapi data
+              </Link>
+            ) : null}
           </Popover.Popup>
         </Popover.Positioner>
       </Popover.Portal>
