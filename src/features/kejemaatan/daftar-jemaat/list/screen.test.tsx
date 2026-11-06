@@ -17,9 +17,14 @@ import { onStubViewport } from "../../../../../tests/viewport";
 
 const actions: { current: MenuAction[] } = { current: [] };
 const search: { current: string } = { current: "" };
+const replaced: string[] = [];
 
 mock.module("next/navigation", () => ({
-  useRouter: () => ({ replace: () => {} }),
+  useRouter: () => ({
+    replace: (href: string) => {
+      replaced.push(href);
+    },
+  }),
   usePathname: () => "/kejemaatan/jemaat",
   useSearchParams: () => new URLSearchParams(search.current),
 }));
@@ -47,16 +52,17 @@ afterEach(() => {
   cleanup();
   globalThis.fetch = originalFetch;
   urls.length = 0;
+  replaced.length = 0;
   search.current = "";
 });
 
-const onRender = (granted: MenuAction[], query = "") => {
+const onRender = (granted: MenuAction[], query = "", totalData = 0) => {
   actions.current = granted;
   search.current = query;
   globalThis.fetch = (async (input: RequestInfo | URL) => {
     urls.push(String(input));
 
-    return Response.json({ status: 200, data: [], totalData: 0 });
+    return Response.json({ status: 200, data: [], totalData });
   }) as unknown as typeof fetch;
 
   return render(
@@ -110,6 +116,50 @@ describe("filter tipe jemaat di daftar jemaat", () => {
         "Tidak ada jemaat yang cocok dengan pencarian atau filter ini.",
       ),
     ).toBeTruthy();
+  });
+
+  test("kelengkapan=true di URL → incomplete=true dan judul belum lengkap", async () => {
+    onRender(["VIEW"], "kelengkapan=true");
+
+    expect(await screen.findByText("Semua jemaat sudah lengkap")).toBeTruthy();
+    expect(urls[0]).toBe("/api/v1/jemaat?page=1&limit=10&incomplete=true");
+  });
+
+  test("kelengkapan bersama filter lain tidak mengklaim semua sudah lengkap", async () => {
+    onRender(["VIEW"], "kelengkapan=true&status=TIDAK_AKTIF");
+
+    expect(await screen.findByText("Tidak ada jemaat")).toBeTruthy();
+    expect(screen.queryByText("Semua jemaat sudah lengkap")).toBeNull();
+  });
+
+  test("judul memakai totalData saat filter kelengkapan aktif", async () => {
+    onRender(["VIEW"], "kelengkapan=true", 3);
+
+    expect(await screen.findByText("3 jemaat belum lengkap")).toBeTruthy();
+  });
+
+  test("filter Kelengkapan tersedia di panel", async () => {
+    onRender(["VIEW"]);
+
+    await screen.findByText("Tidak ada jemaat");
+    fireEvent.click(screen.getByRole("button", { name: "Filter" }));
+
+    expect(
+      await screen.findByRole("radio", { name: "Belum lengkap" }),
+    ).toBeTruthy();
+  });
+
+  test("menerapkan Kelengkapan menulis kelengkapan=true dan membuang halaman", async () => {
+    onRender(["VIEW"], "page=3");
+
+    await screen.findByText("Tidak ada jemaat");
+    fireEvent.click(screen.getByRole("button", { name: "Filter" }));
+    fireEvent.click(
+      await screen.findByRole("radio", { name: "Belum lengkap" }),
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Terapkan" }));
+
+    expect(replaced.at(-1)).toBe("/kejemaatan/jemaat?kelengkapan=true");
   });
 
   test("panel filter menawarkan Anggota dan Simpatisan, bukan Keluarga", async () => {

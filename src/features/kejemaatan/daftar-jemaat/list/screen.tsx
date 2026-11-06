@@ -14,6 +14,7 @@ import { JemaatListItemRow, jemaatTable } from "./list-item";
 const LIST_FILTERS = {
   wilayah: { api: "zone" },
   tipe: { api: "type" },
+  kelengkapan: { api: "incomplete" },
 } satisfies ListFilterSchema;
 
 export const JemaatListScreen = () => {
@@ -21,16 +22,29 @@ export const JemaatListScreen = () => {
   const listParams = useListParams({ filters: LIST_FILTERS });
   const jemaatList = useJemaatList(listParams);
   const zoneOptions = useZoneFilterOptions(listParams.filters.wilayah ?? "");
+  const isIncomplete = listParams.filters.kelengkapan === "true";
+  const isOnlyIncomplete =
+    isIncomplete &&
+    !listParams.search &&
+    !listParams.status &&
+    !listParams.filters.wilayah &&
+    !listParams.filters.tipe;
+
+  const title = isIncomplete
+    ? jemaatList.totalData === undefined
+      ? "Jemaat belum lengkap"
+      : `${jemaatList.totalData} jemaat belum lengkap`
+    : "Daftar Jemaat";
+  const subtitle =
+    isIncomplete || jemaatList.totalData === undefined
+      ? undefined
+      : `${jemaatList.totalData} jemaat`;
 
   return (
     <div className="pb-6">
       <PageHeader
-        title="Daftar Jemaat"
-        subtitle={
-          jemaatList.totalData === undefined
-            ? undefined
-            : `${jemaatList.totalData} jemaat`
-        }
+        title={title}
+        subtitle={subtitle}
         backHref={domainHref(MENU.KEJEMAATAN)}
         action={
           isCanCreate ? (
@@ -66,6 +80,15 @@ export const JemaatListScreen = () => {
             kind: "choice",
             options: TYPE_JEMAAT_OPTIONS,
           },
+          {
+            key: "kelengkapan",
+            label: "Kelengkapan",
+            kind: "choice",
+            options: [
+              { value: "", label: "Semua" },
+              { value: "true", label: "Belum lengkap" },
+            ],
+          },
         ]}
       />
 
@@ -77,11 +100,15 @@ export const JemaatListScreen = () => {
         isRefreshing={jemaatList.isRefreshing}
         error={jemaatList.error}
         onRetry={jemaatList.onRetry}
-        emptyTitle="Tidak ada jemaat"
+        emptyTitle={
+          isOnlyIncomplete ? "Semua jemaat sudah lengkap" : "Tidak ada jemaat"
+        }
         emptyDescription={
-          listParams.search || listParams.isFiltered
-            ? "Tidak ada jemaat yang cocok dengan pencarian atau filter ini."
-            : "Data jemaat akan muncul di sini setelah ditambahkan."
+          isOnlyIncomplete
+            ? "Tidak ada jemaat yang perlu dilengkapi saat ini."
+            : listParams.search || listParams.isFiltered
+              ? "Tidak ada jemaat yang cocok dengan pencarian atau filter ini."
+              : "Data jemaat akan muncul di sini setelah ditambahkan."
         }
         onClearFilter={
           listParams.isFiltered ? listParams.onClearFilters : undefined
@@ -90,7 +117,9 @@ export const JemaatListScreen = () => {
         table={jemaatTable(isCanUpdate)}
         itemNoun="jemaat"
       >
-        {(jemaat) => <JemaatListItemRow jemaat={jemaat} />}
+        {(jemaat) => (
+          <JemaatListItemRow jemaat={jemaat} isCanUpdate={isCanUpdate} />
+        )}
       </DataList>
     </div>
   );
