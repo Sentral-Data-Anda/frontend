@@ -4,6 +4,9 @@ export const REFRESH_COOKIE = "refreshToken";
 // Tujuan redirect saat server menolak sesi: menghapus cookie lalu ke /login.
 export const SESSION_ENDED_PATH = "/api/v1/auth/session-ended";
 
+// Penanda di /login bahwa pengguna tiba di sini karena sesinya berakhir.
+export const SESSION_ENDED_REASON = "session-ended";
+
 export function pickSessionCookies(header: string): string {
   return header
     .split(";")

@@ -218,7 +218,8 @@ const forwardToBackend = async (
   // perangkat lain mencabutnya. Tanpa pembersihan ini perangkat lama akan terus
   // mengirim token yang sudah mati sampai cookie itu kedaluwarsa sendiri,
   // menerima 401 berulang tanpa pernah keluar. Menghapusnya membuat permintaan
-  // berikutnya jatuh ke jalur login di src/proxy.ts.
+  // berikutnya jatuh ke jalur login di src/proxy.ts; fetcher memakai 401 ini
+  // untuk berpindah ke /login lewat session-ended.
   //
   // Hanya 401. 403 adalah soal izin pada sesi yang masih sah, dan mengeluarkan
   // pengguna karena membuka menu yang tidak boleh diaksesnya akan keliru.

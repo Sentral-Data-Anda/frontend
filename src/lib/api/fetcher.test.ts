@@ -1,5 +1,14 @@
-import { afterEach, describe, expect, mock, test } from "bun:test";
+import {
+  afterAll,
+  afterEach,
+  describe,
+  expect,
+  mock,
+  spyOn,
+  test,
+} from "bun:test";
 
+import { SESSION_ENDED_PATH } from "./cookie";
 import { FetchError, fetchList, fetchOne } from "./fetcher";
 
 const nativeFetch = globalThis.fetch;
@@ -164,5 +173,55 @@ describe("fetchList", () => {
 
     expect(new Headers(calls[0].init?.headers).get("content-type")).toBeNull();
     expect(calls[0].init?.body).toBe(body);
+  });
+});
+
+describe("sesi yang ditolak", () => {
+  const replace = spyOn(window.location, "replace").mockImplementation(
+    () => {},
+  );
+
+  afterEach(() => replace.mockClear());
+  afterAll(() => replace.mockRestore());
+
+  test("401 dari endpoint terautentikasi mengakhiri sesi", async () => {
+    stubFetch(() =>
+      Response.json({ status: 401, error: "Unauthorized" }, { status: 401 }),
+    );
+
+    const error = await fetchList("/jemaat").catch((caught) => caught);
+
+    expect(error).toBeInstanceOf(FetchError);
+    expect(error.status).toBe(401);
+    expect(replace).toHaveBeenCalledWith(SESSION_ENDED_PATH);
+  });
+
+  test("401 dari login adalah kredensial salah, bukan sesi berakhir", async () => {
+    stubFetch(() =>
+      Response.json(
+        { status: 401, error: "Username atau password tidak valid." },
+        { status: 401 },
+      ),
+    );
+
+    await fetchOne("/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ username: "x", password: "y" }),
+    }).catch(() => {});
+
+    expect(replace).not.toHaveBeenCalled();
+  });
+
+  test("403 tidak mengakhiri sesi: izin kurang, sesinya masih sah", async () => {
+    stubFetch(() =>
+      Response.json(
+        { status: 403, error: "Tidak punya akses" },
+        { status: 403 },
+      ),
+    );
+
+    await fetchList("/jemaat").catch(() => {});
+
+    expect(replace).not.toHaveBeenCalled();
   });
 });
