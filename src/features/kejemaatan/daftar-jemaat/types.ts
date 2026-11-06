@@ -12,6 +12,8 @@ import {
   type TypeJemaat,
 } from "@/types/jemaat";
 
+import type { MissingFieldKey } from "./completeness";
+
 export {
   BLOOD_TYPE_LABEL,
   GENDER_LABEL,
@@ -45,6 +47,7 @@ export type JemaatListItem = {
   keluarga: { id: number; code: string; name: string } | null;
   status: StatusJemaat;
   zoneChurch: { id: number; name: string } | null;
+  missingFields: MissingFieldKey[];
 };
 
 export const STATUS_JEMAAT_OPTIONS: SelectOption[] = [

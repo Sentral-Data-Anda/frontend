@@ -97,6 +97,23 @@ describe("DataList + table", () => {
     expect(screen.getByText("Menampilkan 1–10 dari 12 data")).toBeTruthy();
   });
 
+  test("rowClassName hanya menandai baris yang diminta", () => {
+    onRender({
+      pagination: pages,
+      table: {
+        ...table(true),
+        rowClassName: (row) =>
+          row.code === "JMT-0002" ? "border-l-2 border-warning-400" : undefined,
+      },
+    });
+
+    const first = screen.getByText("Andreas").closest('[role="row"]');
+    const second = screen.getByText("Bethari").closest('[role="row"]');
+
+    expect(first?.className).not.toContain("border-l-2");
+    expect(second?.className).toContain("border-l-2");
+  });
+
   test("HP (< md) → tetap baris daftar walau `table` diberikan", () => {
     const viewport = onStubViewport(false);
 

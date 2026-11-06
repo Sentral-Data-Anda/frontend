@@ -37,6 +37,7 @@ export type DataTableConfig<T> = {
   columns: DataTableColumn<T>[];
   // Baris sengaja bukan tautan: menyenggol baris tidak boleh membuka form.
   getRowActions?: (item: T) => RowActions | undefined;
+  rowClassName?: (item: T) => string | undefined;
 };
 
 export function getRangeLabel(
@@ -84,7 +85,7 @@ export function DataTable<T>({
   pendingRows?: number;
   rowsRef?: Ref<HTMLDivElement>;
 }) {
-  const { columns, getRowActions } = config;
+  const { columns, getRowActions, rowClassName } = config;
 
   return (
     <div className={TABLE_CONTAINER}>
@@ -146,6 +147,7 @@ export function DataTable<T>({
                   "group/row relative min-h-14 py-2 pr-24",
                   // Selang-seling agar mata tidak melompat; 0.6 terbaca di kartu putih.
                   index % 2 === 1 && "bg-muted/60",
+                  rowClassName?.(item),
                 )}
               >
                 {columns.map((column) => (

@@ -1,7 +1,7 @@
 "use client";
 
 import { X } from "lucide-react";
-import { createContext, useEffect, useState } from "react";
+import { createContext, useEffect, useId, useState } from "react";
 
 export const SheetPortalContext = createContext<HTMLElement | null>(null);
 
@@ -18,6 +18,7 @@ export const BottomSheet = (props: PropTypes) => {
   const { id, isOpen, title, subtitle, onClose, children } = props;
 
   const [dialog, setDialog] = useState<HTMLDialogElement | null>(null);
+  const titleId = useId();
 
   const onBackdropClick = (event: React.MouseEvent<HTMLDialogElement>) => {
     if (event.target === dialog) onClose();
@@ -40,6 +41,7 @@ export const BottomSheet = (props: PropTypes) => {
     <dialog
       id={id}
       ref={setDialog}
+      aria-labelledby={titleId}
       onClose={onClose}
       onClick={onBackdropClick}
       className="bg-card text-foreground fixed inset-x-0 bottom-0 top-auto m-0 w-full max-w-none rounded-t-2xl p-0 backdrop:bg-black/40"
@@ -51,7 +53,9 @@ export const BottomSheet = (props: PropTypes) => {
 
       <div className="flex items-start gap-3 px-gutter py-4">
         <div className="min-w-0 flex-1">
-          <h2 className="truncate text-title font-semibold">{title}</h2>
+          <h2 id={titleId} className="truncate text-title font-semibold">
+            {title}
+          </h2>
           {subtitle ? (
             <p className="text-muted-foreground truncate text-caption">
               {subtitle}

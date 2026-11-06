@@ -35,6 +35,7 @@ export function DataListRow({
   id,
   title,
   meta,
+  metaAction,
   leading,
   trailing,
   isTitleWrap = false,
@@ -43,6 +44,7 @@ export function DataListRow({
   id?: string;
   title: ReactNode;
   meta?: ReactNode;
+  metaAction?: ReactNode;
   leading?: ReactNode;
   trailing?: ReactNode;
   isTitleWrap?: boolean;
@@ -82,13 +84,21 @@ export function DataListRow({
             {title}
           </p>
 
-          {meta ? (
-            <p
-              className="text-muted-foreground truncate text-caption tabular-nums"
-              title={textOf(meta)}
-            >
-              {meta}
-            </p>
+          {meta || metaAction ? (
+            <div className="flex min-w-0 items-center gap-2">
+              {meta ? (
+                <p
+                  className="text-muted-foreground truncate text-caption tabular-nums"
+                  title={textOf(meta)}
+                >
+                  {meta}
+                </p>
+              ) : null}
+
+              {metaAction ? (
+                <span className="shrink-0">{metaAction}</span>
+              ) : null}
+            </div>
           ) : null}
         </div>
 

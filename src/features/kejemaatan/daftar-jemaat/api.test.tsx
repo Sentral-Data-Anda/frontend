@@ -86,6 +86,7 @@ describe("useJemaatList", () => {
             roleInFamily: null,
             keluarga: null,
             status: "AKTIF",
+            missingFields: [],
           },
         ],
       });
