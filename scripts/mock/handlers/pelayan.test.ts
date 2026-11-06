@@ -22,11 +22,16 @@ type Json = {
   totalData?: number;
 };
 
+/**
+ * Persona bawaan mock adalah admin, dan admin melihat setiap badan pelayanan.
+ * Tes yang memang menguji penyempitan jabatan mengirim `isAdmin: false`.
+ */
 const onCall = async (
   method: string,
   input: string,
   body?: unknown,
   can: (slug: string, action: MockAction) => boolean = () => true,
+  isAdmin = true,
 ) => {
   const url = new URL(`/api/v1${input}`, "http://mock.test");
   const response = (await pelayanMock({
@@ -38,7 +43,7 @@ const onCall = async (
     path: input.split("?")[0],
     method,
     can,
-    isAdmin: false,
+    isAdmin,
     sessionCode: "test",
   })) as Response;
 
@@ -96,9 +101,39 @@ describe("mock GET /pelayan", () => {
       (await onCall("GET", "/pelayan", undefined, () => false)).status,
     ).toBe(403);
   });
+
+  // Hak menu membuka layarnya; jabatan menentukan baris siapa yang terlihat.
+  // Persona bawaan mock tidak memegang jabatan komisi apa pun, jadi non-admin
+  // di sini adalah kasus "tidak menjabat di mana-mana": daftar kosong, bukan
+  // daftar penuh, dan 200 — bukan 403, yang justru membenarkan barisnya ada.
+  test("non-admin tanpa jabatan: daftar kosong, bukan daftar penuh", async () => {
+    const { status, body } = await onCall(
+      "GET",
+      "/pelayan?limit=100",
+      undefined,
+      () => true,
+      false,
+    );
+
+    expect(status).toBe(200);
+    expect(body.data).toEqual([]);
+    expect(body.totalData).toBe(0);
+  });
 });
 
 describe("mock detail /pelayan/:code", () => {
+  test("di luar jabatan: 404, bukan 403", async () => {
+    const { status } = await onCall(
+      "GET",
+      "/pelayan/gplyn_0002-0001",
+      undefined,
+      () => true,
+      false,
+    );
+
+    expect(status).toBe(404);
+  });
+
   test("kelompok: memberList urut nama, kode tanpa peka huruf besar", async () => {
     const { body } = await onCall("GET", "/pelayan/gplyn_0002-0001");
     const detail = body.data as { memberList: { name: string }[] };

@@ -13,6 +13,7 @@
 import { MENU } from "../../../src/config/menu";
 import { todayJakarta } from "../../../src/lib/date";
 import { formatDate } from "../../../src/lib/format";
+import { PERSONA_KEY, PERSONA_POSITIONS } from "../../mock-dashboard";
 import { denied, json, list, readBody, type MockHandler } from "../kit";
 import {
   bapelOf,
@@ -439,12 +440,23 @@ const matches = (row: PelayanRow | GroupPelayanRow, url: URL) => {
   );
 };
 
+/**
+ * Bapel yang persona ini jabat hari ini — cermin `positionBapelScope` be-sada.
+ * Jabatan church-wide (`bapelId` null) tidak melebarkan lingkup komisi apa pun,
+ * jadi persona tanpa jabatan komisi mendapat daftar kosong, bukan daftar penuh.
+ */
+const positionBapelIds = () =>
+  (PERSONA_POSITIONS[PERSONA_KEY] ?? []).flatMap((position) =>
+    position.bapelId === null ? [] : [position.bapelId],
+  );
+
 export const pelayanMock: MockHandler = async ({
   request,
   url,
   path,
   method,
   can,
+  isAdmin,
 }) => {
   if (path !== "/pelayan" && !path.startsWith("/pelayan/")) return null;
 
@@ -461,7 +473,12 @@ export const pelayanMock: MockHandler = async ({
       return json({ status: 500, error: "Kesalahan server." }, 500);
     }
 
+    const scope = positionBapelIds();
+    const inScope = (row: PelayanRow | GroupPelayanRow) =>
+      isAdmin || scope.includes(row.bapelId);
+
     const rows = [...PELAYAN.filter(isLive), ...GROUP_PELAYAN.filter(isLive)]
+      .filter(inScope)
       .filter((row) => matches(row, url))
       .map(toListItem)
       .sort((a, b) => a.namePelayan.localeCompare(b.namePelayan));
@@ -554,7 +571,16 @@ export const pelayanMock: MockHandler = async ({
 
   const row = findLive(code);
 
+  // Di luar jabatan dijawab 404, sama seperti baris yang tidak ada: 403 tetap
+  // memberi tahu bahwa barisnya ada.
   if (!row) return notFound();
+  if (
+    method === "GET" &&
+    !isAdmin &&
+    !positionBapelIds().includes(row.bapelId)
+  ) {
+    return notFound();
+  }
 
   if (method === "GET") {
     return json({

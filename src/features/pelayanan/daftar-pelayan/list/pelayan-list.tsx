@@ -44,7 +44,13 @@ export const PelayanList = () => {
   const deleteRow = useDeletePelayan(target?.publicId);
   const listParams = useListParams({ filters: LIST_FILTERS });
   const pelayanList = useDaftarPelayanList(listParams);
-  const bapelOptions = useFilterOptions("bapel", "Semua badan pelayanan");
+  // `scope=jabatan`: the filter offers the bapel this caller holds a position
+  // in, matching the rows `/pelayan` now returns. Offering every bapel here
+  // would let someone pick one whose list always comes back empty.
+  const bapelOptions = useFilterOptions(
+    "bapel?scope=jabatan",
+    "Semua badan pelayanan",
+  );
   const tugasOptions = useFilterOptions("role-pelayan", "Semua tugas");
   const isNarrowed = Boolean(listParams.search) || listParams.isFiltered;
 
