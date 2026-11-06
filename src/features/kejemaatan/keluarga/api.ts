@@ -3,7 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import type { SelectOption } from "@/components/common/control";
-import { useDdlSearch } from "@/hooks/use-ddl-options";
+import { invalidateDdl, useDdlSearch } from "@/hooks/use-ddl-options";
 import type { ListState } from "@/hooks/use-list-params";
 import { useListQuery } from "@/hooks/use-list-query";
 import { fetchList, fetchOne } from "@/lib/api/fetcher";
@@ -83,7 +83,10 @@ export function useSaveKeluarga(code?: string) {
         body: JSON.stringify(payload),
       }),
     onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: keluargaKeys.lists() }),
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: keluargaKeys.lists() }),
+        invalidateDdl(queryClient, "keluarga"),
+      ]),
   });
 }
 
@@ -97,9 +100,12 @@ export function useAddKeluargaMember(code: string | undefined) {
         body: JSON.stringify(payload),
       }),
     onSuccess: () =>
-      queryClient.invalidateQueries({
-        queryKey: keluargaKeys.members(code ?? ""),
-      }),
+      Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: keluargaKeys.members(code ?? ""),
+        }),
+        invalidateDdl(queryClient, "keluarga"),
+      ]),
   });
 }
 
@@ -126,6 +132,7 @@ export function useEndKeluargaMember(code: string | undefined) {
         queryClient.invalidateQueries({
           queryKey: keluargaKeys.detail(code ?? ""),
         }),
+        invalidateDdl(queryClient, "keluarga"),
       ]),
   });
 }
@@ -137,6 +144,9 @@ export function useDeleteKeluarga(code: string | undefined) {
     mutationFn: () =>
       fetchOne<Keluarga>(pathOf(code ?? ""), { method: "DELETE" }),
     onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: keluargaKeys.lists() }),
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: keluargaKeys.lists() }),
+        invalidateDdl(queryClient, "keluarga"),
+      ]),
   });
 }

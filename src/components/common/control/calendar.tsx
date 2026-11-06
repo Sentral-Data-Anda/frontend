@@ -67,6 +67,8 @@ export const Calendar = (props: PropTypes) => {
   });
   const isYearGrid = useBoolean(startInYearGrid);
   const cursorRef = useRef<HTMLButtonElement>(null);
+  const yearGridRef = useRef<HTMLDivElement>(null);
+  const onCloseYearGrid = isYearGrid.onFalse;
 
   const month = startOfMonth(cursor);
   const days = monthGrid(cursor);
@@ -120,6 +122,20 @@ export const Calendar = (props: PropTypes) => {
   };
 
   useEffect(() => {
+    if (!isYearGrid.value) return;
+
+    const onPointerDown = (event: PointerEvent) => {
+      if (!yearGridRef.current?.contains(event.target as Node)) {
+        onCloseYearGrid();
+      }
+    };
+
+    document.addEventListener("pointerdown", onPointerDown);
+
+    return () => document.removeEventListener("pointerdown", onPointerDown);
+  }, [isYearGrid.value, onCloseYearGrid]);
+
+  useEffect(() => {
     let inner = 0;
     // Dua frame: Base UI memindahkan fokus lagi setelah popup terbuka.
     const outer = requestAnimationFrame(() => {
@@ -158,6 +174,13 @@ export const Calendar = (props: PropTypes) => {
         PageDown: -YEARS_PER_ROW * 3,
       };
 
+      if (event.key === "Escape") {
+        event.preventDefault();
+        event.stopPropagation();
+        onCloseYearGrid();
+        return;
+      }
+
       if (step[event.key] !== undefined) {
         event.preventDefault();
         onYear(cursorYear + step[event.key]);
@@ -176,8 +199,21 @@ export const Calendar = (props: PropTypes) => {
     };
 
     return (
-      <div className="p-2">
-        <p className="mb-2 px-1 text-title font-semibold">Pilih tahun</p>
+      <div ref={yearGridRef} className="p-2">
+        <div className="mb-2 flex items-center gap-1">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            aria-label="Kembali ke kalender"
+            className="cursor-pointer"
+            onClick={onCloseYearGrid}
+          >
+            <ChevronLeft aria-hidden />
+          </Button>
+
+          <p className="px-1 text-title font-semibold">Pilih tahun</p>
+        </div>
 
         <div
           role="grid"
@@ -202,7 +238,7 @@ export const Calendar = (props: PropTypes) => {
                 data-autofocus={isCurrent ? "" : undefined}
                 onClick={() => {
                   onYear(year);
-                  isYearGrid.onFalse();
+                  onCloseYearGrid();
                 }}
                 className={cn(
                   "h-control cursor-pointer rounded-control text-body tabular-nums",

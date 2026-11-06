@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
   ddlKeys,
+  invalidateDdl,
   useDdlOptions,
   useDdlSearch,
   type DdlOption,
@@ -63,7 +64,10 @@ export function useSaveJemaat(code?: string) {
         body: JSON.stringify(payload),
       }),
     onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: jemaatKeys.lists() }),
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: jemaatKeys.lists() }),
+        invalidateDdl(queryClient, "jemaat"),
+      ]),
   });
 }
 

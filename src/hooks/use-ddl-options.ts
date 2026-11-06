@@ -1,6 +1,10 @@
 "use client";
 
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  useQuery,
+  type QueryClient,
+} from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 
 import type { SelectOption } from "@/components/common/control";
@@ -23,6 +27,15 @@ export const ddlKeys = {
   list: (path: string) => [...ddlKeys.all, path] as const,
 };
 
+export const invalidateDdl = (
+  queryClient: QueryClient,
+  resourcePrefix: string,
+) =>
+  queryClient.invalidateQueries({
+    queryKey: ddlKeys.all,
+    predicate: (query) => String(query.queryKey[1]).startsWith(resourcePrefix),
+  });
+
 export const toDdlOptions = <T extends DdlOption>(
   rows: T[],
   valueKey: ValueKey,
@@ -39,8 +52,8 @@ export const toDdlOptions = <T extends DdlOption>(
       ...(hintOf ? { hint: hintOf(row) } : {}),
     }));
 
-export const ddlSearchPath = (resource: string, query: string) =>
-  `${resource}${resource.includes("?") ? "&" : "?"}limit=20${query ? `&filter=${encodeURIComponent(query)}` : ""}`;
+export const ddlSearchPath = (resource: string, query: string, offset = 0) =>
+  `${resource}${resource.includes("?") ? "&" : "?"}limit=20${offset > 0 ? `&offset=${offset}` : ""}${query ? `&filter=${encodeURIComponent(query)}` : ""}`;
 
 function useDdlQuery<T extends DdlOption>(
   path: string | null,
@@ -53,7 +66,9 @@ function useDdlQuery<T extends DdlOption>(
     queryKey: ddlKeys.list(path ?? ""),
     queryFn: () => fetchList<T>(`/ddl/${path}`),
     enabled: path !== null,
-    staleTime: 10 * 60_000,
+    // Daftar pilihan dipakai lintas layar: data yang baru ditambahkan di layar
+    // lain harus terbaca saat layar ini dibuka lagi, bukan menunggu 10 menit.
+    staleTime: 0,
     placeholderData: isKeepingPrevious ? keepPreviousData : undefined,
     select: (response) => ({
       rows: response.data,
@@ -103,21 +118,23 @@ export function useDdlSearch<T extends DdlOption = DdlOption>(
   );
 
   const [allOptions, setAllOptions] = useState<SelectOption[]>([]);
+  const [offset, setOffset] = useState(0);
   const isHasMore = useBoolean(false);
+  const { setValue: setIsHasMore } = isHasMore;
   const isLoadingMore = useBoolean(false);
+  const isLoadingMoreRef = useRef(false);
   const abortRef = useRef(false);
 
   const pageSize = 20;
 
-  // Reset when query changes
-
   useEffect(() => {
     const timer = setTimeout(() => {
       setAllOptions(initial.options);
-      isHasMore.setValue(initial.options.length >= pageSize);
+      setOffset(initial.rows.length);
+      setIsHasMore(initial.rows.length >= pageSize);
     }, 0);
     return () => clearTimeout(timer);
-  }, [initial.options, debounced]);
+  }, [initial.options, initial.rows.length, debounced, setIsHasMore]);
 
   useEffect(() => {
     const timer = setTimeout(() => setDebounced(query), 150);
@@ -131,14 +148,13 @@ export function useDdlSearch<T extends DdlOption = DdlOption>(
   const options = isPinnedMissing ? [pinned, ...allOptions] : allOptions;
 
   const onLoadMore = async () => {
-    if (isLoadingMore.value || !isHasMore.value || abortRef.current) return;
+    if (isLoadingMoreRef.current || !isHasMore.value) return;
 
+    isLoadingMoreRef.current = true;
     isLoadingMore.setValue(true);
     abortRef.current = false;
     try {
-      const nextLimit = allOptions.length + pageSize;
-      const path = `${resource}${resource.includes("?") ? "&" : "?"}limit=${nextLimit}${debounced ? `&filter=${encodeURIComponent(debounced)}` : ""}`;
-
+      const path = ddlSearchPath(resource, debounced, offset);
       const result = await fetchList<T>(`/ddl/${path}`);
       const newOptions = toDdlOptions(result.data, valueKey, "", hintOf);
 
@@ -146,17 +162,18 @@ export function useDdlSearch<T extends DdlOption = DdlOption>(
 
       setAllOptions((prev) => {
         const map = new Map(prev.map((option) => [option.value, option]));
+
         for (const option of newOptions) {
           map.set(option.value, option);
         }
+
         return [...map.values()];
       });
-
-      isHasMore.setValue(newOptions.length >= pageSize);
+      setOffset((prev) => prev + result.data.length);
+      isHasMore.setValue(result.data.length >= pageSize);
     } finally {
-      if (!abortRef.current) {
-        isLoadingMore.setValue(false);
-      }
+      isLoadingMoreRef.current = false;
+      isLoadingMore.setValue(false);
     }
   };
 

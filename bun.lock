@@ -6,6 +6,7 @@
       "name": "sada",
       "dependencies": {
         "@base-ui/react": "^1.5.0",
+        "@base-ui/utils": "0.4.0",
         "@hookform/resolvers": "^5.9.1",
         "@sentry/nextjs": "11.8.0",
         "@tanstack/react-query": "^5.102.8",

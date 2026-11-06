@@ -81,6 +81,7 @@ export const DateField = (props: PropTypes) => {
   const isDesktop = useIsDesktop();
   const boxRef = useRef<HTMLInputElement>(null);
   const cellRef = useRef<HTMLButtonElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
   const text = draft ?? toInputText(value);
 
@@ -142,7 +143,10 @@ export const DateField = (props: PropTypes) => {
 
   const onDismiss = () => {
     isCalendarOpen.onFalse();
-    boxRef.current?.focus();
+    // Fokus ke tombol di HP: memfokuskan kotak isian memunculkan papan ketik
+    // dan menggeser halaman tepat saat panel ditutup.
+    if (isDesktop === false) triggerRef.current?.focus();
+    else boxRef.current?.focus();
   };
 
   const calendar = (
@@ -186,6 +190,7 @@ export const DateField = (props: PropTypes) => {
 
         {isDesktop === false ? (
           <button
+            ref={triggerRef}
             type="button"
             disabled={disabled}
             onClick={isCalendarOpen.onTrue}

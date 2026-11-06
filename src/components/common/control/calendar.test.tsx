@@ -478,3 +478,35 @@ describe("Calendar — penanda hari libur", () => {
     expect(document.querySelector("[data-holiday]")).toBeNull();
   });
 });
+
+describe("Calendar — keluar dari kisi tahun", () => {
+  test("tombol kembali mengembalikan kisi hari", () => {
+    const cal = onRenderCalendar({ startInYearGrid: true, value: "" });
+
+    expect(cal.grid()).toBeNull();
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Kembali ke kalender" }),
+    );
+
+    expect(cal.grid()).not.toBeNull();
+  });
+
+  test("tekanan di luar kisi tahun mengembalikan kisi hari", () => {
+    const cal = onRenderCalendar({ startInYearGrid: true, value: "" });
+
+    fireEvent.pointerDown(document.body);
+
+    expect(cal.grid()).not.toBeNull();
+  });
+
+  test("Escape mengembalikan kisi hari", () => {
+    const cal = onRenderCalendar({ startInYearGrid: true, value: "" });
+
+    fireEvent.keyDown(screen.getByRole("grid", { name: "Pilih tahun" }), {
+      key: "Escape",
+    });
+
+    expect(cal.grid()).not.toBeNull();
+  });
+});

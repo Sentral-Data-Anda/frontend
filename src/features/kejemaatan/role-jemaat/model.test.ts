@@ -50,12 +50,9 @@ describe("roleJemaatFormSchema", () => {
     expect(roleJemaatFormSchema.safeParse(VALID).success).toBe(true);
   });
 
-  // Tanpa `bapelId`: jabatan gerejawi tidak dimiliki komisi mana pun, dan
-  // kolomnya memang nullable. Dulu field ini wajib, lalu backend meng-coerce
-  // string kosong jadi 0 dan menjawab 404 tentang badan pelayanan yang tidak
-  // pernah dipilih petugas.
   test("form kosong: semua field wajib ditolak per field", () => {
     expect(Object.keys(messagesOf(EMPTY_ROLE_JEMAAT_FORM)).sort()).toEqual([
+      "bapelId",
       "endPeriode",
       "jemaatId",
       "name",
@@ -63,6 +60,9 @@ describe("roleJemaatFormSchema", () => {
     ]);
     expect(messagesOf(EMPTY_ROLE_JEMAAT_FORM).jemaatId).toBe(
       "Mohon lengkapi jemaat",
+    );
+    expect(messagesOf(EMPTY_ROLE_JEMAAT_FORM).bapelId).toBe(
+      "Mohon lengkapi badan pelayanan",
     );
   });
 
@@ -96,10 +96,8 @@ describe("form ↔ payload", () => {
     });
   });
 
-  // Dikirim null, bukan 0: `Number("")` adalah 0, dan backend dulu menjawab
-  // 404 tentang badan pelayanan nomor nol.
-  test("bapel dikosongkan dikirim null", () => {
-    expect(toRoleJemaatPayload({ ...VALID, bapelId: "" }).bapelId).toBeNull();
+  test("bapel terpilih dikirim sebagai angka", () => {
+    expect(toRoleJemaatPayload({ ...VALID, bapelId: "12" }).bapelId).toBe(12);
   });
 
   test("detail be-sada menjadi nilai form string", () => {
@@ -110,10 +108,6 @@ describe("form ↔ payload", () => {
       startPeriode: "2025-01-01",
       endPeriode: "2026-12-31",
     });
-  });
-
-  test("jabatan gerejawi terbaca sebagai bapel kosong", () => {
-    expect(toRoleJemaatForm({ ...ITEM, bapel: null }).bapelId).toBe("");
   });
 
   test("bapel null (data lama) menjadi pilihan kosong yang wajib diisi ulang", () => {
