@@ -127,12 +127,35 @@ const TimeColumn = (props: ColumnPropTypes) => {
   // `scrollIntoView` yang ikut menggeser halaman di belakang popup.
   useEffect(() => {
     const list = listRef.current;
-    const row = list?.querySelector<HTMLElement>('[aria-selected="true"]');
 
-    if (!list || !row) return;
+    if (!list) return;
 
-    list.scrollTop =
-      row.offsetTop - list.clientHeight / 2 + row.offsetHeight / 2;
+    let frame = 0;
+    let tries = 0;
+
+    // Efek anak berjalan sebelum `showModal()` milik bottom sheet, jadi kolom
+    // masih di dalam <dialog> yang display:none dan tingginya terbaca 0.
+    // Menghitung dengan tinggi 0 membuat baris terpilih mendarat di atas area
+    // tampak, jadi pengukuran diulang sampai kolom benar-benar terlihat.
+    const center = () => {
+      const row = list.querySelector<HTMLElement>('[aria-selected="true"]');
+
+      if (!row) return;
+
+      if (!list.clientHeight) {
+        if (tries++ > 30) return;
+
+        frame = requestAnimationFrame(center);
+        return;
+      }
+
+      list.scrollTop =
+        row.offsetTop - list.clientHeight / 2 + row.offsetHeight / 2;
+    };
+
+    center();
+
+    return () => cancelAnimationFrame(frame);
   }, [listRef, value]);
 
   return (
