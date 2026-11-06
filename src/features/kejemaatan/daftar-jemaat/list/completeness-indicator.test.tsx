@@ -6,25 +6,10 @@ import {
   screen,
   waitFor,
 } from "@testing-library/react";
-import {
-  afterAll,
-  afterEach,
-  beforeAll,
-  describe,
-  expect,
-  test,
-} from "bun:test";
-
-import { onStubViewport } from "../../../../../tests/viewport";
+import { afterEach, describe, expect, test } from "bun:test";
 
 import { CompletenessIndicator } from "./completeness-indicator";
 
-let viewport: ReturnType<typeof onStubViewport>;
-
-beforeAll(() => {
-  viewport = onStubViewport(true);
-});
-afterAll(() => viewport.onRestore());
 afterEach(cleanup);
 
 const onRender = (
@@ -38,75 +23,81 @@ const onRender = (
     />,
   );
 
-const openButton = () =>
+const trigger = () =>
   screen.getByRole("button", {
-    name: "Data belum lengkap: Suku, Kode induk",
+    name: "Tidak Lengkap: Suku, Kode induk",
   });
 
-describe("CompletenessIndicator desktop", () => {
-  test("baris lengkap menampilkan label kecil, bukan ikon", () => {
-    onRender({ missingFields: [], isCompleteLabelVisible: true });
+describe("CompletenessIndicator", () => {
+  test("baris lengkap menampilkan kata Lengkap, bukan ikon", () => {
+    onRender({ missingFields: [] });
 
     expect(screen.getByText("Lengkap")).toBeTruthy();
-    expect(
-      screen.queryByRole("button", { name: /Data belum lengkap/ }),
-    ).toBeNull();
+    expect(screen.queryByRole("button")).toBeNull();
   });
 
-  test("baris lengkap tanpa label tidak merender apa pun", () => {
-    const { container } = onRender({ missingFields: [] });
-
-    expect(container.innerHTML).toBe("");
-  });
-
-  test("ikon punya nama aksesibel dan ringkasan hover", () => {
+  test("baris kurang menampilkan kata Tidak Lengkap dengan nama aksesibel", () => {
     onRender();
 
-    const button = openButton();
+    const button = trigger();
 
-    expect(button.getAttribute("aria-expanded")).toBe("false");
-    expect(button.getAttribute("title")).toBe(
-      "Belum lengkap: Suku, Kode induk",
-    );
+    expect(button.textContent).toBe("Tidak Lengkap");
+    // Ikon lingkaran kuning sudah tidak dipakai lagi di kolom ini.
+    expect(button.querySelector("svg")).toBeNull();
   });
 
-  test("klik membuka daftar field dan tautan lengkapi", async () => {
+  test("hover memunculkan tooltip berisi field yang kurang", async () => {
     onRender();
 
-    const button = openButton();
+    const button = trigger();
 
     await act(async () => {
-      fireEvent.click(button);
+      fireEvent.pointerEnter(button, { pointerType: "mouse" });
+      fireEvent.mouseEnter(button);
+      fireEvent.mouseMove(button);
     });
 
-    const dialog = await screen.findByRole("dialog", {
+    const tooltip = await screen.findByRole("dialog", {
       name: "Data belum lengkap",
     });
 
     expect(screen.getByText("Suku")).toBeTruthy();
     expect(screen.getByText("Kode induk")).toBeTruthy();
-    expect(button.getAttribute("aria-expanded")).toBe("true");
-    expect(
-      screen.getByRole("link", { name: "Lengkapi data" }).getAttribute("href"),
-    ).toBe("/kejemaatan/daftar-jemaat/edit/abc");
-    expect(dialog).toBeTruthy();
+    expect(tooltip).toBeTruthy();
   });
 
-  test("Escape menutup dan fokus kembali ke tombol", async () => {
+  test("klik membuka tooltip yang sama plus tautan lengkapi", async () => {
     onRender();
 
-    const button = openButton();
+    const button = trigger();
 
     await act(async () => {
       fireEvent.click(button);
     });
 
-    const dialog = await screen.findByRole("dialog", {
+    await screen.findByRole("dialog", { name: "Data belum lengkap" });
+
+    expect(button.getAttribute("aria-expanded")).toBe("true");
+    expect(
+      screen.getByRole("link", { name: "Lengkapi data" }).getAttribute("href"),
+    ).toBe("/kejemaatan/daftar-jemaat/edit/abc");
+  });
+
+  test("Escape menutup dan fokus kembali ke pemicu", async () => {
+    onRender();
+
+    const button = trigger();
+
+    await act(async () => {
+      fireEvent.click(button);
+    });
+
+    const tooltip = await screen.findByRole("dialog", {
       name: "Data belum lengkap",
     });
 
     await act(async () => {
-      fireEvent.keyDown(dialog, { key: "Escape" });
+      fireEvent.keyDown(tooltip, { key: "Escape" });
     });
 
     await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
@@ -117,37 +108,10 @@ describe("CompletenessIndicator desktop", () => {
     onRender({ editHref: null });
 
     await act(async () => {
-      fireEvent.click(openButton());
+      fireEvent.click(trigger());
     });
 
     await screen.findByRole("dialog", { name: "Data belum lengkap" });
     expect(screen.queryByRole("link", { name: "Lengkapi data" })).toBeNull();
-  });
-});
-
-describe("CompletenessIndicator mobile", () => {
-  test("ikon membuka bottom sheet dan tombol Tutup menutupnya", async () => {
-    const mobile = onStubViewport(false);
-
-    try {
-      onRender();
-
-      await act(async () => {
-        fireEvent.click(openButton());
-      });
-
-      expect(
-        screen.getByRole("dialog", { name: "Data belum lengkap" }),
-      ).toBeTruthy();
-      expect(screen.getByText("Suku")).toBeTruthy();
-
-      await act(async () => {
-        fireEvent.click(screen.getByRole("button", { name: "Tutup" }));
-      });
-
-      await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
-    } finally {
-      mobile.onRestore();
-    }
   });
 });

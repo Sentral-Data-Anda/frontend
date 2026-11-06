@@ -12,21 +12,34 @@ import { JemaatStatus } from "./jemaat-status";
 
 const WARNING_ROW = "border-l-2 border-warning-400";
 
+const INCOMPLETE_META_LABEL = "Belum lengkap";
+
 interface PropTypes {
   jemaat: JemaatListItem;
-  isCanUpdate: boolean;
 }
 
 export const JemaatListItemRow = (props: PropTypes) => {
-  const { jemaat, isCanUpdate } = props;
+  const { jemaat } = props;
 
-  const meta = [
-    jemaat.code,
-    TYPE_JEMAAT_LABEL[jemaat.type],
-    jemaat.keluarga?.name,
-  ]
-    .filter(Boolean)
-    .join(" · ");
+  // Layar sempit tidak punya kolom Kelengkapan, jadi statusnya menempel pada
+  // teks tipe jemaat — dipisah garis miring, bukan ikon yang harus ditekan
+  // dulu untuk tahu artinya. Rincian field yang kurang tetap ada di halaman
+  // ubah, yang memang tujuan baris ini.
+  const meta = (
+    <>
+      <span aria-hidden>{jemaat.codeInduk ?? "—"}</span>
+      {jemaat.codeInduk ? null : (
+        <span className="sr-only">Tanpa kode induk</span>
+      )}
+      {` · ${TYPE_JEMAAT_LABEL[jemaat.type]}`}
+      {jemaat.missingFields.length > 0 ? (
+        <span className="text-warning-foreground font-medium">
+          {` / ${INCOMPLETE_META_LABEL}`}
+        </span>
+      ) : null}
+      {jemaat.keluarga ? ` · ${jemaat.keluarga.name}` : null}
+    </>
+  );
 
   return (
     <DataListRow
@@ -34,22 +47,7 @@ export const JemaatListItemRow = (props: PropTypes) => {
       leading={<Avatar label={jemaat.name} />}
       title={jemaat.name}
       meta={meta}
-      metaAction={
-        <CompletenessIndicator
-          missingFields={jemaat.missingFields}
-          editHref={
-            isCanUpdate
-              ? editHref(MENU.KEJEMAATAN, MENU.DAFTAR_JEMAAT, jemaat.publicId)
-              : null
-          }
-          onNavigate={() => saveListFocus(JEMAAT_LIST_PATH, jemaat.code)}
-        />
-      }
-      trailing={
-        <>
-          <JemaatStatus status={jemaat.status} />
-        </>
-      }
+      trailing={<JemaatStatus status={jemaat.status} />}
       className={
         hasHardMissingFields(jemaat.missingFields) ? WARNING_ROW : undefined
       }
@@ -77,11 +75,17 @@ export function jemaatTable(
         ),
       },
       {
-        key: "code",
-        header: "Kode",
+        // Nomor induk gereja, bukan `code` (JMT-xxxx) yang hanya kunci baris
+        // internal. Boleh kosong selama belum diisi sekretariat.
+        key: "codeInduk",
+        header: "Kode Induk",
         width: "minmax(0,1fr)",
         narrowWidth: "minmax(0,1fr)",
-        cell: (jemaat) => <span className="tabular-nums">{jemaat.code}</span>,
+        cell: (jemaat) => (
+          <span className="block min-w-0 tabular-nums">
+            <OptionalText text={jemaat.codeInduk} empty="Tanpa kode induk" />
+          </span>
+        ),
       },
       {
         key: "type",
@@ -129,7 +133,6 @@ export function jemaatTable(
                 : null
             }
             onNavigate={() => saveListFocus(JEMAAT_LIST_PATH, jemaat.code)}
-            isCompleteLabelVisible
           />
         ),
       },

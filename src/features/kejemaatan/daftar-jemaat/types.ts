@@ -39,6 +39,8 @@ export type JemaatListItem = {
   id: number;
   publicId: string;
   code: string;
+  /** Nomor induk gereja. Null selama belum diisi. */
+  codeInduk: string | null;
   name: string;
   gender: Gender;
   birthDate: string | null;
