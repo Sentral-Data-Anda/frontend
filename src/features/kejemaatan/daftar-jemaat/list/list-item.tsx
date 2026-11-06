@@ -3,14 +3,11 @@ import { DataListRow, type DataTableConfig } from "@/components/common/list";
 import { MENU, editHref } from "@/config/menu";
 import { saveListFocus } from "@/lib/list-return";
 
-import { hasHardMissingFields } from "../completeness";
 import { JEMAAT_LIST_PATH } from "../model";
 import { TYPE_JEMAAT_LABEL, type JemaatListItem } from "../types";
 
 import { CompletenessIndicator } from "./completeness-indicator";
 import { JemaatStatus } from "./jemaat-status";
-
-const WARNING_ROW = "border-l-2 border-warning-400";
 
 const INCOMPLETE_META_LABEL = "Belum lengkap";
 
@@ -48,9 +45,6 @@ export const JemaatListItemRow = (props: PropTypes) => {
       title={jemaat.name}
       meta={meta}
       trailing={<JemaatStatus status={jemaat.status} />}
-      className={
-        hasHardMissingFields(jemaat.missingFields) ? WARNING_ROW : undefined
-      }
     />
   );
 };
@@ -137,8 +131,6 @@ export function jemaatTable(
         ),
       },
     ],
-    rowClassName: (jemaat) =>
-      hasHardMissingFields(jemaat.missingFields) ? WARNING_ROW : undefined,
     getRowActions: (x) => ({
       label: `Ubah ${x.name}`,
       edit: {

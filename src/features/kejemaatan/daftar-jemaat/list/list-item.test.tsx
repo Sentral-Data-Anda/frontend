@@ -89,7 +89,7 @@ describe("penanda kelengkapan", () => {
     expect(screen.getByText("Tanpa kode induk")).toBeTruthy();
   });
 
-  test("garis kiri hanya untuk field wajib simpan, bukan wilayah UNKNOWN", () => {
+  test("baris tidak lagi memakai garis penanda di sisi kiri", () => {
     const rowOf = () =>
       document.querySelector('[data-row-id="JMT-0042"]') as HTMLElement | null;
 
@@ -98,7 +98,7 @@ describe("penanda kelengkapan", () => {
 
     cleanup();
     onRenderRow(true, { ...JEMAAT, missingFields: ["address"] });
-    expect(rowOf()?.className).toContain("border-l-2");
+    expect(rowOf()?.className).not.toContain("border-l-2");
   });
 
   test("kolom tabel memakai Kode Induk, bukan kode internal", () => {
@@ -109,15 +109,9 @@ describe("penanda kelengkapan", () => {
     expect(config.columns.some((x) => x.key === "code")).toBe(false);
   });
 
-  test("rowClassName tabel mengikuti aturan yang sama", () => {
+  test("tabel tidak menetapkan rowClassName penanda", () => {
     const config = jemaatTable(true);
 
-    expect(config.rowClassName?.(JEMAAT)).toBeUndefined();
-    expect(
-      config.rowClassName?.({ ...JEMAAT, missingFields: ["villagesCode"] }),
-    ).toBeUndefined();
-    expect(
-      config.rowClassName?.({ ...JEMAAT, missingFields: ["codeInduk"] }),
-    ).toContain("border-l-2");
+    expect(config.rowClassName).toBeUndefined();
   });
 });
