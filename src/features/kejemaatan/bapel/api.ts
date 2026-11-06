@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import { invalidateDdl } from "@/hooks/use-ddl-options";
 import type { ListState } from "@/hooks/use-list-params";
 import { useListQuery } from "@/hooks/use-list-query";
 import { fetchList, fetchOne } from "@/lib/api/fetcher";
@@ -44,7 +45,10 @@ export function useSaveBapel(code?: string) {
         body: JSON.stringify(payload),
       }),
     onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: bapelKeys.lists() }),
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: bapelKeys.lists() }),
+        invalidateDdl(queryClient, "bapel"),
+      ]),
   });
 }
 
@@ -55,6 +59,9 @@ export function useDeleteBapel(code: string | undefined) {
     mutationFn: () =>
       fetchOne<unknown>(pathOf(code ?? ""), { method: "DELETE" }),
     onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: bapelKeys.lists() }),
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: bapelKeys.lists() }),
+        invalidateDdl(queryClient, "bapel"),
+      ]),
   });
 }

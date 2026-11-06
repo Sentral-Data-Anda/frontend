@@ -2,7 +2,11 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { useDdlOptions, useDdlSearch } from "@/hooks/use-ddl-options";
+import {
+  invalidateDdl,
+  useDdlOptions,
+  useDdlSearch,
+} from "@/hooks/use-ddl-options";
 import type { ListState } from "@/hooks/use-list-params";
 import { useListQuery } from "@/hooks/use-list-query";
 import { fetchList, fetchOne } from "@/lib/api/fetcher";
@@ -46,7 +50,10 @@ export function useSaveRoleJemaat(id?: string) {
         body: JSON.stringify(payload),
       }),
     onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: roleJemaatKeys.lists() }),
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: roleJemaatKeys.lists() }),
+        invalidateDdl(queryClient, "jabatan-jemaat"),
+      ]),
   });
 }
 
@@ -57,7 +64,10 @@ export function useDeleteRoleJemaat(id?: string) {
     mutationFn: () =>
       fetchOne<{ id: number }>(pathOf(id ?? ""), { method: "DELETE" }),
     onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: roleJemaatKeys.lists() }),
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: roleJemaatKeys.lists() }),
+        invalidateDdl(queryClient, "jabatan-jemaat"),
+      ]),
   });
 }
 

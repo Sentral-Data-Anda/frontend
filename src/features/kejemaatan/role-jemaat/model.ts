@@ -16,11 +16,9 @@ const required = (message: string) => z.string().min(1, message);
 export const roleJemaatFormSchema = z
   .object({
     jemaatId: required("Mohon lengkapi jemaat"),
-    // Boleh kosong: jabatan gerejawi tidak dimiliki komisi mana pun, dan
-    // kolomnya di database memang nullable. Dulu field ini wajib, lalu
-    // backend meng-coerce string kosong jadi 0 dan menjawab 404 tentang
-    // badan pelayanan yang tidak pernah dipilih petugas.
-    bapelId: z.string(),
+    // Kolomnya nullable untuk baris lama, tetapi jabatan baru selalu milik
+    // sebuah badan pelayanan — pilihan kosong ditolak sebelum dikirim.
+    bapelId: required("Mohon lengkapi badan pelayanan"),
     name: z
       .string()
       .trim()
@@ -61,7 +59,7 @@ export function toRoleJemaatPayload(
     startPeriode: values.startPeriode,
     endPeriode: values.endPeriode,
     jemaatId: Number(values.jemaatId),
-    bapelId: values.bapelId ? Number(values.bapelId) : null,
+    bapelId: Number(values.bapelId),
   };
 }
 

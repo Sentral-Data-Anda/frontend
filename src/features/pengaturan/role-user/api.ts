@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import { invalidateDdl } from "@/hooks/use-ddl-options";
 import type { ListState } from "@/hooks/use-list-params";
 import { useListQuery } from "@/hooks/use-list-query";
 import { fetchList, fetchOne } from "@/lib/api/fetcher";
@@ -58,7 +59,10 @@ export function useSaveRoleUser(id?: string) {
         body: JSON.stringify(payload),
       }),
     onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: roleUserKeys.lists() }),
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: roleUserKeys.lists() }),
+        invalidateDdl(queryClient, "role-user"),
+      ]),
   });
 }
 
@@ -68,6 +72,9 @@ export function useDeleteRoleUser(id: string | undefined) {
   return useMutation({
     mutationFn: () => fetchOne<unknown>(pathOf(id ?? ""), { method: "DELETE" }),
     onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: roleUserKeys.lists() }),
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: roleUserKeys.lists() }),
+        invalidateDdl(queryClient, "role-user"),
+      ]),
   });
 }

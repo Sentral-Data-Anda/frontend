@@ -1,5 +1,6 @@
 "use client";
 
+import { useScrollLock } from "@base-ui/utils/useScrollLock";
 import { X } from "lucide-react";
 import { createContext, useEffect, useId, useState } from "react";
 
@@ -19,6 +20,8 @@ export const BottomSheet = (props: PropTypes) => {
 
   const [dialog, setDialog] = useState<HTMLDialogElement | null>(null);
   const titleId = useId();
+
+  useScrollLock(isOpen, dialog);
 
   const onBackdropClick = (event: React.MouseEvent<HTMLDialogElement>) => {
     if (event.target === dialog) onClose();

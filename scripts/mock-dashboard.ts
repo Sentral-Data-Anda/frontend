@@ -1008,11 +1008,12 @@ export function ddlRows(
   const narrow = (rows: { name: string | null }[]) => {
     const filter = (params.get("filter") ?? "").toLowerCase();
     const limit = Number(params.get("limit")) || rows.length;
+    const offset = Number(params.get("offset")) || 0;
     const matched = filter
       ? rows.filter((row) => (row.name ?? "").toLowerCase().includes(filter))
       : rows;
 
-    return matched.slice(0, limit);
+    return matched.slice(offset, offset + limit);
   };
 
   // `MOCK_DDL_EMPTY=1`: semua daftar pilihan kosong, supaya keadaan "belum ada

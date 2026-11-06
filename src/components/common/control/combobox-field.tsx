@@ -123,7 +123,7 @@ export const ComboboxField = (props: PropTypes) => {
   const collator = Combobox.useFilter();
 
   const [held, setHeld] = useState<SelectOption | null>(null);
-  const listRef = useRef<HTMLDivElement>(null);
+  const [list, setList] = useState<HTMLDivElement | null>(null);
   const isNearBottomRef = useRef(true);
 
   const found = options.find((option) => option.value === value);
@@ -162,12 +162,11 @@ export const ComboboxField = (props: PropTypes) => {
     collator.contains(option, text, (item) => item.label);
 
   useEffect(() => {
-    const el = listRef.current;
-    if (!el || !onLoadMore || !hasMore || isLoadingMore) return;
+    if (!list || !onLoadMore || !hasMore || isLoadingMore) return;
 
     const handleScroll = () => {
       const distanceFromBottom =
-        el.scrollHeight - el.scrollTop - el.clientHeight;
+        list.scrollHeight - list.scrollTop - list.clientHeight;
       isNearBottomRef.current = distanceFromBottom < 80;
 
       if (isNearBottomRef.current) {
@@ -175,15 +174,16 @@ export const ComboboxField = (props: PropTypes) => {
       }
     };
 
-    el.addEventListener("scroll", handleScroll, { passive: true });
+    list.addEventListener("scroll", handleScroll, { passive: true });
 
-    const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+    const distanceFromBottom =
+      list.scrollHeight - list.scrollTop - list.clientHeight;
     if (distanceFromBottom < 80) {
       onLoadMore();
     }
 
-    return () => el.removeEventListener("scroll", handleScroll);
-  }, [onLoadMore, hasMore, isLoadingMore]);
+    return () => list.removeEventListener("scroll", handleScroll);
+  }, [list, onLoadMore, hasMore, isLoadingMore]);
 
   return (
     <Combobox.Root
@@ -253,7 +253,7 @@ export const ComboboxField = (props: PropTypes) => {
                   />
                 </Combobox.Empty>
 
-                <Combobox.List className="max-h-72 overflow-auto">
+                <Combobox.List ref={setList} className="max-h-72 overflow-auto">
                   <PilihanItems
                     hasMore={hasMore}
                     isLoadingMore={isLoadingMore}

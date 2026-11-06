@@ -25,8 +25,7 @@ export type RoleJemaatPayload = {
   startPeriode: string;
   endPeriode: string;
   jemaatId: number;
-  /** Null untuk jabatan gerejawi, yang bukan milik komisi mana pun. */
-  bapelId: number | null;
+  bapelId: number;
 };
 
 export const ROLE_STATUS_LABEL: Record<"true" | "false", string> = {

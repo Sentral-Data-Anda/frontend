@@ -350,3 +350,28 @@ describe("ComboboxField target sentuh dan kontras", () => {
     expect(hint).not.toContain("text-primary-500");
   });
 });
+
+describe("ComboboxField dengan onLoadMore", () => {
+  test("menggulir daftar memanggil onLoadMore", async () => {
+    const calls: number[] = [];
+
+    render(
+      <ComboboxField
+        value=""
+        onValueChange={() => {}}
+        options={[{ value: "1", label: "Budi" }]}
+        onLoadMore={() => calls.push(1)}
+        hasMore
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Buka pilihan" }));
+    await screen.findByRole("option", { name: "Budi" });
+
+    const list = screen.getByRole("listbox");
+    calls.length = 0;
+    fireEvent.scroll(list);
+
+    expect(calls).toHaveLength(1);
+  });
+});
