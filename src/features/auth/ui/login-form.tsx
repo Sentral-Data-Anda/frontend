@@ -7,7 +7,8 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { Button, Input, PasswordInput } from "@/components/common/control";
-import { FormField } from "@/components/common/form";
+import { FormAlert, FormField } from "@/components/common/form";
+import { SESSION_ENDED_REASON } from "@/lib/api/cookie";
 import { FetchError, fetchOne } from "@/lib/api/fetcher";
 
 import { markAuthHandoff } from "./auth-handoff";
@@ -22,6 +23,7 @@ type LoginForm = z.infer<typeof loginSchema>;
 export const LoginForm = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const isSessionEnded = searchParams.get("reason") === SESSION_ENDED_REASON;
 
   const {
     register,
@@ -60,6 +62,14 @@ export const LoginForm = () => {
 
   return (
     <form onSubmit={handleSubmit(onLogin)} className="w-full space-y-5">
+      {isSessionEnded ? (
+        <FormAlert
+          tone="info"
+          title="Sesi Anda telah berakhir"
+          message="Silakan masuk kembali untuk melanjutkan."
+        />
+      ) : null}
+
       <FormField
         label="Username / Kode induk"
         htmlFor="username"

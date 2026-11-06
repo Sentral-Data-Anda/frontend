@@ -11,7 +11,9 @@ describe("GET /api/v1/auth/session-ended", () => {
     const response = await call();
 
     expect(response.status).toBe(307);
-    expect(response.headers.get("location")).toBe("/login");
+    expect(response.headers.get("location")).toBe(
+      "/login?reason=session-ended",
+    );
   });
 
   test("kedua cookie sesi dihapus", async () => {

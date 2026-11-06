@@ -1,5 +1,7 @@
 import type { ApiListResponse, ApiResponse } from "@/types/api";
 
+import { endSession } from "./session";
+
 const BASE_PATH = "/api/v1";
 
 export type ApiIssue = { path: string; message: string };
@@ -77,22 +79,31 @@ const request = (path: string, init?: RequestInit): Promise<Response> =>
     },
   });
 
+// 401 dari login berarti kredensial salah, bukan sesi yang berakhir.
+const isCredentialRejection = (path: string) => path === "/auth/login";
+
+const readFailure = async (response: Response, path: string) => {
+  const failure = await readError(response);
+
+  if (response.status === 401 && !isCredentialRejection(path)) {
+    endSession();
+  }
+
+  return new FetchError(
+    response.status,
+    failure.message,
+    failure.issues,
+    failure.code,
+  );
+};
+
 export async function fetchOne<T>(
   path: string,
   init?: RequestInit,
 ): Promise<ApiResponse<T>> {
   const response = await request(path, init);
 
-  if (!response.ok) {
-    const failure = await readError(response);
-
-    throw new FetchError(
-      response.status,
-      failure.message,
-      failure.issues,
-      failure.code,
-    );
-  }
+  if (!response.ok) throw await readFailure(response, path);
 
   return response.json() as Promise<ApiResponse<T>>;
 }
@@ -103,16 +114,7 @@ export async function fetchList<T>(
 ): Promise<ApiListResponse<T>> {
   const response = await request(path, init);
 
-  if (!response.ok) {
-    const failure = await readError(response);
-
-    throw new FetchError(
-      response.status,
-      failure.message,
-      failure.issues,
-      failure.code,
-    );
-  }
+  if (!response.ok) throw await readFailure(response, path);
 
   return response.json() as Promise<ApiListResponse<T>>;
 }

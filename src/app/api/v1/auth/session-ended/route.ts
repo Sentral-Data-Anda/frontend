@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 
-import { ACCESS_COOKIE, REFRESH_COOKIE } from "@/lib/api/cookie";
+import {
+  ACCESS_COOKIE,
+  REFRESH_COOKIE,
+  SESSION_ENDED_REASON,
+} from "@/lib/api/cookie";
 
 // Cookie yang ditolak server tidak bisa dihapus dari server component. Tanpa
 // ini /login mengira pemakai masih masuk dan melempar balik, tanpa henti.
@@ -13,7 +17,7 @@ import { ACCESS_COOKIE, REFRESH_COOKIE } from "@/lib/api/cookie";
 export function GET(): Response {
   const response = new NextResponse(null, {
     status: 307,
-    headers: { location: "/login" },
+    headers: { location: `/login?reason=${SESSION_ENDED_REASON}` },
   });
 
   response.cookies.delete(ACCESS_COOKIE);
