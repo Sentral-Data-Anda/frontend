@@ -8,10 +8,19 @@ interface PropTypes {
   meta?: string;
   title?: string;
   alertAbove?: number;
+  /**
+   * Barisnya mengukur field yang wajib diisi.
+   *
+   * Ditandai asterisk merah seperti di label form, supaya tanda yang sama
+   * berarti hal yang sama di dua tempat. Asteriknya `aria-hidden` dan
+   * keterangannya dibaca lewat teks sr-only; pembaca layar tidak bisa
+   * diandalkan mengucapkan "*" sebagai "wajib".
+   */
+  isRequired?: boolean;
 }
 
 export const ProgressBar = (props: PropTypes) => {
-  const { label, value, meta, title, alertAbove } = props;
+  const { label, value, meta, title, alertAbove, isRequired } = props;
 
   const percent = Math.max(0, Math.min(100, Math.round(value)));
   const isAlert = alertAbove !== undefined && value > alertAbove;
@@ -30,6 +39,14 @@ export const ProgressBar = (props: PropTypes) => {
             />
           ) : null}
           <span className="truncate">{label}</span>
+          {isRequired ? (
+            <>
+              <span aria-hidden className="text-destructive shrink-0">
+                *
+              </span>
+              <span className="sr-only">(wajib)</span>
+            </>
+          ) : null}
         </span>
         {meta ? (
           <span className="text-muted-foreground shrink-0 text-caption tabular-nums">
