@@ -20,8 +20,30 @@ export type ProfessionRow = { Profession: string; Count: number };
 export type BloodTypeRow = { bloodType: BloodType; Count: number };
 export type LastEducationRow = { lastEducation: LastEducation; Count: number };
 
+/**
+ * Jumlah jemaat yang satu fieldnya masih kosong, per field.
+ *
+ * Sembilan yang pertama adalah field yang menolak simpan di form jemaat
+ * (lihat `missingFieldsOf` di be-sada); tiga terakhir boleh kosong. Urutannya
+ * di sini urutan yang dibaca kartu Kelengkapan data: wajib dulu, opsional
+ * belakangan.
+ *
+ * Semua angka berbagi penyebut `total`, termasuk tiga field yang sebenarnya
+ * hanya ditanyakan ke ANGGOTA (`statusMarital`, `ethnicGroupId`, `codeInduk`).
+ * Simpatisan tidak pernah bisa kurang di ketiganya, jadi persennya memang
+ * terbaca rendah terhadap seluruh jemaat.
+ */
 export type IncompleteReport = {
   total: number;
+  birthPlace: number;
+  address: number;
+  provincesCode: number;
+  regenciesCode: number;
+  districtsCode: number;
+  villagesCode: number;
+  statusMarital: number;
+  ethnicGroupId: number;
+  codeInduk: number;
   birthDate: number;
   lastEducation: number;
   profession: number;

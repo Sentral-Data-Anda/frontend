@@ -6,6 +6,7 @@ import {
   useAgeReport,
   useBloodTypeReport,
   useEthnicReport,
+  useIncompleteReport,
   useLastEducationReport,
   useProfessionReport,
   useZoneReport,
@@ -30,6 +31,7 @@ export const ReportBody = (props: PropTypes) => {
   const lastEducation = useLastEducationReport();
   const ethnic = useEthnicReport();
   const profession = useProfessionReport();
+  const incomplete = useIncompleteReport();
   const zone = useZoneReport();
 
   return (
@@ -53,7 +55,7 @@ export const ReportBody = (props: PropTypes) => {
             emptyTitle="Belum ada jemaat dengan golongan darah tercatat"
             query={bloodType}
           />,
-          <CompletenessCard key="completeness" />,
+          <CompletenessCard key="completeness" query={incomplete} />,
           <ShareCard
             key="last-education"
             title="Pendidikan terakhir"
