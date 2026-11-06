@@ -65,6 +65,16 @@ const Segment = (props: SegmentPropTypes) => {
     if (digits.length === 2) onNext();
   };
 
+  // `maxLength={2}` memotong tempelan "08:30" sebelum onChange melihatnya.
+  const onPaste = (event: React.ClipboardEvent<HTMLInputElement>) => {
+    const text = event.clipboardData?.getData("text") ?? "";
+
+    if (text.replace(/\D/g, "").length <= 2) return;
+
+    event.preventDefault();
+    onChange(text);
+  };
+
   const onKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
     const step =
       event.key === "ArrowUp" ? 1 : event.key === "ArrowDown" ? -1 : 0;
@@ -85,6 +95,7 @@ const Segment = (props: SegmentPropTypes) => {
       {...aria}
       value={value}
       onChange={(event) => onChange(event.target.value)}
+      onPaste={onPaste}
       onBlur={onLeave}
       // Menimpa isi segmen saat fokus masuk, supaya mengetik "07" tidak
       // menghasilkan "0807".
@@ -202,16 +213,21 @@ export const TimeField = (props: PropTypes) => {
   const isDesktop = useIsDesktop();
   const hourRef = useRef<HTMLInputElement>(null);
   const minuteRef = useRef<HTMLInputElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
   const hourListRef = useRef<HTMLDivElement>(null);
   const minuteListRef = useRef<HTMLDivElement>(null);
   // Nilai yang kita kirim sendiri. Tanpa ini, mengirim "" untuk jam yang baru
   // setengah terisi akan dibaca balik sebagai nilai baru dan menghapus ketikan.
   const lastSent = useRef(value);
+  // `onNext()` memindahkan fokus ke menit di dalam onChange, jadi blur jam
+  // berjalan sebelum React merender hasil ketikan. Blur membaca ref ini.
+  const latest = useRef(stored);
 
   useEffect(() => {
     if (value === lastSent.current) return;
 
     lastSent.current = value;
+    latest.current = split(value);
     setDraft(null);
   }, [value]);
 
@@ -224,6 +240,7 @@ export const TimeField = (props: PropTypes) => {
   };
 
   const commit = (next: { hour: string; minute: string }) => {
+    latest.current = next;
     setDraft(next);
     send(next.hour && next.minute ? `${next.hour}:${next.minute}` : "");
   };
@@ -249,27 +266,32 @@ export const TimeField = (props: PropTypes) => {
     const digits =
       all.length === 2 && Number(all) > limit ? all.slice(-1) : all;
 
-    commit({ hour, minute, [part]: digits });
+    commit({ ...latest.current, [part]: digits });
 
     return digits;
   };
 
   const onStepSegment = (part: "hour" | "minute", step: number) => {
     const limit = part === "hour" ? 24 : 60;
-    const current = Number((part === "hour" ? hour : minute) || 0);
+    const current = latest.current;
+    const digit = Number(
+      (part === "hour" ? current.hour : current.minute) || 0,
+    );
 
     commit({
-      ...{ hour, minute },
-      [part]: pad(String((current + step + limit) % limit)),
+      ...current,
+      [part]: pad(String((digit + step + limit) % limit)),
     });
   };
 
   const onLeaveSegment = (part: "hour" | "minute") => {
-    const next = { hour: pad(hour), minute: pad(minute) };
+    const current = latest.current;
+    const next = { hour: pad(current.hour), minute: pad(current.minute) };
 
     // Hanya menulis balik kalau memang ada yang perlu dirapikan, supaya blur
     // karena Tab tidak mengirim nilai yang sama sekali baru.
-    if (next.hour !== hour || next.minute !== minute) {
+    if (next.hour !== current.hour || next.minute !== current.minute) {
+      latest.current = next;
       setDraft(next);
       send(next.hour && next.minute ? `${next.hour}:${next.minute}` : "");
     }
@@ -280,21 +302,23 @@ export const TimeField = (props: PropTypes) => {
   // Memilih jam belum menyelesaikan apa pun, jadi panel dibiarkan terbuka dan
   // fokus pindah ke kolom menit. Memilih menit yang menutupnya.
   const onPick = (nextHour: string, nextMinute: string) => {
+    latest.current = { hour: nextHour, minute: nextMinute };
     setDraft({ hour: nextHour, minute: nextMinute });
     send(`${nextHour}:${nextMinute}`);
   };
 
   const onPickHour = (next: string) => {
-    onPick(next, minute || "00");
+    onPick(next, pad(latest.current.minute) || "00");
     minuteListRef.current?.focus();
   };
 
   const onPickMinute = (next: string) => {
-    onPick(hour || "00", next);
+    onPick(pad(latest.current.hour) || "00", next);
     if (isDesktop) isPanelOpen.onFalse();
   };
 
   const onClear = () => {
+    latest.current = { hour: "", minute: "" };
     setDraft({ hour: "", minute: "" });
     send("");
     if (isDesktop) isPanelOpen.onFalse();
@@ -309,7 +333,10 @@ export const TimeField = (props: PropTypes) => {
 
   const onDismiss = () => {
     isPanelOpen.onFalse();
-    hourRef.current?.focus();
+    // Fokus ke tombol di HP: memfokuskan kotak isian memunculkan papan ketik
+    // dan menggeser halaman tepat saat panel ditutup.
+    if (isDesktop === false) triggerRef.current?.focus();
+    else hourRef.current?.focus();
   };
 
   const slots = everyMinutes(stepMinutes);
@@ -416,6 +443,7 @@ export const TimeField = (props: PropTypes) => {
 
         {isDesktop === false ? (
           <button
+            ref={triggerRef}
             type="button"
             disabled={disabled}
             onClick={isPanelOpen.onTrue}

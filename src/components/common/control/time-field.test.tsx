@@ -10,6 +10,8 @@ import { useState } from "react";
 
 import { FormField } from "@/components/common/form";
 
+import { onStubViewport } from "../../../../tests/viewport";
+
 import { TimeField } from "./time-field";
 
 afterEach(cleanup);
@@ -94,6 +96,29 @@ describe("TimeField — dua segmen", () => {
     expect(time.hour.value).toBe("9");
   });
 
+  test("mengetik 07 dua ketukan tidak berubah jadi 00", () => {
+    const time = onRenderTime();
+
+    time.hour.focus();
+    time.typeHour("0");
+    time.typeHour("07");
+
+    expect(time.hour.value).toBe("07");
+    expect(document.activeElement).toBe(time.minute);
+  });
+
+  test("mengetik jam tidak menolkan menit yang sudah ada", () => {
+    const time = onRenderTime({ value: "08:30" });
+
+    time.hour.focus();
+    time.typeHour("0");
+    time.typeHour("07");
+
+    expect(time.hour.value).toBe("07");
+    expect(time.minute.value).toBe("30");
+    expect(time.sent.at(-1)).toBe("07:30");
+  });
+
   test("jam dan menit lengkap baru dikirim sebagai HH:mm", () => {
     const time = onRenderTime();
 
@@ -127,6 +152,18 @@ describe("TimeField — dua segmen", () => {
     const time = onRenderTime();
 
     time.typeHour("08:30");
+
+    expect(time.hour.value).toBe("08");
+    expect(time.minute.value).toBe("30");
+    expect(time.sent.at(-1)).toBe("08:30");
+  });
+
+  test("menempel jam utuh tidak dipotong batas dua karakter", () => {
+    const time = onRenderTime();
+
+    fireEvent.paste(time.hour, {
+      clipboardData: { getData: () => "08:30" },
+    });
 
     expect(time.hour.value).toBe("08");
     expect(time.minute.value).toBe("30");
@@ -235,6 +272,27 @@ describe("TimeField — panel pilih", () => {
     expect(time.sent.at(-1)).toBe("07:45");
   });
 
+  test("memilih menit setelah jam satu angka mengirim dua angka", () => {
+    const time = onRenderTime();
+
+    time.typeHour("7");
+    time.panel();
+    time.pick("Menit", "30");
+
+    expect(time.sent.at(-1)).toBe("07:30");
+  });
+
+  test("memilih jam setelah menit satu angka mengirim dua angka", () => {
+    const time = onRenderTime();
+
+    time.typeHour("07");
+    time.typeMinute("3");
+    time.panel();
+    time.pick("Jam", "08");
+
+    expect(time.sent.at(-1)).toBe("08:03");
+  });
+
   test("Hapus mengosongkan dan mengirim string kosong", () => {
     const time = onRenderTime({ value: "07:45" });
 
@@ -265,6 +323,26 @@ describe("TimeField — panel pilih", () => {
     fireEvent.click(screen.getByText("Sekarang"));
 
     expect(time.sent.at(-1)).toMatch(/^\d{2}:\d{2}$/);
+  });
+});
+
+describe("TimeField — panel HP", () => {
+  test("menutup panel mengembalikan fokus ke tombol, bukan kotak isian", () => {
+    const viewport = onStubViewport(false);
+
+    try {
+      const time = onRenderTime();
+
+      const trigger = screen.getByRole("button", { name: "Pilih jam" });
+
+      fireEvent.click(trigger);
+      fireEvent.click(screen.getByLabelText("Tutup"));
+
+      expect(document.activeElement).toBe(trigger);
+      expect(document.activeElement).not.toBe(time.hour);
+    } finally {
+      viewport.onRestore();
+    }
   });
 });
 
