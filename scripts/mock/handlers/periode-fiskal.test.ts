@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { afterAll, describe, expect, test } from "bun:test";
 
 import { FISCAL_PERIOD } from "../keuangan-store";
 
@@ -30,6 +30,25 @@ const onCall = async (method: string, input: string, body?: unknown) => {
 
   return { status: response.status, body: (await response.json()) as Json };
 };
+
+// `FISCAL_PERIOD` adalah state modul yang dipakai bersama seluruh berkas test
+// dalam satu proses. Test "buka tahun" di bawah menambah 12 baris tahun 2024
+// dan test tutup/buka mengubah status; tanpa pemulihan, berkas lain yang
+// kebetulan berjalan SESUDAHNYA menerima 24 baris. Itu bukan hipotesis: urutan
+// berkas di CI menaruh berkas ini sebelum keuangan.test.ts, sehingga kontrak
+// Beranda yang menuntut totalData 12 gagal dengan 24 — hijau di lokal hanya
+// karena urutan berkasnya kebetulan terbalik. Pemulihan ada di afterAll, bukan
+// afterEach: test 409 memang bersandar pada tahun 2024 yang dibuat test
+// sebelumnya.
+const SEED_PERIOD = FISCAL_PERIOD.map((row) => ({ ...row }));
+
+afterAll(() => {
+  FISCAL_PERIOD.splice(
+    0,
+    FISCAL_PERIOD.length,
+    ...SEED_PERIOD.map((row) => ({ ...row })),
+  );
+});
 
 const openMonths = () =>
   FISCAL_PERIOD.filter((row) => row.status === "OPEN").sort(
