@@ -35,6 +35,49 @@ fi
 
 echo "✅ Branch name valid."
 
+# Gerbang kesegaran: branch ini harus sudah memuat seluruh development.
+#
+# Tanpa ini, sebuah branch yang dicabang seminggu lalu tetap bisa di-push dan
+# membuka PR yang hijau di CI tapi konflik atau pecah begitu digabung. Yang
+# diperiksa riwayatnya, bukan berkasnya: kalau origin/development punya commit
+# yang belum ada di HEAD, push ditolak.
+#
+# Rebase TIDAK dijalankan otomatis di sini. Rebase yang berhenti di konflik
+# akan meninggalkan repo setengah jadi saat push sedang berlangsung, dan
+# menyelesaikannya tetap pekerjaan tangan — jadi hook ini hanya menyebut
+# perintahnya.
+#
+# Jalan keluar bila memang disengaja: git push --no-verify.
+base="development"
+
+echo "🔄 Fetching origin/$base..."
+if ! git fetch --quiet origin "$base" 2>/dev/null; then
+  # Jaringan mati atau remote tidak terjangkau. Menolak push di sini tidak ada
+  # gunanya — pushnya sendiri akan gagal sebentar lagi dengan pesan yang jauh
+  # lebih jelas daripada pesan hook ini.
+  echo "⚠️  Tidak bisa fetch origin/$base. Pemeriksaan kesegaran dilewati."
+elif ! git rev-parse --verify --quiet "origin/$base" >/dev/null; then
+  echo "⚠️  origin/$base belum ada. Pemeriksaan kesegaran dilewati."
+else
+  behind=$(git rev-list --count "HEAD..origin/$base")
+
+  if [ "$behind" -gt 0 ]; then
+    echo "🚫 Branch '$branch' tertinggal $behind commit dari origin/$base."
+    echo ""
+    echo "Samakan dulu sebelum push:"
+    echo ""
+    echo "  git fetch origin $base"
+    echo "  git rebase origin/$base"
+    echo ""
+    echo "Kalau rebase berhenti di konflik: selesaikan berkasnya,"
+    echo "'git add' yang sudah beres, lalu 'git rebase --continue'."
+    echo "Batal dengan 'git rebase --abort'."
+    exit 1
+  fi
+
+  echo "✅ Sudah memuat seluruh origin/$base."
+fi
+
 # Gerbang lokal sementara.
 #
 # Penegakan lint/typecheck/test seharusnya tinggal di CI, dan sudah
