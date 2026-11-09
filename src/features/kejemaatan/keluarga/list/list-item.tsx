@@ -44,6 +44,7 @@ export function keluargaTable(
   onDelete?: (row: Keluarga) => void,
 ): DataTableConfig<Keluarga> {
   return {
+    narrowHeaders: { title: "Nama" },
     columns: [
       {
         key: "name",

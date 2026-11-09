@@ -94,6 +94,7 @@ export function currencyTable(
   onDelete?: (row: Currency) => void,
 ): DataTableConfig<Currency> {
   return {
+    narrowHeaders: { title: "Kode" },
     columns: [
       {
         key: "code",

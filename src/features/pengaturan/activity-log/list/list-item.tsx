@@ -64,6 +64,7 @@ export const ActivityLogListItemRow = (props: PropTypes) => {
 };
 
 export const activityLogTable: DataTableConfig<ActivityLogListItem> = {
+  narrowHeaders: { title: "Waktu" },
   columns: [
     {
       key: "createdAt",

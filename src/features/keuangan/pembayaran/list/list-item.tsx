@@ -168,6 +168,7 @@ export function paymentTable(): DataTableConfig<Payment> {
   ];
 
   return {
+    narrowHeaders: { title: "Tanggal" },
     columns,
     getRowActions: (x) => ({
       label: viewLabelOf(x),

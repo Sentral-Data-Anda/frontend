@@ -56,6 +56,7 @@ export function holidayTable(
   onDelete?: (row: HolidayRow) => void,
 ): DataTableConfig<HolidayRow> {
   return {
+    narrowHeaders: { title: "Tanggal" },
     columns: [
       {
         key: "date",

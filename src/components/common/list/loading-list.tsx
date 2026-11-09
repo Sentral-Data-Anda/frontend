@@ -1,6 +1,14 @@
 import type { ComponentProps } from "react";
 
+import { cn } from "@/lib/utils";
+
 import { LoadingTable } from "./loading-table";
+import {
+  LIST_CARD,
+  LIST_CARD_FRAME,
+  LIST_CARD_ROWS,
+  TABLE_ROWS_ON_CARD,
+} from "./table-style";
 
 export const LIST_DIVIDER = "[&>li+li>[data-slot=row-body]]:border-t";
 
@@ -47,10 +55,12 @@ export function LoadingList({
   shape?: LoadingShape;
 }) {
   return (
-    <div role="status" aria-busy="true">
-      <ul className={LIST_DIVIDER}>
-        <LoadingRows rows={rows} shape={shape} />
-      </ul>
+    <div role="status" aria-busy="true" className={LIST_CARD_FRAME}>
+      <div className={LIST_CARD}>
+        <ul className={cn(TABLE_ROWS_ON_CARD, LIST_CARD_ROWS)}>
+          <LoadingRows rows={rows} shape={shape} />
+        </ul>
+      </div>
 
       <span className="sr-only">Memuat daftar…</span>
     </div>

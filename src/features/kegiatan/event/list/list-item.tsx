@@ -80,6 +80,7 @@ export function eventTable(
   onDelete?: (row: ChurchEvent) => void,
 ): DataTableConfig<ChurchEvent> {
   return {
+    narrowHeaders: { title: "Event" },
     columns: [
       {
         key: "name",

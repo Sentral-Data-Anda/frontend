@@ -132,6 +132,7 @@ export function galeriTable(
   onDelete?: (row: Album) => void,
 ): DataTableConfig<Album> {
   return {
+    narrowHeaders: { title: "Album" },
     columns: COLUMNS,
     getRowActions: (x) => ({
       label: viewLabelOf(x),

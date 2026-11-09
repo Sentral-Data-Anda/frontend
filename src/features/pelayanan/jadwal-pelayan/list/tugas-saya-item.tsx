@@ -139,6 +139,7 @@ const viewLabelOf = (item: TugasSayaItem) =>
   `Lihat jadwal ${item.jadwal.name}, ${formatScheduleDate(item.date)}`;
 
 export const tugasSayaTable: DataTableConfig<TugasSayaItem> = {
+  narrowHeaders: { title: "Tanggal" },
   columns: COLUMNS,
   // Baris tabel sengaja bukan tautan; detail hanya terbuka lewat aksi ini.
   getRowActions: (item) => ({

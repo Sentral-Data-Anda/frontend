@@ -17,6 +17,7 @@ const STATUS_VARIANT = {
 } as const;
 
 export const loanTable = (): DataTableConfig<Loan> => ({
+  narrowHeaders: { title: "Kode" },
   columns: [
     {
       key: "code",

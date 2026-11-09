@@ -72,6 +72,7 @@ export const DisposalItem = (props: PropTypes) => {
 };
 
 export const disposalTable: DataTableConfig<Disposal> = {
+  narrowHeaders: { title: "Tanggal" },
   columns: [
     {
       key: "date",

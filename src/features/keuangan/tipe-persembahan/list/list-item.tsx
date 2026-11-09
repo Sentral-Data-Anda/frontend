@@ -95,6 +95,7 @@ export function offeringTypeTable(
   onDelete?: (row: OfferingType) => void,
 ): DataTableConfig<OfferingType> {
   return {
+    narrowHeaders: { title: "Nama" },
     columns: [
       {
         key: "name",

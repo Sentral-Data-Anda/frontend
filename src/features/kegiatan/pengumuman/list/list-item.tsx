@@ -71,6 +71,7 @@ export function pengumumanTable(
   onDelete?: (row: Announcement) => void,
 ): DataTableConfig<Announcement> {
   return {
+    narrowHeaders: { title: "Judul" },
     columns: [
       {
         key: "title",

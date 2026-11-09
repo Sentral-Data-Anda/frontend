@@ -40,6 +40,7 @@ export function tipeBarangTable(
   onDelete?: (row: TipeBarang) => void,
 ): DataTableConfig<TipeBarang> {
   return {
+    narrowHeaders: { title: "Nama" },
     columns: [
       {
         key: "name",

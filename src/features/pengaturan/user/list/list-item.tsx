@@ -46,6 +46,7 @@ export const UserListItemRow = (props: PropTypes) => {
 };
 
 export const userTable: DataTableConfig<UserListItem> = {
+  narrowHeaders: { title: "Nama" },
   columns: [
     {
       key: "name",

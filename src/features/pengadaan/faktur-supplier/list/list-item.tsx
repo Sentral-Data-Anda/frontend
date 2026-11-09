@@ -141,6 +141,7 @@ export function invoiceTable(
   onDelete?: (row: Invoice) => void,
 ): DataTableConfig<Invoice> {
   return {
+    narrowHeaders: { title: "Supplier" },
     columns: COLUMNS,
     getRowActions: (x) => ({
       label: viewLabelOf(x),

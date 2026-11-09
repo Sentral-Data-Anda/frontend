@@ -43,6 +43,7 @@ export function wilayahTable(
   onDelete?: (wilayah: Wilayah) => void,
 ): DataTableConfig<Wilayah> {
   return {
+    narrowHeaders: { title: "Nama" },
     columns: [
       {
         key: "name",

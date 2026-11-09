@@ -56,6 +56,7 @@ export function karyawanTable(
   onDelete?: (row: Karyawan) => void,
 ): DataTableConfig<Karyawan> {
   return {
+    narrowHeaders: { title: "Nama" },
     columns: [
       {
         key: "name",

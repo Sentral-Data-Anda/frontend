@@ -74,6 +74,7 @@ export function katalogTable(
   onDelete?: (row: KomponenPayroll) => void,
 ): DataTableConfig<KomponenPayroll> {
   return {
+    narrowHeaders: { title: "Nama" },
     columns: [
       {
         key: "name",

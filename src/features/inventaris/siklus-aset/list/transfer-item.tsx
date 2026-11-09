@@ -71,6 +71,7 @@ const placeCell = (room: Place, bapel: Place) => (
 );
 
 export const transferTable: DataTableConfig<Transfer> = {
+  narrowHeaders: { title: "Tanggal" },
   columns: [
     {
       key: "date",

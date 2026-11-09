@@ -135,6 +135,7 @@ export function persediaanTable(
   onDelete?: (row: StockItem) => void,
 ): DataTableConfig<StockItem> {
   return {
+    narrowHeaders: { title: "Barang" },
     columns: COLUMNS,
     getRowActions: (x) => ({
       label: viewLabelOf(x),

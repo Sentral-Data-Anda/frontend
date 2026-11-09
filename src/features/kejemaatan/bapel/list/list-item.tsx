@@ -32,6 +32,7 @@ export function bapelTable(
   onDelete?: (row: BapelListItem) => void,
 ): DataTableConfig<BapelListItem> {
   return {
+    narrowHeaders: { title: "Nama" },
     columns: [
       {
         key: "name",

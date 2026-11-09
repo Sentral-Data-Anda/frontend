@@ -146,8 +146,11 @@ const names = process.env.MOCK_MANY_JEMAAT
   : NAMES;
 
 type JemaatRow = {
+  id: number;
   publicId: string;
   code: string;
+  codeInduk: string | null;
+  missingFields: string[];
   name: string;
   gender: string;
   birthDate: string | null;
@@ -172,10 +175,44 @@ const keluargaZoneOf = (keluargaId: number) =>
 const zoneOf = (id: number | null) =>
   id === null ? null : { id, name: ZONE_CHURCHES[id - 1] ?? `Wilayah ${id}` };
 
+/**
+ * Kelengkapan baris daftar. Kuncinya nomor kode (`JMT-0007` → 7), supaya
+ * daftar dan detail menyepakati field yang sama: detail menulis `-`,
+ * `UNKNOWN`, atau null tepat untuk field yang disebut di sini.
+ */
+const MISSING_ROTATION: readonly (readonly string[])[] = [
+  [],
+  ["birthPlace"],
+  [],
+  ["address", "villagesCode"],
+  [],
+  ["statusMarital", "ethnicGroupId"],
+  [],
+  ["codeInduk"],
+];
+
+const ANGGOTA_ONLY = new Set(["statusMarital", "ethnicGroupId", "codeInduk"]);
+
+const missingFieldsOf = (number: number, type: string) =>
+  MISSING_ROTATION[number % MISSING_ROTATION.length].filter(
+    (field) => type === "ANGGOTA" || !ANGGOTA_ONLY.has(field),
+  );
+
+const codeIndukOf = (number: number, type: string) =>
+  type !== "ANGGOTA" || missingFieldsOf(number, type).includes("codeInduk")
+    ? null
+    : `A-${String(number).padStart(4, "0")}`;
+
 const rows: JemaatRow[] = names.map((name, index) => ({
+  id: index + 1,
   // be-sada addresses a jemaat as /edit/{publicId}; a uuid, never the code.
   publicId: `00000000-0000-4000-a000-${String(index + 1).padStart(12, "0")}`,
   code: `JMT-${String(index + 1).padStart(4, "0")}`,
+  codeInduk: codeIndukOf(index + 1, index % 5 === 0 ? "SIMPATISAN" : "ANGGOTA"),
+  missingFields: missingFieldsOf(
+    index + 1,
+    index % 5 === 0 ? "SIMPATISAN" : "ANGGOTA",
+  ),
   name,
   gender: index % 2 === 0 ? "L" : "P",
   birthDate: `199${index % 10}-0${(index % 9) + 1}-09T00:00:00.000Z`,
@@ -210,13 +247,17 @@ const jemaatOf = (key: string) =>
 const jemaatDetail = (row: (typeof rows)[number]) => {
   const index = Number(row.code.slice(4));
   const isAnggota = row.type === "ANGGOTA";
+  const missing = row.missingFields;
+  const isMissing = (field: string) => missing.includes(field);
 
   return {
     publicId: row.publicId,
     code: row.code,
     name: row.name,
     gender: row.gender,
-    birthPlace: ["Bandung", "Medan", "Jakarta", "Ambon"][index % 4],
+    birthPlace: isMissing("birthPlace")
+      ? "-"
+      : ["Bandung", "Medan", "Jakarta", "Ambon"][index % 4],
     // Tiap jemaat kelima tidak punya tanggal lahir: "tidak diketahui"
     // disimpan KOSONG, dan form ubah harus menampilkannya apa adanya.
     birthDate: index % 5 === 0 ? null : row.birthDate,
@@ -225,16 +266,22 @@ const jemaatDetail = (row: (typeof rows)[number]) => {
     bloodType: isAnggota ? ["A", "B", "AB", "O"][index % 4] : null,
     lastEducation:
       index % 5 === 0 ? null : ["SMA", "S1", "SMP", "D3"][index % 4],
-    statusMarital: isAnggota ? ["SM", "BM", "CM", "CH"][index % 4] : null,
+    statusMarital:
+      isAnggota && !isMissing("statusMarital")
+        ? ["SM", "BM", "CM", "CH"][index % 4]
+        : null,
     professionId: index % 5 === 0 ? null : (index % 12) + 1,
-    ethnicGroupId: isAnggota ? (index % 8) + 1 : null,
+    ethnicGroupId:
+      isAnggota && !isMissing("ethnicGroupId") ? (index % 8) + 1 : null,
     zoneChurchId: personalZoneOf(index, row.type),
-    codeInduk: isAnggota ? `A-${String(index).padStart(4, "0")}` : null,
-    provincesCode: "32",
-    regenciesCode: "3273",
-    districtsCode: "327301",
-    villagesCode: "3273011001",
-    address: `Jl. Merdeka No. ${index}, RT 0${(index % 9) + 1} RW 02`,
+    codeInduk: row.codeInduk,
+    provincesCode: isMissing("provincesCode") ? "UNKNOWN" : "32",
+    regenciesCode: isMissing("regenciesCode") ? "UNKNOWN" : "3273",
+    districtsCode: isMissing("districtsCode") ? "UNKNOWN" : "327301",
+    villagesCode: isMissing("villagesCode") ? "UNKNOWN" : "3273011001",
+    address: isMissing("address")
+      ? "-"
+      : `Jl. Merdeka No. ${index}, RT 0${(index % 9) + 1} RW 02`,
     typeJemaat: row.type,
     statusJemaat: row.status,
     keluargaId: row.keluarga?.id ?? null,
@@ -699,8 +746,12 @@ Bun.serve({
       // tidak memperlihatkan baris baru maupun sorotannya, dan alur yang
       // justru paling perlu dinilai user tidak bisa dilihat sama sekali.
       rows.unshift({
+        id: rows.length + 1,
         publicId: crypto.randomUUID(),
         code,
+        codeInduk: null,
+        // Baris baru dari form selalu terisi lengkap; validasinya di form.
+        missingFields: [],
         name: body.name,
         gender: body.gender,
         birthDate: body.birthDate ? `${body.birthDate}T00:00:00.000Z` : null,
@@ -813,14 +864,20 @@ Bun.serve({
         return json({ status: 500, error: "Kesalahan server." }, 500);
       }
 
+      // Hanya `true` yang menyaring; `incomplete=false` berarti tanpa filter.
+      const isIncomplete =
+        url.searchParams.get("incomplete")?.trim().toLowerCase() === "true";
+
       const matched = rows.filter(
         (row) =>
           (!filter ||
             row.name.toLowerCase().includes(filter) ||
-            row.code.toLowerCase().includes(filter)) &&
+            row.code.toLowerCase().includes(filter) ||
+            (row.codeInduk ?? "").toLowerCase().includes(filter)) &&
           (!status || row.status === status) &&
           (!type || row.type === type) &&
-          (zones.size === 0 || zones.has(row.zoneChurch?.id ?? -1)),
+          (zones.size === 0 || zones.has(row.zoneChurch?.id ?? -1)) &&
+          (!isIncomplete || row.missingFields.length > 0),
       );
 
       // Kontrak be-sada: daftar kosong dijawab 404, bukan 200 dengan array kosong.

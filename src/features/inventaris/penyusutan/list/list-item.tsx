@@ -76,6 +76,7 @@ export function penyusutanTable(
   onDelete?: (row: Run) => void,
 ): DataTableConfig<Run> {
   return {
+    narrowHeaders: { title: "Periode" },
     columns: [
       {
         key: "period",

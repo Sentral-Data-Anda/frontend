@@ -147,6 +147,7 @@ export function programTable(
   onDelete?: (row: Program) => void,
 ): DataTableConfig<Program> {
   return {
+    narrowHeaders: { title: "Kode" },
     columns: COLUMNS,
     getRowActions: (x) => ({
       label: viewLabelOf(x),

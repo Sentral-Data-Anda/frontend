@@ -43,6 +43,7 @@ export function templateJadwalTable(
   onDelete?: (row: TemplateJadwalListItem) => void,
 ): DataTableConfig<TemplateJadwalListItem> {
   return {
+    narrowHeaders: { title: "Nama" },
     columns: [
       {
         key: "name",

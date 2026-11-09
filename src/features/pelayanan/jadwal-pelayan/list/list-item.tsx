@@ -171,6 +171,7 @@ export function jadwalPelayanTable(
   onDelete?: (row: JadwalPelayan) => void,
 ): DataTableConfig<JadwalPelayan> {
   return {
+    narrowHeaders: { title: "Tanggal" },
     columns: COLUMNS,
     getRowActions: (x) => ({
       label: viewLabelOf(x),

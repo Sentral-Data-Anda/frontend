@@ -67,6 +67,7 @@ export function daftarPelayanTable(
   onDelete?: (row: PelayanListItem) => void,
 ): DataTableConfig<PelayanListItem> {
   return {
+    narrowHeaders: { title: "Nama" },
     columns: [
       {
         key: "name",

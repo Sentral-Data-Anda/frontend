@@ -13,3 +13,11 @@ export const TABLE_SECONDARY = "hidden @min-[64rem]:block";
 
 export const alignClass = (align: "start" | "end" | undefined) =>
   align === "end" ? "text-right" : undefined;
+
+export const LIST_CARD =
+  "bg-card border-hairline overflow-hidden rounded-lg border";
+export const LIST_CARD_FRAME = "px-gutter";
+export const LIST_CARD_HEAD =
+  "bg-muted/40 border-hairline flex items-center gap-3 border-b px-3 py-2.5";
+// Di dalam kartu, baris memakai padding kartu — bukan gutter layar.
+export const LIST_CARD_ROWS = "[&>li]:px-3 [&>li:nth-child(even)]:bg-muted/60";

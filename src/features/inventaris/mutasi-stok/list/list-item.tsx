@@ -125,5 +125,8 @@ const columnsOf = (isCanViewItem: boolean): Column[] => [
 ];
 
 export function mutasiTable(isCanViewItem = false): DataTableConfig<Movement> {
-  return { columns: columnsOf(isCanViewItem) };
+  return {
+    narrowHeaders: { title: "Tanggal", trailing: "Jumlah" },
+    columns: columnsOf(isCanViewItem),
+  };
 }

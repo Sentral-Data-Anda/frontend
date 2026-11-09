@@ -129,6 +129,7 @@ export function barangTable(
   onDelete?: (row: Asset) => void,
 ): DataTableConfig<Asset> {
   return {
+    narrowHeaders: { title: "Barang" },
     columns: COLUMNS,
     getRowActions: (x) => ({
       label: viewLabelOf(x),

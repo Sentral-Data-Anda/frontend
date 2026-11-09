@@ -47,6 +47,7 @@ export function tipeIbadahTable(
   onDelete?: (row: TipeIbadah) => void,
 ): DataTableConfig<TipeIbadah> {
   return {
+    narrowHeaders: { title: "Nama" },
     columns: [
       {
         key: "name",

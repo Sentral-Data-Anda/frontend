@@ -112,6 +112,7 @@ export function ruangTable(
   onDelete?: (row: Room) => void,
 ): DataTableConfig<Room> {
   return {
+    narrowHeaders: { title: "Ruang" },
     columns: COLUMNS,
     getRowActions: (x) => ({
       label: viewLabelOf(x),

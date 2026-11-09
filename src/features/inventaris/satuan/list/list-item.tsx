@@ -36,6 +36,7 @@ export function satuanTable(
   onDelete?: (row: Satuan) => void,
 ): DataTableConfig<Satuan> {
   return {
+    narrowHeaders: { title: "Nama" },
     columns: [
       {
         key: "name",

@@ -156,6 +156,7 @@ export function allocationTable(
   onDelete?: (row: BudgetAllocation) => void,
 ): DataTableConfig<BudgetAllocation> {
   return {
+    narrowHeaders: { title: "Badan pelayanan" },
     columns: COLUMNS,
     getRowActions: (x) => ({
       label: viewLabelOf(x),

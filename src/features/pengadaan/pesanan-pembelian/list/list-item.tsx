@@ -171,6 +171,7 @@ export function orderTable(
   onDelete?: (row: Order) => void,
 ): DataTableConfig<Order> {
   return {
+    narrowHeaders: { title: "Tanggal" },
     columns: COLUMNS,
     getRowActions: (x) => ({
       label: viewLabelOf(x),
