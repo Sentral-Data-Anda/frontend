@@ -3,7 +3,6 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
-import { useBoolean } from "@/hooks/use-boolean";
 import { useHolidayCalendar } from "@/hooks/use-holiday-calendar";
 import {
   addDays,
@@ -22,6 +21,36 @@ import { Button } from "./button";
 
 const WEEKDAY_LABELS = ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"];
 
+const MONTH_LABELS = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "Mei",
+  "Jun",
+  "Jul",
+  "Agu",
+  "Sep",
+  "Okt",
+  "Nov",
+  "Des",
+];
+
+const MONTH_NAMES = [
+  "Januari",
+  "Februari",
+  "Maret",
+  "April",
+  "Mei",
+  "Juni",
+  "Juli",
+  "Agustus",
+  "September",
+  "Oktober",
+  "November",
+  "Desember",
+];
+
 const monthTitleFormat = new Intl.DateTimeFormat("id-ID", {
   month: "long",
   year: "numeric",
@@ -32,6 +61,40 @@ const monthTitle = (iso: string): string =>
   monthTitleFormat.format(new Date(`${iso.slice(0, 7)}-01T00:00:00.000Z`));
 
 const YEARS_PER_ROW = 4;
+const MONTHS_PER_ROW = 3;
+
+type CalendarView = "day" | "month" | "year";
+
+const pad = (value: number, length: number): string =>
+  String(value).padStart(length, "0");
+
+const lastDayOfMonth = (year: number, month: number): number =>
+  new Date(Date.UTC(year, month, 0)).getUTCDate();
+
+const toCursor = (iso: string, year: number, month: number): string => {
+  const day = Math.min(Number(iso.slice(8)), lastDayOfMonth(year, month));
+
+  return `${pad(year, 4)}-${pad(month, 2)}-${pad(day, 2)}`;
+};
+
+const clamp = (iso: string, min?: string, max?: string): string => {
+  if (min && iso < min) return min;
+  if (max && iso > max) return max;
+
+  return iso;
+};
+
+const isMonthWithin = (
+  year: number,
+  month: number,
+  min?: string,
+  max?: string,
+): boolean => {
+  const first = `${pad(year, 4)}-${pad(month, 2)}-01`;
+  const last = `${pad(year, 4)}-${pad(month, 2)}-${lastDayOfMonth(year, month)}`;
+
+  return (!min || last >= min) && (!max || first <= max);
+};
 
 interface PropTypes {
   value: string;
@@ -65,14 +128,17 @@ export const Calendar = (props: PropTypes) => {
 
     return start;
   });
-  const isYearGrid = useBoolean(startInYearGrid);
+  const [view, setView] = useState<CalendarView>(
+    startInYearGrid ? "year" : "day",
+  );
   const cursorRef = useRef<HTMLButtonElement>(null);
-  const yearGridRef = useRef<HTMLDivElement>(null);
-  const onCloseYearGrid = isYearGrid.onFalse;
+  const overlayRef = useRef<HTMLDivElement>(null);
 
   const month = startOfMonth(cursor);
   const days = monthGrid(cursor);
   const holidays = useHolidayCalendar(days[0] ?? "", days.at(-1) ?? "");
+  const cursorYear = Number(cursor.slice(0, 4));
+  const cursorMonth = Number(cursor.slice(5, 7));
 
   const moveCursor = (next: string) => {
     if (!next || !isWithin(next, min, max)) return;
@@ -122,18 +188,18 @@ export const Calendar = (props: PropTypes) => {
   };
 
   useEffect(() => {
-    if (!isYearGrid.value) return;
+    if (view === "day") return;
 
     const onPointerDown = (event: PointerEvent) => {
-      if (!yearGridRef.current?.contains(event.target as Node)) {
-        onCloseYearGrid();
+      if (!overlayRef.current?.contains(event.target as Node)) {
+        setView("day");
       }
     };
 
     document.addEventListener("pointerdown", onPointerDown);
 
     return () => document.removeEventListener("pointerdown", onPointerDown);
-  }, [isYearGrid.value, onCloseYearGrid]);
+  }, [view]);
 
   useEffect(() => {
     let inner = 0;
@@ -146,22 +212,20 @@ export const Calendar = (props: PropTypes) => {
       cancelAnimationFrame(outer);
       cancelAnimationFrame(inner);
     };
-  }, [cursor, isYearGrid.value]);
+  }, [cursor, view]);
 
-  if (isYearGrid.value) {
+  if (view === "year") {
     const firstYear = Number((min ?? "1900-01-01").slice(0, 4));
     const lastYear = Number((max ?? today).slice(0, 4));
     const years = Array.from(
       { length: lastYear - firstYear + 1 },
       (_, index) => lastYear - index,
     );
-    const cursorYear = Number(cursor.slice(0, 4));
 
     const onYear = (year: number) => {
       if (year < firstYear || year > lastYear) return;
 
-      const next = `${year}${cursor.slice(4)}`;
-      setCursor(isWithin(next, min, max) ? next : (max ?? min ?? today));
+      setCursor(clamp(toCursor(cursor, year, cursorMonth), min, max));
     };
 
     const onYearKey = (event: React.KeyboardEvent) => {
@@ -177,7 +241,7 @@ export const Calendar = (props: PropTypes) => {
       if (event.key === "Escape") {
         event.preventDefault();
         event.stopPropagation();
-        onCloseYearGrid();
+        setView("day");
         return;
       }
 
@@ -199,7 +263,7 @@ export const Calendar = (props: PropTypes) => {
     };
 
     return (
-      <div ref={yearGridRef} className="p-2">
+      <div ref={overlayRef} className="p-2">
         <div className="mb-2 flex items-center gap-1">
           <Button
             type="button"
@@ -207,7 +271,7 @@ export const Calendar = (props: PropTypes) => {
             size="icon-sm"
             aria-label="Kembali ke kalender"
             className="cursor-pointer"
-            onClick={onCloseYearGrid}
+            onClick={() => setView("day")}
           >
             <ChevronLeft aria-hidden />
           </Button>
@@ -238,7 +302,7 @@ export const Calendar = (props: PropTypes) => {
                 data-autofocus={isCurrent ? "" : undefined}
                 onClick={() => {
                   onYear(year);
-                  onCloseYearGrid();
+                  setView("month");
                 }}
                 className={cn(
                   "h-control cursor-pointer rounded-control text-body tabular-nums",
@@ -249,6 +313,121 @@ export const Calendar = (props: PropTypes) => {
                 )}
               >
                 {year}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
+
+  if (view === "month") {
+    const onMonth = (nextMonth: number) => {
+      if (nextMonth < 1 || nextMonth > 12) return;
+      if (!isMonthWithin(cursorYear, nextMonth, min, max)) return;
+
+      setCursor(clamp(toCursor(cursor, cursorYear, nextMonth), min, max));
+    };
+
+    const onMonthKey = (event: React.KeyboardEvent) => {
+      const step: Record<string, number> = {
+        ArrowLeft: -1,
+        ArrowRight: 1,
+        ArrowUp: -MONTHS_PER_ROW,
+        ArrowDown: MONTHS_PER_ROW,
+      };
+
+      if (event.key === "Escape") {
+        event.preventDefault();
+        event.stopPropagation();
+        setView("day");
+        return;
+      }
+
+      if (step[event.key] !== undefined) {
+        event.preventDefault();
+        onMonth(cursorMonth + step[event.key]);
+        return;
+      }
+
+      if (event.key === "Home" || event.key === "End") {
+        event.preventDefault();
+        const column = (cursorMonth - 1) % MONTHS_PER_ROW;
+        onMonth(
+          event.key === "Home"
+            ? cursorMonth - column
+            : cursorMonth + (MONTHS_PER_ROW - 1 - column),
+        );
+      }
+    };
+
+    return (
+      <div ref={overlayRef} className="p-2">
+        <div className="mb-2 flex items-center gap-1">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            aria-label="Kembali ke kalender"
+            className="cursor-pointer"
+            onClick={() => setView("day")}
+          >
+            <ChevronLeft aria-hidden />
+          </Button>
+
+          <p className="px-1 text-title font-semibold">Pilih bulan</p>
+
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            aria-label="Pilih tahun"
+            className="ml-auto cursor-pointer font-semibold tabular-nums"
+            onClick={() => setView("year")}
+          >
+            {cursorYear}
+          </Button>
+        </div>
+
+        <div
+          role="grid"
+          aria-label="Pilih bulan"
+          onKeyDown={onMonthKey}
+          className="grid gap-1"
+          style={{ gridTemplateColumns: `repeat(${MONTHS_PER_ROW}, 1fr)` }}
+        >
+          {MONTH_LABELS.map((label, index) => {
+            const monthNumber = index + 1;
+            const isCurrent = cursorMonth === monthNumber;
+            const isAllowed = isMonthWithin(cursorYear, monthNumber, min, max);
+
+            return (
+              <button
+                key={label}
+                ref={(node) => {
+                  if (isCurrent) cursorRef.current = node;
+                }}
+                type="button"
+                role="gridcell"
+                tabIndex={isCurrent ? 0 : -1}
+                disabled={!isAllowed}
+                aria-label={`${MONTH_NAMES[index]} ${cursorYear}`}
+                aria-selected={isCurrent}
+                data-autofocus={isCurrent ? "" : undefined}
+                onClick={() => {
+                  onMonth(monthNumber);
+                  setView("day");
+                }}
+                className={cn(
+                  "h-control cursor-pointer rounded-control text-body",
+                  "focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:outline-none",
+                  "disabled:text-muted-foreground disabled:cursor-not-allowed disabled:line-through",
+                  isCurrent
+                    ? "bg-primary text-primary-foreground"
+                    : "hover:bg-accent",
+                )}
+              >
+                {label}
               </button>
             );
           })}
@@ -277,7 +456,7 @@ export const Calendar = (props: PropTypes) => {
           size="sm"
           aria-live="polite"
           className="flex-1 cursor-pointer font-semibold"
-          onClick={isYearGrid.onTrue}
+          onClick={() => setView("year")}
         >
           {monthTitle(month)}
         </Button>

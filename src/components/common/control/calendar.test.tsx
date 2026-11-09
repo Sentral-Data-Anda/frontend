@@ -254,7 +254,7 @@ describe("Calendar — kisi tahun dan varian (§7.10 no. 6)", () => {
     expect(cal.grid()).toBeNull();
   });
 
-  test("memilih tahun kembali ke kisi hari di tahun itu", () => {
+  test("memilih tahun membuka kisi bulan, bukan kisi hari", () => {
     const cal = onRenderCalendar({
       startInYearGrid: true,
       value: "2026-09-23",
@@ -262,8 +262,82 @@ describe("Calendar — kisi tahun dan varian (§7.10 no. 6)", () => {
 
     fireEvent.click(screen.getByText("1990"));
 
+    expect(cal.grid()).toBeNull();
+    expect(screen.getByRole("grid", { name: "Pilih bulan" })).toBeTruthy();
+    expect(
+      screen.getByRole("button", { name: "Pilih tahun" }).textContent,
+    ).toBe("1990");
+  });
+
+  test("memilih bulan kembali ke kisi hari di bulan itu", () => {
+    const cal = onRenderCalendar({
+      startInYearGrid: true,
+      value: "2026-09-23",
+    });
+
+    fireEvent.click(screen.getByText("1990"));
+    fireEvent.click(screen.getByRole("gridcell", { name: "Maret 1990" }));
+
     expect(cal.grid()).not.toBeNull();
-    expect(screen.getByRole("button", { name: /September 1990/ })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /Maret 1990/ })).toBeTruthy();
+  });
+
+  test("tombol tahun di kisi bulan kembali ke kisi tahun", () => {
+    onRenderCalendar({ startInYearGrid: true, value: "2026-09-23" });
+
+    fireEvent.click(screen.getByText("1990"));
+    fireEvent.click(screen.getByRole("button", { name: "Pilih tahun" }));
+
+    expect(screen.getByRole("grid", { name: "Pilih tahun" })).toBeTruthy();
+  });
+
+  test("bulan di luar max dicoret dan tidak bisa dipilih", () => {
+    onRenderCalendar({ startInYearGrid: true, value: "2026-09-23" });
+
+    fireEvent.click(screen.getByText("2026"));
+
+    const desember = screen.getByRole("gridcell", { name: "Desember 2026" });
+
+    expect((desember as HTMLButtonElement).disabled).toBe(true);
+    expect(
+      (
+        screen.getByRole("gridcell", {
+          name: "September 2026",
+        }) as HTMLButtonElement
+      ).disabled,
+    ).toBe(false);
+  });
+
+  test("panah di kisi bulan: kanan satu bulan, bawah satu baris (3 bulan)", () => {
+    onRenderCalendar({ startInYearGrid: true, value: "2026-09-23" });
+
+    fireEvent.click(screen.getByText("1990"));
+
+    const monthGridEl = screen.getByRole("grid", { name: "Pilih bulan" });
+    const current = () =>
+      monthGridEl.querySelector('[tabindex="0"]')?.textContent;
+
+    expect(current()).toBe("Sep");
+    fireEvent.keyDown(monthGridEl, { key: "ArrowRight" });
+    expect(current()).toBe("Okt");
+    fireEvent.keyDown(monthGridEl, { key: "ArrowUp" });
+    expect(current()).toBe("Jul");
+    fireEvent.keyDown(monthGridEl, { key: "ArrowDown" });
+    expect(current()).toBe("Okt");
+  });
+
+  test("Escape di kisi bulan kembali ke kisi hari", () => {
+    const cal = onRenderCalendar({
+      startInYearGrid: true,
+      value: "2026-09-23",
+    });
+
+    fireEvent.click(screen.getByText("1990"));
+    fireEvent.keyDown(screen.getByRole("grid", { name: "Pilih bulan" }), {
+      key: "Escape",
+    });
+
+    expect(cal.grid()).not.toBeNull();
   });
 
   test("kisi tahun dibatasi min dan max", () => {
@@ -367,7 +441,7 @@ describe("Calendar — panah di kisi tahun", () => {
     expect(years.current()).toBe("2026");
   });
 
-  test("memilih tahun lewat klik kembali ke kisi hari di tahun itu", () => {
+  test("memilih tahun lewat klik lanjut ke kisi bulan di tahun itu", () => {
     const years = onRenderYears();
 
     years.press("PageDown");
@@ -375,8 +449,11 @@ describe("Calendar — panah di kisi tahun", () => {
 
     expect(
       document.querySelector('[role="grid"][aria-label="Kalender"]'),
-    ).not.toBeNull();
-    expect(screen.getByRole("button", { name: /September 2014/ })).toBeTruthy();
+    ).toBeNull();
+    expect(screen.getByRole("grid", { name: "Pilih bulan" })).toBeTruthy();
+    expect(
+      screen.getByRole("gridcell", { name: "September 2014" }),
+    ).toBeTruthy();
   });
 });
 
