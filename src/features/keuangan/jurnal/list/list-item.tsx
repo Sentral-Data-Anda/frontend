@@ -155,6 +155,7 @@ export function journalTable(
   onDelete?: (row: JournalEntry) => void,
 ): DataTableConfig<JournalEntry> {
   return {
+    narrowHeaders: { title: "Kode" },
     columns: COLUMNS,
     getRowActions: (x) => ({
       label: viewLabelOf(x),

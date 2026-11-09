@@ -60,6 +60,7 @@ export function tipeCutiTable(
   onDelete?: (row: TipeCuti) => void,
 ): DataTableConfig<TipeCuti> {
   return {
+    narrowHeaders: { title: "Nama" },
     columns: [
       {
         key: "name",

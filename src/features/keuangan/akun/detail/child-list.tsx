@@ -44,6 +44,7 @@ export const ChildList = (props: PropTypes) => {
           emptyTitle="Belum ada sub akun"
           table={accountTable()}
           itemNoun="akun"
+          isHeaderHidden
         >
           {(child) => <AccountListItemRow account={child} />}
         </DataList>

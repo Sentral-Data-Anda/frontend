@@ -46,6 +46,10 @@ interface PropTypes {
 const isOffered = (action?: RowAction): boolean =>
   Boolean(action?.href || action?.onSelect);
 
+// Baris sempit membuang "lihat", jadi hanya dua aksi ini yang memunculkan tombol.
+export const isNarrowActionOffered = (actions?: RowActions): boolean =>
+  isOffered(actions?.edit) || isOffered(actions?.remove);
+
 // Baris sengaja bukan tautan: satu-satunya jalan masuk ke form adalah tombol ini.
 export const DataRowActions = (props: PropTypes) => {
   const { actions } = props;

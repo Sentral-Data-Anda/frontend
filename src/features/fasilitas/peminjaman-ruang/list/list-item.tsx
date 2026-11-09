@@ -64,6 +64,7 @@ export function peminjamanTable(
   onDelete?: (loan: LoanRoom) => void,
 ): DataTableConfig<LoanRoom> {
   return {
+    narrowHeaders: { title: "Waktu" },
     columns: [
       {
         key: "when",

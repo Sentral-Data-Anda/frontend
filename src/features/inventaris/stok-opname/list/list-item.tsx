@@ -139,6 +139,7 @@ const COLUMNS: Column[] = [
 
 export function opnameTable(isCanUpdate: boolean): DataTableConfig<Opname> {
   return {
+    narrowHeaders: { title: "Tanggal" },
     columns: COLUMNS,
     getRowActions: (x) => ({
       label: viewLabelOf(x),

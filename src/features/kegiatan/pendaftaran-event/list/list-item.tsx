@@ -141,6 +141,7 @@ const COLUMNS: Column[] = [
 
 export function pendaftaranTable(): DataTableConfig<Registration> {
   return {
+    narrowHeaders: { title: "Peserta", trailing: "Status" },
     columns: COLUMNS,
     getRowActions: (x) => ({
       label: labelOf(x),

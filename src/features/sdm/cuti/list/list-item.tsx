@@ -62,6 +62,7 @@ export function cutiTable(
   onDelete?: (row: Cuti) => void,
 ): DataTableConfig<Cuti> {
   return {
+    narrowHeaders: { title: "Karyawan", trailing: "Status" },
     columns: [
       {
         key: "karyawan",

@@ -108,6 +108,7 @@ const COLUMNS: DataTableColumn<Receipt>[] = [
 
 export function receiptTable(): DataTableConfig<Receipt> {
   return {
+    narrowHeaders: { title: "Tanggal" },
     columns: COLUMNS,
     getRowActions: (x) => ({
       label: viewLabelOf(x),

@@ -70,6 +70,7 @@ export function payrollTable(
   onDelete?: (row: PayrollRun) => void,
 ): DataTableConfig<PayrollRun> {
   return {
+    narrowHeaders: { title: "Periode", trailing: "Status" },
     columns: [
       {
         key: "period",

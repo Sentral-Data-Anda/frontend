@@ -116,6 +116,7 @@ export function supplierTable(
   onDelete?: (row: Supplier) => void,
 ): DataTableConfig<Supplier> {
   return {
+    narrowHeaders: { title: "Nama" },
     columns: COLUMNS,
     getRowActions: (x) => ({
       label: viewLabelOf(x),

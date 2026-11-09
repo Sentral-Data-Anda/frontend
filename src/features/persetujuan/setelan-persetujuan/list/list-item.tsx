@@ -60,6 +60,7 @@ export function setelanTable(
   isCanUpdate: boolean,
 ): DataTableConfig<SetelanItem> {
   return {
+    narrowHeaders: { title: "Nama" },
     columns: [
       {
         key: "name",

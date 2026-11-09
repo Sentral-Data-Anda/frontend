@@ -113,6 +113,7 @@ const COLUMNS: DataTableColumn<Transfer>[] = [
 
 export function transferTable(): DataTableConfig<Transfer> {
   return {
+    narrowHeaders: { title: "Tanggal" },
     columns: COLUMNS,
     getRowActions: (x) => ({
       label: viewLabelOf(x),

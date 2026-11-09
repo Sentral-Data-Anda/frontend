@@ -16,6 +16,7 @@ import {
   tableTemplate,
 } from "./loading-table";
 import {
+  LIST_CARD,
   TABLE_HEAD,
   TABLE_HEAD_LINE_ON_CARD,
   TABLE_ROWS_ON_CARD,
@@ -33,8 +34,15 @@ export type DataTableColumn<T> = {
   align?: "start" | "end";
 };
 
+export type DataTableNarrowHeaders = {
+  title: string;
+  trailing?: string;
+};
+
 export type DataTableConfig<T> = {
   columns: DataTableColumn<T>[];
+  // Layar sempit hanya memuat dua judul kolom; sisanya menempel di baris meta.
+  narrowHeaders?: DataTableNarrowHeaders;
   // Baris sengaja bukan tautan: menyenggol baris tidak boleh membuka form.
   getRowActions?: (item: T) => RowActions | undefined;
   rowClassName?: (item: T) => string | undefined;
@@ -92,7 +100,7 @@ export function DataTable<T>({
       <div
         role="table"
         aria-label={label}
-        className="bg-card border-hairline overflow-hidden rounded-lg border"
+        className={LIST_CARD}
         style={tableTemplate(columns)}
       >
         <div

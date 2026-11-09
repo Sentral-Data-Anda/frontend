@@ -18,15 +18,23 @@ import {
 import {
   DataRowActions,
   RowActionsProvider,
+  isNarrowActionOffered,
   useRowActions,
 } from "./data-row-actions";
 import { DataTable, DataTableFooter, type DataTableConfig } from "./data-table";
 import {
-  LIST_DIVIDER,
   LoadingDataList,
   LoadingRows,
   type LoadingShape,
 } from "./loading-list";
+import {
+  LIST_CARD,
+  LIST_CARD_FRAME,
+  LIST_CARD_HEAD,
+  LIST_CARD_ROWS,
+  TABLE_HEAD,
+  TABLE_ROWS_ON_CARD,
+} from "./table-style";
 
 const textOf = (node: ReactNode) =>
   typeof node === "string" ? node : undefined;
@@ -105,7 +113,14 @@ export function DataListRow({
         {trailing || buttons ? (
           <div className="flex shrink-0 items-center gap-2">
             {trailing}
-            {buttons ? <DataRowActions actions={buttons} /> : null}
+
+            {/* Lebarnya dijaga walau baris ini tidak menawarkan aksi, supaya
+                nilai di kolom kanan tetap sebaris antarbaris. */}
+            {buttons ? (
+              <span className="flex min-w-control justify-end">
+                <DataRowActions actions={buttons} />
+              </span>
+            ) : null}
           </div>
         ) : null}
       </div>
@@ -129,6 +144,7 @@ export function DataList<T>({
   table,
   loadingShape,
   itemNoun,
+  isHeaderHidden = false,
 }: {
   items: T[] | undefined;
   getKey: (item: T) => string;
@@ -145,6 +161,9 @@ export function DataList<T>({
   table?: DataTableConfig<T>;
   loadingShape?: LoadingShape;
   itemNoun?: string;
+  // Panel yang menyematkan daftar milik layar lain: judul kolomnya mengulang
+  // label di sekitarnya.
+  isHeaderHidden?: boolean;
 }) {
   const pathname = usePathname();
   const listRef = useRef<HTMLElement | null>(null);
@@ -259,30 +278,63 @@ export function DataList<T>({
     );
   }
 
+  const narrowHeaders = isHeaderHidden ? undefined : table?.narrowHeaders;
+  // Kolom aksi hanya dicadangkan bila ada baris yang benar-benar menawarkannya.
+  // Tanpa hak akses, tidak ada tombol sama sekali, jadi kolom kanan memakai
+  // ruang itu dan nilainya rata kanan penuh — header ikut bergeser.
+  const isActionColumn =
+    table?.getRowActions !== undefined &&
+    items.some((item) => isNarrowActionOffered(table.getRowActions?.(item)));
+
   return (
     <div aria-busy={isRefreshing || undefined}>
-      <ul
-        ref={setListNode}
-        aria-label={label}
-        className={cn(
-          LIST_DIVIDER,
-          "transition-opacity",
-          isRefreshing && "opacity-60",
-        )}
-      >
-        {items.map((item) => (
-          <RowActionsProvider
-            key={getKey(item)}
-            value={table?.getRowActions?.(item)}
-          >
-            {children(item)}
-          </RowActionsProvider>
-        ))}
+      <div className={LIST_CARD_FRAME}>
+        <div className={LIST_CARD}>
+          {narrowHeaders ? (
+            <div className={LIST_CARD_HEAD} aria-hidden>
+              <span className={cn(TABLE_HEAD, "min-w-0 flex-1")}>
+                {narrowHeaders.title}
+              </span>
 
-        {pagination?.mode === "more" && pagination.isLoadingMore ? (
-          <LoadingRows rows={3} />
-        ) : null}
-      </ul>
+              {narrowHeaders.trailing ? (
+                // Susunannya meniru sisi kanan baris agar judulnya jatuh tepat
+                // di atas nilainya, bukan di atas tombol aksi.
+                <span className="flex shrink-0 items-center gap-2">
+                  <span className={TABLE_HEAD}>{narrowHeaders.trailing}</span>
+
+                  {isActionColumn ? <span className="w-control" /> : null}
+                </span>
+              ) : null}
+            </div>
+          ) : null}
+
+          <ul
+            ref={setListNode}
+            aria-label={label}
+            className={cn(
+              TABLE_ROWS_ON_CARD,
+              LIST_CARD_ROWS,
+              "transition-opacity",
+              isRefreshing && "opacity-60",
+            )}
+          >
+            {items.map((item) => (
+              <RowActionsProvider
+                key={getKey(item)}
+                value={
+                  isActionColumn ? table?.getRowActions?.(item) : undefined
+                }
+              >
+                {children(item)}
+              </RowActionsProvider>
+            ))}
+
+            {pagination?.mode === "more" && pagination.isLoadingMore ? (
+              <LoadingRows rows={3} />
+            ) : null}
+          </ul>
+        </div>
+      </div>
 
       {pagination?.mode === "more" ? (
         <DataListMore {...pagination} shown={items.length} />

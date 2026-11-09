@@ -158,6 +158,7 @@ export function accountTable(
   onDelete?: (row: AccountTreeRow) => void,
 ): DataTableConfig<AccountTreeRow> {
   return {
+    narrowHeaders: { title: "Kode" },
     columns: COLUMNS,
     getRowActions: (x) => ({
       label: viewLabelOf(x),

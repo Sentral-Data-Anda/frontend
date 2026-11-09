@@ -63,6 +63,7 @@ export function absensiTable(
   onDelete?: (row: AbsensiKaryawan) => void,
 ): DataTableConfig<AbsensiKaryawan> {
   return {
+    narrowHeaders: { title: "Tanggal" },
     columns: [
       {
         key: "date",

@@ -88,6 +88,7 @@ export function kontrakTable(
   onDelete?: (row: KontrakKaryawan) => void,
 ): DataTableConfig<KontrakKaryawan> {
   return {
+    narrowHeaders: { title: "Karyawan" },
     columns: [
       {
         key: "karyawan",

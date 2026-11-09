@@ -47,6 +47,7 @@ export function roleUserTable(
   onDelete?: (row: RoleUserItem) => void,
 ): DataTableConfig<RoleUserItem> {
   return {
+    narrowHeaders: { title: "Nama" },
     columns: [
       {
         key: "name",

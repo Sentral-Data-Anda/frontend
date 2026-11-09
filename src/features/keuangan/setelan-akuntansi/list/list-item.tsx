@@ -64,6 +64,7 @@ export function settingTable(
   isCanUpdate: boolean,
 ): DataTableConfig<AccountingSetting> {
   return {
+    narrowHeaders: { title: "Setelan" },
     columns: [
       {
         key: "setting",

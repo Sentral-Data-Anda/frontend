@@ -64,6 +64,7 @@ export const PeriodListItemRow = (props: PropTypes) => {
 
 export function periodTable(): DataTableConfig<FiscalPeriod> {
   return {
+    narrowHeaders: { title: "Bulan" },
     columns: [
       {
         key: "label",

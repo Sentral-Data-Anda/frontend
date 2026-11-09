@@ -156,6 +156,7 @@ export function receiptTable(
   onDelete?: (row: CashReceipt) => void,
 ): DataTableConfig<CashReceipt> {
   return {
+    narrowHeaders: { title: "Tanggal" },
     columns: COLUMNS,
     getRowActions: (x) => ({
       label: viewLabelOf(x),

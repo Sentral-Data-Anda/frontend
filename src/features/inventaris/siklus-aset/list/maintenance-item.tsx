@@ -67,6 +67,7 @@ export function maintenanceTable(
   onDelete?: (row: Maintenance) => void,
 ): DataTableConfig<Maintenance> {
   return {
+    narrowHeaders: { title: "Tanggal" },
     columns: [
       {
         key: "date",

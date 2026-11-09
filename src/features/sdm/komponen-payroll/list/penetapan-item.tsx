@@ -70,6 +70,7 @@ export function penetapanTable(
   isCanUpdate: boolean,
 ): DataTableConfig<PenetapanKomponen> {
   return {
+    narrowHeaders: { title: "Karyawan" },
     columns: [
       {
         key: "karyawan",

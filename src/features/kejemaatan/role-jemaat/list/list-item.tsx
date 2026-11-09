@@ -53,6 +53,7 @@ export function roleJemaatTable(
   onDelete?: (row: RoleJemaatItem) => void,
 ): DataTableConfig<RoleJemaatItem> {
   return {
+    narrowHeaders: { title: "Jemaat" },
     columns: [
       {
         key: "jemaat",

@@ -239,6 +239,7 @@ const COLUMNS: Record<ApprovalView, Column[]> = {
 export const permintaanTable = (
   view: ApprovalView,
 ): DataTableConfig<ApprovalListItem> => ({
+  narrowHeaders: { title: "Dokumen" },
   columns: COLUMNS[view],
   getRowActions: (x) => ({
     label: labelOf(x),

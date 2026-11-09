@@ -53,6 +53,7 @@ export function jemaatTable(
   isCanUpdate: boolean,
 ): DataTableConfig<JemaatListItem> {
   return {
+    narrowHeaders: { title: "Nama", trailing: "Status" },
     columns: [
       {
         key: "name",

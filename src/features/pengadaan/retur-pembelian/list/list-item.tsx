@@ -164,6 +164,7 @@ export function returnTable(
   onDelete?: (row: PurchaseReturn) => void,
 ): DataTableConfig<PurchaseReturn> {
   return {
+    narrowHeaders: { title: "Tanggal retur" },
     columns: COLUMNS,
     getRowActions: (x) => ({
       label: viewLabelOf(x),

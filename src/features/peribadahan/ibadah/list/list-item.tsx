@@ -80,6 +80,7 @@ export function ibadahTable(
   onDelete?: (row: Ibadah) => void,
 ): DataTableConfig<Ibadah> {
   return {
+    narrowHeaders: { title: "Tanggal" },
     columns: [
       {
         key: "date",

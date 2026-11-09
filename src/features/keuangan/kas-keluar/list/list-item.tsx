@@ -179,6 +179,7 @@ export function expenseTable(
   onDelete?: (row: CashExpense) => void,
 ): DataTableConfig<CashExpense> {
   return {
+    narrowHeaders: { title: "Tanggal" },
     columns: COLUMNS,
     getRowActions: (x) => ({
       label: viewLabelOf(x),

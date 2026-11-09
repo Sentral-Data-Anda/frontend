@@ -136,6 +136,7 @@ export function requestTable(
   onDelete?: (row: PurchaseRequest) => void,
 ): DataTableConfig<PurchaseRequest> {
   return {
+    narrowHeaders: { title: "Tanggal" },
     columns: COLUMNS,
     getRowActions: (x) => ({
       label: viewLabelOf(x),

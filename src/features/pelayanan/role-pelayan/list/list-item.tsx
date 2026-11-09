@@ -44,6 +44,7 @@ export function rolePelayanTable(
   onDelete?: (row: RolePelayan) => void,
 ): DataTableConfig<RolePelayan> {
   return {
+    narrowHeaders: { title: "Nama" },
     columns: [
       {
         key: "name",

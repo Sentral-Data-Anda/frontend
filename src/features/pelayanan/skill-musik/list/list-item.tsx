@@ -34,6 +34,7 @@ export function skillMusikTable(
   onDelete?: (row: SkillMusik) => void,
 ): DataTableConfig<SkillMusik> {
   return {
+    narrowHeaders: { title: "Nama" },
     columns: [
       {
         key: "name",

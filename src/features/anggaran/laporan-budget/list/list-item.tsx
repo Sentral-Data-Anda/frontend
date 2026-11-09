@@ -141,6 +141,7 @@ export function reportTable(
   onDelete?: (row: BudgetReport) => void,
 ): DataTableConfig<BudgetReport> {
   return {
+    narrowHeaders: { title: "Kode" },
     columns: COLUMNS,
     getRowActions: (x) => ({
       label: viewLabelOf(x),

@@ -167,6 +167,7 @@ export function persembahanTable(
   ];
 
   return {
+    narrowHeaders: { title: "Tanggal" },
     columns,
     getRowActions: (x) => ({
       label: viewLabelOf(x),
