@@ -371,7 +371,7 @@ describe("galat server", () => {
     ).toEqual({ detailImage: "Foto Tidak Ditemukan" });
     expect(
       collect(new FetchError(415, "Unsupported file type", [])).errors,
-    ).toEqual({ root: "Pilih foto JPG atau PNG." });
+    ).toEqual({ root: "Pilih berkas gambar." });
   });
 });
 

@@ -343,7 +343,7 @@ export const toAssetFormData = (values: AssetFormValues, isEdit: boolean) => {
 };
 
 const SERVER_FIELD_ERROR: ReadonlyArray<[RegExp, string, string?]> = [
-  [/unsupported file type/i, "root", "Pilih foto JPG atau PNG."],
+  [/unsupported file type/i, "root", "Pilih berkas gambar."],
   [/file too large/i, "root", "Ukuran foto maksimal 10 MB."],
   [
     /unexpected field|lebih dari 4/i,

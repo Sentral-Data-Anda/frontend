@@ -265,7 +265,7 @@ export const toFormError = (error: unknown) =>
     : error;
 
 const SERVER_FIELD_ERROR: ReadonlyArray<[RegExp, string, string?]> = [
-  [/unsupported file type/i, "attachments", "Pilih berkas JPG, PNG, atau PDF"],
+  [/unsupported file type/i, "attachments", "Pilih berkas gambar atau PDF"],
   [/file too large/i, "attachments", "Ukuran berkas maksimal 10 MB"],
   [
     /unexpected field|too many files/i,

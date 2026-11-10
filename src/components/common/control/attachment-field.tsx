@@ -35,8 +35,8 @@ interface PropTypes {
 }
 
 const FORMAT_LABEL: Record<AttachmentAccept, string> = {
-  image: "JPG atau PNG, maks. 10 MB",
-  "image-pdf": "JPG, PNG, atau PDF, maks. 10 MB",
+  image: "Semua jenis foto, maks. 10 MB",
+  "image-pdf": "Foto atau PDF, maks. 10 MB",
 };
 
 export const AttachmentField = (props: PropTypes) => {

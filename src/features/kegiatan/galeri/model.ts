@@ -154,7 +154,7 @@ const SERVER_FIELD_ERROR: ReadonlyArray<
     "bapelId",
     "Badan pelayanan ini sudah tidak ada. Pilih yang lain.",
   ],
-  [/unsupported file type/i, "listImage", "Pilih berkas JPG atau PNG"],
+  [/unsupported file type/i, "listImage", "Pilih berkas gambar"],
   [/file too large/i, "listImage", "Ukuran berkas maksimal 10 MB"],
   [
     /unexpected field|too many files|maksimal 4|lebih dari 4/i,

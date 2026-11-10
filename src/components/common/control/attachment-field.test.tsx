@@ -60,7 +60,7 @@ describe("AttachmentField", () => {
     const { input } = onRender([]);
 
     expect(screen.getByRole("group", { name: "Foto" })).toBeTruthy();
-    expect(input.accept).toBe("image/jpeg,image/png");
+    expect(input.accept).toBe("image/*,.heic,.heif");
     expect(input.multiple).toBe(true);
   });
 

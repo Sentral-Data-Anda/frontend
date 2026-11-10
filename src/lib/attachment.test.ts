@@ -12,20 +12,40 @@ const file = (name: string, type: string, size = 10) =>
   new File([new Uint8Array(size)], name, { type });
 
 describe("rejectionOf", () => {
-  test("JPG dan PNG diterima", () => {
-    expect(rejectionOf(file("a.jpg", "image/jpeg"), "image")).toBeNull();
-    expect(rejectionOf(file("a.png", "image/png"), "image")).toBeNull();
+  test("semua jenis gambar diterima", () => {
+    for (const [name, type] of [
+      ["a.jpg", "image/jpeg"],
+      ["a.png", "image/png"],
+      ["a.webp", "image/webp"],
+      ["a.gif", "image/gif"],
+      ["a.avif", "image/avif"],
+      ["IMG_0001.HEIC", "image/heic"],
+    ]) {
+      expect(rejectionOf(file(name, type), "image")).toBeNull();
+    }
+  });
+
+  test("HEIC tanpa tipe MIME dikenali dari namanya", () => {
+    expect(rejectionOf(file("IMG_0001.HEIC", ""), "image")).toBeNull();
+    expect(rejectionOf(file("catatan", ""), "image")).toBe(
+      "Pilih berkas gambar",
+    );
+  });
+
+  test("SVG dan berkas non-gambar ditolak", () => {
+    expect(rejectionOf(file("logo.svg", "image/svg+xml"), "image")).toBe(
+      "Pilih berkas gambar",
+    );
+    expect(rejectionOf(file("a.docx", "application/msword"), "image-pdf")).toBe(
+      "Pilih berkas gambar atau PDF",
+    );
   });
 
   test("PDF hanya untuk image-pdf", () => {
     const pdf = file("warta.pdf", "application/pdf");
 
-    expect(rejectionOf(pdf, "image")).toBe("Pilih berkas JPG atau PNG");
+    expect(rejectionOf(pdf, "image")).toBe("Pilih berkas gambar");
     expect(rejectionOf(pdf, "image-pdf")).toBeNull();
-  });
-
-  test("HEIC ditolak dengan saran, walau tipe MIME kosong", () => {
-    expect(rejectionOf(file("IMG_0001.HEIC", ""), "image")).toContain("HEIC");
   });
 
   test("lebih dari 10 MB ditolak, tepat 10 MB diterima", () => {
