@@ -1,7 +1,10 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, mock, test } from "bun:test";
+import Link from "next/link";
 
 import { DataList, DataListRow } from "./data-list";
+import { RowActionsProvider } from "./data-row-actions";
+import { TABLE_ROW_LINK } from "./table-style";
 
 afterEach(cleanup);
 
@@ -191,5 +194,40 @@ describe("DataListRow judul", () => {
     expect(two.title).toContain("wrap-break-word");
     expect(two.title).not.toContain("truncate");
     expect(two.body).toContain("py-2");
+  });
+});
+
+describe("DataListRow aksi baris", () => {
+  // Judul baris memakai TABLE_ROW_LINK: tautannya melebar lewat ::after
+  // inset-0 ke seluruh baris. Tanpa z-10 pada pembungkus aksi, pseudo-element
+  // itu menutupi tombol titik-tiga dan kliknya jatuh ke halaman detail.
+  test("pembungkus aksi berada di atas tautan baris yang melebar", () => {
+    render(
+      <ul>
+        <RowActionsProvider
+          value={{
+            label: "Ruang Matius",
+            view: { href: "/fasilitas/ruang/RM-0001" },
+            edit: { href: "/fasilitas/ruang/abc/ubah" },
+          }}
+        >
+          <DataListRow
+            title={
+              <Link href="/fasilitas/ruang/RM-0001" className={TABLE_ROW_LINK}>
+                Ruang Matius
+              </Link>
+            }
+          />
+        </RowActionsProvider>
+      </ul>,
+    );
+
+    const trigger = screen.getByRole("button", {
+      name: "Tindakan untuk Ruang Matius",
+    });
+    const wrapper = trigger.parentElement?.className.split(" ") ?? [];
+
+    expect(wrapper).toContain("relative");
+    expect(wrapper).toContain("z-10");
   });
 });
