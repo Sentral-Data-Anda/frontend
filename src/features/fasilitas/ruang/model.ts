@@ -109,7 +109,7 @@ const SERVER_FIELD_ERROR: ReadonlyArray<[RegExp, string, string?]> = [
     "name",
     "Ruang dengan nama ini sudah ada. Pakai nama lain.",
   ],
-  [/unsupported file type/i, "root", "Pilih foto JPG atau PNG."],
+  [/unsupported file type/i, "root", "Pilih berkas gambar."],
   [/file too large/i, "root", "Ukuran foto maksimal 10 MB."],
   [
     /unexpected field/i,
