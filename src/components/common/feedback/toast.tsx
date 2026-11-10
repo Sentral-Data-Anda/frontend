@@ -25,7 +25,7 @@ export function ToastHost({ children }: { children: React.ReactNode }) {
       {children}
 
       <Toast.Portal>
-        <Toast.Viewport className="fixed inset-x-0 bottom-[calc(var(--bottom-tab-height)+env(safe-area-inset-bottom)+0.75rem)] z-50 flex flex-col gap-2 px-gutter lg:right-6 lg:bottom-6 lg:left-auto lg:w-96 lg:px-0">
+        <Toast.Viewport className="fixed inset-x-0 bottom-[calc(var(--bottom-tab-height)+var(--bottom-tab-inset)+0.75rem)] z-50 flex flex-col gap-2 px-gutter lg:right-6 lg:bottom-6 lg:left-auto lg:w-96 lg:px-0">
           <ToastList />
         </Toast.Viewport>
       </Toast.Portal>

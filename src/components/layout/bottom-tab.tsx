@@ -68,7 +68,7 @@ export const BottomTab = () => {
   return (
     <nav
       aria-label="Navigasi utama"
-      className="border-border bg-card sticky bottom-0 z-40 border-t pb-[env(safe-area-inset-bottom)] lg:hidden print:hidden"
+      className="border-border bg-card sticky bottom-0 z-40 border-t pb-(--bottom-tab-inset) lg:hidden print:hidden"
     >
       <ul className="flex">
         {tabs.map((tab) => {

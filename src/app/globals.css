@@ -195,6 +195,11 @@
   --sidebar-ring: var(--color-primary-200);
 
   --bottom-tab-height: 3.5rem;
+  /* Tab duduk lebih dekat ke home indicator, seperti tab bar native iOS. */
+  --bottom-tab-inset: max(
+    0.25rem,
+    calc(env(safe-area-inset-bottom) - 0.875rem)
+  );
 
   --font-size-title: 0.75rem;
   --font-size-kpi: 0.875rem;
