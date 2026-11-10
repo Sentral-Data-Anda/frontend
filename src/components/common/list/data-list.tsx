@@ -104,7 +104,7 @@ export function DataListRow({
               ) : null}
 
               {metaAction ? (
-                <span className="shrink-0">{metaAction}</span>
+                <span className="relative z-10 shrink-0">{metaAction}</span>
               ) : null}
             </div>
           ) : null}
@@ -115,9 +115,13 @@ export function DataListRow({
             {trailing}
 
             {/* Lebarnya dijaga walau baris ini tidak menawarkan aksi, supaya
-                nilai di kolom kanan tetap sebaris antarbaris. */}
+                nilai di kolom kanan tetap sebaris antarbaris. `relative z-10`
+                wajib: tautan judul baris memakai TABLE_ROW_LINK yang melebar
+                lewat ::after inset-0 ke seluruh baris, dan pseudo-element itu
+                menutupi tombol aksi yang statis — klik titik-tiga malah
+                membuka halaman detail. */}
             {buttons ? (
-              <span className="flex min-w-control justify-end">
+              <span className="relative z-10 flex min-w-control justify-end">
                 <DataRowActions actions={buttons} />
               </span>
             ) : null}
