@@ -1,3 +1,5 @@
+import { APP_TIMEZONE } from "@/config/site";
+
 export type ParsedDate =
   { iso: string; error?: never } | { iso?: never; error: string };
 
@@ -105,8 +107,10 @@ export function parseTimeInput(raw: string): { time?: string; error?: string } {
   return { time: `${pad(hours)}:${pad(minutes)}` };
 }
 
+// Nama `...Jakarta` dipertahankan agar pemanggil tidak berubah; zonanya
+// mengikuti APP_TIMEZONE (bawaan Asia/Jakarta).
 const jakartaDateFormat = new Intl.DateTimeFormat("en-CA", {
-  timeZone: "Asia/Jakarta",
+  timeZone: APP_TIMEZONE,
   year: "numeric",
   month: "2-digit",
   day: "2-digit",
@@ -116,7 +120,7 @@ export const todayJakarta = (now: Date = new Date()): string =>
   jakartaDateFormat.format(now);
 
 const jakartaTimeFormat = new Intl.DateTimeFormat("en-GB", {
-  timeZone: "Asia/Jakarta",
+  timeZone: APP_TIMEZONE,
   hour: "2-digit",
   minute: "2-digit",
   hourCycle: "h23",
