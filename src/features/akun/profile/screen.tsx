@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { useForm, type FieldErrors } from "react-hook-form";
+import { useForm, useWatch, type FieldErrors } from "react-hook-form";
 
 import { Button } from "@/components/common/control";
 import { useToast } from "@/components/common/feedback";
@@ -23,6 +23,7 @@ import { isStepUpRequired } from "@/lib/step-up";
 
 import { useMyProfile, useUpdateMyProfile } from "../api";
 import {
+  isUsernameChanged,
   profileFieldError,
   profileFormSchema,
   toProfileForm,
@@ -30,6 +31,7 @@ import {
   type ProfileFormValues,
 } from "../model";
 
+import { AccountSection } from "./account-section";
 import { AddressSection } from "./address-section";
 import { ContactSection, IdentitySection, SocialSection } from "./sections";
 
@@ -49,12 +51,21 @@ export const ProfileFormScreen = () => {
     resolver: zodResolver(profileFormSchema),
     mode: "onSubmit",
     reValidateMode: "onChange",
-    values: profile.data ? toProfileForm(profile.data) : undefined,
+    values: profile.data
+      ? toProfileForm(profile.data, session.username)
+      : undefined,
   });
 
   const { errors, isDirty, isSubmitting, submitCount } = form.formState;
   const rootError = errors.root?.message;
   const isDisabled = isSubmitting || profile.isPending;
+  const [username, savedUsername] = useWatch({
+    control: form.control,
+    name: ["username", "savedUsername"],
+  });
+  const saveDescription = isUsernameChanged({ username, savedUsername })
+    ? "Apakah Anda ingin menyimpan perubahan data pribadi Anda? Username berubah: masuk berikutnya memakai username baru, dan perangkat lain akan keluar."
+    : "Apakah Anda ingin menyimpan perubahan data pribadi Anda? Status pernikahan, wilayah, dan keanggotaan tetap lewat sekretariat.";
 
   const onInvalid = (invalid: FieldErrors<ProfileFormValues>) => {
     setRejectedField(null);
@@ -171,6 +182,7 @@ export const ProfileFormScreen = () => {
           <ContactSection form={form} isDisabled={isDisabled} />
           <AddressSection form={form} isDisabled={isDisabled} />
           <SocialSection form={form} isDisabled={isDisabled} />
+          <AccountSection form={form} isDisabled={isDisabled} />
         </>
       )}
 
@@ -186,9 +198,7 @@ export const ProfileFormScreen = () => {
       <FormConfirmDialog
         confirm={confirm}
         noun="data pribadi"
-        descriptions={{
-          save: "Apakah Anda ingin menyimpan perubahan data pribadi Anda? Status pernikahan, wilayah, dan keanggotaan tetap lewat sekretariat.",
-        }}
+        descriptions={{ save: saveDescription }}
         onSave={() => void onSave()}
         onLeave={onLeave}
       />
