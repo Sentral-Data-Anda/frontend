@@ -1,5 +1,3 @@
-"use client";
-
 import { EmptyState } from "@/components/common/feedback";
 import { DataList, ListToolbar } from "@/components/common/list";
 import { PageHeader, PageHeaderAdd } from "@/components/layout";

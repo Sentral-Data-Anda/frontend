@@ -1,7 +1,7 @@
 import { Printer } from "lucide-react";
-import Link from "next/link";
 
 import { buttonVariants } from "@/components/common/control";
+import { AppLink } from "@/components/common/link";
 import { cn } from "@/lib/utils";
 
 interface PropTypes {
@@ -13,7 +13,7 @@ export const LabelLink = (props: PropTypes) => {
   const { href, isIconOnly = false } = props;
 
   return (
-    <Link
+    <AppLink
       href={href}
       aria-label={isIconOnly ? "Cetak label" : undefined}
       title={isIconOnly ? "Cetak label" : undefined}
@@ -27,6 +27,6 @@ export const LabelLink = (props: PropTypes) => {
     >
       <Printer aria-hidden />
       {isIconOnly ? null : "Cetak label"}
-    </Link>
+    </AppLink>
   );
 };

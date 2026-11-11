@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { AppLink } from "@/components/common/link";
 
 interface PropTypes {
   title: string;
@@ -17,12 +17,12 @@ export const SectionHeader = (props: PropTypes) => {
       </h2>
 
       {actionLabel && actionHref ? (
-        <Link
+        <AppLink
           href={actionHref}
           className="focus-visible:ring-ring inline-flex min-h-6 items-center rounded-control text-body font-medium underline-offset-2 outline-none hover:underline focus-visible:ring-2"
         >
           {actionLabel}
-        </Link>
+        </AppLink>
       ) : null}
     </div>
   );

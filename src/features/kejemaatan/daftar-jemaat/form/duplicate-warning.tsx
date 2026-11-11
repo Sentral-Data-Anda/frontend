@@ -1,8 +1,6 @@
-"use client";
-
 import { TriangleAlert } from "lucide-react";
-import Link from "next/link";
 
+import { AppLink } from "@/components/common/link";
 import { formatDate } from "@/lib/format";
 
 import { useJemaatDuplicates } from "../api";
@@ -40,12 +38,12 @@ export const DuplicateWarning = (props: PropTypes) => {
         Sudah ada jemaat bernama{" "}
         <strong className="font-medium">{twin.name}</strong> lahir{" "}
         {formatDate(twin.birthDate ?? "")} (
-        <Link
+        <AppLink
           href={`${JEMAAT_LIST_PATH}?search=${encodeURIComponent(twin.code)}`}
           className="text-primary underline underline-offset-2 hover:no-underline"
         >
           {twin.code}
-        </Link>
+        </AppLink>
         ). Lanjut menyimpan bila ini memang orang yang berbeda.
       </span>
     </p>

@@ -1,9 +1,6 @@
-"use client";
-
-import Link from "next/link";
-
 import { buttonVariants } from "@/components/common/control";
 import { FormAlert } from "@/components/common/form";
+import { AppLink } from "@/components/common/link";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { monthLabel } from "@/lib/date";
@@ -70,7 +67,7 @@ export const GateAlert = (props: PropTypes) => {
       />
 
       {isCanView ? (
-        <Link
+        <AppLink
           href={
             isMissing
               ? reportCreateHref(Number(bapelId), year, month)
@@ -79,7 +76,7 @@ export const GateAlert = (props: PropTypes) => {
           className={buttonVariants({ variant: "outline", size: "sm" })}
         >
           {isMissing ? "Buat laporannya" : "Lihat laporannya"}
-        </Link>
+        </AppLink>
       ) : null}
     </div>
   );

@@ -35,13 +35,13 @@ const replaced: string[] = [];
 const calls: { method: string; path: string; body: unknown }[] = [];
 let override: (() => Response) | null = null;
 
-mock.module("next/navigation", () => ({
-  useRouter: () => ({
+mock.module("@/hooks/use-app-router", () => ({
+  useAppRouter: () => ({
     replace: (href: string) => replaced.push(href),
     push: () => undefined,
   }),
-  usePathname: () => "/procurement/purchase-return/create",
-  useSearchParams: () => new URLSearchParams(),
+  useAppPathname: () => "/procurement/purchase-return/create",
+  useAppSearchParams: () => new URLSearchParams(),
 }));
 
 mock.module("@/features/auth/use-menu-access", () => ({

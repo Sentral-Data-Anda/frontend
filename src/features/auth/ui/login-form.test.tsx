@@ -3,10 +3,10 @@ import { afterEach, describe, expect, mock, test } from "bun:test";
 
 let query = new URLSearchParams();
 
-mock.module("next/navigation", () => ({
-  usePathname: () => "/login",
-  useRouter: () => ({ replace: () => {} }),
-  useSearchParams: () => query,
+mock.module("@/hooks/use-app-router", () => ({
+  useAppPathname: () => "/login",
+  useAppRouter: () => ({ replace: () => {} }),
+  useAppSearchParams: () => query,
 }));
 
 const { LoginForm } = await import("./login-form");

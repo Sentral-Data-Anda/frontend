@@ -1,7 +1,4 @@
-"use client";
-
 import { ArrowUpFromLine, FileCheck, Lightbulb } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { Button } from "@/components/common/control";
@@ -21,6 +18,7 @@ import {
 import { PageHeader } from "@/components/layout";
 import { MENU, domainHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
+import { useAppRouter } from "@/hooks/use-app-router";
 import { useBoolean } from "@/hooks/use-boolean";
 import { useListReturn } from "@/hooks/use-list-return";
 import { FetchError } from "@/lib/api/fetcher";
@@ -69,7 +67,7 @@ interface PropTypes {
 export const ProgramDetailScreen = (props: PropTypes) => {
   const { publicId } = props;
 
-  const router = useRouter();
+  const router = useAppRouter();
   const toast = useToast();
   const { isCanView } = useMenuAccess(MENU.PROGRAM);
   const listReturn = useListReturn(PROGRAM_LIST_PATH);

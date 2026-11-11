@@ -1,5 +1,3 @@
-"use client";
-
 import { useWatch } from "react-hook-form";
 
 import { DateField, DdlField, Textarea } from "@/components/common/control";

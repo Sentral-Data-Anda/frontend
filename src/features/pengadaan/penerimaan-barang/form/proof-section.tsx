@@ -1,5 +1,3 @@
-"use client";
-
 import { Controller } from "react-hook-form";
 
 import { AttachmentField } from "@/components/common/control";

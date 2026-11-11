@@ -29,13 +29,13 @@ const grants: { current: Partial<Record<MenuSlug, MenuAction[]>> } = {
 };
 const replaced: string[] = [];
 
-mock.module("next/navigation", () => ({
-  useRouter: () => ({
+mock.module("@/hooks/use-app-router", () => ({
+  useAppRouter: () => ({
     replace: (href: string) => replaced.push(href),
     push: () => undefined,
   }),
-  usePathname: () => "/inventory/stock-item/create",
-  useSearchParams: () => new URLSearchParams(),
+  useAppPathname: () => "/inventory/stock-item/create",
+  useAppSearchParams: () => new URLSearchParams(),
 }));
 
 mock.module("@/features/auth/use-menu-access", () => ({

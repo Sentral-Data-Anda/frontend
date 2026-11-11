@@ -1,8 +1,8 @@
 import { ChevronRight } from "lucide-react";
-import Link from "next/link";
 
 import { buttonVariants } from "@/components/common/control";
 import { Panel } from "@/components/common/display";
+import { AppLink } from "@/components/common/link";
 import { cn } from "@/lib/utils";
 
 import { supplierOrdersHref } from "../model";
@@ -20,7 +20,7 @@ export const OrdersPanel = (props: PropTypes) => {
       <p className="text-muted-foreground text-body">
         Pesanan pembelian yang dikirim ke supplier ini.
       </p>
-      <Link
+      <AppLink
         href={supplierOrdersHref(supplierId)}
         className={cn(
           buttonVariants({ variant: "outline" }),
@@ -29,7 +29,7 @@ export const OrdersPanel = (props: PropTypes) => {
       >
         Lihat pesanan supplier ini
         <ChevronRight aria-hidden />
-      </Link>
+      </AppLink>
     </Panel>
   );
 };

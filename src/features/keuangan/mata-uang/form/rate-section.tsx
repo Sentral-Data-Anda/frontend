@@ -1,5 +1,3 @@
-"use client";
-
 import { AmountInput, DateField } from "@/components/common/control";
 import { ControlField, FormSection } from "@/components/common/form";
 import { todayJakarta } from "@/lib/date";

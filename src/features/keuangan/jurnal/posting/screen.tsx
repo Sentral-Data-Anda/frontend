@@ -1,6 +1,3 @@
-"use client";
-
-import Link from "next/link";
 import { useState, type FormEvent } from "react";
 
 import { Button, buttonVariants } from "@/components/common/control";
@@ -15,6 +12,7 @@ import {
   RangeSection,
   useFormConfirm,
 } from "@/components/common/form";
+import { AppLink } from "@/components/common/link";
 import { PageHeader } from "@/components/layout";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
@@ -120,7 +118,7 @@ export const PostingPersembahanScreen = () => {
       onSubmit={onConfirm}
       actions={
         <FormActions status={postingStatusOf(preview)}>
-          <Link
+          <AppLink
             href={JURNAL_LIST_PATH}
             className={cn(
               buttonVariants({ variant: "outline" }),
@@ -128,7 +126,7 @@ export const PostingPersembahanScreen = () => {
             )}
           >
             Kembali
-          </Link>
+          </AppLink>
 
           <Button type="submit" disabled={!isPostable}>
             {posting.isPending && !posting.variables?.isDryRun
@@ -176,7 +174,7 @@ export const PostingPersembahanScreen = () => {
         ) : null}
 
         {outcome?.isDone && outcome.result.posted > 0 ? (
-          <Link
+          <AppLink
             href={monthListHref(
               Number(outcome.range.from.slice(0, 4)),
               Number(outcome.range.from.slice(5, 7)),
@@ -187,7 +185,7 @@ export const PostingPersembahanScreen = () => {
             )}
           >
             Lihat entri yang baru dibuat
-          </Link>
+          </AppLink>
         ) : null}
       </div>
 

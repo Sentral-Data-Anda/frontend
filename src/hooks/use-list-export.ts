@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useState } from "react";
 
 import { useBoolean } from "@/hooks/use-boolean";

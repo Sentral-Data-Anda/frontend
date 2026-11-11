@@ -1,9 +1,5 @@
-"use client";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
-import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useForm, useWatch } from "react-hook-form";
 
@@ -23,9 +19,11 @@ import {
   NoFormAccess,
   useFormConfirm,
 } from "@/components/common/form";
+import { AppLink } from "@/components/common/link";
 import { PageHeader } from "@/components/layout";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
+import { useAppRouter, useAppSearchParams } from "@/hooks/use-app-router";
 import { useBoolean } from "@/hooks/use-boolean";
 import { useDdlOptions } from "@/hooks/use-ddl-options";
 import { useListReturn } from "@/hooks/use-list-return";
@@ -86,8 +84,8 @@ interface PropTypes {
 export const OrderFormScreen = (props: PropTypes) => {
   const { code } = props;
 
-  const router = useRouter();
-  const searchParams = useSearchParams();
+  const router = useAppRouter();
+  const searchParams = useAppSearchParams();
   const queryClient = useQueryClient();
   const toast = useToast();
   const isEdit = Boolean(code);
@@ -326,12 +324,12 @@ export const OrderFormScreen = (props: PropTypes) => {
           title="Pesanan tidak bisa diubah"
           description="Hanya pesanan berstatus Dipesan yang belum ada penerimaan barang yang bisa diubah."
           action={
-            <Link
+            <AppLink
               href={orderHref(code)}
               className={buttonVariants({ variant: "outline" })}
             >
               Lihat pesanan
-            </Link>
+            </AppLink>
           }
         />
       </div>

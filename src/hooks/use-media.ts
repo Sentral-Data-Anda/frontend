@@ -1,5 +1,3 @@
-"use client";
-
 import { useSyncExternalStore } from "react";
 
 export const DESKTOP_MEDIA_QUERY = "(min-width: 64rem)";

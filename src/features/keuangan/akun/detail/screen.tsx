@@ -1,12 +1,10 @@
-"use client";
-
 import { Pencil } from "lucide-react";
-import Link from "next/link";
 
 import { Button, buttonVariants } from "@/components/common/control";
 import { DescriptionSkeleton, Panel } from "@/components/common/display";
 import { EmptyState } from "@/components/common/feedback";
 import { FormNotFound } from "@/components/common/form";
+import { AppLink } from "@/components/common/link";
 import { PageHeader } from "@/components/layout";
 import { MENU, domainHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
@@ -106,7 +104,7 @@ export const AccountDetailScreen = (props: PropTypes) => {
         isBackPersistent
         action={
           isCanUpdate ? (
-            <Link
+            <AppLink
               href={accountEditHref(account.publicId)}
               className={cn(
                 buttonVariants({ variant: "outline" }),
@@ -115,7 +113,7 @@ export const AccountDetailScreen = (props: PropTypes) => {
             >
               <Pencil aria-hidden />
               Ubah
-            </Link>
+            </AppLink>
           ) : null
         }
       />

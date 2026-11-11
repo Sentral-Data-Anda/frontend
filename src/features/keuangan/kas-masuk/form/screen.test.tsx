@@ -20,10 +20,10 @@ const actions: { current: MenuAction[] } = { current: [] };
 const query: { current: string } = { current: "" };
 const replaced: string[] = [];
 
-mock.module("next/navigation", () => ({
-  useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
-  usePathname: () => "/finance/kas-masuk/create",
-  useSearchParams: () => new URLSearchParams(query.current),
+mock.module("@/hooks/use-app-router", () => ({
+  useAppRouter: () => ({ replace: (href: string) => replaced.push(href) }),
+  useAppPathname: () => "/finance/kas-masuk/create",
+  useAppSearchParams: () => new URLSearchParams(query.current),
 }));
 
 mock.module("@/features/auth/use-menu-access", () => ({

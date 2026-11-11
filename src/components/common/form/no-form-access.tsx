@@ -1,6 +1,5 @@
-import Link from "next/link";
-
 import { buttonVariants } from "@/components/common/control";
+import { AppLink } from "@/components/common/link";
 import { PageHeader } from "@/components/layout";
 
 const NO_VIEW_TEXT = "Peran Anda tidak memiliki akses ke menu ini.";
@@ -40,12 +39,12 @@ export const NoFormAccess = (props: PropTypes) => {
           </p>
         )}
 
-        <Link
+        <AppLink
           href={backHref}
           className={buttonVariants({ variant: "outline" })}
         >
           {backLabel}
-        </Link>
+        </AppLink>
       </div>
     </div>
   );

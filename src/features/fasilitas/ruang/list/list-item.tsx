@@ -1,6 +1,5 @@
-import Link from "next/link";
-
 import { MediaThumb } from "@/components/common/display";
+import { AppLink } from "@/components/common/link";
 import {
   DataListRow,
   TABLE_ROW_LINK,
@@ -45,14 +44,14 @@ export const RuangListItemRow = (props: PropTypes) => {
       className="hover:bg-card relative transition-colors"
       leading={photoOf(room)}
       title={
-        <Link
+        <AppLink
           href={detailHrefOf(room)}
           onClick={() => saveFocus(room)}
           aria-label={viewLabelOf(room)}
           className={TABLE_ROW_LINK}
         >
           {room.name}
-        </Link>
+        </AppLink>
       }
       meta={<span className="tabular-nums">{roomMetaOf(room)}</span>}
       trailing={

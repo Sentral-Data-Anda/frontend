@@ -1,5 +1,3 @@
-"use client";
-
 export const Legend = () => {
   return (
     <span className="text-muted-foreground flex items-center gap-3 text-caption">

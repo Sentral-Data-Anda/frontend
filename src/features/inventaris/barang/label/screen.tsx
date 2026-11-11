@@ -1,7 +1,3 @@
-"use client";
-
-import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import { useMemo, useState, type FormEvent } from "react";
 
 import { Button, buttonVariants } from "@/components/common/control";
@@ -13,9 +9,11 @@ import {
   FormWide,
   LoadingForm,
 } from "@/components/common/form";
+import { AppLink } from "@/components/common/link";
 import { PageHeader } from "@/components/layout";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
+import { useAppSearchParams } from "@/hooks/use-app-router";
 import { useListReturn } from "@/hooks/use-list-return";
 
 import { BARANG_LIST_PATH } from "../model";
@@ -35,7 +33,7 @@ export const BarangLabelScreen = (props: PropTypes) => {
   const { siteUrl } = props;
 
   const { isCanView } = useMenuAccess(MENU.ASSET_MASTER);
-  const searchParams = useSearchParams();
+  const searchParams = useAppSearchParams();
   const listReturn = useListReturn(BARANG_LIST_PATH);
   const source = useMemo(() => labelSourceOf(searchParams), [searchParams]);
   const labels = useLabelAssets(source, isCanView);
@@ -95,12 +93,12 @@ export const BarangLabelScreen = (props: PropTypes) => {
                   : "Pilih barang dari daftar Barang."
             }
             action={
-              <Link
+              <AppLink
                 href={listReturn}
                 className={buttonVariants({ variant: "outline" })}
               >
                 Kembali ke Barang
-              </Link>
+              </AppLink>
             }
           />
         ) : (

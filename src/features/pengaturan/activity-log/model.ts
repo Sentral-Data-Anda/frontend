@@ -1,6 +1,6 @@
 import type { SelectOption } from "@/components/common/control";
 import type { ListFilter } from "@/components/common/list";
-import { MENU, menuHref, type MenuSlug } from "@/config/menu";
+import { MENU, detailHref, menuHref, type MenuSlug } from "@/config/menu";
 import { APP_TIMEZONE } from "@/config/site";
 import type { ListFilterSchema } from "@/hooks/use-list-params";
 import { addDays, todayJakarta } from "@/lib/date";
@@ -19,19 +19,30 @@ export const ACTION_LABEL: Record<ActionKind, string> = {
   softDelete: "Hapus",
   restore: "Pulihkan",
   delete: "Hapus permanen",
+  createMany: "Tambah massal",
+  updateMany: "Ubah massal",
+  deleteMany: "Hapus permanen massal",
+  view: "Lihat",
+  export: "Ekspor",
+  archive: "Arsipkan",
 };
+
+// Operasi yang bisa berupa hapus lunak atau pulihkan: keduanya menulis field.
+// Ubah massal dibaca sama dengan be-sada `kindOf`: menuSync yang memensiunkan
+// menu adalah hapus, bukan ubah.
+const UPDATES: readonly ActivityLog["action"][] = ["update", "updateMany"];
 
 export function actionKindOf(
   log: Pick<ActivityLog, "action" | "oldData" | "newData">,
 ): ActionKind {
-  if (log.action !== "update") return log.action;
+  if (!UPDATES.includes(log.action)) return log.action;
 
   const deletedAt = log.newData?.deletedAt;
 
   if (deletedAt) return "softDelete";
   if (deletedAt === null && log.oldData?.deletedAt) return "restore";
 
-  return "update";
+  return log.action;
 }
 
 const KIND_FROM_SERVER: Record<LogKind, ActionKind> = {
@@ -40,15 +51,22 @@ const KIND_FROM_SERVER: Record<LogKind, ActionKind> = {
   hapus: "softDelete",
   pulihkan: "restore",
   delete: "delete",
+  createMany: "createMany",
+  updateMany: "updateMany",
+  deleteMany: "deleteMany",
+  view: "view",
+  export: "export",
+  archive: "archive",
 };
 
 export const actionKindFromServer = (kind: LogKind): ActionKind =>
   KIND_FROM_SERVER[kind] ?? "update";
 
 export const isDeleteKind = (kind: ActionKind) =>
-  kind === "softDelete" || kind === "delete";
+  kind === "softDelete" || kind === "delete" || kind === "deleteMany";
 
 export const MODEL_LABEL: Record<string, string> = {
+  ActivityLog: "Log Aktivitas",
   Jemaat: "Jemaat",
   AdditionalInformation: "Riwayat Jemaat",
   Profession: "Pekerjaan",
@@ -90,7 +108,6 @@ export const MODEL_LABEL: Record<string, string> = {
   Karyawan: "Karyawan",
   Keluarga: "Keluarga",
   KeluargaMember: "Anggota Keluarga",
-  Marriage: "Pernikahan",
   Currency: "Mata Uang",
   BudgetAllocation: "Pagu Anggaran",
   BudgetAllocationLine: "Rincian Pagu Anggaran",
@@ -151,6 +168,13 @@ export const MODEL_LABEL: Record<string, string> = {
   PurchaseReturnItem: "Barang Retur Pembelian",
   Announcement: "Pengumuman",
   ProgramBudgetItem: "Anggaran Program",
+  BudgetGateWaiver: "Pengecualian Gerbang Anggaran",
+  BudgetSetting: "Pengaturan Anggaran",
+  CashTransfer: "Pemindahan Kas",
+  Holiday: "Hari Libur",
+  Loan: "Pinjaman",
+  OccupationalAllowance: "Biaya Jabatan",
+  SupplierInvoiceItem: "Rincian Faktur Supplier",
 };
 
 export const modelLabel = (model: string) => MODEL_LABEL[model] ?? model;
@@ -178,21 +202,41 @@ export const actorName = (user: ActivityLog["user"]) =>
 export type LogFilterKey =
   "periode" | "aksi" | "aksiHapus" | "data" | "pengguna";
 
-export const SUPPORTED_FILTERS: readonly LogFilterKey[] = ["aksi"];
+// be-sada sudah mendukung semuanya (B7): dateFrom/dateTo, action, kind=hapus,
+// model, dan user (kode akun). Konstanta ini tetap ada sebagai satu tempat
+// untuk menyembunyikan filter bila kontraknya berubah.
+export const SUPPORTED_FILTERS: readonly LogFilterKey[] = [
+  "periode",
+  "aksi",
+  "aksiHapus",
+  "data",
+  "pengguna",
+];
 
 const FILTER_KEYS = ["periode", "aksi", "data", "pengguna"] as const;
 
+/**
+ * Parameter URL tanpa kontrol di panel filter: dibuka dari tautan "Semua
+ * catatan permintaan ini" di detail, dan disaring be-sada lewat `requestId`.
+ */
+export const REQUEST_FILTER_KEY = "permintaan";
+
 export const filterSchemaOf = (
   supported: readonly LogFilterKey[],
-): ListFilterSchema =>
-  Object.fromEntries(
+): ListFilterSchema => ({
+  ...Object.fromEntries(
     FILTER_KEYS.filter((key) => supported.includes(key)).map((key) => [
       key,
       { api: key },
     ]),
-  );
+  ),
+  [REQUEST_FILTER_KEY]: { api: REQUEST_FILTER_KEY },
+});
 
 export const LIST_FILTERS = filterSchemaOf(SUPPORTED_FILTERS);
+
+export const requestLogHref = (requestId: string) =>
+  `${ACTIVITY_LOG_LIST_PATH}?${REQUEST_FILTER_KEY}=${encodeURIComponent(requestId)}`;
 
 const PERIOD_OPTIONS: SelectOption[] = [
   { value: "1", label: "Hari ini" },
@@ -266,7 +310,27 @@ export function toLogApiFilters(
     kind: isSoftDelete ? "hapus" : "",
     model: filters.data ?? "",
     user: filters.pengguna ?? "",
+    requestId: filters[REQUEST_FILTER_KEY] ?? "",
   };
+}
+
+/**
+ * Query ekspor: filter yang sama dengan daftar, tanpa halaman. be-sada
+ * mengekspor semua baris yang cocok (sampai batasnya), bukan satu halaman.
+ */
+export function exportQueryOf(
+  filters: Record<string, string>,
+  search: string,
+  today: string,
+): string {
+  const query = new URLSearchParams();
+
+  for (const [key, value] of Object.entries(toLogApiFilters(filters, today))) {
+    if (value) query.set(key, value);
+  }
+  if (search) query.set("filter", search);
+
+  return query.toString();
 }
 
 const AUDIT_KEYS = new Set([
@@ -281,21 +345,31 @@ const AUDIT_KEYS = new Set([
 
 export type Change = { field: string; before: unknown; after: unknown };
 
+// Catatan dengan dua sisi: ada "sebelum" dan "sesudah". Ubah massal kini dicatat
+// per rekaman lengkap dengan "sebelum"-nya (be-sada entriesForRows).
+const TWO_SIDED: readonly ActivityLog["action"][] = ["update", "updateMany"];
+
+// Catatan yang isinya keadaan terakhir rekaman, bukan yang ditulis.
+const BEFORE_ONLY: readonly ActivityLog["action"][] = ["delete", "deleteMany"];
+
 export const isOneSided = (action: ActivityLog["action"]) =>
-  action !== "update";
+  !TWO_SIDED.includes(action);
+
+export const isBeforeOnly = (action: ActivityLog["action"]) =>
+  BEFORE_ONLY.includes(action);
 
 export function listChanges(
   log: Pick<ActivityLog, "action" | "oldData" | "newData">,
 ): Change[] {
   const before = log.oldData ?? {};
   const after = log.newData ?? {};
-  const fields = Object.keys(log.action === "delete" ? before : after);
+  const fields = Object.keys(isBeforeOnly(log.action) ? before : after);
 
   return fields
     .filter((field) => !AUDIT_KEYS.has(field))
     .filter(
       (field) =>
-        log.action !== "update" ||
+        isOneSided(log.action) ||
         JSON.stringify(before[field]) !== JSON.stringify(after[field]),
     )
     .map((field) => ({ field, before: before[field], after: after[field] }));
@@ -335,9 +409,23 @@ const RECORD_SCREEN: Record<string, MenuSlug> = {
   ZoneChurch: MENU.WILAYAH,
 };
 
+export const isAccessKind = (kind: ActionKind) =>
+  kind === "view" || kind === "export" || kind === "archive";
+
 export function recordLinkOf(
-  log: Pick<ActivityLog, "model" | "oldData" | "newData">,
+  log: Pick<ActivityLog, "model" | "oldData" | "newData"> &
+    Partial<Pick<ActivityLog, "recordId">>,
 ): { menu: MenuSlug; href: string } | null {
+  // Catatan "Lihat": rekamannya adalah catatan log yang dibuka.
+  if (log.model === "ActivityLog") {
+    return log.recordId
+      ? {
+          menu: MENU.ACTIVITY_LOG,
+          href: detailHref(MENU.SETTINGS, MENU.ACTIVITY_LOG, log.recordId),
+        }
+      : null;
+  }
+
   const menu = RECORD_SCREEN[log.model];
   const code = log.newData?.code ?? log.oldData?.code;
 

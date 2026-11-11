@@ -7,10 +7,10 @@ import { QrCode } from "@/components/common/display";
 const isCanView: { current: boolean } = { current: true };
 const search: { current: string } = { current: "" };
 
-mock.module("next/navigation", () => ({
-  useRouter: () => ({ replace: () => {} }),
-  usePathname: () => "/fixed-asset/asset-master/label",
-  useSearchParams: () => new URLSearchParams(search.current),
+mock.module("@/hooks/use-app-router", () => ({
+  useAppRouter: () => ({ replace: () => {} }),
+  useAppPathname: () => "/fixed-asset/asset-master/label",
+  useAppSearchParams: () => new URLSearchParams(search.current),
 }));
 
 mock.module("@/features/auth/use-menu-access", () => ({

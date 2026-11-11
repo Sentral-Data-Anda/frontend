@@ -1,15 +1,13 @@
-"use client";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { User } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { Button, Input, PasswordInput } from "@/components/common/control";
 import { FormAlert, FormField } from "@/components/common/form";
-import { SESSION_ENDED_REASON } from "@/lib/api/cookie";
+import { useAppRouter, useAppSearchParams } from "@/hooks/use-app-router";
 import { FetchError, fetchOne } from "@/lib/api/fetcher";
+import { SESSION_ENDED_REASON } from "@/lib/api/session";
 
 import { markAuthHandoff } from "./auth-handoff";
 
@@ -21,8 +19,8 @@ const loginSchema = z.object({
 type LoginForm = z.infer<typeof loginSchema>;
 
 export const LoginForm = () => {
-  const router = useRouter();
-  const searchParams = useSearchParams();
+  const router = useAppRouter();
+  const searchParams = useAppSearchParams();
   const isSessionEnded = searchParams.get("reason") === SESSION_ENDED_REASON;
 
   const {

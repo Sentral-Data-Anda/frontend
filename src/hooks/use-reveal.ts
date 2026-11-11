@@ -1,5 +1,3 @@
-"use client";
-
 import { useQueryClient, type QueryKey } from "@tanstack/react-query";
 import { useEffect, useEffectEvent } from "react";
 

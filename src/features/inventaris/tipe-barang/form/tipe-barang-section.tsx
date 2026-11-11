@@ -1,5 +1,3 @@
-"use client";
-
 import { AccountField, Input } from "@/components/common/control";
 import {
   ControlField,

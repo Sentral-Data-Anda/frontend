@@ -1,7 +1,6 @@
-import Link from "next/link";
-
 import { Button, buttonVariants } from "@/components/common/control";
 import { Panel } from "@/components/common/display";
+import { AppLink } from "@/components/common/link";
 import { MENU, rejectHref } from "@/config/menu";
 import { cn } from "@/lib/utils";
 
@@ -32,7 +31,7 @@ export const ActionPanel = (props: PropTypes) => {
             Menunggu tanda tangan Anda di tahap {stagePosition(request)}.
           </p>
           <div className="flex flex-wrap justify-end gap-2">
-            <Link
+            <AppLink
               href={rejectHref(
                 MENU.APPROVAL,
                 MENU.APPROVAL_REQUEST,
@@ -46,7 +45,7 @@ export const ActionPanel = (props: PropTypes) => {
               )}
             >
               Tolak
-            </Link>
+            </AppLink>
             <Button type="button" disabled={isBusy} onClick={onApprove}>
               Setujui
             </Button>

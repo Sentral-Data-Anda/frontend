@@ -18,10 +18,10 @@ import type { BudgetAllocationDetail, YearProgram } from "../types";
 
 const actions: { current: Record<string, MenuAction[]> } = { current: {} };
 
-mock.module("next/navigation", () => ({
-  useRouter: () => ({ replace: () => {} }),
-  usePathname: () => "/budgeting/budget/pga-1",
-  useSearchParams: () => new URLSearchParams(),
+mock.module("@/hooks/use-app-router", () => ({
+  useAppRouter: () => ({ replace: () => {} }),
+  useAppPathname: () => "/budgeting/budget/pga-1",
+  useAppSearchParams: () => new URLSearchParams(),
 }));
 
 mock.module("@/features/auth/use-menu-access", () => ({

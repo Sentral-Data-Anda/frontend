@@ -1,5 +1,3 @@
-"use client";
-
 import { Toast } from "@base-ui/react/toast";
 import { X } from "lucide-react";
 import { useEffect } from "react";

@@ -1,5 +1,3 @@
-"use client";
-
 import { Button } from "@/components/common/control";
 
 import type { PreviewRow } from "../model";

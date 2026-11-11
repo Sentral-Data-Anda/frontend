@@ -1,8 +1,5 @@
-"use client";
-
-import Link from "next/link";
-
 import { DETAIL_LINK, Panel } from "@/components/common/display";
+import { AppLink } from "@/components/common/link";
 import { MENU } from "@/config/menu";
 import { TaggedTotal } from "@/features/anggaran/shared";
 import { useMenuAccess } from "@/features/auth";
@@ -60,12 +57,12 @@ export const RealisationPanel = (props: PropTypes) => {
           untaggedHint={UNTAGGED_HINT}
           renderPart={(part) =>
             isCanViewReport ? (
-              <Link
+              <AppLink
                 href={part.href ?? "#"}
                 className={`min-w-0 truncate ${DETAIL_LINK}`}
               >
                 {part.label}
-              </Link>
+              </AppLink>
             ) : (
               <span className="min-w-0 truncate">{part.label}</span>
             )
@@ -75,12 +72,12 @@ export const RealisationPanel = (props: PropTypes) => {
 
       <div className="border-hairline flex items-baseline justify-between gap-3 border-t px-gutter py-3 text-body">
         {isCanViewExpense ? (
-          <Link
+          <AppLink
             href={expenseHref(bapelId)}
             className={`min-w-0 ${DETAIL_LINK}`}
           >
             {DISBURSED_LABEL}
-          </Link>
+          </AppLink>
         ) : (
           <span className="min-w-0">{DISBURSED_LABEL}</span>
         )}

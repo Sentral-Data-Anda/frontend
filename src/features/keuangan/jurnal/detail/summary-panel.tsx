@@ -1,12 +1,9 @@
-"use client";
-
-import Link from "next/link";
-
 import {
   DescriptionItem,
   DescriptionList,
   Panel,
 } from "@/components/common/display";
+import { AppLink } from "@/components/common/link";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { formatDate, formatDateTime } from "@/lib/format";
@@ -42,9 +39,9 @@ export const SummaryPanel = (props: PropTypes) => {
   ) => (
     <DescriptionItem label={RELATION_LABEL[kind]} isWide>
       <span>
-        <Link href={journalHref(ref.publicId)} className={TEXT_LINK}>
+        <AppLink href={journalHref(ref.publicId)} className={TEXT_LINK}>
           {ref.code}
-        </Link>
+        </AppLink>
         <span className="text-muted-foreground">
           {" "}
           · {formatDate(ref.entryDate)}
@@ -70,9 +67,9 @@ export const SummaryPanel = (props: PropTypes) => {
             <span className="text-muted-foreground">Belum dibuka</span>
           ) : periodAccess.isCanView ? (
             <span>
-              <Link href={PERIODE_FISKAL_PATH} className={TEXT_LINK}>
+              <AppLink href={PERIODE_FISKAL_PATH} className={TEXT_LINK}>
                 {periodLabelOf(period)}
-              </Link>
+              </AppLink>
               <span className="text-muted-foreground">
                 {" "}
                 · {PERIOD_STATUS_LABEL[period.status]}

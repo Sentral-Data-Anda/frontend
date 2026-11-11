@@ -1,5 +1,3 @@
-"use client";
-
 import { DashboardCard } from "@/components/common/dashboard";
 import { cn } from "@/lib/utils";
 

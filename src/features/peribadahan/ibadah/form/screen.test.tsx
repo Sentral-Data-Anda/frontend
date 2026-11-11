@@ -23,13 +23,13 @@ const search = { current: "" };
 const replaced: string[] = [];
 const pushed: string[] = [];
 
-mock.module("next/navigation", () => ({
-  useRouter: () => ({
+mock.module("@/hooks/use-app-router", () => ({
+  useAppRouter: () => ({
     replace: (href: string) => replaced.push(href),
     push: (href: string) => pushed.push(href),
   }),
-  usePathname: () => "/peribadahan/ibadah/create",
-  useSearchParams: () => new URLSearchParams(search.current),
+  useAppPathname: () => "/peribadahan/ibadah/create",
+  useAppSearchParams: () => new URLSearchParams(search.current),
 }));
 
 mock.module("@/features/auth/use-menu-access", () => ({

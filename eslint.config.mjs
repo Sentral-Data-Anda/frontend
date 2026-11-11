@@ -1,13 +1,18 @@
+import tanstackRouter from "@tanstack/eslint-plugin-router";
 import { defineConfig, globalIgnores } from "eslint/config";
-import nextVitals from "eslint-config-next/core-web-vitals";
-import nextTs from "eslint-config-next/typescript";
 import eslintConfigPrettier from "eslint-config-prettier";
 import boundaries from "eslint-plugin-boundaries";
+import importPlugin from "eslint-plugin-import";
+import jsxA11y from "eslint-plugin-jsx-a11y";
+import react from "eslint-plugin-react";
+import reactHooks from "eslint-plugin-react-hooks";
+import globals from "globals";
+import tseslint from "typescript-eslint";
 
 // Selector `no-restricted-syntax` disimpan sebagai konstanta karena di flat
 // config blok yang lebih akhir MENGGANTIKAN seluruh array opsi aturan yang sama
 // dari blok sebelumnya — tidak menggabungkan. Blok kelas di bawah menulis ulang
-// aturan ini untuk src/app dan src/features; tanpa spread NAMING_SELECTORS di
+// aturan ini untuk src/routes dan src/features; tanpa spread NAMING_SELECTORS di
 // sana, aturan useBoolean/is* diam-diam mati di persis dua folder yang paling
 // banyak menulis state.
 const NAMING_SELECTORS = [
@@ -77,14 +82,14 @@ const NO_UI_PRIMITIVE_IMPORT = {
 // Dari luar folder, impor lewat barrel index.ts (CODE_STYLE.md WAJIB-8).
 const DEEP_IMPORT = {
   regex:
-    "^@/components/(common/[^/]+/|ui/|layout/(?!app-shell$)).+|^@/features/((auth|beranda|domain|observability|pencarian|pwa)/(?!ui$|get-session$|refresh$).+|(?!(auth|beranda|domain|observability|pencarian|pwa)/)[^/]+/[^/]+/(?!(list|form|detail|label|posting)$).+)",
+    "^@/components/(common/[^/]+/|ui/|layout/(?!app-shell$)).+|^@/features/((auth|beranda|domain|observability|pencarian|pwa)/(?!ui$).+|(?!(auth|beranda|domain|observability|pencarian|pwa)/)[^/]+/[^/]+/(?!(list|form|detail|label|posting)$).+)",
   message:
     "Impor lewat barrel folder-nya, mis. @/components/common/list; rute memakai sub-barrel layarnya, mis. @/features/kejemaatan/daftar-jemaat/list.",
 };
 
 const NO_COMMON_ROOT_IMPORT = {
   regex:
-    "^@/components/common/(?!(brand|control|dashboard|display|feedback|form|list|navigation|overlay)$)[^/]+$",
+    "^@/components/common/(?!(brand|control|dashboard|display|feedback|form|link|list|navigation|overlay)$)[^/]+$",
   message:
     "Komponen bersama masuk ke salah satu kelompok di components/common (frontend-structure.md §4.1).",
 };
@@ -130,16 +135,42 @@ const CLASS_SELECTORS = [
 ];
 
 const eslintConfig = defineConfig([
-  ...nextVitals,
-  ...nextTs,
+  ...tseslint.configs.recommended,
+  react.configs.flat.recommended,
+  react.configs.flat["jsx-runtime"],
+  reactHooks.configs.flat.recommended,
+  ...tanstackRouter.configs["flat/recommended"],
+
+  // Pengganti eslint-config-next/core-web-vitals tanpa aturan @next/next:
+  // jsx-a11y dan import dengan tingkat yang sama.
+  {
+    plugins: { "jsx-a11y": jsxA11y, import: importPlugin },
+    languageOptions: {
+      globals: { ...globals.browser, ...globals.node },
+    },
+    settings: {
+      react: { version: "detect" },
+      "import/resolver": { typescript: true, node: true },
+    },
+    rules: {
+      "react/prop-types": "off",
+      "react/no-unknown-property": "off",
+      "react/jsx-no-target-blank": "off",
+      "import/no-anonymous-default-export": "warn",
+      "jsx-a11y/alt-text": ["warn", { elements: ["img"] }],
+      "jsx-a11y/aria-props": "warn",
+      "jsx-a11y/aria-proptypes": "warn",
+      "jsx-a11y/aria-unsupported-elements": "warn",
+      "jsx-a11y/role-has-required-aria-props": "warn",
+      "jsx-a11y/role-supports-aria-props": "warn",
+    },
+  },
 
   globalIgnores([
-    ".next/**",
-    "out/**",
     "build/**",
     "dist/**",
     "coverage/**",
-    "next-env.d.ts",
+    "src/routeTree.gen.ts",
     ".claude/**",
   ]),
 
@@ -206,16 +237,16 @@ const eslintConfig = defineConfig([
   // `lg:grid-cols-2` atau `text-gray-500` sendiri, tata letak dan palet mulai
   // bercabang per layar.
   //
-  // Dikecualikan: (auth)/layout.tsx — rumah seluruh keputusan responsif layar
+  // Dikecualikan: _auth/route.tsx — rumah seluruh keputusan responsif layar
   // login — dan dev/** yang bukan layar produk. Keduanya tetap terkena aturan
   // penamaan dari blok di atas karena blok ini tidak berlaku untuk mereka.
   {
     files: [
-      "src/app/**/*.{ts,tsx}",
+      "src/routes/**/*.{ts,tsx}",
       "src/features/**/*.{ts,tsx}",
       "tests/fixtures/eslint-kelas.tsx",
     ],
-    ignores: ["src/app/(auth)/layout.tsx", "src/app/dev/**"],
+    ignores: ["src/routes/_auth/route.tsx", "src/routes/dev/**"],
     rules: {
       "no-restricted-syntax": [
         "error",
@@ -245,7 +276,7 @@ const eslintConfig = defineConfig([
   // components/layout — `features/` juga layar, jadi ikut dilarang (dulu hanya
   // `app/`, dan empat berkas fitur sempat mengimpor ui/button dan ui/badge).
   {
-    files: ["src/{app,features,lib,hooks,config,types}/**/*.{ts,tsx}"],
+    files: ["src/{routes,features,lib,hooks,config,types}/**/*.{ts,tsx}"],
     rules: {
       "no-restricted-imports": [
         "error",
@@ -265,34 +296,34 @@ const eslintConfig = defineConfig([
   // fitur mengimpor isi fitur lain, lalu keduanya tidak bisa dipindah atau
   // dihapus tanpa membaca seluruh repo.
   //
-  //   app      → feature, shared
+  //   routes   → feature, shared
   //   feature  → shared, fitur yang SAMA, dan features/auth (sesi & izin)
   //   shared   → shared
-  //   tidak ada yang boleh mengimpor app
+  //   tidak ada yang boleh mengimpor routes
   {
     files: ["src/**/*.{ts,tsx}"],
     plugins: { boundaries },
     settings: {
-      // Titik masuk runtime Next di akar `src` (`proxy.ts`,
-      // `instrumentation*.ts`) tidak termasuk: keduanya bukan lapisan, dan
-      // plugin ini mengklasifikasi folder, bukan berkas lepas.
+      // Titik masuk di akar `src` (`main.tsx`, `routeTree.gen.ts`) tidak
+      // termasuk: keduanya bukan lapisan, dan plugin ini mengklasifikasi
+      // folder, bukan berkas lepas.
       "boundaries/include": [
-        "src/{app,features,components,lib,hooks,config,types}/**/*.{ts,tsx}",
+        "src/{routes,features,components,lib,hooks,config,types}/**/*.{ts,tsx}",
       ],
       // Hanya LIMA berkas auth yang boleh disentuh lintas lapisan, dan
-      // kelimanya memang "sesi": barrel `index`, penyedia sesi, pembaca sesi di
-      // server, hook izin, dan kontrak sesinya sendiri (`types.ts`, setelah tipe menu
-      // pindah ke `types/menu.ts`). `refresh.ts` — rotasi token — tidak ikut,
-      // dan itulah yang membuat penyempitan ini ada artinya.
+      // kelimanya memang "sesi": barrel `index`, penyedia sesi, query sesi,
+      // hook izin, dan kontrak sesinya sendiri (`types.ts`, setelah tipe menu
+      // pindah ke `types/menu.ts`). Layar login dan pertama masuk (`ui/`)
+      // tidak ikut, dan itulah yang membuat penyempitan ini ada artinya.
       "boundaries/files": [
         {
           category: "auth-session",
           pattern:
-            "src/features/auth/{index,use-menu-access,session-provider,get-session,types}.{ts,tsx}",
+            "src/features/auth/{index,use-menu-access,session-provider,session-query,types}.{ts,tsx}",
         },
       ],
       "boundaries/elements": [
-        { type: "app", pattern: "src/app/**" },
+        { type: "app", pattern: "src/routes/**" },
         { type: "feature", pattern: "src/features/*", capture: ["feature"] },
         {
           type: "shared",
@@ -306,7 +337,7 @@ const eslintConfig = defineConfig([
         {
           default: "disallow",
           message:
-            "Arah impor: app → feature/shared, feature → shared + fitur yang sama + features/auth, shared → shared. Lihat docs/design/frontend-structure.md §1.",
+            "Arah impor: routes → feature/shared, feature → shared + fitur yang sama + features/auth, shared → shared. Lihat docs/design/frontend-structure.md §1.",
           policies: [
             {
               from: { element: { type: "app" } },
@@ -347,16 +378,16 @@ const eslintConfig = defineConfig([
     },
   },
 
-  // page.tsx hanya metadata + satu komponen layar (§5). Begitu logika mulai
+  // Berkas rute hanya judul + satu komponen layar (§5). Begitu logika mulai
   // menumpuk di rute, ia tidak bisa diuji dan tidak bisa dipakai ulang.
   //
   // Komentar dan baris kosong tidak dihitung: batas ini soal banyaknya KODE
   // di rute, dan menghitung komentar justru menghukum berkas yang menjelaskan
-  // keputusan rutenya (mis. `dynamicParams` di `[domain]/page.tsx`).
+  // keputusan rutenya (mis. `beforeLoad` di `$domain/index.tsx`).
   // `dev/**` dikecualikan seperti pada aturan kelas: bukan layar produk.
   {
-    files: ["src/app/**/page.tsx"],
-    ignores: ["src/app/dev/**"],
+    files: ["src/routes/**/index.tsx"],
+    ignores: ["src/routes/dev/**"],
     rules: {
       "max-lines": [
         "error",

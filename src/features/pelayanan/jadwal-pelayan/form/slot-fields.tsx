@@ -1,5 +1,3 @@
-"use client";
-
 import { DdlField, type SelectOption } from "@/components/common/control";
 import {
   ControlField,

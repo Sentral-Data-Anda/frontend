@@ -1,5 +1,4 @@
 import { BookOpen } from "lucide-react";
-import Link from "next/link";
 
 import { buttonVariants } from "@/components/common/control";
 import {
@@ -8,6 +7,7 @@ import {
   DescriptionList,
   Panel,
 } from "@/components/common/display";
+import { AppLink } from "@/components/common/link";
 import { cn } from "@/lib/utils";
 import { ACCOUNT_TYPE_LABEL } from "@/types/keuangan";
 
@@ -38,12 +38,12 @@ export const SummaryPanel = (props: PropTypes) => {
 
         <DescriptionItem label="Akun induk">
           {account.parent ? (
-            <Link
+            <AppLink
               href={accountDetailHref(account.parent.code)}
               className={DETAIL_LINK}
             >
               {account.parent.code} — {account.parent.name}
-            </Link>
+            </AppLink>
           ) : (
             <span className="text-muted-foreground">Akun utama</span>
           )}
@@ -56,7 +56,7 @@ export const SummaryPanel = (props: PropTypes) => {
 
       {isCanViewLedger ? (
         <div className="px-gutter pt-2 pb-4">
-          <Link
+          <AppLink
             href={ledgerHref(account.code)}
             className={cn(
               buttonVariants({ variant: "outline" }),
@@ -65,7 +65,7 @@ export const SummaryPanel = (props: PropTypes) => {
           >
             <BookOpen aria-hidden />
             Lihat buku besar
-          </Link>
+          </AppLink>
         </div>
       ) : null}
     </Panel>

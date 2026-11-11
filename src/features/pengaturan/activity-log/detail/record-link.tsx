@@ -1,8 +1,5 @@
-"use client";
-
-import Link from "next/link";
-
 import { DETAIL_LINK } from "@/components/common/display";
+import { AppLink } from "@/components/common/link";
 import type { MenuSlug } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 
@@ -20,8 +17,8 @@ export const RecordLink = (props: PropTypes) => {
   if (!isCanView) return children;
 
   return (
-    <Link href={href} className={DETAIL_LINK}>
+    <AppLink href={href} className={DETAIL_LINK}>
       {children}
-    </Link>
+    </AppLink>
   );
 };

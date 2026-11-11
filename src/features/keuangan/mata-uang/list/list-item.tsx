@@ -1,6 +1,5 @@
-import Link from "next/link";
-
 import { Badge } from "@/components/common/display";
+import { AppLink } from "@/components/common/link";
 import {
   DataListRow,
   TABLE_ROW_LINK,
@@ -63,14 +62,14 @@ export const CurrencyListItemRow = (props: PropTypes) => {
       id={currency.code}
       className="hover:bg-card relative transition-colors"
       title={
-        <Link
+        <AppLink
           href={detailHrefOf(currency)}
           onClick={() => saveFocus(currency)}
           aria-label={viewLabelOf(currency)}
           className={TABLE_ROW_LINK}
         >
           {currency.code} — {currency.name}
-        </Link>
+        </AppLink>
       }
       meta={currency.symbol}
       trailing={

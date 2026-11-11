@@ -1,10 +1,7 @@
-"use client";
-
-import Link from "next/link";
-
 import { AccountField } from "@/components/common/control";
 import { EmptyState } from "@/components/common/feedback";
 import { FormField } from "@/components/common/form";
+import { AppLink } from "@/components/common/link";
 import {
   CsvDownloadButton,
   DataList,
@@ -280,9 +277,9 @@ export const GeneralLedger = (props: PropTypes) => {
                 <DataListRow
                   title={
                     toHref(row) ? (
-                      <Link href={toHref(row)!} className={ROW_LINK}>
+                      <AppLink href={toHref(row)!} className={ROW_LINK}>
                         {row.description}
-                      </Link>
+                      </AppLink>
                     ) : (
                       row.description
                     )

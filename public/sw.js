@@ -20,8 +20,9 @@
  *      disentuh. JANGAN pernah memanggil `event.respondWith()` untuk semua
  *      request — tangkap-semua adalah cara paling umum data terautentikasi
  *      berakhir di CacheStorage.
- *   2. HTML navigasi TIDAK PERNAH masuk cache. Halaman aplikasi dirender di
- *      server dan isinya data jemaat; sekali masuk CacheStorage ia bertahan
+ *   2. HTML navigasi TIDAK PERNAH masuk cache. index.html memang kosong,
+ *      tapi respons navigasi lain di origin ini (mis. berkas dari /media)
+ *      bisa membawa data jemaat; sekali masuk CacheStorage ia bertahan
  *      melewati logout dan bisa dibaca user berikutnya.
  *   3. Respons API TIDAK PERNAH masuk cache, dengan alasan yang sama.
  *
@@ -34,7 +35,7 @@
  * Klien mendaftarkannya sebagai `/sw.js?v=<BUILD_ID>` (lihat
  * src/features/pwa/lib/register.ts). Browser membandingkan service worker
  * per-URL, jadi query yang berubah berarti resource berbeda dan `install`
- * menyala — tanpa build script, tanpa route handler, aman untuk Turbopack.
+ * menyala — tanpa build script dan tanpa konfigurasi server.
  *
  * Ini memperbaiki mode kegagalan konstanta versi yang ditulis keras: konstanta
  * seperti itu tidak pernah berubah, sehingga cache lama nyangkut selamanya dan
@@ -46,12 +47,12 @@ const CACHE_PREFIX = "sada-";
 const CACHE_NAME = `${CACHE_PREFIX}${VERSION}`;
 
 /** Halaman fallback saat navigasi gagal karena tidak ada jaringan. */
-const OFFLINE_URL = "/offline";
+const OFFLINE_URL = "/offline.html";
 
 /**
  * Yang di-precache saat install. Shell saja, BUKAN data.
  *
- * `/offline` sengaja satu-satunya halaman di sini: isinya statis dan nol data,
+ * `/offline.html` sengaja satu-satunya halaman di sini: isinya statis dan nol data,
  * jadi aman bertahan di perangkat bersama.
  */
 const PRECACHE_URLS = [
@@ -68,7 +69,7 @@ const PRECACHE_URLS = [
  * `/api/` di sini adalah PERTAHANAN UTAMA, bukan jaring pengaman. Dulu
  * seluruh panggilan API menuju origin be-sada yang berbeda, sehingga
  * pemeriksaan lintas-origin di bawah sudah menutupnya lebih dulu. Sejak ada
- * BFF di `src/app/api/[...path]/route.ts`, panggilan API justru SE-ORIGIN:
+ * reverse proxy satu origin (nginx), panggilan API justru SE-ORIGIN:
  * ia lolos pemeriksaan itu dan tiba di sini. Setiap responsnya membawa data
  * terautentikasi milik satu user, di perangkat yang sering dipakai bergantian
  * — kalau baris ini hilang, data itu ter-cache dan tersaji ke orang
@@ -177,7 +178,7 @@ async function staleWhileRevalidate(request) {
 }
 
 /**
- * Network-first untuk navigasi, dengan `/offline` sebagai jaring terakhir.
+ * Network-first untuk navigasi, dengan `/offline.html` sebagai jaring terakhir.
  *
  * Perhatikan: respons jaringannya TIDAK PERNAH disimpan. Itu disengaja dan
  * merupakan inti aturan keamanan nomor 2 di atas.
@@ -211,7 +212,7 @@ self.addEventListener("fetch", (event) => {
 
   // Lintas-origin dilewatkan apa adanya: CDN pihak ketiga, gambar eksternal,
   // apa pun yang bukan milik kita. Yang TIDAK lagi ditutup baris ini adalah
-  // API SADA — sejak ada BFF, panggilan API berangkat ke origin yang sama
+  // API SADA — lewat reverse proxy, panggilan API berangkat ke origin yang sama
   // dengan halaman dan melewati pemeriksaan ini tanpa hambatan. Yang
   // menahannya sekarang `NEVER_TOUCH_PREFIXES` di atas.
   if (url.origin !== self.location.origin) {
@@ -227,7 +228,8 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  if (url.pathname.startsWith("/_next/static/")) {
+  // Keluaran `vite build`: nama berkas ber-hash, isinya tetap per URL.
+  if (url.pathname.startsWith("/assets/")) {
     event.respondWith(cacheFirst(request));
     return;
   }

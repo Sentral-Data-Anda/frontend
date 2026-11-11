@@ -1,10 +1,8 @@
-"use client";
-
 import { ChevronRight, MoreVertical, Pencil, Trash2 } from "lucide-react";
-import Link from "next/link";
 import { createContext, useContext } from "react";
 
 import { buttonVariants } from "@/components/common/control";
+import { AppLink } from "@/components/common/link";
 import { BottomSheet } from "@/components/common/overlay";
 import { useBoolean } from "@/hooks/use-boolean";
 import { cn } from "@/lib/utils";
@@ -77,14 +75,14 @@ export const DataRowActions = (props: PropTypes) => {
 
     if (action.href) {
       return (
-        <Link
+        <AppLink
           href={action.href}
           onClick={() => action.onNavigate?.()}
           aria-label={ariaLabel}
           className={className}
         >
           {content}
-        </Link>
+        </AppLink>
       );
     }
 

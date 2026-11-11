@@ -1,5 +1,3 @@
-"use client";
-
 import { Controller } from "react-hook-form";
 
 import { ChoiceField, Input } from "@/components/common/control";

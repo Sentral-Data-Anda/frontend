@@ -1,5 +1,3 @@
-"use client";
-
 import { useFieldArray, useWatch } from "react-hook-form";
 
 import { FormSection, FormWide, LineItemList } from "@/components/common/form";

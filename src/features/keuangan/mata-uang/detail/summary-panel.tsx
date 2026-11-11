@@ -1,5 +1,4 @@
 import { Plus } from "lucide-react";
-import Link from "next/link";
 
 import { buttonVariants } from "@/components/common/control";
 import {
@@ -8,6 +7,7 @@ import {
   Panel,
 } from "@/components/common/display";
 import { FormAlert } from "@/components/common/form";
+import { AppLink } from "@/components/common/link";
 import { formatDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -66,13 +66,13 @@ export const SummaryPanel = (props: PropTypes) => {
         </div>
 
         {isCanCreate && !currency.isBase ? (
-          <Link
+          <AppLink
             href={rateCreateHref(currency.code)}
             className={cn(buttonVariants(), "shrink-0 cursor-pointer")}
           >
             <Plus aria-hidden />
             Tambah kurs
-          </Link>
+          </AppLink>
         ) : null}
       </div>
 

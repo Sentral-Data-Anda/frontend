@@ -1,5 +1,3 @@
-"use client";
-
 import {
   Armchair,
   HandCoins,
@@ -7,12 +5,12 @@ import {
   Plus,
   ReceiptText,
 } from "lucide-react";
-import Link from "next/link";
 import { useState } from "react";
 
 import { buttonVariants } from "@/components/common/control";
 import { Panel } from "@/components/common/display";
 import { useToast, EmptyState } from "@/components/common/feedback";
+import { AppLink } from "@/components/common/link";
 import {
   DataList,
   ListTabs,
@@ -135,7 +133,7 @@ export const JournalListContent = () => {
                 const Icon = POSTING_ICON[entry.key];
 
                 return (
-                  <Link
+                  <AppLink
                     key={entry.key}
                     href={entry.href}
                     className={cn(
@@ -145,7 +143,7 @@ export const JournalListContent = () => {
                   >
                     <Icon aria-hidden />
                     {entry.label}
-                  </Link>
+                  </AppLink>
                 );
               })}
             </div>
@@ -199,7 +197,7 @@ export const JournalListContent = () => {
           action={
             isAccountMissing ? (
               accountAccess.isCanView ? (
-                <Link
+                <AppLink
                   href={menuHref(MENU.FINANCE, MENU.CHART_OF_ACCOUNT)}
                   className={cn(
                     buttonVariants({ variant: "outline" }),
@@ -207,16 +205,16 @@ export const JournalListContent = () => {
                   )}
                 >
                   Buat akun dulu
-                </Link>
+                </AppLink>
               ) : null
             ) : isCanCreate ? (
-              <Link
+              <AppLink
                 href={JURNAL_CREATE_PATH}
                 className={cn(buttonVariants(), "cursor-pointer")}
               >
                 <Plus aria-hidden />
                 Tambah entri
-              </Link>
+              </AppLink>
             ) : null
           }
         />

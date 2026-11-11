@@ -1,11 +1,12 @@
-"use client";
-
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-
 import { ListTabs } from "@/components/common/list";
 import { PageHeader, PageHeaderAdd } from "@/components/layout";
 import { MENU, domainHref } from "@/config/menu";
 import { useMenuAccess, useSession } from "@/features/auth";
+import {
+  useAppPathname,
+  useAppRouter,
+  useAppSearchParams,
+} from "@/hooks/use-app-router";
 
 import { JADWAL_PELAYAN_CREATE_PATH } from "../model";
 
@@ -21,9 +22,9 @@ const TABS: readonly { value: Tab; label: string }[] = [
 
 export const JadwalPelayanListContent = () => {
   const session = useSession();
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
+  const router = useAppRouter();
+  const pathname = useAppPathname();
+  const searchParams = useAppSearchParams();
   const { isCanCreate } = useMenuAccess(MENU.JADWAL_PELAYAN);
 
   const isAdmin = session.roleUser.isAdmin;

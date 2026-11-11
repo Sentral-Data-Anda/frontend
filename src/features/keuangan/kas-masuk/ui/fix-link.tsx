@@ -1,7 +1,4 @@
-"use client";
-
-import Link from "next/link";
-
+import { AppLink } from "@/components/common/link";
 import type { MenuSlug } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 
@@ -18,9 +15,9 @@ export const FixLink = (props: PropTypes) => {
 
   return isCanView ? (
     <p className="text-body">
-      <Link href={fix.href} className={TEXT_LINK}>
+      <AppLink href={fix.href} className={TEXT_LINK}>
         {fix.label}
-      </Link>
+      </AppLink>
     </p>
   ) : null;
 };

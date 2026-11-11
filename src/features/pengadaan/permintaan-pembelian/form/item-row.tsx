@@ -1,5 +1,3 @@
-"use client";
-
 import { Controller, useWatch } from "react-hook-form";
 
 import { AmountInput, Input } from "@/components/common/control";

@@ -1,9 +1,6 @@
-"use client";
-
-import Link from "next/link";
-
 import { buttonVariants } from "@/components/common/control";
 import { FormAlert } from "@/components/common/form";
+import { AppLink } from "@/components/common/link";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { cn } from "@/lib/utils";
@@ -22,7 +19,7 @@ export const SettlementNote = () => {
       />
 
       {isCanCreate ? (
-        <Link
+        <AppLink
           href={KAS_MASUK_CREATE_PATH}
           className={cn(
             buttonVariants({ variant: "outline" }),
@@ -30,7 +27,7 @@ export const SettlementNote = () => {
           )}
         >
           Catat pencairan di Kas Masuk
-        </Link>
+        </AppLink>
       ) : null}
     </div>
   );

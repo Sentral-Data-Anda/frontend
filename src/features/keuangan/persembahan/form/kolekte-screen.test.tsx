@@ -14,10 +14,10 @@ import type { MenuAction } from "@/types/menu";
 const actions: { current: MenuAction[] } = { current: [] };
 const replaced: string[] = [];
 
-mock.module("next/navigation", () => ({
-  useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
-  usePathname: () => "/finance/persembahan/kolekte",
-  useSearchParams: () => new URLSearchParams(),
+mock.module("@/hooks/use-app-router", () => ({
+  useAppRouter: () => ({ replace: (href: string) => replaced.push(href) }),
+  useAppPathname: () => "/finance/persembahan/kolekte",
+  useAppSearchParams: () => new URLSearchParams(),
 }));
 
 mock.module("@/features/auth/use-menu-access", () => ({

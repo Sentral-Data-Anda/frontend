@@ -1,11 +1,9 @@
-"use client";
-
 import { useQueryClient } from "@tanstack/react-query";
-import { useSearchParams } from "next/navigation";
 import { useEffect, useRef } from "react";
 
 import { ComboboxField } from "@/components/common/control";
 import type { FieldControlProps } from "@/components/common/form";
+import { useAppSearchParams } from "@/hooks/use-app-router";
 import { useDdlSearch } from "@/hooks/use-ddl-options";
 
 import { findAssetRow, usePresetAsset } from "./api";
@@ -31,7 +29,7 @@ export const AssetPicker = (props: PropTypes) => {
   } = props;
 
   const queryClient = useQueryClient();
-  const presetCode = useSearchParams().get("barang") ?? "";
+  const presetCode = useAppSearchParams().get("barang") ?? "";
   const preset = usePresetAsset(presetCode);
   const presetRef = useRef(false);
   const hintOf = isCostShown ? assetCostHintOf : assetHintOf;

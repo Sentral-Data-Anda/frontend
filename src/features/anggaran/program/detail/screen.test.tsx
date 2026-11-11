@@ -25,10 +25,10 @@ import type { ProgramApproval, ProgramDetail } from "../types";
 
 const actions: { current: Record<string, MenuAction[]> } = { current: {} };
 
-mock.module("next/navigation", () => ({
-  useRouter: () => ({ replace: () => {} }),
-  usePathname: () => "/budgeting/program/prg-0001",
-  useSearchParams: () => new URLSearchParams(),
+mock.module("@/hooks/use-app-router", () => ({
+  useAppRouter: () => ({ replace: () => {} }),
+  useAppPathname: () => "/budgeting/program/prg-0001",
+  useAppSearchParams: () => new URLSearchParams(),
 }));
 
 mock.module("@/features/auth/use-menu-access", () => ({

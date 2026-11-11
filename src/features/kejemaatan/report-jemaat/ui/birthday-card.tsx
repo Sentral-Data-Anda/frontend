@@ -1,5 +1,3 @@
-"use client";
-
 import { SelectField } from "@/components/common/control";
 import {
   DashboardCard,

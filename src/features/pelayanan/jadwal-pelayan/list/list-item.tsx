@@ -1,6 +1,5 @@
-import Link from "next/link";
-
 import { OptionalText } from "@/components/common/display";
+import { AppLink } from "@/components/common/link";
 import {
   DataListRow,
   TABLE_ROW_LINK,
@@ -61,14 +60,14 @@ export const JadwalPelayanListItemRow = (props: PropTypes) => {
       id={jadwal.code}
       className="hover:bg-card relative transition-colors"
       title={
-        <Link
+        <AppLink
           href={detailHrefOf(jadwal)}
           onClick={() => saveFocus(jadwal)}
           aria-label={viewLabelOf(jadwal)}
           className={TABLE_ROW_LINK}
         >
           {jadwal.name}
-        </Link>
+        </AppLink>
       }
       meta={metaOf(jadwal)}
       trailing={

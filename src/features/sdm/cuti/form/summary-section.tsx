@@ -1,5 +1,3 @@
-"use client";
-
 import { useWatch } from "react-hook-form";
 
 import { DescriptionItem, DescriptionList } from "@/components/common/display";

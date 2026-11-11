@@ -1,5 +1,3 @@
-import Image from "next/image";
-
 import { siteConfig } from "@/config/site";
 import { cn } from "@/lib/utils";
 
@@ -12,14 +10,13 @@ export function LogoMark({ className }: { className?: string }) {
         className,
       )}
     >
-      <Image
+      <img
         src="/brand/logo-icon.png"
         alt=""
         width={28}
         height={28}
-        sizes="28px"
         className="size-3/4"
-        priority
+        fetchPriority="high"
       />
     </span>
   );
@@ -27,14 +24,13 @@ export function LogoMark({ className }: { className?: string }) {
 
 export function LogoWordmark({ className }: { className?: string }) {
   return (
-    <Image
+    <img
       src="/brand/logo-wordmark.png"
       alt={siteConfig.shortName}
       width={496}
       height={232}
-      sizes="160px"
       className={cn("h-auto w-24", className)}
-      priority
+      fetchPriority="high"
     />
   );
 }

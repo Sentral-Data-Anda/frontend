@@ -1,7 +1,7 @@
 import { Pencil } from "lucide-react";
-import Link from "next/link";
 
 import { buttonVariants } from "@/components/common/control";
+import { AppLink } from "@/components/common/link";
 import { cn } from "@/lib/utils";
 
 import { rateEditHref, rateLabelOf, saveRateFocus } from "../model";
@@ -15,7 +15,7 @@ export const RateEditLink = (props: PropTypes) => {
   const { rate } = props;
 
   return (
-    <Link
+    <AppLink
       href={rateEditHref(rate.currencyCode, rate.id)}
       onClick={() => saveRateFocus(rate)}
       aria-label={rateLabelOf(rate)}
@@ -25,6 +25,6 @@ export const RateEditLink = (props: PropTypes) => {
       )}
     >
       <Pencil aria-hidden />
-    </Link>
+    </AppLink>
   );
 };

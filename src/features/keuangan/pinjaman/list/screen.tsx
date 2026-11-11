@@ -1,8 +1,5 @@
-"use client";
-
-import Link from "next/link";
-
 import { EmptyState } from "@/components/common/feedback";
+import { AppLink } from "@/components/common/link";
 import {
   DataList,
   DataListRow,
@@ -122,9 +119,9 @@ export const PinjamanListScreen = () => {
         {(loan) => (
           <DataListRow
             title={
-              <Link href={pinjamanHref(loan.publicId)} className={ROW_LINK}>
+              <AppLink href={pinjamanHref(loan.publicId)} className={ROW_LINK}>
                 {loan.counterpartyName}
-              </Link>
+              </AppLink>
             }
             meta={loanMeta(loan)}
             trailing={

@@ -1,7 +1,7 @@
-import Link from "next/link";
 import { Fragment } from "react";
 
 import { DETAIL_LINK } from "@/components/common/display";
+import { AppLink } from "@/components/common/link";
 import { formatNumber } from "@/lib/format";
 
 import {
@@ -15,9 +15,9 @@ export const CODE_LINK = `tabular-nums ${DETAIL_LINK}`;
 
 const codeLink = (code: string, href: string, isLinked: boolean) =>
   isLinked ? (
-    <Link href={href} className={CODE_LINK}>
+    <AppLink href={href} className={CODE_LINK}>
       {code}
-    </Link>
+    </AppLink>
   ) : (
     <span className="tabular-nums">{code}</span>
   );

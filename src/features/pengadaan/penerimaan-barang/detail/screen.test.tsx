@@ -41,10 +41,10 @@ const grants: { current: Partial<Record<MenuSlug, MenuAction[]>> } = {
   current: {},
 };
 
-mock.module("next/navigation", () => ({
-  useRouter: () => ({ replace: () => undefined }),
-  usePathname: () => `/procurement/goods-receipt/${KERTAS_RECEIPT.code}`,
-  useSearchParams: () => new URLSearchParams(),
+mock.module("@/hooks/use-app-router", () => ({
+  useAppRouter: () => ({ replace: () => undefined }),
+  useAppPathname: () => `/procurement/goods-receipt/${KERTAS_RECEIPT.code}`,
+  useAppSearchParams: () => new URLSearchParams(),
 }));
 
 mock.module("@/features/auth/use-menu-access", () => ({

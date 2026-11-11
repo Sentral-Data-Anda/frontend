@@ -1,5 +1,3 @@
-"use client";
-
 import { useFormState, useWatch } from "react-hook-form";
 
 import {

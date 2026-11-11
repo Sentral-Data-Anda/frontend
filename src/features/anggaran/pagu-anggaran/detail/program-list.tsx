@@ -1,10 +1,8 @@
-"use client";
-
 import { ChevronRight } from "lucide-react";
-import Link from "next/link";
 
 import { Badge, Panel } from "@/components/common/display";
 import { EmptyState } from "@/components/common/feedback";
+import { AppLink } from "@/components/common/link";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { formatAmount } from "@/lib/format";
@@ -60,7 +58,7 @@ export const ProgramList = (props: PropTypes) => {
         <ul aria-label="Program tahun ini" className="divide-hairline divide-y">
           {(programs.data ?? []).map((program: YearProgram) => (
             <li key={program.publicId}>
-              <Link
+              <AppLink
                 href={programDetailHref(program.publicId)}
                 className="hover:bg-muted focus-visible:ring-ring flex items-center gap-3 px-gutter py-3 outline-none focus-visible:ring-2"
               >
@@ -85,7 +83,7 @@ export const ProgramList = (props: PropTypes) => {
                   className="text-muted-foreground size-4 shrink-0"
                   aria-hidden
                 />
-              </Link>
+              </AppLink>
             </li>
           ))}
         </ul>

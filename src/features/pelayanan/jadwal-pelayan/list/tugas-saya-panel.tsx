@@ -1,5 +1,3 @@
-"use client";
-
 import { DataList } from "@/components/common/list";
 
 import { useTugasSayaAll } from "../api";

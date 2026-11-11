@@ -29,10 +29,10 @@ const actions: { current: MenuAction[] } = { current: [] };
 // perbedaan itu tak teruji.
 const barang: { current: MenuAction[] } = { current: [] };
 
-mock.module("next/navigation", () => ({
-  useRouter: () => ({ replace: () => {}, push: () => {} }),
-  usePathname: () => "/finance/journal-entry/posting-persediaan",
-  useSearchParams: () => new URLSearchParams(),
+mock.module("@/hooks/use-app-router", () => ({
+  useAppRouter: () => ({ replace: () => {}, push: () => {} }),
+  useAppPathname: () => "/finance/journal-entry/posting-persediaan",
+  useAppSearchParams: () => new URLSearchParams(),
 }));
 
 mock.module("@/features/auth/use-menu-access", () => ({

@@ -22,10 +22,10 @@ const search = { current: new URLSearchParams() };
 const replaced: string[] = [];
 const calls: Call[] = [];
 
-mock.module("next/navigation", () => ({
-  useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
-  usePathname: () => `${CYCLE_LIST_PATH}/perawatan/create`,
-  useSearchParams: () => search.current,
+mock.module("@/hooks/use-app-router", () => ({
+  useAppRouter: () => ({ replace: (href: string) => replaced.push(href) }),
+  useAppPathname: () => `${CYCLE_LIST_PATH}/perawatan/create`,
+  useAppSearchParams: () => search.current,
 }));
 
 mock.module("@/features/auth/use-menu-access", () => ({

@@ -1,7 +1,7 @@
 import { Receipt } from "lucide-react";
-import Link from "next/link";
 
 import { buttonVariants } from "@/components/common/control";
+import { AppLink } from "@/components/common/link";
 import { PageHeaderAdd } from "@/components/layout";
 import { cn } from "@/lib/utils";
 
@@ -11,7 +11,7 @@ import { KOLEKTE_PATH, PERSEMBAHAN_CREATE_PATH } from "../model";
  * tetap terjangkau di sebelahnya untuk transfer susulan dan koreksi. */
 export const KolekteAction = () => (
   <div className="flex items-center gap-1.5">
-    <Link
+    <AppLink
       href={PERSEMBAHAN_CREATE_PATH}
       aria-label="Catat satu persembahan"
       title="Catat satu persembahan"
@@ -21,7 +21,7 @@ export const KolekteAction = () => (
       )}
     >
       <Receipt aria-hidden />
-    </Link>
+    </AppLink>
 
     <PageHeaderAdd href={KOLEKTE_PATH} label="Catat Kolekte" text="Kolekte" />
   </div>

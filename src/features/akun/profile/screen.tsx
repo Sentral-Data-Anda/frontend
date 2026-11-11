@@ -1,7 +1,4 @@
-"use client";
-
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useForm, type FieldErrors } from "react-hook-form";
 
@@ -18,6 +15,7 @@ import { StepUpDialog } from "@/components/common/overlay";
 import { PageHeader } from "@/components/layout";
 import { ACCOUNT_HREF } from "@/config/menu";
 import { useSession } from "@/features/auth";
+import { useAppRouter } from "@/hooks/use-app-router";
 import { useBoolean } from "@/hooks/use-boolean";
 import { useStepUp } from "@/hooks/use-step-up";
 import { applyServerError, revealField } from "@/lib/form-error";
@@ -36,7 +34,7 @@ import { AddressSection } from "./address-section";
 import { ContactSection, IdentitySection, SocialSection } from "./sections";
 
 export const ProfileFormScreen = () => {
-  const router = useRouter();
+  const router = useAppRouter();
   const session = useSession();
   const toast = useToast();
   const profile = useMyProfile();
@@ -70,7 +68,7 @@ export const ProfileFormScreen = () => {
       const saved = await save.mutateAsync(toProfilePayload(values));
 
       toast.add({ title: saved.message });
-      // Nama di header dan di sidebar dibaca dari sesi, yang dirender server.
+      // Nama di header dan di sidebar dibaca dari query sesi; refresh() mengambilnya ulang.
       router.refresh();
       router.replace(ACCOUNT_HREF);
     } catch (error) {

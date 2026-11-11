@@ -1,7 +1,4 @@
-"use client";
-
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useForm } from "react-hook-form";
 
@@ -21,6 +18,7 @@ import { ConfirmDialog } from "@/components/common/overlay";
 import { PageHeader } from "@/components/layout";
 import { MENU } from "@/config/menu";
 import { useMenuAccess, useSession } from "@/features/auth";
+import { useAppRouter } from "@/hooks/use-app-router";
 import { useListReturn } from "@/hooks/use-list-return";
 import { FetchError } from "@/lib/api/fetcher";
 import { applyServerError, FIRST_INVALID, revealField } from "@/lib/form-error";
@@ -74,7 +72,7 @@ interface PropTypes {
 export const UserFormScreen = (props: PropTypes) => {
   const { code } = props;
 
-  const router = useRouter();
+  const router = useAppRouter();
   const toast = useToast();
   const session = useSession();
   const isEdit = Boolean(code);

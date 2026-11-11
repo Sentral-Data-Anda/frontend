@@ -1,5 +1,3 @@
-"use client";
-
 import { Check } from "lucide-react";
 
 import { DashboardCard } from "@/components/common/dashboard";

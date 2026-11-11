@@ -32,10 +32,10 @@ const BESOK = addDays(TODAY, 2);
 
 const KEMARIN = addDays(TODAY, -9);
 
-mock.module("next/navigation", () => ({
-  useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
-  usePathname: () => "/hr/leave/CTI-0001",
-  useSearchParams: () => new URLSearchParams(),
+mock.module("@/hooks/use-app-router", () => ({
+  useAppRouter: () => ({ replace: (href: string) => replaced.push(href) }),
+  useAppPathname: () => "/hr/leave/CTI-0001",
+  useAppSearchParams: () => new URLSearchParams(),
 }));
 
 mock.module("@/features/auth/use-menu-access", () => ({

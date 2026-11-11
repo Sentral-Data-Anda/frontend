@@ -23,10 +23,10 @@ const actions: {
 } = { current: [], approval: [] };
 const calls: Call[] = [];
 
-mock.module("next/navigation", () => ({
-  useRouter: () => ({ replace: () => undefined }),
-  usePathname: () => `${CYCLE_LIST_PATH}/pelepasan/x`,
-  useSearchParams: () => new URLSearchParams(),
+mock.module("@/hooks/use-app-router", () => ({
+  useAppRouter: () => ({ replace: () => undefined }),
+  useAppPathname: () => `${CYCLE_LIST_PATH}/pelepasan/x`,
+  useAppSearchParams: () => new URLSearchParams(),
 }));
 
 mock.module("@/features/auth/use-menu-access", () => ({

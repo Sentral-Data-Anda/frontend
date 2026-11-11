@@ -1,10 +1,8 @@
-"use client";
-
-import Link from "next/link";
 import type { MouseEvent } from "react";
 
 import { DdlField, buttonVariants } from "@/components/common/control";
 import { ControlField, FormSection, FormWide } from "@/components/common/form";
+import { AppLink } from "@/components/common/link";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { useDdlOptions } from "@/hooks/use-ddl-options";
@@ -57,7 +55,7 @@ export const LocationSection = (props: PropTypes) => {
         </div>
         {isCanMove ? (
           <FormWide>
-            <Link
+            <AppLink
               href={moveHref}
               onClick={onMove}
               className={cn(
@@ -66,7 +64,7 @@ export const LocationSection = (props: PropTypes) => {
               )}
             >
               Pindahkan
-            </Link>
+            </AppLink>
           </FormWide>
         ) : null}
       </FormSection>

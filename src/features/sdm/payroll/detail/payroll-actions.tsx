@@ -1,5 +1,3 @@
-"use client";
-
 import { Button } from "@/components/common/control";
 import { FormActions } from "@/components/common/form";
 import { MENU } from "@/config/menu";

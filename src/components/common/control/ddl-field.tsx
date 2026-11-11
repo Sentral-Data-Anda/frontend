@@ -1,5 +1,3 @@
-"use client";
-
 import { ComboboxField } from "./combobox-field";
 import { SelectField, type SelectOption } from "./select-field";
 

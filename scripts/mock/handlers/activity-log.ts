@@ -2,17 +2,24 @@
  * Tiruan `/api/v1/activity-log` (be-sada `modules/activity_log`) beserta semua
  * filter B7 (`dateFrom`/`dateTo`, `model`, `user`, `filter`, `kind=hapus`), dan
  * `GET /ddl/user`. Baris ditulis seperti ekstensi Prisma `config/activityLog.ts`:
- * `oldData` seluruh baris, `newData` argumen `data`, tanpa `password`/`token`.
+ * `oldData` seluruh baris, `newData` argumen `data`, `password`/`token` disamarkan.
  * Daftar (B13) tanpa `oldData`/`newData`, dengan `kind`; detail tetap lengkap.
  *
- *   MOCK_LOG_500=1   → daftar dan detail log menjawab 500
+ * Juga `GET /activity-log/export` (CSV) dan filter `requestId`; baris ber-aktor
+ * membawa konteks permintaan (IP, perangkat, endpoint, id permintaan).
+ *
+ *   MOCK_LOG_500=1          → daftar dan detail log menjawab 500
+ *   MOCK_LOG_EXPORT_LIMIT=1 → ekspor ditolak 400 (melebihi batas baris)
  */
 import { MENU } from "../../../src/config/menu";
 import { todayJakarta } from "../../../src/lib/date";
 import { denied, json, list, type MockHandler } from "../kit";
 
-// Semua model be-sada `schema.prisma` kecuali ActivityLog (tidak pernah dicatat).
+// Semua model be-sada `schema.prisma`. ActivityLog ikut: tulisan ke tabel itu
+// sendiri tidak dicatat, tetapi membuka, mengekspor, dan mengarsipkan log
+// tercatat dengan model ActivityLog (be-sada recordAccess).
 export const PRISMA_MODELS = [
+  "ActivityLog",
   "Jemaat",
   "AdditionalInformation",
   "Profession",
@@ -54,7 +61,6 @@ export const PRISMA_MODELS = [
   "Karyawan",
   "Keluarga",
   "KeluargaMember",
-  "Marriage",
   "Currency",
   "BudgetAllocation",
   "BudgetAllocationLine",
@@ -115,6 +121,13 @@ export const PRISMA_MODELS = [
   "PurchaseReturnItem",
   "Announcement",
   "ProgramBudgetItem",
+  "BudgetGateWaiver",
+  "BudgetSetting",
+  "CashTransfer",
+  "Holiday",
+  "Loan",
+  "OccupationalAllowance",
+  "SupplierInvoiceItem",
 ];
 
 type Data = Record<string, unknown>;
@@ -129,11 +142,12 @@ type Row = {
   recordId: string;
   oldData: Data | null;
   newData: Data | null;
-  username: null;
-  ipAddress: null;
-  userAgent: null;
-  method: null;
-  path: null;
+  username: string | null;
+  ipAddress: string | null;
+  userAgent: string | null;
+  method: string | null;
+  path: string | null;
+  requestId: string | null;
   createdAt: string;
   actor: Actor | null;
 };
@@ -327,14 +341,12 @@ const TEMPLATES: ((n: number, actorId: number) => Entry)[] = [
   }),
   (n, actorId) => ({
     action: "create",
-    model: "Marriage",
+    model: "Holiday",
     recordId: String(40 + n),
     oldData: null,
     newData: {
-      husbandId: n + 1,
-      wifeId: n + 2,
-      marriedAt: "2026-06-20T00:00:00.000Z",
-      place: "Gedung Gereja Induk",
+      date: "2026-12-25T00:00:00.000Z",
+      name: "Hari Raya Natal",
       createdBy: actorId,
     },
   }),
@@ -398,11 +410,27 @@ const rows: Row[] = Array.from({ length: COUNT }, (_, index) => {
     id: COUNT - index,
     publicId: `8a1d4c2e-0000-4000-9000-${String(COUNT - index).padStart(12, "0")}`,
     ...entry,
-    username: null,
-    ipAddress: null,
-    userAgent: null,
-    method: null,
-    path: null,
+    // Baris tanpa aktor ditulis di luar permintaan (callback, skrip): tanpa
+    // konteks. Dua baris berurutan berbagi satu permintaan, seperti satu klik
+    // yang menulis dua tabel.
+    username: actor?.code ?? null,
+    ipAddress: actor ? `203.0.113.${(n % 40) + 10}` : null,
+    userAgent: actor
+      ? "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 Safari/605.1.15"
+      : null,
+    method: actor
+      ? entry.action === "create"
+        ? "POST"
+        : entry.action === "delete"
+          ? "DELETE"
+          : "PUT"
+      : null,
+    path: actor
+      ? `/api/v1/${entry.model.toLowerCase()}/${entry.recordId}`
+      : null,
+    requestId: actor
+      ? `5f0c2a1e-0000-4000-8000-${String(Math.ceil(n / 2)).padStart(12, "0")}`
+      : null,
     createdAt: new Date(
       startedAt - index * 13 * HOUR - 7 * 60_000,
     ).toISOString(),
@@ -434,6 +462,7 @@ const isMatch = (row: Row, query: URLSearchParams) => {
   if (read("user") && row.actor?.code !== read("user")) return false;
   if (read("filter") && row.recordId !== read("filter").trim()) return false;
   if (read("kind") && kindOf(row) !== read("kind")) return false;
+  if (read("requestId") && row.requestId !== read("requestId")) return false;
 
   return true;
 };
@@ -483,6 +512,44 @@ export const activityLogMock: MockHandler = ({ url, path, method, can }) => {
   if (method !== "GET") return null;
   if (!can(MENU.ACTIVITY_LOG, "VIEW")) return denied();
   if (process.env.MOCK_LOG_500) return failed();
+
+  if (path === "/activity-log/export") {
+    if (process.env.MOCK_LOG_EXPORT_LIMIT) {
+      return json(
+        {
+          status: 400,
+          error:
+            "Hasil ekspor 61.204 baris melebihi batas 50.000. Persempit periode atau filter.",
+        },
+        400,
+      );
+    }
+
+    const matched = rows.filter((row) => isMatch(row, url.searchParams));
+    const cell = (value: unknown) =>
+      `"${String(value === null || value === undefined ? "" : typeof value === "object" ? JSON.stringify(value) : value).replace(/"/g, '""')}"`;
+    const body = [
+      ["Waktu", "Pengguna", "Aksi", "Data", "ID Rekaman", "Alamat IP"],
+      ...matched.map((row) => [
+        row.createdAt,
+        row.actor?.name ?? "Sistem",
+        kindOf(row),
+        row.model,
+        row.recordId,
+        row.ipAddress,
+      ]),
+    ]
+      .map((line) => line.map(cell).join(","))
+      .join("\r\n");
+
+    return new Response(`\uFEFF${body}\r\n`, {
+      status: 200,
+      headers: {
+        "content-type": "text/csv; charset=utf-8",
+        "content-disposition": 'attachment; filename="activity-log-mock.csv"',
+      },
+    });
+  }
 
   const id = path.match(/^\/activity-log\/([^/]+)$/)?.[1];
 

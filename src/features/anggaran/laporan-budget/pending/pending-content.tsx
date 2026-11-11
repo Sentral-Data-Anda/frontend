@@ -1,5 +1,3 @@
-"use client";
-
 import { MonthField } from "@/components/common/control";
 import { DataList } from "@/components/common/list";
 

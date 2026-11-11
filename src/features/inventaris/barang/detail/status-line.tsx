@@ -1,8 +1,5 @@
-"use client";
-
-import Link from "next/link";
-
 import { buttonVariants } from "@/components/common/control";
+import { AppLink } from "@/components/common/link";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { formatDate } from "@/lib/format";
@@ -41,14 +38,17 @@ export const StatusLine = (props: PropTypes) => {
         Pelepasan ({method.toLowerCase()}) menunggu persetujuan
       </p>
       {isCanViewCycle ? (
-        <Link href={disposalHref(disposal.code)} className={LINK}>
+        <AppLink href={disposalHref(disposal.code)} className={LINK}>
           Lihat pelepasan
-        </Link>
+        </AppLink>
       ) : null}
       {isCanViewApproval && disposal.approval ? (
-        <Link href={approvalHref(disposal.approval.publicId)} className={LINK}>
+        <AppLink
+          href={approvalHref(disposal.approval.publicId)}
+          className={LINK}
+        >
           Lihat persetujuan
-        </Link>
+        </AppLink>
       ) : null}
     </div>
   );

@@ -1,5 +1,3 @@
-"use client";
-
 import { ArrowUpFromLine } from "lucide-react";
 
 import { KpiCell } from "@/components/common/dashboard";

@@ -17,61 +17,72 @@ notification.
 
 ## Stack
 
-- Next.js 16 (App Router, Turbopack) + React 19 + TypeScript
+- Vite 8 + React 19 + TypeScript, SPA statis (tanpa server Node milik FE)
+- TanStack Router (rute berbasis berkas di `src/routes`, code splitting otomatis) + TanStack Query
 - Bun (package manager & runtime) — lihat `.bun-version`
 - Tailwind CSS 4 + shadcn/ui
 - Zod untuk validasi env dan bentuk respons API
 - ESLint + Prettier + Husky + commitlint + lint-staged
 - GitHub Actions (lint, typecheck, test, audit dependency)
-- Vercel untuk deploy
-- Docker (multi-stage, `output: "standalone"`)
+- Produksi: nginx di container `sada-frontend` (menyajikan `dist/`, meneruskan `/api` ke be-sada dan `/media` ke MinIO) di belakang Cloudflare Tunnel
 
 ## Setup
 
 ```bash
 bun install
-cp .env.example .env   # isi kedua variabel
-bun run dev            # http://localhost:3000
+cp .env.example .env   # isi VITE_SITE_URL
+bun run dev            # http://localhost:3000, /api diteruskan ke VITE_DEV_API_TARGET (bawaan :3001)
 ```
 
-Untuk menguji service worker atau push notification secara lokal, jalankan
-lewat HTTPS — Push API menolak origin non-HTTPS:
-
-```bash
-bun run dev --experimental-https
-```
+Service worker hanya aktif di build production. Untuk mengujinya di dev isi
+`VITE_ENABLE_SW=1`; service worker dan Push API menolak origin non-HTTPS kecuali
+localhost.
 
 ## Environment
 
-Keduanya **wajib**. `src/lib/env.ts` memvalidasi saat modul dimuat dan tidak
-punya nilai default, jadi proses gagal start bila salah satu belum di-set —
-disengaja, supaya production tidak menyala diam-diam dengan konfigurasi salah.
+`src/lib/env-schema.ts` memvalidasi saat `vite build` (gagal lebih awal) dan
+`src/lib/env.ts` saat aplikasi dimuat. Tidak ada nilai default.
 
-| Variabel               | Dibaca kapan | Keterangan                                                                   |
-| ---------------------- | ------------ | ---------------------------------------------------------------------------- |
-| `API_BASE_URL`         | runtime      | Base URL API backend, tanpa slash akhir. Server-only, tidak pernah ke client |
-| `NEXT_PUBLIC_SITE_URL` | **build**    | URL publik aplikasi. Di-inline ke bundle saat `next build`                   |
+| Variabel               | Dibaca kapan      | Keterangan                                                          |
+| ---------------------- | ----------------- | ------------------------------------------------------------------- |
+| `VITE_SITE_URL`        | **build** (wajib) | URL publik aplikasi (meta OG, QR label barang). Di-inline ke bundel |
+| `VITE_ENABLE_SW`       | build             | `1` = service worker juga aktif di dev                              |
+| `BUILD_ID`             | build             | Versi service worker (`/sw.js?v=<id>`); isi commit SHA              |
+| `VITE_DEV_API_TARGET`  | `bun run dev`     | Tujuan proxy `/api` dev (bawaan `http://localhost:3001`)            |
+| `API_UPSTREAM`         | start container   | nginx: be-sada, mis. `http://sada-backend:3001`                     |
+| `MEDIA_UPSTREAM`       | start container   | nginx: MinIO, mis. `http://sada-minio:9000`                         |
+| `BACKEND_PROXY_SECRET` | start container   | nginx: sama dengan be-sada `PROXY_SHARED_SECRET`                    |
+| `MEDIA_ORIGIN`         | start container   | nginx: origin gambar tambahan untuk CSP `img-src` (opsional)        |
 
-`NEXT_PUBLIC_SITE_URL` beku sejak build: image Docker yang dibangun dengan URL
-staging **tidak bisa** dipromosikan ke production tanpa build ulang.
+`VITE_*` beku sejak build: image Docker yang dibangun dengan URL staging **tidak
+bisa** dipromosikan ke production tanpa build ulang. Variabel nginx dibaca saat
+container start dan bisa diganti tanpa build ulang.
 
 ## Skrip
 
-| Perintah            | Fungsi                         |
-| ------------------- | ------------------------------ |
-| `bun run dev`       | Mode pengembangan              |
-| `bun run build`     | Build produksi (standalone)    |
-| `bun run start`     | Jalankan hasil build           |
-| `bun run lint`      | ESLint                         |
-| `bun run lint:fix`  | ESLint + perbaiki otomatis     |
-| `bun run typecheck` | `tsc --noEmit`                 |
-| `bun run test`      | `bun test`                     |
-| `bun run audit`     | Audit dependency produksi      |
-| `bun run format`    | Prettier format seluruh berkas |
+| Perintah            | Fungsi                           |
+| ------------------- | -------------------------------- |
+| `bun run dev`       | Mode pengembangan (Vite)         |
+| `bun run dev:mock`  | Vite + tiruan be-sada di :3001   |
+| `bun run build`     | `tsc -b && vite build` → `dist/` |
+| `bun run preview`   | Sajikan `dist/` secara lokal     |
+| `bun run lint`      | ESLint                           |
+| `bun run lint:fix`  | ESLint + perbaiki otomatis       |
+| `bun run typecheck` | `tsc --noEmit`                   |
+| `bun run test`      | `bun test`                       |
+| `bun run audit`     | Audit dependency produksi        |
+| `bun run format`    | Prettier format seluruh berkas   |
 
-`next build` di Next 16 **tidak lagi menjalankan lint**, jadi lint ditegakkan
-lewat CI — bukan lewat build. Lihat bagian Deploy soal pembagian kerja antara
-CI dan Vercel.
+`vite build` tidak menjalankan lint, jadi lint ditegakkan lewat CI.
+
+Skrip pendukung migrasi dan verifikasi:
+
+- `bun scripts/smoke-routes.ts` — membuka setiap rute di `dev:mock` yang sedang
+  berjalan; gagal bila ada galat halaman, `console.error`, layar galat, atau 404.
+- `bun scripts/codemod/count-routes.ts <ref>` — membandingkan halaman Next lama di git
+  dengan `src/routeTree.gen.ts`.
+- `scripts/codemod/next-to-tanstack.ts`, `next-imports.ts` — codemod migrasi
+  (sudah dijalankan; disimpan sebagai catatan).
 
 ## Test
 
@@ -99,12 +110,12 @@ default Tailwind: `md` (768px) dan `lg` (1024px). `sm:`, `xl:`, `2xl:`,
 
 Siapa boleh menulis apa:
 
-| Tempat                          | Boleh                                             |
-| ------------------------------- | ------------------------------------------------- |
-| `src/components/layout/**`      | media query `md:` / `lg:` (shell, sidebar, tab)   |
-| `src/components/common/**`      | container query (`@container`, `@md:`)            |
-| `src/app/(auth)/layout.tsx`     | media query — rumah seluruh responsif layar masuk |
-| `src/app/**`, `src/features/**` | **tidak ada** — layar bebas breakpoint            |
+| Tempat                             | Boleh                                             |
+| ---------------------------------- | ------------------------------------------------- |
+| `src/components/layout/**`         | media query `md:` / `lg:` (shell, sidebar, tab)   |
+| `src/components/common/**`         | container query (`@container`, `@md:`)            |
+| `src/routes/_auth/route.tsx`       | media query — rumah seluruh responsif layar masuk |
+| `src/routes/**`, `src/features/**` | **tidak ada** — layar bebas breakpoint            |
 
 Baris terakhir ditegakkan ESLint (`no-restricted-syntax`, beserta larangan
 warna palet mentah, `-[#…]`, dan `dark:`); pembagian layout vs common adalah
@@ -139,17 +150,19 @@ berjudul "Pencarian" yang untuk sekarang mencari modul dan layar.
 Di rail, avatar membuka menu akun Base UI (nama + peran,
 "Keluar"); mode penuh tetap tombol Keluar langsung. Keduanya memanggil
 `logout()` di `logout-button.tsx`. Pilihan disimpan di cookie
-`sidebar_collapsed` (`sidebar-collapse.ts`) yang dibaca `AppShell` di server,
-jadi render pertama sudah benar. Cookie itu milik FE: `pickSessionCookies`
-(`lib/api/cookie.ts`) menyaring header `Cookie` ke be-sada (BFF, logout,
-`getSession`, refresh) hanya ke `accessToken`/`refreshToken`. Identitas yang sama dirender header Beranda lewat slot `leading`
+`sidebar_collapsed` (`sidebar-collapse.ts`) yang dibaca `AppShell` dari
+`document.cookie` pada render pertama, jadi tidak ada kedipan. Identitas yang sama dirender header Beranda lewat slot `leading`
 `PageHeader`; slot kiri itu (identitas atau tombol back) hanya tampil < lg.
 
-Keluar: `DELETE /api/v1/auth/logout` (route BFF statis) meneruskan ke be-sada
-lalu **selalu** menghapus kedua cookie dan membalas 204, apa pun hasil
-upstream; proxy tidak menyegarkan token untuk path ini. Klien lalu
-`window.location.replace("/login")` — navigasi keras membuang cache TanStack
+Keluar: `DELETE /api/v1/auth/logout` langsung ke be-sada (lewat nginx), yang
+**selalu** menghapus kedua cookie, juga bila token akses sudah tidak sah. Klien
+lalu `window.location.replace("/login")` — navigasi keras membuang cache TanStack
 Query dan sesi di memori (PC bersama).
+
+Sesi: guard rute `_app` membaca `GET /auth/me` (`features/auth/session-query.ts`).
+401 di tengah pemakaian ditangani `lib/api/fetcher.ts`: kunci lintas tab
+(`navigator.locks`), ulang sekali, lalu `GET /auth/refresh-token` dan ulang lagi,
+atau akhiri sesi ke `/login?reason=session-ended`.
 
 Jarak tepi halaman memakai token `px-gutter` (20px, `--spacing-gutter` di
 `globals.css`), bukan `px-4` per komponen. Warna hanya lewat token semantik
@@ -175,7 +188,7 @@ Nilainya di `globals.css` (`--font-size-title` naik di `@media (min-width:
 dan ukuran bawaan Tailwind lainnya ditolak lint di **seluruh** `src/`,
 termasuk `cva()` di `components/ui`. Konsekuensi input 12px: iOS Safari
 auto-zoom saat fokus pada input <16px, dicegah `maximumScale: 1` di
-`viewport` (`src/app/layout.tsx`) — di iOS pinch-zoom manual tetap bisa, di
+meta viewport (`index.html`) — di iOS pinch-zoom manual tetap bisa, di
 Android Chrome pinch-zoom ikut mati. Diterima user.
 
 Tinggi kontrol (**keputusan user**): input dan tombol **36px di semua
@@ -239,9 +252,11 @@ jemaat & ibadah galat), `MOCK_NO_IBADAH=1` (tidak ada ibadah hari ini), `MOCK_SI
 layar itu; Pengaturan tidak dipegang → `/pengaturan` 404), `MOCK_MANY_JEMAAT=1`
 (60 jemaat; buka `?limit=5` di desktop untuk elipsis pager), `MOCK_FAIL_PAGE=3`
 (halaman 3 menjawab 500 — baris "Gagal memuat" di mobile), `MOCK_API_ONLY=1`
-(hanya tiruan API, untuk `next start` hasil build di port lain). Port
-bisa digeser dengan `MOCK_API_PORT` dan `PORT`, tapi Next menolak `next dev`
-kedua di direktori yang sama — matikan yang lama dulu.
+(hanya tiruan API, untuk `vite preview` hasil build di port lain). Port
+bisa digeser dengan `MOCK_API_PORT` dan `PORT`. `MOCK_ACCESS_TTL_S=5` memendekkan
+cookie akses untuk menguji refresh diam-diam; refresh id yang sudah dirotasi lalu
+disodorkan lagi mencabut sesi seperti be-sada, dan hitungannya ada di
+`/api/v1/__mock/stats`.
 Nama domain & layar di tiruan disalin dari be-sada (`NAME` di
 `scripts/menu-tree.ts`) — perbarui bersama `MENU_TREE` be-sada.
 
@@ -338,8 +353,8 @@ milik `DataList`.
 
 - Kerangka memuat = `LoadingDataList`: merender kerangka daftar DAN tabel, CSS
   (`md:hidden` / `hidden md:block`) yang memilih — juga dipakai sebagai fallback
-  `Suspense` rute, yang dirender server tanpa JS. `loading-table.tsx` sengaja tanpa
-  `"use client"`.
+  `Suspense` rute, jadi bentuknya benar sejak lukisan pertama tanpa menunggu lebar
+  layar terbaca.
 - Kolom = field yang memang dikirim endpoint daftar. Kolom `isSecondary` (Daftar
   Jemaat: Tipe, Keluarga) disembunyikan di tabel < 52rem (tablet, 1024 bersidebar
   penuh) lewat container query, jalur grid ikut berganti (`--cols-narrow`).
@@ -369,7 +384,7 @@ kedua mode.
 
 ### Halaman domain
 
-`/<domain>` (`src/app/(app)/[domain]/page.tsx`) melayani 12 domain dari satu
+`/<domain>` (`src/routes/_app/$domain/index.tsx`) melayani 12 domain dari satu
 berkas: `PageHeader` (nama domain) lalu grid tile bento
 (`MenuTile`/`MenuTileGrid`, 2 kolom, 3 kolom saat konten ≥ 36rem). Isi grid =
 anak simpul domain di `session.menu`; penjelasan per layar dari
@@ -382,23 +397,15 @@ selalu lewat `domainHref`/`domainEntryHref`, bukan string literal.
 Penjaganya `resolveDomain` (diuji terpisah): slug asing atau domain yang tidak
 dipegang → 404, domain berlayar satu → dialihkan ke layarnya.
 
-Dua hal yang perlu diketahui saat memeriksa dengan curl:
-
-- `dynamicParams = false` hanya ditegakkan `next dev`. Di production rute ini
-  dinamis (membaca cookie) sehingga slug asing tetap sampai ke halaman dan
-  ditolak `resolveDomain`. `/favicon.ico` karena itu disajikan sebagai berkas
-  (`src/app/favicon.ico`), supaya permintaan otomatis browser tidak pernah
-  sampai ke layout.
-- `notFound()` dan `redirect()` di halaman mana pun di bawah `(app)` terjadi
-  sesudah `(app)/loading.tsx` mulai di-stream, jadi status HTTP-nya 200 (isi
-  404 / pengalihan lewat payload RSC dan `meta refresh`), bukan 404/307.
-  Berlaku juga untuk `/<domain>/<layar>` yang belum dibangun.
+Di SPA statis, curl ke `/<domain>` apa pun selalu mendapat `index.html` 200: 404
+dan pengalihan terjadi di peramban (`beforeLoad` + `resolveDomain`), di dalam
+shell `_app`. Berlaku juga untuk `/<domain>/<layar>` yang belum dibangun.
 
 ### Semua modul
 
 `/modul` memakai `DomainTileGrid` (`components/common/navigation/domain-tile.tsx`) — grid
 4 kolom yang sama dengan "Aksi cepat" Beranda. Saat kolom cari berisi,
-`searchModules` (`src/app/(app)/modul/module-grid.tsx`, diuji terpisah)
+`searchModules` (`src/features`, diuji terpisah)
 mengembalikan layar yang cocok lewat nama, `MENU_DESCRIPTION`, atau nama
 domainnya, dirender dengan `MenuTile` (prop `domainLabel`).
 
@@ -439,14 +446,14 @@ Widget yang endpoint-nya belum ada di be-sada — **Jadwal pelayanan saya**
 (juga tab "Tugas saya" di Agenda), **Pagu terpakai**, KPI **komisi > 80%
 pagu**, **Kesiapan pembukuan** — dan **lonceng notifikasi** memakai fixture di
 `src/features/beranda/dummy.ts`. Widgetnya ditandai `isDummy` di registry dan
-hanya dirender bila `SHOW_DUMMY` — `process.env.NODE_ENV !== "production"`. Di
+hanya dirender bila `SHOW_DUMMY` — `!import.meta.env.PROD`. Di
 production semuanya tidak muncul sama sekali (diuji di
 `widgets.test.ts` per persona). `dev:mock` tidak meniru endpoint yang tidak ada.
 
 Menyalakannya di production (hanya bila diminta, mis. untuk demo): ubah baris
 itu menjadi
-`process.env.NODE_ENV !== "production" || process.env.NEXT_PUBLIC_SHOW_DUMMY === "1"`
-lalu build dengan `NEXT_PUBLIC_SHOW_DUMMY=1`. Nilainya ditanam saat **build**,
+`!import.meta.env.PROD || import.meta.env.VITE_SHOW_DUMMY === "1"`
+lalu build dengan `VITE_SHOW_DUMMY=1`. Nilainya ditanam saat **build**,
 bukan saat start. Saat endpoint asli ada: ganti fixture dengan hook data dan
 hapus `isDummy` widget itu.
 
@@ -457,7 +464,7 @@ Konvensinya satu dokumen: **[docs/design/frontend-structure.md](../docs/design/f
 `screen.tsx`, `ui/`, `hooks/`), istilah yang dipakai (tidak ada "service" di
 frontend), dan aturan lint yang menegakkannya.
 
-Ringkasnya: `src/app` rute saja, `src/features/<domain>/<fitur>` satu fitur
+Ringkasnya: `src/routes` rute saja (TanStack Router berbasis berkas; `src/routeTree.gen.ts` dibangkitkan plugin Vite), `src/features/<domain>/<fitur>` satu fitur
 nyata (fitur daftar + form: `list/` dan `form/`, dengan `api.ts`, `model.ts`,
 `types.ts` di akarnya), `src/components/{ui,common,layout}` UI bersama, dan
 `src/lib`, `src/config`, `src/hooks`, `src/types` fondasi.
@@ -491,99 +498,60 @@ bernama sama: yang pertama primitif, yang kedua pintu layar ke primitif itu (sam
 untuk `input` dan `badge`). Layar selalu memakai yang di `common/`; lint menolak
 `@/components/ui/*` di luar `components/` dan berkas lepas di akar `common/`.
 
-Yang bukan bagian dari konvensi itu: `src/proxy.ts` (CSP per-request; di Next 16 dulu bernama
-`middleware`) dan `public/sw.js` (service worker, ditulis tangan).
+Yang bukan bagian dari konvensi itu: `nginx/` (konfigurasi produksi: reverse
+proxy, header keamanan, CSP) dan `public/sw.js` (service worker, ditulis tangan).
 
 ## Aturan yang tidak boleh dilanggar
 
 Ketiganya soal keamanan data jemaat, bukan preferensi gaya:
 
-1. **Data terautentikasi tidak pernah di-cache.** Default `apiClient` adalah
-   `cache: "no-store"`, dan kombinasi caching eksplisit dengan header
-   `Authorization`/`Cookie` ditolak di kode. Data Cache Next berkunci URL,
-   bukan user — respons user A akan tersaji ke user B.
-2. **Konfigurasi server tidak pernah masuk bundle client.** `src/lib/env.ts`
-   dijaga `import "server-only"`; komponen client membaca `NEXT_PUBLIC_*`
-   langsung, bukan dengan mengimpor modul env.
-3. **Service worker tidak menyimpan HTML halaman ber-auth maupun respons API.**
+1. **Data terautentikasi tidak pernah di-cache.** nginx menjawab `/api/*` dengan
+   `Cache-Control: private, no-store`, dan service worker tidak pernah menyentuh
+   `/api/`.
+2. **Tidak ada rahasia di bundel.** Semua yang `VITE_*` terbaca siapa pun yang
+   membuka aplikasi. Rahasia (kunci proxy, upstream) hanya ada di env container
+   nginx.
+3. **Service worker tidak menyimpan HTML navigasi maupun respons API.**
    Handler `fetch`-nya memakai daftar putih, bukan tangkap-semua.
-4. **Log tidak pernah memuat data jemaat.** Semua yang masuk log melewati
-   `src/lib/observability/redact.ts`. `cause` sebuah error tidak pernah dicatat
-   — pada `apiClient`, kegagalan validasi Zod menyimpan nilai data yang ditolak
-   di sana.
+4. **Laporan galat tidak memuat data jemaat.** `features/observability/report.ts`
+   tidak mengirim `stack` maupun query string; be-sada memotong pesan dan
+   membuang query string sebelum mencatat.
 
 ## Content Security Policy
 
-CSP berbasis nonce, dihasilkan per-request di `src/proxy.ts` (di Next 16
-konvensi `middleware` sudah diganti `proxy`). Kebijakannya disusun di
-`src/lib/security/csp.ts` sebagai fungsi murni supaya bisa diuji — CSP yang
-kehilangan satu direktif tidak memunculkan error, ia hanya berhenti melindungi.
+CSP statis dari nginx (`nginx/security-headers.inc.template`), disertakan di
+setiap `location`: `script-src 'self'` tanpa nonce dan tanpa skrip inline,
+`style-src 'self' 'unsafe-inline'`, `connect-src 'self'`, `frame-ancestors 'none'`,
+ditambah `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, dan
+`Referrer-Policy: strict-origin-when-cross-origin`. Alasannya di
+`../docs/decisions/fe-kode/api-dan-keamanan.md`.
 
-Tidak ada `'unsafe-inline'` sama sekali. `'unsafe-eval'` hanya aktif di
-development, karena React memakai `eval` di sana untuk merekonstruksi stack
-error server di browser.
-
-**Konsekuensi yang harus diketahui:** halaman yang memakai nonce WAJIB dirender
-dinamis (`await connection()`), karena nonce dibuat per-request sementara
-halaman statis dibangun saat build. Halaman statis yang menerima header CSP
-ber-nonce akan tampil kosong — skrip framework di dalamnya tidak membawa nonce
-sehingga diblokir browser.
-
-**Saat menambah panggilan API dari browser** (fetch di komponen client, atau
-socket.io), origin backend harus ditambahkan ke `connect-src` di
-`src/lib/security/csp.ts` — termasuk skema `wss:` untuk socket. Tanpa itu
-koneksinya diblokir diam-diam dan hanya terlihat di console browser production.
+**Saat menambah koneksi ke origin lain dari browser** (socket.io, layanan lain),
+origin itu harus ditambahkan ke `connect-src` — termasuk skema `wss:` untuk
+socket. Tanpa itu koneksinya diblokir diam-diam dan hanya terlihat di console
+browser production.
 
 ## Observability
 
-Belum memakai penyedia pihak ketiga. Yang ada adalah rangka yang membuat error
-bisa ditangkap, dengan satu titik sambung untuk memasang Sentry atau sejenisnya
-nanti tanpa menyentuh pemanggilnya.
+Sentry dihapus (2026-11-11). Galat dipantau lewat Grafana/Loki.
 
-| Bagian        | Berkas                               | Fungsi                                                                          |
-| ------------- | ------------------------------------ | ------------------------------------------------------------------------------- |
-| Error server  | `src/instrumentation.ts`             | `onRequestError` mencatat setiap error render, Route Handler, dan Server Action |
-| Error browser | `src/instrumentation-client.ts`      | Menangkap `error` dan `unhandledrejection`, mengirim ke `/api/observability`    |
-| Penampung     | `src/app/api/observability/route.ts` | Memvalidasi lalu mencatat laporan dari browser                                  |
-| Redaksi       | `src/lib/observability/redact.ts`    | Menyaring kredensial, query string, `cause`, dan `stack`                        |
-| Keluaran      | `src/lib/observability/logger.ts`    | Satu baris JSON per peristiwa. Satu-satunya tempat `console` boleh dipakai      |
+| Bagian        | Berkas                                            | Fungsi                                                         |
+| ------------- | ------------------------------------------------- | -------------------------------------------------------------- |
+| Error browser | `src/features/observability` (dari `main.tsx`)    | Menangkap `error` dan `unhandledrejection` di luar pohon React |
+| Penampung     | be-sada `POST /api/v1/observability/client-error` | Validasi zod, badan ≤ 4 KB, 60 laporan/menit, tanpa sesi       |
+| Keluaran      | log be-sada `client_error {json}`                 | Dibaca Promtail ke Loki bersama log be-sada lainnya            |
 
-Penghubungnya adalah **`digest`**. Di production Next menyamarkan pesan error
-asli dari user dan hanya menyisakan digest, yang ditampilkan di halaman error.
-Digest yang sama ikut tercatat di log server — jadi laporan "muncul kode error
-1a2b3c" bisa dipertemukan dengan baris lognya.
-
-Penangkap error browser tinggal di `src/instrumentation-client.ts`, bukan di
-komponen dalam root layout. Next memuat berkas itu sebelum aplikasi menjadi
-interaktif dan di luar pohon React, sehingga dua kelas error yang paling parah
-tetap terlaporkan: error yang terjadi saat hidrasi, dan error yang menjatuhkan
-root layout — komponen di dalam layout tidak pernah mount pada kasus kedua.
-
-Batas boundary error yang perlu diketahui:
-
-- `src/app/error.tsx` tidak membungkus `layout.tsx` di segmen yang sama.
-  Karena itu ada `src/app/global-error.tsx`, yang merender `<html>`/`<body>`
-  sendiri dan mengimpor `globals.css` sendiri.
-- `global-error` adalah Client Component. Root layout yang gagal **di server**
-  tetap menghasilkan kerangka 500 bawaan Next (`<html id="__next_error__">`);
-  UI kita muncul saat hidrasi di client. Yang tetap jalan pada kasus itu adalah
-  `onRequestError` di server — digest-nya tercatat, jadi kejadiannya tidak
-  hilang meski halamannya bukan milik kita.
-- Karena `global-error` menggantikan root layout, kelas `.dark` tidak sampai ke
-  sana dan halamannya selalu terang.
-
-Batas yang disadari: `/api/observability` terbuka bagi siapa pun yang bisa
-membuka aplikasi. Pembatas di dalamnya menahan banjir dari klien yang terjebak
-loop error, bukan penyerang yang sengaja membanjiri — hitungannya per-instance
-dan hilang saat restart. Pembatasan sebenarnya harus dipasang di reverse proxy
-atau WAF.
+Layar galat rute (`routes/-ui/root-error.tsx`) memanggil `reportError`, yang
+memicu event `error` global sehingga laporannya lewat jalur yang sama.
 
 ## PWA
 
 Aplikasi bisa dipasang di Chrome/Edge desktop, Chrome Android, dan Safari iOS.
 
-- Manifest: `src/app/manifest.ts`, disajikan di `/manifest.webmanifest`
-- Service worker: `public/sw.js`, didaftarkan `src/features/pwa`
+- Manifest: `public/manifest.webmanifest`
+- Halaman offline: `public/offline.html` (satu-satunya halaman yang di-precache)
+- Service worker: `public/sw.js`, didaftarkan `src/features/pwa`; aset build
+  ber-hash di `/assets/` di-cache-first
 - Update service worker minta persetujuan user lewat toast, tidak pernah
   `skipWaiting()` diam-diam — pertukaran aset di tengah sesi bisa mematikan
   form yang sedang diisi
@@ -593,46 +561,34 @@ Rancangan lengkap, termasuk push notification dan fase berikutnya:
 
 ## Deploy
 
-Target deploy aplikasi ini adalah **Vercel**, dan Vercel menjalankan
-`next build` sendiri pada setiap push. Karena itu `.github/workflows/ci.yml`
-sengaja **tidak** punya step build — yang ditegakkan di sana hanya bagian yang
-tidak dilakukan Vercel:
+Produksi berjalan di home-server: Cloudflare Tunnel (`sada-cloudflared`, rute
+diatur di dasbor Cloudflare) → container `sada-frontend` (image dari
+`Dockerfile` ini, nginx port 3000) → `sada-backend:3001` untuk `/api` dan
+`sada-minio:9000` untuk `/media`. Rute tunnel tidak berubah dari masa Next.
 
-| Pemeriksaan      | Vercel (`next build`)                               | CI                             |
-| ---------------- | --------------------------------------------------- | ------------------------------ |
-| Typecheck        | ya (`typescript.ignoreBuildErrors` default `false`) | ya, umpan baliknya lebih cepat |
-| Lint             | **tidak** sejak Next 16                             | ya                             |
-| Test             | **tidak**                                           | ya                             |
-| Audit dependency | **tidak**                                           | ya                             |
+```
+browser ──► Cloudflare Tunnel ──► sada-frontend (nginx :3000)
+              ├─ /            → dist/ (fallback ke index.html)
+              ├─ /assets/*    → immutable
+              ├─ /sw.js       → no-store
+              ├─ /api/*       → sada-backend:3001 + x-sada-proxy-key, x-sada-client-ip, x-request-id
+              └─ /media/*     → sada-minio (hanya tautan bertanda tangan)
+```
 
-Variabel yang harus diisi di dashboard Vercel: `API_BASE_URL` dan
-`NEXT_PUBLIC_SITE_URL` (yang kedua di-inline saat build, jadi ganti nilainya
-berarti build ulang).
-
-`BUILD_ID` tidak perlu diisi di Vercel — `next.config.ts` jatuh ke
-`VERCEL_GIT_COMMIT_SHA` yang disediakan Vercel sendiri, sehingga versi service
-worker tetap bisa ditelusuri ke commit-nya.
-
-Dua keterbatasan yang perlu diketahui di platform serverless:
-
-- Log dari `src/lib/observability/logger.ts` masuk ke runtime log Vercel yang
-  retensinya pendek. Kalau penelusuran lewat `digest` harus bertahan lebih
-  lama, log perlu diteruskan ke sink eksternal.
-- Rate limit `/api/observability` disimpan di memori per-instance, dan Vercel
-  menjalankan banyak instance. Angkanya jadi lebih longgar dari yang tertulis.
+CI (`.github/workflows/ci.yml`) menjalankan lint, typecheck, test, dan audit.
+Build image dijalankan per lingkungan karena `VITE_*` di-inline saat build.
 
 ## Docker
 
-Masih tersedia sebagai jalan keluar dari Vercel (`output: "standalone"`), bukan
-jalur deploy utama.
-
 ```bash
-NEXT_PUBLIC_SITE_URL=https://sada.example.org docker compose up --build
+VITE_SITE_URL=https://sada.example.org BUILD_ID=$(git rev-parse --short HEAD) \
+  docker compose up --build
 ```
 
-`NEXT_PUBLIC_SITE_URL` diteruskan sebagai **build arg** (nilainya di-inline saat
-build). `API_BASE_URL` diteruskan sebagai environment runtime, jadi bisa diganti
-tanpa build ulang image.
+`VITE_SITE_URL` dan `BUILD_ID` diteruskan sebagai **build arg**. `API_UPSTREAM`,
+`MEDIA_UPSTREAM`, `BACKEND_PROXY_SECRET`, dan `MEDIA_ORIGIN` dibaca nginx saat
+container start (envsubst atas `/etc/nginx/templates`), jadi bisa diganti tanpa
+build ulang image.
 
 ## Dependency
 

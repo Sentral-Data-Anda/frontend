@@ -16,10 +16,10 @@ import type { ApprovalDetail } from "../types";
 const access = { isCanUpdate: true, hidden: new Set<string>() };
 const replaced: string[] = [];
 
-mock.module("next/navigation", () => ({
-  useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
-  usePathname: () => `${PERMINTAAN_LIST_PATH}/${DETAIL_ID}`,
-  useSearchParams: () => new URLSearchParams(),
+mock.module("@/hooks/use-app-router", () => ({
+  useAppRouter: () => ({ replace: (href: string) => replaced.push(href) }),
+  useAppPathname: () => `${PERMINTAAN_LIST_PATH}/${DETAIL_ID}`,
+  useAppSearchParams: () => new URLSearchParams(),
 }));
 
 mock.module("@/features/auth/use-menu-access", () => ({

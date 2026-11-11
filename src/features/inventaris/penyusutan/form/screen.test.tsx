@@ -16,10 +16,10 @@ import { PENYUSUTAN_LIST_PATH, periodOptions } from "../model";
 const actions: { current: MenuAction[] } = { current: [] };
 const replaced: string[] = [];
 
-mock.module("next/navigation", () => ({
-  useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
-  usePathname: () => "/fixed-asset/depreciation/create",
-  useSearchParams: () => new URLSearchParams(),
+mock.module("@/hooks/use-app-router", () => ({
+  useAppRouter: () => ({ replace: (href: string) => replaced.push(href) }),
+  useAppPathname: () => "/fixed-asset/depreciation/create",
+  useAppSearchParams: () => new URLSearchParams(),
 }));
 
 mock.module("@/features/auth/use-menu-access", () => ({

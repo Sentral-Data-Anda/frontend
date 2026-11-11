@@ -27,10 +27,10 @@ const requested: string[] = [];
 const replaced: string[] = [];
 const search = { current: new URLSearchParams() };
 
-mock.module("next/navigation", () => ({
-  useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
-  usePathname: () => "/procurement/purchase-return",
-  useSearchParams: () => search.current,
+mock.module("@/hooks/use-app-router", () => ({
+  useAppRouter: () => ({ replace: (href: string) => replaced.push(href) }),
+  useAppPathname: () => "/procurement/purchase-return",
+  useAppSearchParams: () => search.current,
 }));
 
 mock.module("@/features/auth/use-menu-access", () => ({

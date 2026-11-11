@@ -1,8 +1,5 @@
-"use client";
-
-import Link from "next/link";
-
 import { Button, buttonVariants } from "@/components/common/control";
+import { AppLink } from "@/components/common/link";
 import { formatDateShort } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -93,7 +90,7 @@ export function HistoryGroup<T extends { code: string }>(props: PropTypes<T>) {
             })}
           </ul>
           {total > HISTORY_LIMIT ? (
-            <Link
+            <AppLink
               href={cycleListHref(kind, code)}
               className={cn(
                 buttonVariants({ variant: "link" }),
@@ -101,7 +98,7 @@ export function HistoryGroup<T extends { code: string }>(props: PropTypes<T>) {
               )}
             >
               Lihat semua {total}
-            </Link>
+            </AppLink>
           ) : null}
         </>
       )}

@@ -24,10 +24,10 @@ const actions: { current: MenuAction[] } = { current: [] };
 const search = { current: new URLSearchParams() };
 const replaced: string[] = [];
 
-mock.module("next/navigation", () => ({
-  useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
-  usePathname: () => "/kegiatan/pendaftaran-event/create",
-  useSearchParams: () => search.current,
+mock.module("@/hooks/use-app-router", () => ({
+  useAppRouter: () => ({ replace: (href: string) => replaced.push(href) }),
+  useAppPathname: () => "/kegiatan/pendaftaran-event/create",
+  useAppSearchParams: () => search.current,
 }));
 
 mock.module("@/features/auth/use-menu-access", () => ({

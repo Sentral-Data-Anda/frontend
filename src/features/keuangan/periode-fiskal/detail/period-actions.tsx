@@ -1,5 +1,3 @@
-"use client";
-
 import { Button } from "@/components/common/control";
 
 import { CLOSE_NOTE } from "../model";

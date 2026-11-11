@@ -1,6 +1,5 @@
-import Link from "next/link";
-
 import { ProgressBar } from "@/components/common/dashboard";
+import { AppLink } from "@/components/common/link";
 import {
   DataListRow,
   TABLE_ROW_LINK,
@@ -49,14 +48,14 @@ export const AllocationListItem = (props: PropTypes) => {
       id={row.publicId}
       className="hover:bg-card relative transition-colors"
       title={
-        <Link
+        <AppLink
           href={detailHrefOf(row)}
           onClick={() => saveFocus(row)}
           aria-label={viewLabelOf(row)}
           className={TABLE_ROW_LINK}
         >
           {nameOf(row)}
-        </Link>
+        </AppLink>
       }
       meta={row.bapel?.code}
       trailing={

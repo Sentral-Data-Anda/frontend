@@ -1,7 +1,6 @@
-import Link from "next/link";
-
 import { buttonVariants } from "@/components/common/control";
 import { Panel } from "@/components/common/display";
+import { AppLink } from "@/components/common/link";
 import { ACCOUNT_PASSWORD_HREF } from "@/config/menu";
 import { PASSWORD_HINT } from "@/lib/password";
 
@@ -13,13 +12,13 @@ export const SecuritySection = () => (
         <p className="text-muted-foreground text-caption">{PASSWORD_HINT}</p>
       </div>
 
-      <Link
+      <AppLink
         href={ACCOUNT_PASSWORD_HREF}
         aria-label="Ubah password"
         className={buttonVariants({ variant: "outline" })}
       >
         Ubah
-      </Link>
+      </AppLink>
     </div>
   </Panel>
 );

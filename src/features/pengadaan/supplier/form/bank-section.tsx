@@ -1,5 +1,3 @@
-"use client";
-
 import { Input } from "@/components/common/control";
 import { ControlField, FormSection } from "@/components/common/form";
 import { keepDigits } from "@/lib/number";

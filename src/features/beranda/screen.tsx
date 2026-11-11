@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 
 import { DashboardGrid, KpiStrip } from "@/components/common/dashboard";

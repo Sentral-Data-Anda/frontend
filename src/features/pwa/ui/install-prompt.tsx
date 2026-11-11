@@ -1,5 +1,3 @@
-"use client";
-
 import { Button } from "@/components/common/control";
 
 import { useInstallPrompt } from "../hooks/use-install-prompt";

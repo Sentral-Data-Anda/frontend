@@ -1,8 +1,5 @@
-"use client";
-
-import Link from "next/link";
-
 import { buttonVariants } from "@/components/common/control";
+import { AppLink } from "@/components/common/link";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { cn } from "@/lib/utils";
@@ -23,7 +20,7 @@ export const FixLink = (props: PropTypes) => {
   if (!fix || !isCanView) return null;
 
   return (
-    <Link
+    <AppLink
       href={fix.href}
       className={cn(
         isPlain
@@ -32,6 +29,6 @@ export const FixLink = (props: PropTypes) => {
       )}
     >
       {fix.label}
-    </Link>
+    </AppLink>
   );
 };

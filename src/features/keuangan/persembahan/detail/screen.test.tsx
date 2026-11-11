@@ -15,10 +15,10 @@ import type { Persembahan } from "../types";
 
 const actions: { current: Record<string, MenuAction[]> } = { current: {} };
 
-mock.module("next/navigation", () => ({
-  useRouter: () => ({ replace: () => undefined }),
-  usePathname: () => "/finance/persembahan/PSB-2026-0001",
-  useSearchParams: () => new URLSearchParams(),
+mock.module("@/hooks/use-app-router", () => ({
+  useAppRouter: () => ({ replace: () => undefined }),
+  useAppPathname: () => "/finance/persembahan/PSB-2026-0001",
+  useAppSearchParams: () => new URLSearchParams(),
 }));
 
 mock.module("@/features/auth/use-menu-access", () => ({

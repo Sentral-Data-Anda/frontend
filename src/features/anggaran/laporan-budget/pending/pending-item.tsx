@@ -1,7 +1,6 @@
-import Link from "next/link";
-
 import { buttonVariants } from "@/components/common/control";
 import { DETAIL_LINK as LINK } from "@/components/common/display";
+import { AppLink } from "@/components/common/link";
 import { formatAmount, formatNumber } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -38,16 +37,16 @@ export const PendingItem = (props: PropTypes) => {
           <PendingBadge state={row.state} />
 
           {row.report ? (
-            <Link
+            <AppLink
               href={reportDetailHref(row.report.publicId)}
               className={`text-caption tabular-nums ${LINK}`}
             >
               {row.report.code}
-            </Link>
+            </AppLink>
           ) : null}
 
           {!row.report && row.state === "MISSING" && isCanCreate ? (
-            <Link
+            <AppLink
               href={createForHref(row.bapelId, month)}
               className={cn(
                 buttonVariants({ variant: "outline", size: "sm" }),
@@ -55,7 +54,7 @@ export const PendingItem = (props: PropTypes) => {
               )}
             >
               Tambah laporan
-            </Link>
+            </AppLink>
           ) : null}
         </div>
 

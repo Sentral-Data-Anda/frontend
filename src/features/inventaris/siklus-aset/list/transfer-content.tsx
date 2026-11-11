@@ -1,5 +1,3 @@
-"use client";
-
 import { DataList, ListToolbar } from "@/components/common/list";
 import { useListParams, type ListFilterSchema } from "@/hooks/use-list-params";
 

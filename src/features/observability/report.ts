@@ -6,7 +6,7 @@ export type ClientErrorReport = {
   path?: string;
 };
 
-export const REPORT_ENDPOINT = "/api/observability";
+export const REPORT_ENDPOINT = "/api/v1/observability/client-error";
 
 const MAX_MESSAGE_LENGTH = 1_000;
 

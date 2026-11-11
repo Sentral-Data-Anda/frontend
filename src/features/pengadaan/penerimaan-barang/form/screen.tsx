@@ -1,8 +1,5 @@
-"use client";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
-import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 
@@ -19,6 +16,7 @@ import {
 import { PageHeader } from "@/components/layout";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
+import { useAppRouter, useAppSearchParams } from "@/hooks/use-app-router";
 import { useBoolean } from "@/hooks/use-boolean";
 import { useListReturn } from "@/hooks/use-list-return";
 import { FetchError } from "@/lib/api/fetcher";
@@ -51,8 +49,8 @@ const ORDER_CHANGE_TEXT =
   "Apakah Anda ingin mengganti pesanan? Baris yang sudah diisi akan diganti.";
 
 export const ReceiptFormScreen = () => {
-  const router = useRouter();
-  const searchParams = useSearchParams();
+  const router = useAppRouter();
+  const searchParams = useAppSearchParams();
   const toast = useToast();
   const queryClient = useQueryClient();
   const { isCanView, isCanCreate } = useMenuAccess(MENU.GOODS_RECEIPT);

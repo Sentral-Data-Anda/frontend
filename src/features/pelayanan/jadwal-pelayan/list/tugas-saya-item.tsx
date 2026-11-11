@@ -1,6 +1,5 @@
-import Link from "next/link";
-
 import { Badge } from "@/components/common/display";
+import { AppLink } from "@/components/common/link";
 import {
   DataListRow,
   TABLE_ROW_LINK,
@@ -51,13 +50,13 @@ export const TugasSayaListItemRow = (props: PropTypes) => {
       id={tugasSayaKeyOf(item)}
       title={
         <>
-          <Link
+          <AppLink
             href={jadwalDetailHref(item.jadwal.code)}
             aria-label={`Lihat jadwal ${item.jadwal.name}`}
             className={TABLE_ROW_LINK}
           >
             {roleOf(item)}
-          </Link>
+          </AppLink>
           {item.group ? (
             <>
               <span className="sr-only"> lewat </span>

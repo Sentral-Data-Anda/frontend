@@ -18,10 +18,10 @@ import type { Payment } from "../types";
 
 const actions: { current: Record<string, MenuAction[]> } = { current: {} };
 
-mock.module("next/navigation", () => ({
-  useRouter: () => ({ replace: () => undefined }),
-  usePathname: () => "/finance/payment",
-  useSearchParams: () => new URLSearchParams(),
+mock.module("@/hooks/use-app-router", () => ({
+  useAppRouter: () => ({ replace: () => undefined }),
+  useAppPathname: () => "/finance/payment",
+  useAppSearchParams: () => new URLSearchParams(),
 }));
 
 mock.module("@/features/auth/use-menu-access", () => ({

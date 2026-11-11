@@ -1,5 +1,4 @@
-import Link from "next/link";
-
+import { AppLink } from "@/components/common/link";
 import {
   DataListRow,
   TABLE_ROW_LINK,
@@ -47,14 +46,14 @@ export const TransferListItemRow = (props: PropTypes) => {
       id={transfer.code}
       className="hover:bg-card relative transition-colors"
       title={
-        <Link
+        <AppLink
           href={detailHrefOf(transfer)}
           onClick={() => saveFocus(transfer)}
           aria-label={viewLabelOf(transfer)}
           className={TABLE_ROW_LINK}
         >
           {transferPathOf(transfer)}
-        </Link>
+        </AppLink>
       }
       meta={metaOf(transfer)}
       trailing={

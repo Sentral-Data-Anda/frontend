@@ -1,6 +1,3 @@
-"use client";
-
-import Link from "next/link";
 import { useState, type FormEvent } from "react";
 
 import { Button, buttonVariants } from "@/components/common/control";
@@ -15,6 +12,7 @@ import {
   RangeSection,
   useFormConfirm,
 } from "@/components/common/form";
+import { AppLink } from "@/components/common/link";
 import { PageHeader } from "@/components/layout";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
@@ -119,7 +117,7 @@ export const PostingPersediaanScreen = () => {
         <FormActions
           status={postingStatusOf(preview, NOTHING_TO_POST_PERSEDIAAN)}
         >
-          <Link
+          <AppLink
             href={JURNAL_LIST_PATH}
             className={cn(
               buttonVariants({ variant: "outline" }),
@@ -127,7 +125,7 @@ export const PostingPersediaanScreen = () => {
             )}
           >
             Kembali
-          </Link>
+          </AppLink>
 
           <Button type="submit" disabled={!isPostable}>
             {posting.isPending && !posting.variables?.isDryRun

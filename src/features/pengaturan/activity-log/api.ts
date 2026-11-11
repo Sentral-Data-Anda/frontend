@@ -1,15 +1,21 @@
-"use client";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
-import { useQuery } from "@tanstack/react-query";
-
+import { useToast } from "@/components/common/feedback";
 import { useDdlOptions } from "@/hooks/use-ddl-options";
 import type { ListState } from "@/hooks/use-list-params";
 import { useListQuery } from "@/hooks/use-list-query";
-import { fetchList, fetchOne } from "@/lib/api/fetcher";
+import {
+  fetchFile,
+  fetchList,
+  fetchOne,
+  FetchError,
+  saveFile,
+} from "@/lib/api/fetcher";
 import { todayJakarta } from "@/lib/date";
 
 import {
   actionKindFromServer,
+  exportQueryOf,
   SUPPORTED_FILTERS,
   toLogApiFilters,
 } from "./model";
@@ -55,3 +61,37 @@ export function useActivityLogDetail(id: string) {
 
 export const useUserFilterOptions = () =>
   useDdlOptions(SUPPORTED_FILTERS.includes("pengguna") ? "user" : null, "code");
+
+/**
+ * Ekspor CSV dari be-sada, dengan filter dan pencarian yang sama dengan daftar.
+ * Dibuat di server (di-stream, dibatasi, dan dicatat sebagai "Ekspor" di log
+ * ini sendiri), bukan dirakit dari halaman yang sudah dimuat.
+ */
+export function useActivityLogExport(
+  params: Pick<ListState, "filters" | "search">,
+) {
+  const toast = useToast();
+
+  const mutation = useMutation({
+    mutationFn: () =>
+      fetchFile(
+        `/activity-log/export?${exportQueryOf(params.filters, params.search, todayJakarta())}`,
+        "activity-log.csv",
+      ),
+    onSuccess: saveFile,
+    onError: (error) => {
+      toast.add({
+        title:
+          error instanceof FetchError
+            ? error.message
+            : "Ekspor gagal. Periksa koneksi lalu coba lagi.",
+        type: "error",
+      });
+    },
+  });
+
+  return {
+    isPending: mutation.isPending,
+    onExport: () => mutation.mutate(),
+  };
+}

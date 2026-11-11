@@ -1,10 +1,7 @@
-"use client";
-
-import Link from "next/link";
-
 import { buttonVariants } from "@/components/common/control";
 import { Panel } from "@/components/common/display";
 import { FormAlert } from "@/components/common/form";
+import { AppLink } from "@/components/common/link";
 import { CsvDownloadButton } from "@/components/common/list";
 import { MENU, menuHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
@@ -104,7 +101,7 @@ export const CashFlowStatement = (props: PropTypes) => {
             message={CASH_FLOW_NO_ACCOUNT_MESSAGE}
           />
           {accountAccess.isCanView ? (
-            <Link
+            <AppLink
               href={AKUN_PATH}
               className={cn(
                 buttonVariants({ variant: "outline" }),
@@ -112,7 +109,7 @@ export const CashFlowStatement = (props: PropTypes) => {
               )}
             >
               Buka Akun
-            </Link>
+            </AppLink>
           ) : null}
         </div>
       ) : query.error ? (

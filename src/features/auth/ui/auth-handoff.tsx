@@ -1,9 +1,7 @@
-"use client";
-
-import { usePathname } from "next/navigation";
 import { useEffect, useLayoutEffect } from "react";
 
 import { LoadingPage } from "@/components/common/feedback";
+import { useAppPathname } from "@/hooks/use-app-router";
 import { useBoolean } from "@/hooks/use-boolean";
 
 const HANDOFF_KEY = "sada:auth-handoff";
@@ -33,7 +31,7 @@ export const markAuthHandoff = () => {
 const isRouteLoading = () => !!document.querySelector("[data-loading-page]");
 
 export const AuthHandoff = () => {
-  const pathname = usePathname();
+  const pathname = useAppPathname();
   const isShown = useBoolean();
   const { onTrue: showCurtain, onFalse: hideCurtain } = isShown;
 

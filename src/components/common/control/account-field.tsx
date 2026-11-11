@@ -1,5 +1,3 @@
-"use client";
-
 import { useDdlOptions } from "@/hooks/use-ddl-options";
 import { ACCOUNT_TYPE_LABEL, type AccountType } from "@/types/keuangan";
 

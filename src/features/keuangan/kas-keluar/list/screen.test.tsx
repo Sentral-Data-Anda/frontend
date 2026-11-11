@@ -27,10 +27,10 @@ import type { CashExpense } from "../types";
 const granted: { current: Record<string, MenuAction[]> } = { current: {} };
 const search: { current: string } = { current: "" };
 
-mock.module("next/navigation", () => ({
-  useRouter: () => ({ replace: () => {} }),
-  usePathname: () => "/finance/kas-keluar",
-  useSearchParams: () => new URLSearchParams(search.current),
+mock.module("@/hooks/use-app-router", () => ({
+  useAppRouter: () => ({ replace: () => {} }),
+  useAppPathname: () => "/finance/kas-keluar",
+  useAppSearchParams: () => new URLSearchParams(search.current),
 }));
 
 mock.module("@/features/auth/use-menu-access", () => ({

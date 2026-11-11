@@ -1,5 +1,6 @@
 import type { ApiListResponse, ApiResponse } from "@/types/api";
 
+import { refreshSession, withRefreshLock } from "./refresh";
 import { endSession } from "./session";
 
 const BASE_PATH = "/api/v1";
@@ -68,7 +69,7 @@ const readError = async (
   return { message: fallbackMessage(response.status), issues, code };
 };
 
-const request = (path: string, init?: RequestInit): Promise<Response> =>
+const send = (path: string, init?: RequestInit): Promise<Response> =>
   fetch(`${BASE_PATH}${path}`, {
     ...init,
     headers: {
@@ -79,10 +80,46 @@ const request = (path: string, init?: RequestInit): Promise<Response> =>
     },
   });
 
+// Tiga endpoint ini mengurus sesinya sendiri: mengulangnya sesudah refresh
+// menyodorkan lagi id yang baru saja dipakai.
+const SESSION_PATHS = new Set([
+  "/auth/login",
+  "/auth/refresh-token",
+  "/auth/logout",
+]);
+
+/**
+ * Permintaan ke be-sada. 401 diberi satu kesempatan di bawah kunci refresh:
+ * ulang dulu (tab lain mungkin sudah merotasi), baru refresh, lalu ulang sekali.
+ * 401 yang tersisa dikembalikan apa adanya.
+ */
+export async function apiFetch(
+  path: string,
+  init?: RequestInit,
+): Promise<Response> {
+  const response = await send(path, init);
+
+  if (response.status !== 401 || SESSION_PATHS.has(path)) return response;
+
+  await response.body?.cancel().catch(() => {});
+
+  return withRefreshLock(async () => {
+    const retried = await send(path, init);
+
+    if (retried.status !== 401) return retried;
+
+    if (!(await refreshSession())) return retried;
+
+    await retried.body?.cancel().catch(() => {});
+
+    return send(path, init);
+  });
+}
+
 // 401 dari login berarti kredensial salah, bukan sesi yang berakhir.
 const isCredentialRejection = (path: string) => path === "/auth/login";
 
-const readFailure = async (response: Response, path: string) => {
+export const readFailure = async (response: Response, path: string) => {
   const failure = await readError(response);
 
   if (response.status === 401 && !isCredentialRejection(path)) {
@@ -101,7 +138,7 @@ export async function fetchOne<T>(
   path: string,
   init?: RequestInit,
 ): Promise<ApiResponse<T>> {
-  const response = await request(path, init);
+  const response = await apiFetch(path, init);
 
   if (!response.ok) throw await readFailure(response, path);
 
@@ -112,9 +149,47 @@ export async function fetchList<T>(
   path: string,
   init?: RequestInit,
 ): Promise<ApiListResponse<T>> {
-  const response = await request(path, init);
+  const response = await apiFetch(path, init);
 
   if (!response.ok) throw await readFailure(response, path);
 
   return response.json() as Promise<ApiListResponse<T>>;
+}
+
+const FILE_NAME = /filename="?([^";]+)"?/i;
+
+/**
+ * Berkas dari be-sada (mis. ekspor CSV yang di-stream). Gagal dibaca seperti
+ * `fetchOne`: pesan be-sada menjadi `FetchError`, dan 401 mengakhiri sesi.
+ */
+export async function fetchFile(
+  path: string,
+  fallbackName: string,
+  init?: RequestInit,
+): Promise<{ blob: Blob; fileName: string }> {
+  const response = await apiFetch(path, init);
+
+  if (!response.ok) throw await readFailure(response, path);
+
+  const disposition = response.headers.get("content-disposition") ?? "";
+
+  return {
+    blob: await response.blob(),
+    fileName: FILE_NAME.exec(disposition)?.[1] ?? fallbackName,
+  };
+}
+
+/** Menyimpan berkas ke perangkat pengguna lewat unduhan peramban. */
+export function saveFile(file: { blob: Blob; fileName: string }): void {
+  const url = URL.createObjectURL(file.blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = file.fileName;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  // Setelah klik, bukan seketika: Safari membatalkan unduhan yang URL-nya
+  // dicabut di tick yang sama.
+  setTimeout(() => URL.revokeObjectURL(url), 1_000);
 }

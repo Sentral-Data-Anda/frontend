@@ -1,8 +1,6 @@
-"use client";
-
-import Link from "next/link";
 import { Fragment, type ReactNode } from "react";
 
+import { AppLink } from "@/components/common/link";
 import { MENU, detailHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { formatDateTime } from "@/lib/format";
@@ -61,12 +59,12 @@ export const ApprovalPanel = <S extends ApprovalStepView>(
           <ApprovalStatusBadge status={approval.status} />
 
           {isCanView ? (
-            <Link
+            <AppLink
               href={href}
               className={`text-body tabular-nums ${DETAIL_LINK}`}
             >
               {approval.code}
-            </Link>
+            </AppLink>
           ) : (
             <span className="text-muted-foreground text-body tabular-nums">
               {approval.code}

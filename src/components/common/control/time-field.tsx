@@ -1,5 +1,3 @@
-"use client";
-
 import { Popover } from "@base-ui/react/popover";
 import { Clock } from "lucide-react";
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";

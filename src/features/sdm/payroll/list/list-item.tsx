@@ -1,5 +1,4 @@
-import Link from "next/link";
-
+import { AppLink } from "@/components/common/link";
 import {
   DataListRow,
   TABLE_ROW_LINK,
@@ -47,14 +46,14 @@ export const PayrollListItem = (props: PropTypes) => {
       id={run.code}
       className="hover:bg-card relative transition-colors"
       title={
-        <Link
+        <AppLink
           href={hrefOf(run)}
           onClick={() => saveFocus(run)}
           aria-label={labelOf(run)}
           className={TABLE_ROW_LINK}
         >
           {periodLabel(run)}
-        </Link>
+        </AppLink>
       }
       meta={metaOf(run)}
       trailing={<PayrollStatusBadge status={run.status} />}

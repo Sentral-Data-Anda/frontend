@@ -9,10 +9,10 @@ import type { PenetapanKomponen } from "../types";
 
 const actions: { current: MenuAction[] } = { current: [] };
 
-mock.module("next/navigation", () => ({
-  useRouter: () => ({ replace: () => {}, push: () => {} }),
-  usePathname: () => "/hr/payroll-component/karyawan",
-  useSearchParams: () => new URLSearchParams(),
+mock.module("@/hooks/use-app-router", () => ({
+  useAppRouter: () => ({ replace: () => {}, push: () => {} }),
+  useAppPathname: () => "/hr/payroll-component/karyawan",
+  useAppSearchParams: () => new URLSearchParams(),
 }));
 
 mock.module("@/features/auth/use-menu-access", () => ({

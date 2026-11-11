@@ -1,5 +1,4 @@
-import Link from "next/link";
-
+import { AppLink } from "@/components/common/link";
 import {
   DataListRow,
   TABLE_ROW_LINK,
@@ -49,14 +48,14 @@ export const InvoiceListItemRow = (props: PropTypes) => {
       id={invoice.publicId}
       className="hover:bg-card relative transition-colors"
       title={
-        <Link
+        <AppLink
           href={detailHrefOf(invoice)}
           onClick={() => saveFocus(invoice)}
           aria-label={viewLabelOf(invoice)}
           className={TABLE_ROW_LINK}
         >
           {invoice.supplier.name}
-        </Link>
+        </AppLink>
       }
       meta={metaOf(invoice)}
       trailing={

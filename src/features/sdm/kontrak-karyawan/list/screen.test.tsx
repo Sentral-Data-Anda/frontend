@@ -19,10 +19,10 @@ import type { KontrakKaryawan } from "../types";
 
 const granted: { current: Record<string, MenuAction[]> } = { current: {} };
 
-mock.module("next/navigation", () => ({
-  useRouter: () => ({ replace: () => {}, push: () => {} }),
-  usePathname: () => "/hr/employee-contract",
-  useSearchParams: () => new URLSearchParams(),
+mock.module("@/hooks/use-app-router", () => ({
+  useAppRouter: () => ({ replace: () => {}, push: () => {} }),
+  useAppPathname: () => "/hr/employee-contract",
+  useAppSearchParams: () => new URLSearchParams(),
 }));
 
 mock.module("@/features/auth/use-menu-access", () => ({

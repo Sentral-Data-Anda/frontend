@@ -1,6 +1,5 @@
-import Link from "next/link";
-
 import { OptionalText } from "@/components/common/display";
+import { AppLink } from "@/components/common/link";
 import {
   DataListRow,
   TABLE_ROW_LINK,
@@ -63,14 +62,14 @@ export const AccountListItemRow = (props: PropTypes) => {
         ) : null
       }
       title={
-        <Link
+        <AppLink
           href={detailHrefOf(account)}
           onClick={() => saveFocus(account)}
           aria-label={viewLabelOf(account)}
           className={TABLE_ROW_LINK}
         >
           <span className="tabular-nums">{account.code}</span> — {account.name}
-        </Link>
+        </AppLink>
       }
       meta={metaOf(account)}
       trailing={

@@ -1,9 +1,6 @@
-"use client";
-
-import Link from "next/link";
-
 import { Button } from "@/components/common/control";
 import { EmptyState } from "@/components/common/feedback";
+import { AppLink } from "@/components/common/link";
 import { MENU, menuHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 
@@ -97,9 +94,9 @@ export const UsageList = (props: PropTypes) => {
       {page?.isTruncated ? (
         <p className="text-muted-foreground border-hairline mt-2 border-t pt-2 text-caption">
           Menampilkan {page.rows.length} dari {page.totalData} pemakaian.{" "}
-          <Link href={loanHref} className="underline underline-offset-2">
+          <AppLink href={loanHref} className="underline underline-offset-2">
             Buka Peminjaman Ruang
-          </Link>{" "}
+          </AppLink>{" "}
           untuk daftar lengkapnya.
         </p>
       ) : null}

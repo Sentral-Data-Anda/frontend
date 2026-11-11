@@ -1,9 +1,7 @@
-"use client";
-
 import { ArrowLeftRight, PackageX, Wrench } from "lucide-react";
-import Link from "next/link";
 
 import { buttonVariants } from "@/components/common/control";
+import { AppLink } from "@/components/common/link";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { cn } from "@/lib/utils";
@@ -27,30 +25,30 @@ export const CycleActions = (props: PropTypes) => {
     <nav aria-label="Siklus barang" className="flex flex-wrap gap-2">
       {isCanCreate ? (
         <>
-          <Link
+          <AppLink
             href={cycleCreateHref("perawatan", code)}
             className={cn(buttonVariants({ variant: "outline" }), ACTION)}
           >
             <Wrench aria-hidden />
             Catat perawatan
-          </Link>
-          <Link
+          </AppLink>
+          <AppLink
             href={cycleCreateHref("pindah", code)}
             className={cn(buttonVariants({ variant: "outline" }), ACTION)}
           >
             <ArrowLeftRight aria-hidden />
             Pindahkan
-          </Link>
+          </AppLink>
         </>
       ) : null}
       {isCanDelete ? (
-        <Link
+        <AppLink
           href={cycleCreateHref("pelepasan", code)}
           className={cn(buttonVariants({ variant: "destructive" }), ACTION)}
         >
           <PackageX aria-hidden />
           Ajukan pelepasan
-        </Link>
+        </AppLink>
       ) : null}
     </nav>
   );

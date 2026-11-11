@@ -1,8 +1,4 @@
-"use client";
-
 import { zodResolver } from "@hookform/resolvers/zod";
-import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useForm } from "react-hook-form";
 
@@ -16,9 +12,11 @@ import {
   NoFormAccess,
   useFormConfirm,
 } from "@/components/common/form";
+import { AppLink } from "@/components/common/link";
 import { PageHeader } from "@/components/layout";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
+import { useAppRouter, useAppSearchParams } from "@/hooks/use-app-router";
 import { useListReturn } from "@/hooks/use-list-return";
 import { applyServerError, FIRST_INVALID, revealField } from "@/lib/form-error";
 
@@ -45,8 +43,8 @@ import {
 import { TransferSection } from "./transfer-section";
 
 export const TransferFormScreen = () => {
-  const router = useRouter();
-  const searchParams = useSearchParams();
+  const router = useAppRouter();
+  const searchParams = useAppSearchParams();
   const toast = useToast();
   const { isCanView, isCanCreate } = useMenuAccess(MENU.BANK_DEPOSIT);
   const accountAccess = useMenuAccess(MENU.CHART_OF_ACCOUNT);
@@ -193,7 +191,7 @@ export const TransferFormScreen = () => {
               {EMPTY_ACCOUNT_DESCRIPTION}
             </p>
             {accountAccess.isCanView ? (
-              <Link
+              <AppLink
                 href={
                   accountAccess.isCanCreate
                     ? ACCOUNT_CREATE_PATH
@@ -202,7 +200,7 @@ export const TransferFormScreen = () => {
                 className={buttonVariants({ variant: "outline" })}
               >
                 {accountAccess.isCanCreate ? "Buat akun" : "Buka Akun"}
-              </Link>
+              </AppLink>
             ) : null}
           </div>
         ) : null}
@@ -219,12 +217,12 @@ export const TransferFormScreen = () => {
         ) : null}
 
         {rootError && fixLink ? (
-          <Link
+          <AppLink
             href={fixLink.href}
             className={buttonVariants({ variant: "outline" })}
           >
             {fixLink.label}
-          </Link>
+          </AppLink>
         ) : null}
       </div>
 

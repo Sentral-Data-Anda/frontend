@@ -1,6 +1,3 @@
-"use client";
-
-import Link from "next/link";
 import { useState } from "react";
 
 import { Button, buttonVariants } from "@/components/common/control";
@@ -12,6 +9,7 @@ import {
   FormNotFound,
   useFormConfirm,
 } from "@/components/common/form";
+import { AppLink } from "@/components/common/link";
 import { PageHeader } from "@/components/layout";
 import { MENU, domainHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
@@ -200,12 +198,12 @@ export const TransferDetailScreen = (props: PropTypes) => {
             />
 
             {fixLink ? (
-              <Link
+              <AppLink
                 href={fixLink.href}
                 className={buttonVariants({ variant: "outline" })}
               >
                 {fixLink.label}
-              </Link>
+              </AppLink>
             ) : null}
 
             {isReloadNeeded(failure) ? (

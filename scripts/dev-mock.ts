@@ -1,7 +1,7 @@
 /**
  * `bun run dev:mock` — review UI slicing tanpa be-sada, tanpa database, tanpa `.env`.
  *
- * Menyalakan tiruan be-sada di :3001 lalu `next dev` di :3000 yang diarahkan ke
+ * Menyalakan tiruan be-sada di :3001 lalu `vite` di :3000 yang meneruskan /api ke
  * sana. Login dengan username/password apa saja. Ctrl+C mematikan keduanya.
  *
  * Varian untuk menguji keadaan layar:
@@ -17,8 +17,13 @@
  *                                         dan elipsis pager desktop (dengan ?limit=5)
  *   MOCK_FAIL_PAGE=3 bun run dev:mock   → halaman 3 daftar jemaat menjawab 500 —
  *                                         baris "Gagal memuat — Coba lagi" di mobile
- *   MOCK_API_ONLY=1 bun run dev:mock    → hanya tiruan API, tanpa `next dev` (untuk
- *                                         `next start` hasil build di port lain)
+ *   MOCK_API_ONLY=1 bun run dev:mock    → hanya tiruan API, tanpa `vite` (untuk
+ *                                         `vite preview` hasil build di port lain)
+ *   MOCK_ACCESS_TTL_S=5 bun run dev:mock → cookie akses habis 5 detik sesudah login
+ *                                         atau refresh: menguji refresh diam-diam.
+ *                                         Refresh id yang sudah dirotasi lalu
+ *                                         disodorkan lagi mencabut sesi, seperti
+ *                                         be-sada; hitungannya di /__mock/stats.
  *   MOCK_PERSONA=bendahara bun run dev:mock → Beranda per izin; persona:
  *                                         admin (bawaan, pohon menu lengkap) |
  *                                         sekretariat | bendahara | majelis | operator |
@@ -420,6 +425,49 @@ const setCookies = (value: string, maxAge: number) =>
   );
 
 /**
+ * Sesi tiruan yang mengikuti be-sada sejauh yang dibutuhkan uji sesi SPA:
+ * cookie akses menamai sesi, refresh merotasi sesinya, dan refresh id yang
+ * sudah dirotasi lalu disodorkan lagi dibaca sebagai pencurian (semua sesi
+ * dicabut). Nilai `revoked` tetap meniru sesi yang dicabut perangkat lain.
+ */
+const ACCESS_TTL_S = Number(process.env.MOCK_ACCESS_TTL_S ?? 60 * 60 * 24);
+const REFRESH_TTL_S = 60 * 60 * 24 * 7;
+const sessions = new Map<string, "live" | "rotated" | "revoked">();
+const stats = { logins: 0, refreshes: 0, replays: 0, revocations: 0 };
+let sessionSeq = 0;
+
+const issueSession = () => {
+  sessionSeq += 1;
+  const id = `s${sessionSeq}-${crypto.randomUUID().slice(0, 8)}`;
+
+  sessions.set(id, "live");
+
+  return [
+    `accessToken=${id}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${ACCESS_TTL_S}`,
+    `refreshToken=${id}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${REFRESH_TTL_S}`,
+  ];
+};
+
+const cookieOf = (request: Request, name: string) =>
+  (request.headers.get("cookie") ?? "")
+    .split(";")
+    .map((part) => part.trim().split("="))
+    .find(([key]) => key === name)?.[1];
+
+const revokeAll = () => {
+  for (const id of sessions.keys()) sessions.set(id, "revoked");
+  stats.revocations += 1;
+};
+
+// Tanpa sesi: login, refresh, logout, situs publik, dan laporan galat.
+const isOpenPath = (path: string) =>
+  path === "/auth/login" ||
+  path === "/auth/refresh-token" ||
+  path === "/auth/logout" ||
+  path.startsWith("/public/") ||
+  path.startsWith("/observability/");
+
+/**
  * Jawaban galat untuk simpan, dipilih lewat `MOCK_SAVE_ERROR`. Tiga jalur
  * galat di form tidak bisa dinilai dengan mata tanpa cara memunculkannya:
  *
@@ -582,18 +630,45 @@ Bun.serve({
       return json({ status: 401, error: "Sesi Anda telah berakhir." }, 401);
     }
 
+    if (path === "/__mock/stats") return json(stats);
+
+    if (path === "/observability/client-error") {
+      process.stderr.write(`client_error ${await request.text()}\n`);
+      return json(
+        { status: 201, message: "Berhasil Mencatat Laporan Galat" },
+        201,
+      );
+    }
+
+    if (!isOpenPath(path)) {
+      const access = cookieOf(request, "accessToken");
+
+      if (!access || sessions.get(access) !== "live") {
+        return json(
+          { status: 401, error: "Unauthorized" },
+          401,
+          access ? setCookies("", 0) : [],
+        );
+      }
+    }
+
     if (path === "/auth/login" || path === "/auth/logout") resetStepUp();
     if (path === "/auth/verify-password" && request.method === "POST") {
       return verifyPassword(request);
     }
     if (path === "/auth/login") {
+      stats.logins += 1;
       return json(
         { status: 200, message: "Berhasil Login", data: session },
         200,
-        setCookies("mock", 60 * 60 * 24),
+        issueSession(),
       );
     }
     if (path === "/auth/logout") {
+      const id = cookieOf(request, "refreshToken");
+
+      if (id && sessions.get(id) === "live") sessions.set(id, "revoked");
+
       return json(
         { status: 200, message: "Berhasil Logout" },
         200,
@@ -601,10 +676,36 @@ Bun.serve({
       );
     }
     if (path === "/auth/refresh-token") {
+      const id = cookieOf(request, "refreshToken");
+      const state = id ? sessions.get(id) : undefined;
+
+      if (state === "rotated") {
+        stats.replays += 1;
+        revokeAll();
+        process.stderr.write(
+          `PENCABUTAN SESI: refresh id ${id} disodorkan ulang\n`,
+        );
+      }
+
+      if (state !== "live" || !id) {
+        return json(
+          {
+            status: 401,
+            error:
+              "Sesi Anda telah berakhir. Silakan login kembali untuk melanjutkan.",
+          },
+          401,
+          setCookies("", 0),
+        );
+      }
+
+      stats.refreshes += 1;
+      sessions.set(id, "rotated");
+
       return json(
-        { status: 200, message: "Berhasil", data: null },
+        { status: 200, message: "Berhasil Mendapatkan Access Token" },
         200,
-        setCookies("mock", 60 * 60 * 24),
+        issueSession(),
       );
     }
     if (path.startsWith("/auth/update/")) {
@@ -1019,22 +1120,29 @@ Bun.serve({
   },
 });
 
-// Tanpa `next dev`, `Bun.serve` di atas yang menahan proses tetap hidup.
+// Tanpa `vite`, `Bun.serve` di atas yang menahan proses tetap hidup.
 if (!process.env.MOCK_API_ONLY) {
-  const next = Bun.spawn(
-    ["bunx", "next", "dev", "-H", HOST, "-p", String(WEB_PORT)],
+  const vite = Bun.spawn(
+    [
+      "bunx",
+      "vite",
+      "--host",
+      HOST,
+      "--port",
+      String(WEB_PORT),
+      "--strictPort",
+    ],
     {
       stdio: ["inherit", "inherit", "inherit"],
       env: {
         ...process.env,
-        API_BASE_URL: `http://localhost:${API_PORT}/api`,
-        NEXT_PUBLIC_SITE_URL: `http://localhost:${WEB_PORT}`,
-        MEDIA_ORIGIN: `http://localhost:${API_PORT}`,
+        VITE_DEV_API_TARGET: `http://localhost:${API_PORT}`,
+        VITE_SITE_URL: `http://localhost:${WEB_PORT}`,
       },
     },
   );
 
-  process.exit(await next.exited);
+  process.exit(await vite.exited);
 }
 
 export {};

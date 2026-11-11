@@ -1,9 +1,7 @@
-"use client";
-
 import { ArrowLeft, Plus } from "lucide-react";
-import Link from "next/link";
 
 import { buttonVariants } from "@/components/common/control";
+import { AppLink } from "@/components/common/link";
 import { resolveBackHref } from "@/config/resolve-domain";
 import { useOptionalSession } from "@/features/auth";
 import { cn } from "@/lib/utils";
@@ -39,14 +37,14 @@ export function PageHeader({
     >
       <div className={isBackPersistent ? "contents" : "contents lg:hidden"}>
         {href ? (
-          <Link
+          <AppLink
             href={href}
             onClick={onBack}
             aria-label="Kembali"
             className="border-border hover:bg-muted active:bg-accent focus-visible:ring-ring relative flex size-control shrink-0 items-center justify-center rounded-full border transition-colors outline-none after:absolute after:-inset-1.5 focus-visible:ring-2"
           >
             <ArrowLeft className="size-4" aria-hidden />
-          </Link>
+          </AppLink>
         ) : (
           leading
         )}
@@ -83,7 +81,7 @@ export function PageHeaderAdd({
   text?: string;
 }) {
   return (
-    <Link
+    <AppLink
       href={href}
       aria-label={label}
       className={cn(
@@ -93,6 +91,6 @@ export function PageHeaderAdd({
     >
       <Plus aria-hidden />
       <span className="hidden lg:inline">{text}</span>
-    </Link>
+    </AppLink>
   );
 }

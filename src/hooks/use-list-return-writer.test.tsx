@@ -5,10 +5,10 @@ const LIST = "/kejemaatan/daftar-jemaat";
 
 let search = "";
 
-mock.module("next/navigation", () => ({
-  usePathname: () => LIST,
-  useSearchParams: () => new URLSearchParams(search),
-  useRouter: () => ({ replace: () => {} }),
+mock.module("@/hooks/use-app-router", () => ({
+  useAppPathname: () => LIST,
+  useAppSearchParams: () => new URLSearchParams(search),
+  useAppRouter: () => ({ replace: () => {} }),
 }));
 
 const { useListParams } = await import("./use-list-params");

@@ -54,7 +54,7 @@ const reload = jest.fn();
 const originalLocation = window.location;
 
 beforeEach(() => {
-  process.env.NEXT_PUBLIC_ENABLE_SW = "1";
+  process.env.VITE_ENABLE_SW = "1";
   reload.mockClear();
   Object.defineProperty(window, "location", {
     value: { ...originalLocation, reload },
@@ -64,7 +64,7 @@ beforeEach(() => {
 
 afterEach(() => {
   cleanup();
-  delete process.env.NEXT_PUBLIC_ENABLE_SW;
+  delete process.env.VITE_ENABLE_SW;
   Object.defineProperty(window, "location", {
     value: originalLocation,
     configurable: true,

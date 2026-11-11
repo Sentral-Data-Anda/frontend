@@ -1,8 +1,5 @@
-"use client";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
 import {
   useCallback,
   useEffect,
@@ -25,6 +22,7 @@ import {
 import { PageHeader } from "@/components/layout";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
+import { useAppRouter } from "@/hooks/use-app-router";
 import { useBoolean } from "@/hooks/use-boolean";
 import { useDdlOptions } from "@/hooks/use-ddl-options";
 import { useListReturn } from "@/hooks/use-list-return";
@@ -68,7 +66,7 @@ const NO_DATES: ReadonlySet<string> = new Set();
 type Alert = { title: string; message: string };
 
 export const GiliranScreen = () => {
-  const router = useRouter();
+  const router = useAppRouter();
   const toast = useToast();
   const queryClient = useQueryClient();
   const { isCanCreate } = useMenuAccess(MENU.IBADAH);

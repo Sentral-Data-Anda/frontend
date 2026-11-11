@@ -1,11 +1,9 @@
-"use client";
-
 import { TriangleAlert } from "lucide-react";
-import Link from "next/link";
 
 import { Button, buttonVariants } from "@/components/common/control";
 import { DescriptionSkeleton, Panel } from "@/components/common/display";
 import { EmptyState } from "@/components/common/feedback";
+import { AppLink } from "@/components/common/link";
 import { PageHeader } from "@/components/layout";
 import { useListReturn } from "@/hooks/use-list-return";
 import { FetchError } from "@/lib/api/fetcher";
@@ -51,12 +49,12 @@ export const ActivityLogDetailScreen = (props: PropTypes) => {
           title="Catatan tidak ditemukan"
           description="Catatan ini tidak ada, atau alamatnya salah."
           action={
-            <Link
+            <AppLink
               href={listReturn}
               className={buttonVariants({ variant: "outline" })}
             >
               Kembali ke log aktivitas
-            </Link>
+            </AppLink>
           }
         />
       </div>

@@ -32,12 +32,12 @@ const search = { current: "" };
 const replaced: string[] = [];
 const actions: { current: MenuAction[] } = { current: [] };
 
-mock.module("next/navigation", () => ({
-  useRouter: () => ({
+mock.module("@/hooks/use-app-router", () => ({
+  useAppRouter: () => ({
     replace: (url: string) => void replaced.push(url),
   }),
-  usePathname: () => "/hr/attendance",
-  useSearchParams: () => new URLSearchParams(search.current),
+  useAppPathname: () => "/hr/attendance",
+  useAppSearchParams: () => new URLSearchParams(search.current),
 }));
 
 /**

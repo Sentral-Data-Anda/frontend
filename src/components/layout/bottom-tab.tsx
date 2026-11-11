@@ -1,5 +1,3 @@
-"use client";
-
 import {
   BookOpen,
   CalendarDays,
@@ -7,11 +5,11 @@ import {
   Megaphone,
   type LucideIcon,
 } from "lucide-react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
 
+import { AppLink } from "@/components/common/link";
 import { MENU, isFormRoute, menuHref } from "@/config/menu";
 import { useSession } from "@/features/auth";
+import { useAppPathname } from "@/hooks/use-app-router";
 import { findMenuNode } from "@/lib/menu-tree";
 import { cn } from "@/lib/utils";
 import type { MenuNode } from "@/types/menu";
@@ -59,7 +57,7 @@ export function isTabActive(href: string, pathname: string): boolean {
 
 export const BottomTab = () => {
   const session = useSession();
-  const pathname = usePathname();
+  const pathname = useAppPathname();
 
   if (isFormRoute(pathname)) return null;
 
@@ -76,7 +74,7 @@ export const BottomTab = () => {
 
           return (
             <li key={tab.href} className="flex-1">
-              <Link
+              <AppLink
                 href={tab.href}
                 aria-current={isActive ? "page" : undefined}
                 className={cn(
@@ -88,7 +86,7 @@ export const BottomTab = () => {
               >
                 <tab.icon className="size-5" aria-hidden />
                 {tab.label}
-              </Link>
+              </AppLink>
             </li>
           );
         })}

@@ -26,10 +26,10 @@ import type {
 const grants: { current: Record<string, MenuAction[]> } = { current: {} };
 const query: { current: string } = { current: "" };
 
-mock.module("next/navigation", () => ({
-  useRouter: () => ({ replace: () => {} }),
-  usePathname: () => "/report/financial-statement",
-  useSearchParams: () => new URLSearchParams(query.current),
+mock.module("@/hooks/use-app-router", () => ({
+  useAppRouter: () => ({ replace: () => {} }),
+  useAppPathname: () => "/report/financial-statement",
+  useAppSearchParams: () => new URLSearchParams(query.current),
 }));
 
 mock.module("@/features/auth/use-menu-access", () => ({

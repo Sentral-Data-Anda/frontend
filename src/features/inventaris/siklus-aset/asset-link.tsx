@@ -1,8 +1,5 @@
-"use client";
-
-import Link from "next/link";
-
 import { DETAIL_LINK as LINK } from "@/components/common/display";
+import { AppLink } from "@/components/common/link";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 
@@ -21,9 +18,9 @@ export const AssetLink = (props: PropTypes) => {
   return (
     <>
       {isCanView ? (
-        <Link href={assetHref(asset.code)} className={LINK}>
+        <AppLink href={assetHref(asset.code)} className={LINK}>
           {asset.name}
-        </Link>
+        </AppLink>
       ) : (
         asset.name
       )}{" "}

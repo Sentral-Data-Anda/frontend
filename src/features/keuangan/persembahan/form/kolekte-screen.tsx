@@ -1,6 +1,3 @@
-"use client";
-
-import Link from "next/link";
 import { useFieldArray, useFormState } from "react-hook-form";
 
 import { Button, buttonVariants } from "@/components/common/control";
@@ -14,6 +11,7 @@ import {
   LineItemList,
   NoFormAccess,
 } from "@/components/common/form";
+import { AppLink } from "@/components/common/link";
 import { PageHeader } from "@/components/layout";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
@@ -145,12 +143,12 @@ export const KolekteScreen = () => {
             <p className="text-muted-foreground text-body">
               Belum ada tipe persembahan, jadi belum ada yang bisa dicatat.{" "}
               {typeAccess.isCanCreate ? (
-                <Link
+                <AppLink
                   href={TIPE_PERSEMBAHAN_PATH}
                   className={buttonVariants({ variant: "link" })}
                 >
                   Buat tipe persembahan dulu
-                </Link>
+                </AppLink>
               ) : null}
             </p>
           ) : null}

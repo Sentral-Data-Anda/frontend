@@ -1,5 +1,3 @@
-"use client";
-
 import { Badge } from "@/components/common/display";
 import { ANNOUNCEMENT_STATUS_LABEL } from "@/lib/announcement";
 

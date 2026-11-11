@@ -1,6 +1,5 @@
-import Link from "next/link";
-
 import { buttonVariants } from "@/components/common/control";
+import { AppLink } from "@/components/common/link";
 import { PageHeader } from "@/components/layout";
 
 interface PropTypes {
@@ -25,12 +24,12 @@ export const FormNotFound = (props: PropTypes) => {
           Data ini mungkin sudah dihapus, atau alamatnya salah.
         </p>
 
-        <Link
+        <AppLink
           href={backHref}
           className={buttonVariants({ variant: "outline" })}
         >
           {backLabel}
-        </Link>
+        </AppLink>
       </div>
     </div>
   );

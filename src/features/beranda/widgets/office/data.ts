@@ -1,5 +1,3 @@
-"use client";
-
 import { useDashboardUmum } from "../../api";
 import { addDaysKey, toDateKey, weekKeys } from "../../model";
 

@@ -1,9 +1,7 @@
-"use client";
-
 import { Pencil, RotateCcw, Stamp } from "lucide-react";
-import Link from "next/link";
 
 import { Button, buttonVariants } from "@/components/common/control";
+import { AppLink } from "@/components/common/link";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { cn } from "@/lib/utils";
@@ -78,7 +76,7 @@ export const EntryActions = (props: PropTypes) => {
         ) : null}
 
         {isDraft && isCanUpdate ? (
-          <Link
+          <AppLink
             href={journalEditHref(entry.publicId)}
             aria-disabled={isBusy || undefined}
             className={cn(
@@ -88,7 +86,7 @@ export const EntryActions = (props: PropTypes) => {
           >
             <Pencil aria-hidden />
             Ubah
-          </Link>
+          </AppLink>
         ) : null}
 
         {isRemovable ? (

@@ -1,5 +1,3 @@
-"use client";
-
 import { Controller, useWatch } from "react-hook-form";
 
 import { CheckboxGroupField, DateField } from "@/components/common/control";

@@ -1,5 +1,3 @@
-"use client";
-
 import { formatAmount, formatNumber } from "@/lib/format";
 
 import type { UntaggedSpending } from "../types";

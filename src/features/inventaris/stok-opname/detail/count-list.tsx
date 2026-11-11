@@ -1,8 +1,5 @@
-"use client";
-
-import Link from "next/link";
-
 import { OptionalText } from "@/components/common/display";
+import { AppLink } from "@/components/common/link";
 import {
   DataList,
   DataListRow,
@@ -123,12 +120,12 @@ export const CountList = (props: PropTypes) => {
           <DataListRow
             title={
               isLinked ? (
-                <Link
+                <AppLink
                   href={stockItemHref(item.stockItem.code)}
                   className={TABLE_ROW_LINK}
                 >
                   {item.stockItem.name}
-                </Link>
+                </AppLink>
               ) : (
                 item.stockItem.name
               )

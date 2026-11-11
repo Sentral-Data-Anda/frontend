@@ -21,10 +21,10 @@ const TODAY = todayJakarta();
 const actions: { current: MenuAction[] } = { current: [] };
 const replaced: string[] = [];
 
-mock.module("next/navigation", () => ({
-  useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
-  usePathname: () => "/hr/attendance/create",
-  useSearchParams: () => new URLSearchParams(),
+mock.module("@/hooks/use-app-router", () => ({
+  useAppRouter: () => ({ replace: (href: string) => replaced.push(href) }),
+  useAppPathname: () => "/hr/attendance/create",
+  useAppSearchParams: () => new URLSearchParams(),
 }));
 
 /** Sadar-slug: hibah hanya berlaku untuk ATTENDANCE. */

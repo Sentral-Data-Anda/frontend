@@ -22,10 +22,10 @@ import { onStubViewport } from "../../../../../tests/viewport";
 const search = { current: "" };
 const actions: { current: MenuAction[] } = { current: [] };
 
-mock.module("next/navigation", () => ({
-  useRouter: () => ({ replace: () => undefined }),
-  usePathname: () => "/approval/approval-workflow",
-  useSearchParams: () => new URLSearchParams(search.current),
+mock.module("@/hooks/use-app-router", () => ({
+  useAppRouter: () => ({ replace: () => undefined }),
+  useAppPathname: () => "/approval/approval-workflow",
+  useAppSearchParams: () => new URLSearchParams(search.current),
 }));
 
 mock.module("@/features/auth/use-menu-access", () => ({

@@ -1,6 +1,3 @@
-"use client";
-
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { Button } from "@/components/common/control";
@@ -19,6 +16,7 @@ import {
 import { PageHeader } from "@/components/layout";
 import { MENU, domainHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
+import { useAppRouter } from "@/hooks/use-app-router";
 import { useListReturn } from "@/hooks/use-list-return";
 import { FetchError } from "@/lib/api/fetcher";
 import { todayJakarta } from "@/lib/date";
@@ -58,7 +56,7 @@ interface PropTypes {
 export const CutiDetailScreen = (props: PropTypes) => {
   const { code } = props;
 
-  const router = useRouter();
+  const router = useAppRouter();
   const toast = useToast();
   const { isCanView } = useMenuAccess(MENU.LEAVE);
   const listReturn = useListReturn(CUTI_LIST_PATH);

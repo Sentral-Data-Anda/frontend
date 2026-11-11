@@ -1,5 +1,3 @@
-"use client";
-
 import { monthLabel, monthOptions } from "@/lib/date";
 
 import { SelectField } from "./select-field";

@@ -1,11 +1,10 @@
-import Link from "next/link";
-
 import {
   DescriptionItem,
   DescriptionList,
   OptionalText,
   Panel,
 } from "@/components/common/display";
+import { AppLink } from "@/components/common/link";
 import { formatDate } from "@/lib/format";
 
 import { orderHref, supplierNameOf } from "../model";
@@ -28,9 +27,9 @@ export const SummaryPanel = (props: PropTypes) => {
         <DescriptionItem label="Pesanan">
           <span className="tabular-nums">
             {isOrderLinked ? (
-              <Link href={orderHref(order.code)} className={CODE_LINK}>
+              <AppLink href={orderHref(order.code)} className={CODE_LINK}>
                 {order.code}
-              </Link>
+              </AppLink>
             ) : (
               order.code
             )}

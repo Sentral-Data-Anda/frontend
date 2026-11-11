@@ -1,7 +1,3 @@
-"use client";
-
-import Link from "next/link";
-
 import {
   DescriptionItem,
   DescriptionList,
@@ -9,6 +5,7 @@ import {
   OptionalText,
   Panel,
 } from "@/components/common/display";
+import { AppLink } from "@/components/common/link";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { formatAmount, formatDate, formatDateTime } from "@/lib/format";
@@ -37,18 +34,18 @@ export const SummaryPanel = (props: PropTypes) => {
         </DescriptionItem>
         <DescriptionItem label="Supplier">
           {supplier && isCanViewSupplier ? (
-            <Link href={supplierHref(supplier.code)} className={LINK}>
+            <AppLink href={supplierHref(supplier.code)} className={LINK}>
               {supplier.name}
-            </Link>
+            </AppLink>
           ) : (
             <OptionalText text={supplier?.name ?? null} empty="—" />
           )}
         </DescriptionItem>
         <DescriptionItem label="Penerimaan barang">
           {goodsReceipt && isCanViewReceipt ? (
-            <Link href={receiptHref(goodsReceipt.code)} className={LINK}>
+            <AppLink href={receiptHref(goodsReceipt.code)} className={LINK}>
               {goodsReceipt.code}
-            </Link>
+            </AppLink>
           ) : (
             <OptionalText text={goodsReceipt?.code ?? null} empty="—" />
           )}
@@ -83,9 +80,9 @@ export const SummaryPanel = (props: PropTypes) => {
               </span>
             ) : null}
             {isWaiting && isCanViewApproval ? (
-              <Link href={approvalListHref} className={LINK}>
+              <AppLink href={approvalListHref} className={LINK}>
                 Buka Permintaan Persetujuan
-              </Link>
+              </AppLink>
             ) : null}
           </span>
         </DescriptionItem>

@@ -1,9 +1,6 @@
-"use client";
-
-import Link from "next/link";
-
 import { DdlField } from "@/components/common/control";
 import { ControlField, FormSection } from "@/components/common/form";
+import { AppLink } from "@/components/common/link";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 
@@ -57,12 +54,12 @@ export const EventSection = (props: PropTypes) => {
           <p className="text-muted-foreground mt-1.5 text-caption">
             {EMPTY_EVENT_MESSAGE}{" "}
             {isCanViewEvent ? (
-              <Link
+              <AppLink
                 href={EVENT_LIST_PATH}
                 className="text-primary cursor-pointer font-medium underline-offset-4 hover:underline focus-visible:underline"
               >
                 Buka Event
-              </Link>
+              </AppLink>
             ) : (
               "Event yang sudah terbit dan belum mulai akan muncul di sini."
             )}

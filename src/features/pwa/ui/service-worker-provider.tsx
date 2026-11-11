@@ -1,5 +1,3 @@
-"use client";
-
 import { useServiceWorker } from "../hooks/use-service-worker";
 
 import { UpdateToast } from "./update-toast";

@@ -1,5 +1,3 @@
-"use client";
-
 import { Eye, EyeOff, Lock } from "lucide-react";
 import type { ComponentProps } from "react";
 

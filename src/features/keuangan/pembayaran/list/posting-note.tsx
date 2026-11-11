@@ -1,10 +1,8 @@
-"use client";
-
 import { HandCoins, Stamp } from "lucide-react";
-import Link from "next/link";
 
 import { buttonVariants } from "@/components/common/control";
 import { Panel } from "@/components/common/display";
+import { AppLink } from "@/components/common/link";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { cn } from "@/lib/utils";
@@ -29,15 +27,15 @@ export const PostingNote = () => {
 
         {isCanCreate ? (
           <div className="flex flex-wrap items-center gap-2">
-            <Link href={POSTING_PERSEMBAHAN_PATH} className={LINK}>
+            <AppLink href={POSTING_PERSEMBAHAN_PATH} className={LINK}>
               <HandCoins aria-hidden />
               Posting persembahan
-            </Link>
+            </AppLink>
 
-            <Link href={PAYMENT_POSTING_PATH} className={LINK}>
+            <AppLink href={PAYMENT_POSTING_PATH} className={LINK}>
               <Stamp aria-hidden />
               Posting pendaftaran event
-            </Link>
+            </AppLink>
           </div>
         ) : null}
       </div>

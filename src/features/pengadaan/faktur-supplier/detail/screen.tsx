@@ -1,7 +1,3 @@
-"use client";
-
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { Button, buttonVariants } from "@/components/common/control";
@@ -13,11 +9,13 @@ import {
 } from "@/components/common/display";
 import { EmptyState, useToast } from "@/components/common/feedback";
 import { FormAlert, FormNotFound } from "@/components/common/form";
+import { AppLink } from "@/components/common/link";
 import { DataList, DataListRow } from "@/components/common/list";
 import { ConfirmDialog } from "@/components/common/overlay";
 import { PageHeader } from "@/components/layout";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
+import { useAppRouter } from "@/hooks/use-app-router";
 import { useBoolean } from "@/hooks/use-boolean";
 import { useListReturn } from "@/hooks/use-list-return";
 import { FetchError } from "@/lib/api/fetcher";
@@ -67,7 +65,7 @@ interface PropTypes {
 export const InvoiceDetailScreen = (props: PropTypes) => {
   const { publicId } = props;
 
-  const router = useRouter();
+  const router = useAppRouter();
   const toast = useToast();
   const { isCanView, isCanUpdate, isCanDelete } = useMenuAccess(
     MENU.SUPPLIER_INVOICE,
@@ -135,7 +133,7 @@ export const InvoiceDetailScreen = (props: PropTypes) => {
         isBackPersistent
         action={
           isCanUpdate && isEditable(invoice) ? (
-            <Link
+            <AppLink
               href={invoiceEditHref(publicId)}
               className={cn(
                 buttonVariants({ variant: "outline", size: "sm" }),
@@ -143,7 +141,7 @@ export const InvoiceDetailScreen = (props: PropTypes) => {
               )}
             >
               Ubah
-            </Link>
+            </AppLink>
           ) : null
         }
       />

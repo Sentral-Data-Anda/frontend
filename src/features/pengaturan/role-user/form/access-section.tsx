@@ -1,5 +1,3 @@
-"use client";
-
 import { useWatch, type FieldError } from "react-hook-form";
 
 import { Button } from "@/components/common/control";

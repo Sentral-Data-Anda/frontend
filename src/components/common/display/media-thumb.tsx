@@ -1,5 +1,3 @@
-"use client";
-
 import { ImageIcon, ImageOff } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
@@ -46,7 +44,6 @@ export const MediaThumb = (props: PropTypes) => {
       )}
     >
       {src && !isFailed ? (
-        // eslint-disable-next-line @next/next/no-img-element -- URL bertanda tangan MinIO, bukan aset yang dioptimasi Next
         <img
           ref={imageRef}
           src={src}

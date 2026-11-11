@@ -1,5 +1,3 @@
-"use client";
-
 import { ComboboxField, type SelectOption } from "@/components/common/control";
 import { ControlField, FormSection } from "@/components/common/form";
 import { useDdlSearch } from "@/hooks/use-ddl-options";

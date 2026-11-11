@@ -19,10 +19,10 @@ const access = { isCanView: true };
 const replaced: string[] = [];
 const requested: string[] = [];
 
-mock.module("next/navigation", () => ({
-  useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
-  usePathname: () => PERMINTAAN_LIST_PATH,
-  useSearchParams: () => new URLSearchParams(search.current),
+mock.module("@/hooks/use-app-router", () => ({
+  useAppRouter: () => ({ replace: (href: string) => replaced.push(href) }),
+  useAppPathname: () => PERMINTAAN_LIST_PATH,
+  useAppSearchParams: () => new URLSearchParams(search.current),
 }));
 
 mock.module("@/features/auth/use-menu-access", () => ({

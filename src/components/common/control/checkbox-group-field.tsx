@@ -1,5 +1,3 @@
-"use client";
-
 import { cn } from "@/lib/utils";
 
 import { FIELD_HINT, type SelectOption } from "./select-field";

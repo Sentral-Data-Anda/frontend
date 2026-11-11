@@ -1,7 +1,7 @@
 import { ChevronRight } from "lucide-react";
-import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { AppLink } from "@/components/common/link";
 import {
   TABLE_HEAD,
   TABLE_HEAD_LINE_ON_CARD,
@@ -86,13 +86,13 @@ export function DashboardTable({
                   )}
                 >
                   {index === 0 && row.href ? (
-                    <Link
+                    <AppLink
                       href={row.href}
                       aria-label={row.label}
                       className={cn("block", TABLE_ROW_LINK)}
                     >
                       {cell}
-                    </Link>
+                    </AppLink>
                   ) : (
                     cell
                   )}
@@ -124,13 +124,13 @@ export function DashboardTable({
             <div className="min-w-0 flex-1">
               <p className="truncate text-body font-medium">
                 {row.href ? (
-                  <Link
+                  <AppLink
                     href={row.href}
                     aria-label={row.label}
                     className={TABLE_ROW_LINK}
                   >
                     {row.compact.title}
-                  </Link>
+                  </AppLink>
                 ) : (
                   row.compact.title
                 )}

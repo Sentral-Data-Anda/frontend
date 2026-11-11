@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 
 import { Button, ComboboxField } from "@/components/common/control";

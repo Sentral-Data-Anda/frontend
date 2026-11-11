@@ -1,12 +1,10 @@
-"use client";
-
-import Link from "next/link";
 import { useState } from "react";
 
 import { Button, buttonVariants } from "@/components/common/control";
 import { Panel } from "@/components/common/display";
 import { EmptyState, useToast } from "@/components/common/feedback";
 import { FormAlert } from "@/components/common/form";
+import { AppLink } from "@/components/common/link";
 import {
   DataList,
   ListTabs,
@@ -179,12 +177,12 @@ export const AllocationListContent = () => {
           description={EMPTY_DESCRIPTION}
           action={
             isCanCreate ? (
-              <Link
+              <AppLink
                 href={PAGU_CREATE_PATH}
                 className={buttonVariants({ variant: "outline" })}
               >
                 Tambah pagu
-              </Link>
+              </AppLink>
             ) : null
           }
           className="py-12"
@@ -228,12 +226,12 @@ export const AllocationListContent = () => {
                 untagged={untaggedOf(items)}
                 untaggedHint={UNTAGGED_HINT}
                 renderPart={(part) => (
-                  <Link
+                  <AppLink
                     href={part.href ?? "#"}
                     className="min-w-0 truncate hover:underline"
                   >
                     {part.label}
-                  </Link>
+                  </AppLink>
                 )}
               />
             </div>

@@ -34,13 +34,13 @@ const search = { current: "" };
 const replaced: string[] = [];
 const sent: { method: string; body: unknown }[] = [];
 
-mock.module("next/navigation", () => ({
-  useRouter: () => ({
+mock.module("@/hooks/use-app-router", () => ({
+  useAppRouter: () => ({
     replace: (href: string) => replaced.push(href),
     push: () => undefined,
   }),
-  usePathname: () => "/pelayanan/jadwal-pelayan/create",
-  useSearchParams: () => new URLSearchParams(search.current),
+  useAppPathname: () => "/pelayanan/jadwal-pelayan/create",
+  useAppSearchParams: () => new URLSearchParams(search.current),
 }));
 
 mock.module("@/features/auth/use-menu-access", () => ({

@@ -1,5 +1,3 @@
-"use client";
-
 import { Popover } from "@base-ui/react/popover";
 import { CalendarDays } from "lucide-react";
 import { useRef, useState } from "react";

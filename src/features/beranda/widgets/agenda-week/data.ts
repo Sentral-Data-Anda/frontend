@@ -1,5 +1,3 @@
-"use client";
-
 import { MENU, menuHref } from "@/config/menu";
 import { placeLabelOf } from "@/lib/ibadah-place";
 

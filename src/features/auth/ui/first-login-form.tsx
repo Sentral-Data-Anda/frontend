@@ -1,12 +1,10 @@
-"use client";
-
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
 
 import { Button, PasswordInput } from "@/components/common/control";
 import { FormField } from "@/components/common/form";
+import { useAppRouter } from "@/hooks/use-app-router";
 import { fetchOne } from "@/lib/api/fetcher";
 import { applyServerError } from "@/lib/form-error";
 import { firstPasswordSchema, PASSWORD_HINT } from "@/lib/password";
@@ -20,7 +18,7 @@ interface PropTypes {
 export const FirstLoginForm = (props: PropTypes) => {
   const { code } = props;
 
-  const router = useRouter();
+  const router = useAppRouter();
 
   const {
     register,

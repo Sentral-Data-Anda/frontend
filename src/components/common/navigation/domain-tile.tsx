@@ -1,6 +1,6 @@
 import type { LucideIcon } from "lucide-react";
-import Link from "next/link";
 
+import { AppLink } from "@/components/common/link";
 import { MENU, MENU_ICON, domainEntryHref } from "@/config/menu";
 import type { MenuNode } from "@/types/menu";
 
@@ -75,12 +75,12 @@ export function DomainTileGrid({ domains }: { domains: MenuNode[] }) {
     <ul className="grid grid-cols-4 gap-3">
       {domains.map((domain) => (
         <li key={domain.publicId}>
-          <Link
+          <AppLink
             href={domainEntryHref(domain)}
             className="group focus-visible:ring-ring block rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-offset-2 motion-safe:transition motion-safe:active:scale-97"
           >
             <DomainTile slug={domain.slug} label={domain.name} />
-          </Link>
+          </AppLink>
         </li>
       ))}
     </ul>

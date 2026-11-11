@@ -1,7 +1,3 @@
-"use client";
-
-import Link from "next/link";
-
 import {
   Badge,
   DescriptionItem,
@@ -10,6 +6,7 @@ import {
   OptionalText,
   Panel,
 } from "@/components/common/display";
+import { AppLink } from "@/components/common/link";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { formatAmount, formatDate } from "@/lib/format";
@@ -76,9 +73,9 @@ export const SummaryPanel = (props: PropTypes) => {
         >
           <span className="block space-y-1">
             {approval && approvalText && isCanViewApproval ? (
-              <Link href={approvalHref(approval.publicId)} className={LINK}>
+              <AppLink href={approvalHref(approval.publicId)} className={LINK}>
                 {approvalText}
-              </Link>
+              </AppLink>
             ) : (
               <OptionalText text={approvalText} empty="Belum diajukan" />
             )}
@@ -106,9 +103,9 @@ export const SummaryPanel = (props: PropTypes) => {
                       className="flex flex-wrap items-center gap-x-3 gap-y-0.5"
                     >
                       {isCanViewOrder ? (
-                        <Link href={orderHref(order.code)} className={LINK}>
+                        <AppLink href={orderHref(order.code)} className={LINK}>
                           {order.code}
-                        </Link>
+                        </AppLink>
                       ) : (
                         <span className="tabular-nums">{order.code}</span>
                       )}

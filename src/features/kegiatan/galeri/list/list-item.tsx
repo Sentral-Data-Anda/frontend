@@ -1,6 +1,5 @@
-import Link from "next/link";
-
 import { MediaThumb, OptionalText } from "@/components/common/display";
+import { AppLink } from "@/components/common/link";
 import {
   DataListRow,
   TABLE_ROW_LINK,
@@ -45,14 +44,14 @@ export const GaleriListItemRow = (props: PropTypes) => {
       className="hover:bg-card relative transition-colors"
       leading={coverOf(album)}
       title={
-        <Link
+        <AppLink
           href={detailHrefOf(album)}
           onClick={() => saveFocus(album)}
           aria-label={viewLabelOf(album)}
           className={TABLE_ROW_LINK}
         >
           {album.name}
-        </Link>
+        </AppLink>
       }
       meta={albumMetaOf(album)}
       trailing={

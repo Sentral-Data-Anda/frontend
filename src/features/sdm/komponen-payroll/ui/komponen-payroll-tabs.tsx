@@ -1,8 +1,5 @@
-"use client";
-
-import { useRouter } from "next/navigation";
-
 import { ListTabs } from "@/components/common/list";
+import { useAppRouter } from "@/hooks/use-app-router";
 
 import { TABS } from "../model";
 
@@ -13,7 +10,7 @@ interface PropTypes {
 export const KomponenPayrollTabs = (props: PropTypes) => {
   const { value } = props;
 
-  const router = useRouter();
+  const router = useAppRouter();
 
   const onPickTab = (next: string) => {
     if (next !== value) router.push(next);

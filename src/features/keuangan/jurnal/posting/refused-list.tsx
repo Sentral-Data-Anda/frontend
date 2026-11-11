@@ -1,7 +1,4 @@
-"use client";
-
-import Link from "next/link";
-
+import { AppLink } from "@/components/common/link";
 import {
   DataList,
   DataListRow,
@@ -19,9 +16,9 @@ const codeCell = (
   const href = hrefOf(refusal.code);
 
   return href ? (
-    <Link href={href} className={TEXT_LINK}>
+    <AppLink href={href} className={TEXT_LINK}>
       {refusal.code}
-    </Link>
+    </AppLink>
   ) : (
     <span className="tabular-nums">{refusal.code}</span>
   );

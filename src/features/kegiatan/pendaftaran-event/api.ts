@@ -1,5 +1,3 @@
-"use client";
-
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { ddlKeys, useDdlSearch } from "@/hooks/use-ddl-options";

@@ -15,10 +15,10 @@ import type { ComplianceState } from "@/types/anggaran";
 import { onStubViewport } from "../../../../../tests/viewport";
 import type { ComplianceRow } from "../types";
 
-mock.module("next/navigation", () => ({
-  useRouter: () => ({ replace: () => {} }),
-  usePathname: () => "/report/budget-realization",
-  useSearchParams: () => new URLSearchParams(),
+mock.module("@/hooks/use-app-router", () => ({
+  useAppRouter: () => ({ replace: () => {} }),
+  useAppPathname: () => "/report/budget-realization",
+  useAppSearchParams: () => new URLSearchParams(),
 }));
 
 mock.module("@/features/auth/use-menu-access", () => ({

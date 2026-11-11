@@ -1,7 +1,3 @@
-"use client";
-
-import { useSearchParams } from "next/navigation";
-
 import { ChoiceField } from "@/components/common/control";
 import {
   DataList,
@@ -10,6 +6,7 @@ import {
 } from "@/components/common/list";
 import { PageHeader } from "@/components/layout";
 import { MENU, domainHref } from "@/config/menu";
+import { useAppSearchParams } from "@/hooks/use-app-router";
 import { useListParams } from "@/hooks/use-list-params";
 
 import { usePermintaanList } from "../api";
@@ -41,7 +38,7 @@ const STATUS_FILTER: ListFilter = {
 };
 
 export const PermintaanList = () => {
-  const searchParams = useSearchParams();
+  const searchParams = useAppSearchParams();
   const listParams = useListParams({ filters: LIST_FILTERS });
   const view = viewOf(searchParams.get(VIEW_PARAM));
   const permintaanList = usePermintaanList(listParams, view);

@@ -1,9 +1,5 @@
-"use client";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Copy } from "lucide-react";
-import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
 import {
   useEffect,
   useRef,
@@ -25,9 +21,11 @@ import {
   NoFormAccess,
   useFormConfirm,
 } from "@/components/common/form";
+import { AppLink } from "@/components/common/link";
 import { PageHeader } from "@/components/layout";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
+import { useAppRouter, useAppSearchParams } from "@/hooks/use-app-router";
 import { useDdlOptions } from "@/hooks/use-ddl-options";
 import { useListReturn } from "@/hooks/use-list-return";
 import { FetchError } from "@/lib/api/fetcher";
@@ -60,9 +58,9 @@ interface PropTypes {
 export const IbadahFormScreen = (props: PropTypes) => {
   const { code } = props;
 
-  const router = useRouter();
+  const router = useAppRouter();
   const toast = useToast();
-  const searchParams = useSearchParams();
+  const searchParams = useAppSearchParams();
   const isEdit = Boolean(code);
   const copyCode = isEdit ? "" : (searchParams.get("salin") ?? "");
   const isCopy = Boolean(copyCode);
@@ -324,7 +322,7 @@ export const IbadahFormScreen = (props: PropTypes) => {
           onBack={onBack}
           action={
             isEdit && isCanCreate ? (
-              <Link
+              <AppLink
                 href={copyHref}
                 onClick={onCopy}
                 aria-disabled={isLocked || undefined}
@@ -337,7 +335,7 @@ export const IbadahFormScreen = (props: PropTypes) => {
               >
                 <Copy aria-hidden />
                 Salin
-              </Link>
+              </AppLink>
             ) : null
           }
         />

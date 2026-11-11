@@ -1,9 +1,6 @@
-"use client";
-
-import Link from "next/link";
-
 import { buttonVariants } from "@/components/common/control";
 import { FormAlert } from "@/components/common/form";
+import { AppLink } from "@/components/common/link";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { cn } from "@/lib/utils";
@@ -47,7 +44,7 @@ export const ReportBanners = (props: PropTypes) => {
           />
 
           {isCanCreate ? (
-            <Link
+            <AppLink
               href={JURNAL_CREATE_PATH}
               className={cn(
                 buttonVariants({ variant: "outline", size: "sm" }),
@@ -55,7 +52,7 @@ export const ReportBanners = (props: PropTypes) => {
               )}
             >
               Masukkan saldo awal
-            </Link>
+            </AppLink>
           ) : null}
         </div>
       ) : null}

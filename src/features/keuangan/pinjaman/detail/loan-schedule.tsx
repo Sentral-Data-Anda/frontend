@@ -1,5 +1,3 @@
-"use client";
-
 import { PANEL_TITLE, Panel } from "@/components/common/display";
 
 import { money } from "../model";

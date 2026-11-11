@@ -1,11 +1,9 @@
-"use client";
-
 import { Pencil } from "lucide-react";
-import Link from "next/link";
 
 import { Button, buttonVariants } from "@/components/common/control";
 import { EmptyState } from "@/components/common/feedback";
 import { FormNotFound } from "@/components/common/form";
+import { AppLink } from "@/components/common/link";
 import { PageHeader } from "@/components/layout";
 import { MENU, domainHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
@@ -127,7 +125,7 @@ export const BarangDetailScreen = (props: PropTypes) => {
           <>
             <LabelLink href={labelHrefOf({ kode: asset.code })} isIconOnly />
             {isCanUpdate && isActive ? (
-              <Link
+              <AppLink
                 href={barangEditHref(asset.publicId)}
                 className={cn(
                   buttonVariants({ variant: "outline" }),
@@ -136,7 +134,7 @@ export const BarangDetailScreen = (props: PropTypes) => {
               >
                 <Pencil aria-hidden />
                 Ubah
-              </Link>
+              </AppLink>
             ) : null}
           </>
         }

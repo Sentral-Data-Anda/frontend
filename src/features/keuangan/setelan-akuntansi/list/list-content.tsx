@@ -1,5 +1,3 @@
-"use client";
-
 import { DataList } from "@/components/common/list";
 import { PageHeader } from "@/components/layout";
 import { MENU, domainHref } from "@/config/menu";

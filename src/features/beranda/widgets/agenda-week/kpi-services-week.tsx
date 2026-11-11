@@ -1,5 +1,3 @@
-"use client";
-
 import { Church } from "lucide-react";
 
 import { KpiCell } from "@/components/common/dashboard";

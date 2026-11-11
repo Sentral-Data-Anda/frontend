@@ -19,13 +19,13 @@ const access: { ibadah: MenuAction[]; keluarga: MenuAction[] } = {
 };
 const replaced: string[] = [];
 
-mock.module("next/navigation", () => ({
-  useRouter: () => ({
+mock.module("@/hooks/use-app-router", () => ({
+  useAppRouter: () => ({
     replace: (href: string) => replaced.push(href),
     push: () => undefined,
   }),
-  usePathname: () => "/peribadahan/ibadah/rotation",
-  useSearchParams: () => new URLSearchParams(),
+  useAppPathname: () => "/peribadahan/ibadah/rotation",
+  useAppSearchParams: () => new URLSearchParams(),
 }));
 
 mock.module("@/features/auth/use-menu-access", () => ({

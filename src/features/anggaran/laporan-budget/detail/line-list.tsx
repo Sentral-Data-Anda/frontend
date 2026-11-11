@@ -1,8 +1,5 @@
-"use client";
-
-import Link from "next/link";
-
 import { DETAIL_LINK, Panel } from "@/components/common/display";
+import { AppLink } from "@/components/common/link";
 import { MENU } from "@/config/menu";
 import { TaggedTotal, type TaggedPart } from "@/features/anggaran/shared";
 import { useMenuAccess } from "@/features/auth";
@@ -80,12 +77,12 @@ export const LineList = (props: PropTypes) => {
             <div className="mt-1 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-caption">
               {line.account ? (
                 account.isCanView ? (
-                  <Link
+                  <AppLink
                     href={accountHref(line.account.code)}
                     className={DETAIL_LINK}
                   >
                     {line.account.code} · {line.account.name}
-                  </Link>
+                  </AppLink>
                 ) : (
                   <span className="text-muted-foreground">
                     {line.account.code} · {line.account.name}
@@ -95,12 +92,12 @@ export const LineList = (props: PropTypes) => {
 
               {line.program ? (
                 program.isCanView ? (
-                  <Link
+                  <AppLink
                     href={programHref(line.program.publicId)}
                     className={DETAIL_LINK}
                   >
                     {line.program.name}
-                  </Link>
+                  </AppLink>
                 ) : (
                   <span className="text-muted-foreground">
                     {line.program.name}
@@ -112,12 +109,12 @@ export const LineList = (props: PropTypes) => {
 
               {line.cashExpense ? (
                 expense.isCanView ? (
-                  <Link
+                  <AppLink
                     href={expenseHref(line.cashExpense.publicId)}
                     className={`tabular-nums ${DETAIL_LINK}`}
                   >
                     dari {line.cashExpense.code}
-                  </Link>
+                  </AppLink>
                 ) : (
                   <span className="text-muted-foreground tabular-nums">
                     dari {line.cashExpense.code}
@@ -145,12 +142,12 @@ export const LineList = (props: PropTypes) => {
           untaggedHint={UNTAGGED_HINT}
           renderPart={(part) =>
             program.isCanView ? (
-              <Link
+              <AppLink
                 href={part.href ?? "#"}
                 className={`min-w-0 truncate ${DETAIL_LINK}`}
               >
                 {part.label}
-              </Link>
+              </AppLink>
             ) : (
               <span className="min-w-0 truncate">{part.label}</span>
             )

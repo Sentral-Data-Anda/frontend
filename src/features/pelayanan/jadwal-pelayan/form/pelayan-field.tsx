@@ -1,5 +1,3 @@
-"use client";
-
 import { DdlField } from "@/components/common/control";
 import { ControlField } from "@/components/common/form";
 

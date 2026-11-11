@@ -1,6 +1,7 @@
 import {
   afterAll,
   afterEach,
+  beforeAll,
   describe,
   expect,
   mock,
@@ -8,8 +9,8 @@ import {
   test,
 } from "bun:test";
 
-import { SESSION_ENDED_PATH } from "./cookie";
 import { FetchError, fetchList, fetchOne } from "./fetcher";
+import { SESSION_ENDED_PATH } from "./session";
 
 const nativeFetch = globalThis.fetch;
 
@@ -224,4 +225,154 @@ describe("sesi yang ditolak", () => {
 
     expect(replace).not.toHaveBeenCalled();
   });
+});
+
+describe("401 diberi satu kesempatan", () => {
+  let replace: ReturnType<typeof spyOn>;
+
+  beforeAll(() => {
+    replace = spyOn(window.location, "replace").mockImplementation(() => {});
+  });
+  afterEach(() => replace.mockClear());
+  afterAll(() => replace.mockRestore());
+
+  const OK = () =>
+    Response.json({ status: 200, message: "Berhasil", data: { id: 1 } });
+  const UNAUTHORIZED = () =>
+    Response.json({ status: 401, error: "Unauthorized" }, { status: 401 });
+
+  /** Jawaban per URL, berurutan; jawaban terakhir dipakai ulang. */
+  const script = (answers: Record<string, (() => Response)[]>) => {
+    const calls: { url: string; init?: RequestInit }[] = [];
+    const cursor: Record<string, number> = {};
+
+    globalThis.fetch = mock(
+      async (input: string | URL | Request, init?: RequestInit) => {
+        const url = String(input);
+        const queue = answers[url] ?? [OK];
+        const index = Math.min(cursor[url] ?? 0, queue.length - 1);
+
+        cursor[url] = (cursor[url] ?? 0) + 1;
+        calls.push({ url, init });
+
+        return queue[index]();
+      },
+    ) as unknown as typeof fetch;
+
+    return calls;
+  };
+
+  const REFRESH = "/api/v1/auth/refresh-token";
+
+  test("ulang lebih dulu: tab lain mungkin sudah merotasi, refresh tidak dipanggil", async () => {
+    const calls = script({ "/api/v1/jemaat": [UNAUTHORIZED, OK] });
+
+    const result = await fetchOne<{ id: number }>("/jemaat");
+
+    expect(result.data.id).toBe(1);
+    expect(calls.map((call) => call.url)).toEqual([
+      "/api/v1/jemaat",
+      "/api/v1/jemaat",
+    ]);
+    expect(replace).not.toHaveBeenCalled();
+  });
+
+  test("masih 401: refresh sekali lalu ulang permintaan asli", async () => {
+    const calls = script({
+      "/api/v1/jemaat": [UNAUTHORIZED, UNAUTHORIZED, OK],
+      [REFRESH]: [OK],
+    });
+
+    const result = await fetchOne<{ id: number }>("/jemaat");
+
+    expect(result.data.id).toBe(1);
+    expect(calls.map((call) => call.url)).toEqual([
+      "/api/v1/jemaat",
+      "/api/v1/jemaat",
+      REFRESH,
+      "/api/v1/jemaat",
+    ]);
+  });
+
+  test("refresh ditolak: sesi berakhir ke /login?reason=session-ended", async () => {
+    const calls = script({
+      "/api/v1/jemaat": [UNAUTHORIZED],
+      [REFRESH]: [UNAUTHORIZED],
+    });
+
+    const error = await fetchOne("/jemaat").catch((caught) => caught);
+
+    expect(error).toBeInstanceOf(FetchError);
+    expect(error.status).toBe(401);
+    expect(calls.filter((call) => call.url === REFRESH)).toHaveLength(1);
+    expect(replace).toHaveBeenCalledWith("/login?reason=session-ended");
+  });
+
+  test("permintaan bersamaan hanya memicu satu refresh", async () => {
+    let isRefreshed = false;
+    const calls: string[] = [];
+
+    globalThis.fetch = mock(async (input: string | URL | Request) => {
+      const url = String(input);
+
+      calls.push(url);
+
+      if (url === REFRESH) {
+        await new Promise((resolve) => setTimeout(resolve, 10));
+        isRefreshed = true;
+        return OK();
+      }
+
+      return isRefreshed ? OK() : UNAUTHORIZED();
+    }) as unknown as typeof fetch;
+
+    const results = await Promise.all([
+      fetchOne<{ id: number }>("/jemaat"),
+      fetchList<{ id: number }>("/keluarga"),
+      fetchOne<{ id: number }>("/auth/me"),
+    ]);
+
+    expect(results).toHaveLength(3);
+    expect(calls.filter((url) => url === REFRESH)).toHaveLength(1);
+    expect(replace).not.toHaveBeenCalled();
+  });
+
+  test("badan permintaan dikirim ulang apa adanya", async () => {
+    const body = JSON.stringify({ name: "Budi" });
+    const calls = script({
+      "/api/v1/jemaat": [UNAUTHORIZED, UNAUTHORIZED, OK],
+      [REFRESH]: [OK],
+    });
+
+    await fetchOne("/jemaat", { method: "POST", body });
+
+    const posts = calls.filter((call) => call.url === "/api/v1/jemaat");
+
+    expect(posts).toHaveLength(3);
+    expect(posts.every((call) => call.init?.body === body)).toBe(true);
+    expect(posts.every((call) => call.init?.method === "POST")).toBe(true);
+  });
+
+  test("jaringan putus saat refresh adalah galat biasa, bukan sesi berakhir", async () => {
+    globalThis.fetch = mock(async (input: string | URL | Request) => {
+      if (String(input) === REFRESH) throw new TypeError("Failed to fetch");
+      return UNAUTHORIZED();
+    }) as unknown as typeof fetch;
+
+    const error = await fetchOne("/jemaat").catch((caught) => caught);
+
+    expect(error).toBeInstanceOf(TypeError);
+    expect(replace).not.toHaveBeenCalled();
+  });
+
+  test.each(["/auth/login", "/auth/logout", "/auth/refresh-token"])(
+    "%s tidak diulang dan tidak memicu refresh",
+    async (path) => {
+      const calls = script({ [`/api/v1${path}`]: [UNAUTHORIZED] });
+
+      await fetchOne(path, { method: "POST" }).catch(() => {});
+
+      expect(calls).toHaveLength(1);
+    },
+  );
 });

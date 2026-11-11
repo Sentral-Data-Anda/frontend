@@ -31,13 +31,13 @@ const actions: { current: MenuAction[] } = { current: [] };
 const search = { current: "" };
 const replaced: string[] = [];
 
-mock.module("next/navigation", () => ({
-  useRouter: () => ({
+mock.module("@/hooks/use-app-router", () => ({
+  useAppRouter: () => ({
     replace: (href: string) => replaced.push(href),
     push: () => undefined,
   }),
-  usePathname: () => "/procurement/purchase-request/create",
-  useSearchParams: () => new URLSearchParams(search.current),
+  useAppPathname: () => "/procurement/purchase-request/create",
+  useAppSearchParams: () => new URLSearchParams(search.current),
 }));
 
 mock.module("@/features/auth/use-menu-access", () => ({

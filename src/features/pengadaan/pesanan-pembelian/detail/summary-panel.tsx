@@ -1,12 +1,9 @@
-"use client";
-
-import Link from "next/link";
-
 import {
   DescriptionItem,
   DescriptionList,
   Panel,
 } from "@/components/common/display";
+import { AppLink } from "@/components/common/link";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { formatAmount, formatDate, formatMoney } from "@/lib/format";
@@ -38,12 +35,12 @@ export const SummaryPanel = (props: PropTypes) => {
       <DescriptionList className="px-gutter py-2">
         <DescriptionItem label="Supplier">
           {supplierAccess.isCanView ? (
-            <Link
+            <AppLink
               href={supplierHref(order.supplier.code)}
               className={TEXT_LINK}
             >
               {order.supplier.name}
-            </Link>
+            </AppLink>
           ) : (
             order.supplier.name
           )}
@@ -54,9 +51,9 @@ export const SummaryPanel = (props: PropTypes) => {
         <DescriptionItem label="Permintaan" isWide>
           <span>
             {requestAccess.isCanView ? (
-              <Link href={requestHref(request.code)} className={TEXT_LINK}>
+              <AppLink href={requestHref(request.code)} className={TEXT_LINK}>
                 {request.code}
-              </Link>
+              </AppLink>
             ) : (
               <span className="tabular-nums">{request.code}</span>
             )}

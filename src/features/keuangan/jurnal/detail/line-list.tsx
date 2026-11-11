@@ -1,7 +1,4 @@
-"use client";
-
-import Link from "next/link";
-
+import { AppLink } from "@/components/common/link";
 import {
   DataList,
   DataListRow,
@@ -38,9 +35,12 @@ const lineTable = (
       cell: (line) => (
         <span className="block min-w-0 truncate" title={accountLabelOf(line)}>
           {isCanViewAccount ? (
-            <Link href={accountHref(line.account.code)} className={TEXT_LINK}>
+            <AppLink
+              href={accountHref(line.account.code)}
+              className={TEXT_LINK}
+            >
               {accountLabelOf(line)}
-            </Link>
+            </AppLink>
           ) : (
             accountLabelOf(line)
           )}

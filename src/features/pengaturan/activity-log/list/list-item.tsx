@@ -1,6 +1,5 @@
-import Link from "next/link";
-
 import { OptionalText } from "@/components/common/display";
+import { AppLink } from "@/components/common/link";
 import {
   DataListRow,
   TABLE_ROW_LINK,
@@ -42,14 +41,14 @@ export const ActivityLogListItemRow = (props: PropTypes) => {
       id={keyOf(log)}
       className="hover:bg-card relative transition-colors"
       title={
-        <Link
+        <AppLink
           href={detailHrefOf(log)}
           onClick={() => saveFocus(log)}
           aria-label={labelOf(log)}
           className={TABLE_ROW_LINK}
         >
           {logTitle(log.kind, log.model)}
-        </Link>
+        </AppLink>
       }
       meta={`${actorName(log.user)} · ${formatLogTime(log.createdAt)}`}
       trailing={

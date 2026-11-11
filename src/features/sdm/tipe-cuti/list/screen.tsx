@@ -1,5 +1,3 @@
-"use client";
-
 import { EmptyState } from "@/components/common/feedback";
 import { PageHeader } from "@/components/layout";
 import { MENU, domainHref } from "@/config/menu";

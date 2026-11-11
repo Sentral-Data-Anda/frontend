@@ -27,10 +27,10 @@ const actions: { current: MenuAction[] } = { current: [] };
 const replaced: string[] = [];
 const params: { current: URLSearchParams } = { current: new URLSearchParams() };
 
-mock.module("next/navigation", () => ({
-  useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
-  usePathname: () => "/budgeting/budget",
-  useSearchParams: () => params.current,
+mock.module("@/hooks/use-app-router", () => ({
+  useAppRouter: () => ({ replace: (href: string) => replaced.push(href) }),
+  useAppPathname: () => "/budgeting/budget",
+  useAppSearchParams: () => params.current,
 }));
 
 mock.module("@/features/auth/use-menu-access", () => ({

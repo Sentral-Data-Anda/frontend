@@ -1,5 +1,3 @@
-"use client";
-
 import { DateField } from "@/components/common/control";
 import { ControlField, FormSection } from "@/components/common/form";
 import { endOfYearIso } from "@/lib/date";

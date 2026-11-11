@@ -1,16 +1,15 @@
 import { afterEach, expect, test } from "bun:test";
 
-const original = process.env.NODE_ENV;
-
+// Di Bun `import.meta.env` adalah `process.env`; Vite mengisi PROD saat build.
 afterEach(() => {
-  Object.assign(process.env, { NODE_ENV: original });
+  delete process.env.PROD;
 });
 
 const load = (tag: string): Promise<typeof import("./fixtures")> =>
   import(`./fixtures?${tag}`);
 
 test("SHOW_DUMMY false di production", async () => {
-  Object.assign(process.env, { NODE_ENV: "production" });
+  process.env.PROD = "true";
 
   const { SHOW_DUMMY } = await load("production");
 
@@ -18,7 +17,7 @@ test("SHOW_DUMMY false di production", async () => {
 });
 
 test("SHOW_DUMMY true di development", async () => {
-  Object.assign(process.env, { NODE_ENV: "development" });
+  delete process.env.PROD;
 
   const { SHOW_DUMMY } = await load("development");
 

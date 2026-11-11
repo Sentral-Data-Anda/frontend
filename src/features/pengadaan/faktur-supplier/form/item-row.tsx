@@ -1,5 +1,3 @@
-"use client";
-
 import type { ReactNode } from "react";
 import { Controller, useWatch, type FieldPath } from "react-hook-form";
 

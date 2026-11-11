@@ -1,7 +1,4 @@
-"use client";
-
-import Link from "next/link";
-
+import { AppLink } from "@/components/common/link";
 import {
   DataList,
   DataListRow,
@@ -111,13 +108,13 @@ export const EntryList = (props: PropTypes) => {
             }
             title={
               isCanViewAsset ? (
-                <Link
+                <AppLink
                   href={hrefOf(entry)}
                   aria-label={labelOf(entry)}
                   className={TABLE_ROW_LINK}
                 >
                   {entry.asset.name}
-                </Link>
+                </AppLink>
               ) : (
                 entry.asset.name
               )

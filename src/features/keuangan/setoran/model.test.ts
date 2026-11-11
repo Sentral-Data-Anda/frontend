@@ -167,7 +167,7 @@ describe("tautan perbaikan", () => {
 
 describe("rute", () => {
   test("tanpa /edit: setoran dikoreksi lewat batal lalu catat ulang", () => {
-    const entries = readdirSync("src/app/(app)/finance/bank-deposit/[code]");
+    const entries = readdirSync("src/routes/_app/finance/bank-deposit/$code");
 
     expect(entries).not.toContain("ubah");
   });

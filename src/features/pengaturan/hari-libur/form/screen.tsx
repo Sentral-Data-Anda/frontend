@@ -1,7 +1,4 @@
-"use client";
-
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useForm } from "react-hook-form";
 
@@ -20,6 +17,7 @@ import {
 import { PageHeader } from "@/components/layout";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
+import { useAppRouter } from "@/hooks/use-app-router";
 import { useListReturn } from "@/hooks/use-list-return";
 import { FetchError } from "@/lib/api/fetcher";
 import { applyServerError, FIRST_INVALID, revealField } from "@/lib/form-error";
@@ -45,7 +43,7 @@ interface PropTypes {
 export const HolidayFormScreen = (props: PropTypes) => {
   const { id } = props;
 
-  const router = useRouter();
+  const router = useAppRouter();
   const toast = useToast();
   const isEdit = Boolean(id);
   const { isCanView, isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(

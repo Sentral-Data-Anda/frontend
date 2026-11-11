@@ -19,10 +19,10 @@ import { onStubViewport } from "../../../../../tests/viewport";
 const actions: { current: MenuAction[] } = { current: [] };
 const requested: string[] = [];
 
-mock.module("next/navigation", () => ({
-  useRouter: () => ({ replace: () => undefined }),
-  usePathname: () => "/peribadahan/ibadah",
-  useSearchParams: () => new URLSearchParams(),
+mock.module("@/hooks/use-app-router", () => ({
+  useAppRouter: () => ({ replace: () => undefined }),
+  useAppPathname: () => "/peribadahan/ibadah",
+  useAppSearchParams: () => new URLSearchParams(),
 }));
 
 mock.module("@/features/auth/use-menu-access", () => ({

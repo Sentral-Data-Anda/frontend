@@ -1,5 +1,3 @@
-"use client";
-
 import type { ReactNode } from "react";
 
 const LABEL = "text-muted-foreground mb-1 block text-caption";

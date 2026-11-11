@@ -1,7 +1,4 @@
-"use client";
-
 import { TriangleAlert } from "lucide-react";
-import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/common/control";
 import { DescriptionSkeleton, Panel } from "@/components/common/display";
@@ -14,6 +11,7 @@ import {
 import { PageHeader } from "@/components/layout";
 import { MENU, domainHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
+import { useAppRouter } from "@/hooks/use-app-router";
 import { useListReturn } from "@/hooks/use-list-return";
 import { FetchError } from "@/lib/api/fetcher";
 
@@ -47,7 +45,7 @@ interface PropTypes {
 export const PendaftaranDetailScreen = (props: PropTypes) => {
   const { code } = props;
 
-  const router = useRouter();
+  const router = useAppRouter();
   const toast = useToast();
   const { isCanView, isCanCreate, isCanDelete } = useMenuAccess(
     MENU.PENDAFTARAN_EVENT,

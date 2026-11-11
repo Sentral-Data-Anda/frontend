@@ -1,5 +1,3 @@
-"use client";
-
 import { MENU, menuHref, type MenuSlug } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { daysSince } from "@/lib/date";

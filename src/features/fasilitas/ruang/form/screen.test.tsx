@@ -26,13 +26,13 @@ import type { RoomDetail } from "../types";
 const actions: { current: MenuAction[] } = { current: [] };
 const replaced: string[] = [];
 
-mock.module("next/navigation", () => ({
-  useRouter: () => ({
+mock.module("@/hooks/use-app-router", () => ({
+  useAppRouter: () => ({
     replace: (href: string) => replaced.push(href),
     push: () => undefined,
   }),
-  usePathname: () => "/fasilitas/ruang/create",
-  useSearchParams: () => new URLSearchParams(),
+  useAppPathname: () => "/fasilitas/ruang/create",
+  useAppSearchParams: () => new URLSearchParams(),
 }));
 
 mock.module("@/features/auth/use-menu-access", () => ({

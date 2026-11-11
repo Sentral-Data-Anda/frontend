@@ -37,13 +37,13 @@ import { orderHref } from "../model";
 const replaced: string[] = [];
 const search = { current: new URLSearchParams() };
 
-mock.module("next/navigation", () => ({
-  useRouter: () => ({
+mock.module("@/hooks/use-app-router", () => ({
+  useAppRouter: () => ({
     replace: (href: string) => replaced.push(href),
     push: () => undefined,
   }),
-  usePathname: () => "/procurement/purchase-order/create",
-  useSearchParams: () => search.current,
+  useAppPathname: () => "/procurement/purchase-order/create",
+  useAppSearchParams: () => search.current,
 }));
 
 mock.module("@/features/auth/use-menu-access", () => ({

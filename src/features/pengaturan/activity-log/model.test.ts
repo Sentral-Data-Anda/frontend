@@ -6,15 +6,18 @@ import {
   ACTION_LABEL,
   actionKindFromServer,
   actionKindOf,
+  exportQueryOf,
   filterSchemaOf,
   formatChangeValue,
   formatLogTime,
+  isBeforeOnly,
   isOneSided,
   listChanges,
   listLogFilters,
   MODEL_LABEL,
   modelLabel,
   recordLinkOf,
+  requestLogHref,
   toLogApiFilters,
 } from "./model";
 
@@ -80,11 +83,40 @@ describe("kind dari be-sada", () => {
       ),
     ).toEqual(["Tambah", "Ubah", "Hapus", "Pulihkan", "Hapus permanen"]);
   });
+
+  test("operasi massal (A3) punya label sendiri, bukan jatuh ke Ubah", () => {
+    expect(
+      (["createMany", "updateMany", "deleteMany"] as const).map(
+        (kind) => ACTION_LABEL[actionKindFromServer(kind)],
+      ),
+    ).toEqual(["Tambah massal", "Ubah massal", "Hapus permanen massal"]);
+  });
+
+  test("detail operasi massal berjudul label, bukan undefined", () => {
+    expect(
+      labelOf({ action: "deleteMany", oldData: null, newData: null }),
+    ).toBe("Hapus permanen massal");
+    expect(
+      labelOf({
+        action: "updateMany",
+        oldData: null,
+        newData: { status: "PAID" },
+      }),
+    ).toBe("Ubah massal");
+  });
 });
 
 describe("label data", () => {
   test("setiap model schema (dari mock) punya label", () => {
     expect(PRISMA_MODELS.filter((model) => !MODEL_LABEL[model])).toEqual([]);
+  });
+
+  test("tidak ada label untuk model yang sudah tidak ada di schema", () => {
+    expect(
+      Object.keys(MODEL_LABEL).filter(
+        (model) => !PRISMA_MODELS.includes(model),
+      ),
+    ).toEqual([]);
   });
 
   test("model yang belum dipetakan tampil apa adanya", () => {
@@ -251,7 +283,10 @@ describe("filter", () => {
       "Tambah",
       "Ubah",
     ]);
-    expect(Object.keys(filterSchemaOf(["aksi"]))).toEqual(["aksi"]);
+    expect(Object.keys(filterSchemaOf(["aksi"]))).toEqual([
+      "aksi",
+      "permintaan",
+    ]);
 
     const all = listLogFilters(users, [
       "periode",
@@ -312,5 +347,99 @@ describe("sisi diff", () => {
     expect(isOneSided("create")).toBe(true);
     expect(isOneSided("delete")).toBe(true);
     expect(isOneSided("update")).toBe(false);
+  });
+
+  test("ubah massal dua sisi: be-sada kini mencatat 'sebelum' per rekaman", () => {
+    expect(isOneSided("updateMany")).toBe(false);
+    expect(
+      listChanges({
+        action: "updateMany",
+        oldData: { id: 1, status: "PENDING", amount: 10 },
+        newData: { status: "PAID" },
+      }),
+    ).toEqual([{ field: "status", before: "PENDING", after: "PAID" }]);
+  });
+
+  test("hapus massal menampilkan keadaan terakhir rekaman", () => {
+    expect(isBeforeOnly("deleteMany")).toBe(true);
+    expect(
+      listChanges({
+        action: "deleteMany",
+        oldData: { id: 1, name: "A" },
+        newData: null,
+      }),
+    ).toEqual([{ field: "name", before: "A", after: undefined }]);
+  });
+
+  test("catatan bacaan satu sisi", () => {
+    for (const action of ["view", "export", "archive"] as const) {
+      expect(isOneSided(action), action).toBe(true);
+    }
+  });
+});
+
+describe("operasi massal dan bacaan", () => {
+  test("ubah massal yang menulis deletedAt → Hapus, sama dengan be-sada", () => {
+    expect(
+      labelOf({
+        action: "updateMany",
+        oldData: { deletedAt: null },
+        newData: { deletedAt: "2026-09-01T02:00:00.000Z" },
+      }),
+    ).toBe("Hapus");
+    expect(actionKindFromServer("hapus")).toBe("softDelete");
+  });
+
+  test("lihat, ekspor, dan arsip punya label sendiri", () => {
+    expect(
+      (["view", "export", "archive"] as const).map(
+        (kind) => ACTION_LABEL[actionKindFromServer(kind)],
+      ),
+    ).toEqual(["Lihat", "Ekspor", "Arsipkan"]);
+  });
+
+  test("catatan Lihat menaut ke catatan log yang dibuka", () => {
+    expect(
+      recordLinkOf({
+        model: "ActivityLog",
+        recordId: "77",
+        oldData: null,
+        newData: null,
+      })?.href,
+    ).toBe("/settings/activity-log/77");
+  });
+});
+
+describe("ekspor dan permintaan", () => {
+  test("ekspor membawa filter dan pencarian daftar, tanpa halaman", () => {
+    const query = new URLSearchParams(
+      exportQueryOf(
+        { periode: "7", aksi: "hapus", data: "Jemaat", permintaan: "req-1" },
+        "128",
+        "2026-09-27",
+      ),
+    );
+
+    expect(Object.fromEntries(query)).toEqual({
+      dateFrom: "2026-09-21",
+      dateTo: "2026-09-27",
+      kind: "hapus",
+      model: "Jemaat",
+      requestId: "req-1",
+      filter: "128",
+    });
+  });
+
+  test("tautan satu permintaan membuka daftar tersaring requestId", () => {
+    expect(requestLogHref("a b")).toBe(
+      "/settings/activity-log?permintaan=a%20b",
+    );
+    expect(
+      toLogApiFilters({ permintaan: "req-9" }, "2026-09-27"),
+    ).toMatchObject({ requestId: "req-9" });
+    expect(Object.keys(filterSchemaOf(["aksi"]))).toEqual([
+      "aksi",
+      "permintaan",
+    ]);
   });
 });

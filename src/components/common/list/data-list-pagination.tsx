@@ -1,5 +1,3 @@
-"use client";
-
 import { ChevronLeft, ChevronRight, LoaderCircle } from "lucide-react";
 import { useEffect, useEffectEvent, useRef } from "react";
 
