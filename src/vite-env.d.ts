@@ -3,6 +3,7 @@
 interface ImportMetaEnv {
   readonly VITE_SITE_URL: string;
   readonly VITE_ENABLE_SW?: string;
+  readonly VITE_APP_TIMEZONE?: string;
 }
 
 interface ImportMeta {
