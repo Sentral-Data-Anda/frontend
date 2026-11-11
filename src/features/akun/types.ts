@@ -59,4 +59,5 @@ export type MyProfilePayload = {
   districtsCode: string;
   villagesCode: string;
   address: string;
+  username?: string;
 };

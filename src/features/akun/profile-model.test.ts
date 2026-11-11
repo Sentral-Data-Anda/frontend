@@ -37,13 +37,13 @@ const PROFILE: MyProfile = {
 };
 
 const values = (patch: Partial<ProfileFormValues> = {}): ProfileFormValues => ({
-  ...toProfileForm(PROFILE),
+  ...toProfileForm(PROFILE, "14.01.152"),
   ...patch,
 });
 
 describe("toProfileForm", () => {
   test("mengisi form dari profil, termasuk kode wilayah dan id master", () => {
-    expect(toProfileForm(PROFILE)).toEqual({
+    expect(toProfileForm(PROFILE, "14.01.152")).toEqual({
       name: "Budi Santoso",
       gender: "L",
       birthPlace: "Medan",
@@ -59,11 +59,13 @@ describe("toProfileForm", () => {
       ethnicGroupId: "2",
       lastEducation: "S1",
       bloodType: "O",
+      username: "14.01.152",
+      savedUsername: "14.01.152",
     });
   });
 
   test("tidak membawa satu pun field keorganisasian ke form", () => {
-    const form = toProfileForm(PROFILE) as Record<string, unknown>;
+    const form = toProfileForm(PROFILE, "14.01.152") as Record<string, unknown>;
 
     for (const field of [
       "typeJemaat",
@@ -79,7 +81,7 @@ describe("toProfileForm", () => {
 });
 
 describe("toProfilePayload", () => {
-  test("mengirim sepuluh field pribadi dan tidak lebih", () => {
+  test("mengirim field pribadi dan tidak lebih bila username tidak berubah", () => {
     expect(Object.keys(toProfilePayload(values())).sort()).toEqual([
       "address",
       "birthDate",
@@ -121,6 +123,20 @@ describe("toProfilePayload", () => {
       professionId: null,
       ethnicGroupId: null,
     });
+  });
+
+  test("username yang diubah dikirim dalam huruf kecil tanpa spasi tepi", () => {
+    expect(toProfilePayload(values({ username: " Budi.S " })).username).toBe(
+      "budi.s",
+    );
+  });
+
+  test("username bawaan tidak dikirim walau di luar aturan username pilihan", () => {
+    const payload = toProfilePayload(
+      values({ username: "SMK 2024", savedUsername: "SMK 2024" }),
+    );
+
+    expect(payload).not.toHaveProperty("username");
   });
 
   test("nama dirapikan dan telepon +62 jadi 0", () => {
@@ -185,7 +201,45 @@ describe("profileFormSchema", () => {
   });
 });
 
+describe("username di profileFormSchema", () => {
+  test("username bawaan yang tidak diubah tidak diperiksa", () => {
+    expect(
+      profileFormSchema.safeParse(
+        values({ username: "SMK 2024", savedUsername: "SMK 2024" }),
+      ).success,
+    ).toBe(true);
+  });
+
+  test("username baru yang sah diterima", () => {
+    expect(
+      profileFormSchema.safeParse(values({ username: "Budi.Santoso" })).success,
+    ).toBe(true);
+  });
+
+  test.each([
+    ["abc", "Username minimal 4 karakter"],
+    ["a".repeat(31), "Username maksimal 30 karakter"],
+    ["budi santoso", "Username hanya huruf"],
+    [".budi", "Username hanya huruf"],
+    ["", "Username minimal 4 karakter"],
+  ])("menolak username %j", (username, message) => {
+    const parsed = profileFormSchema.safeParse(values({ username }));
+    const issue = parsed.error?.issues.find(
+      (item) => item.path[0] === "username",
+    );
+
+    expect(issue?.message).toStartWith(message);
+  });
+});
+
 describe("profileFieldError", () => {
+  test("penolakan username mendarat di fieldnya", () => {
+    expect(profileFieldError("Username Sudah Tersedia")).toEqual({
+      field: "username",
+      message: "Username Sudah Tersedia",
+    });
+  });
+
   test("penolakan email mendarat di fieldnya", () => {
     expect(profileFieldError("Email Sudah Tersedia")).toEqual({
       field: "email",

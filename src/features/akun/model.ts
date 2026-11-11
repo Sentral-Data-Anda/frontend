@@ -121,7 +121,31 @@ const profileFields = z.object({
   ethnicGroupId: z.string(),
   lastEducation: optionalEnum(LAST_EDUCATION),
   bloodType: optionalEnum(BLOOD_TYPES),
+  username: z.string(),
+  savedUsername: z.string(),
 });
+
+const USERNAME_PATTERN = /^[a-z0-9](?:[a-z0-9._-]*[a-z0-9])?$/;
+
+export const normalizeUsername = (value: string) => value.trim().toLowerCase();
+
+// Username bawaan (kode induk) boleh di luar aturan ini selama tidak diubah.
+export const isUsernameChanged = (values: {
+  username: string;
+  savedUsername: string;
+}) => values.username.trim() !== values.savedUsername;
+
+function usernameIssue(value: string): string | null {
+  const username = normalizeUsername(value);
+
+  if (username.length < 4) return "Username minimal 4 karakter";
+  if (username.length > 30) return "Username maksimal 30 karakter";
+  if (!USERNAME_PATTERN.test(username)) {
+    return "Username hanya huruf, angka, titik, garis bawah, dan tanda hubung, diawali dan diakhiri huruf atau angka.";
+  }
+
+  return null;
+}
 
 const REQUIRED = [
   ["gender", "Jenis kelamin wajib dipilih"],
@@ -139,6 +163,13 @@ export const profileFormSchema = profileFields.superRefine((values, ctx) => {
     }
   }
 
+  const username = isUsernameChanged(values)
+    ? usernameIssue(values.username)
+    : null;
+  if (username) {
+    ctx.addIssue({ code: "custom", path: ["username"], message: username });
+  }
+
   if (values.email && !values.email.includes("@")) {
     ctx.addIssue({
       code: "custom",
@@ -152,7 +183,10 @@ export type ProfileFormValues = z.infer<typeof profileFields>;
 
 const PROFILE_SERVER_FIELD_ERROR: ReadonlyArray<
   [RegExp, keyof ProfileFormValues]
-> = [[/email/i, "email"]];
+> = [
+  [/email/i, "email"],
+  [/username/i, "username"],
+];
 
 export function profileFieldError(
   message: string,
@@ -164,7 +198,10 @@ export function profileFieldError(
   return match ? { field: match[1], message } : null;
 }
 
-export function toProfileForm(profile: MyProfile): ProfileFormValues {
+export function toProfileForm(
+  profile: MyProfile,
+  username: string,
+): ProfileFormValues {
   return {
     name: profile.name,
     gender: profile.gender,
@@ -182,6 +219,8 @@ export function toProfileForm(profile: MyProfile): ProfileFormValues {
     lastEducation: (profile.lastEducation ??
       "") as ProfileFormValues["lastEducation"],
     bloodType: profile.bloodType ?? "",
+    username,
+    savedUsername: username,
   };
 }
 
@@ -204,5 +243,8 @@ export function toProfilePayload(values: ProfileFormValues): MyProfilePayload {
     districtsCode: values.districtsCode,
     villagesCode: values.villagesCode,
     address: values.address.trim(),
+    ...(isUsernameChanged(values)
+      ? { username: normalizeUsername(values.username) }
+      : {}),
   };
 }

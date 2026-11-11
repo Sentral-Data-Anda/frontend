@@ -98,8 +98,8 @@ export const MembershipSection = (props: PropTypes) => {
         isHintWarning={isCodeIndukChanged}
         hint={
           isCodeIndukChanged
-            ? "Bila jemaat ini punya akun, username-nya ikut berubah."
-            : "Bebas formatnya; juga menjadi username akun jemaat."
+            ? "Username akun ikut berubah, kecuali jemaat sudah memilih username sendiri."
+            : "Bebas formatnya; juga menjadi username awal akun jemaat."
         }
       >
         {(field) => (
