@@ -1,5 +1,3 @@
-"use client";
-
 import { useToast } from "@/components/common/feedback";
 import {
   FormConfirmDialog,

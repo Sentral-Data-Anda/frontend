@@ -18,10 +18,10 @@ import { onStubViewport } from "../../../../../tests/viewport";
 const actions: { current: MenuAction[] } = { current: [] };
 const search: { current: string } = { current: "" };
 
-mock.module("next/navigation", () => ({
-  useRouter: () => ({ replace: () => {} }),
-  usePathname: () => "/fasilitas/ruang",
-  useSearchParams: () => new URLSearchParams(search.current),
+mock.module("@/hooks/use-app-router", () => ({
+  useAppRouter: () => ({ replace: () => {} }),
+  useAppPathname: () => "/fasilitas/ruang",
+  useAppSearchParams: () => new URLSearchParams(search.current),
 }));
 
 mock.module("@/features/auth/use-menu-access", () => ({

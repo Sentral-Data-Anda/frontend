@@ -1,8 +1,5 @@
-"use client";
-
-import Link from "next/link";
-
 import { Button, buttonVariants } from "@/components/common/control";
+import { AppLink } from "@/components/common/link";
 import { MENU, editHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { cn } from "@/lib/utils";
@@ -37,7 +34,7 @@ export const CutiActions = (props: PropTypes) => {
       ) : null}
 
       {isCanUpdate && isOpen ? (
-        <Link
+        <AppLink
           href={editHref(MENU.HR, MENU.LEAVE, cuti.publicId)}
           className={cn(
             buttonVariants({ variant: "outline" }),
@@ -45,7 +42,7 @@ export const CutiActions = (props: PropTypes) => {
           )}
         >
           Ubah
-        </Link>
+        </AppLink>
       ) : null}
 
       {isCanDelete && isCancellable(cuti, today) ? (

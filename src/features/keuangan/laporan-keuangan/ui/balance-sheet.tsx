@@ -1,7 +1,4 @@
-"use client";
-
 import { Landmark, Scale, TrendingUp, Wallet } from "lucide-react";
-import Link from "next/link";
 
 import { DateField, buttonVariants } from "@/components/common/control";
 import {
@@ -11,6 +8,7 @@ import {
 } from "@/components/common/dashboard";
 import { EmptyState } from "@/components/common/feedback";
 import { FormField } from "@/components/common/form";
+import { AppLink } from "@/components/common/link";
 import { CsvDownloadButton } from "@/components/common/list";
 import { MENU, createHref, menuHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
@@ -110,7 +108,7 @@ export const BalanceSheet = (props: PropTypes) => {
           description="Daftar akun adalah dasar seluruh pembukuan. Neraca baru punya isi setelah akun dan saldo awal dimasukkan."
           action={
             accountAccess.isCanCreate ? (
-              <Link
+              <AppLink
                 href={createHref(MENU.FINANCE, MENU.CHART_OF_ACCOUNT)}
                 className={cn(
                   buttonVariants({ variant: "outline" }),
@@ -118,9 +116,9 @@ export const BalanceSheet = (props: PropTypes) => {
                 )}
               >
                 Tambah akun
-              </Link>
+              </AppLink>
             ) : accountAccess.isCanView ? (
-              <Link
+              <AppLink
                 href={menuHref(MENU.FINANCE, MENU.CHART_OF_ACCOUNT)}
                 className={cn(
                   buttonVariants({ variant: "outline" }),
@@ -128,7 +126,7 @@ export const BalanceSheet = (props: PropTypes) => {
                 )}
               >
                 Buka daftar akun
-              </Link>
+              </AppLink>
             ) : null
           }
         />

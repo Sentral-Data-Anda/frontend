@@ -8,7 +8,7 @@ const read = (path: string) => readFileSync(path, "utf8");
 
 describe("DESKTOP_MEDIA_QUERY", () => {
   test("sama dengan --breakpoint-lg Tailwind yang dipakai shell", () => {
-    const override = read("src/app/globals.css").match(
+    const override = read("src/styles/globals.css").match(
       /--breakpoint-lg:\s*([^;]+);/,
     );
     const fallback = read("node_modules/tailwindcss/theme.css").match(
@@ -22,7 +22,7 @@ describe("DESKTOP_MEDIA_QUERY", () => {
 
 describe("TABLE_MEDIA_QUERY", () => {
   test("sama dengan --breakpoint-md yang dipakai kerangka LoadingDataList", () => {
-    const override = read("src/app/globals.css").match(
+    const override = read("src/styles/globals.css").match(
       /--breakpoint-md:\s*([^;]+);/,
     );
     const fallback = read("node_modules/tailwindcss/theme.css").match(

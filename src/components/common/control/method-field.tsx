@@ -1,5 +1,3 @@
-"use client";
-
 import { ComboboxField } from "./combobox-field";
 
 export const METHOD_SUGGESTIONS = [

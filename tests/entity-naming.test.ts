@@ -20,7 +20,7 @@ const SURFACE = [
   "src/features/persetujuan/setelan-persetujuan/form/tier-fields.tsx",
   "src/features/beranda/widgets/dummy/budget-use-widget.tsx",
   "src/components/common/form/budget-lines/usage-line-row.tsx",
-  "src/app/dev/anggaran-kit/page.tsx",
+  "src/routes/dev/anggaran-kit/index.tsx",
 ];
 
 // Nama spesifik ("Komisi Pemuda") dan identifier (KOMISI) bukan sebutan entitas.

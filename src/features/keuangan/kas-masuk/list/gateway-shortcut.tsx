@@ -1,7 +1,7 @@
 import { Landmark } from "lucide-react";
-import Link from "next/link";
 
 import { buttonVariants } from "@/components/common/control";
+import { AppLink } from "@/components/common/link";
 import { cn } from "@/lib/utils";
 
 import { KAS_MASUK_GATEWAY_PATH } from "../model";
@@ -9,7 +9,7 @@ import { KAS_MASUK_GATEWAY_PATH } from "../model";
 const LABEL = "Catat pencairan payment gateway";
 
 export const GatewayShortcut = () => (
-  <Link
+  <AppLink
     href={KAS_MASUK_GATEWAY_PATH}
     aria-label={LABEL}
     title={LABEL}
@@ -19,5 +19,5 @@ export const GatewayShortcut = () => (
     )}
   >
     <Landmark aria-hidden />
-  </Link>
+  </AppLink>
 );

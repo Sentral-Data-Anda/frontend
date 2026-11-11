@@ -21,10 +21,10 @@ import { onStubViewport } from "../../../../../tests/viewport";
 const actions: { current: MenuAction[] } = { current: [] };
 const requested: URL[] = [];
 
-mock.module("next/navigation", () => ({
-  useRouter: () => ({ replace: () => undefined }),
-  usePathname: () => "/fasilitas/peminjaman-ruang",
-  useSearchParams: () => new URLSearchParams(),
+mock.module("@/hooks/use-app-router", () => ({
+  useAppRouter: () => ({ replace: () => undefined }),
+  useAppPathname: () => "/fasilitas/peminjaman-ruang",
+  useAppSearchParams: () => new URLSearchParams(),
 }));
 
 mock.module("@/features/auth/use-menu-access", () => ({

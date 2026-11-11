@@ -29,14 +29,18 @@ export function isManualInstallGuideNeeded(): boolean {
   return isIOS() && !isStandalone();
 }
 
-export function serviceWorkerUrl(): string {
-  const buildId = process.env.NEXT_PUBLIC_BUILD_ID || "dev";
-  return `/sw.js?v=${encodeURIComponent(buildId)}`;
+// `typeof`: di `bun test` tidak ada Vite yang mengisi konstanta ini.
+const BUILD_ID = typeof __BUILD_ID__ === "undefined" ? "" : __BUILD_ID__;
+
+export function serviceWorkerUrl(buildId: string = BUILD_ID): string {
+  return `/sw.js?v=${encodeURIComponent(buildId || "dev")}`;
 }
 
-export function isServiceWorkerEnabled(): boolean {
-  return (
-    process.env.NODE_ENV === "production" ||
-    process.env.NEXT_PUBLIC_ENABLE_SW === "1"
-  );
+export function isServiceWorkerEnabled(
+  flags: { isProduction: boolean; isOptedIn: boolean } = {
+    isProduction: Boolean(import.meta.env.PROD),
+    isOptedIn: import.meta.env.VITE_ENABLE_SW === "1",
+  },
+): boolean {
+  return flags.isProduction || flags.isOptedIn;
 }

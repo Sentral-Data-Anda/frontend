@@ -1,12 +1,9 @@
-"use client";
-
-import Link from "next/link";
-
 import { Button, buttonVariants } from "@/components/common/control";
 import {
   DescriptionItem,
   DescriptionSkeleton,
 } from "@/components/common/display";
+import { AppLink } from "@/components/common/link";
 import { ACCOUNT_PROFILE_HREF } from "@/config/menu";
 import { formatDate } from "@/lib/format";
 import {
@@ -60,12 +57,12 @@ export const ProfileDetails = () => {
       <ProfileGroup
         title="Data diri"
         action={
-          <Link
+          <AppLink
             href={ACCOUNT_PROFILE_HREF}
             className={buttonVariants({ variant: "link", size: "sm" })}
           >
             Ubah
-          </Link>
+          </AppLink>
         }
       >
         <DescriptionItem label="Jenis kelamin">

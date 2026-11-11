@@ -1,5 +1,3 @@
-"use client";
-
 import { Lock } from "lucide-react";
 import { Controller } from "react-hook-form";
 

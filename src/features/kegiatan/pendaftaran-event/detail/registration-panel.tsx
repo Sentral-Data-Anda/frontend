@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 import {
   DescriptionItem,
   DescriptionList,
@@ -8,6 +6,7 @@ import {
   Panel,
   PANEL_TITLE,
 } from "@/components/common/display";
+import { AppLink } from "@/components/common/link";
 import { formatDateTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -31,9 +30,9 @@ export const RegistrationPanel = (props: PropTypes) => {
       <DescriptionList className="px-gutter pb-2">
         <DescriptionItem label="Event">
           {isCanUpdateEvent ? (
-            <Link href={eventEditHref(event.publicId)} className={LINK}>
+            <AppLink href={eventEditHref(event.publicId)} className={LINK}>
               {event.name}
-            </Link>
+            </AppLink>
           ) : (
             event.name
           )}

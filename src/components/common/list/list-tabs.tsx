@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useRef, type KeyboardEvent } from "react";
 
 import { cn } from "@/lib/utils";

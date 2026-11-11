@@ -1,9 +1,6 @@
-"use client";
-
-import Link from "next/link";
-
 import { Button } from "@/components/common/control";
 import { EmptyState } from "@/components/common/feedback";
+import { AppLink } from "@/components/common/link";
 
 import { useItemMovements } from "../api";
 import { HISTORY_LIMIT, movementListHref } from "../model";
@@ -66,12 +63,12 @@ export const MovementList = (props: PropTypes) => {
       </ul>
 
       {(movements.data?.totalData ?? 0) > HISTORY_LIMIT ? (
-        <Link
+        <AppLink
           href={movementListHref(code)}
           className="text-primary mt-2 inline-flex min-h-9 cursor-pointer items-center rounded-sm text-body font-medium underline-offset-4 outline-none hover:underline focus-visible:underline"
         >
           Lihat semua mutasi
-        </Link>
+        </AppLink>
       ) : null}
     </>
   );

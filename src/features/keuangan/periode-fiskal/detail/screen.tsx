@@ -1,7 +1,3 @@
-"use client";
-
-import Link from "next/link";
-
 import { Button } from "@/components/common/control";
 import { DescriptionSkeleton, Panel } from "@/components/common/display";
 import { EmptyState, useToast } from "@/components/common/feedback";
@@ -11,6 +7,7 @@ import {
   FormNotFound,
   useFormConfirm,
 } from "@/components/common/form";
+import { AppLink } from "@/components/common/link";
 import { PageHeader } from "@/components/layout";
 import { MENU, domainHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
@@ -145,12 +142,12 @@ export const PeriodDetailScreen = (props: PropTypes) => {
             />
 
             {blockerYear ? (
-              <Link
+              <AppLink
                 href={listYearHref(blockerYear)}
                 className={`${LINK_CLASS} inline-flex min-h-9 items-center text-body`}
               >
                 Lihat periode tahun {blockerYear}
-              </Link>
+              </AppLink>
             ) : null}
           </div>
         ) : null}

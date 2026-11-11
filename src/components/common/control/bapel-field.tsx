@@ -1,5 +1,3 @@
-"use client";
-
 import { useDdlOptions, type DdlOption } from "@/hooks/use-ddl-options";
 
 import { DdlField } from "./ddl-field";

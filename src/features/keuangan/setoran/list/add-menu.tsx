@@ -1,10 +1,8 @@
-"use client";
-
 import { Menu } from "@base-ui/react/menu";
 import { ArrowLeftRight, Landmark, Plus, Wallet } from "lucide-react";
-import Link from "next/link";
 
 import { buttonVariants } from "@/components/common/control";
+import { AppLink } from "@/components/common/link";
 import { MENU_ITEM, MENU_POPUP } from "@/components/common/overlay";
 import { useIsDesktop } from "@/hooks/use-media";
 import { cn } from "@/lib/utils";
@@ -52,7 +50,7 @@ export const TransferAddMenu = () => {
             {SHORTCUTS.map((shortcut) => (
               <Menu.LinkItem
                 key={shortcut.label}
-                render={<Link href={shortcut.href} />}
+                render={<AppLink href={shortcut.href} />}
                 className={cn(MENU_ITEM, "cursor-pointer pr-3")}
               >
                 <shortcut.icon className="size-4" aria-hidden />

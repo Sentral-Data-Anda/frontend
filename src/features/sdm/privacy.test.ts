@@ -63,8 +63,8 @@ const SALARY_MARKER = new RegExp(`\\b(${SALARY_FIELDS.join("|")})\\b`);
 const SALARY_SCREENS = [
   "src/features/sdm/kontrak-karyawan/",
   "src/features/sdm/payroll/",
-  "src/app/(app)/hr/employee-contract/",
-  "src/app/(app)/hr/payroll/",
+  "src/routes/_app/hr/employee-contract/",
+  "src/routes/_app/hr/payroll/",
   "scripts/mock/handlers/kontrak-karyawan.ts",
   "scripts/mock/handlers/kontrak-karyawan.test.ts",
   "scripts/mock/handlers/payroll.ts",

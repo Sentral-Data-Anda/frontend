@@ -1,7 +1,3 @@
-"use client";
-
-import Link from "next/link";
-
 import {
   Badge,
   DescriptionItem,
@@ -10,6 +6,7 @@ import {
   OptionalText,
   Panel,
 } from "@/components/common/display";
+import { AppLink } from "@/components/common/link";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { formatDate, formatDateTime } from "@/lib/format";
@@ -69,9 +66,12 @@ export const DisposalPanel = (props: PropTypes) => {
         </DescriptionItem>
         <DescriptionItem label="Persetujuan">
           {row.approval && approvalText && isCanViewApproval ? (
-            <Link href={approvalHref(row.approval.publicId)} className={LINK}>
+            <AppLink
+              href={approvalHref(row.approval.publicId)}
+              className={LINK}
+            >
               {approvalText}
-            </Link>
+            </AppLink>
           ) : (
             <OptionalText text={approvalText} empty="Tanpa permintaan" />
           )}

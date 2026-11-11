@@ -5,8 +5,8 @@ import { SessionProvider, type Session } from "@/features/auth";
 
 const pathname = { current: "/kejemaatan/daftar-jemaat" };
 
-mock.module("next/navigation", () => ({
-  usePathname: () => pathname.current,
+mock.module("@/hooks/use-app-router", () => ({
+  useAppPathname: () => pathname.current,
 }));
 
 const { BottomTab } = await import("./bottom-tab");

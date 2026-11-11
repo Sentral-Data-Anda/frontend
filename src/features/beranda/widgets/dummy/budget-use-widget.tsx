@@ -1,5 +1,3 @@
-"use client";
-
 import { DashboardCard, ProgressBar } from "@/components/common/dashboard";
 import { formatRupiahCompact } from "@/lib/format";
 

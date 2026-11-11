@@ -19,10 +19,10 @@ import type { Account } from "../types";
 const actions: { current: MenuAction[] } = { current: [] };
 const query: { current: string } = { current: "" };
 
-mock.module("next/navigation", () => ({
-  useRouter: () => ({ replace: () => {} }),
-  usePathname: () => "/finance/chart-of-account",
-  useSearchParams: () => new URLSearchParams(query.current),
+mock.module("@/hooks/use-app-router", () => ({
+  useAppRouter: () => ({ replace: () => {} }),
+  useAppPathname: () => "/finance/chart-of-account",
+  useAppSearchParams: () => new URLSearchParams(query.current),
 }));
 
 mock.module("@/features/auth/use-menu-access", () => ({

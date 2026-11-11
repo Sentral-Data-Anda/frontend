@@ -1,6 +1,5 @@
-import Link from "next/link";
-
 import { OptionalText } from "@/components/common/display";
+import { AppLink } from "@/components/common/link";
 import {
   DataListRow,
   type DataTableColumn,
@@ -18,13 +17,13 @@ const ITEM_LINK =
 
 const itemNameOf = (movement: Movement, isCanViewItem: boolean) =>
   isCanViewItem ? (
-    <Link
+    <AppLink
       href={stockItemHref(movement.stockItem.code)}
       title={movement.stockItem.name}
       className={ITEM_LINK}
     >
       {movement.stockItem.name}
-    </Link>
+    </AppLink>
   ) : (
     movement.stockItem.name
   );

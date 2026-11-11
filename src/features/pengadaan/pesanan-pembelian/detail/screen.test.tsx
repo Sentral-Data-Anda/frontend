@@ -33,13 +33,13 @@ import { ORDER_LIST_PATH } from "../model";
 
 const replaced: string[] = [];
 
-mock.module("next/navigation", () => ({
-  useRouter: () => ({
+mock.module("@/hooks/use-app-router", () => ({
+  useAppRouter: () => ({
     replace: (href: string) => replaced.push(href),
     push: () => undefined,
   }),
-  usePathname: () => "/procurement/purchase-order/x",
-  useSearchParams: () => new URLSearchParams(),
+  useAppPathname: () => "/procurement/purchase-order/x",
+  useAppSearchParams: () => new URLSearchParams(),
 }));
 
 mock.module("@/features/auth/use-menu-access", () => ({

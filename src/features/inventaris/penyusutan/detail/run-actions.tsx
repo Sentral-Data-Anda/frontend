@@ -1,5 +1,3 @@
-"use client";
-
 import { Button } from "@/components/common/control";
 
 import { EMPTY_POST_NOTE, isCalculated } from "../model";

@@ -1,6 +1,5 @@
-import Link from "next/link";
-
 import { DETAIL_LINK } from "@/components/common/display";
+import { AppLink } from "@/components/common/link";
 import {
   DataListRow,
   TABLE_ROW_LINK,
@@ -48,12 +47,12 @@ const journalCell = (row: Persembahan, isLinked: boolean) => {
   }
 
   return isLinked ? (
-    <Link
+    <AppLink
       href={journalHref(row.journal.publicId)}
       className={cn(LINK, "block truncate tabular-nums")}
     >
       {row.journal.code}
-    </Link>
+    </AppLink>
   ) : (
     <span className="block truncate tabular-nums">{row.journal.code}</span>
   );
@@ -71,7 +70,7 @@ export const PersembahanListItemRow = (props: PropTypes) => {
       id={row.code}
       className="hover:bg-card relative transition-colors"
       title={
-        <Link
+        <AppLink
           href={detailHrefOf(row)}
           onClick={() => saveFocus(row)}
           aria-label={viewLabelOf(row)}
@@ -82,7 +81,7 @@ export const PersembahanListItemRow = (props: PropTypes) => {
           )}
         >
           {formatAmount(row.amount)}
-        </Link>
+        </AppLink>
       }
       meta={`${row.typePersembahan.name} · ${giverOf(row)}`}
       trailing={

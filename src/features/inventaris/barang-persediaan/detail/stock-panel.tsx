@@ -1,8 +1,8 @@
 import { ArrowLeftRight } from "lucide-react";
-import Link from "next/link";
 
 import { buttonVariants } from "@/components/common/control";
 import { Panel } from "@/components/common/display";
+import { AppLink } from "@/components/common/link";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { formatNumber } from "@/lib/format";
@@ -47,7 +47,7 @@ export const StockPanel = (props: PropTypes) => {
       </div>
 
       {isCanCreateMovement ? (
-        <Link
+        <AppLink
           href={movementCreateHref(item.code)}
           className={cn(
             buttonVariants({ variant: "outline" }),
@@ -56,7 +56,7 @@ export const StockPanel = (props: PropTypes) => {
         >
           <ArrowLeftRight aria-hidden />
           Catat mutasi
-        </Link>
+        </AppLink>
       ) : null}
     </Panel>
   );

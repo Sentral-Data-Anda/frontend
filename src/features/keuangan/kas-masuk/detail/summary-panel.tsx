@@ -1,12 +1,9 @@
-"use client";
-
-import Link from "next/link";
-
 import {
   DescriptionItem,
   DescriptionList,
   Panel,
 } from "@/components/common/display";
+import { AppLink } from "@/components/common/link";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { formatAmount, formatDate } from "@/lib/format";
@@ -54,12 +51,12 @@ export const SummaryPanel = (props: PropTypes) => {
         {receipt.journal ? (
           <DescriptionItem label="Entri jurnal">
             {journalAccess.isCanView ? (
-              <Link
+              <AppLink
                 href={journalHref(receipt.journal.code)}
                 className={`${TEXT_LINK} tabular-nums`}
               >
                 {receipt.journal.code}
-              </Link>
+              </AppLink>
             ) : (
               <span className="tabular-nums">{receipt.journal.code}</span>
             )}

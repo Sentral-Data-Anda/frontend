@@ -1,5 +1,3 @@
-"use client";
-
 import { ComboboxField } from "@/components/common/control";
 import { ControlField } from "@/components/common/form";
 

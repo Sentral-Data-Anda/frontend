@@ -1,5 +1,3 @@
-"use client";
-
 import { Eye } from "lucide-react";
 
 import { Button, SelectField } from "@/components/common/control";

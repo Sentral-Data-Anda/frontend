@@ -1,5 +1,3 @@
-"use client";
-
 import { DescriptionItem, DescriptionList } from "@/components/common/display";
 import { FormSection, FormWide } from "@/components/common/form";
 import { formatApprovalAmount } from "@/types/persetujuan";

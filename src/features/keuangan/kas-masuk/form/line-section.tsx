@@ -1,5 +1,3 @@
-"use client";
-
 import { useFieldArray, useFormState } from "react-hook-form";
 
 import { CashLineList, FormSection } from "@/components/common/form";

@@ -1,5 +1,4 @@
-import Link from "next/link";
-
+import { AppLink } from "@/components/common/link";
 import {
   DataListRow,
   TABLE_ROW_LINK,
@@ -39,14 +38,14 @@ export const CutiListItem = (props: PropTypes) => {
       id={cuti.code}
       className="hover:bg-card relative transition-colors"
       title={
-        <Link
+        <AppLink
           href={detailHrefOf(cuti)}
           onClick={() => saveFocus(cuti)}
           aria-label={labelOf(cuti)}
           className={TABLE_ROW_LINK}
         >
           {cuti.karyawan.name}
-        </Link>
+        </AppLink>
       }
       meta={metaOf(cuti)}
       trailing={<CutiStatusBadge cuti={cuti} />}

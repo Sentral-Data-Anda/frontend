@@ -1,5 +1,3 @@
-"use client";
-
 import { DashboardCard, ProgressBar } from "@/components/common/dashboard";
 import { EmptyState } from "@/components/common/feedback";
 import { formatRupiah, formatRupiahCompact } from "@/lib/format";

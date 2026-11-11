@@ -1,8 +1,5 @@
-"use client";
-
-import Link from "next/link";
-
 import { DETAIL_LINK } from "@/components/common/display";
+import { AppLink } from "@/components/common/link";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { formatNumber, formatRupiah } from "@/lib/format";
@@ -95,9 +92,9 @@ export const SubmitChecklist = (props: PropTypes) => {
             <p className="text-body">{check.text}</p>
 
             {check.href && check.linkText ? (
-              <Link href={check.href} className={LINK}>
+              <AppLink href={check.href} className={LINK}>
                 {check.linkText}
-              </Link>
+              </AppLink>
             ) : null}
           </li>
         ))}

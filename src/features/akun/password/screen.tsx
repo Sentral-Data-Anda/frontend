@@ -1,7 +1,4 @@
-"use client";
-
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useForm, type FieldErrors } from "react-hook-form";
 
@@ -19,6 +16,7 @@ import {
 import { PageHeader, logout } from "@/components/layout";
 import { ACCOUNT_HREF } from "@/config/menu";
 import { useSession } from "@/features/auth";
+import { useAppRouter } from "@/hooks/use-app-router";
 import { applyServerError, revealField } from "@/lib/form-error";
 import { PASSWORD_HINT } from "@/lib/password";
 
@@ -31,7 +29,7 @@ import {
 } from "../model";
 
 export const PasswordFormScreen = () => {
-  const router = useRouter();
+  const router = useAppRouter();
   const session = useSession();
   const changePassword = useChangePassword(session.code);
   const [rejectedField, setRejectedField] = useState<string | null>(null);

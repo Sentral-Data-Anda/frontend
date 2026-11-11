@@ -1,7 +1,4 @@
-"use client";
-
-import Link from "next/link";
-
+import { AppLink } from "@/components/common/link";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { formatNumber } from "@/lib/format";
@@ -84,7 +81,7 @@ export const CloseChecklist = (props: PropTypes) => {
             <p className="text-body">{check.text}</p>
 
             {check.href ? (
-              <Link
+              <AppLink
                 href={check.href}
                 className={cn(
                   LINK_CLASS,
@@ -92,7 +89,7 @@ export const CloseChecklist = (props: PropTypes) => {
                 )}
               >
                 {check.linkText}
-              </Link>
+              </AppLink>
             ) : null}
           </li>
         ))}

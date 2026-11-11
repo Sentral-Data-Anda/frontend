@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 import {
   DETAIL_LINK,
   DescriptionItem,
@@ -7,6 +5,7 @@ import {
   OptionalText,
   Panel,
 } from "@/components/common/display";
+import { AppLink } from "@/components/common/link";
 import { formatAmount, formatDate } from "@/lib/format";
 import { JOURNAL_STATUS_LABEL } from "@/types/keuangan";
 
@@ -65,12 +64,12 @@ export const SummaryPanel = (props: PropTypes) => {
         {journal ? (
           <DescriptionItem label="Entri jurnal">
             {isJournalLinked ? (
-              <Link
+              <AppLink
                 href={journalHref(journal.publicId)}
                 className={`tabular-nums ${DETAIL_LINK}`}
               >
                 {journal.code}
-              </Link>
+              </AppLink>
             ) : (
               <span className="tabular-nums">{journal.code}</span>
             )}

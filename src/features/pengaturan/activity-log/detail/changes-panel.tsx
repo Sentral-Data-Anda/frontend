@@ -1,5 +1,3 @@
-"use client";
-
 import { PANEL_TITLE, Panel } from "@/components/common/display";
 import { EmptyState } from "@/components/common/feedback";
 import {
@@ -10,7 +8,7 @@ import {
 import { useIsTableWidth } from "@/hooks/use-media";
 import { cn } from "@/lib/utils";
 
-import { isOneSided, type Change } from "../model";
+import { isBeforeOnly, isOneSided, type Change } from "../model";
 import type { LogAction } from "../types";
 
 import { ChangeValue } from "./change-value";
@@ -18,6 +16,26 @@ import { ChangeValue } from "./change-value";
 const COLUMNS = {
   single: "grid grid-cols-[minmax(0,1fr)_minmax(0,4fr)] gap-4",
   pair: "grid grid-cols-[minmax(0,1fr)_minmax(0,2fr)_minmax(0,2fr)] gap-4",
+};
+
+const EMPTY_DEFAULT = {
+  title: "Tidak ada perubahan field",
+  description: "Catatan ini hanya menyentuh kolom sistem.",
+};
+
+// Catatan bacaan: tidak ada data yang berubah, dan itu memang isinya.
+const EMPTY_OF: Partial<
+  Record<LogAction, { title: string; description: string }>
+> = {
+  view: {
+    title: "Bukan perubahan data",
+    description: "Catatan ini merekam siapa membuka catatan log lain.",
+  },
+  deleteMany: {
+    title: "Rincian tidak tersedia",
+    description:
+      "Penghapusan massal ini terlalu besar untuk dicatat per rekaman; hanya jumlahnya yang tersimpan.",
+  },
 };
 
 interface PropTypes {
@@ -35,7 +53,7 @@ export const ChangesPanel = (props: PropTypes) => {
     ? ["Field", "Nilai"]
     : ["Field", "Sebelum", "Sesudah"];
   const valueOf = (change: Change) =>
-    action === "delete" ? change.before : change.after;
+    isBeforeOnly(action) ? change.before : change.after;
 
   return (
     <Panel label="Perubahan">
@@ -43,8 +61,7 @@ export const ChangesPanel = (props: PropTypes) => {
 
       {changes.length === 0 ? (
         <EmptyState
-          title="Tidak ada perubahan field"
-          description="Catatan ini hanya menyentuh kolom sistem."
+          {...(EMPTY_OF[action] ?? EMPTY_DEFAULT)}
           isCompact
           className="pb-4"
         />

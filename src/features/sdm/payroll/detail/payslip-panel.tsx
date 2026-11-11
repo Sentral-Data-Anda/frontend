@@ -1,9 +1,7 @@
-"use client";
-
 import { ChevronRight } from "lucide-react";
-import Link from "next/link";
 
 import { PANEL_TITLE, Panel } from "@/components/common/display";
+import { AppLink } from "@/components/common/link";
 import { formatAmount } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -41,7 +39,7 @@ export const PayslipPanel = (props: PropTypes) => {
       <ul className="divide-hairline divide-y border-hairline border-t">
         {sortedPayslips(run).map((slip) => (
           <li key={slip.code}>
-            <Link
+            <AppLink
               href={slipHref(run.code, slip.code)}
               aria-label={`Buka slip gaji ${slip.karyawan.name} ${slip.code}`}
               className="hover:bg-muted focus-visible:ring-ring flex min-h-14 cursor-pointer items-center gap-3 px-gutter py-2 outline-none transition-colors focus-visible:ring-2 focus-visible:ring-inset"
@@ -66,7 +64,7 @@ export const PayslipPanel = (props: PropTypes) => {
                 aria-hidden
                 className="text-muted-foreground size-4 shrink-0"
               />
-            </Link>
+            </AppLink>
           </li>
         ))}
       </ul>

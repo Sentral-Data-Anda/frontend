@@ -1,5 +1,3 @@
-"use client";
-
 import { ConfirmDialog } from "@/components/common/overlay";
 
 // `null` = dialog tertutup, jadi satu state menyimpan baris dan status buka.

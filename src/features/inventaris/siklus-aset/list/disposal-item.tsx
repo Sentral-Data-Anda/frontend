@@ -1,6 +1,5 @@
-import Link from "next/link";
-
 import { Badge, OptionalText } from "@/components/common/display";
+import { AppLink } from "@/components/common/link";
 import {
   DataListRow,
   TABLE_ROW_LINK,
@@ -56,14 +55,14 @@ export const DisposalItem = (props: PropTypes) => {
       id={row.code}
       className="hover:bg-card relative transition-colors"
       title={
-        <Link
+        <AppLink
           href={hrefOf(row)}
           onClick={() => saveFocus(row)}
           aria-label={labelOf(row)}
           className={TABLE_ROW_LINK}
         >
           {row.asset.name}
-        </Link>
+        </AppLink>
       }
       meta={metaOf(row)}
       trailing={statusOf(row)}

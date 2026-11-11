@@ -1,8 +1,8 @@
 import { ChevronRight } from "lucide-react";
-import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { Panel, PANEL_TITLE } from "@/components/common/display";
+import { AppLink } from "@/components/common/link";
 import { Badge } from "@/components/ui";
 import { cn } from "@/lib/utils";
 
@@ -83,12 +83,12 @@ export function DashboardCard({
         <div className="flex shrink-0 items-center gap-3">
           {trailing}
           {actionLabel && actionHref ? (
-            <Link
+            <AppLink
               href={actionHref}
               className="text-muted-foreground hover:text-foreground focus-visible:ring-ring inline-flex min-h-6 items-center rounded-control text-body font-medium underline-offset-2 outline-none hover:underline focus-visible:ring-2"
             >
               {actionLabel}
-            </Link>
+            </AppLink>
           ) : null}
         </div>
       </div>
@@ -186,12 +186,12 @@ export function DashboardRow({
           title={typeof title === "string" ? title : undefined}
         >
           {href ? (
-            <Link
+            <AppLink
               href={href}
               className="focus-visible:ring-ring outline-none after:absolute after:inset-0 after:rounded-control focus-visible:after:ring-2"
             >
               {title}
-            </Link>
+            </AppLink>
           ) : (
             title
           )}

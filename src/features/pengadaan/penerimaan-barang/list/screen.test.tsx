@@ -20,10 +20,10 @@ const actions: { current: MenuAction[] } = { current: [] };
 const requested: string[] = [];
 const search = { current: new URLSearchParams() };
 
-mock.module("next/navigation", () => ({
-  useRouter: () => ({ replace: () => undefined }),
-  usePathname: () => "/procurement/goods-receipt",
-  useSearchParams: () => search.current,
+mock.module("@/hooks/use-app-router", () => ({
+  useAppRouter: () => ({ replace: () => undefined }),
+  useAppPathname: () => "/procurement/goods-receipt",
+  useAppSearchParams: () => search.current,
 }));
 
 mock.module("@/features/auth/use-menu-access", () => ({

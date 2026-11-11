@@ -1,5 +1,3 @@
-"use client";
-
 import { ConfirmDialog } from "@/components/common/overlay";
 import { useBoolean } from "@/hooks/use-boolean";
 

@@ -1,8 +1,5 @@
-"use client";
-
-import Link from "next/link";
-
 import { DETAIL_LINK as LINK } from "@/components/common/display";
+import { AppLink } from "@/components/common/link";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 
@@ -26,8 +23,8 @@ export const FixLink = (props: PropTypes) => {
   if (!fix || !isCanView) return null;
 
   return (
-    <Link href={fix.href} className={LINK}>
+    <AppLink href={fix.href} className={LINK}>
       {fix.label}
-    </Link>
+    </AppLink>
   );
 };

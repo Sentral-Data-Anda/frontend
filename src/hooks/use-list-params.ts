@@ -1,8 +1,10 @@
-"use client";
-
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo } from "react";
 
+import {
+  useAppPathname,
+  useAppRouter,
+  useAppSearchParams,
+} from "@/hooks/use-app-router";
 import { saveListReturn } from "@/lib/list-return";
 
 // Sama dengan DEFAULT_PAGE_SIZE di be-sada.
@@ -77,9 +79,9 @@ export function useListParams({
   limit?: ListLimit;
   filters?: ListFilterSchema;
 } = {}) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
+  const router = useAppRouter();
+  const pathname = useAppPathname();
+  const searchParams = useAppSearchParams();
 
   const params = useMemo(() => {
     const values = Object.fromEntries(

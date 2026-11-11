@@ -1,5 +1,3 @@
-"use client";
-
 import { useFieldArray, useWatch } from "react-hook-form";
 
 import { SelectField, type SelectOption } from "@/components/common/control";

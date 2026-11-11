@@ -1,5 +1,3 @@
-"use client";
-
 import { useQueryClient } from "@tanstack/react-query";
 import { ListPlus } from "lucide-react";
 import { useState } from "react";

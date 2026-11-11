@@ -1,5 +1,3 @@
-"use client";
-
 import { useId, type ReactNode, type Ref } from "react";
 
 import { SelectField } from "@/components/common/control";

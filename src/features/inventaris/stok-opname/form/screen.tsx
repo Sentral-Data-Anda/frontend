@@ -1,8 +1,4 @@
-"use client";
-
 import { zodResolver } from "@hookform/resolvers/zod";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useForm, useWatch } from "react-hook-form";
 
@@ -18,9 +14,11 @@ import {
   NoFormAccess,
   useFormConfirm,
 } from "@/components/common/form";
+import { AppLink } from "@/components/common/link";
 import { PageHeader } from "@/components/layout";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
+import { useAppRouter } from "@/hooks/use-app-router";
 import { useDdlOptions } from "@/hooks/use-ddl-options";
 import { useListReturn } from "@/hooks/use-list-return";
 import { FetchError } from "@/lib/api/fetcher";
@@ -49,7 +47,7 @@ interface PropTypes {
 export const OpnameFormScreen = (props: PropTypes) => {
   const { code } = props;
 
-  const router = useRouter();
+  const router = useAppRouter();
   const toast = useToast();
   const isEdit = Boolean(code);
   const { isCanView, isCanCreate, isCanUpdate } = useMenuAccess(
@@ -172,12 +170,12 @@ export const OpnameFormScreen = (props: PropTypes) => {
           title="Stok opname tidak bisa diubah"
           description="Hanya stok opname berstatus Draf yang bisa diubah."
           action={
-            <Link
+            <AppLink
               href={opnameHref(code)}
               className={buttonVariants({ variant: "outline" })}
             >
               Lihat stok opname
-            </Link>
+            </AppLink>
           }
         />
       </div>

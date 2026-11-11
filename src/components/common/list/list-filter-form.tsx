@@ -1,5 +1,3 @@
-"use client";
-
 import { useId, useState, type FormEvent } from "react";
 
 import { ChoiceField, SelectField } from "@/components/common/control";

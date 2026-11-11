@@ -1,5 +1,3 @@
-"use client";
-
 import type { UseQueryResult } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 

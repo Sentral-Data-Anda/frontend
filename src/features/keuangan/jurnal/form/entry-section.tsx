@@ -1,5 +1,3 @@
-"use client";
-
 import { useFieldArray, useFormState } from "react-hook-form";
 
 import { DateField, Input } from "@/components/common/control";

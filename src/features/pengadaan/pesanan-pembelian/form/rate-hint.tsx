@@ -1,7 +1,4 @@
-"use client";
-
-import Link from "next/link";
-
+import { AppLink } from "@/components/common/link";
 import { formatDateShort } from "@/lib/format";
 
 import type { useRatePreview } from "../api";
@@ -20,9 +17,9 @@ export const RateHint = (props: PropTypes) => {
     props;
 
   const fillLink = isCanFillRate ? (
-    <Link href={currencyHref(currencyCode)} className={TEXT_LINK}>
+    <AppLink href={currencyHref(currencyCode)} className={TEXT_LINK}>
       Isi kurs di Mata Uang
-    </Link>
+    </AppLink>
   ) : null;
 
   if (!preview.isEnabled) return null;
@@ -67,9 +64,9 @@ export const RateHint = (props: PropTypes) => {
         <p className="border-warning bg-warning/10 rounded-control border px-2 py-0.5 text-caption">
           {`Kurs terakhir ${formatDateShort(rateDate)}. Perbarui di Mata Uang bila sudah berubah. `}
           {isCanFillRate ? (
-            <Link href={currencyHref(currencyCode)} className={TEXT_LINK}>
+            <AppLink href={currencyHref(currencyCode)} className={TEXT_LINK}>
               Buka Mata Uang
-            </Link>
+            </AppLink>
           ) : null}
         </p>
       ) : null}

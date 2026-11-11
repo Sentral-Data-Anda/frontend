@@ -9,8 +9,8 @@ import {
 } from "@testing-library/react";
 import { afterEach, describe, expect, mock, test } from "bun:test";
 
-mock.module("next/navigation", () => ({
-  usePathname: () => "/akun",
+mock.module("@/hooks/use-app-router", () => ({
+  useAppPathname: () => "/akun",
 }));
 
 const { OfferingSection } = await import("./offering-section");

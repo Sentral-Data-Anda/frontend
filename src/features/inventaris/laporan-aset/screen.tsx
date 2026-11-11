@@ -1,5 +1,3 @@
-"use client";
-
 import { Coins, Scale, TrendingDown } from "lucide-react";
 
 import { DateField } from "@/components/common/control";

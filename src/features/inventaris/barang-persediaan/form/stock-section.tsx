@@ -1,10 +1,8 @@
-"use client";
-
-import Link from "next/link";
 import { useWatch } from "react-hook-form";
 
 import { Input } from "@/components/common/control";
 import { ControlField, FormSection } from "@/components/common/form";
+import { AppLink } from "@/components/common/link";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { useDdlOptions } from "@/hooks/use-ddl-options";
@@ -52,12 +50,12 @@ export const StockSection = (props: PropTypes) => {
               {quantityOf(item)}
             </span>
             {isCanCreateMovement ? (
-              <Link
+              <AppLink
                 href={movementCreateHref(item.code)}
                 className="text-primary cursor-pointer font-medium underline-offset-4 outline-none hover:underline focus-visible:underline"
               >
                 Catat mutasi
-              </Link>
+              </AppLink>
             ) : null}
           </p>
         </div>

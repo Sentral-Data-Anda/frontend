@@ -1,7 +1,4 @@
-"use client";
-
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useForm, useWatch } from "react-hook-form";
 
@@ -18,6 +15,7 @@ import {
 import { PageHeader } from "@/components/layout";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
+import { useAppRouter, useAppSearchParams } from "@/hooks/use-app-router";
 import { useListReturn } from "@/hooks/use-list-return";
 import { applyServerError, FIRST_INVALID, revealField } from "@/lib/form-error";
 import { saveListFocus } from "@/lib/list-return";
@@ -42,9 +40,9 @@ const SAVE_DESCRIPTION =
   "Apakah Anda ingin menyimpan mutasi ini? Mutasi tidak bisa diubah atau dihapus.";
 
 export const MutasiFormScreen = () => {
-  const router = useRouter();
+  const router = useAppRouter();
   const toast = useToast();
-  const searchParams = useSearchParams();
+  const searchParams = useAppSearchParams();
   const presetCode = searchParams.get("barang") ?? "";
   const { isCanView, isCanCreate } = useMenuAccess(MENU.STOCK_MOVEMENT);
   const listReturn = useListReturn(MUTASI_LIST_PATH);

@@ -1,9 +1,6 @@
-"use client";
-
-import Link from "next/link";
-
 import { DashboardCard } from "@/components/common/dashboard";
 import { EmptyState } from "@/components/common/feedback";
+import { AppLink } from "@/components/common/link";
 import { cn } from "@/lib/utils";
 
 import { flattenTree, money } from "../model";
@@ -61,22 +58,22 @@ export const AccountTreePanel = (props: PropTypes) => {
               }}
             >
               {accountHref ? (
-                <Link href={accountHref(row.code)} className={CODE_LINK}>
+                <AppLink href={accountHref(row.code)} className={CODE_LINK}>
                   {row.code}
-                </Link>
+                </AppLink>
               ) : (
                 <span className="text-muted-foreground shrink-0 text-caption tabular-nums">
                   {row.code}
                 </span>
               )}
 
-              <Link
+              <AppLink
                 href={ledgerHref(row.code)}
                 className={NAME_LINK}
                 title={row.name}
               >
                 {row.name}
-              </Link>
+              </AppLink>
 
               <span className="ms-auto shrink-0 tabular-nums">
                 {money(row.total)}

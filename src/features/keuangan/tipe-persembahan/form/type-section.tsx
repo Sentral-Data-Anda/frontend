@@ -1,6 +1,3 @@
-"use client";
-
-import Link from "next/link";
 import { Controller } from "react-hook-form";
 
 import {
@@ -11,6 +8,7 @@ import {
 } from "@/components/common/control";
 import { DETAIL_LINK as LINK } from "@/components/common/display";
 import { ControlField, FormSection } from "@/components/common/form";
+import { AppLink } from "@/components/common/link";
 import { useDdlOptions } from "@/hooks/use-ddl-options";
 
 import { AKUN_LIST_PATH } from "../model";
@@ -100,9 +98,9 @@ export const TypeSection = (props: PropTypes) => {
         {isNoAccount || isAccountRejected ? (
           <p className="text-muted-foreground mt-1.5 text-caption">
             {isNoAccount ? "Belum ada akun pendapatan. " : null}
-            <Link href={AKUN_LIST_PATH} className={LINK}>
+            <AppLink href={AKUN_LIST_PATH} className={LINK}>
               {isNoAccount ? "Buat akun dulu" : "Perbaiki di Akun"}
-            </Link>
+            </AppLink>
           </p>
         ) : null}
       </div>

@@ -40,10 +40,10 @@ const COMPLETED = OPNAME.find(
 
 const actions: { current: MenuAction[] } = { current: [] };
 
-mock.module("next/navigation", () => ({
-  useRouter: () => ({ replace: () => undefined, push: () => undefined }),
-  usePathname: () => `/inventory/stok-opname/${COMPLETED_BY_VIEWER}`,
-  useSearchParams: () => new URLSearchParams(),
+mock.module("@/hooks/use-app-router", () => ({
+  useAppRouter: () => ({ replace: () => undefined, push: () => undefined }),
+  useAppPathname: () => `/inventory/stok-opname/${COMPLETED_BY_VIEWER}`,
+  useAppSearchParams: () => new URLSearchParams(),
 }));
 
 mock.module("@/features/auth/use-menu-access", () => ({

@@ -1,5 +1,3 @@
-"use client";
-
 import { ConfirmDialog } from "@/components/common/overlay";
 
 import { PREFILL_REFILL_TEXT } from "../model";

@@ -1,8 +1,4 @@
-"use client";
-
 import { zodResolver } from "@hookform/resolvers/zod";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useForm } from "react-hook-form";
 
@@ -16,9 +12,11 @@ import {
   NoFormAccess,
   useFormConfirm,
 } from "@/components/common/form";
+import { AppLink } from "@/components/common/link";
 import { PageHeader } from "@/components/layout";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
+import { useAppRouter } from "@/hooks/use-app-router";
 import { useListReturn } from "@/hooks/use-list-return";
 import { applyServerError, FIRST_INVALID, revealField } from "@/lib/form-error";
 import { formatAmount } from "@/lib/format";
@@ -47,7 +45,7 @@ const LINK =
   "text-primary cursor-pointer font-medium underline-offset-4 hover:underline focus-visible:underline";
 
 export const DisposalFormScreen = () => {
-  const router = useRouter();
+  const router = useAppRouter();
   const toast = useToast();
   const { isCanView, isCanDelete } = useMenuAccess(MENU.ASSET_TRANSACTION);
   const { isCanView: isCanViewSetting } = useMenuAccess(MENU.APPROVAL_WORKFLOW);
@@ -182,9 +180,9 @@ export const DisposalFormScreen = () => {
             <p className="text-muted-foreground text-body">
               Minta administrator mengatur alur Pelepasan barang di{" "}
               {isCanViewSetting ? (
-                <Link href={APPROVAL_SETTING_PATH} className={LINK}>
+                <AppLink href={APPROVAL_SETTING_PATH} className={LINK}>
                   Setelan Alur Persetujuan
-                </Link>
+                </AppLink>
               ) : (
                 "Setelan Alur Persetujuan"
               )}

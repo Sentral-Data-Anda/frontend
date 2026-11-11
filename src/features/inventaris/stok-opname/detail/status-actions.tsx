@@ -1,9 +1,7 @@
-"use client";
-
 import { Pencil, TriangleAlert } from "lucide-react";
-import Link from "next/link";
 
 import { Button, buttonVariants } from "@/components/common/control";
+import { AppLink } from "@/components/common/link";
 import { cn } from "@/lib/utils";
 
 import { opnameEditHref } from "../model";
@@ -77,7 +75,7 @@ export const StatusActions = (props: PropTypes) => {
 
         {status === "DRAFT" && isCanUpdate ? (
           <>
-            <Link
+            <AppLink
               href={opnameEditHref(opname.publicId)}
               aria-disabled={isBusy || undefined}
               className={cn(
@@ -87,7 +85,7 @@ export const StatusActions = (props: PropTypes) => {
             >
               <Pencil aria-hidden />
               Ubah
-            </Link>
+            </AppLink>
             <Button
               type="button"
               disabled={isBusy}

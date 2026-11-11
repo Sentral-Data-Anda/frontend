@@ -1,4 +1,4 @@
-export const SHOW_DUMMY = process.env.NODE_ENV !== "production";
+export const SHOW_DUMMY = !import.meta.env.PROD;
 
 export type Notification = {
   id: string;

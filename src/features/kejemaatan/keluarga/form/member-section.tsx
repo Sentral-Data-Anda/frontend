@@ -1,5 +1,3 @@
-"use client";
-
 import { Controller, useFieldArray, useWatch } from "react-hook-form";
 
 import {

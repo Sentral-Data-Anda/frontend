@@ -1,5 +1,3 @@
-"use client";
-
 import { Panel } from "@/components/common/display";
 import { formatDateTime } from "@/lib/format";
 import type { GateWaiver } from "@/types/anggaran";

@@ -20,10 +20,10 @@ import { onStubViewport } from "../../../../../tests/viewport";
 const search = { current: "" };
 const actions: { current: MenuAction[] } = { current: [] };
 
-mock.module("next/navigation", () => ({
-  useRouter: () => ({ replace: () => undefined }),
-  usePathname: () => "/hr/employee",
-  useSearchParams: () => new URLSearchParams(search.current),
+mock.module("@/hooks/use-app-router", () => ({
+  useAppRouter: () => ({ replace: () => undefined }),
+  useAppPathname: () => "/hr/employee",
+  useAppSearchParams: () => new URLSearchParams(search.current),
 }));
 
 /**

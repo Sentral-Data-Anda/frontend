@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect } from "react";
 import { Controller, useWatch } from "react-hook-form";
 

@@ -1,7 +1,10 @@
-import { SESSION_ENDED_PATH } from "./cookie";
+// Penanda di /login bahwa pengguna tiba di sini karena sesinya berakhir.
+export const SESSION_ENDED_REASON = "session-ended";
 
-// 401 yang bertahan sampai browser berarti sesi sudah mati; "Coba lagi" hanya
-// mengulanginya. Navigasi keras supaya cache TanStack Query ikut dibuang.
+export const SESSION_ENDED_PATH = `/login?reason=${SESSION_ENDED_REASON}`;
+
+// be-sada sudah menghapus cookie saat refresh gagal. Navigasi keras supaya
+// cache TanStack Query ikut dibuang.
 export const endSession = (): void => {
   if (typeof window === "undefined") return;
 

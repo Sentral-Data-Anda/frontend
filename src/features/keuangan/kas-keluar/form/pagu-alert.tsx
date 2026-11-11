@@ -1,5 +1,3 @@
-"use client";
-
 import { FormAlert } from "@/components/common/form";
 import { formatAmount } from "@/lib/format";
 import { overBy, sumAmounts } from "@/lib/number";

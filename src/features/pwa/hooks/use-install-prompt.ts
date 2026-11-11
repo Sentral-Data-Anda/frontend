@@ -1,5 +1,3 @@
-"use client";
-
 import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 
 import { isIOS, isStandalone } from "../model";

@@ -1,5 +1,3 @@
-"use client";
-
 import { Button } from "@/components/common/control";
 import { DescriptionSkeleton, Panel } from "@/components/common/display";
 import { EmptyState } from "@/components/common/feedback";

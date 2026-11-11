@@ -6,10 +6,10 @@ import type { MenuAction } from "@/types/menu";
 
 const actions: { current: MenuAction[] } = { current: [] };
 
-mock.module("next/navigation", () => ({
-  useRouter: () => ({ replace: () => {} }),
-  usePathname: () => "/report/report-jemaat",
-  useSearchParams: () => new URLSearchParams("bulan=3"),
+mock.module("@/hooks/use-app-router", () => ({
+  useAppRouter: () => ({ replace: () => {} }),
+  useAppPathname: () => "/report/report-jemaat",
+  useAppSearchParams: () => new URLSearchParams("bulan=3"),
 }));
 
 mock.module("@/features/auth/use-menu-access", () => ({

@@ -1,5 +1,3 @@
-"use client";
-
 import { Menu } from "@base-ui/react/menu";
 import { Tooltip } from "@base-ui/react/tooltip";
 import {
@@ -12,15 +10,15 @@ import {
   UserRound,
   type LucideIcon,
 } from "lucide-react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { flushSync } from "react-dom";
 
 import { Avatar } from "@/components/common/display";
+import { AppLink } from "@/components/common/link";
 import { MENU_ITEM, MENU_POPUP } from "@/components/common/overlay";
 import { ACCOUNT_HREF, MENU_ICON, domainHref, menuHref } from "@/config/menu";
 import { useSession } from "@/features/auth";
+import { useAppPathname } from "@/hooks/use-app-router";
 import { useBoolean } from "@/hooks/use-boolean";
 import { cn } from "@/lib/utils";
 import type { MenuNode } from "@/types/menu";
@@ -66,7 +64,7 @@ const LABEL = cn(
 
 export function Sidebar({ defaultCollapsed }: { defaultCollapsed: boolean }) {
   const session = useSession();
-  const pathname = usePathname();
+  const pathname = useAppPathname();
   const isCollapsed = useBoolean(defaultCollapsed);
   const name = session.jemaat?.name ?? session.username;
   const role = session.roleUser.name;
@@ -137,7 +135,7 @@ export function Sidebar({ defaultCollapsed }: { defaultCollapsed: boolean }) {
 
           <div className="border-sidebar-border flex items-center gap-3 border-t px-4.5 py-3">
             <AccountMenu name={name} role={role} />
-            <Link
+            <AppLink
               href={ACCOUNT_HREF}
               aria-label={`Akun saya: ${name}`}
               aria-current={pathname === ACCOUNT_HREF ? "page" : undefined}
@@ -162,7 +160,7 @@ export function Sidebar({ defaultCollapsed }: { defaultCollapsed: boolean }) {
                   {role}
                 </p>
               </div>
-            </Link>
+            </AppLink>
             <LogoutButton className={cn(IDLE, FOCUS, HIDE_IN_RAIL)} />
           </div>
         </aside>
@@ -213,7 +211,7 @@ function AccountMenu({ name, role }: { name: string; role: string }) {
                 </Menu.GroupLabel>
                 <Menu.Separator className="bg-border -mx-1 my-1 h-px" />
                 <Menu.LinkItem
-                  render={<Link href={ACCOUNT_HREF} />}
+                  render={<AppLink href={ACCOUNT_HREF} />}
                   className={MENU_ITEM}
                 >
                   <UserRound className="size-4" aria-hidden />
@@ -291,7 +289,7 @@ function NavLink({
 
   return (
     <RailTip label={label} isDisabled={!isCollapsed}>
-      <Link
+      <AppLink
         href={href}
         aria-current={isActive ? "page" : undefined}
         className={cn(
@@ -308,7 +306,7 @@ function NavLink({
           aria-hidden
         />
         <span className={LABEL}>{label}</span>
-      </Link>
+      </AppLink>
     </RailTip>
   );
 }
@@ -420,7 +418,7 @@ export function SidebarNav({
 
                       return (
                         <li key={leaf.slug}>
-                          <Link
+                          <AppLink
                             href={href}
                             aria-current={isLeafActive ? "page" : undefined}
                             className={cn(
@@ -432,7 +430,7 @@ export function SidebarNav({
                             )}
                           >
                             <span className="truncate">{leaf.name}</span>
-                          </Link>
+                          </AppLink>
                         </li>
                       );
                     })}

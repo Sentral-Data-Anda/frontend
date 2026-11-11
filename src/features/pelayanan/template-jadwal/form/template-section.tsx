@@ -1,5 +1,3 @@
-"use client";
-
 import { DdlField, Input, TimeField } from "@/components/common/control";
 import { ControlField, FormSection } from "@/components/common/form";
 

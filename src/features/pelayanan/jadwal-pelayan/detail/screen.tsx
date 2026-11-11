@@ -1,13 +1,11 @@
-"use client";
-
 import { Copy, Pencil, TriangleAlert } from "lucide-react";
-import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { Button, buttonVariants } from "@/components/common/control";
 import { DescriptionSkeleton, Panel } from "@/components/common/display";
 import { EmptyState } from "@/components/common/feedback";
 import { FormNotFound } from "@/components/common/form";
+import { AppLink } from "@/components/common/link";
 import { PageHeader } from "@/components/layout";
 import { MENU, domainHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
@@ -141,25 +139,25 @@ export const JadwalPelayanDetailScreen = (props: PropTypes) => {
           <WhatsAppButton getText={onWhatsAppText} isLabelVisible={isWide} />
 
           {isCanCreate ? (
-            <Link
+            <AppLink
               href={salinHref(jadwal.code)}
               aria-label={isWide ? undefined : "Salin dari jadwal ini"}
               className={linkClass}
             >
               <Copy aria-hidden />
               {isWide ? "Salin dari jadwal ini" : null}
-            </Link>
+            </AppLink>
           ) : null}
 
           {isCanUpdate ? (
-            <Link
+            <AppLink
               href={jadwalEditHref(jadwal.publicId)}
               aria-label={isWide ? undefined : "Ubah"}
               className={linkClass}
             >
               <Pencil aria-hidden />
               {isWide ? "Ubah" : null}
-            </Link>
+            </AppLink>
           ) : null}
         </div>,
       )}

@@ -1,5 +1,3 @@
-"use client";
-
 import { ImagePlus, Undo2 } from "lucide-react";
 import { Controller, useWatch } from "react-hook-form";
 

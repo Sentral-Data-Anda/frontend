@@ -1,6 +1,5 @@
-import Link from "next/link";
-
 import { Avatar } from "@/components/common/display";
+import { AppLink } from "@/components/common/link";
 import {
   DataListRow,
   TABLE_ROW_LINK,
@@ -55,14 +54,14 @@ export const PendaftaranListItemRow = (props: PropTypes) => {
       className="hover:bg-card relative transition-colors"
       leading={<Avatar label={registration.participantName} />}
       title={
-        <Link
+        <AppLink
           href={hrefOf(registration)}
           onClick={() => saveFocus(registration)}
           aria-label={labelOf(registration)}
           className={TABLE_ROW_LINK}
         >
           {registration.participantName}
-        </Link>
+        </AppLink>
       }
       meta={metaOf(registration)}
       trailing={<RegistrationStatus status={registration.status} />}

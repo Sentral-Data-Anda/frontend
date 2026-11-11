@@ -1,17 +1,15 @@
-"use client";
-
 import { TriangleAlert } from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 
 import { Button, buttonVariants } from "@/components/common/control";
 import { DescriptionSkeleton, Panel } from "@/components/common/display";
 import { EmptyState, useToast } from "@/components/common/feedback";
 import { FormAlert } from "@/components/common/form";
+import { AppLink } from "@/components/common/link";
 import { ConfirmDialog } from "@/components/common/overlay";
 import { PageHeader } from "@/components/layout";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
+import { useAppRouter } from "@/hooks/use-app-router";
 import { useBoolean } from "@/hooks/use-boolean";
 import { useListReturn } from "@/hooks/use-list-return";
 import { FetchError } from "@/lib/api/fetcher";
@@ -33,7 +31,7 @@ interface PropTypes {
 export const PermintaanDetailScreen = (props: PropTypes) => {
   const { id } = props;
 
-  const router = useRouter();
+  const router = useAppRouter();
   const toast = useToast();
   const { isCanView, isCanUpdate } = useMenuAccess(MENU.APPROVAL_REQUEST);
   const listReturn = useListReturn(PERMINTAAN_LIST_PATH);
@@ -110,12 +108,12 @@ export const PermintaanDetailScreen = (props: PropTypes) => {
           title="Permintaan tidak ditemukan"
           description="Permintaan ini tidak ada, bukan untuk Anda, atau alamatnya salah."
           action={
-            <Link
+            <AppLink
               href={listReturn}
               className={buttonVariants({ variant: "outline" })}
             >
               Kembali ke permintaan persetujuan
-            </Link>
+            </AppLink>
           }
         />
       </div>

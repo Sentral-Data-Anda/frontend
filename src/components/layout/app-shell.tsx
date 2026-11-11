@@ -1,4 +1,4 @@
-import { cookies } from "next/headers";
+import { readDocumentCookie } from "@/lib/cookie";
 
 import { BottomTab } from "./bottom-tab";
 import { mainInset } from "./shell-width";
@@ -9,13 +9,10 @@ interface PropTypes {
   children: React.ReactNode;
 }
 
-export const AppShell = async (props: PropTypes) => {
+export const AppShell = (props: PropTypes) => {
   const { children } = props;
 
-  const cookieStore = await cookies();
-  const isCollapsed = isSidebarCollapsed(
-    cookieStore.get(SIDEBAR_COOKIE)?.value,
-  );
+  const isCollapsed = isSidebarCollapsed(readDocumentCookie(SIDEBAR_COOKIE));
 
   return (
     <div className="bg-canvas-aurora flex min-h-dvh flex-col lg:flex-row">

@@ -1,11 +1,9 @@
-"use client";
-
 import { Plus } from "lucide-react";
-import Link from "next/link";
 import { useState } from "react";
 
 import { buttonVariants } from "@/components/common/control";
 import { EmptyState, useToast } from "@/components/common/feedback";
+import { AppLink } from "@/components/common/link";
 import {
   DataList,
   ListToolbar,
@@ -117,13 +115,13 @@ export const AccountListContent = () => {
           className="py-12"
           action={
             isCanCreate ? (
-              <Link
+              <AppLink
                 href={AKUN_CREATE_PATH}
                 className={cn(buttonVariants(), "cursor-pointer")}
               >
                 <Plus aria-hidden />
                 Tambah akun
-              </Link>
+              </AppLink>
             ) : null
           }
         />

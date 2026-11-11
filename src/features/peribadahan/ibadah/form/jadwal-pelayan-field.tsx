@@ -1,12 +1,10 @@
-"use client";
-
 import { UsersRound } from "lucide-react";
-import Link from "next/link";
 import { useEffect, type MouseEvent } from "react";
 import { useWatch } from "react-hook-form";
 
 import { Button, DdlField, buttonVariants } from "@/components/common/control";
 import { ControlField } from "@/components/common/form";
+import { AppLink } from "@/components/common/link";
 import { MENU, detailHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { useBoolean } from "@/hooks/use-boolean";
@@ -170,7 +168,7 @@ export const JadwalPelayanField = (props: PropTypes) => {
       ) : null}
 
       {href ? (
-        <Link
+        <AppLink
           href={href}
           onClick={onOpen}
           aria-disabled={isDisabled || undefined}
@@ -183,7 +181,7 @@ export const JadwalPelayanField = (props: PropTypes) => {
         >
           <UsersRound aria-hidden />
           Lihat petugas jadwal ini
-        </Link>
+        </AppLink>
       ) : null}
     </div>
   );

@@ -1,5 +1,3 @@
-"use client";
-
 import { memo } from "react";
 
 import { Button, ComboboxField, DateField } from "@/components/common/control";

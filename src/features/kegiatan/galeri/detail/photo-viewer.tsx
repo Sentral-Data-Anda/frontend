@@ -1,5 +1,3 @@
-"use client";
-
 import { ChevronLeft, ChevronRight, Globe, X } from "lucide-react";
 import { useEffect, useState, type KeyboardEvent } from "react";
 
@@ -86,7 +84,6 @@ export const PhotoViewer = (props: PropTypes) => {
                 />
               </div>
             ) : (
-              // eslint-disable-next-line @next/next/no-img-element -- URL bertanda tangan MinIO, bukan aset yang dioptimasi Next
               <img
                 key={photo.url}
                 src={photo.url}

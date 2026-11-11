@@ -1,6 +1,7 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, mock, test } from "bun:test";
-import Link from "next/link";
+
+import { AppLink } from "@/components/common/link";
 
 import { DataList, DataListRow } from "./data-list";
 import { RowActionsProvider } from "./data-row-actions";
@@ -213,9 +214,12 @@ describe("DataListRow aksi baris", () => {
         >
           <DataListRow
             title={
-              <Link href="/fasilitas/ruang/RM-0001" className={TABLE_ROW_LINK}>
+              <AppLink
+                href="/fasilitas/ruang/RM-0001"
+                className={TABLE_ROW_LINK}
+              >
                 Ruang Matius
-              </Link>
+              </AppLink>
             }
           />
         </RowActionsProvider>

@@ -1,7 +1,3 @@
-"use client";
-
-import Link from "next/link";
-
 import { buttonVariants } from "@/components/common/control";
 import { ProgressBar } from "@/components/common/dashboard";
 import {
@@ -10,6 +6,7 @@ import {
   Panel,
 } from "@/components/common/display";
 import { FormAlert } from "@/components/common/form";
+import { AppLink } from "@/components/common/link";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import type { CeilingUsage } from "@/types/anggaran";
@@ -45,12 +42,12 @@ export const CeilingPanel = (props: PropTypes) => {
   const isExceeded = isCeilingExceeded(ceiling);
 
   const ceilingLink = isCanView ? (
-    <Link
+    <AppLink
       href={ceilingHref(bapelId, ceiling.year)}
       className={buttonVariants({ variant: "outline", size: "sm" })}
     >
       Lihat Pagu Anggaran
-    </Link>
+    </AppLink>
   ) : null;
 
   if (isMissing) {

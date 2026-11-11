@@ -1,0 +1,156 @@
+# fe-sada di produksi: berkas statis hasil `vite build`, ditambah reverse proxy
+# satu origin untuk /api (be-sada) dan /media (MinIO). Variabel ${...} diisi
+# envsubst oleh image nginx saat container start; lihat Dockerfile.
+
+# Upstream di-resolve per permintaan lewat DNS Docker, bukan sekali saat start:
+# tanpa ini nginx menolak start selama sada-backend atau sada-minio belum ada,
+# dan SPA ikut mati.
+resolver ${NGINX_RESOLVER} valid=10s ipv6=off;
+
+map $upstream_status $media_cache_control {
+    200 "private, max-age=300";
+    206 "private, max-age=300";
+    default "private, no-store";
+}
+
+server {
+    listen 3000;
+    server_name _;
+    server_tokens off;
+
+    root /usr/share/nginx/html;
+    charset utf-8;
+
+    # be-sada menerima 5 berkas x 10 MB + field dalam satu unggahan.
+    client_max_body_size 52m;
+
+    gzip on;
+    gzip_types text/css application/javascript application/json image/svg+xml application/manifest+json;
+
+    location = /index.html {
+        include /etc/nginx/conf.d/security-headers.inc;
+        add_header Cache-Control "no-cache" always;
+    }
+
+    # Rute SPA: semua path yang bukan berkas jatuh ke index.html.
+    location / {
+        include /etc/nginx/conf.d/security-headers.inc;
+        try_files $uri /index.html;
+    }
+
+    # Nama berkas ber-hash dari Vite: isinya tidak pernah berubah per URL.
+    location /assets/ {
+        include /etc/nginx/conf.d/security-headers.inc;
+        # Tanpa `always`: hanya 2xx/3xx. 404 yang di-cache setahun menahan
+        # klien pada aset yang belum terunggah.
+        add_header Cache-Control "public, max-age=31536000, immutable";
+        try_files $uri =404;
+    }
+
+    # Tanpa no-store, service worker basi tertahan; pasangannya
+    # updateViaCache: "none" di klien.
+    location = /sw.js {
+        include /etc/nginx/conf.d/security-headers.inc;
+        add_header Cache-Control "no-cache, no-store, must-revalidate" always;
+        try_files $uri =404;
+    }
+
+    location = /offline.html {
+        include /etc/nginx/conf.d/security-headers.inc;
+        add_header Cache-Control "no-cache" always;
+    }
+
+    location = /manifest.webmanifest {
+        include /etc/nginx/conf.d/security-headers.inc;
+        default_type application/manifest+json;
+        try_files $uri =404;
+    }
+
+    location /api/ {
+        set $api_upstream ${API_UPSTREAM};
+        proxy_pass $api_upstream;
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $http_x_forwarded_proto;
+
+        # Kontrak header proxy be-sada (docs/03-api-contract.md "Header proxy").
+        # CF-Connecting-IP disetel Cloudflare, satu alamat; be-sada hanya
+        # mempercayainya bila kunci proxy cocok.
+        proxy_set_header x-sada-proxy-key "${BACKEND_PROXY_SECRET}";
+        proxy_set_header x-sada-client-ip $http_cf_connecting_ip;
+        proxy_set_header x-request-id $request_id;
+
+        proxy_read_timeout 120s;
+        proxy_hide_header X-Powered-By;
+
+        # helmet be-sada memasang versinya sendiri; dua X-Frame-Options yang
+        # bertentangan diabaikan peramban. Satu sumber: berkas include di bawah.
+        proxy_hide_header Content-Security-Policy;
+        proxy_hide_header X-Frame-Options;
+        proxy_hide_header X-Content-Type-Options;
+        proxy_hide_header Referrer-Policy;
+
+        # Jawaban be-sada berisi data pribadi; be-sada tidak memasang
+        # Cache-Control.
+        proxy_hide_header Cache-Control;
+        include /etc/nginx/conf.d/security-headers.inc;
+        add_header Cache-Control "private, no-store" always;
+
+        error_page 502 503 504 = @api_unavailable;
+    }
+
+    location @api_unavailable {
+        default_type application/json;
+        add_header Cache-Control "private, no-store" always;
+        return 502 '{"status":502,"error":"Layanan sedang tidak dapat dihubungi. Coba lagi sebentar lagi."}';
+    }
+
+    # Tautan bertanda tangan dari be-sada (MINIO_PUBLIC_URL=<domain>/media).
+    # Tanda tangan dibuat untuk host MinIO dan path apa adanya, jadi Host
+    # bawaan proxy_pass yang dipakai dan path diambil mentah dari $request_uri
+    # (rewrite menormalkan encoding-nya). Hanya header Range/ETag yang ikut.
+    location /media/ {
+        limit_except GET HEAD {
+            deny all;
+        }
+
+        if ($args !~ "(^|&)X-Amz-Signature=") {
+            return 404;
+        }
+
+        if ($request_uri ~ "^/media(/[^?]*)") {
+            set $media_key $1;
+        }
+
+        set $media_upstream ${MEDIA_UPSTREAM};
+        proxy_pass $media_upstream$media_key$is_args$args;
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+        proxy_pass_request_headers off;
+        proxy_set_header Range $http_range;
+        proxy_set_header If-None-Match $http_if_none_match;
+        proxy_set_header If-Modified-Since $http_if_modified_since;
+
+        proxy_hide_header Server;
+        proxy_hide_header Cache-Control;
+        proxy_hide_header Set-Cookie;
+        proxy_hide_header x-amz-request-id;
+        proxy_hide_header x-amz-id-2;
+        proxy_hide_header X-Content-Type-Options;
+        proxy_hide_header X-Xss-Protection;
+        proxy_hide_header Strict-Transport-Security;
+
+        include /etc/nginx/conf.d/security-headers.inc;
+        add_header Cache-Control $media_cache_control always;
+
+        error_page 502 503 504 = @media_unavailable;
+    }
+
+    location @media_unavailable {
+        default_type application/json;
+        add_header Cache-Control "private, no-store" always;
+        return 502 '{"status":502,"error":"Penyimpanan berkas tidak dapat dihubungi"}';
+    }
+}

@@ -1,5 +1,3 @@
-"use client";
-
 import {
   AccountField,
   AmountInput,

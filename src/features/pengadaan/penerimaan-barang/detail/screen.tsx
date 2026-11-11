@@ -1,11 +1,8 @@
-"use client";
-
-import Link from "next/link";
-
 import { Button, buttonVariants } from "@/components/common/control";
 import { DescriptionSkeleton, Panel } from "@/components/common/display";
 import { EmptyState } from "@/components/common/feedback";
 import { FormNotFound } from "@/components/common/form";
+import { AppLink } from "@/components/common/link";
 import { PageHeader } from "@/components/layout";
 import { MENU, domainHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
@@ -131,12 +128,12 @@ export const ReceiptDetailScreen = (props: PropTypes) => {
             <p className="min-w-0 flex-[1_1_18rem] text-body">
               {`${formatNumber(assetCount)} barang baru belum punya nomor seri, foto, dan penyusutan. Lengkapi lewat kode barangnya di bawah.`}
             </p>
-            <Link
+            <AppLink
               href={assetEditHref(firstAsset.publicId)}
               className={buttonVariants({ variant: "outline" })}
             >
               Lengkapi data barang
-            </Link>
+            </AppLink>
           </div>
         ) : null}
 

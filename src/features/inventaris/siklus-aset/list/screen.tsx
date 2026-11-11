@@ -1,9 +1,6 @@
-"use client";
-
-import { useSearchParams } from "next/navigation";
-
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
+import { useAppSearchParams } from "@/hooks/use-app-router";
 
 import { KIND_PARAM, kindOf } from "../model";
 import { NoCycleAccess } from "../no-cycle-access";
@@ -20,7 +17,7 @@ const CONTENT = {
 
 export const CycleListScreen = () => {
   const { isCanView } = useMenuAccess(MENU.ASSET_TRANSACTION);
-  const kind = kindOf(useSearchParams().get(KIND_PARAM));
+  const kind = kindOf(useAppSearchParams().get(KIND_PARAM));
   const Content = CONTENT[kind];
 
   return isCanView ? <Content /> : <NoCycleAccess />;

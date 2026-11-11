@@ -3,7 +3,7 @@ import { afterEach, describe, expect, mock, test } from "bun:test";
 
 const LIST = "/kejemaatan/daftar-jemaat";
 
-mock.module("next/navigation", () => ({ usePathname: () => LIST }));
+mock.module("@/hooks/use-app-router", () => ({ useAppPathname: () => LIST }));
 
 const { DataList, DataListRow } = await import("./data-list");
 

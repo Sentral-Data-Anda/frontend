@@ -1,6 +1,3 @@
-"use client";
-
-import Link from "next/link";
 import { Controller, useWatch } from "react-hook-form";
 
 import {
@@ -10,6 +7,7 @@ import {
   Textarea,
 } from "@/components/common/control";
 import { ControlField, FormSection, FormWide } from "@/components/common/form";
+import { AppLink } from "@/components/common/link";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { todayJakarta } from "@/lib/date";
@@ -200,12 +198,12 @@ export const MovementSection = (props: PropTypes) => {
         <p className="text-muted-foreground text-caption">
           Stok tidak sesuai hitungan?{" "}
           {isCanCreateOpname ? (
-            <Link
+            <AppLink
               href={OPNAME_CREATE_PATH}
               className="text-primary cursor-pointer font-medium underline-offset-4 outline-none hover:underline focus-visible:underline"
             >
               Pakai Stok Opname.
-            </Link>
+            </AppLink>
           ) : (
             "Pakai Stok Opname."
           )}

@@ -1,10 +1,8 @@
-"use client";
-
-import Link from "next/link";
 import { useState } from "react";
 
 import { buttonVariants } from "@/components/common/control";
 import { useToast, EmptyState } from "@/components/common/feedback";
+import { AppLink } from "@/components/common/link";
 import {
   DataList,
   ListTabs,
@@ -143,12 +141,12 @@ export const ReportListContent = () => {
               description={EMPTY_DESCRIPTION}
               action={
                 isCanCreate ? (
-                  <Link
+                  <AppLink
                     href={REPORT_CREATE_PATH}
                     className={buttonVariants({ variant: "outline" })}
                   >
                     Tambah laporan
-                  </Link>
+                  </AppLink>
                 ) : null
               }
               className="py-12"

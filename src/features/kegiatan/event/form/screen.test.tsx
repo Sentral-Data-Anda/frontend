@@ -19,13 +19,13 @@ const actions: { current: MenuAction[] } = { current: [] };
 const registrationActions: { current: MenuAction[] } = { current: [] };
 const replaced: string[] = [];
 
-mock.module("next/navigation", () => ({
-  useRouter: () => ({
+mock.module("@/hooks/use-app-router", () => ({
+  useAppRouter: () => ({
     replace: (href: string) => replaced.push(href),
     push: () => undefined,
   }),
-  usePathname: () => "/kegiatan/event/create",
-  useSearchParams: () => new URLSearchParams(),
+  useAppPathname: () => "/kegiatan/event/create",
+  useAppSearchParams: () => new URLSearchParams(),
 }));
 
 mock.module("@/features/auth/use-menu-access", () => ({

@@ -1,5 +1,3 @@
-"use client";
-
 import { Button } from "@/components/common/control";
 import { EmptyState, useToast } from "@/components/common/feedback";
 import { DataList, ListTabs } from "@/components/common/list";

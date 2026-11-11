@@ -16,10 +16,10 @@ import type { Transfer } from "../types";
 const actions: { current: MenuAction[] } = { current: [] };
 const journalActions: { current: MenuAction[] } = { current: ["VIEW"] };
 
-mock.module("next/navigation", () => ({
-  useRouter: () => ({ replace: () => {} }),
-  usePathname: () => "/finance/bank-deposit/STR-2026-0001",
-  useSearchParams: () => new URLSearchParams(),
+mock.module("@/hooks/use-app-router", () => ({
+  useAppRouter: () => ({ replace: () => {} }),
+  useAppPathname: () => "/finance/bank-deposit/STR-2026-0001",
+  useAppSearchParams: () => new URLSearchParams(),
 }));
 
 mock.module("@/features/auth/use-menu-access", () => ({

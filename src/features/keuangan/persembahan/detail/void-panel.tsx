@@ -1,5 +1,3 @@
-"use client";
-
 import { Button, Textarea } from "@/components/common/control";
 import { Panel } from "@/components/common/display";
 import { FormField } from "@/components/common/form";

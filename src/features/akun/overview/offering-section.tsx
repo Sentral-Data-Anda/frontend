@@ -1,5 +1,3 @@
-"use client";
-
 import { Eye, EyeOff, Lock, LockOpen } from "lucide-react";
 import { useEffect, useEffectEvent } from "react";
 

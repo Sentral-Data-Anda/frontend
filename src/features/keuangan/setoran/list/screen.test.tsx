@@ -18,10 +18,10 @@ import type { Transfer } from "../types";
 const actions: { current: MenuAction[] } = { current: [] };
 const query: { current: string } = { current: "" };
 
-mock.module("next/navigation", () => ({
-  useRouter: () => ({ replace: () => {} }),
-  usePathname: () => "/finance/bank-deposit",
-  useSearchParams: () => new URLSearchParams(query.current),
+mock.module("@/hooks/use-app-router", () => ({
+  useAppRouter: () => ({ replace: () => {} }),
+  useAppPathname: () => "/finance/bank-deposit",
+  useAppSearchParams: () => new URLSearchParams(query.current),
 }));
 
 mock.module("@/features/auth/use-menu-access", () => ({

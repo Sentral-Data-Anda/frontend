@@ -1,8 +1,4 @@
-"use client";
-
 import { zodResolver } from "@hookform/resolvers/zod";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useForm } from "react-hook-form";
 
@@ -18,9 +14,11 @@ import {
   NoFormAccess,
   useFormConfirm,
 } from "@/components/common/form";
+import { AppLink } from "@/components/common/link";
 import { PageHeader } from "@/components/layout";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
+import { useAppRouter } from "@/hooks/use-app-router";
 import { FetchError } from "@/lib/api/fetcher";
 import { applyServerError, FIRST_INVALID, revealField } from "@/lib/form-error";
 import { saveListFocus } from "@/lib/list-return";
@@ -54,7 +52,7 @@ interface PropTypes {
 export const RateFormScreen = (props: PropTypes) => {
   const { code, id } = props;
 
-  const router = useRouter();
+  const router = useAppRouter();
   const toast = useToast();
   const isEdit = Boolean(id);
   const { isCanView, isCanCreate, isCanUpdate, isCanDelete } = useMenuAccess(
@@ -202,12 +200,12 @@ export const RateFormScreen = (props: PropTypes) => {
             Rupiah adalah mata uang dasar. 1 Rupiah = 1 Rupiah, jadi kurs hanya
             diisi untuk mata uang asing.
           </p>
-          <Link
+          <AppLink
             href={backHref}
             className={buttonVariants({ variant: "outline" })}
           >
             Kembali ke Rupiah
-          </Link>
+          </AppLink>
         </div>
       </div>
     );

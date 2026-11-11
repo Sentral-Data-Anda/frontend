@@ -1,10 +1,7 @@
-"use client";
-
-import Link from "next/link";
-
 import { Button, buttonVariants } from "@/components/common/control";
 import { Badge, PANEL_TITLE, Panel } from "@/components/common/display";
 import { EmptyState, useToast } from "@/components/common/feedback";
+import { AppLink } from "@/components/common/link";
 import { ConfirmDialog } from "@/components/common/overlay";
 import { PageHeader } from "@/components/layout";
 import { MENU, detailHref } from "@/config/menu";
@@ -97,12 +94,12 @@ export const PinjamanDetailScreen = (props: PropTypes) => {
         action={
           loan && isCanUpdate ? (
             <span className="flex items-center gap-2">
-              <Link
+              <AppLink
                 href={pinjamanEditHref(publicId)}
                 className={buttonVariants({ variant: "outline" })}
               >
                 Ubah
-              </Link>
+              </AppLink>
 
               <Button
                 type="button"

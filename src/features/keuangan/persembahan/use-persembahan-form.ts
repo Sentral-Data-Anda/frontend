@@ -1,12 +1,10 @@
-"use client";
-
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useForm } from "react-hook-form";
 
 import { useToast } from "@/components/common/feedback";
 import { useFormConfirm } from "@/components/common/form";
+import { useAppRouter } from "@/hooks/use-app-router";
 import { useListReturn } from "@/hooks/use-list-return";
 import { applyServerError, FIRST_INVALID, revealField } from "@/lib/form-error";
 import { saveListFocus } from "@/lib/list-return";
@@ -26,7 +24,7 @@ import {
  * disimpan lagi.
  */
 export function usePersembahanForm() {
-  const router = useRouter();
+  const router = useAppRouter();
   const toast = useToast();
   const listReturn = useListReturn(PERSEMBAHAN_LIST_PATH);
   const [rejectedField, setRejectedField] = useState<string | null>(null);

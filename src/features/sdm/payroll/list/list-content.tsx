@@ -1,6 +1,3 @@
-"use client";
-
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { Button } from "@/components/common/control";
@@ -16,6 +13,7 @@ import { StepUpDialog } from "@/components/common/overlay";
 import { PageHeader } from "@/components/layout";
 import { MENU, domainHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
+import { useAppRouter } from "@/hooks/use-app-router";
 import { useBoolean } from "@/hooks/use-boolean";
 import { useListParams, type ListFilterSchema } from "@/hooks/use-list-params";
 
@@ -49,7 +47,7 @@ const YEAR_FILTER_OPTIONS = [
 ];
 
 export const PayrollListContent = () => {
-  const router = useRouter();
+  const router = useAppRouter();
   const toast = useToast();
   const { isCanCreate, isCanDelete } = useMenuAccess(MENU.PAYROLL);
 

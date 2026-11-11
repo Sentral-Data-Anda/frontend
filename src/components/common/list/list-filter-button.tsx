@@ -1,5 +1,3 @@
-"use client";
-
 import { Popover } from "@base-ui/react/popover";
 import { SlidersHorizontal } from "lucide-react";
 import { useId } from "react";

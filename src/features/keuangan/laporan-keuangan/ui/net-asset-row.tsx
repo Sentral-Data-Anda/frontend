@@ -1,5 +1,3 @@
-"use client";
-
 import { DashboardCard } from "@/components/common/dashboard";
 
 import { NET_ASSET_CLASS_LABEL, money } from "../model";

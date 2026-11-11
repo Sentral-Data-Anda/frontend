@@ -1,5 +1,3 @@
-"use client";
-
 import { useScrollLock } from "@base-ui/utils/useScrollLock";
 import { X } from "lucide-react";
 import { createContext, useEffect, useId, useState } from "react";

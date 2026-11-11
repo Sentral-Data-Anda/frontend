@@ -1,5 +1,3 @@
-"use client";
-
 import { useWatch } from "react-hook-form";
 
 import { ChoiceField, DateField, Input } from "@/components/common/control";

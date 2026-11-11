@@ -1,5 +1,3 @@
-"use client";
-
 import { useMemo } from "react";
 
 import type { MenuSlug } from "@/config/menu";
@@ -22,7 +20,7 @@ import { useSession } from "./session-provider";
  * termasuk admin, tanpa error di mana pun.
  */
 const assertKnownSlug = (slug: MenuSlug, isKnown: boolean) => {
-  if (isKnown || process.env.NODE_ENV !== "development") return;
+  if (isKnown || !import.meta.env.DEV) return;
 
   throw new Error(
     `Slug menu "${slug}" tidak ada di pohon menu kiriman server. ` +

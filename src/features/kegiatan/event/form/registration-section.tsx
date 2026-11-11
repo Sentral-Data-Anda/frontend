@@ -1,6 +1,3 @@
-"use client";
-
-import Link from "next/link";
 import type { MouseEvent } from "react";
 import { useWatch } from "react-hook-form";
 
@@ -11,6 +8,7 @@ import {
 } from "@/components/common/control";
 import { ProgressBar } from "@/components/common/dashboard";
 import { ControlField, FormSection, FormWide } from "@/components/common/form";
+import { AppLink } from "@/components/common/link";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { toDigits } from "@/lib/number";
@@ -75,7 +73,7 @@ export const RegistrationSection = (props: PropTypes) => {
               meta={`${saved.registeredCount} dari ${saved.capacity} kursi terisi`}
             />
             {isCanViewRegistrations ? (
-              <Link
+              <AppLink
                 href={href}
                 onClick={onOpen}
                 className={cn(
@@ -84,7 +82,7 @@ export const RegistrationSection = (props: PropTypes) => {
                 )}
               >
                 Lihat pendaftar
-              </Link>
+              </AppLink>
             ) : null}
           </div>
         </FormWide>

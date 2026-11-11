@@ -1,10 +1,7 @@
-"use client";
-
-import Link from "next/link";
-
 import { buttonVariants } from "@/components/common/control";
 import { EmptyState } from "@/components/common/feedback";
 import { FormSection, FormWide } from "@/components/common/form";
+import { AppLink } from "@/components/common/link";
 import { MENU, menuHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { useIsTableWidth } from "@/hooks/use-media";
@@ -81,12 +78,12 @@ export const PreviewSection = (props: PropTypes) => {
             }
             action={
               keluarga.isCanView ? (
-                <Link
+                <AppLink
                   href={menuHref(MENU.KEJEMAATAN, MENU.KELUARGA)}
                   className={buttonVariants({ variant: "outline" })}
                 >
                   Buka Keluarga
-                </Link>
+                </AppLink>
               ) : null
             }
           />

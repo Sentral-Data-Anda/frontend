@@ -1,5 +1,6 @@
 import type { LucideIcon } from "lucide-react";
-import Link from "next/link";
+
+import { AppLink } from "@/components/common/link";
 
 import { DomainIcon } from "./domain-tile";
 
@@ -20,7 +21,7 @@ export function MenuTile({
 }) {
   return (
     <li>
-      <Link
+      <AppLink
         href={href}
         className="bg-card ring-foreground/10 hover:bg-accent focus-visible:ring-ring flex h-full flex-col gap-2.5 rounded-lg p-3.5 ring-1 outline-none focus-visible:ring-2 motion-safe:transition motion-safe:active:scale-97"
       >
@@ -46,7 +47,7 @@ export function MenuTile({
             </span>
           ) : null}
         </span>
-      </Link>
+      </AppLink>
     </li>
   );
 }

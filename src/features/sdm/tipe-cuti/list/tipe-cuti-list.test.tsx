@@ -19,10 +19,10 @@ import type { TipeCuti } from "../types";
 const actions: { current: MenuAction[] } = { current: [] };
 const search: { current: string } = { current: "" };
 
-mock.module("next/navigation", () => ({
-  useRouter: () => ({ replace: () => {}, push: () => {} }),
-  usePathname: () => "/hr/leave-type",
-  useSearchParams: () =>
+mock.module("@/hooks/use-app-router", () => ({
+  useAppRouter: () => ({ replace: () => {}, push: () => {} }),
+  useAppPathname: () => "/hr/leave-type",
+  useAppSearchParams: () =>
     new URLSearchParams(search.current ? `search=${search.current}` : ""),
 }));
 

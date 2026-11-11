@@ -1,5 +1,3 @@
-"use client";
-
 import { useSyncExternalStore } from "react";
 
 import { ApprovalStatusBadge, QrCode } from "@/components/common/display";

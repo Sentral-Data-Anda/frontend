@@ -1,5 +1,3 @@
-"use client";
-
 import { SalaryDataBadge } from "@/components/common/display";
 import { DataList, ListToolbar } from "@/components/common/list";
 import { PageHeader, PageHeaderAdd } from "@/components/layout";

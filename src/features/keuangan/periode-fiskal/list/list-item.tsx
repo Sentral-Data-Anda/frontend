@@ -1,6 +1,5 @@
-import Link from "next/link";
-
 import { Badge } from "@/components/common/display";
+import { AppLink } from "@/components/common/link";
 import {
   DataListRow,
   TABLE_ROW_LINK,
@@ -40,14 +39,14 @@ export const PeriodListItemRow = (props: PropTypes) => {
       id={keyOf(period)}
       className="hover:bg-card relative transition-colors"
       title={
-        <Link
+        <AppLink
           href={hrefOf(period)}
           onClick={() => saveFocus(period)}
           aria-label={labelOf(period)}
           className={TABLE_ROW_LINK}
         >
           {period.label}
-        </Link>
+        </AppLink>
       }
       meta={rangeText(period)}
       trailing={

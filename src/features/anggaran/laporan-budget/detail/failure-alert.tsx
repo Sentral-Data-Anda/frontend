@@ -1,9 +1,6 @@
-"use client";
-
-import Link from "next/link";
-
 import { buttonVariants } from "@/components/common/control";
 import { FormAlert } from "@/components/common/form";
+import { AppLink } from "@/components/common/link";
 import { MENU, type MenuSlug } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 
@@ -32,12 +29,12 @@ export const FailureAlert = (props: PropTypes) => {
       <FormAlert title={title} message={error.message} />
 
       {fix && gates[fix.menu] === true ? (
-        <Link
+        <AppLink
           href={fix.href}
           className={buttonVariants({ variant: "outline", size: "sm" })}
         >
           {fix.label}
-        </Link>
+        </AppLink>
       ) : null}
     </div>
   );

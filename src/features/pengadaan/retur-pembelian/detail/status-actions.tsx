@@ -1,9 +1,7 @@
-"use client";
-
 import { CheckCheck, Pencil } from "lucide-react";
-import Link from "next/link";
 
 import { Button, buttonVariants } from "@/components/common/control";
+import { AppLink } from "@/components/common/link";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { cn } from "@/lib/utils";
@@ -76,14 +74,14 @@ export const StatusActions = (props: PropTypes) => {
 
         {isDraft && isCanUpdate ? (
           <>
-            <Link
+            <AppLink
               href={returnEditHref(row.publicId)}
               aria-disabled={isBusy || undefined}
               className={cn(buttonVariants({ variant: "outline" }), LINK_BUSY)}
             >
               <Pencil aria-hidden />
               Ubah
-            </Link>
+            </AppLink>
             <Button
               type="button"
               disabled={isBusy}

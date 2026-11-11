@@ -20,8 +20,8 @@ import {
 import { SessionProvider, type Session } from "@/features/auth";
 import type { MenuNode } from "@/types/menu";
 
-mock.module("next/navigation", () => ({
-  usePathname: () => "/kejemaatan/keluarga",
+mock.module("@/hooks/use-app-router", () => ({
+  useAppPathname: () => "/kejemaatan/keluarga",
 }));
 
 const { Sidebar, SidebarNav } = await import("./sidebar");

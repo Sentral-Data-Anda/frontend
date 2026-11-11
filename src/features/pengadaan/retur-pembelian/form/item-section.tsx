@@ -1,5 +1,3 @@
-"use client";
-
 import { ListPlus } from "lucide-react";
 import { useFieldArray, useFormState, useWatch } from "react-hook-form";
 

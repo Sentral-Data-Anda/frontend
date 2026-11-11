@@ -15,10 +15,10 @@ const grants: { current: Partial<Record<string, MenuAction[]>> } = {
 
 const search = { current: "" };
 
-mock.module("next/navigation", () => ({
-  useRouter: () => ({ replace: () => {}, push: () => {} }),
-  usePathname: () => "/hr/leave",
-  useSearchParams: () => new URLSearchParams(search.current),
+mock.module("@/hooks/use-app-router", () => ({
+  useAppRouter: () => ({ replace: () => {}, push: () => {} }),
+  useAppPathname: () => "/hr/leave",
+  useAppSearchParams: () => new URLSearchParams(search.current),
 }));
 
 // Sadar-slug: mock yang mengabaikan argumennya membuat layar bisa menjaga

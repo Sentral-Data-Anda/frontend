@@ -1,5 +1,3 @@
-"use client";
-
 import { UserCheck, UserPlus, Users, VenusAndMars } from "lucide-react";
 
 import { KpiCell, KpiStrip } from "@/components/common/dashboard";

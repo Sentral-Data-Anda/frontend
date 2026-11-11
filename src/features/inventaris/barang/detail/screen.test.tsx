@@ -18,10 +18,10 @@ const grants: { current: Partial<Record<MenuSlug, MenuAction[]>> } = {
   current: {},
 };
 
-mock.module("next/navigation", () => ({
-  useRouter: () => ({ replace: () => {} }),
-  usePathname: () => "/fixed-asset/asset-master/AST_0001_0001-0001",
-  useSearchParams: () => new URLSearchParams(),
+mock.module("@/hooks/use-app-router", () => ({
+  useAppRouter: () => ({ replace: () => {} }),
+  useAppPathname: () => "/fixed-asset/asset-master/AST_0001_0001-0001",
+  useAppSearchParams: () => new URLSearchParams(),
 }));
 
 mock.module("@/features/auth/use-menu-access", () => ({

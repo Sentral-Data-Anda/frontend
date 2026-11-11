@@ -76,4 +76,64 @@ describe("detail log aktivitas", () => {
       screen.getByRole("link", { name: "Jemaat" }).getAttribute("href"),
     ).toBe("/kejemaatan/daftar-jemaat?search=JMT-0004");
   });
+
+  test("ringkasan menyebut alamat, perangkat, endpoint, dan permintaan", async () => {
+    respond(200, {
+      status: 200,
+      message: "Berhasil Mendapatkan Activity Log",
+      data: {
+        id: 13,
+        action: "create",
+        model: "LoginAttempt",
+        recordId: "9",
+        oldData: null,
+        newData: { username: "debora", success: true },
+        createdAt: "2026-09-26T03:00:00.000Z",
+        user: { name: "Debora", code: "U-0002" },
+        ipAddress: "203.0.113.7",
+        userAgent: "Mozilla/5.0 Test",
+        method: "POST",
+        path: "/api/v1/auth/login",
+        requestId: "req-abc-123",
+      },
+    });
+    onRender("13");
+
+    expect(await screen.findByText("203.0.113.7")).toBeTruthy();
+    expect(screen.getByText("Mozilla/5.0 Test")).toBeTruthy();
+    expect(screen.getByText("POST /api/v1/auth/login")).toBeTruthy();
+    expect(
+      screen
+        .getByRole("link", {
+          name: "Semua catatan dari permintaan req-abc-123",
+        })
+        .getAttribute("href"),
+    ).toBe("/settings/activity-log?permintaan=req-abc-123");
+  });
+
+  test("catatan Lihat: bukan perubahan data, dan menaut ke catatan yang dibuka", async () => {
+    respond(200, {
+      status: 200,
+      message: "Berhasil Mendapatkan Activity Log",
+      data: {
+        id: 14,
+        action: "view",
+        model: "ActivityLog",
+        recordId: "13",
+        oldData: null,
+        newData: null,
+        createdAt: "2026-09-26T03:00:00.000Z",
+        user: { name: "Admin Sistem", code: "U-0001" },
+      },
+    });
+    onRender("14");
+
+    expect(
+      await screen.findByRole("heading", { name: "Lihat Log Aktivitas" }),
+    ).toBeTruthy();
+    expect(screen.getByText("Bukan perubahan data")).toBeTruthy();
+    expect(
+      screen.getByRole("link", { name: "Log Aktivitas" }).getAttribute("href"),
+    ).toBe("/settings/activity-log/13");
+  });
 });

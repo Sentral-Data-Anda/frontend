@@ -1,9 +1,6 @@
-"use client";
-
-import Link from "next/link";
-
 import { DescriptionItem, DescriptionList } from "@/components/common/display";
 import { FormSection, FormWide } from "@/components/common/form";
+import { AppLink } from "@/components/common/link";
 import { MENU, menuHref } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { formatDateTime } from "@/lib/format";
@@ -29,12 +26,12 @@ export const AccountSection = (props: PropTypes) => {
         <DescriptionList>
           <DescriptionItem label="Jemaat">
             {isCanViewJemaat ? (
-              <Link
+              <AppLink
                 href={`${JEMAAT_LIST_PATH}?search=${encodeURIComponent(user.jemaat.code)}`}
                 className="focus-visible:ring-ring text-primary rounded-control underline-offset-2 outline-none hover:underline focus-visible:ring-2"
               >
                 {user.jemaat.name}
-              </Link>
+              </AppLink>
             ) : (
               user.jemaat.name
             )}

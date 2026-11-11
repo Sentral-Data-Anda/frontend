@@ -1,8 +1,4 @@
-"use client";
-
 import { zodResolver } from "@hookform/resolvers/zod";
-import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useForm } from "react-hook-form";
 
@@ -18,9 +14,11 @@ import {
   NoFormAccess,
   useFormConfirm,
 } from "@/components/common/form";
+import { AppLink } from "@/components/common/link";
 import { PageHeader } from "@/components/layout";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
+import { useAppRouter, useAppSearchParams } from "@/hooks/use-app-router";
 import { useListReturn } from "@/hooks/use-list-return";
 import { FetchError } from "@/lib/api/fetcher";
 import { withFreshUrls } from "@/lib/attachment";
@@ -55,9 +53,9 @@ interface PropTypes {
 export const RequestFormScreen = (props: PropTypes) => {
   const { code } = props;
 
-  const router = useRouter();
+  const router = useAppRouter();
   const toast = useToast();
-  const searchParams = useSearchParams();
+  const searchParams = useAppSearchParams();
   const isEdit = Boolean(code);
   const copyCode = isEdit ? "" : (searchParams.get("salin") ?? "");
   const { isCanView, isCanCreate, isCanUpdate } = useMenuAccess(
@@ -207,16 +205,16 @@ export const RequestFormScreen = (props: PropTypes) => {
           }
           action={
             <div className="flex flex-wrap justify-center gap-2">
-              <Link
+              <AppLink
                 href={requestHref(code)}
                 className={buttonVariants({ variant: "outline" })}
               >
                 Lihat permintaan
-              </Link>
+              </AppLink>
               {isRejected && isCanCreate ? (
-                <Link href={resubmitHref(code)} className={buttonVariants()}>
+                <AppLink href={resubmitHref(code)} className={buttonVariants()}>
                   Ajukan ulang
-                </Link>
+                </AppLink>
               ) : null}
             </div>
           }

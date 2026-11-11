@@ -1,5 +1,3 @@
-"use client";
-
 import { type KpiDelta } from "@/components/common/dashboard";
 
 import { useSurplusDefisit } from "../../api";

@@ -1,11 +1,9 @@
-"use client";
-
 import { TriangleAlert } from "lucide-react";
-import { usePathname } from "next/navigation";
 import { useEffect, useRef, type ReactNode } from "react";
 
 import { EmptyState } from "@/components/common/feedback";
 import { Button } from "@/components/ui";
+import { useAppPathname } from "@/hooks/use-app-router";
 import { useIsTableWidth } from "@/hooks/use-media";
 import { clearListFocus, readListFocus } from "@/lib/list-return";
 import { cn } from "@/lib/utils";
@@ -169,7 +167,7 @@ export function DataList<T>({
   // label di sekitarnya.
   isHeaderHidden?: boolean;
 }) {
-  const pathname = usePathname();
+  const pathname = useAppPathname();
   const listRef = useRef<HTMLElement | null>(null);
   const isTableWidth = useIsTableWidth();
   const isTable = table !== undefined && isTableWidth === true;

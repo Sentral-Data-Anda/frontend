@@ -1,5 +1,3 @@
-"use client";
-
 import { DateField, DdlField, Textarea } from "@/components/common/control";
 import { ControlField, FormSection, FormWide } from "@/components/common/form";
 import { useDdlOptions } from "@/hooks/use-ddl-options";

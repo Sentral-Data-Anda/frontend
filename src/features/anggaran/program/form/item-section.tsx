@@ -1,5 +1,3 @@
-"use client";
-
 import { useFieldArray, useFormState } from "react-hook-form";
 
 import { BudgetLineList, FormSection } from "@/components/common/form";

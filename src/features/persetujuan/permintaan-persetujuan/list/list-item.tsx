@@ -1,6 +1,5 @@
-import Link from "next/link";
-
 import { ApprovalStatusBadge } from "@/components/common/display";
+import { AppLink } from "@/components/common/link";
 import {
   DataListRow,
   TABLE_ROW_LINK,
@@ -79,14 +78,14 @@ export const PermintaanListItemRow = (props: PropTypes) => {
       id={item.publicId}
       className="hover:bg-card relative transition-colors"
       title={
-        <Link
+        <AppLink
           href={detailHrefOf(item)}
           onClick={() => saveFocus(item)}
           aria-label={labelOf(item)}
           className={TABLE_ROW_LINK}
         >
           {documentTitle(item)}
-        </Link>
+        </AppLink>
       }
       meta={metaOf(item, view)}
       trailing={

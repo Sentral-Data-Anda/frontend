@@ -1,5 +1,3 @@
-"use client";
-
 import { DashboardGrid } from "@/components/common/dashboard";
 import { CsvDownloadButton } from "@/components/common/list";
 import { MENU } from "@/config/menu";

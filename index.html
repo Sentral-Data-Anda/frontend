@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="id" class="h-full antialiased">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- viewport-fit=cover: tanpa ini Safari iOS melaporkan env(safe-area-inset-*) 0; maximum-scale=1 mencegah auto-zoom pada input 12px. -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1"
+    />
+    <meta name="theme-color" content="#f1f5f8" />
+    <meta
+      name="description"
+      content="Sentral Data Anda (SADA) — aplikasi pengelolaan data dan pelayanan jemaat GKI Graha Raya."
+    />
+    <meta property="og:title" content="Sentral Data Anda" />
+    <meta
+      property="og:description"
+      content="Sentral Data Anda (SADA) — aplikasi pengelolaan data dan pelayanan jemaat GKI Graha Raya."
+    />
+    <meta property="og:url" content="%VITE_SITE_URL%" />
+    <meta property="og:site_name" content="Sentral Data Anda" />
+    <meta property="og:locale" content="id_ID" />
+    <meta property="og:type" content="website" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" href="/icon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <title>Sentral Data Anda (SADA)</title>
+  </head>
+  <body class="flex min-h-full flex-col">
+    <div id="root" class="flex min-h-full flex-1 flex-col"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

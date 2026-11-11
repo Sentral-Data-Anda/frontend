@@ -1,11 +1,9 @@
-"use client";
-
 import { CalendarRange } from "lucide-react";
-import Link from "next/link";
 import { useState } from "react";
 
 import { buttonVariants } from "@/components/common/control";
 import { useToast } from "@/components/common/feedback";
+import { AppLink } from "@/components/common/link";
 import {
   DataList,
   ListToolbar,
@@ -78,14 +76,14 @@ export const IbadahListContent = () => {
         action={
           isCanCreate ? (
             <>
-              <Link
+              <AppLink
                 href={GILIRAN_PATH}
                 aria-label="Buat jadwal giliran"
                 className={buttonVariants({ variant: "outline" })}
               >
                 <CalendarRange aria-hidden />
                 {isWide ? "Buat jadwal giliran" : "Giliran"}
-              </Link>
+              </AppLink>
               <PageHeaderAdd
                 href={createHref(MENU.PERIBADAHAN, MENU.IBADAH)}
                 label="Tambah ibadah"

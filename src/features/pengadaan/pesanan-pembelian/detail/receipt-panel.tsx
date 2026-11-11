@@ -1,8 +1,5 @@
-"use client";
-
-import Link from "next/link";
-
 import { Panel } from "@/components/common/display";
+import { AppLink } from "@/components/common/link";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { formatDate } from "@/lib/format";
@@ -26,9 +23,9 @@ export const ReceiptPanel = (props: PropTypes) => {
         <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
           <h2 className="text-body font-semibold">Penerimaan</h2>
           {isCanView && receipts.length > 1 ? (
-            <Link href={receiptListHref(order.code)} className={TEXT_LINK}>
+            <AppLink href={receiptListHref(order.code)} className={TEXT_LINK}>
               Lihat di Penerimaan Barang
-            </Link>
+            </AppLink>
           ) : null}
         </div>
 
@@ -44,9 +41,12 @@ export const ReceiptPanel = (props: PropTypes) => {
                 className="flex flex-wrap items-baseline gap-x-3 text-body"
               >
                 {isCanView ? (
-                  <Link href={receiptHref(receipt.code)} className={TEXT_LINK}>
+                  <AppLink
+                    href={receiptHref(receipt.code)}
+                    className={TEXT_LINK}
+                  >
                     {receipt.code}
-                  </Link>
+                  </AppLink>
                 ) : (
                   <span className="tabular-nums">{receipt.code}</span>
                 )}

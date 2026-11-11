@@ -1,5 +1,3 @@
-"use client";
-
 import {
   useWatch,
   type FieldPath,

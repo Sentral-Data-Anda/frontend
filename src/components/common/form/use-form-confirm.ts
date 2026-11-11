@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, type MouseEvent } from "react";
 
 import { useBoolean } from "@/hooks/use-boolean";

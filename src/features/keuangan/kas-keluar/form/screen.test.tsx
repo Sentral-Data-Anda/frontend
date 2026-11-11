@@ -26,12 +26,12 @@ import type { CashExpenseDetail } from "../types";
 const actions: { current: MenuAction[] } = { current: [] };
 const replaced: string[] = [];
 
-mock.module("next/navigation", () => ({
-  useRouter: () => ({
+mock.module("@/hooks/use-app-router", () => ({
+  useAppRouter: () => ({
     replace: (href: string) => replaced.push(href),
   }),
-  usePathname: () => "/finance/kas-keluar/create",
-  useSearchParams: () => new URLSearchParams(),
+  useAppPathname: () => "/finance/kas-keluar/create",
+  useAppSearchParams: () => new URLSearchParams(),
 }));
 
 mock.module("@/features/auth/use-menu-access", () => ({

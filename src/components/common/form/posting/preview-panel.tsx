@@ -1,5 +1,3 @@
-"use client";
-
 import { CircleSlash, Stamp, TriangleAlert } from "lucide-react";
 
 import { KpiCell, KpiStrip } from "@/components/common/dashboard";

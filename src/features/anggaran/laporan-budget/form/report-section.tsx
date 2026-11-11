@@ -1,5 +1,3 @@
-"use client";
-
 import { BapelField, MonthField, Textarea } from "@/components/common/control";
 import { ControlField, FormSection, FormWide } from "@/components/common/form";
 

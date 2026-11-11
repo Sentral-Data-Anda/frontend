@@ -1,5 +1,3 @@
-"use client";
-
 import { DateField } from "@/components/common/control";
 import { EmptyState } from "@/components/common/feedback";
 import { FormField } from "@/components/common/form";

@@ -1,10 +1,8 @@
-"use client";
-
 import { Popover } from "@base-ui/react/popover";
-import Link from "next/link";
 import { useId } from "react";
 
 import { buttonVariants, FIELD_POPUP } from "@/components/common/control";
+import { AppLink } from "@/components/common/link";
 import { useBoolean } from "@/hooks/use-boolean";
 import { cn } from "@/lib/utils";
 
@@ -97,7 +95,7 @@ export const CompletenessIndicator = (props: PropTypes) => {
             </ul>
 
             {editHref ? (
-              <Link
+              <AppLink
                 href={editHref}
                 onClick={onNavigate}
                 className={cn(
@@ -106,7 +104,7 @@ export const CompletenessIndicator = (props: PropTypes) => {
                 )}
               >
                 Lengkapi data
-              </Link>
+              </AppLink>
             ) : null}
           </Popover.Popup>
         </Popover.Positioner>

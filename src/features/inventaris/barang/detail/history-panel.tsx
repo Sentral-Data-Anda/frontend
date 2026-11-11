@@ -1,5 +1,3 @@
-"use client";
-
 import { Panel } from "@/components/common/display";
 import { formatAmount } from "@/lib/format";
 import { APPROVAL_STATUS_LABEL } from "@/types/persetujuan";

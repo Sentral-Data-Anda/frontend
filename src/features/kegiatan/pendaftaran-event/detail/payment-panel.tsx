@@ -1,5 +1,3 @@
-"use client";
-
 import { Copy, ExternalLink, RefreshCw } from "lucide-react";
 
 import { Button, buttonVariants } from "@/components/common/control";

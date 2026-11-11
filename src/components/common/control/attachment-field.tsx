@@ -1,5 +1,3 @@
-"use client";
-
 import { FileText, ImagePlus, X } from "lucide-react";
 import {
   useEffect,

@@ -1,7 +1,3 @@
-"use client";
-
-import Link from "next/link";
-
 import {
   ApprovalStatusBadge,
   DescriptionItem,
@@ -11,6 +7,7 @@ import {
   Panel,
   PANEL_TITLE,
 } from "@/components/common/display";
+import { AppLink } from "@/components/common/link";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { formatDateTime } from "@/lib/format";
@@ -58,13 +55,13 @@ export const SummaryPanel = (props: PropTypes) => {
             <>
               {`${document.code} — ${document.title}`}
               {documentHref ? (
-                <Link
+                <AppLink
                   href={documentHref}
                   className={cn(LINK, "mt-1 block w-fit")}
                 >
                   Lihat{" "}
                   {APPROVAL_DOCUMENT_LABEL[request.documentType].toLowerCase()}
-                </Link>
+                </AppLink>
               ) : null}
             </>
           ) : (

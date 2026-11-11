@@ -19,13 +19,13 @@ const granted: { current: Record<string, MenuAction[]> } = { current: {} };
 
 const replaced: string[] = [];
 
-mock.module("next/navigation", () => ({
-  useRouter: () => ({
+mock.module("@/hooks/use-app-router", () => ({
+  useAppRouter: () => ({
     replace: (href: string) => replaced.push(href),
     push: () => {},
   }),
-  usePathname: () => "/hr/payroll/PYR-2026-0003",
-  useSearchParams: () => new URLSearchParams(),
+  useAppPathname: () => "/hr/payroll/PYR-2026-0003",
+  useAppSearchParams: () => new URLSearchParams(),
 }));
 
 mock.module("@/features/auth/use-menu-access", () => ({

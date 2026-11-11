@@ -1,5 +1,5 @@
 node_modules
-.next
+src/routeTree.gen.ts
 out
 dist
 build

@@ -1,5 +1,3 @@
-"use client";
-
 import { SelectField, type SelectOption } from "@/components/common/control";
 import { ControlField, FormSection } from "@/components/common/form";
 

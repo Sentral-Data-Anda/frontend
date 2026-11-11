@@ -1,5 +1,3 @@
-"use client";
-
 import { useDdlOptions } from "@/hooks/use-ddl-options";
 
 type AccountRow = { id: number; code: string; name: string };

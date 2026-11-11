@@ -27,10 +27,10 @@ const access: { current: MenuAction[] } = { current: [] };
 const replaced: string[] = [];
 const params = { current: new URLSearchParams() };
 
-mock.module("next/navigation", () => ({
-  useRouter: () => ({ replace: (href: string) => replaced.push(href) }),
-  usePathname: () => "/finance/fiscal-period",
-  useSearchParams: () => params.current,
+mock.module("@/hooks/use-app-router", () => ({
+  useAppRouter: () => ({ replace: (href: string) => replaced.push(href) }),
+  useAppPathname: () => "/finance/fiscal-period",
+  useAppSearchParams: () => params.current,
 }));
 
 mock.module("@/features/auth/use-menu-access", () => ({

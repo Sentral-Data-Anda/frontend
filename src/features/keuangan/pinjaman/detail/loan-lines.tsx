@@ -1,8 +1,5 @@
-"use client";
-
-import Link from "next/link";
-
 import { PANEL_TITLE, Panel } from "@/components/common/display";
+import { AppLink } from "@/components/common/link";
 import { MENU, detailHref } from "@/config/menu";
 import { formatDate } from "@/lib/format";
 
@@ -66,9 +63,9 @@ export const LoanLines = (props: PropTypes) => {
             >
               <div className="min-w-0 flex-1">
                 <p className="truncate text-body font-medium">
-                  <Link href={row.href} className={LINK}>
+                  <AppLink href={row.href} className={LINK}>
                     {row.code}
-                  </Link>
+                  </AppLink>
                 </p>
                 <p className="text-muted-foreground truncate text-caption">
                   {[

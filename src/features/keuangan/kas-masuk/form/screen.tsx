@@ -1,8 +1,4 @@
-"use client";
-
 import { zodResolver } from "@hookform/resolvers/zod";
-import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useForm } from "react-hook-form";
 
@@ -18,9 +14,11 @@ import {
   NoFormAccess,
   useFormConfirm,
 } from "@/components/common/form";
+import { AppLink } from "@/components/common/link";
 import { PageHeader } from "@/components/layout";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
+import { useAppRouter, useAppSearchParams } from "@/hooks/use-app-router";
 import { useListReturn } from "@/hooks/use-list-return";
 import { FetchError } from "@/lib/api/fetcher";
 import { applyServerError, FIRST_INVALID, revealField } from "@/lib/form-error";
@@ -54,8 +52,8 @@ interface PropTypes {
 export const ReceiptFormScreen = (props: PropTypes) => {
   const { publicId } = props;
 
-  const router = useRouter();
-  const searchParams = useSearchParams();
+  const router = useAppRouter();
+  const searchParams = useAppSearchParams();
   const toast = useToast();
   const isEdit = Boolean(publicId);
   const { isCanView, isCanCreate, isCanUpdate } = useMenuAccess(MENU.KAS_MASUK);
@@ -181,12 +179,12 @@ export const ReceiptFormScreen = (props: PropTypes) => {
           title="Kas masuk ini tidak bisa diubah"
           description="Hanya draf yang bisa diubah. Yang sudah diterima dibalik lewat Batalkan, bukan diubah."
           action={
-            <Link
+            <AppLink
               href={receiptHref(publicId)}
               className={buttonVariants({ variant: "outline" })}
             >
               Lihat kas masuk
-            </Link>
+            </AppLink>
           }
         />
       </div>

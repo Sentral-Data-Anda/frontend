@@ -1,5 +1,3 @@
-"use client";
-
 import { Cake } from "lucide-react";
 
 import { KpiCell } from "@/components/common/dashboard";

@@ -19,14 +19,14 @@ const actions: { current: MenuAction[] } = { current: [] };
 const search: { current: string } = { current: "" };
 const replaced: string[] = [];
 
-mock.module("next/navigation", () => ({
-  useRouter: () => ({
+mock.module("@/hooks/use-app-router", () => ({
+  useAppRouter: () => ({
     replace: (href: string) => {
       replaced.push(href);
     },
   }),
-  usePathname: () => "/kejemaatan/jemaat",
-  useSearchParams: () => new URLSearchParams(search.current),
+  useAppPathname: () => "/kejemaatan/jemaat",
+  useAppSearchParams: () => new URLSearchParams(search.current),
 }));
 
 mock.module("@/features/auth/use-menu-access", () => ({

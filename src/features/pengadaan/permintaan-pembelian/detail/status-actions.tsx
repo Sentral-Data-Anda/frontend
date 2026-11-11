@@ -1,9 +1,7 @@
-"use client";
-
 import { Copy, Pencil, ShoppingCart } from "lucide-react";
-import Link from "next/link";
 
 import { Button, buttonVariants } from "@/components/common/control";
+import { AppLink } from "@/components/common/link";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 import { cn } from "@/lib/utils";
@@ -79,14 +77,14 @@ export const StatusActions = (props: PropTypes) => {
 
         {isDraft && isCanUpdate ? (
           <>
-            <Link
+            <AppLink
               href={requestEditHref(request.publicId)}
               aria-disabled={isBusy || undefined}
               className={cn(buttonVariants({ variant: "outline" }), LINK_BUSY)}
             >
               <Pencil aria-hidden />
               Ubah
-            </Link>
+            </AppLink>
             <Button
               type="button"
               disabled={isBusy}
@@ -109,23 +107,23 @@ export const StatusActions = (props: PropTypes) => {
         ) : null}
 
         {isResubmittable ? (
-          <Link
+          <AppLink
             href={resubmitHref(request.code)}
             className={cn(buttonVariants(), LINK_BUSY)}
           >
             <Copy aria-hidden />
             Ajukan ulang
-          </Link>
+          </AppLink>
         ) : null}
 
         {isOrderable ? (
-          <Link
+          <AppLink
             href={orderCreateHref(request.code)}
             className={cn(buttonVariants(), LINK_BUSY)}
           >
             <ShoppingCart aria-hidden />
             Buat pesanan
-          </Link>
+          </AppLink>
         ) : null}
       </div>
     </section>

@@ -1,5 +1,3 @@
-"use client";
-
 import { Trash2 } from "lucide-react";
 import { Controller, useFormState, useWatch } from "react-hook-form";
 

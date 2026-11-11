@@ -1,5 +1,3 @@
-"use client";
-
 import { Check, TriangleAlert } from "lucide-react";
 
 import { formatAmount } from "@/lib/format";

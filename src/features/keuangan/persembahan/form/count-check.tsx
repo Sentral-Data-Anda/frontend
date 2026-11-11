@@ -1,11 +1,9 @@
-"use client";
-
-import Link from "next/link";
 import { useWatch } from "react-hook-form";
 
 import { AmountInput } from "@/components/common/control";
 import { DETAIL_LINK as LINK } from "@/components/common/display";
 import { ControlField, FormAlert, FormSection } from "@/components/common/form";
+import { AppLink } from "@/components/common/link";
 import { MENU } from "@/config/menu";
 import { useMenuAccess } from "@/features/auth";
 
@@ -67,9 +65,9 @@ export const CountCheck = (props: PropTypes) => {
             message={countGapText(gap)}
           />
           {isCanCreate ? (
-            <Link href={KAS_MASUK_CREATE_PATH} className={LINK}>
+            <AppLink href={KAS_MASUK_CREATE_PATH} className={LINK}>
               Catat selisihnya di Kas Masuk
-            </Link>
+            </AppLink>
           ) : null}
         </div>
       )}
