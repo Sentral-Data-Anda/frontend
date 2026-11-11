@@ -36,6 +36,13 @@ describe("formatDateTime", () => {
     expect(result).toMatch(/\d{2}[.:]\d{2}/);
   });
 
+  test("jam dibaca di APP_TIMEZONE (bawaan WIB), bukan zona perangkat", () => {
+    const result = formatDateTime("2026-06-16T02:30:00.000Z");
+
+    expect(result).toContain("16 Juni 2026");
+    expect(result).toMatch(/09[.:]30/);
+  });
+
   test("mengembalikan tanda hubung untuk nilai yang tidak bisa diurai", () => {
     expect(formatDateTime(new Date("x"))).toBe("-");
   });

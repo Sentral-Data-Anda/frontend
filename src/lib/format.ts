@@ -1,11 +1,16 @@
+import { APP_TIMEZONE } from "@/config/site";
+
 const calendarFormat = new Intl.DateTimeFormat("id-ID", {
   dateStyle: "long",
   timeZone: "UTC",
 });
 
+// Stempel waktu dibaca di jam gereja, bukan jam perangkat: pembayaran 10.00 WIB
+// tetap tampil 10.00 bagi pengurus yang membuka dari Papua.
 const instantFormat = new Intl.DateTimeFormat("id-ID", {
   dateStyle: "long",
   timeStyle: "short",
+  timeZone: APP_TIMEZONE,
 });
 
 const toDate = (value: string | Date): Date | null => {
